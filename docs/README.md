@@ -1,6 +1,6 @@
 # Flight simulator project plan
 
-This is a serious Windows desktop flight simulator for realistic Cessna flying, thoughtful practice, and enjoyment by an experienced pilot. The first delivery establishes the implementation plan and GitHub work queue. It does not contain a playable simulator. The owner will review this plan before the implementation fleet begins.
+This is a serious Windows desktop flight simulator for realistic Cessna flying, thoughtful practice, and enjoyment by an experienced pilot. The first delivery establishes the implementation plan and GitHub work queue. The owner approved the plan and authorized implementation on 2026-10-03; see [P0 acceptance](evidence/P0/acceptance.md). P1 now establishes executable contracts, native flight dynamics and Windows delivery proofs. A playable simulator requires the subsequent cockpit and flight-operation phases.
 
 ## Decisions made for this project
 
@@ -27,7 +27,7 @@ The central design choice is to prove flight-model accuracy and native integrati
 3. [Architecture](architecture.md) and [contracts](contracts.md): stack, components, units, ownership, persistence, and extension boundaries.
 4. [Aircraft realism and validation](realism-and-validation.md), [training and safety](training-and-safety.md), and [world/data](world-and-data.md): evidence and operational behavior.
 5. [Cockpit, HUD, progress, and accessibility](experience-and-progress.md): presentation and learning experience.
-6. [Agent execution](agent-operations.md) and [CI/releases](delivery.md): how a fleet can deliver reviewable work.
+6. [Agent execution](agent-operations.md), [copyable issue prompts](agent-prompts.md), and [CI/releases](delivery.md): how a fleet can deliver reviewable work.
 7. [Backlog guide](backlog.md), [GitHub issue index](issue-index.md), [requirement traceability](requirements.md), [risks](risks.md), and [source register](sources.md).
 
 ## Review focus

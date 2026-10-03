@@ -1,6 +1,6 @@
 # Agent fleet operations
 
-Status: proposed execution protocol. Documentation and issues are the authorized work now. Game implementation starts after the owner's review of this plan.
+Status: authorized execution protocol. The owner approved the plan and authorized the implementation fleet on 2026-10-03; see [P0 acceptance](evidence/P0/acceptance.md). Agents implement the issue dependency graph and retain each later phase's evidence gates.
 
 ## Execution model
 
@@ -98,4 +98,4 @@ Maintain evidence tied to build/model/content versions, scenario seed/configurat
 
 An ADR is required when a change affects engine/model integration, aircraft identity, physics/contact authority, units/frames, persistent schema policy, region/data rights, support platforms, or release qualification claims. It records the problem, evidence, choices, decision, consequences, migration impact, and affected requirements/issues.
 
-Routine reversible UI/content choices within accepted scope can proceed without owner confirmation. Budget commitments, new licensing obligations, formal training-device approval, or changes that contradict the owner's outcome need an explicit decision. The user asked to review the docs/issues before implementation; that boundary remains in force even though PR creation/merging is authorized.
+Routine reversible UI/content choices within accepted scope can proceed without owner confirmation. Budget commitments, new licensing obligations, formal training-device approval, or changes that contradict the owner's outcome need an explicit decision. The owner has accepted the initial plan and authorized implementation, PR creation and checked merges. This approval does not replace later technical, source or human qualification gates.
