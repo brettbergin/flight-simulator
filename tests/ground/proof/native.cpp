@@ -151,6 +151,9 @@ int main(int argc,char** argv) {
  try {
   if(argc<2||argc>3)throw std::invalid_argument("Ground fixture root and optional output JSON required");
   const auto root=std::filesystem::path(argv[1]);geometry();failures_and_tiles(root);
+  auto narrow_config=p::SurfaceConfig{};narrow_config.north_min=-1;narrow_config.north_max=1;narrow_config.seam_north=.5;
+  auto narrow=std::make_shared<p::AnalyticSurface>(narrow_config,identity(narrow_config));
+  rejects([&]{p::GroundExecutive unavailable(root,narrow,120,{});},"Incomplete initial footprint rejected before executive allocation");
   p::GroundExecutive controls(root,std::make_shared<p::AnalyticSurface>(p::SurfaceConfig{},identity()),120,{});
   const auto controls_before=p::snapshot_json(controls.latest());
   rejects([&]{(void)controls.step({2,0,0});},"Out-of-range steering rejected before mutation");

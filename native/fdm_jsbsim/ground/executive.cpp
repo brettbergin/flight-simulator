@@ -76,15 +76,30 @@ class GroundExecutive::Impl {
       throw std::invalid_argument("Unsupported ground proof initial conditions");
     verify_fixture(root);
     boundary=std::make_unique<v1::Boundary>(surface,c::SampleHeader{{0},"ground-proof"},4096);
+    const auto origin=surface->config().anchor;
+    auto initial_cg=origin;initial_cg.ellipsoid_height_m+=initial.clearance_m;
+    const auto initial_ecef=c::geodesy::to_ecef(initial_cg);
+    if(!initial_ecef||!surface->covers(*initial_ecef,2.52))throw std::invalid_argument("Initial ground coverage not prepared");
+    const double theta=initial.align_to_slope?std::atan(surface->config().slope_north):0;
+    const double phi=initial.align_to_slope?-std::atan(surface->config().slope_east/std::sqrt(1+std::pow(surface->config().slope_north,2))):0;
+    const c::QuaternionBodyToNed orientation{std::cos(phi/2)*std::cos(theta/2),std::sin(phi/2)*std::cos(theta/2),std::cos(phi/2)*std::sin(theta/2),-std::sin(phi/2)*std::sin(theta/2)};
+    if(!std::holds_alternative<c::ValidGround>(boundary->sample(initial_cg).sample))throw std::invalid_argument("Initial ground CG query unavailable");
+    for(const auto arm:std::array<c::BodyPosition,3>{{{2,0,1},{-1,-1.3,1},{-1,1.3,1}}}) {
+      const auto ned=c::rotate_body_to_ned(orientation,arm);const auto basis=Basis(initial_cg);
+      const auto point=add(vector(*initial_ecef),add(add(scale(basis.north,ned.x),scale(basis.east,ned.y)),scale(basis.up,-ned.z)));
+      const auto position=c::geodesy::from_ecef(c::EcefPosition{point[0],point[1],point[2]});
+      if(!position||!std::holds_alternative<c::ValidGround>(boundary->sample(*position).sample))throw std::invalid_argument("Initial ground gear query unavailable");
+    }
+    // Prepared coverage and all current contact positions precede allocation,
+    // model loading, IC setters and RunIC; missing initialization publishes nothing.
     executive.reset(new j::FGFDMExec());executive->SetDebugLevel(0);
     const auto utf8=root.u8string();executive->SetRootDir(SGPath::fromUtf8(std::string(utf8.begin(),utf8.end())));executive->SetAircraftPath(SGPath("aircraft"));
     if(!executive->LoadModel("ground-cart"))throw std::runtime_error("Original ground fixture load failed");
     executive->Setdt(clock.integration_step_s());executive->GetInertial()->SetGroundCallback(new Callback(*this));
-    const auto ic=executive->GetIC();const auto origin=surface->config().anchor;
+    const auto ic=executive->GetIC();
     ic->SetGeodLatitudeRadIC(origin.latitude_rad);ic->SetLongitudeRadIC(origin.longitude_rad);
     if(initial.align_to_slope) {
-      ic->SetThetaRadIC(std::atan(surface->config().slope_north));
-      ic->SetPhiRadIC(-std::atan(surface->config().slope_east/std::sqrt(1+std::pow(surface->config().slope_north,2))));
+      ic->SetThetaRadIC(theta);ic->SetPhiRadIC(phi);
     }
     // Callback consumes ellipsoid heights; this setter solves its requested AGL.
     ic->SetAltitudeAGLFtIC(initial.clearance_m/.3048);ic->SetUBodyFpsIC(initial.forward_mps/.3048);ic->SetWBodyFpsIC(initial.down_mps/.3048);
