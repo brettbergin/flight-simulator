@@ -40,6 +40,8 @@ var tiles: Array[MeshInstance3D] = []
 var tile_swap_cpu_ms: Array = []
 var tile_swap_epoch: int = 0
 var next_tile_swap_s: float = 5.0
+var tile_swap_events: Array = []
+var maximum_deferred_old_nodes: int = 0
 var terrain_material: Material
 const Frame = preload("res://render/frame.gd")
 
@@ -109,11 +111,23 @@ func replace_far_tile() -> void:
 	plane.subdivide_width=32
 	plane.subdivide_depth=32
 	var replacement: MeshInstance3D = mesh_node(plane,old.position,world,terrain_material)
+	replacement.set_meta("terrain_tile",true)
 	old.queue_free()
 	tiles[index]=replacement
 	tile_swap_epoch+=1
-	tile_swap_cpu_ms.append((Time.get_ticks_usec()-begin)/1000.0)
-	require(tiles.size()==64,"Bounded render tile count changed")
+	var submit_ms: float = (Time.get_ticks_usec()-begin)/1000.0
+	tile_swap_cpu_ms.append(submit_ms)
+	var active_nodes: int = 0
+	var deferred_old_nodes: int = 0
+	for child in world.get_children():
+		if child.get_meta("terrain_tile",false):
+			if child.is_queued_for_deletion():
+				deferred_old_nodes+=1
+			else:
+				active_nodes+=1
+	maximum_deferred_old_nodes=max(maximum_deferred_old_nodes,deferred_old_nodes)
+	require(tiles.size()==64 and active_nodes==64 and deferred_old_nodes<=1,"Bounded terrain node count changed")
+	tile_swap_events.append({"process_frame":Engine.get_process_frames(),"wall_s":elapsed,"scheduled_s":next_tile_swap_s,"epoch":tile_swap_epoch,"tile_index":index,"submit_ms":submit_ms,"active_nodes":active_nodes,"deferred_old_nodes":deferred_old_nodes})
 
 func material(color: Color) -> StandardMaterial3D:
 	var result := StandardMaterial3D.new()
@@ -233,7 +247,9 @@ func _ready() -> void:
 			plane.size=Vector2(1250,1250)
 			plane.subdivide_width=32
 			plane.subdivide_depth=32
-			tiles.append(mesh_node(plane,Vector3(-4375+x*1250,0,-4375+z*1250),world,grass))
+			var tile := mesh_node(plane,Vector3(-4375+x*1250,0,-4375+z*1250),world,grass)
+			tile.set_meta("terrain_tile",true)
+			tiles.append(tile)
 	box(Vector3(30,0.15,1200),Vector3(0,.12,-200),world,material(Color(.06,.07,.075)))
 	var white := material(Color(.86,.87,.83))
 	for index in 24:
@@ -377,7 +393,9 @@ func finish() -> void:
 	var report := {"duration_s":duration,"warmup_s":warmup,"frames":frames.size(),"average_fps":1000*frames.size()/sum,"frame_ms":{"p95":percentile(frames,.95),"p99":percentile(frames,.99)},"gpu_ms":{"p95":percentile(gpu_ms,.95),"p99":percentile(gpu_ms,.99),"positive_unique_frame_samples":gpu_ms.size(),"duplicate_observations":duplicate_gpu_observations},"render_cpu_ms":{"p95":percentile(render_cpu_ms,.95)},"one_second_process_max_ms":{"p95":percentile(process_max_ms,.95),"samples":process_max_ms.size(),"scope":"Godot one-second process maxima; not per-frame main-thread CPU time"},"peak_godot_video_bytes":peak_video_bytes,"scope":"isolated visual-load experiment; not full-game performance acceptance"}
 	report["device"]=device_info
 	report["rendered_origin_pair"]=image_pair
-	report["render_tile_attachment"]={"replacements":tile_swap_epoch,"steady_tile_count":tiles.size(),"p95_submit_cpu_ms":percentile(tile_swap_cpu_ms,.95),"maximum_submit_cpu_ms":tile_swap_cpu_ms.max() if not tile_swap_cpu_ms.is_empty() else -1,"scope":"new 32x32-subdivision plane mesh every five seconds, four far corners; CPU submission only; GPU allocation/upload effects included in raw callback/render samples; no disk IO, real coverage or contact streaming"}
+	report["capture_start_us"]=start_us
+	report["capture_elapsed_s"]=elapsed
+	report["render_tile_attachment"]={"interval_s":5,"events":tile_swap_events,"next_scheduled_s":next_tile_swap_s,"replacements":tile_swap_epoch,"steady_tile_count":tiles.size(),"maximum_deferred_old_nodes":maximum_deferred_old_nodes,"p95_submit_cpu_ms":percentile(tile_swap_cpu_ms,.95),"maximum_submit_cpu_ms":tile_swap_cpu_ms.max() if not tile_swap_cpu_ms.is_empty() else -1,"scope":"new 32x32-subdivision plane mesh every five seconds, four far corners; missed periods skipped; CPU submission only; active/deferred scene-node bounds do not establish GPU allocator retirement; GPU allocation/upload effects included in raw callback/render samples; no disk IO, real coverage or contact streaming"}
 	report["rebase"]={"transactions":rebase_count,"origin_version":origin_version,"max_projected_delta_px":rebase_max_pixels,"max_relative_audio_delta_m":rebase_max_audio_m,"canonical_unchanged":true,"mixed_version_negative_detected":true,"particle_scope":"local-coordinate GPU emitter transforms; no world-space particle history claim","audio_scope":"silent paused spatial emitter; geometry only, no audible continuity claim"}
 	raw_trace.flush()
 	raw_trace.close()
@@ -400,7 +418,8 @@ func _process(delta: float) -> void:
 	var eye: Array = eye_position(elapsed)
 	if elapsed>=next_tile_swap_s:
 		replace_far_tile()
-		next_tile_swap_s+=5.0
+		# Skip missed periods instead of submitting a burst after a long callback.
+		next_tile_swap_s=(floor(elapsed/5.0)+1)*5.0
 	apply_frame(eye,elapsed)
 	if Frame.local_position(eye,anchor,render_frame).length()>2000:
 		rebase(eye,elapsed)
