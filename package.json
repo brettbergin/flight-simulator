@@ -6,6 +6,9 @@
   "scripts": {
     "check": "node tools/check-docs.mjs",
     "backlog:preview": "node tools/sync-github.mjs",
-    "backlog:apply": "node tools/sync-github.mjs --apply"
+    "backlog:apply": "node tools/sync-github.mjs --apply",
+    "prompts:preview": "node tools/agent-prompts.mjs",
+    "prompts:apply": "node tools/agent-prompts.mjs --apply",
+    "prompts:verify": "node tools/agent-prompts.mjs --verify"
   }
 }
