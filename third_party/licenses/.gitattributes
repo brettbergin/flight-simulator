@@ -1,0 +1,4 @@
+notices/*.txt text eol=lf
+register.json text eol=lf
+*.md text eol=lf
+evidence/*.md text eol=lf
