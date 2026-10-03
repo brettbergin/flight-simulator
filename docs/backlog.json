@@ -1,0 +1,3722 @@
+{
+  "schema_version": 1,
+  "repository": "brettbergin/flight-simulator",
+  "created": "2026-10-03",
+  "labels": [
+    {
+      "name": "type:epic",
+      "color": "5319e7",
+      "description": "Phase outcome and evidence gate"
+    },
+    {
+      "name": "type:task",
+      "color": "5319e7",
+      "description": "Implementation task with closure evidence"
+    },
+    {
+      "name": "type:spike",
+      "color": "5319e7",
+      "description": "Bounded proof with recorded decision"
+    },
+    {
+      "name": "type:bug",
+      "color": "5319e7",
+      "description": "Reproducible discrepancy"
+    },
+    {
+      "name": "priority:P0",
+      "color": "b60205",
+      "description": "Critical prerequisite or correctness gate"
+    },
+    {
+      "name": "priority:P1",
+      "color": "fbca04",
+      "description": "Normal current-phase delivery"
+    },
+    {
+      "name": "priority:P2",
+      "color": "c2e0c6",
+      "description": "Deferred expansion after base acceptance"
+    },
+    {
+      "name": "phase:P0",
+      "color": "1d76db",
+      "description": "P0 — Reviewable foundations"
+    },
+    {
+      "name": "phase:P1",
+      "color": "1d76db",
+      "description": "P1 — Flight core and delivery feasibility"
+    },
+    {
+      "name": "phase:P2",
+      "color": "1d76db",
+      "description": "P2 — First cockpit and synthetic airfield"
+    },
+    {
+      "name": "phase:P3",
+      "color": "1d76db",
+      "description": "P3 — Complete circuit and durable progress"
+    },
+    {
+      "name": "phase:P4",
+      "color": "1d76db",
+      "description": "P4 — Regional navigation and environment"
+    },
+    {
+      "name": "phase:P5",
+      "color": "1d76db",
+      "description": "P5 — Lessons, ATC, and debrief"
+    },
+    {
+      "name": "phase:P6",
+      "color": "1d76db",
+      "description": "P6 — Advanced realism and failures"
+    },
+    {
+      "name": "phase:P7",
+      "color": "1d76db",
+      "description": "P7 — Windows release and pilot acceptance"
+    },
+    {
+      "name": "phase:P8",
+      "color": "1d76db",
+      "description": "P8 — Validated expansion"
+    },
+    {
+      "name": "status:ready",
+      "color": "0e8a16",
+      "description": "Dependencies satisfied; available to claim"
+    },
+    {
+      "name": "status:blocked",
+      "color": "d93f0b",
+      "description": "Linked prerequisite or preceding phase gate open"
+    },
+    {
+      "name": "status:in-progress",
+      "color": "bfdadc",
+      "description": "Claimed on a branch; evidence in preparation"
+    },
+    {
+      "name": "status:needs-review",
+      "color": "bfdadc",
+      "description": "PR and closure evidence ready for review"
+    },
+    {
+      "name": "area:planning",
+      "color": "006b75",
+      "description": "planning module and domain work"
+    },
+    {
+      "name": "area:core",
+      "color": "006b75",
+      "description": "core module and domain work"
+    },
+    {
+      "name": "area:physics",
+      "color": "006b75",
+      "description": "physics module and domain work"
+    },
+    {
+      "name": "area:aircraft",
+      "color": "006b75",
+      "description": "aircraft module and domain work"
+    },
+    {
+      "name": "area:world",
+      "color": "006b75",
+      "description": "world module and domain work"
+    },
+    {
+      "name": "area:weather",
+      "color": "006b75",
+      "description": "weather module and domain work"
+    },
+    {
+      "name": "area:cockpit",
+      "color": "006b75",
+      "description": "cockpit module and domain work"
+    },
+    {
+      "name": "area:input",
+      "color": "006b75",
+      "description": "input module and domain work"
+    },
+    {
+      "name": "area:audio",
+      "color": "006b75",
+      "description": "audio module and domain work"
+    },
+    {
+      "name": "area:persistence",
+      "color": "006b75",
+      "description": "persistence module and domain work"
+    },
+    {
+      "name": "area:training",
+      "color": "006b75",
+      "description": "training module and domain work"
+    },
+    {
+      "name": "area:atc",
+      "color": "006b75",
+      "description": "atc module and domain work"
+    },
+    {
+      "name": "area:ui",
+      "color": "006b75",
+      "description": "ui module and domain work"
+    },
+    {
+      "name": "area:validation",
+      "color": "006b75",
+      "description": "validation module and domain work"
+    },
+    {
+      "name": "area:delivery",
+      "color": "006b75",
+      "description": "delivery module and domain work"
+    },
+    {
+      "name": "area:security",
+      "color": "006b75",
+      "description": "security module and domain work"
+    }
+  ],
+  "milestones": [
+    {
+      "key": "P0",
+      "title": "P0 — Reviewable foundations",
+      "description": "Outcome gate P0; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
+    },
+    {
+      "key": "P1",
+      "title": "P1 — Flight core and delivery feasibility",
+      "description": "Outcome gate P1; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
+    },
+    {
+      "key": "P2",
+      "title": "P2 — First cockpit and synthetic airfield",
+      "description": "Outcome gate P2; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
+    },
+    {
+      "key": "P3",
+      "title": "P3 — Complete circuit and durable progress",
+      "description": "Outcome gate P3; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
+    },
+    {
+      "key": "P4",
+      "title": "P4 — Regional navigation and environment",
+      "description": "Outcome gate P4; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
+    },
+    {
+      "key": "P5",
+      "title": "P5 — Lessons, ATC, and debrief",
+      "description": "Outcome gate P5; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
+    },
+    {
+      "key": "P6",
+      "title": "P6 — Advanced realism and failures",
+      "description": "Outcome gate P6; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
+    },
+    {
+      "key": "P7",
+      "title": "P7 — Windows release and pilot acceptance",
+      "description": "Outcome gate P7; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
+    },
+    {
+      "key": "P8",
+      "title": "P8 — Validated expansion",
+      "description": "Outcome gate P8; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
+    }
+  ],
+  "issues": [
+    {
+      "key": "EPIC-P0",
+      "title": "Reviewable foundations",
+      "kind": "epic",
+      "phase": "P0",
+      "parent": null,
+      "summary": "Deliver the P0 outcome described in the roadmap and collect its exit-gate evidence. Coordinate child work using the documented ownership and contract boundaries. The owner must review the selected direction before product implementation.",
+      "depends_on": [],
+      "labels": [
+        "type:epic",
+        "phase:P0",
+        "area:planning",
+        "priority:P0",
+        "status:needs-review"
+      ],
+      "owned_paths": [
+        "docs/roadmap.md",
+        "docs/evidence/P0/"
+      ],
+      "docs": [
+        "docs/roadmap.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [],
+      "acceptance": [
+        "All child tasks are closed with acceptance evidence, or explicitly rescoped through a reviewed plan change.",
+        "The phase exit criteria in docs/roadmap.md have a dated evidence report naming build/content versions and unresolved limits.",
+        "Owner explicitly accepts or revises the plan; a merged foundation PR is not that approval."
+      ],
+      "evidence": [
+        "Linked child PRs and phase acceptance report.",
+        "Owner review comment documenting decisions."
+      ]
+    },
+    {
+      "key": "EPIC-P1",
+      "title": "Flight core and delivery feasibility",
+      "kind": "epic",
+      "phase": "P1",
+      "parent": null,
+      "summary": "Deliver the P1 outcome described in the roadmap and collect its exit-gate evidence. Coordinate child work using the documented ownership and contract boundaries. Do not start the next phase until this gate is satisfied.",
+      "depends_on": [
+        "EPIC-P0"
+      ],
+      "labels": [
+        "type:epic",
+        "phase:P1",
+        "area:planning",
+        "priority:P0",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "docs/roadmap.md",
+        "docs/evidence/P1/"
+      ],
+      "docs": [
+        "docs/roadmap.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [],
+      "acceptance": [
+        "All child tasks are closed with acceptance evidence, or explicitly rescoped through a reviewed plan change.",
+        "The phase exit criteria in docs/roadmap.md have a dated evidence report naming build/content versions and unresolved limits.",
+        "Integrator reviews the evidence and updates dependent issue status labels after closing this gate."
+      ],
+      "evidence": [
+        "Linked child PRs and phase acceptance report.",
+        "Automated results and applicable domain/pilot review."
+      ]
+    },
+    {
+      "key": "EPIC-P2",
+      "title": "First cockpit and synthetic airfield",
+      "kind": "epic",
+      "phase": "P2",
+      "parent": null,
+      "summary": "Deliver the P2 outcome described in the roadmap and collect its exit-gate evidence. Coordinate child work using the documented ownership and contract boundaries. Do not start the next phase until this gate is satisfied.",
+      "depends_on": [
+        "EPIC-P1"
+      ],
+      "labels": [
+        "type:epic",
+        "phase:P2",
+        "area:planning",
+        "priority:P0",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "docs/roadmap.md",
+        "docs/evidence/P2/"
+      ],
+      "docs": [
+        "docs/roadmap.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [],
+      "acceptance": [
+        "All child tasks are closed with acceptance evidence, or explicitly rescoped through a reviewed plan change.",
+        "The phase exit criteria in docs/roadmap.md have a dated evidence report naming build/content versions and unresolved limits.",
+        "Integrator reviews the evidence and updates dependent issue status labels after closing this gate."
+      ],
+      "evidence": [
+        "Linked child PRs and phase acceptance report.",
+        "Automated results and applicable domain/pilot review."
+      ]
+    },
+    {
+      "key": "EPIC-P3",
+      "title": "Complete circuit and durable progress",
+      "kind": "epic",
+      "phase": "P3",
+      "parent": null,
+      "summary": "Deliver the P3 outcome described in the roadmap and collect its exit-gate evidence. Coordinate child work using the documented ownership and contract boundaries. Do not start the next phase until this gate is satisfied.",
+      "depends_on": [
+        "EPIC-P2"
+      ],
+      "labels": [
+        "type:epic",
+        "phase:P3",
+        "area:planning",
+        "priority:P0",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "docs/roadmap.md",
+        "docs/evidence/P3/"
+      ],
+      "docs": [
+        "docs/roadmap.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [],
+      "acceptance": [
+        "All child tasks are closed with acceptance evidence, or explicitly rescoped through a reviewed plan change.",
+        "The phase exit criteria in docs/roadmap.md have a dated evidence report naming build/content versions and unresolved limits.",
+        "Integrator reviews the evidence and updates dependent issue status labels after closing this gate."
+      ],
+      "evidence": [
+        "Linked child PRs and phase acceptance report.",
+        "Automated results and applicable domain/pilot review."
+      ]
+    },
+    {
+      "key": "EPIC-P4",
+      "title": "Regional navigation and environment",
+      "kind": "epic",
+      "phase": "P4",
+      "parent": null,
+      "summary": "Deliver the P4 outcome described in the roadmap and collect its exit-gate evidence. Coordinate child work using the documented ownership and contract boundaries. Do not start the next phase until this gate is satisfied.",
+      "depends_on": [
+        "EPIC-P3"
+      ],
+      "labels": [
+        "type:epic",
+        "phase:P4",
+        "area:planning",
+        "priority:P0",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "docs/roadmap.md",
+        "docs/evidence/P4/"
+      ],
+      "docs": [
+        "docs/roadmap.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [],
+      "acceptance": [
+        "All child tasks are closed with acceptance evidence, or explicitly rescoped through a reviewed plan change.",
+        "The phase exit criteria in docs/roadmap.md have a dated evidence report naming build/content versions and unresolved limits.",
+        "Integrator reviews the evidence and updates dependent issue status labels after closing this gate."
+      ],
+      "evidence": [
+        "Linked child PRs and phase acceptance report.",
+        "Automated results and applicable domain/pilot review."
+      ]
+    },
+    {
+      "key": "EPIC-P5",
+      "title": "Lessons, ATC, and debrief",
+      "kind": "epic",
+      "phase": "P5",
+      "parent": null,
+      "summary": "Deliver the P5 outcome described in the roadmap and collect its exit-gate evidence. Coordinate child work using the documented ownership and contract boundaries. Do not start the next phase until this gate is satisfied.",
+      "depends_on": [
+        "EPIC-P4"
+      ],
+      "labels": [
+        "type:epic",
+        "phase:P5",
+        "area:planning",
+        "priority:P0",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "docs/roadmap.md",
+        "docs/evidence/P5/"
+      ],
+      "docs": [
+        "docs/roadmap.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [],
+      "acceptance": [
+        "All child tasks are closed with acceptance evidence, or explicitly rescoped through a reviewed plan change.",
+        "The phase exit criteria in docs/roadmap.md have a dated evidence report naming build/content versions and unresolved limits.",
+        "Integrator reviews the evidence and updates dependent issue status labels after closing this gate."
+      ],
+      "evidence": [
+        "Linked child PRs and phase acceptance report.",
+        "Automated results and applicable domain/pilot review."
+      ]
+    },
+    {
+      "key": "EPIC-P6",
+      "title": "Advanced realism and failures",
+      "kind": "epic",
+      "phase": "P6",
+      "parent": null,
+      "summary": "Deliver the P6 outcome described in the roadmap and collect its exit-gate evidence. Coordinate child work using the documented ownership and contract boundaries. Do not start the next phase until this gate is satisfied.",
+      "depends_on": [
+        "EPIC-P5"
+      ],
+      "labels": [
+        "type:epic",
+        "phase:P6",
+        "area:planning",
+        "priority:P0",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "docs/roadmap.md",
+        "docs/evidence/P6/"
+      ],
+      "docs": [
+        "docs/roadmap.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [],
+      "acceptance": [
+        "All child tasks are closed with acceptance evidence, or explicitly rescoped through a reviewed plan change.",
+        "The phase exit criteria in docs/roadmap.md have a dated evidence report naming build/content versions and unresolved limits.",
+        "Integrator reviews the evidence and updates dependent issue status labels after closing this gate."
+      ],
+      "evidence": [
+        "Linked child PRs and phase acceptance report.",
+        "Automated results and applicable domain/pilot review."
+      ]
+    },
+    {
+      "key": "EPIC-P7",
+      "title": "Windows release and pilot acceptance",
+      "kind": "epic",
+      "phase": "P7",
+      "parent": null,
+      "summary": "Deliver the P7 outcome described in the roadmap and collect its exit-gate evidence. Coordinate child work using the documented ownership and contract boundaries. Do not start the next phase until this gate is satisfied.",
+      "depends_on": [
+        "EPIC-P6"
+      ],
+      "labels": [
+        "type:epic",
+        "phase:P7",
+        "area:planning",
+        "priority:P0",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "docs/roadmap.md",
+        "docs/evidence/P7/"
+      ],
+      "docs": [
+        "docs/roadmap.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [],
+      "acceptance": [
+        "All child tasks are closed with acceptance evidence, or explicitly rescoped through a reviewed plan change.",
+        "The phase exit criteria in docs/roadmap.md have a dated evidence report naming build/content versions and unresolved limits.",
+        "Integrator reviews the evidence and updates dependent issue status labels after closing this gate."
+      ],
+      "evidence": [
+        "Linked child PRs and phase acceptance report.",
+        "Automated results and applicable domain/pilot review."
+      ]
+    },
+    {
+      "key": "EPIC-P8",
+      "title": "Validated expansion",
+      "kind": "epic",
+      "phase": "P8",
+      "parent": null,
+      "summary": "Deliver the P8 outcome described in the roadmap and collect its exit-gate evidence. Coordinate child work using the documented ownership and contract boundaries. Select expansion only after the base simulator is accepted.",
+      "depends_on": [
+        "EPIC-P7"
+      ],
+      "labels": [
+        "type:epic",
+        "phase:P8",
+        "area:planning",
+        "priority:P2",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "docs/roadmap.md",
+        "docs/evidence/P8/"
+      ],
+      "docs": [
+        "docs/roadmap.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [],
+      "acceptance": [
+        "All child tasks are closed with acceptance evidence, or explicitly rescoped through a reviewed plan change.",
+        "The phase exit criteria in docs/roadmap.md have a dated evidence report naming build/content versions and unresolved limits.",
+        "Integrator reviews the evidence and updates dependent issue status labels after closing this gate."
+      ],
+      "evidence": [
+        "Linked child PRs and phase acceptance report.",
+        "Automated results and applicable domain/pilot review."
+      ]
+    },
+    {
+      "key": "PLAN-REVIEW",
+      "title": "Owner review of architecture, aircraft target, scope, and phased delivery",
+      "kind": "task",
+      "phase": "P0",
+      "parent": "EPIC-P0",
+      "summary": "Present the merged foundation plan for the owner to accept or revise before authorizing the implementation fleet.",
+      "depends_on": [],
+      "labels": [
+        "type:task",
+        "phase:P0",
+        "area:planning",
+        "priority:P0",
+        "status:ready"
+      ],
+      "owned_paths": [
+        "docs/",
+        "docs/backlog.json"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [
+        "PRD-001",
+        "PRD-032",
+        "PRD-033",
+        "PRD-034"
+      ],
+      "acceptance": [
+        "Owner reviews standalone Windows/offline/Godot/native choices, C172S evidence gate, synthetic-first regional scope, and deferred VR/expansion.",
+        "Any changes are reconciled across ADRs, roadmap, contracts, and backlog before this issue closes.",
+        "Owner explicitly authorizes P1 implementation; no developer closes this on the owner’s behalf."
+      ],
+      "evidence": [
+        "Owner review comment and linked plan revision PRs, if any."
+      ]
+    },
+    {
+      "key": "CORE-CONTRACTS",
+      "title": "Ratify units, coordinate frames, clock, event and content schemas",
+      "kind": "task",
+      "phase": "P1",
+      "parent": "EPIC-P1",
+      "summary": "Turn the planning boundaries into versioned contracts and fixtures before downstream modules start.",
+      "depends_on": [
+        "EPIC-P0",
+        "PLAN-REVIEW"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P1",
+        "area:core",
+        "priority:P0",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "schemas/",
+        "native/sim_core/contracts/",
+        "tests/contracts/",
+        "docs/contracts.md"
+      ],
+      "docs": [
+        "docs/architecture.md",
+        "docs/contracts.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "PRD-001",
+        "PRD-002",
+        "PRD-007",
+        "PRD-034"
+      ],
+      "acceptance": [
+        "Schemas cover every boundary named in contracts.md, SI units, valid ranges, effective dates, command ordering, pause and assist metadata.",
+        "Conformance tests catch frame/sign/unit mistakes, invalid values and incompatible versions; consumers can build against a tiny fixture.",
+        "Publish ownership and change policy with no renderer dependency in core contracts.",
+        "Include minimal independent WGS84/ECEF/NED/body/render-basis fixtures needed for P1; full geoid and magnetic data integration remains P4."
+      ],
+      "evidence": [
+        "Schema review, executable conformance results, fixture manifest."
+      ]
+    },
+    {
+      "key": "TOOLCHAIN",
+      "title": "Lock reproducible Windows native and Godot build toolchain",
+      "kind": "spike",
+      "phase": "P1",
+      "parent": "EPIC-P1",
+      "summary": "Pin exact source revisions/checksums and build ABI before content production.",
+      "depends_on": [
+        "EPIC-P0",
+        "PLAN-REVIEW"
+      ],
+      "labels": [
+        "type:spike",
+        "phase:P1",
+        "area:delivery",
+        "priority:P0",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "CMakeLists.txt",
+        "CMakePresets.json",
+        "third_party/",
+        "tools/bootstrap/",
+        ".github/workflows/native-ci.yml"
+      ],
+      "docs": [
+        "docs/delivery.md",
+        "docs/architecture.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "PRD-032",
+        "PRD-033",
+        "PRD-034"
+      ],
+      "acceptance": [
+        "Windows x64 MSVC and Linux headless builds run from reviewed lock manifest; JSBSim remains replaceable dynamic library.",
+        "Godot/editor/export-template/godot-cpp precision and version pairing are locked and licenses recorded.",
+        "CI actually builds a tiny core and reports its compiler/toolchain versions; no placeholder success tests."
+      ],
+      "evidence": [
+        "Fresh-clone build logs for both CI platforms and lock/source manifest."
+      ]
+    },
+    {
+      "key": "LICENSE-REGISTER",
+      "title": "Establish dependency, aircraft-reference and asset rights register",
+      "kind": "task",
+      "phase": "P1",
+      "parent": "EPIC-P1",
+      "summary": "Record rights and provenance for dependencies and planned aircraft/world assets before redistribution.",
+      "depends_on": [
+        "EPIC-P0",
+        "PLAN-REVIEW"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P1",
+        "area:delivery",
+        "priority:P0",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "third_party/licenses/",
+        "docs/sources.md",
+        "tools/license-audit/"
+      ],
+      "docs": [
+        "docs/delivery.md",
+        "docs/architecture.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-001",
+        "REAL-002",
+        "PRD-001",
+        "PRD-026",
+        "PRD-034",
+        "WORLD-004",
+        "WORLD-005"
+      ],
+      "acceptance": [
+        "Each dependency/data class records exact source, license, distribution obligations, owner and evidence status.",
+        "JSBSim source/relinking notices and aircraft XML rights are verified separately; reference manuals stay outside public repo without rights.",
+        "Missing C172S serial/configuration evidence is tracked with an explicit prototype/fallback decision, not invented parameters.",
+        "P1 records provisional target source feasibility and seed-model differences; AIRCRAFT-EVIDENCE in P3 freezes exact serial/equipment applicability."
+      ],
+      "evidence": [
+        "Reviewed license register and reference-access inventory with no restricted uploads."
+      ]
+    },
+    {
+      "key": "FDM-HARNESS",
+      "title": "Build headless fixed-tick JSBSim adapter and scripted runner",
+      "kind": "spike",
+      "phase": "P1",
+      "parent": "EPIC-P1",
+      "summary": "Prove authoritative dynamics outside Godot using a visibly provisional seed aircraft.",
+      "depends_on": [
+        "EPIC-P0",
+        "CORE-CONTRACTS",
+        "TOOLCHAIN"
+      ],
+      "labels": [
+        "type:spike",
+        "phase:P1",
+        "area:physics",
+        "priority:P0",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "native/fdm_jsbsim/",
+        "native/sim_core/",
+        "tests/fdm/",
+        "tools/run-scenario/"
+      ],
+      "docs": [
+        "docs/realism-and-validation.md",
+        "docs/architecture.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-003",
+        "REAL-004",
+        "REAL-005",
+        "REAL-006",
+        "REAL-007",
+        "PRD-002",
+        "PRD-003"
+      ],
+      "acceptance": [
+        "Runner loads a pinned model, initial state and timestamped commands, emits telemetry and provenance, and fails on invalid state.",
+        "Rendering rate does not affect integration; pause and accelerated time preserve fixed dt.",
+        "Repeat the same build/seed inputs and quantify repeatability; document cross-platform tolerances rather than assume bit identity.",
+        "Run 60/120/240 Hz integration convergence trials with consistent control schedules and report supported error/stability before ratifying the default rate."
+      ],
+      "evidence": [
+        "Trim/step/long-run traces, unit mapping tests and repeatability report."
+      ]
+    },
+    {
+      "key": "NATIVE-EXPORT",
+      "title": "Prove GDExtension and JSBSim DLL loading in a portable Windows export",
+      "kind": "spike",
+      "phase": "P1",
+      "parent": "EPIC-P1",
+      "summary": "Resolve packaging/ABI risks before authoring a full cockpit.",
+      "depends_on": [
+        "EPIC-P0",
+        "CORE-CONTRACTS",
+        "TOOLCHAIN",
+        "FDM-HARNESS"
+      ],
+      "labels": [
+        "type:spike",
+        "phase:P1",
+        "area:delivery",
+        "priority:P0",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "native/godot_bridge/",
+        "app/proof/",
+        "tools/export/",
+        "tests/export/"
+      ],
+      "docs": [
+        "docs/delivery.md",
+        "docs/architecture.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "PRD-031",
+        "PRD-032",
+        "PRD-034"
+      ],
+      "acceptance": [
+        "Tiny Godot scene issues commands and reads snapshots through the versioned bridge in editor and exported release builds.",
+        "Export starts with developer tools/PATH absent and finds required DLLs from the portable package.",
+        "Record ABI/CRT compatibility, shutdown ownership and load failure behavior; ship no LGPL-obligation gaps."
+      ],
+      "evidence": [
+        "Clean-environment export smoke log and native dependency report."
+      ]
+    },
+    {
+      "key": "GROUND-PROOF",
+      "title": "Prove JSBSim ground contacts against external terrain queries",
+      "kind": "spike",
+      "phase": "P1",
+      "parent": "EPIC-P1",
+      "summary": "Establish one aircraft contact solver and coordinate/datum-correct ground sampling.",
+      "depends_on": [
+        "EPIC-P0",
+        "CORE-CONTRACTS",
+        "FDM-HARNESS"
+      ],
+      "labels": [
+        "type:spike",
+        "phase:P1",
+        "area:physics",
+        "priority:P0",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "native/fdm_jsbsim/ground/",
+        "native/world_core/ground/",
+        "tests/ground/"
+      ],
+      "docs": [
+        "docs/realism-and-validation.md",
+        "docs/architecture.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-010",
+        "WORLD-010",
+        "WORLD-011",
+        "WORLD-016",
+        "PRD-006"
+      ],
+      "acceptance": [
+        "Flat/sloped surfaces support stationary, coasting, steering, braking and touchdown trials with stable contact.",
+        "Godot physics does not double-integrate aircraft contacts; surface normals/friction/datum are explicit.",
+        "Query misses and tile transitions behave predictably without tunneling or snapping aircraft to runways.",
+        "Compare contact stability at 60/120/240 Hz and verify minimal coordinate/datum fixtures before P4 geodesy expansion."
+      ],
+      "evidence": [
+        "Recorded ground tests and documented adapter/fallback decision."
+      ]
+    },
+    {
+      "key": "SAVE-PROOF",
+      "title": "Prove full-state restore or deterministic reconstruction strategy",
+      "kind": "spike",
+      "phase": "P1",
+      "parent": "EPIC-P1",
+      "summary": "Test hidden integration/system/random state before promising exact mid-flight resume.",
+      "depends_on": [
+        "EPIC-P0",
+        "CORE-CONTRACTS",
+        "FDM-HARNESS"
+      ],
+      "labels": [
+        "type:spike",
+        "phase:P1",
+        "area:persistence",
+        "priority:P0",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "native/persistence/proof/",
+        "tests/replay/",
+        "docs/decisions/004-persistence-and-replay.md"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/contracts.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "PRD-028",
+        "UX-020",
+        "UX-021",
+        "SAFE-029",
+        "SAFE-030"
+      ],
+      "acceptance": [
+        "Compare uninterrupted and restored/reconstructed runs including integration, engines, weather/contact state and commands.",
+        "Document supported guarantee and reconstruction cost; visible-state teleport cannot pass as full restore.",
+        "Choose verified full snapshot or command replay/checkpoint strategy and ratify session schema."
+      ],
+      "evidence": [
+        "Continuation comparison traces, capability matrix and reviewed ADR."
+      ]
+    },
+    {
+      "key": "RENDER-PROOF",
+      "title": "Benchmark representative cockpit readability and regional rendering",
+      "kind": "spike",
+      "phase": "P1",
+      "parent": "EPIC-P1",
+      "summary": "Measure renderer suitability on the reference RTX3090 PC with cockpit and terrain proxy geometry.",
+      "depends_on": [
+        "EPIC-P0",
+        "TOOLCHAIN",
+        "NATIVE-EXPORT"
+      ],
+      "labels": [
+        "type:spike",
+        "phase:P1",
+        "area:cockpit",
+        "priority:P0",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "app/proof/",
+        "assets_source/proof/",
+        "tools/benchmark/"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/realism-and-validation.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-021",
+        "PRD-015",
+        "PRD-020",
+        "PRD-033",
+        "UX-009",
+        "UX-010",
+        "UX-011"
+      ],
+      "acceptance": [
+        "Measure frame-time distribution, memory and instrument readability at specified resolution/FOV with shadows/cloud proxies.",
+        "Origin shifts preserve relative sight picture; GPU benchmarks are separated from headless hosted CI.",
+        "Record pass/fail against architecture budgets and take the documented renderer fallback decision if necessary.",
+        "A tiny Blender-to-GLB import/export fixture proves scale, orientation, pivots and material/animation bindings before full cockpit authoring."
+      ],
+      "evidence": [
+        "Reference-PC settings, screenshots, frame-time capture and signed-off proof decision."
+      ]
+    },
+    {
+      "key": "VALIDATION-CORPUS",
+      "title": "Create versioned aircraft reference matrix and regression corpus",
+      "kind": "task",
+      "phase": "P1",
+      "parent": "EPIC-P1",
+      "summary": "Define independent measured references before tuning flight behavior.",
+      "depends_on": [
+        "EPIC-P0",
+        "LICENSE-REGISTER",
+        "CORE-CONTRACTS",
+        "FDM-HARNESS"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P1",
+        "area:validation",
+        "priority:P0",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "tests/reference/",
+        "tools/validation/",
+        "docs/evidence/P1/"
+      ],
+      "docs": [
+        "docs/realism-and-validation.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-023",
+        "REAL-024",
+        "REAL-025",
+        "PRD-003",
+        "PRD-026"
+      ],
+      "acceptance": [
+        "Record source section/revision, exact configuration, units, uncertainty and test conditions for trim/cruise/climb/takeoff/landing references.",
+        "Engineering targets remain provisional until sources support them; ground-roll/obstacle-distance and IAS/CAS definitions cannot be mixed.",
+        "Runner reports failed/unsupported cases rather than automatically fitting physics to every reference."
+      ],
+      "evidence": [
+        "Reference matrix, provenance review and initial regression report."
+      ]
+    },
+    {
+      "key": "SIM-LOOP",
+      "title": "Integrate fixed-tick core, interpolation, terrain queries and pause",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Connect authoritative native simulation to the first interactive flight scene.",
+      "depends_on": [
+        "EPIC-P1",
+        "NATIVE-EXPORT",
+        "GROUND-PROOF"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:core",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "app/simulation/",
+        "native/godot_bridge/",
+        "tests/integration/"
+      ],
+      "docs": [
+        "docs/architecture.md",
+        "docs/contracts.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "PRD-002",
+        "SAFE-030"
+      ],
+      "acceptance": [
+        "Different render rates yield equivalent core traces; interpolation is visual only and commands carry tick/sequence.",
+        "Menus/pause/time acceleration follow the clock contract; overload is visible and bounded.",
+        "Shutdown, reset and origin changes do not duplicate aircraft solvers or mutate state through rendering."
+      ],
+      "evidence": [
+        "Frame-rate independence and integration smoke traces."
+      ]
+    },
+    {
+      "key": "INPUT-PROFILES",
+      "title": "Implement keyboard, mouse, gamepad and calibrated flight-device bindings",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Make first flights accessible while preserving a shared pilot-command interface for hardware.",
+      "depends_on": [
+        "EPIC-P1",
+        "CORE-CONTRACTS"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:input",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "app/input/",
+        "app/ui/controls/",
+        "tests/input/"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/architecture.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-021",
+        "PRD-017",
+        "PRD-020",
+        "UX-012",
+        "UX-013"
+      ],
+      "acceptance": [
+        "Provide usable defaults, remapping, axis calibration/deadzones/inversion and independent throttle/mixture/rudder/brake bindings.",
+        "Handle reconnect/disconnect without an uncontrolled jump; save and export profiles without device-specific hardcoding.",
+        "Gamepad and keyboard/mouse can complete a practice flight; incompatible device mappings are diagnosed."
+      ],
+      "evidence": [
+        "Input tests and manual device/calibration checklist."
+      ]
+    },
+    {
+      "key": "SYNTHETIC-AIRFIELD",
+      "title": "Build deterministic runway, markings and ground collision fixture",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Provide a compact offline airfield designed for repeatable circuit/contact tests.",
+      "depends_on": [
+        "EPIC-P1",
+        "GROUND-PROOF",
+        "SIM-LOOP"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:world",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "content/world/synthetic/",
+        "app/world/",
+        "tests/world/"
+      ],
+      "docs": [
+        "docs/world-and-data.md",
+        "docs/contracts.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "WORLD-001",
+        "WORLD-010",
+        "WORLD-011",
+        "WORLD-014",
+        "WORLD-015",
+        "WORLD-016",
+        "WORLD-017",
+        "PRD-006",
+        "PRD-011"
+      ],
+      "acceptance": [
+        "Runway/taxiway geometry, signs, hold lines, windsock and obstacles have explicit synthetic dimensions and datum.",
+        "Visual mesh and ground query agree across tile seams and origin changes.",
+        "Airfield is visibly synthetic and contains no purported real-world operational chart data."
+      ],
+      "evidence": [
+        "Fixture manifest, geometry/contact comparison and screenshots."
+      ]
+    },
+    {
+      "key": "COCKPIT-ASSET",
+      "title": "Create correctly scaled interactive conventional-panel cockpit",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Build a prototype cockpit with useful sight picture and traceable original/cleared assets.",
+      "depends_on": [
+        "EPIC-P1",
+        "LICENSE-REGISTER",
+        "RENDER-PROOF"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:cockpit",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "assets_source/c172/",
+        "app/cockpit/",
+        "content/aircraft/prototype/"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/realism-and-validation.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-019",
+        "REAL-021",
+        "PRD-015",
+        "UX-009",
+        "UX-010",
+        "UX-011"
+      ],
+      "acceptance": [
+        "Cockpit dimensions, eye point, controls and instrument layout identify evidence/prototype status.",
+        "GLB export maintains units, material/animation bindings and bounded texture memory.",
+        "Supported FOV/display presets allow readable gauges and runway view; interaction supports enlarged UI."
+      ],
+      "evidence": [
+        "Asset provenance manifest, export checks and readability review."
+      ]
+    },
+    {
+      "key": "SIX-PACK",
+      "title": "Drive six-pack and engine indicators through sensor bindings",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Implement instrument presentation using system-produced sensed values.",
+      "depends_on": [
+        "EPIC-P1",
+        "COCKPIT-ASSET",
+        "SIM-LOOP"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:cockpit",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "app/cockpit/instruments/",
+        "native/sim_core/instruments/",
+        "tests/instruments/"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/realism-and-validation.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-016",
+        "REAL-017",
+        "REAL-018",
+        "PRD-004",
+        "PRD-015",
+        "UX-009"
+      ],
+      "acceptance": [
+        "Airspeed/altimeter/VSI/attitude/heading/turn instruments have scales, units, flags and correct configuration-specific sources.",
+        "Power/failure/lag test fixtures visibly affect indications; HUD does not substitute perfect truth without an assist label.",
+        "Needles remain readable across UI scale/FOV and render-rate changes."
+      ],
+      "evidence": [
+        "Instrument fixtures and screenshot/evidence table."
+      ]
+    },
+    {
+      "key": "FLIGHT-AUDIO",
+      "title": "Implement state-driven engine, wind and warning sound with captions",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Make acoustic cues support flying while retaining accessibility and source rights.",
+      "depends_on": [
+        "EPIC-P1",
+        "SIM-LOOP",
+        "LICENSE-REGISTER"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:audio",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "app/audio/",
+        "assets_source/audio/",
+        "tests/audio/"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/realism-and-validation.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-020",
+        "PRD-018",
+        "PRD-020",
+        "UX-013"
+      ],
+      "acceptance": [
+        "Engine RPM/load, wind and supported warning states drive sound without frame-rate dependence.",
+        "Volumes, captions and mute controls preserve essential cues; no unlicensed copied aircraft recordings.",
+        "Reset/pause and long loops avoid duplicate emitters, clicks and unintended warnings."
+      ],
+      "evidence": [
+        "Audio source register and scenario cue/accessibility checklist."
+      ]
+    },
+    {
+      "key": "HUD-CAMERA",
+      "title": "Implement cockpit views, optional training HUD and assistance visibility",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Provide clear views and coaching controls while preserving an honest cockpit experience.",
+      "depends_on": [
+        "EPIC-P1",
+        "COCKPIT-ASSET",
+        "SIX-PACK",
+        "INPUT-PROFILES"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:ui",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "app/ui/hud/",
+        "app/camera/",
+        "tests/ui/"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/product.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "PRD-015",
+        "PRD-016",
+        "PRD-020",
+        "SAFE-002",
+        "UX-009",
+        "UX-010",
+        "UX-011",
+        "UX-013"
+      ],
+      "acceptance": [
+        "Cockpit/free-look/external views and reset eye point work through bound controls.",
+        "HUD overlays are optional, label assists and explain units; available aircraft controls are distinguished from approximations.",
+        "UI scale, contrast, focus and tooltips remain usable on the detected 1360x768 and 2560x1440 display sizes."
+      ],
+      "evidence": [
+        "UI interaction screenshots and manual readability checklist."
+      ]
+    },
+    {
+      "key": "FIRST-FLIGHT",
+      "title": "Validate first pilot-operable takeoff, circuit and landing prototype",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Deliver the first meaningful playable experience with prototype limits visible.",
+      "depends_on": [
+        "EPIC-P1",
+        "SYNTHETIC-AIRFIELD",
+        "HUD-CAMERA",
+        "FLIGHT-AUDIO"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:validation",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "content/scenarios/first-flight/",
+        "tests/scenarios/first-flight/",
+        "docs/evidence/P2/"
+      ],
+      "docs": [
+        "docs/realism-and-validation.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "PRD-003",
+        "PRD-012",
+        "PRD-026",
+        "REAL-026",
+        "REAL-028",
+        "UX-002",
+        "UX-004",
+        "UX-005"
+      ],
+      "acceptance": [
+        "A new user can bind controls, enter the cockpit, take off, fly a circuit, land and restart without developer intervention.",
+        "A complete session records assist/content status and reproduces the intended circuit fixture.",
+        "Document pilot feedback, supported envelope and known gaps; prototype build is not promoted as validated training."
+      ],
+      "evidence": [
+        "Exported session replay, playtest checklist and P2 gate report."
+      ]
+    },
+    {
+      "key": "AIRCRAFT-EVIDENCE",
+      "title": "Freeze exact analog C172S configuration and source applicability",
+      "kind": "task",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Resolve target configuration before source-specific systems/checklists and fidelity calibration.",
+      "depends_on": [
+        "EPIC-P2",
+        "LICENSE-REGISTER",
+        "VALIDATION-CORPUS"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P3",
+        "area:aircraft",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "content/aircraft/c172s/",
+        "docs/sources.md",
+        "tests/reference/c172s/"
+      ],
+      "docs": [
+        "docs/realism-and-validation.md",
+        "docs/contracts.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-001",
+        "REAL-002"
+      ],
+      "acceptance": [
+        "Record serial applicability, installed panel/engine/propeller, authorized reference editions and limitations.",
+        "Generic JSBSim starter is visibly separate; carbureted behavior is not relabeled as fuel-injected C172S.",
+        "If evidence cannot be acquired, use an explicit reviewed fallback ADR and update every affected requirement/lesson."
+      ],
+      "evidence": [
+        "Configuration evidence manifest and reviewed applicability matrix."
+      ]
+    },
+    {
+      "key": "ENGINE-FUEL",
+      "title": "Implement sourced fuel-injected engine and fuel-system lifecycle",
+      "kind": "task",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Make starts, run-up, mixture management, fuel depletion and shutdown causal for the selected configuration.",
+      "depends_on": [
+        "EPIC-P2",
+        "AIRCRAFT-EVIDENCE"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P3",
+        "area:aircraft",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "native/sim_core/systems/engine/",
+        "native/sim_core/systems/fuel/",
+        "content/aircraft/c172s/"
+      ],
+      "docs": [
+        "docs/realism-and-validation.md",
+        "docs/contracts.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-013",
+        "REAL-014",
+        "PRD-004",
+        "PRD-010"
+      ],
+      "acceptance": [
+        "Cold/hot/flooded starting, throttle/mixture/ignition, RPM/oil behavior and shutdown follow supported sourced dependencies.",
+        "Tank quantities/selector/vents/pumps/feed paths conserve fuel and produce starvation/indication behavior where applicable.",
+        "No carburetor-heat control or carburetor-icing instruction appears in the injected profile."
+      ],
+      "evidence": [
+        "Engine/fuel system tests and configuration-specific trace comparison."
+      ]
+    },
+    {
+      "key": "ELECTRICAL-SENSORS",
+      "title": "Implement electrical buses, instrument power and pitot/vacuum sources",
+      "kind": "task",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Model sensed indications and equipment availability through causal system state.",
+      "depends_on": [
+        "EPIC-P2",
+        "AIRCRAFT-EVIDENCE",
+        "SIX-PACK"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P3",
+        "area:aircraft",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "native/sim_core/systems/electrical/",
+        "native/sim_core/systems/sensors/",
+        "tests/systems/"
+      ],
+      "docs": [
+        "docs/realism-and-validation.md",
+        "docs/contracts.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-015",
+        "REAL-016",
+        "REAL-017",
+        "REAL-018",
+        "PRD-004"
+      ],
+      "acceptance": [
+        "Battery/alternator/load switching and avionics power match the selected equipment graph.",
+        "Pitot/static/heat/vacuum behavior affects only the instruments it should; stored faults survive pause/reconstruction.",
+        "Instrument sources never read perfect aircraft truth as a silent fallback."
+      ],
+      "evidence": [
+        "Bus/load/power-loss and sensor-fault tests."
+      ]
+    },
+    {
+      "key": "CONTROLS-GROUND",
+      "title": "Complete trim, flaps, steering, struts and differential braking",
+      "kind": "task",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Make configuration changes and ground handling part of the complete circuit.",
+      "depends_on": [
+        "EPIC-P2",
+        "AIRCRAFT-EVIDENCE",
+        "GROUND-PROOF",
+        "INPUT-PROFILES"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P3",
+        "area:physics",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "native/sim_core/systems/controls/",
+        "native/fdm_jsbsim/ground/",
+        "tests/ground/"
+      ],
+      "docs": [
+        "docs/realism-and-validation.md",
+        "docs/architecture.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-010",
+        "REAL-017",
+        "PRD-004",
+        "PRD-006"
+      ],
+      "acceptance": [
+        "Flap transit, trim authority, brake axes, steering linkage and contact parameters are sourced or explicitly estimated.",
+        "Taxi/run-up/rollout trials remain stable with varied surface friction, slopes, payload and wind.",
+        "Pause/reset/reconnect cannot leave controls or contacts in an impossible state."
+      ],
+      "evidence": [
+        "Ground/control traces and pilot ground-handling review."
+      ]
+    },
+    {
+      "key": "PREFLIGHT-CHECKLISTS",
+      "title": "Implement walkaround, checklist state and procedural cockpit flow",
+      "kind": "task",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Support a complete cold-and-dark flight with discoverable discrepancies and configuration-specific checklists.",
+      "depends_on": [
+        "EPIC-P2",
+        "AIRCRAFT-EVIDENCE",
+        "ENGINE-FUEL",
+        "ELECTRICAL-SENSORS"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P3",
+        "area:training",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "app/preflight/",
+        "content/checklists/c172s/",
+        "content/scenarios/circuit/"
+      ],
+      "docs": [
+        "docs/training-and-safety.md",
+        "docs/experience-and-progress.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-019",
+        "SAFE-009",
+        "SAFE-010",
+        "SAFE-011",
+        "SAFE-012",
+        "SAFE-016",
+        "PRD-009",
+        "PRD-010"
+      ],
+      "acceptance": [
+        "Walkaround fuel/oil/control/chock/tiedown checks affect state and can reveal seeded discrepancies.",
+        "Checklists track observed actions with sourced applicability; coaching remains optional and visible.",
+        "Taxi/run-up/landing/shutdown transitions do not grant hidden automatic checklist success."
+      ],
+      "evidence": [
+        "Checklist applicability register and normal/discrepancy scenario tests."
+      ]
+    },
+    {
+      "key": "FLIGHT-PLANNING",
+      "title": "Implement payload, fuel, CG and takeoff/landing planning",
+      "kind": "task",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Make pilot loading and fuel decisions change actual aircraft performance.",
+      "depends_on": [
+        "EPIC-P2",
+        "AIRCRAFT-EVIDENCE",
+        "ENGINE-FUEL"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P3",
+        "area:aircraft",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "app/ui/planning/",
+        "native/sim_core/mass/",
+        "tests/planning/"
+      ],
+      "docs": [
+        "docs/realism-and-validation.md",
+        "docs/contracts.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "PRD-005",
+        "PRD-008",
+        "PRD-022",
+        "SAFE-007",
+        "SAFE-008",
+        "UX-003"
+      ],
+      "acceptance": [
+        "Occupants/cargo/fuel update mass/CG/inertia consistently; planning reports supported limits and source definitions.",
+        "Invalid loading and performance margins are explained; density/runway/wind inputs are explicit.",
+        "Planning assistance is recorded and never changes loading silently during flight."
+      ],
+      "evidence": [
+        "Mass/CG conservation and sourced performance-planning fixtures."
+      ]
+    },
+    {
+      "key": "LOCAL-PERSISTENCE",
+      "title": "Implement SQLite profiles, migrations, atomic saves and recovery",
+      "kind": "task",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Store local settings/progress and recoverable sessions without an account.",
+      "depends_on": [
+        "EPIC-P2",
+        "SAVE-PROOF"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P3",
+        "area:persistence",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "native/persistence/",
+        "schemas/save/",
+        "tests/persistence/"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/contracts.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "PRD-027",
+        "PRD-028",
+        "PRD-029",
+        "UX-016",
+        "UX-017",
+        "UX-018",
+        "UX-019",
+        "UX-020",
+        "UX-022",
+        "SAFE-028",
+        "SAFE-029"
+      ],
+      "acceptance": [
+        "Transactional profile/results writes, backup-before-migrate and unsupported-newer-version rejection preserve originals.",
+        "Crash/corruption fixtures recover the last valid state and never silently refill fuel or clear hazards.",
+        "Use LocalAppData outside install directory; export/delete are available and no telemetry upload occurs by default."
+      ],
+      "evidence": [
+        "Migration/crash/corruption recovery tests and save-path checklist."
+      ]
+    },
+    {
+      "key": "REPLAY-RESUME",
+      "title": "Implement command replay and verified session continuation",
+      "kind": "task",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Deliver the P1-proven continuation guarantee with transparent limitations.",
+      "depends_on": [
+        "EPIC-P2",
+        "LOCAL-PERSISTENCE",
+        "SAVE-PROOF",
+        "ENGINE-FUEL",
+        "ELECTRICAL-SENSORS"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P3",
+        "area:persistence",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "native/persistence/replay/",
+        "app/replay/",
+        "tests/replay/"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/contracts.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "PRD-025",
+        "PRD-028",
+        "PRD-029",
+        "SAFE-029",
+        "SAFE-030",
+        "UX-007",
+        "UX-008",
+        "UX-017",
+        "UX-020",
+        "UX-021"
+      ],
+      "acceptance": [
+        "Exact build/content/seed manifests reproduce supported sessions and reject incompatible content.",
+        "Resume preserves all supported systems/traffic/scenario state through snapshot or verified reconstruction.",
+        "If exact restore is unavailable, named restart/checkpoint options state their limits and invalidate affected assessment claims."
+      ],
+      "evidence": [
+        "Uninterrupted-versus-resumed traces and replay compatibility fixtures."
+      ]
+    },
+    {
+      "key": "ASSIST-PROFILES",
+      "title": "Implement discover, practice and assessment policies with intervention tags",
+      "kind": "task",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Make help adjustable while retaining honest progress records.",
+      "depends_on": [
+        "EPIC-P2",
+        "LOCAL-PERSISTENCE",
+        "HUD-CAMERA"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P3",
+        "area:training",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "content/assist-profiles/",
+        "app/ui/modes/",
+        "native/sim_core/interventions/"
+      ],
+      "docs": [
+        "docs/training-and-safety.md",
+        "docs/experience-and-progress.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "SAFE-001",
+        "SAFE-002",
+        "SAFE-003",
+        "SAFE-004",
+        "SAFE-005",
+        "SAFE-028",
+        "SAFE-029",
+        "SAFE-030",
+        "PRD-016",
+        "PRD-020"
+      ],
+      "acceptance": [
+        "Optional overlays/autocoordination/reposition/time acceleration are visible and recorded when supported.",
+        "Changing assists mid-session records an event and adjusts eligibility without locking users out of free flight.",
+        "Accessibility presentation changes are separated from aerodynamic assistance."
+      ],
+      "evidence": [
+        "Mode/eligibility/intervention tests and UI policy review."
+      ]
+    },
+    {
+      "key": "FULL-CIRCUIT",
+      "title": "Validate cold-and-dark to shutdown normal circuit and recovery",
+      "kind": "task",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Complete the full normal aircraft lifecycle before expanding regional complexity.",
+      "depends_on": [
+        "EPIC-P2",
+        "PREFLIGHT-CHECKLISTS",
+        "CONTROLS-GROUND",
+        "FLIGHT-PLANNING",
+        "REPLAY-RESUME",
+        "ASSIST-PROFILES",
+        "BASELINE-PERFORMANCE",
+        "PROFILE-SESSION-UI",
+        "BASIC-DEBRIEF"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P3",
+        "area:validation",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "tests/scenarios/circuit/",
+        "docs/evidence/P3/"
+      ],
+      "docs": [
+        "docs/realism-and-validation.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-024",
+        "REAL-025",
+        "REAL-026",
+        "REAL-027",
+        "REAL-028",
+        "SAFE-007",
+        "SAFE-008",
+        "SAFE-009",
+        "SAFE-010",
+        "SAFE-011",
+        "SAFE-012",
+        "SAFE-013",
+        "SAFE-014",
+        "SAFE-015",
+        "SAFE-016",
+        "PRD-009",
+        "PRD-010",
+        "PRD-011",
+        "PRD-012",
+        "PRD-013",
+        "UX-004",
+        "UX-005"
+      ],
+      "acceptance": [
+        "A sourced normal flight covers loading/preflight/start/taxi/run-up/takeoff/pattern/go-around/landing/parking/shutdown.",
+        "At multiple phases, validate the SAVE-PROOF-selected continuation mode (full restore, reconstruction or honest checkpoints); preserve partial records and supported fuel/fault/intervention state without claiming unavailable exact restore.",
+        "Pilot observations and instrumented traces identify gaps and gate progression."
+      ],
+      "evidence": [
+        "Complete session corpus and P3 circuit/persistence gate report."
+      ]
+    },
+    {
+      "key": "WORLD-PROVENANCE",
+      "title": "Build dated world-pack manifests and ingestion rights audit",
+      "kind": "task",
+      "phase": "P4",
+      "parent": "EPIC-P4",
+      "summary": "Create reproducible offline packs from reviewed sources with effective dates and datums.",
+      "depends_on": [
+        "EPIC-P3",
+        "LICENSE-REGISTER"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P4",
+        "area:world",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "tools/ingest/",
+        "schemas/world/",
+        "content/world/manifests/"
+      ],
+      "docs": [
+        "docs/world-and-data.md",
+        "docs/contracts.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "WORLD-004",
+        "WORLD-005",
+        "WORLD-006",
+        "WORLD-007",
+        "WORLD-008",
+        "WORLD-009",
+        "WORLD-025",
+        "PRD-034"
+      ],
+      "acceptance": [
+        "FAA/NASR, airport sponsor, elevation, vectors and magnetic inputs have source edition/hash/license/coverage records.",
+        "Restricted charts/imagery are excluded unless rights are documented; stale or missing information remains visible.",
+        "Synthetic/historical/current source status and scenario closures are separate data fields."
+      ],
+      "evidence": [
+        "Source rights register and repeatable pack build manifest."
+      ]
+    },
+    {
+      "key": "GEODESY",
+      "title": "Implement WGS84/ECEF/NED, vertical datum and magnetic conversions",
+      "kind": "task",
+      "phase": "P4",
+      "parent": "EPIC-P4",
+      "summary": "Keep aircraft, terrain, airports and navigation geometrically consistent.",
+      "depends_on": [
+        "EPIC-P3",
+        "CORE-CONTRACTS",
+        "WORLD-PROVENANCE"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P4",
+        "area:world",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "native/world_core/geodesy/",
+        "tests/geodesy/"
+      ],
+      "docs": [
+        "docs/world-and-data.md",
+        "docs/contracts.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "WORLD-010",
+        "WORLD-011",
+        "WORLD-020",
+        "PRD-002"
+      ],
+      "acceptance": [
+        "Round trips and cross-frame transforms pass independent geodetic fixtures and heading sign tests.",
+        "Ellipsoid/orthometric/MSL/AGL conversions identify geoid source and uncertainty.",
+        "Origin rebasing leaves dynamics/nav readings unchanged within documented tolerances."
+      ],
+      "evidence": [
+        "Independent coordinate/datum/magnetic fixture results."
+      ]
+    },
+    {
+      "key": "TERRAIN-STREAMING",
+      "title": "Implement bounded offline terrain tiles, LOD and surface queries",
+      "kind": "task",
+      "phase": "P4",
+      "parent": "EPIC-P4",
+      "summary": "Stream a compact region without whole-world memory or network dependency.",
+      "depends_on": [
+        "EPIC-P3",
+        "GEODESY",
+        "GROUND-PROOF",
+        "WORLD-PROVENANCE"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P4",
+        "area:world",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "native/world_core/tiles/",
+        "app/world/terrain/",
+        "tools/ingest/terrain/"
+      ],
+      "docs": [
+        "docs/world-and-data.md",
+        "docs/contracts.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "WORLD-010",
+        "WORLD-011",
+        "WORLD-012",
+        "WORLD-013",
+        "WORLD-025",
+        "WORLD-026",
+        "PRD-033"
+      ],
+      "acceptance": [
+        "Tile manifest/LOD/load budgets are bounded and deterministic ground queries remain available during flight.",
+        "Adjacent tiles agree in visual/collision elevation; origin changes and pack misses do not teleport aircraft.",
+        "Clean offline package is sufficient for the initial region and synthetic fallback."
+      ],
+      "evidence": [
+        "Tile seam/contact tests and representative memory/frame-time report."
+      ]
+    },
+    {
+      "key": "REGIONAL-AIRPORTS",
+      "title": "Build dated KAWO, KPAE and KBFI airport operational packs",
+      "kind": "task",
+      "phase": "P4",
+      "parent": "EPIC-P4",
+      "summary": "Add northern Puget Sound airports with sourced runway/taxi/pattern behavior. This is a coordinator-owned work package: first define its shared interface, then create bounded leaf issues (one airport, lesson family or failure family each) with disjoint ownership. Do not assign its entire content tree to several agents or implement the package as one oversized PR.",
+      "depends_on": [
+        "EPIC-P3",
+        "WORLD-PROVENANCE",
+        "TERRAIN-STREAMING"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P4",
+        "area:world",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "content/world/airports/",
+        "tools/ingest/airports/",
+        "tests/airports/"
+      ],
+      "docs": [
+        "docs/world-and-data.md",
+        "docs/contracts.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "WORLD-002",
+        "WORLD-003",
+        "WORLD-009",
+        "WORLD-014",
+        "WORLD-015",
+        "WORLD-016",
+        "WORLD-017",
+        "SAFE-017",
+        "SAFE-021",
+        "UX-015"
+      ],
+      "acceptance": [
+        "Runways/taxiways/hold lines/frequencies/pattern directions and altitudes carry effective date/applicability.",
+        "KAWO nonstandard patterns and KBFI parallel-runway hazards have source-backed fixtures; KPAE historical construction/closures are scenario events.",
+        "Airport pack release includes visual/ground/operational validation and gaps; no live-flight suitability claim.",
+        "Coordinator creates linked leaf issues after the shared schema lands, with one airport/lesson-family/failure-family per leaf and acceptance evidence rolled up here."
+      ],
+      "evidence": [
+        "Airport source/datum matrix, screenshots and scenario tests."
+      ]
+    },
+    {
+      "key": "NAV-AVIONICS",
+      "title": "Implement configured COM/NAV, VOR/ILS, transponder and compass",
+      "kind": "task",
+      "phase": "P4",
+      "parent": "EPIC-P4",
+      "summary": "Make installed navigation/radio instruments usable and causally powered.",
+      "depends_on": [
+        "EPIC-P3",
+        "AIRCRAFT-EVIDENCE",
+        "ELECTRICAL-SENSORS",
+        "GEODESY",
+        "WORLD-PROVENANCE"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P4",
+        "area:cockpit",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "native/sim_core/avionics/",
+        "app/cockpit/avionics/",
+        "tests/nav/"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/realism-and-validation.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-018",
+        "WORLD-019",
+        "WORLD-020",
+        "PRD-004"
+      ],
+      "acceptance": [
+        "Tuning/OBS/CDI/ident/flags/modes respect source data, signal coverage and installed equipment.",
+        "True/magnetic bearing and sensed indications remain distinguishable; unavailable signals do not grant hidden perfect navigation.",
+        "Instrument fault/power-loss fixtures remain reproducible."
+      ],
+      "evidence": [
+        "Navigation geometry/signal/power tests and cockpit use checklist."
+      ]
+    },
+    {
+      "key": "MAP-ROUTES",
+      "title": "Implement route planner, map layers and offline cross-country preparation",
+      "kind": "task",
+      "phase": "P4",
+      "parent": "EPIC-P4",
+      "summary": "Connect maps to practical fuel, runway, airspace and diversion planning.",
+      "depends_on": [
+        "EPIC-P3",
+        "REGIONAL-AIRPORTS",
+        "NAV-AVIONICS",
+        "FLIGHT-PLANNING"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P4",
+        "area:ui",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "app/ui/map/",
+        "native/world_core/routes/",
+        "tests/planning/routes/"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/product.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "WORLD-018",
+        "PRD-008",
+        "PRD-014",
+        "PRD-019",
+        "UX-003",
+        "UX-014",
+        "UX-015"
+      ],
+      "acceptance": [
+        "Map shows terrain/airports/airspace/weather/route with source dates and units; synthetic aviation display does not mimic an authoritative current chart.",
+        "Routes carry winds/fuel/altitudes/alternates and export a reproducible flight plan.",
+        "Pilot location/route overlays follow assist mode and do not silently reveal assessment-only information."
+      ],
+      "evidence": [
+        "Route/fuel fixtures and map usability/source-freshness review."
+      ]
+    },
+    {
+      "key": "WEATHER-PROFILES",
+      "title": "Implement offline atmosphere, winds, pressure and weather presets",
+      "kind": "task",
+      "phase": "P4",
+      "parent": "EPIC-P4",
+      "summary": "Provide physically consistent repeatable environmental conditions.",
+      "depends_on": [
+        "EPIC-P3",
+        "CORE-CONTRACTS",
+        "WORLD-PROVENANCE"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P4",
+        "area:weather",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "native/sim_core/weather/",
+        "content/weather/",
+        "tests/weather/"
+      ],
+      "docs": [
+        "docs/world-and-data.md",
+        "docs/realism-and-validation.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-011",
+        "WORLD-021",
+        "WORLD-023",
+        "WORLD-024",
+        "SAFE-022",
+        "PRD-007",
+        "PRD-008"
+      ],
+      "acceptance": [
+        "Pressure/temperature/density/3D wind feed dynamics, instruments, windsocks and traffic consistently.",
+        "Presets and scenario weather have seeds, timestamps and source/synthetic status.",
+        "Density-altitude/crosswind/tailwind/altimeter scenarios produce causal differences without modifying physics cheats."
+      ],
+      "evidence": [
+        "Atmosphere/wind invariants and scenario comparisons."
+      ]
+    },
+    {
+      "key": "GUSTS-TURBULENCE",
+      "title": "Implement reproducible spatial gusts, turbulence and bounded shear",
+      "kind": "task",
+      "phase": "P4",
+      "parent": "EPIC-P4",
+      "summary": "Introduce environmental handling challenges within a documented envelope.",
+      "depends_on": [
+        "EPIC-P3",
+        "WEATHER-PROFILES",
+        "FDM-HARNESS"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P4",
+        "area:weather",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "native/sim_core/weather/turbulence/",
+        "tests/weather/turbulence/"
+      ],
+      "docs": [
+        "docs/world-and-data.md",
+        "docs/realism-and-validation.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-011",
+        "WORLD-021",
+        "SAFE-022"
+      ],
+      "acceptance": [
+        "Spatial/temporal disturbances use seeded bounded fields rather than camera shake or arbitrary aircraft impulses.",
+        "Render rate and replay do not change gust sequence; weather samples have documented coordinate frames.",
+        "Supported severities and uncertainty are visible and severe phenomena await separate validation."
+      ],
+      "evidence": [
+        "Wind-field continuity/replay traces and qualitative pilot review."
+      ]
+    },
+    {
+      "key": "LIGHT-VISIBILITY",
+      "title": "Implement daylight/night, clouds, visibility and airport lighting",
+      "kind": "task",
+      "phase": "P4",
+      "parent": "EPIC-P4",
+      "summary": "Make sight picture and weather presentation consistent with the sampled world.",
+      "depends_on": [
+        "EPIC-P3",
+        "TERRAIN-STREAMING",
+        "WEATHER-PROFILES",
+        "RENDER-PROOF"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P4",
+        "area:weather",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "app/world/sky/",
+        "app/world/lighting/",
+        "tests/render/"
+      ],
+      "docs": [
+        "docs/world-and-data.md",
+        "docs/realism-and-validation.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "PRD-007",
+        "PRD-008",
+        "WORLD-017",
+        "WORLD-021",
+        "WORLD-026"
+      ],
+      "acceptance": [
+        "Sun/time/location and visibility/cloud layers agree with scenario conditions and visual-flight cues.",
+        "Airport/instrument lighting and rain effects have documented limits; unreadable gauges can be corrected through accessible controls.",
+        "Benchmark night/cloud/terrain cases against the reference-PC budget."
+      ],
+      "evidence": [
+        "Day/night/cloud screenshots and reference-PC performance report."
+      ]
+    },
+    {
+      "key": "REGIONAL-FLIGHT",
+      "title": "Validate offline regional cross-country, diversion and return",
+      "kind": "task",
+      "phase": "P4",
+      "parent": "EPIC-P4",
+      "summary": "Prove regional flight operations across environmental and data boundaries.",
+      "depends_on": [
+        "EPIC-P3",
+        "REGIONAL-AIRPORTS",
+        "MAP-ROUTES",
+        "GUSTS-TURBULENCE",
+        "LIGHT-VISIBILITY"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P4",
+        "area:validation",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "content/scenarios/regional/",
+        "tests/scenarios/regional/",
+        "docs/evidence/P4/"
+      ],
+      "docs": [
+        "docs/realism-and-validation.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "WORLD-002",
+        "WORLD-003",
+        "WORLD-017",
+        "WORLD-018",
+        "WORLD-019",
+        "WORLD-020",
+        "WORLD-026",
+        "SAFE-007",
+        "SAFE-008",
+        "SAFE-013",
+        "SAFE-014",
+        "SAFE-015",
+        "SAFE-016",
+        "SAFE-017",
+        "SAFE-022",
+        "SAFE-023",
+        "PRD-022"
+      ],
+      "acceptance": [
+        "Complete planned flights and diversion/cancellation cases between supported airports with fuel/nav/weather effects.",
+        "World-pack mismatch, stale sources and temporary closure scenarios are clear and recoverable.",
+        "Origin/tile transitions, pause/replay and landing do not break the aircraft or operational state."
+      ],
+      "evidence": [
+        "Regional scenario corpus and P4 data/performance gate report."
+      ]
+    },
+    {
+      "key": "LESSON-CURRICULUM",
+      "title": "Create versioned FAA-reference beginner and returning-pilot lessons",
+      "kind": "task",
+      "phase": "P5",
+      "parent": "EPIC-P5",
+      "summary": "Teach planning and flying habits through source-reviewed lessons with prerequisites and visible limits. This is a coordinator-owned work package: first define its shared interface, then create bounded leaf issues (one airport, lesson family or failure family each) with disjoint ownership. Do not assign its entire content tree to several agents or implement the package as one oversized PR.",
+      "depends_on": [
+        "EPIC-P4",
+        "PREFLIGHT-CHECKLISTS",
+        "REGIONAL-FLIGHT"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P5",
+        "area:training",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "content/lessons/",
+        "content/jurisdictions/us/",
+        "docs/lesson-review/"
+      ],
+      "docs": [
+        "docs/training-and-safety.md",
+        "docs/experience-and-progress.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "SAFE-004",
+        "SAFE-005",
+        "SAFE-006",
+        "SAFE-007",
+        "SAFE-008",
+        "SAFE-009",
+        "SAFE-010",
+        "SAFE-011",
+        "SAFE-012",
+        "SAFE-013",
+        "SAFE-014",
+        "SAFE-015",
+        "SAFE-016",
+        "SAFE-017",
+        "SAFE-022",
+        "SAFE-023",
+        "SAFE-026",
+        "UX-023",
+        "UX-024",
+        "PRD-021",
+        "PRD-022"
+      ],
+      "acceptance": [
+        "Lessons cover normal lifecycle, maneuvers, navigation, traffic/patterns and decisions with configuration/source/rubric versions.",
+        "ACS task references are distinguished from simulator engineering tolerances and licensing-credit claims.",
+        "Unreviewed lessons remain previews; a qualified reviewer assesses instruction before mastery claims.",
+        "Coordinator creates linked leaf issues after the shared schema lands, with one airport/lesson-family/failure-family per leaf and acceptance evidence rolled up here."
+      ],
+      "evidence": [
+        "Curriculum matrix, source applicability and reviewer status report."
+      ]
+    },
+    {
+      "key": "TRAINING-EVALUATOR",
+      "title": "Implement reproducible objectives, intervention policy and safe scoring",
+      "kind": "task",
+      "phase": "P5",
+      "parent": "EPIC-P5",
+      "summary": "Evaluate pilot observations using versioned rules and trace evidence.",
+      "depends_on": [
+        "EPIC-P4",
+        "LESSON-CURRICULUM",
+        "ASSIST-PROFILES",
+        "REPLAY-RESUME"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P5",
+        "area:training",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "native/training/",
+        "schemas/rubrics/",
+        "tests/training/"
+      ],
+      "docs": [
+        "docs/training-and-safety.md",
+        "docs/experience-and-progress.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "SAFE-003",
+        "SAFE-004",
+        "SAFE-005",
+        "SAFE-006",
+        "SAFE-027",
+        "SAFE-028",
+        "SAFE-029",
+        "SAFE-030",
+        "SAFE-031",
+        "UX-025",
+        "PRD-022"
+      ],
+      "acceptance": [
+        "Rubrics consume operational events and appropriate sensed state, preserve thresholds and produce reproducible outcomes.",
+        "Go-around/diversion/cancellation can pass where appropriate; speed/risk/exceedance cannot unlock rewards.",
+        "Assists/missing evidence/unsupported maneuvers invalidate authoritative grades while retaining practice history."
+      ],
+      "evidence": [
+        "Rubric positive/negative fixtures and SAFE-031 acceptance report."
+      ]
+    },
+    {
+      "key": "ATC-RADIO",
+      "title": "Implement deterministic ATC/CTAF phraseology and clearance state",
+      "kind": "task",
+      "phase": "P5",
+      "parent": "EPIC-P5",
+      "summary": "Support rehearsable radio interactions and airport authorization without nondeterministic safety-critical LLM behavior.",
+      "depends_on": [
+        "EPIC-P4",
+        "REGIONAL-AIRPORTS",
+        "NAV-AVIONICS",
+        "LESSON-CURRICULUM"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P5",
+        "area:atc",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "native/atc/",
+        "content/atc/",
+        "app/ui/radio/",
+        "tests/atc/"
+      ],
+      "docs": [
+        "docs/training-and-safety.md",
+        "docs/world-and-data.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "SAFE-017",
+        "SAFE-018",
+        "SAFE-019",
+        "SAFE-021",
+        "WORLD-015",
+        "PRD-011",
+        "PRD-023"
+      ],
+      "acceptance": [
+        "Scripted rules cover supported taxi/runway/takeoff/landing/readback/go-around scenarios and untowered announcements.",
+        "Clearances belong to specific aircraft/runway/phase and survive save/resume; wrong or missing authorization is detectable.",
+        "Text/caption input and output work without microphone; optional voice must map through validated phrase intents."
+      ],
+      "evidence": [
+        "Phrase/clearance state-machine fixtures and phraseology review."
+      ]
+    },
+    {
+      "key": "AI-TRAFFIC",
+      "title": "Implement seeded pattern/ground traffic and separation encounters",
+      "kind": "task",
+      "phase": "P5",
+      "parent": "EPIC-P5",
+      "summary": "Introduce traffic awareness and runway-conflict practice with predictable scenario controls.",
+      "depends_on": [
+        "EPIC-P4",
+        "ATC-RADIO",
+        "WEATHER-PROFILES"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P5",
+        "area:atc",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "native/traffic/",
+        "content/traffic/",
+        "tests/traffic/"
+      ],
+      "docs": [
+        "docs/training-and-safety.md",
+        "docs/world-and-data.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "SAFE-017",
+        "SAFE-019",
+        "SAFE-020",
+        "SAFE-021",
+        "SAFE-029",
+        "SAFE-030",
+        "WORLD-015",
+        "WORLD-016",
+        "WORLD-017"
+      ],
+      "acceptance": [
+        "Traffic responds to airport geometry/pattern/clearances and the same weather/time model.",
+        "Wrong-runway/incursion/occupied-runway encounters are reproducible; collision avoidance does not hide user errors.",
+        "Pause/replay/restore preserve traffic and clearances; density remains bounded for performance."
+      ],
+      "evidence": [
+        "Conflict/separation scenario tests and reviewed encounters."
+      ]
+    },
+    {
+      "key": "DEBRIEF",
+      "title": "Build timeline/map/replay debrief tied to objective observations",
+      "kind": "task",
+      "phase": "P5",
+      "parent": "EPIC-P5",
+      "summary": "Help pilots understand what happened and what to practice next.",
+      "depends_on": [
+        "EPIC-P4",
+        "TRAINING-EVALUATOR",
+        "ATC-RADIO",
+        "AI-TRAFFIC",
+        "BASIC-DEBRIEF"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P5",
+        "area:ui",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "app/ui/debrief/",
+        "app/replay/",
+        "tests/debrief/"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/product.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "UX-006",
+        "UX-021",
+        "UX-022",
+        "UX-026",
+        "SAFE-027",
+        "SAFE-028",
+        "PRD-025"
+      ],
+      "acceptance": [
+        "Timeline links events and rubric evidence to replay/map with observed values and applicable source/rule versions.",
+        "Uncertain or missing evidence is explicit; instructor comments are separated from computed facts.",
+        "Debrief supports exports and next-practice choices without shaming or locking free flight."
+      ],
+      "evidence": [
+        "Known-truth debrief fixtures and usability review."
+      ]
+    },
+    {
+      "key": "ACHIEVEMENTS",
+      "title": "Implement honest practice history, goals and safe achievements",
+      "kind": "task",
+      "phase": "P5",
+      "parent": "EPIC-P5",
+      "summary": "Record useful repetition without presenting practice as logged regulatory flight time.",
+      "depends_on": [
+        "EPIC-P4",
+        "TRAINING-EVALUATOR",
+        "LOCAL-PERSISTENCE",
+        "DEBRIEF"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P5",
+        "area:training",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "native/progress/",
+        "content/achievements/",
+        "app/ui/progress/",
+        "tests/progress/"
+      ],
+      "docs": [
+        "docs/training-and-safety.md",
+        "docs/experience-and-progress.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "SAFE-003",
+        "SAFE-005",
+        "SAFE-028",
+        "SAFE-031",
+        "UX-027",
+        "UX-028",
+        "PRD-028",
+        "PRD-029",
+        "PRD-030"
+      ],
+      "acceptance": [
+        "Achievement rules reward preparation, stabilized decisions and improvement with assist/rubric/content provenance.",
+        "Reposition/replay/incomplete sessions cannot manufacture assessment credit; changed rubrics preserve historical results.",
+        "Profiles support export/delete; no mandatory online leaderboard or account."
+      ],
+      "evidence": [
+        "Achievement exploit/eligibility and history migration tests."
+      ]
+    },
+    {
+      "key": "INSTRUCTOR-TOOLS",
+      "title": "Implement local instructor controls and qualified curriculum review gate",
+      "kind": "task",
+      "phase": "P5",
+      "parent": "EPIC-P5",
+      "summary": "Allow deliberate practice setup, interventions and review without hidden assistance.",
+      "depends_on": [
+        "EPIC-P4",
+        "DEBRIEF",
+        "ACHIEVEMENTS"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P5",
+        "area:training",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "app/ui/instructor/",
+        "content/instructor-presets/",
+        "docs/evidence/P5/"
+      ],
+      "docs": [
+        "docs/training-and-safety.md",
+        "docs/experience-and-progress.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-026",
+        "REAL-027",
+        "REAL-028",
+        "SAFE-030",
+        "SAFE-031"
+      ],
+      "acceptance": [
+        "Instructor pause/weather/reposition and already implemented fault hooks record interventions and respect shared clock/save state; unsupported advanced failure injection is disabled until P6 FAILURE-SYSTEMS lands.",
+        "Reviewed lessons have reviewer scope/date/configuration; unavailable review leaves content visibly preview-only.",
+        "Dad/returning-pilot feedback sessions are optional and track actionable discrepancies separately from formal review."
+      ],
+      "evidence": [
+        "Instructor action fixtures, reviewer ledger and P5 gate report."
+      ]
+    },
+    {
+      "key": "FDM-CALIBRATION",
+      "title": "Calibrate C172S performance across mass, CG and atmosphere",
+      "kind": "task",
+      "phase": "P6",
+      "parent": "EPIC-P6",
+      "summary": "Replace prototype handling assumptions with configuration-specific measured evidence.",
+      "depends_on": [
+        "EPIC-P5",
+        "AIRCRAFT-EVIDENCE",
+        "VALIDATION-CORPUS",
+        "BASELINE-PERFORMANCE"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P6",
+        "area:physics",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "content/aircraft/c172s/fdm/",
+        "tests/reference/c172s/",
+        "tools/validation/"
+      ],
+      "docs": [
+        "docs/realism-and-validation.md",
+        "docs/architecture.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-003",
+        "REAL-004",
+        "REAL-005",
+        "REAL-006",
+        "REAL-007",
+        "REAL-008",
+        "REAL-009",
+        "REAL-010",
+        "REAL-011",
+        "REAL-012",
+        "REAL-023",
+        "REAL-024",
+        "REAL-025"
+      ],
+      "acceptance": [
+        "Trim/climb/cruise/takeoff/landing regressions span supported mass/CG/altitude/weather and source definitions.",
+        "Parameter changes improve independent reference cases without erasing uncertainty or tuning only the test set.",
+        "Publish pass/fail coverage and remaining envelope gaps with model hash."
+      ],
+      "evidence": [
+        "Before/after reference matrix and reviewed calibration report."
+      ]
+    },
+    {
+      "key": "STALL-HANDLING",
+      "title": "Validate stalls, coordination, ground effect and crosswind response",
+      "kind": "task",
+      "phase": "P6",
+      "parent": "EPIC-P6",
+      "summary": "Prove low-speed and directional handling within a bounded supported envelope.",
+      "depends_on": [
+        "EPIC-P5",
+        "FDM-CALIBRATION",
+        "GUSTS-TURBULENCE"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P6",
+        "area:physics",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "tests/maneuvers/",
+        "content/aircraft/c172s/fdm/",
+        "docs/evidence/handling/"
+      ],
+      "docs": [
+        "docs/realism-and-validation.md",
+        "docs/architecture.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-005",
+        "REAL-006",
+        "REAL-007",
+        "REAL-008",
+        "REAL-009",
+        "REAL-024",
+        "REAL-025",
+        "REAL-026",
+        "REAL-027",
+        "REAL-028"
+      ],
+      "acceptance": [
+        "Record stall onset/recovery, slow flight, slip/skid, steep turns, flare/float and crosswind cases at varied configurations.",
+        "Pilot qualitative feedback and measured traces identify adverse yaw/propeller/ground-effect trends independently.",
+        "Unsupported spins/severe icing are not scored as validated recovery instruction."
+      ],
+      "evidence": [
+        "Handling traces, envelope matrix and pilot review."
+      ]
+    },
+    {
+      "key": "FAILURE-SYSTEMS",
+      "title": "Implement causal engine, electrical, fuel and instrument failures",
+      "kind": "task",
+      "phase": "P6",
+      "parent": "EPIC-P6",
+      "summary": "Provide resettable, sourced failure scenarios whose symptoms follow actual dependencies. This is a coordinator-owned work package: first define its shared interface, then create bounded leaf issues (one airport, lesson family or failure family each) with disjoint ownership. Do not assign its entire content tree to several agents or implement the package as one oversized PR.",
+      "depends_on": [
+        "EPIC-P5",
+        "ENGINE-FUEL",
+        "ELECTRICAL-SENSORS",
+        "ATC-RADIO"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P6",
+        "area:aircraft",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "native/sim_core/failures/",
+        "content/failures/c172s/",
+        "tests/failures/"
+      ],
+      "docs": [
+        "docs/realism-and-validation.md",
+        "docs/contracts.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-013",
+        "REAL-014",
+        "REAL-015",
+        "REAL-016",
+        "REAL-017",
+        "REAL-018",
+        "SAFE-024",
+        "SAFE-029",
+        "PRD-024"
+      ],
+      "acceptance": [
+        "Failure scheduling is seeded/versioned and affects the selected engine/system components and appropriate indications.",
+        "Failures/damage persist across save/replay; disabling a failure does not secretly repair other state.",
+        "Fault cues/checklists identify source applicability and unsupported approximations.",
+        "Coordinator creates linked leaf issues after the shared schema lands, with one airport/lesson-family/failure-family per leaf and acceptance evidence rolled up here."
+      ],
+      "evidence": [
+        "Failure causal-graph tests and continuation traces."
+      ]
+    },
+    {
+      "key": "DAMAGE-LIMITS",
+      "title": "Implement bounded structural/engine limits and inspectable consequences",
+      "kind": "task",
+      "phase": "P6",
+      "parent": "EPIC-P6",
+      "summary": "Make supported limit exceedances reproducible with clear uncertainty.",
+      "depends_on": [
+        "EPIC-P5",
+        "AIRCRAFT-EVIDENCE",
+        "FDM-CALIBRATION"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P6",
+        "area:aircraft",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "native/sim_core/damage/",
+        "content/aircraft/c172s/limits/",
+        "tests/damage/"
+      ],
+      "docs": [
+        "docs/realism-and-validation.md",
+        "docs/contracts.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-012",
+        "SAFE-024",
+        "SAFE-025"
+      ],
+      "acceptance": [
+        "Source-derived limits and estimated damage-response parameters are separate with visible evidence status.",
+        "Overstress/overspeed/hard-contact cases have consistent recorded consequences and reset behavior.",
+        "No risk achievement or undocumented failure teaches unsupported procedures."
+      ],
+      "evidence": [
+        "Boundary/continuity/damage replay tests and evidence register."
+      ]
+    },
+    {
+      "key": "EMERGENCY-LESSONS",
+      "title": "Create reviewed emergency decision and landing practice",
+      "kind": "task",
+      "phase": "P6",
+      "parent": "EPIC-P6",
+      "summary": "Support emergency decision practice grounded in the selected aircraft and reviewer scope.",
+      "depends_on": [
+        "EPIC-P5",
+        "FAILURE-SYSTEMS",
+        "DAMAGE-LIMITS",
+        "STALL-HANDLING",
+        "INSTRUCTOR-TOOLS"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P6",
+        "area:training",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "content/lessons/emergency/",
+        "tests/scenarios/emergency/",
+        "docs/lesson-review/"
+      ],
+      "docs": [
+        "docs/training-and-safety.md",
+        "docs/experience-and-progress.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "SAFE-024",
+        "SAFE-025",
+        "SAFE-026",
+        "REAL-027",
+        "PRD-021",
+        "PRD-024"
+      ],
+      "acceptance": [
+        "Supported engine-out/electrical/instrument scenarios use source-applicable priorities and realistic available indications.",
+        "Safe diversion/landing/go-around/abandonment outcomes are evaluated appropriately; no universal memorized speeds across variants.",
+        "Unavailable qualified review withholds mastery/transfer claims and keeps lessons explicitly preview-only."
+      ],
+      "evidence": [
+        "Source/reviewer matrix and deterministic emergency scenario tests."
+      ]
+    },
+    {
+      "key": "REALISM-REPORT",
+      "title": "Publish full configuration, envelope, source and pilot validation report",
+      "kind": "task",
+      "phase": "P6",
+      "parent": "EPIC-P6",
+      "summary": "Consolidate fidelity evidence and gaps before release hardening.",
+      "depends_on": [
+        "EPIC-P5",
+        "FDM-CALIBRATION",
+        "STALL-HANDLING",
+        "FAILURE-SYSTEMS",
+        "DAMAGE-LIMITS",
+        "EMERGENCY-LESSONS"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P6",
+        "area:validation",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "docs/evidence/P6/",
+        "tools/validation/report/"
+      ],
+      "docs": [
+        "docs/realism-and-validation.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-023",
+        "REAL-024",
+        "REAL-025",
+        "REAL-026",
+        "REAL-027",
+        "REAL-028"
+      ],
+      "acceptance": [
+        "Report lists measured supported envelope, system/model limits, references, reviewed lessons and unsupported behavior.",
+        "Any relevant model/system/rubric change triggers impact analysis and selected regressions.",
+        "Provisional vs validated status is consistent in UI, docs and release notes."
+      ],
+      "evidence": [
+        "P6 fidelity gate report with build/content hashes and review ledger."
+      ]
+    },
+    {
+      "key": "WINDOWS-PACKAGING",
+      "title": "Build clean Windows ZIP delivery and simulator release workflow",
+      "kind": "task",
+      "phase": "P7",
+      "parent": "EPIC-P7",
+      "summary": "Distribute a runnable offline Windows build through GitHub Releases with evidence and dependencies.",
+      "depends_on": [
+        "EPIC-P6",
+        "NATIVE-EXPORT",
+        "REALISM-REPORT"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P7",
+        "area:delivery",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "tools/package/",
+        ".github/workflows/simulator-release.yml",
+        "tests/install/"
+      ],
+      "docs": [
+        "docs/delivery.md",
+        "docs/architecture.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "PRD-032",
+        "PRD-033",
+        "PRD-034"
+      ],
+      "acceptance": [
+        "Portable ZIP starts on clean Windows without Python/build tools or development PATH and contains offline training content.",
+        "Simulator tags run checks before draft asset upload/publication; no docs archive is mistaken for a game.",
+        "Assets include checksums, exact manifest, SBOM/notices, known limits and required corresponding source."
+      ],
+      "evidence": [
+        "Cold-install/export logs and candidate draft release inventory."
+      ]
+    },
+    {
+      "key": "SAVE-UPGRADE",
+      "title": "Validate upgrade, rollback, incompatible saves and crash recovery",
+      "kind": "task",
+      "phase": "P7",
+      "parent": "EPIC-P7",
+      "summary": "Protect local progress across delivery failures and schema evolution.",
+      "depends_on": [
+        "EPIC-P6",
+        "WINDOWS-PACKAGING",
+        "LOCAL-PERSISTENCE",
+        "REPLAY-RESUME"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P7",
+        "area:persistence",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "tests/persistence/upgrade/",
+        "tools/package/",
+        "docs/evidence/P7/"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/contracts.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "PRD-028",
+        "UX-019",
+        "UX-020"
+      ],
+      "acceptance": [
+        "Upgrade/install paths preserve LocalAppData; migration failure restores backups transactionally.",
+        "Older binaries reject unsupported newer data without overwriting it; rollback behavior is documented.",
+        "Crash fixtures at startup/save/flight/exit preserve originals and last valid history."
+      ],
+      "evidence": [
+        "Versioned migration/rollback/crash matrix."
+      ]
+    },
+    {
+      "key": "REFERENCE-PERFORMANCE",
+      "title": "Measure reference-PC frame pacing, memory, latency and loading",
+      "kind": "task",
+      "phase": "P7",
+      "parent": "EPIC-P7",
+      "summary": "Prove the actual Windows experience on the user’s i9/RTX3090/64GB PC.",
+      "depends_on": [
+        "EPIC-P6",
+        "WINDOWS-PACKAGING",
+        "LIGHT-VISIBILITY"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P7",
+        "area:validation",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "tools/benchmark/",
+        "docs/evidence/P7/performance/"
+      ],
+      "docs": [
+        "docs/realism-and-validation.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "PRD-033",
+        "WORLD-026"
+      ],
+      "acceptance": [
+        "Record exact resolution/FOV/quality/driver/content/controller and p50/p95/p99 frame time, sim ticks, input latency and RAM/VRAM.",
+        "Run cockpit/terrain/cloud/night/traffic scenarios and compare to ratified budgets with no GPU claims from hosted CI.",
+        "Performance adjustments cannot change aircraft fidelity or hide simulation overload."
+      ],
+      "evidence": [
+        "Raw captures and performance acceptance report."
+      ]
+    },
+    {
+      "key": "ACCESSIBILITY-QA",
+      "title": "Validate readable cockpit, UI focus, captions and comfort settings",
+      "kind": "task",
+      "phase": "P7",
+      "parent": "EPIC-P7",
+      "summary": "Make the release useful to a returning pilot with varied comfort and input needs.",
+      "depends_on": [
+        "EPIC-P6",
+        "WINDOWS-PACKAGING",
+        "HUD-CAMERA",
+        "FLIGHT-AUDIO"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P7",
+        "area:ui",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "tests/ui/accessibility/",
+        "app/ui/",
+        "docs/evidence/P7/accessibility/"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/product.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "PRD-017",
+        "PRD-018",
+        "PRD-019",
+        "PRD-020",
+        "UX-009",
+        "UX-010",
+        "UX-011",
+        "UX-012",
+        "UX-013",
+        "UX-014",
+        "UX-015"
+      ],
+      "acceptance": [
+        "Test supported displays/scaling/FOV, keyboard/gamepad focus, contrast, captions and reduced camera motion.",
+        "Controls are discoverable and consistent across pause/planning/cockpit/debrief; accessibility settings do not silently alter physics.",
+        "Record specific usability observations and fixes without requiring personal medical information."
+      ],
+      "evidence": [
+        "Accessibility/device/display matrix and review checklist."
+      ]
+    },
+    {
+      "key": "CONTROLLER-QA",
+      "title": "Validate hardware calibration, reconnect and first-run defaults",
+      "kind": "task",
+      "phase": "P7",
+      "parent": "EPIC-P7",
+      "summary": "Prove keyboard/mouse/gamepad and available flight hardware support on release builds.",
+      "depends_on": [
+        "EPIC-P6",
+        "WINDOWS-PACKAGING",
+        "INPUT-PROFILES"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P7",
+        "area:input",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "tests/input/hardware/",
+        "app/input/",
+        "docs/evidence/P7/controls/"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/architecture.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-021",
+        "PRD-017",
+        "UX-012"
+      ],
+      "acceptance": [
+        "Complete flights on keyboard/mouse and gamepad; qualify available USB yoke/throttle/rudder profiles with axis/brake tests.",
+        "Multiple devices, reconnect, duplicate axes and missing hardware produce safe visible configuration behavior.",
+        "Publish tested device matrix and unsupported force-feedback/control-force limitations."
+      ],
+      "evidence": [
+        "Manual hardware matrix and disconnect/rebind traces."
+      ]
+    },
+    {
+      "key": "CONTENT-SECURITY",
+      "title": "Harden content/save/replay parsing and optional crash reporting",
+      "kind": "task",
+      "phase": "P7",
+      "parent": "EPIC-P7",
+      "summary": "Bound untrusted data and keep local pilot information private.",
+      "depends_on": [
+        "EPIC-P6",
+        "WORLD-PROVENANCE",
+        "LOCAL-PERSISTENCE",
+        "WINDOWS-PACKAGING"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P7",
+        "area:security",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "native/content/",
+        "native/persistence/",
+        "tests/security/",
+        "app/ui/privacy/"
+      ],
+      "docs": [
+        "docs/delivery.md",
+        "docs/contracts.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "PRD-031",
+        "PRD-032",
+        "PRD-033",
+        "PRD-034",
+        "WORLD-008",
+        "WORLD-025"
+      ],
+      "acceptance": [
+        "Reject traversal/zip bombs/oversized assets/invalid numeric schemas and unsupported versions before pack install.",
+        "Content cannot load arbitrary code; native extensions come only from reviewed builds.",
+        "Crash/log sharing is opt-in with preview/redaction; security findings have a private reporting path."
+      ],
+      "evidence": [
+        "Adversarial parser/archive fixtures and privacy review."
+      ]
+    },
+    {
+      "key": "SOAK-STABILITY",
+      "title": "Run extended flights, reset/reload loops and failure recovery soak",
+      "kind": "task",
+      "phase": "P7",
+      "parent": "EPIC-P7",
+      "summary": "Find state drift, leaks and packaging recovery failures before public distribution.",
+      "depends_on": [
+        "EPIC-P6",
+        "SAVE-UPGRADE",
+        "REFERENCE-PERFORMANCE",
+        "CONTENT-SECURITY"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P7",
+        "area:validation",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "tests/soak/",
+        "tools/soak/",
+        "docs/evidence/P7/stability/"
+      ],
+      "docs": [
+        "docs/realism-and-validation.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "PRD-028",
+        "PRD-031",
+        "PRD-033",
+        "WORLD-026"
+      ],
+      "acceptance": [
+        "Extended multi-phase flight/replay/save/load loops complete with bounded memory and stable sim state.",
+        "Exercise weather/tile transitions, device disconnects, pauses and failed/corrupt content handling.",
+        "Every failure has a minimized reproducible fixture or a documented release blocker."
+      ],
+      "evidence": [
+        "Soak logs, memory trends and tracked defect disposition."
+      ]
+    },
+    {
+      "key": "PILOT-ACCEPTANCE",
+      "title": "Complete returning-pilot feedback and qualified instruction acceptance",
+      "kind": "task",
+      "phase": "P7",
+      "parent": "EPIC-P7",
+      "summary": "Evaluate the candidate’s flying feel and instructional coverage through structured review.",
+      "depends_on": [
+        "EPIC-P6",
+        "SOAK-STABILITY",
+        "ACCESSIBILITY-QA",
+        "CONTROLLER-QA",
+        "REALISM-REPORT"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P7",
+        "area:validation",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "docs/evidence/P7/pilot/",
+        "docs/lesson-review/"
+      ],
+      "docs": [
+        "docs/realism-and-validation.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-026",
+        "REAL-027",
+        "REAL-028"
+      ],
+      "acceptance": [
+        "Offer the father optional normal/crosswind/system scenario sessions and record actionable observations.",
+        "Qualified instructor review covers scored lessons/emergencies; any unreviewed instruction remains preview content.",
+        "Review report distinguishes subjective observations, reference measurements, physical hardware limits and unresolved defects."
+      ],
+      "evidence": [
+        "Candidate-hash pilot/instructor review ledger and defect decisions."
+      ]
+    },
+    {
+      "key": "RELEASE-CANDIDATE",
+      "title": "Ratify release evidence, signing decision and publish first simulator alpha",
+      "kind": "task",
+      "phase": "P7",
+      "parent": "EPIC-P7",
+      "summary": "Prepare a concrete release candidate for maintainers with actual readiness evidence.",
+      "depends_on": [
+        "EPIC-P6",
+        "PILOT-ACCEPTANCE",
+        "WINDOWS-PACKAGING"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P7",
+        "area:delivery",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "docs/releases/",
+        "CHANGELOG.md",
+        "tools/package/"
+      ],
+      "docs": [
+        "docs/delivery.md",
+        "docs/architecture.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "PRD-032",
+        "PRD-033",
+        "PRD-034"
+      ],
+      "acceptance": [
+        "Confirm all applicable P7 gates, source/license obligations, save compatibility and known limits against the exact candidate.",
+        "Document Windows Authenticode/unsigned status separately from Git commit signing; no unauthorized certificate purchase.",
+        "Publish all validated assets through draft-then-publish GitHub Releases and state training/content preview limits honestly."
+      ],
+      "evidence": [
+        "Release readiness report, asset hashes, changelog and published candidate URL."
+      ]
+    },
+    {
+      "key": "AIRCRAFT-EXPANSION",
+      "title": "Add a second validated Cessna through capabilities and package contracts",
+      "kind": "task",
+      "phase": "P8",
+      "parent": "EPIC-P8",
+      "summary": "Choose C152 or C182 using owner/pilot value after base aircraft acceptance.",
+      "depends_on": [
+        "EPIC-P7"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P8",
+        "area:aircraft",
+        "priority:P2",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "content/aircraft/",
+        "native/sim_core/capabilities/",
+        "tests/reference/"
+      ],
+      "docs": [
+        "docs/realism-and-validation.md",
+        "docs/contracts.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-022",
+        "PRD-001",
+        "PRD-034"
+      ],
+      "acceptance": [
+        "New aircraft has its own configuration/sources/performance/checklists and applicable propulsion/gear/avionics capabilities.",
+        "Existing C172 regressions remain passing; no aircraft-name conditionals spread through renderer/core.",
+        "Lessons declare compatibility and new aircraft fidelity report scopes claims."
+      ],
+      "evidence": [
+        "Expansion ADR, package conformance and independent validation matrix."
+      ]
+    },
+    {
+      "key": "VR-EXPANSION",
+      "title": "Evaluate and implement VR after desktop readability/performance acceptance",
+      "kind": "spike",
+      "phase": "P8",
+      "parent": "EPIC-P8",
+      "summary": "Add VR only with measured hardware/comfort/input evidence.",
+      "depends_on": [
+        "EPIC-P7"
+      ],
+      "labels": [
+        "type:spike",
+        "phase:P8",
+        "area:cockpit",
+        "priority:P2",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "app/vr/",
+        "tests/vr/",
+        "docs/decisions/"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/realism-and-validation.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "PRD-017",
+        "PRD-018",
+        "PRD-019",
+        "PRD-020"
+      ],
+      "acceptance": [
+        "Select supported headset/runtime through an ADR and owner hardware availability; no assumed headset purchase.",
+        "Cockpit scale/readability, interaction and comfort settings preserve core physics and training provenance.",
+        "Measure native frame pacing/latency and documented headset-specific quality budgets."
+      ],
+      "evidence": [
+        "Headset prototype benchmark and comfort/controller matrix."
+      ]
+    },
+    {
+      "key": "REGION-LIVE-DATA",
+      "title": "Evaluate new regions and optional live weather/navdata adapters",
+      "kind": "spike",
+      "phase": "P8",
+      "parent": "EPIC-P8",
+      "summary": "Expand geographic value without breaking offline reproducibility or source rights.",
+      "depends_on": [
+        "EPIC-P7"
+      ],
+      "labels": [
+        "type:spike",
+        "phase:P8",
+        "area:world",
+        "priority:P2",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "tools/ingest/",
+        "content/world/",
+        "native/adapters/"
+      ],
+      "docs": [
+        "docs/world-and-data.md",
+        "docs/contracts.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "WORLD-002",
+        "WORLD-003",
+        "WORLD-004",
+        "WORLD-005",
+        "WORLD-006",
+        "WORLD-007",
+        "WORLD-008",
+        "WORLD-009",
+        "WORLD-022",
+        "WORLD-023",
+        "WORLD-024",
+        "WORLD-025"
+      ],
+      "acceptance": [
+        "New coverage/data providers have licensed versioned manifests and offline fallbacks.",
+        "Live data is optional, timestamped, cached and recorded for reproducible practice; no mandatory subscription.",
+        "Jurisdiction-specific rules/lessons remain explicit and reviewed rather than applying FAA rules globally."
+      ],
+      "evidence": [
+        "Provider/rights/cost ADR and offline/live parity fixtures."
+      ]
+    },
+    {
+      "key": "INSTRUCTOR-NETWORK",
+      "title": "Evaluate instructor networking and cooperative multiplayer architecture",
+      "kind": "spike",
+      "phase": "P8",
+      "parent": "EPIC-P8",
+      "summary": "Investigate remote instructor/copilot value after single-player state contracts are stable.",
+      "depends_on": [
+        "EPIC-P7"
+      ],
+      "labels": [
+        "type:spike",
+        "phase:P8",
+        "area:core",
+        "priority:P2",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "native/network/",
+        "app/ui/network/",
+        "docs/decisions/"
+      ],
+      "docs": [
+        "docs/architecture.md",
+        "docs/contracts.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "PRD-032",
+        "SAFE-030"
+      ],
+      "acceptance": [
+        "ADR defines authoritative state, permissions, time/pause policy, latency and privacy model.",
+        "Networking cannot mutate aircraft state outside command contracts or expose private profiles by default.",
+        "Prototype survives disconnect/desync and preserves scenario/intervention logs; public MMO scope is excluded."
+      ],
+      "evidence": [
+        "Network decision/prototype evidence and consent/security review."
+      ]
+    },
+    {
+      "key": "PROFILE-SESSION-UI",
+      "title": "Implement profile selection, local practice log and retention/export controls",
+      "kind": "task",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Let the father and student keep separate settings and useful local session history.",
+      "depends_on": [
+        "EPIC-P2",
+        "LOCAL-PERSISTENCE",
+        "ASSIST-PROFILES"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P3",
+        "area:ui",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "app/ui/profiles/",
+        "app/ui/history/",
+        "tests/ui/profiles/"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/product.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "UX-001",
+        "UX-002",
+        "UX-016",
+        "UX-017",
+        "UX-018",
+        "UX-019",
+        "UX-022",
+        "PRD-027",
+        "PRD-028",
+        "PRD-029"
+      ],
+      "acceptance": [
+        "Create/select/guest/delete flows preserve separate bindings, accessibility and practice histories with a stable profile identifier.",
+        "Session list shows practice status, duration, configuration and assistance; interrupted attempts remain incomplete rather than official flight hours.",
+        "Export/import and retention show replay disk use; deleting large recordings preserves compact history where requested."
+      ],
+      "evidence": [
+        "Two-profile isolation, export/import and retention fixtures plus usability review."
+      ]
+    },
+    {
+      "key": "BASIC-DEBRIEF",
+      "title": "Implement first circuit event review, basic map and recorded playback",
+      "kind": "task",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Make the first complete circuit reviewable before the later full ATC/training debrief.",
+      "depends_on": [
+        "EPIC-P2",
+        "PROFILE-SESSION-UI",
+        "REPLAY-RESUME"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P3",
+        "area:ui",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "app/ui/debrief/basic/",
+        "app/replay/playback/",
+        "tests/debrief/basic/"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/product.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "UX-005",
+        "UX-006",
+        "UX-007",
+        "UX-008",
+        "UX-017",
+        "UX-021",
+        "UX-022",
+        "UX-026",
+        "SAFE-027",
+        "SAFE-028",
+        "PRD-019",
+        "PRD-025",
+        "PRD-029"
+      ],
+      "acceptance": [
+        "Recorded snapshots/events provide scrubbed playback, basic synthetic map, phase timeline and key measurements independent of re-simulation.",
+        "Fuel/checklist/go-around/intervention and incomplete-session events appear with configuration and source/assist status.",
+        "Bookmarked review can be exported; deterministic physics replay remains a separate capability."
+      ],
+      "evidence": [
+        "Known-truth circuit review/playback fixtures and readable UI capture."
+      ]
+    },
+    {
+      "key": "BASELINE-PERFORMANCE",
+      "title": "Validate normal C172S performance before scored maneuver curriculum",
+      "kind": "task",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Establish credible normal-flight behavior early; P6 broadens calibration and failure-envelope coverage.",
+      "depends_on": [
+        "EPIC-P2",
+        "AIRCRAFT-EVIDENCE",
+        "VALIDATION-CORPUS",
+        "ENGINE-FUEL",
+        "CONTROLS-GROUND"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P3",
+        "area:validation",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "tests/reference/c172s/normal/",
+        "content/aircraft/c172s/fdm/",
+        "docs/evidence/P3/performance/"
+      ],
+      "docs": [
+        "docs/realism-and-validation.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "REAL-003",
+        "REAL-004",
+        "REAL-005",
+        "REAL-006",
+        "REAL-007",
+        "REAL-008",
+        "REAL-009",
+        "REAL-010",
+        "REAL-023",
+        "REAL-024",
+        "REAL-025",
+        "PRD-003"
+      ],
+      "acceptance": [
+        "Compare takeoff/climb/cruise/stall/landing at declared normal mass/CG/atmosphere against configuration-specific references and ratified engineering thresholds.",
+        "Resolve material response/performance discrepancies before normal-flight validation claims; unsupported gaps keep related lessons in preview status.",
+        "Publish traces/source definitions/uncertainty; P6 calibration extends the envelope without replacing this baseline gate."
+      ],
+      "evidence": [
+        "Normal-envelope reference matrix and P3 performance review."
+      ]
+    }
+  ]
+}

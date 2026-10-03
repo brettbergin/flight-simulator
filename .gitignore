@@ -1,0 +1,20 @@
+# Generated foundation packages and local GitHub publication state
+dist/
+.local/
+node_modules/
+
+# Future tool/build output
+build/
+out/
+.godot/
+__pycache__/
+*.pyc
+.venv/
+
+# Local pilot data and credentials
+*.local.json
+.env
+.env.*
+!.env.example
+*.pfx
+*.pem

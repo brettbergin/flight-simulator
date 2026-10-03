@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Project plan and release gates
+    url: https://github.com/brettbergin/flight-simulator/blob/main/docs/README.md
+    about: Read the plan before opening implementation work.

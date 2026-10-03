@@ -1,0 +1,57 @@
+name: Foundation release
+
+on:
+  push:
+    tags: ['docs-v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: foundation-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  package:
+    runs-on: windows-2022
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Validate and package documentation
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          if ($env:RELEASE_TAG -notmatch '^docs-v\d+\.\d+\.\d+$') { throw 'Invalid documentation release tag' }
+          # checkout with fetch-depth: 0 already provides origin/main.
+          # Keep persist-credentials disabled and avoid an unauthenticated fetch.
+          git merge-base --is-ancestor HEAD origin/main
+          if ($LASTEXITCODE -ne 0) { throw 'Release commit must be on main' }
+          node tools/check-docs.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Foundation validation failed' }
+          New-Item -ItemType Directory -Path dist -Force | Out-Null
+          $bundle = "dist/flight-simulator-$env:RELEASE_TAG.zip"
+          git archive --format=zip --output=$bundle HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'Archive failed' }
+          $digest = (Get-FileHash -LiteralPath $bundle -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$digest  $(Split-Path -Leaf $bundle)" | Set-Content -LiteralPath dist/SHA256SUMS -Encoding utf8NoBOM
+      - name: Publish foundation prerelease
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $notes = 'Planning documents, dependency-linked backlog, and foundation automation. This package contains no playable simulator. Flight-model validation and training-device approval have not been established. Review docs/README.md and docs/roadmap.md.'
+          gh release create $env:RELEASE_TAG "dist/flight-simulator-$env:RELEASE_TAG.zip" dist/SHA256SUMS --verify-tag --draft --prerelease --title "Project foundations $env:RELEASE_TAG" --notes $notes
+          if ($LASTEXITCODE -ne 0) { throw 'Draft release creation failed; inspect before retrying' }
+          gh release edit $env:RELEASE_TAG --draft=false
+          if ($LASTEXITCODE -ne 0) { throw 'Publishing failed; draft and assets are preserved' }

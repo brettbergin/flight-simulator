@@ -1,0 +1,25 @@
+name: Feature or implementation task
+description: Work tied to a phase and acceptance evidence
+labels: ['type:task']
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome, phase, and requirements
+      description: Describe the user benefit and link relevant requirements and parent epic.
+    validations:
+      required: true
+  - type: textarea
+    id: contract
+    attributes:
+      label: Dependencies and owned paths
+      description: Link blocking issues and contracts; name the files/module this task may change.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance and evidence
+      description: Specify observable pass/fail criteria and the evidence needed to close the issue.
+    validations:
+      required: true
