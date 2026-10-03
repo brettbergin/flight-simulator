@@ -1,0 +1,40 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 31,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "native-release",
+      "displayName": "Native x64 release with verified local dependencies",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/.local/build/native-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "BUILD_TESTING": "ON",
+        "FLIGHT_BUILD_GODOT_BINDINGS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "native-release",
+      "configurePreset": "native-release",
+      "jobs": 8
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "native-release",
+      "configurePreset": "native-release",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
+      }
+    }
+  ]
+}
