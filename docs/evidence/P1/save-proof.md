@@ -8,6 +8,8 @@ The original arrival order deliberately differs from execution order; two comman
 
 Local Windows11 x64, MSVC19.40.33813.0, pinned CMake3.31.8/Ninja1.13.1/JSBSim1.3.1: the first complete run matched exactly, rejected1939 native negative cases, accumulated595.4573ms for the72000 reconstruction solver steps, and took5328ms for initialization/reconstruction/hashing/traces plus the60-second continuation. These are observed costs on the reference machine; the30-second engineering budget is provisional. The final checked-in [compact Windows receipt](../../../tests/replay/windows-proof.json) identifies its actual executable/library/model/contract/source hashes; reruns and CI produce their own receipts rather than require another build's binary hash.
 
+After the Linux compiler identified ambiguous single-line control flow, explicit braces were added without changing the replay behavior. The Windows rebuild passed all five native tests; its refreshed receipt retained the same checkpoint and continuation trace hashes, with600.3553ms reconstruction solver time and5371ms total proof time.
+
 Capability matrix:
 
 | State | Result and boundary |

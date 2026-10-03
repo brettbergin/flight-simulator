@@ -57,7 +57,10 @@ void validate(const Recipe& recipe) {
   if(recipe.initial_request.empty()||recipe.initial_request.size()>limit||recipe.checkpoint_tick.value>72000||recipe.checkpoint_tick.value==0||recipe.admissions.empty()||recipe.admissions.size()>4096)throw std::invalid_argument("Replay recipe bounds");
   c::Tick previous{};
   for(const auto& record:recipe.admissions) {
-    if(record.received_after_tick<previous||record.received_after_tick>recipe.checkpoint_tick)throw std::invalid_argument("Replay admission order");previous=record.received_after_tick;
+    if(record.received_after_tick<previous||record.received_after_tick>recipe.checkpoint_tick) {
+      throw std::invalid_argument("Replay admission order");
+    }
+    previous=record.received_after_tick;
     if(const auto* registration=std::get_if<Registration>(&record.input)) {
       if(!c::stable_id(registration->source_id)||registration->authority>c::Authority::instructor)throw std::invalid_argument("Replay registration");
     } else if(const auto* command=std::get_if<c::ControlCommand>(&record.input)) {
@@ -85,7 +88,10 @@ Bytes encode(const Recipe& recipe) {
       w.integer(pause?2:3,1);control_fields(w,control.header,control.sequence,control.source_id);if(pause)w.integer(pause->paused?1:0,1);else w.real(std::get<c::TimeScaleControl>(control.payload).scale);
     }
   }
-  if(w.bytes.size()>limit-64)throw std::invalid_argument("Replay packet bound");const auto checksum=f::sha256(w.bytes);w.bytes.insert(w.bytes.end(),checksum.begin(),checksum.end());return w.bytes;
+  if(w.bytes.size()>limit-64) {
+    throw std::invalid_argument("Replay packet bound");
+  }
+  const auto checksum=f::sha256(w.bytes);w.bytes.insert(w.bytes.end(),checksum.begin(),checksum.end());return w.bytes;
 }
 Recipe decode(std::span<const std::uint8_t> bytes,const Identity& expected) {
   valid_identity(expected);if(bytes.size()<76||bytes.size()>limit)throw std::invalid_argument("Replay packet bound");
@@ -104,7 +110,10 @@ Recipe decode(std::span<const std::uint8_t> bytes,const Identity& expected) {
       else {c::SessionControl control{{tick,std::move(session)},seq,std::move(source),c::PauseControl{false}};if(kind==2) {const auto flag=r.integer(1);if(flag>1)throw std::invalid_argument("Replay pause flag");control.payload=c::PauseControl{flag==1};}else control.payload=c::TimeScaleControl{r.real()};recipe.admissions.push_back({received,std::move(control)});}
     } else throw std::invalid_argument("Replay operation kind");
   }
-  if(r.offset!=payload.size())throw std::invalid_argument("Replay trailing bytes");validate(recipe);return recipe;
+  if(r.offset!=payload.size()) {
+    throw std::invalid_argument("Replay trailing bytes");
+  }
+  validate(recipe);return recipe;
 }
 f::SessionConfig configuration(const Recipe& recipe,const std::filesystem::path& root) {
   validate(recipe);auto request=f::transport::decode(recipe.initial_request,root);

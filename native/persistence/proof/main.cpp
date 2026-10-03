@@ -52,9 +52,15 @@ std::string reconstruct_to_cut(f::Session& session,const p::Recipe& recipe,std::
     while(next<recipe.admissions.size()&&recipe.admissions[next].received_after_tick.value==boundary)p::admit(session,recipe.admissions[next++]);
     if(boundary==recipe.checkpoint_tick.value)break;
     const auto started=std::chrono::steady_clock::now();const auto step=session.step_fixed();step_ns+=std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-started).count();
-    if(!step.stepped)throw std::invalid_argument("Replay history pauses before next required physics step");digest=chain(digest,session);
+    if(!step.stepped) {
+      throw std::invalid_argument("Replay history pauses before next required physics step");
+    }
+    digest=chain(digest,session);
   }
-  if(next!=recipe.admissions.size()||session.step_fixed().stepped)throw std::invalid_argument("Replay did not reach canonical paused boundary");return digest;
+  if(next!=recipe.admissions.size()||session.step_fixed().stepped) {
+    throw std::invalid_argument("Replay did not reach canonical paused boundary");
+  }
+  return digest;
 }
 int rejects=0;
 template<class Fn>void reject(Fn fn) {bool caught=false;try{fn();}catch(const std::exception&){caught=true;}if(!caught)throw std::runtime_error("Negative case unexpectedly accepted");++rejects;}
