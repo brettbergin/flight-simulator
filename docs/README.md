@@ -18,7 +18,7 @@ This is a serious Windows desktop flight simulator for realistic Cessna flying, 
 | Distribution | GitHub Releases; documentation prereleases now, Windows simulator packages after proof gates |
 | Realism proof | Reference comparisons, repeatable telemetry, pilot evaluations, and explicitly visible limits |
 
-The central design choice is to prove flight-model accuracy and native integration before building a large world or collecting achievements. Complete aircraft configuration, airport source dates, assist settings, and training rubric versions travel with each recorded session.
+The central design choice is to prove flight-model accuracy and native integration before building a large world or collecting achievements. Complete aircraft configuration, airport source dates, assist settings, and training rubric versions travel with each recorded session. Accepted P1 work now includes original synthetic dynamics, external ground-contact experiments, exact same-build flight reconstruction, and a portable native Windows export. The [renderer proof](evidence/P1/render-proof.md) records its separate visual-load experiment; the P1 phase gate remains open until its evidence and integrated review are complete.
 
 ## Read in this order
 
@@ -38,4 +38,4 @@ Simulator practice is recorded as practice. Formal training/device approval and 
 
 ## Current automation
 
-Run `node tools/check-docs.mjs` to validate local documentation/backlog consistency. `node tools/sync-github.mjs` previews the issue plan. Apply is explicit and described in [backlog.md](backlog.md). The [native bootstrap](../tools/bootstrap/README.md) builds the locked dependencies and contract tests; both platforms also verify actual Godot native loading in CI. See [P1 foundation evidence](evidence/P1/bootstrap.md). Flight dynamics, portable export and a playable cockpit remain separate implementation work.
+Run `node tools/check-docs.mjs` to validate local documentation/backlog consistency. `node tools/sync-github.mjs` previews the issue plan. Apply is explicit and described in [backlog.md](backlog.md). The [native bootstrap](../tools/bootstrap/README.md) builds the locked dependencies and contract tests; both platforms also verify actual Godot native loading in CI. See [P1 foundation evidence](evidence/P1/bootstrap.md), [native export](evidence/P1/native-export.md), [ground contacts](evidence/P1/ground-proof.md), [reconstruction](evidence/P1/save-proof.md) and [independent references](evidence/P1/validation-corpus.md). A playable cockpit is subsequent P2 work.

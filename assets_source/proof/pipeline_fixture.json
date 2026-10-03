@@ -1,0 +1,44 @@
+{
+  "kind": "original-pipeline-fixture",
+  "version": 1,
+  "license": "MIT",
+  "blender_version": "4.5.14 LTS",
+  "blender_build_hash": "62c1db4208e8",
+  "generator_sha256": "9a265b2946a2f30ac7495f0689f6f0d6f23251fe7442076b78b2f61b3640e985",
+  "blend_sha256": "847908a2cc2b851a77f0b492fa4d44de72fc8ac856535bc95043d059ab2eaa6f",
+  "glb_sha256": "6af12b425789a4d0cb344c67e73410c1ea8c031a4a20bd2b98b96939e81c82a8",
+  "meters_per_blender_unit": 1.0,
+  "blender_axes": "+X right, +Y forward, +Z up",
+  "gltf_axes": "+X right, -Z forward, +Y up",
+  "body_dimensions_m": [
+    0.6,
+    1.0,
+    0.2
+  ],
+  "body_dimensions_gltf_m": [
+    0.6,
+    0.2,
+    1.0
+  ],
+  "pivot_translation_gltf_m": [
+    0.2,
+    0.1,
+    -0.3
+  ],
+  "lever_translation_gltf_m": [
+    0.0,
+    0.0,
+    -0.15
+  ],
+  "animation_rotation_gltf_y_rad": [
+    0.0,
+    0.25,
+    0.5
+  ],
+  "animation_interpolation": "linear sampled at 30 Hz",
+  "animation_duration_s": 1.0,
+  "materials": [
+    "ProofBlue"
+  ],
+  "scope": "synthetic units/basis/pivot/PBR/transform animation only; no aircraft dimensions, cockpit fidelity or GPU benchmark"
+}

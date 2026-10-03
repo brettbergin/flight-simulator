@@ -69,6 +69,15 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "FDM repeat/convergence/stability proof failed" }
       - name: Prove native initializer loaded in pinned Godot
         run: ./tools/bootstrap/verify-godot.ps1
+      - name: Prove original asset import and CPU render-frame geometry
+        run: |
+          $environment = Get-Content .local/toolchain/environment.json -Raw | ConvertFrom-Json
+          python tools/benchmark/pipeline/verify_pipeline.py --godot $environment.tools.godot --output .local/pipeline-proof/ci
+          if ($LASTEXITCODE -ne 0) { throw "Actual original GLB import proof failed" }
+          python tools/benchmark/geodesy/run.py --godot $environment.tools.godot --output .local/render-geodesy/ci
+          if ($LASTEXITCODE -ne 0) { throw "Private render-frame geometry proof failed" }
+          python tools/benchmark/verify_headless.py --godot $environment.tools.godot --output .local/render-headless/ci
+          if ($LASTEXITCODE -ne 0) { throw "Renderer compilation/headless rejection failed" }
       - name: Check original-model observed equation corpus
         if: hashFiles('tests/reference/observed.mjs') != ''
         run: |
@@ -121,3 +130,6 @@ jobs:
             .local/build/native-release/replay-proof/**
             .local/validation/observed-report.json
             .local/ground-proof/**
+            .local/pipeline-proof/ci/**
+            .local/render-geodesy/ci/**
+            .local/render-headless/ci/**

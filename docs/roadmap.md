@@ -1,6 +1,6 @@
 # Gated implementation roadmap and iteration briefs
 
-Status: proposed. The current request lands documentation, issue structure, and delivery planning. Game implementation begins after the owner reviews this foundation.
+Status: approved for implementation. The owner reviewed the foundation and authorized the fleet on 2026-10-03; [P0 acceptance](evidence/P0/acceptance.md) records that decision. Each later phase still requires its own exit evidence and review.
 
 Phases are ordered by evidence dependencies, not calendar promises. A phase can contain parallel tasks, but cannot pass its exit gate by accumulating issue completions. The coordinator records the build, review artifacts, unresolved gaps, and decision at each gate. Fidelity is scoped to the validated aircraft, environment, procedures, and data available in that release.
 
