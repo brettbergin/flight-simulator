@@ -2,6 +2,8 @@
 
 Date: 2026-10-03. Status: accepted for planning; implementation adoption gated by P1 proofs.
 
+Owner preference confirmed 2026-10-03: choose Godot when development requires no engine vendor account. Godot's official Windows download provides a self-contained executable that can be extracted and run directly; no signup is required for this workflow. Unreal's standard download/install workflow requires an Epic Games account. Use the direct Godot distribution rather than a storefront version. [Godot Windows download](https://godotengine.org/download/windows/), [Unreal download instructions](https://www.unrealengine.com/download).
+
 ## Context
 
 The first product is a Windows desktop simulator with one faithful C172S configuration, a compact training region, local progress, and no required subscription service. A fleet of implementation agents needs testable subsystem boundaries. A high-quality renderer alone does not validate flight dynamics, cockpit systems, or training behavior.
@@ -16,7 +18,7 @@ Default dependencies are free and locally buildable. Lock exact commits/checksum
 
 ## Alternatives
 
-Unreal offers strong scene authoring and rendering and is our measured fallback if representative Godot scenery/panel tests fail. Its proprietary distribution/licensing model and larger build footprint offer no demonstrated initial-project advantage yet. Unity similarly offers a broad ecosystem, but introduces a proprietary editor/licensing dependency and a managed/native integration boundary. A custom engine spends early milestones on generic engine capabilities. FlightGear extension/fork offers substantial existing simulation infrastructure and remains a valid scope fallback, with GPL distribution and a different product architecture. See the architecture comparison for source-linked terms.
+Unreal offers strong scene authoring and rendering, but its standard authoring workflow requires the vendor account the owner prefers to avoid. The owner selected Godot after considering this tradeoff. Unity similarly introduces a proprietary editor/licensing dependency and a managed/native integration boundary. A custom engine spends early milestones on generic engine capabilities. FlightGear extension/fork offers substantial existing simulation infrastructure and remains a possible scope fallback, with GPL distribution and a different product architecture. See the architecture comparison for source-linked terms.
 
 ## Consequences
 
@@ -24,4 +26,4 @@ We build the terrain streamer, aircraft/system bridge, and cockpit interactions 
 
 ## Proof and revisit criteria
 
-P1 must export a portable application loading the bridge and JSBSim DLL on a clean Windows runner, exercise a real simulation step, and record dependency IDs. A representative cockpit/airport/weather scene must demonstrate instrument readability and the proposed target-PC budgets. Two measured rendering/streaming corrective iterations failing the same gate trigger a comparison prototype in Unreal; engine migration requires a new ADR and preserves the independent simulation contracts.
+P1 must export a portable application loading the bridge and JSBSim DLL on a clean Windows runner, exercise a real simulation step, and record dependency IDs. A representative cockpit/airport/weather scene must demonstrate instrument readability and the proposed target-PC budgets. Two measured rendering/streaming corrective iterations failing the same gate trigger a reviewed scope/architecture decision. An Unreal comparison or migration requires the owner's explicit acceptance of its account requirement, a new ADR, and preservation of the independent simulation contracts.
