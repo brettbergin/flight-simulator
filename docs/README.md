@@ -1,6 +1,6 @@
 # Flight simulator project plan
 
-This is a serious Windows desktop flight simulator for realistic Cessna flying, thoughtful practice, and enjoyment by an experienced pilot. The first delivery establishes the implementation plan and GitHub work queue. It does not contain a playable simulator. The owner will review this plan before the implementation fleet begins.
+This is a serious Windows desktop flight simulator for realistic Cessna flying, thoughtful practice, and enjoyment by an experienced pilot. The first delivery establishes the implementation plan and GitHub work queue. The owner approved the plan and authorized implementation on 2026-10-03; see [P0 acceptance](evidence/P0/acceptance.md). P1 now establishes executable contracts, native flight dynamics and Windows delivery proofs. A playable simulator requires the subsequent cockpit and flight-operation phases.
 
 ## Decisions made for this project
 

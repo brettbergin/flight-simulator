@@ -4,7 +4,7 @@ This repository is a Windows-first flight simulator. Start with [docs/README.md]
 
 ## Current scope
 
-The foundation delivery contains plans, issue definitions, and documentation automation. Product implementation begins after the owner reviews the plan and closes the plan-review issue. Do not interpret a merged documentation PR as aircraft validation or approval to begin all future phases.
+The owner approved the plan and authorized the implementation fleet on 2026-10-03. See [P0 acceptance evidence](docs/evidence/P0/acceptance.md). Implement through the issue dependency graph and phase gates. Do not interpret a merged documentation PR as aircraft validation or acceptance of later phases.
 
 ## Working rules
 
