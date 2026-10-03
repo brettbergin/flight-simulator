@@ -107,6 +107,29 @@ export function verifyTileAttachments(report, recipe, rows) {
     scope:'Verified event cadence and node bounds; CPU submission only, not GPU resource retirement or storage/GIS/contact streaming'};
 }
 
+export function verifyCleanup(cleanup, runtime, finalMeasuredWall) {
+  const marker='RENDER_CLEANUP ';
+  const found=runtime.split(/\r?\n/).filter(line=>line.startsWith(marker));
+  assert.equal(found.length,1,'Exact cleanup runtime marker required');
+  assert.deepEqual(JSON.parse(found[0].slice(marker.length)),cleanup,'Cleanup runtime log does not match evidence file');
+  assert.equal(cleanup.schema_version,1,'Cleanup schema version');
+  assert.equal(cleanup.passed,true,'Cleanup retirement failed');
+  assert.equal(cleanup.timeout_s,2,'Reviewed cleanup deadline required');
+  assert(Number.isFinite(cleanup.elapsed_ms) && cleanup.elapsed_ms>=0 && cleanup.elapsed_ms<2000,'Cleanup elapsed exceeds bounded deadline');
+  assert(Number.isSafeInteger(cleanup.waited_process_frames) && cleanup.waited_process_frames>=2,'Cleanup requires two process opportunities');
+  assert.equal(cleanup.initial_observed?.audio_stream,true,'Cleanup did not observe actual audio stream');
+  assert.equal(cleanup.initial_observed?.audio_playback,true,'Cleanup did not observe actual audio playback');
+  assert.equal(cleanup.retirement?.audio_stream_retired,true,'Cleanup audio stream retained');
+  assert.equal(cleanup.retirement?.audio_playback_retired,true,'Cleanup audio playback retained');
+  assert.equal(cleanup.retirement?.active_terrain_nodes,64,'Cleanup active terrain node count');
+  assert.equal(cleanup.retirement?.queued_terrain_nodes,0,'Cleanup queued terrain nodes retained');
+  assert(Number.isSafeInteger(cleanup.started_us) && cleanup.started_us>=finalMeasuredWall,'Cleanup starts before measurement ended');
+  assert(Number.isSafeInteger(cleanup.completed_us) && cleanup.completed_us>=cleanup.started_us,'Cleanup clock regressed');
+  assert(cleanup.completed_us-cleanup.started_us<2_000_000,'Cleanup clock duration reached deadline');
+  assert(Math.abs(cleanup.completed_us-cleanup.started_us-cleanup.elapsed_ms*1000)<=1,'Cleanup elapsed disagrees with monotonic clocks');
+  return {...cleanup,scope:'Postmeasurement resource retirement only; excluded from capture intervals and GPU timing'};
+}
+
 export function verifyEvidence(directory) {
   const manifest = readJSON(path.join(directory,'manifest.json'));
   const recipe = readJSON(path.join(directory,'recipe.json'));
@@ -158,6 +181,7 @@ export function verifyEvidence(directory) {
   const rows = parseTrace(fs.readFileSync(path.join(directory,'frames.csv'),'utf8'));
   const result = reduceTrace(rows);
   result.render_tile_attachment=verifyTileAttachments(report,recipe,rows);
+  result.postmeasurement_cleanup=verifyCleanup(readJSON(path.join(directory,'cleanup.json')),runtime,rows.at(-1).wall);
   assert.equal(result.frames,report.frames);
   assert(Math.abs(result.measured_wall_s-manifest.duration_s)<=.1,'Run does not cover declared continuous interval');
   assert(Math.abs(result.average_fps-report.average_fps)<=.00001,'Summary FPS mismatch');
@@ -216,7 +240,7 @@ export function verifyEvidence(directory) {
   result.resolution=manifest.resolution;
   result.fov_deg=manifest.fov_deg;
   result.artifacts={};
-  for(const name of ['manifest.json','recipe.json','hardware.json','frames.csv','report.json','working-set.csv','runtime.log','origin-before.png','origin-after.png','view.png']) result.artifacts[name]=digest(path.join(directory,name));
+  for(const name of ['manifest.json','recipe.json','hardware.json','frames.csv','report.json','cleanup.json','working-set.csv','runtime.log','origin-before.png','origin-after.png','view.png']) result.artifacts[name]=digest(path.join(directory,name));
   return result;
 }
 

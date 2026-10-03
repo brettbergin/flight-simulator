@@ -158,19 +158,26 @@ function packet(t, {resolution = [2, 1], duration = 1, fov = 70} = {}) {
     template_sha256: sha(Buffer.from('TEST-ONLY fake template identity')),
     recipe_sha256: sha(recipeBytes)
   };
+  const cleanup={schema_version:1,passed:true,timeout_s:2,elapsed_ms:10,waited_process_frames:2,
+    initial_observed:{audio_stream:true,audio_playback:true},
+    retirement:{audio_stream_retired:true,audio_playback_retired:true,active_terrain_nodes:64,queued_terrain_nodes:0},
+    started_us:clock+1000,completed_us:clock+11000,
+    scope:'TEST-ONLY invented cleanup receipt; no actual resource retirement'};
   function writeLog(suffix = '') {
     fs.writeFileSync(path.join(directory, 'runtime.log'), 'TEST-ONLY fabricated markers; NO GPU EXECUTION\n'
       + 'RENDER_DEVICE ' + JSON.stringify(report.device) + '\n'
       + 'RENDERED_ORIGIN_PAIR ' + JSON.stringify(report.rendered_origin_pair) + '\n'
-      + 'RENDER_PROBE ' + JSON.stringify(report) + '\n' + suffix);
+      + 'RENDER_PROBE ' + JSON.stringify(report) + '\n'
+      + 'RENDER_CLEANUP ' + JSON.stringify(cleanup) + '\n' + suffix);
   }
   function save({updateLog = true} = {}) {
     json(path.join(directory, 'manifest.json'), manifest);
     json(path.join(directory, 'report.json'), report);
+    json(path.join(directory, 'cleanup.json'), cleanup);
     if(updateLog) writeLog();
   }
   save();
-  return {directory, snapshot, payload, tools, report, manifest, save, writeLog};
+  return {directory, snapshot, payload, tools, report, manifest, cleanup, save, writeLog};
 }
 
 test('TEST-ONLY valid diagnostic packet verifies bytes and hand-calculated statistics without GPU claims', t => {
@@ -381,5 +388,81 @@ test('tile submission timings and recomputed summaries reject negative and forge
     mutate(fixture.report.render_tile_attachment);
     fixture.save();
     assert.throws(()=>verifyEvidence(fixture.directory),/tile submission|Tile submission/);
+  }
+});
+
+test('TEST-ONLY cleanup is independently verified and hashed outside measured capture intervals', t => {
+  const fixture=packet(t);
+  const result=verifyEvidence(fixture.directory);
+  assert.equal(result.measured_wall_s,1);
+  assert.equal(result.average_fps,3);
+  assert.equal(result.postmeasurement_cleanup.elapsed_ms,10);
+  assert.equal(result.postmeasurement_cleanup.waited_process_frames,2);
+  assert.equal(result.artifacts['cleanup.json'],sha(fs.readFileSync(path.join(fixture.directory,'cleanup.json'))));
+  assert.equal(Object.hasOwn(fixture.report,'cleanup'),false);
+  assert.equal(Object.hasOwn(fixture.report,'postmeasurement_cleanup'),false);
+});
+
+test('missing, tampered or multiply marked cleanup receipts reject complete otherwise valid packets', t => {
+  for(const mutate of [fixture=>fs.unlinkSync(path.join(fixture.directory,'cleanup.json')),
+    fixture=>{fixture.cleanup.elapsed_ms=11; fixture.save({updateLog:false});},
+    fixture=>{
+      const file=path.join(fixture.directory,'runtime.log');
+      const lines=fs.readFileSync(file,'utf8').split('\n').filter(line=>!line.startsWith('RENDER_CLEANUP '));
+      fs.writeFileSync(file,lines.join('\n'));
+    },
+    fixture=>fixture.writeLog('RENDER_CLEANUP '+JSON.stringify(fixture.cleanup)+'\n')]) {
+    const fixture=packet(t);
+    mutate(fixture);
+    assert.throws(()=>verifyEvidence(fixture.directory),/cleanup|Cleanup|ENOENT/);
+  }
+});
+
+test('cleanup must observe both real resources and report both retirements', t => {
+  for(const [section,field,value] of [['initial_observed','audio_stream',false],
+    ['initial_observed','audio_playback',false],['retirement','audio_stream_retired',false],
+    ['retirement','audio_playback_retired',false],['initial_observed','audio_stream',null]]) {
+    const fixture=packet(t);
+    fixture.cleanup[section][field]=value;
+    fixture.save();
+    assert.throws(()=>verifyEvidence(fixture.directory),/Cleanup/);
+  }
+});
+
+test('cleanup schema, success, exact deadline and process opportunity requirements reject forged success', t => {
+  for(const [field,value] of [['schema_version',2],['passed',false],['timeout_s',3],
+    ['elapsed_ms',-1],['elapsed_ms',2000],['elapsed_ms',2001],['elapsed_ms',null],
+    ['waited_process_frames',1],['waited_process_frames',2.5]]) {
+    const fixture=packet(t);
+    fixture.cleanup[field]=value;
+    if(field==='elapsed_ms' && Number.isFinite(value) && value>=0)
+      fixture.cleanup.completed_us=fixture.cleanup.started_us+value*1000;
+    fixture.save();
+    assert.throws(()=>verifyEvidence(fixture.directory),/Cleanup|Reviewed cleanup/);
+  }
+});
+
+test('cleanup final scene counts reject retained queued nodes or changed active workload', t => {
+  for(const [field,value] of [['active_terrain_nodes',63],['active_terrain_nodes',65],
+    ['queued_terrain_nodes',1],['queued_terrain_nodes',-1]]) {
+    const fixture=packet(t);
+    fixture.cleanup.retirement[field]=value;
+    fixture.save();
+    assert.throws(()=>verifyEvidence(fixture.directory),/Cleanup/);
+  }
+});
+
+test('cleanup clocks must follow measurement and agree with elapsed within one microsecond', t => {
+  for(const mutate of [fixture=>{
+    fixture.cleanup.started_us-=1001;
+    fixture.cleanup.completed_us-=1001;
+  },fixture=>fixture.cleanup.completed_us=fixture.cleanup.started_us-1,
+    fixture=>fixture.cleanup.completed_us+=2,
+    fixture=>fixture.cleanup.started_us+=.5,
+    fixture=>{fixture.cleanup.elapsed_ms=1999.9995; fixture.cleanup.completed_us=fixture.cleanup.started_us+2_000_000;}]) {
+    const fixture=packet(t);
+    mutate(fixture);
+    fixture.save();
+    assert.throws(()=>verifyEvidence(fixture.directory),/Cleanup/);
   }
 });
