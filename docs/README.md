@@ -38,4 +38,4 @@ Simulator practice is recorded as practice. Formal training/device approval and 
 
 ## Current automation
 
-Run `node tools/check-docs.mjs` to validate local documentation/backlog consistency. `node tools/sync-github.mjs` previews the issue plan. Apply is explicit and described in [backlog.md](backlog.md). GitHub's two-platform foundation checks are real automation; native/game build checks are tracked implementation work.
+Run `node tools/check-docs.mjs` to validate local documentation/backlog consistency. `node tools/sync-github.mjs` previews the issue plan. Apply is explicit and described in [backlog.md](backlog.md). The [native bootstrap](../tools/bootstrap/README.md) builds the locked dependencies and contract tests; both platforms also verify actual Godot native loading in CI. See [P1 foundation evidence](evidence/P1/bootstrap.md). Flight dynamics, portable export and a playable cockpit remain separate implementation work.
