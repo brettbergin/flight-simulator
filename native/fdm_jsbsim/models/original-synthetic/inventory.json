@@ -1,0 +1,25 @@
+{
+  "id": "original-synthetic",
+  "version": "0.1.0-prototype",
+  "license": "MIT",
+  "origin": "original-authored",
+  "evidence_status": "prototype",
+  "not_aircraft": "No real airframe, engine, propeller or training performance claim.",
+  "files": [
+    {
+      "path": "aircraft/original-synthetic/original-synthetic.xml",
+      "bytes": 4691,
+      "sha256": "e271188986517f459197bb2a4573d5e912a1eeb31e9ad92593ed0ab43424136c"
+    },
+    {
+      "path": "engine/original-synthetic-direct.xml",
+      "bytes": 100,
+      "sha256": "30c8dbec55a756c71d639aef1cf720decff0ba6730af5ec2062608a08d24d00b"
+    },
+    {
+      "path": "engine/original-synthetic-thrust.xml",
+      "bytes": 561,
+      "sha256": "547581e279e9b3f383422ddff7991b0ff1cef6f02054bf0a979cd6859d9ef073"
+    }
+  ]
+}

@@ -56,7 +56,8 @@ inline bool valid(QuaternionBodyToNed q) noexcept {
   return std::isfinite(q.w) && std::isfinite(q.x) && std::isfinite(q.y) && std::isfinite(q.z) &&
     std::abs(std::hypot(std::hypot(q.w, q.x), std::hypot(q.y, q.z)) - 1) <= unit_tolerance;
 }
-// Distinct type prevents mistaking JSBSim's local/NED -> body quaternion for the public inverse.
+// Mathematical Hamilton active NED->body; JSBSim's raw tuple uses a passive matrix
+// convention and must not be assigned this type based on its getter's label.
 struct QuaternionNedToBody { double w{1}, x{}, y{}, z{}; };
 inline QuaternionBodyToNed body_to_ned(QuaternionNedToBody q) noexcept { return {q.w, -q.x, -q.y, -q.z}; }
 template<class Unit> inline Vector3<Ned, Unit> rotate_body_to_ned(QuaternionBodyToNed q, Vector3<Body, Unit> v) noexcept {

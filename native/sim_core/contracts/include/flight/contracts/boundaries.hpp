@@ -108,6 +108,7 @@ class SessionControlGate {
 enum class Validity { valid, invalid, initializing, unavailable };
 enum class Quantity { meters, meters_per_second, radians, radians_per_second, kelvin, pascals, kilograms, amperes, volts, fraction, boolean };
 struct SystemState { std::string id; Quantity quantity{}; SystemValue value; Validity validity{Validity::valid}; };
+// Contact point is an instantaneous-CG-relative FRD arm in meters.
 struct Contact { std::string id; BodyPosition point_body_m; BodyForce force_body_n; bool on_ground{}; };
 struct Configuration { double flap_fraction{}, gear_fraction{1}, trim_fraction{}; };
 template<class T> inline bool unique_identifiers(const std::vector<T>& items, std::string T::*member) noexcept {
@@ -117,8 +118,10 @@ template<class T> inline bool unique_identifiers(const std::vector<T>& items, st
   return true;
 }
 struct AircraftSnapshot {
+  // Both absolute positions locate the instantaneous aircraft CG.
   SampleHeader header; ClockConfig clock; double elapsed_s{}; GeodeticPosition position; EcefPosition ecef_position_m;
   QuaternionBodyToNed orientation_body_to_ned; BodyVelocity velocity_body_mps; BodyRate angular_rate_body_radps;
+  // CG is FRD from the fixed authored structural datum, not an arm relative to itself.
   BodyAcceleration acceleration_body_mps2; double mass_kg{}; BodyPosition center_of_gravity_body_m;
   Configuration configuration; std::vector<SystemState> systems; std::vector<Contact> contacts; Validity validity{Validity::initializing};
 };

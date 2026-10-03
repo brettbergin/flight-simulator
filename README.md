@@ -2,7 +2,7 @@
 
 A Windows-first flight simulator built around realistic Cessna operations, repeatable practice, and evidence-based aircraft validation.
 
-**Current stage: project foundations.** This repository contains the implementation plan, dependency-linked GitHub backlog, and documentation automation. A playable simulator will follow the owner's review and the phased engineering gates.
+**Current stage: P1 native foundation.** The owner approved the plan; versioned contracts, the pinned native toolchain and source-rights gates have landed. The [headless harness](native/fdm_jsbsim/README.md) runs an original synthetic aircraft for numerical proofs. A playable cockpit and C172S validation remain later gates.
 
 Start with [the project plan](docs/README.md), [the roadmap](docs/roadmap.md), and [the issue index](docs/issue-index.md).
 
@@ -14,5 +14,7 @@ node tools/sync-github.mjs
 ```
 
 The first command checks the planning package; the second previews planned GitHub work without mutations. See [contributing](CONTRIBUTING.md), [agent operations](docs/agent-operations.md), and [delivery policy](docs/delivery.md).
+
+For native builds use the [pinned bootstrap](tools/bootstrap/README.md); harness usage and meaningful headless proofs are documented in [the FDM adapter](native/fdm_jsbsim/README.md).
 
 Source code uses the [MIT license](LICENSE). Third-party software, aircraft references, geographic data, and assets retain their own licensing terms. Practice records are simulator practice; no training-device approval or licensing credit has been established.

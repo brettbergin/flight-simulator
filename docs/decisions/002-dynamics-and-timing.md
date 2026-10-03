@@ -16,7 +16,7 @@ Start with fixed 120 Hz dynamics. Wall time determines how many unchanged steps 
 
 Systems ownership is explicit. Initially JSBSim consumes fuel and updates its mass/CG; project systems model electrical buses, starter availability, sensors, and configuration-specific switch logic. A later custom system replacing an upstream owner must disable overlapping behavior and validate the transfer. Aircraft differences belong in manifests and tested adapters, not presentation-only changes.
 
-The selected C172S has its own serial/configuration/POH provenance gate. The bundled C172 XML is labeled experimental development seed until its assumptions are audited and parameters rebuilt or validated. Unproven spins, icing, advanced damage, or avionics remain unsupported capabilities.
+The selected C172S has its own serial/configuration/POH provenance gate. Upstream C172P/C172x XML is excluded by the reviewed rights decision. P1 uses the [original synthetic numerical model](../../native/fdm_jsbsim/README.md) with MIT notice and frozen file inventory. Its polynomial coefficients and idealized turbine/direct thruster have no real-aircraft calibration. The adapter/clock proof does not ratify C172S handling, spins, propeller effects, icing, damage, or avionics.
 
 ## Alternatives
 

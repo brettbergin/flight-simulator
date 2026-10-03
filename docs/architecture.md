@@ -103,7 +103,7 @@ flowchart LR
 
 Write down the owner for every state variable in a systems mapping before implementing it. In the initial C172S, JSBSim's propulsion model owns fuel burned and remaining tank mass; project electrical systems own bus voltage and starter availability. Project code supplies validated controls/interlocks and reads JSBSim outputs. A future custom engine/fuel model requires an ADR transferring ownership, with JSBSim's overlapping consumption disabled and mass/CG supplied consistently. Avoid double-counted fuel or an electrical starter that runs a visually stopped engine.
 
-The bundled upstream JSBSim C172 model is a **development seed only**. Audit engine, fuel system, mass, inertia, aerodynamic tables, propeller, gear, and stall behavior against the selected target. A carbureted seed must never be relabeled as a fuel-injected C172S. Every aircraft declares implemented, approximated, and unsupported capabilities. The cockpit, lessons, failures, and checklist catalog bind to those capabilities. Do not expose carburetor heat, retractable gear, or avionics features that the selected configuration does not have.
+The P1 dynamics proof uses the [original synthetic fixture](../native/fdm_jsbsim/README.md), authored under MIT with exact byte provenance. It proves the adapter and numerical schedule only. Upstream C172P/C172x XML is excluded by the rights review; it is not a redistributable development seed or a C172S substitute. The selected C172S aircraft package and serial/configuration/POH gate remain #28 and later validation work. Audit engine, fuel, mass/inertia, aerodynamics, propeller, gear and stall behavior against that target. Every aircraft declares implemented, simplified and unsupported capabilities; cockpit, lessons, failures and checklists bind to them. Do not expose features absent from the selected configuration.
 
 ## Simulation clock, ordering, and threading
 
@@ -111,7 +111,7 @@ Authoritative ownship integration is fixed at **120 Hz** (`dt = 1/120 s`), a pro
 
 Each step executes a documented order:
 
-1. Drain commands scheduled for this tick, sort by `(tick, source_priority, sequence)`, reject invalid/range-incompatible requests, and emit accepted/rejected events.
+1. Drain validated commands scheduled for this tick, sort by `(tick, authority_rank, source_id, sequence)` with ascending pilot→avionics→scenario→instructor rank; later entries apply highest authority. Source IDs break equal-authority ties lexically before sequence. Producers submit monotonically increasing per-source sequences in arrival order; target ticks schedule execution independently. Return rejection receipts and publish applied records only after a successful step; retain admission order separately for reconstruction.
 2. Sample the deterministic world/weather state at the previous physical state; apply scenario events and sensor/system interlocks.
 3. Evaluate project-owned systems; map their controls to the FDM adapter. Step JSBSim once.
 4. Read physical truth; update sensor dynamics and fault-driven indications. Feed any consumption/engine observations back to their designated system owners for the next tick.
