@@ -108,3 +108,4 @@ jobs:
             .local/build/native-release/godot-binding-load.txt
             .local/fdm-proof/**
             .local/export-proof/**/evidence/**
+            .local/build/native-release/replay-proof/**

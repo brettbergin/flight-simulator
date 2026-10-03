@@ -1,0 +1,8 @@
+add_executable(ground_contract_tests native.cpp)
+target_link_libraries(ground_contract_tests PRIVATE flight::ground_contract)
+if(MSVC)
+  target_compile_options(ground_contract_tests PRIVATE /W4 /WX /permissive-)
+else()
+  target_compile_options(ground_contract_tests PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME ground_contract COMMAND ground_contract_tests)

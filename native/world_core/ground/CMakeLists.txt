@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.25)
+add_library(flight_ground_contract INTERFACE)
+add_library(flight::ground_contract ALIAS flight_ground_contract)
+target_compile_features(flight_ground_contract INTERFACE cxx_std_20)
+target_include_directories(flight_ground_contract INTERFACE include)
+target_link_libraries(flight_ground_contract INTERFACE flight::contracts)
