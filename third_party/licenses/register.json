@@ -686,15 +686,15 @@
       "version": "0.1.0-prototype",
       "owner": "render-maintainer",
       "scope": "Project-authored expressions in app/proof/render/render.gd, panel.gd, frame.gd and their render.tscn/.gitattributes: synthetic terrain tiles, runway markings, building/tree/cloud proxies, panel graphics and private presentation transforms. Fixed example panel values; no Cessna drawings, calibrated instruments or real airfield.",
-      "decision": "Original project source and generated geometry under MIT with retained notice. Runtime engine primitives and bundled fallback font remain covered by the separate Godot component. Final frozen renderer code and package hashes must be captured by the renderer owner.",
+      "decision": "Original project source and generated geometry under MIT with retained notice; the exact five renderer files have frozen source provenance. Runtime engine primitives and bundled fallback font remain covered by the separate Godot component. Benchmark tools, observations and final package hashes require their own final evidence.",
       "license": "MIT",
       "redistribution": "permitted",
       "evidence": "synthetic",
       "source": {
-        "url": "https://github.com/brettbergin/flight-simulator",
-        "revision": "original-render-proof-v1",
+        "url": "https://github.com/brettbergin/flight-simulator/tree/c3ca3f901aec400d0a9b21b381aced772f66cf28/app/proof/render",
+        "revision": "c3ca3f901aec400d0a9b21b381aced772f66cf28",
         "rights_url": "https://github.com/brettbergin/flight-simulator/blob/main/LICENSE",
-        "applicability": "Only original project-authored procedural renderer expressions and their synthetic output; not third-party implementation, borrowed artwork, font files or future contributor packs. This scope label is not an exact final code digest."
+        "applicability": "Only the five exact original project-authored procedural renderer files in source_inventory and their synthetic output; not third-party implementation, borrowed artwork, font files, benchmark tools or future contributor packs."
       },
       "obligations": [
         "retain-notices",
@@ -708,7 +708,12 @@
         }
       ],
       "evidence_file": "third_party/licenses/evidence/original-render-proof.md",
-      "code_inventory_status": "Deferred until renderer freeze; no exact renderer code or binary inventory is approved by this record."
+      "code_inventory_status": "Frozen five-file original source inventory; any subsequent source change needs refreshed hashes and review. No binary/GPU/package or benchmark-tool inventory is cleared by this record.",
+      "source_inventory": {
+        "path": "third_party/licenses/evidence/original-render-source.inventory.json",
+        "sha256": "1228e34e2d682f313bcfa8c8f5eba47c24824ba55550c992125dcde83e048c1d",
+        "files": 5
+      }
     }
   ]
 }

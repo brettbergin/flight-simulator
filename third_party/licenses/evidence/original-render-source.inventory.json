@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "id": "original-render-proof",
+  "version": "0.1.0-prototype",
+  "reviewed_on": "2026-10-03",
+  "source_revision": "c3ca3f901aec400d0a9b21b381aced772f66cf28",
+  "scope": "Only these five frozen original procedural renderer files; no benchmark tooling, GPU results, engine code/fonts, native dependencies or authoring-tool binaries.",
+  "files": [
+    {
+      "path": "app/proof/render/.gitattributes",
+      "bytes": 36,
+      "sha256": "dd48b9004eb7a776c0c73982e53be25ee953005d6b3941b12b32a2ce16291c14",
+      "license": "MIT",
+      "role": "source-metadata"
+    },
+    {
+      "path": "app/proof/render/frame.gd",
+      "bytes": 2166,
+      "sha256": "10f4298a3ad2baafdf0bebbad27dc8930ca0cc0e97f7c3cf29869569054b3787",
+      "license": "MIT",
+      "role": "original-procedural-source"
+    },
+    {
+      "path": "app/proof/render/panel.gd",
+      "bytes": 2688,
+      "sha256": "12c2d3a8be1fe212ba119e393e062f553c41cad174b82e80f63f73782fb24a87",
+      "license": "MIT",
+      "role": "original-procedural-source"
+    },
+    {
+      "path": "app/proof/render/render.gd",
+      "bytes": 21911,
+      "sha256": "acde8a0584998eff42f6e74241a9a0b52d15bf74a54314748cbea59b8ee227c7",
+      "license": "MIT",
+      "role": "original-procedural-source"
+    },
+    {
+      "path": "app/proof/render/render.tscn",
+      "bytes": 174,
+      "sha256": "edb7fd9f6c13c405b5bd8c09545a7aeac6e4dbef8a85420aa66a09e64da44dc3",
+      "license": "MIT",
+      "role": "original-scene"
+    }
+  ]
+}
