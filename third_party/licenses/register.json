@@ -1,0 +1,454 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-10-03",
+  "required_classes": [
+    "runtime",
+    "binding",
+    "database",
+    "aircraft-model",
+    "aircraft-reference",
+    "geographic-data",
+    "visual-assets",
+    "audio-assets"
+  ],
+  "entries": [
+    {
+      "id": "jsbsim",
+      "class": "runtime",
+      "name": "JSBSim C++ shared library",
+      "version": "1.3.1",
+      "owner": "simulation-maintainer",
+      "scope": "C++ library compiled by upstream src CMake; excludes aircraft/engine/system XML, tests, bindings and Unreal plugin",
+      "decision": "Conditional redistribution through replaceable DLL plus corresponding source and retained component notices; explicit file grants govern compiled scope.",
+      "license": "LGPL-2.1-or-later; bundled MIT components",
+      "redistribution": "conditional",
+      "evidence": "source-verified",
+      "source": {
+        "url": "https://github.com/JSBSim-Team/jsbsim/tree/3b25f25e49b42d0489c04ac805674fc1450ca579",
+        "revision": "3b25f25e49b42d0489c04ac805674fc1450ca579",
+        "rights_url": "https://github.com/JSBSim-Team/jsbsim/blob/3b25f25e49b42d0489c04ac805674fc1450ca579/COPYING",
+        "applicability": "C++ library; SimGear Library-GPL-2.0-or-later grants permit later 2.1 choice",
+        "archive_url": "https://codeload.github.com/JSBSim-Team/jsbsim/zip/3b25f25e49b42d0489c04ac805674fc1450ca579",
+        "archive_sha256": "df57467a831cfa3ee3cadcb98d8291ce56bb11976e35dd9e93c94201ff1420d5"
+      },
+      "obligations": [
+        "retain-notices",
+        "stage-third-party-notices",
+        "include-corresponding-source",
+        "allow-library-replacement",
+        "permit-reverse-engineering",
+        "record-modifications"
+      ],
+      "notice_files": [
+        {
+          "path": "third_party/licenses/notices/JSBSim-COPYING.txt",
+          "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551",
+          "source_url": "https://github.com/JSBSim-Team/jsbsim/blob/3b25f25e49b42d0489c04ac805674fc1450ca579/COPYING",
+          "upstream_git_blob": "3394995abc5463238286bc53ce7608839b5d0ba7"
+        },
+        {
+          "path": "third_party/licenses/notices/JSBSim-Expat-COPYING.txt",
+          "sha256": "8c6b5b6de8fae20b317f4992729abc0e520bfba4c7606cd1e9eeb87418eebdec",
+          "source_url": "https://github.com/JSBSim-Team/jsbsim/blob/3b25f25e49b42d0489c04ac805674fc1450ca579/src/simgear/xml/COPYING",
+          "upstream_git_blob": "3c0142e71c8d4fcb2b73fd1c29bc797ae9b7151e"
+        },
+        {
+          "path": "third_party/licenses/notices/JSBSim-GeographicLib-LICENSE.txt",
+          "sha256": "90d25298be0c5d7f5219ae20009d18910150b3a4ea0ca86dda5df04cfb8d3823",
+          "source_url": "https://github.com/JSBSim-Team/jsbsim/blob/3b25f25e49b42d0489c04ac805674fc1450ca579/src/GeographicLib/LICENSE.txt",
+          "upstream_git_blob": "e841c1b64e52b25571fa8be6336d9d5809d590a6"
+        }
+      ],
+      "library_policy": {
+        "linkage": "dynamic",
+        "source_archive_sha256": null,
+        "source_delivery": "Distribute a reproducible library-only corresponding-source bundle with the complete compiled dependency closure, upstream build inputs needed for the DLL, original notices and build/replacement instructions. Exclude aircraft/engine/system XML, tests and unrelated bindings/plugins. Review its file inventory and separate SHA-256 before release; upstream acquisition ZIP is not cleared for redistribution.",
+        "modification_policy": "Initial policy permits unmodified upstream library only. Any patch requires reviewed source archive/digest and dated change notices before release."
+      },
+      "evidence_file": "third_party/licenses/evidence/jsbsim-scope.md"
+    },
+    {
+      "id": "godot",
+      "class": "runtime",
+      "name": "Godot engine and export template runtime",
+      "version": "4.7.2-stable",
+      "owner": "build-maintainer",
+      "scope": "Pinned standard Godot binaries/export templates; full third-party copyright inventory retained",
+      "decision": "Redistribute with MIT license and complete upstream COPYRIGHT notices; custom engine build needs renewed component review.",
+      "license": "MIT; bundled third-party licenses in COPYRIGHT.txt",
+      "redistribution": "conditional",
+      "evidence": "source-verified",
+      "source": {
+        "url": "https://github.com/godotengine/godot/tree/4.7.2-stable",
+        "revision": "4.7.2-stable",
+        "rights_url": "https://github.com/godotengine/godot/blob/4.7.2-stable/LICENSE.txt",
+        "applicability": "Official standard build/export templates"
+      },
+      "obligations": [
+        "retain-notices",
+        "stage-third-party-notices"
+      ],
+      "notice_files": [
+        {
+          "path": "third_party/licenses/notices/Godot-LICENSE.txt",
+          "sha256": "b0435e3b3e4e55238f05f4b306f30524a1b2e20147810d436eaa554fa6855c80",
+          "source_url": "https://github.com/godotengine/godot/blob/4.7.2-stable/LICENSE.txt",
+          "upstream_git_blob": "0e3ba08d6b2e8cf435241829c96f10b74e4356fe"
+        },
+        {
+          "path": "third_party/licenses/notices/Godot-COPYRIGHT.txt",
+          "sha256": "cb1980c88089573bcacd7221d777c689bb8bbd778799f24c27fca0fe5f774d6d",
+          "source_url": "https://github.com/godotengine/godot/blob/4.7.2-stable/COPYRIGHT.txt",
+          "upstream_git_blob": "758917ae4c861384e9596e2271534a4534859d87"
+        }
+      ]
+    },
+    {
+      "id": "godot-cpp",
+      "class": "binding",
+      "name": "Godot C++ GDExtension binding",
+      "version": "godot-4.5-stable",
+      "owner": "build-maintainer",
+      "scope": "Pinned 4.5 API binding; 4.7.2 runtime compatibility remains an execution test, separate from rights",
+      "decision": "MIT notice retained; pin matches #12 dependency lock.",
+      "license": "MIT",
+      "redistribution": "permitted",
+      "evidence": "source-verified",
+      "source": {
+        "url": "https://github.com/godotengine/godot-cpp/tree/e83fd0904c13356ed1d4c3d09f8bb9132bdc6b77",
+        "revision": "e83fd0904c13356ed1d4c3d09f8bb9132bdc6b77",
+        "rights_url": "https://github.com/godotengine/godot-cpp/blob/e83fd0904c13356ed1d4c3d09f8bb9132bdc6b77/LICENSE.md",
+        "applicability": "C++ bindings; single precision API 4.5",
+        "archive_sha256": "579af30c5f62c1084edb28216788188227d80a583f0114463699ac4edd22140f"
+      },
+      "obligations": [
+        "retain-notices"
+      ],
+      "notice_files": [
+        {
+          "path": "third_party/licenses/notices/godot-cpp-LICENSE.txt",
+          "sha256": "26a5b210d90760156ce886267ce9df235787dcc6cebfd7ecd95ef5b6fdcc95bf",
+          "source_url": "https://github.com/godotengine/godot-cpp/blob/e83fd0904c13356ed1d4c3d09f8bb9132bdc6b77/LICENSE.md",
+          "upstream_git_blob": "eb446fe72ce5c705f70413394200f10f67a123cd"
+        }
+      ]
+    },
+    {
+      "id": "sqlite",
+      "class": "database",
+      "name": "SQLite core amalgamation",
+      "version": "3.53.4",
+      "owner": "persistence-maintainer",
+      "scope": "sqlite3.c/sqlite3.h amalgamation core only; other upstream build scripts/extensions separately reviewed",
+      "decision": "Core public-domain dedication documented; retain provenance notice as project packaging policy.",
+      "license": "Public-domain dedication (SQLite core)",
+      "redistribution": "permitted",
+      "evidence": "source-verified",
+      "source": {
+        "url": "https://www.sqlite.org/2026/sqlite-amalgamation-3530400.zip",
+        "revision": "2026-07-24 19:02:57 bf7c7f30031888f4e796e429ab3978879485813aaca6f641c7b33e4e09459bcc",
+        "rights_url": "https://www.sqlite.org/copyright.html",
+        "applicability": "Core amalgamation release 3.53.4",
+        "archive_sha256": "1e71ddf93849c6a6ecf58b827c0692073d2dd7ee40196158068f7b29f422e87d"
+      },
+      "obligations": [
+        "retain-source-attribution"
+      ],
+      "notice_files": [
+        {
+          "path": "third_party/licenses/notices/SQLite-NOTICE.txt",
+          "sha256": "d266f198ff60a0991ce7d8c3ffc7f22f9ee49d1f194de1531681c7fd8aa47abd",
+          "source_url": "https://www.sqlite.org/copyright.html"
+        }
+      ]
+    },
+    {
+      "id": "jsbsim-c172x",
+      "class": "aircraft-model",
+      "name": "Bundled JSBSim c172x aircraft XML",
+      "version": "1.3.1-c172x",
+      "owner": "content-maintainer",
+      "scope": "1982 C172P description; not analog C172S. Aircraft, engine and linked systems are separate inputs.",
+      "decision": "Metadata/reference only; excluded from public repository assets and releases.",
+      "license": "GPL notice plus additional not-to-be-sold condition; unresolved",
+      "redistribution": "excluded",
+      "evidence": "source-verified",
+      "source": {
+        "url": "https://github.com/JSBSim-Team/jsbsim/blob/3b25f25e49b42d0489c04ac805674fc1450ca579/aircraft/c172x/c172x.xml",
+        "revision": "1.3.1-c172x",
+        "rights_url": "https://github.com/JSBSim-Team/jsbsim/blob/3b25f25e49b42d0489c04ac805674fc1450ca579/aircraft/c172x/c172x.xml",
+        "applicability": "1982 C172P description; not analog C172S. Aircraft, engine and linked systems are separate inputs."
+      },
+      "obligations": [
+        "verify-product-rights",
+        "no-redistribution"
+      ],
+      "notice_files": [],
+      "blocker": "Header links GPL and includes not-to-be-sold condition; unresolved additional restriction. No bundled model/engine/system copying. Seed coefficients lack C172S-specific provenance."
+    },
+    {
+      "id": "cessna-172s-poh",
+      "class": "aircraft-reference",
+      "name": "Applicable C172S analog POH/AFM and supplements",
+      "version": "configuration-unselected",
+      "owner": "aircraft-reference-maintainer",
+      "scope": "Fuel-injected C172S analog target; year, serial interval, panel, modifications and supplements not frozen.",
+      "decision": "Metadata/reference only; excluded from public repository assets and releases.",
+      "license": "Unresolved product-specific rights",
+      "redistribution": "excluded",
+      "evidence": "not-acquired",
+      "source": {
+        "url": "https://txtav.com/en/apps",
+        "revision": "configuration-unselected",
+        "rights_url": "https://txtav.com/en/apps",
+        "applicability": "Fuel-injected C172S analog target; year, serial interval, panel, modifications and supplements not frozen."
+      },
+      "obligations": [
+        "verify-product-rights",
+        "no-redistribution"
+      ],
+      "notice_files": [],
+      "blocker": "Manufacturer publication access and permitted extraction/redistribution unresolved. No restricted copy acquired. P3 must freeze exact document revision/hash, applicability and extraction rights."
+    },
+    {
+      "id": "cessna-skyhawk-product-page",
+      "class": "aircraft-reference",
+      "name": "Manufacturer current Skyhawk product metadata",
+      "version": "web-reviewed-2026-10-03",
+      "owner": "aircraft-reference-maintainer",
+      "scope": "Marketed IO-360-L2A/G1000 NXi product; establishes family only, not selected analog configuration.",
+      "decision": "Metadata/reference only; excluded from public repository assets and releases.",
+      "license": "Manufacturer web content; no redistribution grant",
+      "redistribution": "excluded",
+      "evidence": "source-verified",
+      "source": {
+        "url": "https://cessna.txtav.com/en/piston/cessna-skyhawk",
+        "revision": "web-reviewed-2026-10-03",
+        "rights_url": "https://cessna.txtav.com/en/piston/cessna-skyhawk",
+        "applicability": "Marketed IO-360-L2A/G1000 NXi product; establishes family only, not selected analog configuration."
+      },
+      "obligations": [
+        "verify-product-rights",
+        "no-redistribution"
+      ],
+      "notice_files": [],
+      "blocker": "Link-only reference, no imagery/text/assets packaged; cannot establish analog POH limits."
+    },
+    {
+      "id": "faa-training-publications",
+      "class": "aircraft-reference",
+      "name": "FAA ACS/handbooks/AIM training references",
+      "version": "catalog-reviewed-2026-10-03",
+      "owner": "aircraft-reference-maintainer",
+      "scope": "ACS6C, PHAK25C, AFH3C and current AIM reference metadata in docs/sources.md.",
+      "decision": "Metadata/reference only; excluded from public repository assets and releases.",
+      "license": "Unresolved product-specific rights",
+      "redistribution": "excluded",
+      "evidence": "not-acquired",
+      "source": {
+        "url": "https://www.faa.gov/training_testing/testing/acs",
+        "revision": "catalog-reviewed-2026-10-03",
+        "rights_url": "https://www.faa.gov/website_policies",
+        "applicability": "ACS6C, PHAK25C, AFH3C and current AIM reference metadata in docs/sources.md."
+      },
+      "obligations": [
+        "verify-product-rights",
+        "no-redistribution"
+      ],
+      "notice_files": [],
+      "blocker": "Specific publication/addenda bytes, embedded third-party notices and original lesson derivations need product-level review before asset packaging."
+    },
+    {
+      "id": "faa-aeronautical-data",
+      "class": "geographic-data",
+      "name": "FAA NASR, Chart Supplement and chart products",
+      "version": "cycle-candidates-2026-10-01-and-2026-09-03",
+      "owner": "content-maintainer",
+      "scope": "Pacific Northwest candidate world; NASR and Chart Supplement have different effective cycles.",
+      "decision": "Metadata/reference only; excluded from public repository assets and releases.",
+      "license": "Unresolved product-specific rights",
+      "redistribution": "excluded",
+      "evidence": "not-acquired",
+      "source": {
+        "url": "https://www.faa.gov/air_traffic/flight_info/aeronav/Aero_Data/NASR_Subscription/",
+        "revision": "cycle-candidates-2026-10-01-and-2026-09-03",
+        "rights_url": "https://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/",
+        "applicability": "Pacific Northwest candidate world; NASR and Chart Supplement have different effective cycles."
+      },
+      "obligations": [
+        "verify-product-rights",
+        "no-redistribution"
+      ],
+      "notice_files": [],
+      "blocker": "No raw bundle acquired. Review each product terms/notices, exact cycle/schema/digest and derivative attribution before geographic pack."
+    },
+    {
+      "id": "usgs-3dep",
+      "class": "geographic-data",
+      "name": "USGS 3DEP elevation products",
+      "version": "tiles-unselected",
+      "owner": "content-maintainer",
+      "scope": "3DEP products have unrestricted-use statement; ancillary imagery/layers separately reviewed.",
+      "decision": "Metadata/reference only; excluded from public repository assets and releases.",
+      "license": "Provider states products free without use restrictions",
+      "redistribution": "excluded",
+      "evidence": "provisional",
+      "source": {
+        "url": "https://www.usgs.gov/3d-elevation-program/about-3dep-products-services",
+        "revision": "tiles-unselected",
+        "rights_url": "https://www.usgs.gov/3d-elevation-program/about-3dep-products-services",
+        "applicability": "3DEP products have unrestricted-use statement; ancillary imagery/layers separately reviewed."
+      },
+      "obligations": [
+        "verify-product-rights",
+        "no-redistribution"
+      ],
+      "notice_files": [],
+      "blocker": "Selected tile IDs/datums/source metadata/digests and derivative terrain manifest absent; do not treat provider-level finding as artifact clearance."
+    },
+    {
+      "id": "noaa-awc",
+      "class": "geographic-data",
+      "name": "NOAA AWC weather products",
+      "version": "products-unselected",
+      "owner": "content-maintainer",
+      "scope": "Weather observations/forecasts with time/freshness; NOAA content may include exceptions.",
+      "decision": "Metadata/reference only; excluded from public repository assets and releases.",
+      "license": "Unresolved product-specific rights",
+      "redistribution": "excluded",
+      "evidence": "not-acquired",
+      "source": {
+        "url": "https://aviationweather.gov/data/api/",
+        "revision": "products-unselected",
+        "rights_url": "https://www.noaa.gov/office-education/outreach-communication/faq",
+        "applicability": "Weather observations/forecasts with time/freshness; NOAA content may include exceptions."
+      },
+      "obligations": [
+        "verify-product-rights",
+        "no-redistribution"
+      ],
+      "notice_files": [],
+      "blocker": "Capture product-specific origin/terms, API/cache contract and fixture provenance; no weather payload redistribution approved yet."
+    },
+    {
+      "id": "noaa-wmm",
+      "class": "geographic-data",
+      "name": "NOAA/NCEI WMM2025 coefficients and software",
+      "version": "WMM2025-artifacts-unselected",
+      "owner": "content-maintainer",
+      "scope": "Current geographic magnetic model; do not substitute bundled JSBSim WMM2005 routine.",
+      "decision": "Metadata/reference only; excluded from public repository assets and releases.",
+      "license": "Unresolved product-specific rights",
+      "redistribution": "excluded",
+      "evidence": "not-acquired",
+      "source": {
+        "url": "https://www.ncei.noaa.gov/products/world-magnetic-model",
+        "revision": "WMM2025-artifacts-unselected",
+        "rights_url": "https://www.ncei.noaa.gov/products/world-magnetic-model",
+        "applicability": "Current geographic magnetic model; do not substitute bundled JSBSim WMM2005 routine."
+      },
+      "obligations": [
+        "verify-product-rights",
+        "no-redistribution"
+      ],
+      "notice_files": [],
+      "blocker": "Acquire exact coefficients/software license/test vectors and hashes separately before shipping."
+    },
+    {
+      "id": "airport-sponsor-material",
+      "class": "geographic-data",
+      "name": "KAWO/KPAE/KBFI sponsor procedures and artwork",
+      "version": "sponsor-references-reviewed-2026-10-03",
+      "owner": "content-maintainer",
+      "scope": "Official operational discovery references linked in docs/sources.md.",
+      "decision": "Metadata/reference only; excluded from public repository assets and releases.",
+      "license": "Unresolved product-specific rights",
+      "redistribution": "excluded",
+      "evidence": "not-acquired",
+      "source": {
+        "url": "https://kingcounty.gov/en/dept/executive-services/transit-transportation-roads/airport/pilot-information",
+        "revision": "sponsor-references-reviewed-2026-10-03",
+        "rights_url": "https://kingcounty.gov/en/dept/executive-services/transit-transportation-roads/airport/pilot-information",
+        "applicability": "Official operational discovery references linked in docs/sources.md."
+      },
+      "obligations": [
+        "verify-product-rights",
+        "no-redistribution"
+      ],
+      "notice_files": [],
+      "blocker": "Sponsor graphics/brochures have independent terms; retain links and reviewed original derivations only until per-file rights/effective dates reviewed."
+    },
+    {
+      "id": "prototype-aircraft",
+      "class": "aircraft-model",
+      "name": "Original synthetic aircraft fixture",
+      "version": "not-authored",
+      "owner": "content-maintainer",
+      "scope": "P1 headless harness only, visibly prototype; no manufacturer performance claim.",
+      "decision": "Metadata/reference only; excluded from public repository assets and releases.",
+      "license": "Unresolved product-specific rights",
+      "redistribution": "excluded",
+      "evidence": "not-acquired",
+      "source": {
+        "url": "https://github.com/brettbergin/flight-simulator/issues/14",
+        "revision": "not-authored",
+        "rights_url": "https://github.com/brettbergin/flight-simulator/issues/14",
+        "applicability": "P1 headless harness only, visibly prototype; no manufacturer performance claim."
+      },
+      "obligations": [
+        "verify-product-rights",
+        "no-redistribution"
+      ],
+      "notice_files": [],
+      "blocker": "Issue14 must author original coefficients/files and register exact paths/digests and project license before inclusion."
+    },
+    {
+      "id": "visual-content",
+      "class": "visual-assets",
+      "name": "Original cockpit/world textures, meshes, fonts and UI art",
+      "version": "assets-unselected",
+      "owner": "content-maintainer",
+      "scope": "No external art/font/model pack selected; original synthetic world first.",
+      "decision": "Metadata/reference only; excluded from public repository assets and releases.",
+      "license": "Unresolved product-specific rights",
+      "redistribution": "excluded",
+      "evidence": "not-acquired",
+      "source": {
+        "url": "https://github.com/brettbergin/flight-simulator/issues/13",
+        "revision": "assets-unselected",
+        "rights_url": "https://github.com/brettbergin/flight-simulator/issues/13",
+        "applicability": "No external art/font/model pack selected; original synthetic world first."
+      },
+      "obligations": [
+        "verify-product-rights",
+        "no-redistribution"
+      ],
+      "notice_files": [],
+      "blocker": "Every actual asset or authored pack needs separate provenance, rights, file inventory and notices; no generic synthetic exception."
+    },
+    {
+      "id": "audio-content",
+      "class": "audio-assets",
+      "name": "Engine, cockpit, environment and ATC recordings",
+      "version": "assets-unselected",
+      "owner": "content-maintainer",
+      "scope": "Future original or licensed recordings; source and contributor permissions per pack.",
+      "decision": "Metadata/reference only; excluded from public repository assets and releases.",
+      "license": "Unresolved product-specific rights",
+      "redistribution": "excluded",
+      "evidence": "not-acquired",
+      "source": {
+        "url": "https://github.com/brettbergin/flight-simulator/issues/13",
+        "revision": "assets-unselected",
+        "rights_url": "https://github.com/brettbergin/flight-simulator/issues/13",
+        "applicability": "Future original or licensed recordings; source and contributor permissions per pack."
+      },
+      "obligations": [
+        "verify-product-rights",
+        "no-redistribution"
+      ],
+      "notice_files": [],
+      "blocker": "No recording/vendor assets acquired. Capture performer/recording rights and redistribution license before inclusion."
+    }
+  ]
+}
