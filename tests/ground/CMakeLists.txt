@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.25)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+  project(FlightGroundContractTests LANGUAGES CXX)
+  enable_testing()
+  add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../native/sim_core/contracts" core_contracts)
+  add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../native/world_core/ground" ground_contract)
+endif()
+add_subdirectory(contracts)
