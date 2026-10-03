@@ -100,9 +100,12 @@ function packet(t, {resolution = [2, 1], duration = 1, fov = 70} = {}) {
   // helper computes the expected summary. Long variants still contain only
   // synthetic samples and intentionally fail frame-throughput budgets.
   const intervals = [duration * 250_000, duration * 333_333, duration * 416_667];
-  let clock = 10_000_000;
+  const captureStart=1_000_000;
+  let clock = captureStart+10_000_000;
+  const frameClocks=[];
   const lines = intervals.map((us, index) => {
     clock += us;
+    frameClocks.push((clock-captureStart)/1e6);
     return `${index + 1},${clock},${us / 1000},${index},1,${2 * (index + 1)},${index + 1},${1000 * (index + 1)},${index === 0 ? 1 : 2}`;
   });
   fs.writeFileSync(path.join(directory, 'frames.csv'), header + lines.join('\n') + '\n');
@@ -110,10 +113,27 @@ function packet(t, {resolution = [2, 1], duration = 1, fov = 70} = {}) {
   const memoryLines = Array.from({length: processDuration - 1}, (_, index) => `${index + 1},4096`);
   fs.writeFileSync(path.join(directory, 'working-set.csv'), 'elapsed_s,working_set_bytes\n' + memoryLines.join('\n') + '\n');
 
+  // One warmup event, then only actual due callback events. The intentionally
+  // sparse long packet skips missed deadlines rather than inventing swaps.
+  const events=[{process_frame:0,wall_s:5,epoch:1,tile_index:0,scheduled_s:5,
+    submit_ms:.125,active_nodes:64,deferred_old_nodes:1}];
+  let nextScheduled=10;
+  for(const [index,wall] of frameClocks.entries()) {
+    if(wall<nextScheduled) continue;
+    const epoch=events.length+1;
+    events.push({process_frame:index+1,wall_s:wall,epoch,tile_index:[0,7,56,63][(epoch-1)%4],
+      scheduled_s:nextScheduled,submit_ms:.25+index*.125,active_nodes:64,deferred_old_nodes:1});
+    nextScheduled=Math.floor(wall/5+1)*5;
+  }
+  const maxSubmit=events.at(-1).submit_ms; // Values strictly increase; hand-calculated p95=max for <=4 events.
   const report = {
     TEST_ONLY: true,
     scope: 'TEST-ONLY parser integrity fixture; no execution, rendering or GPU evidence',
     duration_s: duration, warmup_s: 10, frames: 3, average_fps: 3 / duration,
+    capture_start_us:captureStart,capture_elapsed_s:10+duration,
+    render_tile_attachment:{events,interval_s:5,replacements:events.length,steady_tile_count:64,
+      maximum_deferred_old_nodes:1,p95_submit_cpu_ms:maxSubmit,maximum_submit_cpu_ms:maxSubmit,
+      next_scheduled_s:nextScheduled,scope:'TEST-ONLY invented event packet; no actual mesh attachment'},
     frame_ms: {p95: intervals[2] / 1000, p99: intervals[2] / 1000},
     gpu_ms: {p95: 6, p99: 6, positive_unique_frame_samples: 3, duplicate_observations: 0},
     device: {
@@ -281,5 +301,85 @@ test('wrong frame/GPU summaries reject even after their runtime markers are refr
     (section ? fixture.report[section] : fixture.report)[field] = value;
     fixture.save();
     assert.throws(() => verifyEvidence(fixture.directory), diagnostic, `${section ?? 'report'}.${field}`);
+  }
+});
+
+test('TEST-ONLY tile events include warmup and independently account for explicitly skipped deadlines', t => {
+  const fixture=packet(t,{duration:25});
+  // Callback times16.25,24.583325,35 skip20 and30 deadlines respectively.
+  assert.deepEqual(fixture.report.render_tile_attachment.events.map(event=>event.scheduled_s),[5,10,20,25]);
+  const result=verifyEvidence(fixture.directory);
+  assert.equal(result.render_tile_attachment.replacements,4);
+  assert.equal(result.render_tile_attachment.maximum_deferred_old_nodes,1);
+  assert.equal(result.render_tile_attachment.p95_submit_cpu_ms,.5);
+  assert.equal(result.render_tile_attachment.next_scheduled_s,40);
+});
+
+test('tile event absence, truncation and forged count reject even after matching log refresh', t => {
+  for(const mutate of [attachment=>delete attachment.events,attachment=>attachment.events=[],
+    attachment=>attachment.events.pop(),attachment=>attachment.replacements+=1]) {
+    const fixture=packet(t);
+    mutate(fixture.report.render_tile_attachment);
+    fixture.save();
+    assert.throws(()=>verifyEvidence(fixture.directory),/Tile/);
+  }
+});
+
+test('tile epoch, corner cycle, cadence and pending deadline mutations reject', t => {
+  for(const mutate of [attachment=>attachment.events[1].epoch=1,
+    attachment=>attachment.events[1].tile_index=56,
+    attachment=>attachment.events[1].scheduled_s=15,
+    attachment=>attachment.events[0].scheduled_s=0,
+    attachment=>attachment.next_scheduled_s=20,
+    attachment=>attachment.interval_s=1]) {
+    const fixture=packet(t);
+    mutate(fixture.report.render_tile_attachment);
+    fixture.save();
+    assert.throws(()=>verifyEvidence(fixture.directory),/Tile/);
+  }
+  const fixture=packet(t,{duration:25});
+  fixture.report.render_tile_attachment.events[2].scheduled_s=15; // Catch-up differs from explicit skip policy.
+  fixture.save();
+  assert.throws(()=>verifyEvidence(fixture.directory),/Tile scheduled deadline recurrence/);
+});
+
+test('tile frame and wall clocks bind events to actual raw rows and final capture clock', t => {
+  for(const mutate of [report=>report.render_tile_attachment.events[1].process_frame=0,
+    report=>report.render_tile_attachment.events[1].wall_s=10.2,
+    report=>report.render_tile_attachment.events[0].wall_s=4.9,
+    report=>report.render_tile_attachment.events[0].process_frame=1,
+    report=>report.render_tile_attachment.events[1].wall_s=12,
+    report=>report.capture_start_us+=10,
+    report=>report.capture_elapsed_s+=.01]) {
+    const fixture=packet(t);
+    mutate(fixture.report);
+    fixture.save();
+    assert.throws(()=>verifyEvidence(fixture.directory),/Tile|Warmup|Capture/);
+  }
+});
+
+test('tile active/deferred node bounds and summary maxima reject forged boundedness', t => {
+  for(const mutate of [attachment=>attachment.events[0].active_nodes=65,
+    attachment=>attachment.events[0].deferred_old_nodes=2,
+    attachment=>attachment.events[0].deferred_old_nodes=-1,
+    attachment=>attachment.steady_tile_count=63,
+    attachment=>attachment.maximum_deferred_old_nodes=0]) {
+    const fixture=packet(t);
+    mutate(fixture.report.render_tile_attachment);
+    fixture.save();
+    assert.throws(()=>verifyEvidence(fixture.directory),/terrain nodes|Tile/);
+  }
+});
+
+test('tile submission timings and recomputed summaries reject negative and forged metrics', t => {
+  for(const mutate of [attachment=>attachment.events[1].submit_ms=-.1,
+    attachment=>attachment.events[1].submit_ms=null,
+    attachment=>attachment.events[1].submit_ms=.75,
+    attachment=>attachment.p95_submit_cpu_ms=0,
+    attachment=>attachment.maximum_submit_cpu_ms=0]) {
+    const fixture=packet(t);
+    mutate(fixture.report.render_tile_attachment);
+    fixture.save();
+    assert.throws(()=>verifyEvidence(fixture.directory),/tile submission|Tile submission/);
   }
 });

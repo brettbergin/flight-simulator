@@ -58,6 +58,55 @@ export function reduceTrace(rows) {
 const digest = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const readJSON = file => JSON.parse(fs.readFileSync(file,'utf8').replace(/^\uFEFF/,''));
 
+export function verifyTileAttachments(report, recipe, rows) {
+  const interval=recipe.scene.far_tile_replacement_interval_s;
+  assert.equal(interval,5,'Reviewed tile attachment interval required');
+  assert(Number.isSafeInteger(report.capture_start_us) && report.capture_start_us>=0,'Invalid capture start clock');
+  const elapsed=report.capture_elapsed_s;
+  assert(Number.isFinite(elapsed) && elapsed>0 && Math.abs(elapsed-report.warmup_s-report.duration_s)<=.1,'Invalid final capture elapsed');
+  assert(Math.abs(report.capture_start_us+elapsed*1e6-rows.at(-1).wall)<=1,'Capture elapsed does not match final trace clock');
+  const attachment=report.render_tile_attachment;
+  assert(attachment && Array.isArray(attachment.events),'Tile attachment event evidence required');
+  assert.equal(attachment.interval_s,interval,'Tile interval summary mismatch');
+  const byFrame=new Map(rows.map(row=>[row.frame,row]));
+  let scheduled=interval, previousFrame=-1, previousWall=-1, maximumDeferred=0;
+  const timings=[];
+  for(const [index,event] of attachment.events.entries()) {
+    assert(Number.isSafeInteger(event.process_frame) && event.process_frame>previousFrame && event.process_frame<=rows.at(-1).frame,'Tile event frame order');
+    assert(Number.isFinite(event.wall_s) && event.wall_s>previousWall && event.wall_s<=elapsed,'Tile event wall clock order');
+    assert.equal(event.epoch,index+1,'Tile event epoch sequence');
+    assert.equal(event.tile_index,[0,7,56,63][index%4],'Tile corner cycle');
+    assert.equal(event.scheduled_s,scheduled,'Tile scheduled deadline recurrence');
+    assert(event.wall_s>=scheduled,'Tile attachment occurred before its deadline');
+    assert(Number.isFinite(event.submit_ms) && event.submit_ms>=0,'Invalid tile submission timing');
+    assert.equal(event.active_nodes,64,'Unbounded active terrain nodes');
+    assert(Number.isSafeInteger(event.deferred_old_nodes) && event.deferred_old_nodes>=0 && event.deferred_old_nodes<=1,'Unbounded deferred terrain nodes');
+    if(event.wall_s>report.warmup_s) {
+      const row=byFrame.get(event.process_frame);
+      assert(row,'Post-warmup tile event missing from raw trace');
+      assert(Math.abs(report.capture_start_us+event.wall_s*1e6-row.wall)<=1,'Tile event timestamp disagrees with raw trace');
+    } else assert(event.process_frame<rows[0].frame,'Warmup tile event overlaps captured frames');
+    timings.push(event.submit_ms);
+    maximumDeferred=Math.max(maximumDeferred,event.deferred_old_nodes);
+    previousFrame=event.process_frame;
+    previousWall=event.wall_s;
+    // Skip missed deadlines explicitly; never fabricate catch-up events.
+    scheduled=Math.floor(event.wall_s/interval+1)*interval;
+  }
+  assert.equal(attachment.next_scheduled_s,scheduled,'Tile pending deadline summary mismatch');
+  assert(scheduled>elapsed,'Tile attachment evidence missing final due event');
+  assert.equal(attachment.replacements,attachment.events.length,'Tile replacement count mismatch');
+  assert.equal(attachment.steady_tile_count,64,'Tile steady node count mismatch');
+  assert.equal(attachment.maximum_deferred_old_nodes,maximumDeferred,'Tile deferred node maximum mismatch');
+  const p95=timings.length?nearestRank(timings,.95):-1;
+  const maximum=timings.length?Math.max(...timings):-1;
+  assert(Number.isFinite(attachment.p95_submit_cpu_ms) && Math.abs(attachment.p95_submit_cpu_ms-p95)<=1e-9,'Tile submission percentile mismatch');
+  assert(Number.isFinite(attachment.maximum_submit_cpu_ms) && Math.abs(attachment.maximum_submit_cpu_ms-maximum)<=1e-9,'Tile submission maximum mismatch');
+  return {replacements:timings.length,interval_s:interval,steady_tile_count:64,maximum_deferred_old_nodes:maximumDeferred,
+    p95_submit_cpu_ms:p95,maximum_submit_cpu_ms:maximum,next_scheduled_s:scheduled,
+    scope:'Verified event cadence and node bounds; CPU submission only, not GPU resource retirement or storage/GIS/contact streaming'};
+}
+
 export function verifyEvidence(directory) {
   const manifest = readJSON(path.join(directory,'manifest.json'));
   const recipe = readJSON(path.join(directory,'recipe.json'));
@@ -108,6 +157,7 @@ export function verifyEvidence(directory) {
   for(const [field,name] of [['executable_sha256','flight-render.exe'],['pck_sha256','flight-render.pck'],['bridge_sha256','bin/flight_godot_bridge.dll'],['jsbsim_sha256','bin/JSBSim.dll']]) assert.equal(digest(path.join(payload,name)),manifest[field],'Exported payload identity mismatch');
   const rows = parseTrace(fs.readFileSync(path.join(directory,'frames.csv'),'utf8'));
   const result = reduceTrace(rows);
+  result.render_tile_attachment=verifyTileAttachments(report,recipe,rows);
   assert.equal(result.frames,report.frames);
   assert(Math.abs(result.measured_wall_s-manifest.duration_s)<=.1,'Run does not cover declared continuous interval');
   assert(Math.abs(result.average_fps-report.average_fps)<=.00001,'Summary FPS mismatch');
