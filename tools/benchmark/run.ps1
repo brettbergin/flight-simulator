@@ -120,7 +120,7 @@ $manifest.wall_process_duration_s=$timer.Elapsed.TotalSeconds
 $manifest.exit_code=$process.ExitCode
 $manifest.arguments=$arguments | ForEach-Object { if($_ -like 'output=*') {'output=<task-evidence-directory>'} else {$_} }
 $manifest | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $evidence 'manifest.json') -Encoding utf8
-if($process.ExitCode -ne 0 -or ($stdout.Result+$stderr.Result) -match 'ERROR:|SCRIPT ERROR:|FATAL:|ObjectDB instance was leaked' -or $stdout.Result -notmatch 'RENDER_PROBE ') { throw 'Renderer failed; evidence retained' }
+if($process.ExitCode -ne 0 -or ($stdout.Result+$stderr.Result) -match 'ERROR:|SCRIPT ERROR:|FATAL:|ObjectDB instances? (?:was|were) leaked' -or $stdout.Result -notmatch 'RENDER_PROBE ') { throw 'Renderer failed; evidence retained' }
 & node (Join-Path $verificationTools 'reduce.mjs') $evidence
 if($LASTEXITCODE -ne 0) { throw 'Independent renderer evidence verification failed' }
 Write-Output $root

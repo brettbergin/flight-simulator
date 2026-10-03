@@ -55,6 +55,8 @@ def main():
     if not output.is_relative_to((ROOT / ".local").resolve()):
         raise ValueError("Geometry output must be inside this checkout's .local")
     output.mkdir(parents=True, exist_ok=True)
+    if any(output.iterdir()):
+        raise ValueError("Use a fresh geometry evidence directory; preserve prior receipts")
     source = frame.read_bytes()
     source_hash = sha(source)
     if args.expected_frame_sha256 and source_hash != args.expected_frame_sha256:

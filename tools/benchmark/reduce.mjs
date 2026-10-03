@@ -83,7 +83,7 @@ export function verifyEvidence(directory) {
   assert.equal(report.device.engine.hash,'ed1daf0bf001b61586d9930840f2f1394092c079');
   assert(Number.isFinite(manifest.wall_process_duration_s) && manifest.wall_process_duration_s>=manifest.warmup_s+manifest.duration_s);
   const runtime=fs.readFileSync(path.join(directory,'runtime.log'),'utf8');
-  assert(!/ERROR:|SCRIPT ERROR:|FATAL:|ObjectDB instance was leaked/.test(runtime),'Runtime diagnostics invalidate evidence');
+  assert(!/ERROR:|SCRIPT ERROR:|FATAL:|ObjectDB instances? (?:was|were) leaked/.test(runtime),'Runtime diagnostics invalidate evidence');
   for(const [marker,expected] of [['RENDER_DEVICE ',report.device],['RENDER_PROBE ',report],['RENDERED_ORIGIN_PAIR ',report.rendered_origin_pair]]) {
     const found=runtime.split(/\r?\n/).filter(line=>line.startsWith(marker));
     assert.equal(found.length,1,'Exact runtime receipt marker required');
@@ -100,6 +100,7 @@ export function verifyEvidence(directory) {
     assert.equal(fs.statSync(file).size,source.bytes,'Staged source byte count');
     assert.equal(digest(file),source.sha256,'Staged source does not match captured snapshot');
   }
+  assert.deepEqual(manifest.benchmark_tools.map(tool=>tool.path).sort(),['tools/benchmark/png.mjs','tools/benchmark/recipe.json','tools/benchmark/reduce.mjs','tools/benchmark/run.ps1'],'Complete immutable verification tool identity required');
   for(const tool of manifest.benchmark_tools) {
     assert(/^tools\/benchmark\/[^/]+$/.test(tool.path),'Unsafe benchmark tool identity');
     assert.equal(digest(path.join(directory,'verification-tools',path.basename(tool.path))),tool.sha256,'Verification tool identity mismatch');
