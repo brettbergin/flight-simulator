@@ -73,6 +73,18 @@ until independently reviewed/pinned; the evidence artifact preserves their
 concrete source/version/signature/hash information. No simulator binaries or
 source archives are published by this CI job.
 
+The first [native CI run](https://github.com/brettbergin/flight-simulator/actions/runs/37156502551)
+at head `30d195ac58f7db58ffee0d5ed83284ef0e980824` completed the actual Windows
+editor/export, five missing-runtime controls, source rebuild and DLL replacement,
+then intentionally failed package clearance on unknown hosted CRT pins. The
+concrete 14.44.35211.0 inventory received two independent metadata/process-witness
+reviews and is now separately pinned; future changes remain rejected. Its actual
+release folder is 14.44.35112 and compiler toolset 14.44.35207.
+Linux initially failed editor loading because the staging recipe omitted the
+upstream `libJSBSim.so.1` runtime filename. The corrected recipe stages identical
+dereferenced library bytes under both link and SONAME filenames; no dependency
+or engine/library source pin changes. Final current-head CI remains required.
+
 Raw proof/build/import logs remain in ignored `.local/export-proof/` and native
 CI evidence artifacts. Paths in raw local logs are not committed; this record
 contains portable identities and results. CI run/head identifiers are added in

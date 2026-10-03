@@ -19,6 +19,11 @@ $bridge=if($windowsHost) {'flight_godot_bridge.dll'} else {'libflight_godot_brid
 $jsbsim=if($windowsHost) {'JSBSim.dll'} else {'libJSBSim.so'}
 Copy-Item -LiteralPath (Join-Path $build "bin/$bridge") -Destination (Join-Path $project "bin/$bridge")
 Copy-Item -LiteralPath (Join-Path $build "bin/$jsbsim") -Destination (Join-Path $project "bin/$jsbsim")
+if(-not $windowsHost) {
+  # The pinned upstream library's DT_SONAME is libJSBSim.so.1. Copy the
+  # dereferenced bytes under that runtime name as well as the link name.
+  Copy-Item -LiteralPath (Join-Path $build 'bin/libJSBSim.so.1') -Destination (Join-Path $project 'bin/libJSBSim.so.1')
+}
 $crtFiles=@()
 if($windowsHost) {
   $vswhere=Join-Path ([Environment]::GetEnvironmentVariable('ProgramFiles(x86)')) 'Microsoft Visual Studio/Installer/vswhere.exe'

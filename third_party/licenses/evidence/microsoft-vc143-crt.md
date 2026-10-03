@@ -18,6 +18,33 @@ The register's concrete source-verified/conditional entry covers the five inspec
 | vcruntime140.dll | 14.40.33810.0 | 02c6aa0e6e624411a9f19b0360a7865ab15908e26024510e5c38a9c08362c35a |
 | vcruntime140_1.dll | 14.40.33810.0 | 7dd9aa02e271c68ca6d5f18d651d23a15d7259715af43326578f7dde27f37637 |
 
+## Concrete hosted inventory
+
+The first [PR #91 native run](https://github.com/brettbergin/flight-simulator/actions/runs/37156502551)
+at exact head `30d195ac58f7db58ffee0d5ed83284ef0e980824` recorded five unmodified
+Microsoft signature-valid x64 release runtime files, version 14.44.35211.0, from
+`VC/Redist/MSVC/14.44.35112/x64/Microsoft.VC143.CRT` in the hosted VS2022 tree.
+The folder revision differs from the files' version and is retained exactly.
+Actual compiler was MSVC 19.44.35229.0/toolset 14.44.35207; this runtime is newer
+than that toolset. The portable and replacement runs witnessed these exact bytes
+loaded inside the payload. The initial package audit failed closed on its
+unreviewed identities, providing the concrete review packet before pin clearance.
+
+| Filename | Bytes | SHA256 |
+| --- | --- | --- |
+| msvcp140.dll | 557728 | 0f885b509a685d2bbfa652fed26b5fb31d88fbdab0a978c641d1c7b8aa460aa9 |
+| msvcp140_2.dll | 280200 | 3ea06f0ee098b4823cb79599df3780e7f23cce52c19aac31d2a0d47efe33a5e9 |
+| msvcp140_atomic_wait.dll | 50304 | 640b2aefced484d0368eea5bdd06addd0658a3a70a49256e560d6923b404a479 |
+| vcruntime140.dll | 124544 | d5e4d9a3e835fa679450145d6a7d94e36573a509317111904d9b3712c30d9066 |
+| vcruntime140_1.dll | 49792 | 1f2d41c4aa5db0bc33ebf7b66d72943a817d7ce6cbe880502a9403823633093f |
+
+The delivery reviewer and integrator independently approved these exact hosted
+pins through CI-attested source/signature/byte metadata and actual process/module
+witnesses. This is not a local signature re-verification of undownloaded binaries.
+Final current-head actual PE/runtime/package audit remains mandatory before merge.
+Future new or changed identities remain unapproved automatically; no version
+wildcard bypass is used.
+
 Project-authored notice `third_party/licenses/notices/Microsoft-VC143-CRT-Notice.txt` SHA256`5a64868e606d8db5ccff33bea9e299be795258d42ff1bc397341470aed8105e7` retains scope and primary terms references. It is provenance, not Microsoft's full grant. The proof also stages the retained primary DOCX terms and reviewed text extraction, plus protective distribution terms and selected-runtime evidence; a summary notice alone does not establish all release obligations.
 
 ## Required selected-build artifact record
