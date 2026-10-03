@@ -1,0 +1,13 @@
+{
+  "type": "Checkpoint",
+  "schema_version": 1,
+  "tick": "0",
+  "session_id": "synthetic-session",
+  "id": "synthetic-checkpoint",
+  "session_manifest_sha256": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6",
+  "build_fingerprint": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6",
+  "restore_capability": "replay-from-start",
+  "restore_evidence_id": "synthetic-schema-example-only",
+  "blobs": [],
+  "replay_until_tick": "0"
+}

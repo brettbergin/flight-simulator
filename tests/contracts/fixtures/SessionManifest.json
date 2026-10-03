@@ -1,0 +1,147 @@
+{
+  "type": "SessionManifest",
+  "schema_version": 1,
+  "session_id": "synthetic-session",
+  "build": {
+    "id": "contract-fixture",
+    "git_commit": "0000000000000000000000000000000000000000",
+    "fingerprint": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6"
+  },
+  "contract_set_sha256": "0f7dedf44b12b57916d6ba7afbf1f315ebdfa8e34ad02eed0188d2ac1fec4fcc",
+  "aircraft": {
+    "id": "synthetic-aircraft",
+    "version": "0.1.0-prototype",
+    "sha256": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6"
+  },
+  "world": {
+    "id": "synthetic-world",
+    "version": "0.1.0-prototype",
+    "sha256": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6"
+  },
+  "scenario": {
+    "id": "synthetic-scenario",
+    "version": "0.1.0-prototype",
+    "sha256": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6"
+  },
+  "seed": "9007199254740993",
+  "clock": {
+    "tick_rate_hz": 120,
+    "purpose": "runtime"
+  },
+  "calibration": {
+    "id": "synthetic-calibration",
+    "version": "0.1.0-prototype",
+    "sha256": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6"
+  },
+  "assistance": {
+    "profile_id": "unassisted",
+    "active": []
+  },
+  "initial_conditions": {
+    "aircraft": {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "0",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 0,
+      "position": {
+        "latitude_rad": 0,
+        "longitude_rad": 0,
+        "ellipsoid_height_m": 0
+      },
+      "ecef_position_m": {
+        "x": 6378137,
+        "y": 0,
+        "z": 0
+      },
+      "orientation_body_to_ned": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "velocity_body_mps": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "angular_rate_body_radps": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "acceleration_body_mps2": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "mass_kg": 1000,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0
+      },
+      "systems": [
+        {
+          "id": "engine.rotation",
+          "quantity": "radps",
+          "value": 0,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "initializing"
+    },
+    "atmosphere": {
+      "type": "AtmosphereSample",
+      "schema_version": 1,
+      "tick": "0",
+      "session_id": "synthetic-session",
+      "position": {
+        "latitude_rad": 0,
+        "longitude_rad": 0,
+        "ellipsoid_height_m": 0
+      },
+      "pressure_pa": 101325,
+      "temperature_k": 288.15,
+      "density_kgpm3": 1.225,
+      "relative_humidity": 0,
+      "wind_toward_ned_mps": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "turbulence_ned_mps": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seed": "9007199254740993",
+      "model_id": "synthetic-still-air"
+    }
+  },
+  "command_log": {
+    "path": "commands.jsonl",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "role": "command-log"
+  },
+  "event_log": {
+    "path": "events.jsonl",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "role": "event-log"
+  },
+  "restore_capability": "unsupported",
+  "restore_evidence_id": null,
+  "created_utc": "2026-10-03T00:00:00Z"
+}

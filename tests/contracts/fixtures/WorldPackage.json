@@ -1,0 +1,59 @@
+{
+  "type": "WorldPackage",
+  "schema_version": 1,
+  "id": "original-synthetic",
+  "version": "0.1.0-prototype",
+  "compatible_schema_version": 1,
+  "evidence": {
+    "status": "prototype",
+    "report_ids": [],
+    "source_ids": [
+      "original-fixture"
+    ]
+  },
+  "sources": [
+    {
+      "id": "original-fixture",
+      "revision": "1",
+      "locator": "urn:flight-simulator:original-contract-fixture",
+      "sha256": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6",
+      "rights": "redistributable",
+      "license": "MIT",
+      "applicability": "Original schema-only synthetic test data; no real airframe or airport.",
+      "effective_from": null,
+      "effective_until": null
+    }
+  ],
+  "files": [
+    {
+      "path": "original-synthetic-model.json",
+      "sha256": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6",
+      "bytes": 116,
+      "role": "dynamics"
+    },
+    {
+      "path": "original-synthetic-mapping.json",
+      "sha256": "42d1298ad8c0e43f12558947bca1fd71db3195ef1b70311180c4f4953b8d935e",
+      "bytes": 111,
+      "role": "mapping"
+    }
+  ],
+  "coverage": {
+    "south_rad": -0.1,
+    "north_rad": 0.1,
+    "west_rad": -0.1,
+    "east_rad": 0.1,
+    "crosses_antimeridian": false
+  },
+  "horizontal_datum": "wgs84",
+  "vertical_datum": "wgs84-ellipsoid",
+  "geoid": null,
+  "magnetic_model": null,
+  "effective_from": "2026-10-03T00:00:00Z",
+  "effective_until": "2026-10-04T00:00:00Z",
+  "data_status": "synthetic",
+  "products": [
+    "terrain"
+  ],
+  "update_policy": "fixed-scenario"
+}

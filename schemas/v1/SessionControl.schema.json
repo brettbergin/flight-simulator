@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://flight-simulator.invalid/contracts/v1/SessionControl.schema.json",
+  "title": "SessionControl/v1",
+  "$ref": "definitions.schema.json#/$defs/SessionControl"
+}

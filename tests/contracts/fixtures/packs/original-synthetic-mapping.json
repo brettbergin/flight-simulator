@@ -1,0 +1,5 @@
+{
+  "pitch_positive": "nose-up",
+  "elevator_positive": "trailing-edge-down",
+  "pitch_to_elevator_sign": -1
+}

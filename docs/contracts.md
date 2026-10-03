@@ -1,46 +1,115 @@
-# Contracts to ratify before parallel implementation
+# Core contracts v1
 
-These are planning contracts, not existing runtime APIs. P1 produces versioned schemas, a lock manifest, conformance fixtures, and executable boundary tests. Change the document through a contract PR before dependent modules drift.
+P1 CORE-CONTRACTS [#11](https://github.com/brettbergin/flight-simulator/issues/11) supplies executable engine-independent interfaces. The checked-in [schema registry](../schemas/registry.json), [native headers](../native/sim_core/contracts/include/flight/contracts/boundaries.hpp) and [original fixture manifest](../tests/contracts/fixtures/manifest.json) define v1. These interfaces support PRD-001, PRD-002, PRD-007 and PRD-034. They do not implement flight dynamics, establish C172S fidelity or prove restoration; later phase gates require measured integration evidence.
 
-## Simulation clock and units
+## Encoding and compatibility
 
-The core advances fixed simulation ticks (initial candidate 120 Hz). Commands carry `session_id`, monotonic `sequence`, target `tick`, typed payload, and explicit source. Rendering consumes read-only snapshots and interpolates between ticks. Pause stops simulation time; real-time UI clocks remain separate. Time acceleration scales scheduled ticks, never integration step size. Reject late/invalid command policies explicitly; define pause/resume behavior and overload handling in the integration spike.
+Every record has an exact `type` discriminator and numeric `schema_version: 1`. Objects reject unknown properties; required fields never receive implicit defaults. SI values are finite binary64 numbers. Tick, sequence, seed, event-sequence and record-count fields are **canonical decimal uint64 strings**: `0` or a nonzero leading digit, no sign/leading zeros/exponent, maximum `18446744073709551615`. Native types use C++ `uint64_t` wrapped in distinct `Tick`, `Sequence` and `Seed` types. Do not pass these wire integers through JavaScript `Number`: values above `2^53 - 1` lose precision.
 
-Public API uses SI: meters, seconds, kilograms, radians, kelvin, pascals, newtons. The UI converts to knots, feet, nautical miles, inches Hg, Celsius, gallons/pounds only at display/input boundaries. Reference temperature must identify absolute vs delta. Every aerodynamic/engine parameter has source units and a conversion record. JSBSim property mappings are explicit; no implicit mixed-unit defaults.
+Schemas use [JSON Schema 2020-12](https://json-schema.org/draft/2020-12/schema) and [Ajv's separate 2020 implementation](https://ajv.js.org/json-schema.html). [validateContract](../schemas/validate.mjs) runs strict shape validation **and** cross-field semantic checks. Consumers must use both stages before decoding; shape validation alone is insufficient. All schema references are preloaded locally; the reserved `.invalid` schema IDs identify records and are never fetched. Validation does not coerce, default, remove fields, modify input or execute content.
 
-Use WGS84 geodetic latitude/longitude and ellipsoidal height for canonical position, double-precision ECEF for world position, NED for local navigation, body axes X forward/Y right/Z down, and Godot's renderer axes via a tested named transform. Orthometric airport/terrain elevations use an explicit vertical datum/geoid conversion. Distinguish true/magnetic headings, air/ground-relative velocities, indicated/calibrated/true/ground speed, MSL/AGL/pressure altitude, and wind-from conventions. A render-origin shift must not alter physics or navigation.
+C++ headers provide typed in-process records and numerical/command validators; **this deliverable does not include a native JSON codec**. Adapters must implement named fields/discriminators and run the same fixture corpus, rather than serialize C++ memory layout, enum ordinals or variant indices. Untrusted JSON must pass strict wire validation before construction; native helper validation is supplementary, not a complete substitute for every manifest/semantic constraint.
 
-## Core boundaries
+The registry pins exact schema SHA-256 hashes; SHA-256 of its UTF-8 bytes identifies the contract set in sessions/replays. Unsupported versions or a required fingerprint mismatch fail without overwriting input. Since objects are closed, adding fields/discriminators/enum values or changing meanings requires a coordinated new version. Migrations identify source/destination versions, retain originals and supply positive/rejection fixtures. This initial v1 can change during review before consumers ship; after acceptance, changes require a contract PR ahead of consumer PRs.
 
-| Contract | Producer → consumers | Minimum content |
+Stable IDs are bounded lowercase ASCII segments separated by `-`, `_` or `.`. Versions use `major.minor.patch` with optional lowercase prerelease. Hashes are 64 lowercase hex characters. UTC ISO 8601 dates end in `Z`; invalid calendar dates and reversed effective intervals fail. Unknown data uses explicit null/validity status. Transport ranges and sizes are guards, not aircraft operating envelopes.
+
+## Clock, commands and lifecycle
+
+Runtime uses fixed **120 Hz** ticks. Explicit `convergence` purpose allows 60/120/240 Hz for the P1 integration study, not runtime user selection. Tick zero is the initial completed state; commands for tick `t` apply before advancing to/publishing completed tick `t`. Derived elapsed time is `tick / rate`; ticks remain authoritative. Validators allow `max(1e-9 s, 4 * binary64 epsilon * elapsed)` rounding error. Rendering delta never becomes integration `dt`.
+
+`ControlCommand` carries session, target tick, accepted-arrival sequence, registered source ID, authority, typed payload and assistance metadata. Native `CommandGate` rejects wrong session, late commands, duplicate/nonincreasing sequences, invalid axes, unknown controls, and unregistered or self-elevated authority. Rejections do not consume sequence. The host registers source authority and aircraft capabilities; the record cannot grant itself instructor privilege.
+
+Sequence monotonicity is **per source in accepted arrival order**. A future-tick packet arriving first can cause a later-arriving smaller sequence to be rejected; producers must submit increasing sequences even when scheduling different future ticks. Target tick does not replace arrival sequence. The worker owns a bounded queue, future horizon and explicit capacity rejection; acceptance by `CommandGate` does not mean queued/executed and its capacity rejection enum is reserved for consumer reporting.
+
+Within one tick, sort ascending **`(tick, authority rank, source_id, sequence)`**, with `pilot=0`, `avionics=1`, `scenario=2`, `instructor=3`. ASCII source ID is the equal-rank tie-breaker before sequence. Higher authority applies last to a shared channel; arrival order across sources cannot decide outcome. Independent system controls merge by control ID. The complete axes payload replaces the held sample; absent a new applied sample, hold the last one. Disconnect/focus-loss policy generates an explicit recorded replacement, rather than silently neutralizing controls.
+
+| Axis | Range | Positive request |
 |---|---|---|
-| `ControlCommand/v1` | Input/avionics/instructor → sim | tick, sequence, normalized pilot axes or named system control, assistance metadata |
-| `AircraftSnapshot/v1` | Sim → render/audio/instruments/recorder | tick/time, position/orientation, body velocities/rates, accelerations, configuration, mass/CG, engines/systems, contact state, validity flags |
-| `InstrumentSnapshot/v1` | System models → cockpit/HUD | sensed values, latency/filtering, power/failure flags; no direct truth substitution |
-| `AtmosphereSample/v1` | Weather → sim | pressure, temperature, density/humidity policy, 3D wind/turbulence, sample position/time/seed |
-| `GroundSample/v1` | World collision service → dynamics | location, datum, surface elevation/normal/friction, validity; terrain ownership and contact algorithm tested |
-| `OperationalEvent/v1` | Sim/world/ATC → training/debrief | tick, stable event type, payload, source, confidence, content version; no nondeterministic wall clock scoring |
-| `SessionManifest/v1` | Session → persistence/replay | sim/aircraft/world/scenario/schema versions + hashes, seed, calibration/assist profile, initial conditions, commands, snapshot capability |
-| `TrainingResult/v1` | Evaluator → progress | lesson/rubric versions, objective observations, evidence ranges, assists, repeatability, incomplete/invalid status |
+| roll | [-1,1] | Right bank |
+| pitch | [-1,1] | Nose up |
+| yaw | [-1,1] | Nose right |
+| trim | [-1,1] | Nose-up trim |
+| throttle/mixture | [0,1] | Closed/idle cutoff toward full/open/rich as aircraft mapping declares |
+| left/right brake | [0,1] | Released toward full braking |
 
-Flight dynamics owns aircraft rigid-body motion and aircraft/runway contacts. Godot collision geometry is a query service for the aircraft and may drive non-aircraft scenery animation; it must not apply a second aircraft force solver. Instrument needles and engine sounds read simulated systems, including failures. Navigation/ATC/evaluation must use the appropriate sensed/operational information, rather than grant pilots hidden truth.
+These are pilot intent, not guaranteed aerodynamic response. `pitch_to_elevator_trailing_edge_down` returns `-pitch` for a declared model whose positive elevator means trailing-edge down. Never blindly apply it to another model. All control signs require aircraft-specific mapping/provenance and live-model tests in #14. A system command uses a known capability ID and declared boolean or normalized scalar type/range, not an arbitrary JSBSim property write.
 
-## Content manifests
+`SessionControl` is a separate lifecycle lane pumped at the **current completed boundary, including while paused**. It accepts ordered pause/resume or explicit scales 0.25/0.5/1/2/4. Host ownership and sequences are independent of pilot controls; its tick must equal the completed boundary. `SessionControlGate` can resume while physics is stopped. Accepted changes produce operational events. Scale changes wall-time scheduling budget, never integration `dt`; UI clocks remain separate. #14 owns actual bounded scheduling/backpressure, the architecture's >250 ms overload pause and replay ordering evidence.
 
-Aircraft manifest: stable id/version, exact airframe/engine/propeller/panel configuration, geometry/mass/CG envelopes, configuration-specific checklists/limits, JSBSim model mapping, asset references, units, citations/rights, evidence status (`prototype`, `reference-reviewed`, `validated`) and compatible core schema.
+## SI units and frames
 
-World manifest: coverage bounds, coordinate/vertical datums, source providers/versions/checksums/licenses, effective dates, elevation/vector/airport/navaid products, magnetic model epoch, optional imagery permissions, update policy, synthetic vs historical status, and scenario closures separate from permanent airport data.
+Public quantities use meters, seconds, kilograms, radians, kelvin, pascals, newtons, amperes and volts. Absolute temperature needs an offset; temperature differences do not. UI adapters convert knots/feet/nautical miles/inches Hg/Celsius/gallons/pounds. Named native conversions distinguish pound mass/force and absolute/delta temperature. Model parameters retain source units and explicit conversion records; a generic double never establishes JSBSim units.
 
-Scenario manifest: id/version/jurisdiction, prerequisites, aircraft/world requirements, fixed starting conditions, weather/seed, traffic/ATC scripts, objectives/rubric, allowed assists, failure schedule, restore points, and debrief evidence requirements. Scenarios reference published source editions without embedding restricted text.
+| Frame | Definition |
+|---|---|
+| Geodetic | WGS84 latitude/longitude radians, ellipsoid height meters |
+| ECEF | Double meters: X equator/prime meridian, Y equator/east90°, Z north pole |
+| NED | Local X north, Y east, Z down at declared geodetic origin |
+| Body | Aircraft X forward, Y right, Z down |
+| Render | Godot local X east, Y up, Z south; `(north,east,down)` maps to `(east,-down,-north)` |
 
-Asset packs use bounded declarative formats. Validate schemas, sizes, paths, checksum and license manifest before install; reject traversal, malicious archives, invalid numeric domains, and unsupported versions. Code plugins are built/reviewed separately; content packs cannot load arbitrary native DLLs or scripts.
+`orientation_body_to_ned` is the normalized Hamilton active quaternion **(w,x,y,z)** rotating a body vector into local NED; norm error ≤1e-9. Positive roll lowers the right wing; positive pitch raises the nose; positive yaw turns north toward east. JSBSim [GetQuaternion](https://jsbsim-team.github.io/jsbsim/classJSBSim_1_1FGPropagate.html) returns local/NED→body; the public inverse is its conjugate. Distinct native types and independent +90° yaw fixtures catch direction/sign mistakes. #14 must check pinned-library component convention against `GetTb2l`; a mathematical fixture does not prove the actual adapter.
 
-## Persistence and replay guarantees
+Snapshots include geodetic and ECEF representations of the same point; semantic/native validators reject disagreement >**0.1 mm**. Atmospheric wind vectors point **toward** NED; weather UI wind-from bearings require sign conversion. `velocity_body_mps` is ground-relative body velocity, not air-relative velocity. `angular_rate_body_radps` is body-relative-to-Earth/ECEF rate expressed in body; inertial JSBSim PQR requires conversion. `acceleration_body_mps2` is Earth-relative kinematic acceleration expressed in body, not accelerometer-specific force. #14 documents/tests property mappings and Earth rotation terms.
 
-Separate practice profile/history from full flight state. SQLite commits profile/results/settings transactionally; replay files may be larger independently checksummed assets referenced by the database. Stable IDs and schema migrations are required. Never overwrite a corrupt original during repair. Newer incompatible formats fail clearly and leave originals intact.
+Instrument values are sensed channels, not a hidden truth snapshot. Normal requires a value; off/unavailable requires null; a failed sensor may retain a frozen value with failure status. Sensor tick cannot exceed publication tick. Avionics definitions bind channel ID to operational meaning (indicated/true speed, true/magnetic heading, MSL/indicated altitude); an SI unit alone is insufficient. Failed sensors never silently substitute GPS/physics truth.
 
-Command-log deterministic replay within an exact build/content/seed is the minimum. Cross-platform bit-identical results are not assumed; document quantitative tolerances and fingerprints. Exact mid-flight restoration must serialize hidden integration/engine/weather/contact state or reconstruct it through verified replay. If JSBSim state capture fails the proof, provide replay-from-start/checkpoint reconstruction and named safe restart points; do not call visible-position teleport a full restore.
+The minimal [geodesy seam](../native/sim_core/contracts/include/flight/contracts/geodesy.hpp) uses [NGA WGS84 constants](https://earth-info.nga.mil/?action=wgs84&dir=wgs84), `a=6378137 m`, `1/f=298.257223563`. Independent analytical cases cover equator, poles, dateline, elevated and mixed45° positions; frame cases cover ECEF→NED cardinal vectors, body rotations and render basis. Earth center/nonfinite input is rejected. Full geoid/MSL, magnetic variation, realization/epoch and world coverage remain #39/P4. JSBSim radial ASL must not be relabeled geodetic ellipsoid height. Render rebasing changes local translation only; physics/navigation keeps absolute doubles.
 
-## Ownership and evolution
+## Registry and ownership
 
-Core integrator owns schema/units/clock; aircraft/avionics specialist owns airframe definition; world specialist owns geodesy/data; persistence specialist owns migrations/replays; product/training owns evaluation rules. Each owns its boundary fixtures jointly with consumers. Version schema-breaking changes explicitly, supply migration/conformance fixtures, and schedule consumer PRs after the contract PR merges.
+Every boundary has a local versioned schema, original JSON fixture and named native record in `flight::contracts::v1`.
+
+| Contract | Producer → consumers | Required content |
+|---|---|---|
+| ControlCommand/v1 | Input/avionics/instructor → sim | Session/tick/sequence/source/authority, held axes/capability control, assists |
+| SessionControl/v1 | Session owner → boundary | Ordered pause/resume or wall-budget scale, processed while paused |
+| AircraftSnapshot/v1 | Sim → render/audio/instruments/recorder | Clock/time/position/orientation, body motion, config/mass/CG, systems/contacts/validity |
+| InstrumentSnapshot/v1 | Sensors/systems → cockpit/HUD | Sensed channel/value/unit/sample tick, latency/filter/power/failure |
+| AtmosphereSample/v1 | Weather → sim | Position/tick/seed/model, pressure/absolute temperature/density/humidity, wind/turbulence |
+| GroundSample/v1 | World query → dynamics | Explicit ellipsoid datum and valid height/normal/friction/material/world ref or missing reason |
+| OperationalEvent/v1 | Sim/world/ATC → debrief | Tick/sequence/source/confidence/content version, typed rejection/system/failure/procedure/clearance/assist/pause/branch/save event |
+| SessionManifest/v1 | Session → persistence/replay | Exact build/contract/content hashes, clock/seed/calibration/assists, tick-zero initial state/weather/logs, restore declaration/evidence |
+| ReplayHeader/v1 | Recorder → replay | Exact identity/clock/seed/count/log hash, determinism declaration |
+| Checkpoint/v1 | Persistence → restore | Session/tick/build/manifest identity, capability/evidence, blobs or reconstruction target |
+| TrainingResult/v1 | Evaluator → progress | Lesson/rubric versions, objective/tick/event evidence/assists, completion/invalidity/repeatability |
+| AircraftManifest/v1 | Aircraft author → loader | Exact config/serial/POH applicability, model/mapping/provenance, geometry/mass/CG/capabilities/controls/checklists/limit sources/files |
+| WorldPackage/v1 | World author → loader | Coverage/antimeridian/datums/conversion reference, sources/hashes/effective interval/magnetic epoch/products/currency/update policy |
+| ScenarioManifest/v1 | Scenario author → session | Jurisdiction/prerequisites/content, fixed initial template/weather/seed/clock, objectives/rubric/assists/declarative actions/restarts/evidence/source editions |
+
+Ground normal points from surface into free space: horizontal terrain uses `(0,0,-1)` NED, unit norm tolerance1e-9. Dynamic friction cannot exceed static. Missing/unloaded/datum-unresolved ground has no fabricated elevation. Dynamics owns motion/contact forces; Godot supplies queries and cannot add a second aircraft solver. #16 proves actual callbacks/contact stability.
+
+Published snapshots/events are immutable owned values. Headers depend only on C++ standard library; no Godot/JSBSim/SQLite/UI-owned resources cross boundaries. Worker owns authoritative clock/state/commands, main thread renderer/UI, recorder I/O. Explicit copies or publication buffers establish lifetime; published vectors cannot be mutated. Schema/native bounds limit records but do not prove allocation-free ticks. Queue/lifetime/allocation budgets require consumer measurements.
+
+Core owns clock/units/version lock; aviation identity/config/limits/provenance; world datum/data; persistence migration/replay; product/training rubrics. Consumers jointly review their fixtures. Boundary changes need a contract PR and reviewed compatibility/migration/conformance updates before consumer merges. #14 adds live FDM property/sign/clock tests; #15 bridge/export/codec; #16 ground; #17 save proof; #19 independent aircraft reference validation; #21 calibrated device safety; #39 full geodesy; #44 weather. Passing a schema does not satisfy those gates.
+
+## Content, session and save policy
+
+All initial fixtures are **original synthetic prototype** examples: no bundled JSBSim C172 model, copied POH, real airport, validated aircraft envelope, current nav data or accepted restore proof. A future fuel-injected analog C172S requires exact serial/configuration/POH provenance; it cannot inherit identity/fidelity from the supplied carbureted C172P model. Sources, evidence status and report references are declarations requiring specialist review.
+
+Manifests include source revision/applicability/rights/license/hash/effective interval and evidence status. Nonprototype evidence needs report IDs; local source IDs must resolve. Model/mapping paths must appear in files. Duplicate IDs/paths and reversed mass/CG bounds fail. Orthometric data requires a conversion reference; antimeridian crossing is explicit. Content path/size checks are strict, but validating a manifest grants no rights and does not verify actual referenced bytes.
+
+Pack paths are bounded ASCII relative slash paths with no empty, `.`/`..`, drive, leading slash or backslash segments. V1 allows JSON/XML/GLB/PNG/JPEG/WebP/OGG/WAV/BIN/TIFF; excludes DLLs/executables/scripts/scripted scenes/SQL. XML/GLB/binary readers need separate parser/resource review: extension checking is not a sandbox. Content installation must enforce archive/decompression/count limits, filesystem containment, no symlinks/aliases, actual file hashes and approved redistribution rights. `reference-only`/`pending` rights do not authorize shipping. Code plugins are reviewed compiled dependencies, never downloaded content.
+
+Session hashes/identity are mandatory. Branches use new session IDs plus parent events. Visible position is never a complete restore. Supported restore declarations need evidence IDs; complete checkpoints need hidden-state blobs; replay reconstruction must target exactly the saved tick. These reject inconsistent declarations but do not prove continuation. #17 must measure hidden solver/engine/weather/contact restoration or reconstruction, then ratify the capability. Same-build numerical tolerances/fingerprints do not promise cross-platform bit identity.
+
+Profile/results/settings are separate from flight logs/blobs and use transactional SQLite migration. Incompatible/corrupt inputs fail intact. Native persistence resolves Windows Known Folder `FOLDERID_LocalAppData` to `%LOCALAPPDATA%/FlightSimulator/` and shares that root with client; portable install is read-only. Default roaming Godot `user://` is not this contract. Training results cannot reverse evidence ranges, mark unobserved objectives complete or claim invalid without reasons. Achievements cannot modify physics or erase assists.
+
+## Verification
+
+From repository root:
+
+```text
+npm ci --ignore-scripts --prefix schemas
+npm --prefix schemas run check
+node --test tests/contracts/schema.test.mjs
+cmake -S tests/contracts -B build/contracts
+cmake --build build/contracts --config Release
+ctest --test-dir build/contracts -C Release --output-on-failure
+node tools/check-docs.mjs
+```
+
+Tests are also a standalone CMake project; #12 integrates `flight_contracts` (alias `flight::contracts`) and `contract_boundary_tests`, CTest `contract_boundary`. Checks remain enabled in Release (no disabled `assert`); MSVC uses `/W4 /WX`, other compilers warnings-as-errors. Ajv8.20.0/ajv-formats3.0.1 are exact lockfile-pinned MIT development dependencies, not simulator runtime dependencies. Schema/fixture generators provide read-only `--check`.
+
+The schema suite checks all14 boundaries/hash fixtures, incompatible/unknown payloads, uint64 overflow/round-trip, finite/range/frame/clock invariants, sensed availability, terrain missingness, session identity/restore declarations, content paths/effective intervals/source references and result completeness. Native tests independently check SI constants/strong frame types/WGS84 analytical values/quaternion/control signs, fixed ticks/pause/resume/scale, ordering/authority/duplicates and state validity. These headless offline checks load no aircraft data or pilot profiles and make no FDM or aviation-validity claim.

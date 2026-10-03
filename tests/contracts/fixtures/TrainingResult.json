@@ -1,0 +1,32 @@
+{
+  "type": "TrainingResult",
+  "schema_version": 1,
+  "session_id": "synthetic-session",
+  "lesson": {
+    "id": "synthetic-lesson",
+    "version": "0.1.0-prototype",
+    "sha256": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6"
+  },
+  "rubric": {
+    "id": "synthetic-rubric",
+    "version": "0.1.0-prototype",
+    "sha256": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6"
+  },
+  "status": "incomplete",
+  "repeatability": "unverified",
+  "assistance": {
+    "profile_id": "unassisted",
+    "active": []
+  },
+  "observations": [
+    {
+      "objective_id": "schema-example",
+      "result": "not-observed",
+      "start_tick": "0",
+      "end_tick": "0",
+      "evidence_event_sequences": [],
+      "explanation_id": "not-flown"
+    }
+  ],
+  "invalid_reasons": []
+}

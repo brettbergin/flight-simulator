@@ -1,0 +1,93 @@
+{
+  "fixture_version": 1,
+  "evidence_status": "prototype",
+  "notice": "Schema/geodesy fixtures only; no FDM validation or restoration proof.",
+  "contract_set_sha256": "0f7dedf44b12b57916d6ba7afbf1f315ebdfa8e34ad02eed0188d2ac1fec4fcc",
+  "files": [
+    {
+      "path": "packs/original-synthetic-model.json",
+      "sha256": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6",
+      "bytes": 116
+    },
+    {
+      "path": "packs/original-synthetic-mapping.json",
+      "sha256": "42d1298ad8c0e43f12558947bca1fd71db3195ef1b70311180c4f4953b8d935e",
+      "bytes": 111
+    },
+    {
+      "path": "ControlCommand.json",
+      "sha256": "aa3b681b019b101a801481e8fd17795fdb6205846dca218415ae41b5e2d26ad1",
+      "bytes": 450
+    },
+    {
+      "path": "SessionControl.json",
+      "sha256": "8dfb1d504e11b86c63f2974fd3a8e898771a65c7e1c6dbc8902982b70d5f00d5",
+      "bytes": 217
+    },
+    {
+      "path": "AircraftSnapshot.json",
+      "sha256": "b582bb674f09064ea0847997a028daa05293bb074a4a430c87c0feb38b62a954",
+      "bytes": 1018
+    },
+    {
+      "path": "InstrumentSnapshot.json",
+      "sha256": "32d65150394fe0a46700cc931fb34a5f1c3e98e95aca0420ffd72025f5052c54",
+      "bytes": 312
+    },
+    {
+      "path": "AtmosphereSample.json",
+      "sha256": "c9b65b093e9931719229345ad7b04aa84c1bf194617c12f1dd650d7086cc7076",
+      "bytes": 508
+    },
+    {
+      "path": "GroundSample.json",
+      "sha256": "4ce2072ffb2e9b682e338dd3a64212dc21e82c04f36008a1226ae46adf78564e",
+      "bytes": 634
+    },
+    {
+      "path": "OperationalEvent.json",
+      "sha256": "22fab275ac1bbf6f4f144a7023fabab4773b397fbbaf3e18909fadb20fff23f9",
+      "bytes": 277
+    },
+    {
+      "path": "SessionManifest.json",
+      "sha256": "f5470dea0feda72b84aa4f20596a97995d439cb0458b77263aa9ae80c80a2b34",
+      "bytes": 3628
+    },
+    {
+      "path": "ReplayHeader.json",
+      "sha256": "58a46b1c81b02de5b28516e593dc1101c8da3c76541829c8b0e797da670b293d",
+      "bytes": 644
+    },
+    {
+      "path": "Checkpoint.json",
+      "sha256": "76592cd2e84ed6071d944e8be409e7b2f6dbc3f50ccdb538eda12d6cdd32352e",
+      "bytes": 468
+    },
+    {
+      "path": "TrainingResult.json",
+      "sha256": "063dd62ab4e729734dd227c5a02d9c2f64d4fc32c6ae87a67770b23726e59fe1",
+      "bytes": 806
+    },
+    {
+      "path": "AircraftManifest.json",
+      "sha256": "cde95771149151d2487ddf4054d061567bc4e734b05049f8203b1065fec57a64",
+      "bytes": 2272
+    },
+    {
+      "path": "WorldPackage.json",
+      "sha256": "9e39b1a621834e285e7746104118221b867d70dfd0d8fd6f2362562f705ea58d",
+      "bytes": 1566
+    },
+    {
+      "path": "ScenarioManifest.json",
+      "sha256": "5a2e9720352fead4e8e89c058fdb48c34dcd154b0c65f784a8e8483e0d721a2f",
+      "bytes": 3965
+    },
+    {
+      "path": "geodesy.json",
+      "sha256": "75fd3657ba097c85fc62ed6867a02a072bfa79fec88760322170517448be15be",
+      "bytes": 1440
+    }
+  ]
+}
