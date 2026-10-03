@@ -3,7 +3,7 @@
   "id": "original-render-proof",
   "version": "0.1.0-prototype",
   "reviewed_on": "2026-10-03",
-  "source_revision": "c3ca3f901aec400d0a9b21b381aced772f66cf28",
+  "source_revision": "43022dfd8c9b0150f95aa3ee1c831c8d5207dc33",
   "scope": "Only these five frozen original procedural renderer files; no benchmark tooling, GPU results, engine code/fonts, native dependencies or authoring-tool binaries.",
   "files": [
     {
@@ -29,8 +29,8 @@
     },
     {
       "path": "app/proof/render/render.gd",
-      "bytes": 21911,
-      "sha256": "acde8a0584998eff42f6e74241a9a0b52d15bf74a54314748cbea59b8ee227c7",
+      "bytes": 24858,
+      "sha256": "f86759f666d9de3baa412f53a144380aeea3ba1cf7e1c69d3d1b96e5a4183bff",
       "license": "MIT",
       "role": "original-procedural-source"
     },

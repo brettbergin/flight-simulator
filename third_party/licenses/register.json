@@ -691,8 +691,8 @@
       "redistribution": "permitted",
       "evidence": "synthetic",
       "source": {
-        "url": "https://github.com/brettbergin/flight-simulator/tree/c3ca3f901aec400d0a9b21b381aced772f66cf28/app/proof/render",
-        "revision": "c3ca3f901aec400d0a9b21b381aced772f66cf28",
+        "url": "https://github.com/brettbergin/flight-simulator/tree/43022dfd8c9b0150f95aa3ee1c831c8d5207dc33/app/proof/render",
+        "revision": "43022dfd8c9b0150f95aa3ee1c831c8d5207dc33",
         "rights_url": "https://github.com/brettbergin/flight-simulator/blob/main/LICENSE",
         "applicability": "Only the five exact original project-authored procedural renderer files in source_inventory and their synthetic output; not third-party implementation, borrowed artwork, font files, benchmark tools or future contributor packs."
       },
@@ -711,7 +711,7 @@
       "code_inventory_status": "Frozen five-file original source inventory; any subsequent source change needs refreshed hashes and review. No binary/GPU/package or benchmark-tool inventory is cleared by this record.",
       "source_inventory": {
         "path": "third_party/licenses/evidence/original-render-source.inventory.json",
-        "sha256": "1228e34e2d682f313bcfa8c8f5eba47c24824ba55550c992125dcde83e048c1d",
+        "sha256": "bfa403d1b4aa78b1bf9f2558590d01c16689f9f731757136b2ac1b113fbaa595",
         "files": 5
       }
     }
