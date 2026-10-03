@@ -10,6 +10,7 @@ This is a serious Windows desktop flight simulator for realistic Cessna flying, 
 | Reference PC | i9-12900K, RTX3090, approximately 64 GB RAM; measured performance gate on this machine |
 | First aircraft | Explicit C172S fuel-injected conventional-panel target; variant/serial/POH provenance gate; generic models remain labeled prototypes |
 | Stack | Godot 4 Forward+ presentation, C++20 native core, JSBSim flight dynamics, SQLite persistence, Python offline data tools |
+| Engine account | Owner selected Godot for account-free authoring using its direct download |
 | Scope | Offline single-player; synthetic validation airfield followed by dated north Puget Sound region |
 | Operations | US/FAA reference lessons first; jurisdiction-neutral core and future jurisdiction packs |
 | Controls | Keyboard/mouse and gamepad initially; calibrated yoke/throttle/pedals are core design requirements |
