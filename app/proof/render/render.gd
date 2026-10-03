@@ -312,7 +312,8 @@ func _ready() -> void:
 	spatial_audio.stream=silence
 	world.add_child(spatial_audio)
 	spatial_audio.play()
-	spatial_audio.stream_paused=true # Silent spatial transform participant; no audible continuity claim.
+	# Silent PCM spatial participant; deferred playback registration means an
+	# immediate pause request would not establish an actual paused state.
 	particles=GPUParticles3D.new()
 	particles.position=Vector3(80,8,-100)
 	particles.amount=64
@@ -396,16 +397,72 @@ func finish() -> void:
 	report["capture_start_us"]=start_us
 	report["capture_elapsed_s"]=elapsed
 	report["render_tile_attachment"]={"interval_s":5,"events":tile_swap_events,"next_scheduled_s":next_tile_swap_s,"replacements":tile_swap_epoch,"steady_tile_count":tiles.size(),"maximum_deferred_old_nodes":maximum_deferred_old_nodes,"p95_submit_cpu_ms":percentile(tile_swap_cpu_ms,.95),"maximum_submit_cpu_ms":tile_swap_cpu_ms.max() if not tile_swap_cpu_ms.is_empty() else -1,"scope":"new 32x32-subdivision plane mesh every five seconds, four far corners; missed periods skipped; CPU submission only; active/deferred scene-node bounds do not establish GPU allocator retirement; GPU allocation/upload effects included in raw callback/render samples; no disk IO, real coverage or contact streaming"}
-	report["rebase"]={"transactions":rebase_count,"origin_version":origin_version,"max_projected_delta_px":rebase_max_pixels,"max_relative_audio_delta_m":rebase_max_audio_m,"canonical_unchanged":true,"mixed_version_negative_detected":true,"particle_scope":"local-coordinate GPU emitter transforms; no world-space particle history claim","audio_scope":"silent paused spatial emitter; geometry only, no audible continuity claim"}
+	report["rebase"]={"transactions":rebase_count,"origin_version":origin_version,"max_projected_delta_px":rebase_max_pixels,"max_relative_audio_delta_m":rebase_max_audio_m,"canonical_unchanged":true,"mixed_version_negative_detected":true,"particle_scope":"local-coordinate GPU emitter transforms; no world-space particle history claim","audio_scope":"silent PCM spatial emitter; geometry only, no audible continuity claim"}
 	raw_trace.flush()
 	raw_trace.close()
 	var file := FileAccess.open(output.path_join("report.json"),FileAccess.WRITE)
 	file.store_string(JSON.stringify(report,"\t")+"\n")
 	print("RENDER_PROBE "+JSON.stringify(report))
-	spatial_audio.stream_paused=false
-	spatial_audio.stop()
-	spatial_audio.stream=null
-	get_tree().quit(0)
+	file.close()
+	await cleanup_after_measurement(spatial_audio,world)
+
+const CLEANUP_TIMEOUT_US: int = 2000000
+
+func audio_watches(audio: AudioStreamPlayer3D) -> Dictionary:
+	# Only WeakRefs escape this synchronous helper. Strong resource temporaries
+	# must die before the cleanup coroutine awaits an engine process opportunity.
+	return {"stream":weakref(audio.stream) if audio.stream!=null else null,
+		"playback":weakref(audio.get_stream_playback()) if audio.has_stream_playback() else null}
+
+func retirement_state(watches: Dictionary, terrain_parent: Node) -> Dictionary:
+	var stream_retired: bool = watches["stream"]==null or watches["stream"].get_ref()==null
+	var playback_retired: bool = watches["playback"]==null or watches["playback"].get_ref()==null
+	var active: int = 0
+	var queued: int = 0
+	for child in terrain_parent.get_children():
+		if child.get_meta("terrain_tile",false):
+			if child.is_queued_for_deletion():
+				queued+=1
+			else:
+				active+=1
+	return {"audio_stream_retired":stream_retired,"audio_playback_retired":playback_retired,
+		"active_terrain_nodes":active,"queued_terrain_nodes":queued}
+
+func cleanup_after_measurement(audio: AudioStreamPlayer3D, terrain_parent: Node) -> void:
+	set_process(false)
+	var watches: Dictionary = audio_watches(audio)
+	var observed: Dictionary = {"audio_stream":watches["stream"]!=null,"audio_playback":watches["playback"]!=null}
+	var started_us: int = Time.get_ticks_usec()
+	audio.stream_paused=false
+	audio.stop()
+	audio.stream=null
+	var waited_frames: int = 0
+	var state: Dictionary = retirement_state(watches,terrain_parent)
+	var passed: bool = false
+	while observed["audio_stream"] and observed["audio_playback"]:
+		# Deadline precedes acceptance even if resources retire during a stall.
+		if Time.get_ticks_usec()-started_us>=CLEANUP_TIMEOUT_US:
+			break
+		if waited_frames>=2 and state["audio_stream_retired"] and state["audio_playback_retired"] and state["active_terrain_nodes"]==64 and state["queued_terrain_nodes"]==0:
+			passed=true
+			break
+		await get_tree().process_frame
+		waited_frames+=1
+		state=retirement_state(watches,terrain_parent)
+	var completed_us: int = Time.get_ticks_usec()
+	# Recheck the bounded deadline after recording the completion clock.
+	passed=passed and completed_us-started_us<CLEANUP_TIMEOUT_US
+	var receipt: Dictionary = {"schema_version":1,"passed":passed,"timeout_s":2.0,
+		"started_us":started_us,"completed_us":completed_us,"elapsed_ms":(completed_us-started_us)/1000.0,
+		"waited_process_frames":waited_frames,"initial_observed":observed,"retirement":state,
+		"scope":"postmeasurement audio and scene-node retirement only; no GPU allocator retirement claim"}
+	var cleanup_file := FileAccess.open(output.path_join("cleanup.json"),FileAccess.WRITE)
+	cleanup_file.store_string(JSON.stringify(receipt,"\t")+"\n")
+	cleanup_file.close()
+	print("RENDER_CLEANUP "+JSON.stringify(receipt))
+	if not passed:
+		push_error("RENDER_PROOF_FAILED: bounded postmeasurement cleanup failed")
+	get_tree().quit(0 if passed else 1)
 
 func _process(delta: float) -> void:
 	if not require(DisplayServer.window_get_mode()!=DisplayServer.WINDOW_MODE_MINIMIZED and DisplayServer.window_get_size()==Vector2i(1360,768) and DisplayServer.window_get_vsync_mode()==DisplayServer.VSYNC_DISABLED,"Presentation window changed/minimized during capture"):
