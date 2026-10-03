@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
+import { auditRuntimeRelease, runtimeNames } from '../export/check-runtime.mjs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
@@ -87,6 +88,16 @@ export function auditRegister(register, { repoRoot } = {}) {
       notices.add(notice.path);
       if (repoRoot) checkedFile(repoRoot, notice.path, errors, `${label} notice ${notice.path}`, notice.sha256);
     }
+    if (entry.id === 'microsoft-vc143-crt') {
+      const policy=entry.runtime_policy;
+      if (!plain(policy)||!Array.isArray(policy.inventories)||policy.inventories.length===0||
+          policy.debug_nonredist_allowed!==false||policy.system32_copies_allowed!==false||policy.immutable!==true) errors.push(`${label}: missing exact release-runtime policy`);
+      else for(const inventory of policy.inventories) {
+        if(!plain(inventory)||!/^14\.\d+\.\d+\.\d+$/.test(inventory.version??'')||!/^14\.\d+\.\d+$/.test(inventory.redist_revision??'')||
+          !Array.isArray(inventory.files)||inventory.files.length!==runtimeNames.length||new Set(inventory.files.map(f=>f?.name)).size!==runtimeNames.length||
+          inventory.files.some(f=>!plain(f)||!runtimeNames.includes(f.name)||f.version!==inventory.version||!Number.isSafeInteger(f.bytes)||f.bytes<=0||!HASH.test(f.sha256??''))) errors.push(`${label}: malformed reviewed CRT inventory`);
+      }
+    }
     if (entry.redistribution === 'excluded') {
       if (!nonempty(entry.blocker) || !entry.obligations?.includes('no-redistribution')) errors.push(`${label}: excluded material requires blocker and no-redistribution obligation`);
     } else if (STATES.has(entry.redistribution)) {
@@ -161,6 +172,7 @@ export function auditRelease(register, manifest, { repoRoot, packageRoot } = {})
       }
       for (const notice of component.notices) if (!plain(notice) || !entry.notice_files.some(item => item.path === notice.register_path)) errors.push(`${label}: unknown staged notice mapping`);
     }
+    if (entry.runtime_policy) errors.push(...auditRuntimeRelease(entry,component,{packageRoot}));
     if (entry.obligations.includes('include-corresponding-source')) {
       const source = componentFiles.get(component.source_archive);
       if (!HASH.test(entry.library_policy.source_archive_sha256 ?? '') || !source || source.role !== 'source' || source.sha256 !== entry.library_policy.source_archive_sha256) errors.push(`${label}: exact corresponding-source archive missing or not pinned`);
@@ -174,7 +186,10 @@ export function auditRelease(register, manifest, { repoRoot, packageRoot } = {})
       if (component.modified !== false) errors.push(`${label}: modified library needs new reviewed source digest and modification policy`);
     }
   }
-  for (const file of scanFiles(packageRoot, errors)) if (!declared.has(file)) errors.push(`package: undeclared file ${file}`);
+  for (const file of scanFiles(packageRoot, errors)) {
+    if (!declared.has(file)) errors.push(`package: undeclared file ${file}`);
+    if (/^(?:msvcp|vcruntime).*\\.dll$/i.test(path.posix.basename(file)) && !components.has('microsoft-vc143-crt')) errors.push('package: Microsoft CRT requires exact-runtime policy component');
+  }
   return errors;
 }
 

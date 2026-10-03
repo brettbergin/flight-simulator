@@ -1,0 +1,14 @@
+[configuration]
+entry_symbol="flight_bridge_init"
+compatibility_minimum="4.5"
+reloadable=false
+[libraries]
+windows.debug.x86_64="res://bin/flight_godot_bridge.dll"
+windows.release.x86_64="res://bin/flight_godot_bridge.dll"
+linux.debug.x86_64="res://bin/libflight_godot_bridge.so"
+linux.release.x86_64="res://bin/libflight_godot_bridge.so"
+[dependencies]
+windows.debug.x86_64={"res://bin/JSBSim.dll": ""}
+windows.release.x86_64={"res://bin/JSBSim.dll": ""}
+linux.debug.x86_64={"res://bin/libJSBSim.so": ""}
+linux.release.x86_64={"res://bin/libJSBSim.so": ""}

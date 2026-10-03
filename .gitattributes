@@ -9,3 +9,11 @@
 *.yaml text eol=lf
 *.xml text eol=lf
 third_party/licenses/notices/OriginalSynthetic-MIT.txt text eol=lf
+
+tools/export/** text eol=lf
+native/godot_bridge/** text eol=lf
+app/proof/** text eol=lf
+third_party/licenses/notices/*.txt text eol=lf
+third_party/licenses/notices/*.docx binary
+third_party/licenses/notices/Microsoft-VS2022-Community-Terms.txt whitespace=-trailing-space
+tests/export/*.bin binary

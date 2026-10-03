@@ -61,7 +61,7 @@
       ],
       "library_policy": {
         "linkage": "dynamic",
-        "source_archive_sha256": null,
+        "source_archive_sha256": "f6ea1c2771de5594f0047e27b2facb605dc958c7c8e0008dd43e73df88bf6a62",
         "source_delivery": "Distribute a reproducible library-only corresponding-source bundle with the complete compiled dependency closure, upstream build inputs needed for the DLL, original notices and build/replacement instructions. Exclude aircraft/engine/system XML, tests and unrelated bindings/plugins. Review its file inventory and separate SHA-256 before release; upstream acquisition ZIP is not cleared for redistribution.",
         "modification_policy": "Initial policy permits unmodified upstream library only. Any patch requires reviewed source archive/digest and dated change notices before release."
       },
@@ -480,6 +480,169 @@
       ],
       "notice_files": [],
       "blocker": "No recording/vendor assets acquired. Capture performer/recording rights and redistribution license before inclusion."
+    },
+    {
+      "id": "microsoft-vc143-crt",
+      "class": "runtime",
+      "name": "Microsoft Visual C++ VC143 x64 release runtime",
+      "version": "VC143-x64-reviewed-inventories-v1",
+      "owner": "build-maintainer",
+      "scope": "Exact reviewed unmodified x64 release CRT inventories, shipped with this project application; no debug, tool, preview or Windows OS DLLs.",
+      "decision": "Owner-declared Community basis and retained primary Microsoft distributable-code terms/list; exact selected runtime file hashes/version must match a reviewed inventory and be at least as new as actual build toolset. New runtime identities require independent inventory review.",
+      "license": "Microsoft Visual Studio Community distributable-code terms; Microsoft proprietary release runtime",
+      "redistribution": "conditional",
+      "evidence": "source-verified",
+      "source": {
+        "url": "https://learn.microsoft.com/en-us/visualstudio/releases/2022/redistribution",
+        "revision": "vs2022-vc143-x64-redist-policy-v1",
+        "rights_url": "https://visualstudio.microsoft.com/license-terms/vs2022-ga-community/",
+        "applicability": "Owner-declared Community entitlement; exact unmodified release redistributables with project application, not standalone Microsoft redistribution."
+      },
+      "obligations": [
+        "retain-notices",
+        "retain-source-attribution",
+        "verify-product-rights"
+      ],
+      "notice_files": [
+        {
+          "path": "third_party/licenses/notices/Microsoft-VC143-CRT-Notice.txt",
+          "sha256": "5a64868e606d8db5ccff33bea9e299be795258d42ff1bc397341470aed8105e7",
+          "source_url": "https://learn.microsoft.com/en-us/visualstudio/releases/2022/redistribution"
+        },
+        {
+          "path": "third_party/licenses/notices/Microsoft-VS2022-Community-Terms.txt",
+          "sha256": "24b187690944c166a8337208454cbc775e1a39406d6f2a986e9a34d8f1a1f259",
+          "source_url": "https://visualstudio.microsoft.com/wp-content/uploads/2021/11/Visual-Studio-2022-Community-License-EN.docx"
+        },
+        {
+          "path": "third_party/licenses/notices/Microsoft-VS2022-Community-Terms.docx",
+          "sha256": "41a207b10c8ab91d0d2f10a854715f73dca54509581692d2fe179aa3ffcb8540",
+          "source_url": "https://visualstudio.microsoft.com/wp-content/uploads/2021/11/Visual-Studio-2022-Community-License-EN.docx"
+        }
+      ],
+      "evidence_file": "third_party/licenses/evidence/microsoft-vc143-crt.md",
+      "runtime_policy": {
+        "inventories": [
+          {
+            "version": "14.40.33810.0",
+            "redist_revision": "14.40.33807",
+            "files": [
+              {
+                "name": "msvcp140.dll",
+                "version": "14.40.33810.0",
+                "bytes": 575056,
+                "sha256": "a4c2229bdc2a2a630acdc095b4d86008e5c3e3bc7773174354f3da4f5beb9cde",
+                "signature": "Valid"
+              },
+              {
+                "name": "msvcp140_2.dll",
+                "version": "14.40.33810.0",
+                "bytes": 268880,
+                "sha256": "713f17b253d802d283d306ce75647e37d83a546aeb1a881e5d9e529e856c007e",
+                "signature": "Valid"
+              },
+              {
+                "name": "msvcp140_atomic_wait.dll",
+                "version": "14.40.33810.0",
+                "bytes": 50664,
+                "sha256": "aede4ec454a82f146eb4a721e616e2086870107d88aabc6b0bd1eea0a505d935",
+                "signature": "Valid"
+              },
+              {
+                "name": "vcruntime140.dll",
+                "version": "14.40.33810.0",
+                "bytes": 119888,
+                "sha256": "02c6aa0e6e624411a9f19b0360a7865ab15908e26024510e5c38a9c08362c35a",
+                "signature": "Valid"
+              },
+              {
+                "name": "vcruntime140_1.dll",
+                "version": "14.40.33810.0",
+                "bytes": 49640,
+                "sha256": "7dd9aa02e271c68ca6d5f18d651d23a15d7259715af43326578f7dde27f37637",
+                "signature": "Valid"
+              }
+            ]
+          },
+          {
+            "version": "14.44.35211.0",
+            "redist_revision": "14.44.35112",
+            "evidence_run_id": 37156502551,
+            "evidence_head": "30d195ac58f7db58ffee0d5ed83284ef0e980824",
+            "files": [
+              {
+                "name": "msvcp140.dll",
+                "version": "14.44.35211.0",
+                "bytes": 557728,
+                "sha256": "0f885b509a685d2bbfa652fed26b5fb31d88fbdab0a978c641d1c7b8aa460aa9",
+                "signature": "Valid"
+              },
+              {
+                "name": "msvcp140_2.dll",
+                "version": "14.44.35211.0",
+                "bytes": 280200,
+                "sha256": "3ea06f0ee098b4823cb79599df3780e7f23cce52c19aac31d2a0d47efe33a5e9",
+                "signature": "Valid"
+              },
+              {
+                "name": "msvcp140_atomic_wait.dll",
+                "version": "14.44.35211.0",
+                "bytes": 50304,
+                "sha256": "640b2aefced484d0368eea5bdd06addd0658a3a70a49256e560d6923b404a479",
+                "signature": "Valid"
+              },
+              {
+                "name": "vcruntime140.dll",
+                "version": "14.44.35211.0",
+                "bytes": 124544,
+                "sha256": "d5e4d9a3e835fa679450145d6a7d94e36573a509317111904d9b3712c30d9066",
+                "signature": "Valid"
+              },
+              {
+                "name": "vcruntime140_1.dll",
+                "version": "14.44.35211.0",
+                "bytes": 49792,
+                "sha256": "1f2d41c4aa5db0bc33ebf7b66d72943a817d7ce6cbe880502a9403823633093f",
+                "signature": "Valid"
+              }
+            ]
+          }
+        ],
+        "debug_nonredist_allowed": false,
+        "system32_copies_allowed": false,
+        "immutable": true,
+        "version_rule": "Runtime must be at least as recent as newest toolset used by any shipped component; local14.40 candidates do not cover hosted14.44 builds.",
+        "required_terms": "Retain applicable Microsoft distributable-code terms and protect Microsoft components for distributors/end users; preserve separate JSBSim replacement/debugging permission.",
+        "audit_note": "tools/export/check-runtime.mjs enforces exact selected-build reviewed hashes/version, bounded allowlist and compiler/runtime compatibility in addition to generic package rights audit."
+      }
+    },
+    {
+      "id": "native-export-proof",
+      "class": "binding",
+      "name": "Original native bridge and Godot proof application",
+      "version": "0.1.0-prototype",
+      "owner": "build-maintainer",
+      "scope": "Original C++ joined-worker facade, codecs, GDScript proof, scene, initializer transport fixture and package documentation; no aircraft or renderer qualification.",
+      "decision": "Original project source under MIT with retained notice; scoped demonstration consumes accepted v1 contracts.",
+      "license": "MIT",
+      "redistribution": "permitted",
+      "evidence": "synthetic",
+      "source": {
+        "url": "https://github.com/brettbergin/flight-simulator",
+        "revision": "native-export-proof-v1",
+        "rights_url": "https://github.com/brettbergin/flight-simulator/blob/main/LICENSE",
+        "applicability": "Original project code and integration fixtures, not third-party library relicensing."
+      },
+      "obligations": [
+        "retain-notices"
+      ],
+      "notice_files": [
+        {
+          "path": "third_party/licenses/notices/FirstParty-NativeProof-MIT.txt",
+          "sha256": "ca8c1205d820d40917b54d548b97dde200bc24bc6c3166358e8bc6cc27eb0e9e",
+          "source_url": "https://github.com/brettbergin/flight-simulator/blob/main/LICENSE"
+        }
+      ]
     }
   ]
 }
