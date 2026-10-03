@@ -714,6 +714,61 @@
         "sha256": "bfa403d1b4aa78b1bf9f2558590d01c16689f9f731757136b2ac1b113fbaa595",
         "files": 5
       }
+    },
+    {
+      "id": "original-interactive-prototype",
+      "class": "aircraft-model",
+      "name": "Original combined flight and tricycle gear prototype",
+      "version": "0.1.0-prototype",
+      "owner": "simulation-maintainer",
+      "scope": "Only the three original XML files and hashed inventory at native/fdm_jsbsim/models/original-interactive; synthetic engineering content, no real-aircraft calibration or public runtime acceptance.",
+      "decision": "Project-authored original model and derived project-MIT engine/gear content under MIT, restricted to this reviewed file inventory. Source rights do not establish fidelity, phase or packaged runtime acceptance.",
+      "license": "MIT",
+      "redistribution": "permitted",
+      "evidence": "synthetic",
+      "source": {
+        "url": "https://github.com/brettbergin/flight-simulator/tree/codex/interactive-contract/native/fdm_jsbsim/models/original-interactive",
+        "revision": "sha256:98b30b5641ce86cc6f0af6298424606aa96a1e4a35ef3e9fcaf377bebb3f00cd",
+        "rights_url": "https://github.com/brettbergin/flight-simulator/blob/95f1ed41cea762b33e78d0466ce66c56380631c4/LICENSE",
+        "applicability": "original-interactive-prototype 0.1.0-prototype, exact LF inventory digest; locator is not integrity authority; XML format 2.0 is not package version."
+      },
+      "obligations": [
+        "retain-notices",
+        "retain-source-attribution"
+      ],
+      "notice_files": [
+        {
+          "path": "third_party/licenses/notices/FirstParty-Interactive-MIT.txt",
+          "sha256": "ca8c1205d820d40917b54d548b97dde200bc24bc6c3166358e8bc6cc27eb0e9e",
+          "source_url": "https://github.com/brettbergin/flight-simulator/blob/95f1ed41cea762b33e78d0466ce66c56380631c4/LICENSE"
+        }
+      ],
+      "evidence_file": "third_party/licenses/evidence/original-interactive.md",
+      "content_policy": {
+        "model_id": "original-interactive-prototype",
+        "root": "native/fdm_jsbsim/models/original-interactive",
+        "inventory_path": "native/fdm_jsbsim/models/original-interactive/inventory.json",
+        "inventory_sha256": "98b30b5641ce86cc6f0af6298424606aa96a1e4a35ef3e9fcaf377bebb3f00cd",
+        "files": [
+          {
+            "path": "aircraft/original-interactive/original-interactive.xml",
+            "bytes": 6151,
+            "sha256": "0213ab8c1176e5d20b01f980da9cb94913f3e9ad8866838adc7e77bf3130722a"
+          },
+          {
+            "path": "engine/original-synthetic-thrust.xml",
+            "bytes": 561,
+            "sha256": "547581e279e9b3f383422ddff7991b0ff1cef6f02054bf0a979cd6859d9ef073"
+          },
+          {
+            "path": "engine/original-synthetic-direct.xml",
+            "bytes": 100,
+            "sha256": "30c8dbec55a756c71d639aef1cf720decff0ba6730af5ec2062608a08d24d00b"
+          }
+        ],
+        "immutable_vendor_models_allowed": false,
+        "audit_note": "Generic register audit validates notice integrity, not this content_policy. New consumer and export tests must enforce these exact hashes before parsing/staging. Historical flight/cart inventories remain unchanged."
+      }
     }
   ]
 }

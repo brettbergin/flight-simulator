@@ -1,0 +1,37 @@
+{
+  "id": "original-interactive-prototype",
+  "version": "0.1.0-prototype",
+  "license": "MIT",
+  "status": "engineering-prototype",
+  "lineage": [
+    {
+      "path": "native/fdm_jsbsim/models/original-synthetic/inventory.json",
+      "sha256": "1ccadb2e3d5aefe79f5a8f316631744ab4de18084469d2cf1817fb622cfabf7a"
+    },
+    {
+      "path": "tests/ground/fixtures/aircraft/ground-cart/ground-cart.xml",
+      "sha256": "c546dc4791fc830e6f656b13c7a564322d51fba8f46b43da10af3d2f7ff041a1"
+    }
+  ],
+  "meaning": "Authored polynomial flight model + original tricycle gear. No C172/calibration/startup/stall/landing qualification.",
+  "inertia": "Retained flight tensor 800/1200/1600 SLUG*FT2; NEVER cart KG*M2 tensor.",
+  "files": [
+    {
+      "path": "aircraft/original-interactive/original-interactive.xml",
+      "bytes": 6151,
+      "sha256": "0213ab8c1176e5d20b01f980da9cb94913f3e9ad8866838adc7e77bf3130722a"
+    },
+    {
+      "path": "engine/original-synthetic-thrust.xml",
+      "bytes": 561,
+      "sha256": "547581e279e9b3f383422ddff7991b0ff1cef6f02054bf0a979cd6859d9ef073"
+    },
+    {
+      "path": "engine/original-synthetic-direct.xml",
+      "bytes": 100,
+      "sha256": "30c8dbec55a756c71d639aef1cf720decff0ba6730af5ec2062608a08d24d00b"
+    }
+  ],
+  "contract": "docs/decisions/006-interactive-prototype.md",
+  "runtime_consumer": "not-implemented-by-contract-pr"
+}
