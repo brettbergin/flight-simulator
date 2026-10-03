@@ -7,3 +7,5 @@
 *.mjs text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf
+*.xml text eol=lf
+third_party/licenses/notices/OriginalSynthetic-MIT.txt text eol=lf

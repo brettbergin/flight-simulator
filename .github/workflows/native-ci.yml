@@ -59,6 +59,14 @@ jobs:
         run: ./tools/bootstrap/build.ps1 -Python python -WithGodot
       - name: Verify unchanged source/tool receipts after build
         run: python tools/bootstrap/bootstrap.py --offline --with-godot
+      - name: Prove authoritative synthetic dynamics and strict scenario boundaries
+        run: |
+          node tests/fdm/make-transport-fixture.mjs --check
+          if ($LASTEXITCODE -ne 0) { throw "Native transport fixture drift" }
+          node --test tests/fdm/frontend.test.mjs tests/fdm/integration.test.mjs
+          if ($LASTEXITCODE -ne 0) { throw "FDM wire/context rejection tests failed" }
+          node tests/fdm/proof.mjs
+          if ($LASTEXITCODE -ne 0) { throw "FDM repeat/convergence/stability proof failed" }
       - name: Prove native initializer loaded in pinned Godot
         run: ./tools/bootstrap/verify-godot.ps1
       - name: Preserve build evidence (no simulator binaries)
@@ -73,3 +81,4 @@ jobs:
             .local/toolchain/environment.json
             .local/build/native-release/dynamic-dependencies.txt
             .local/build/native-release/godot-binding-load.txt
+            .local/fdm-proof/**

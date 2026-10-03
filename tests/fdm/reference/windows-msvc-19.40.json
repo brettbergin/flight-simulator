@@ -1,0 +1,1764 @@
+{
+  "version": 1,
+  "classification": "observed numerical regression trace; not independent aircraft truth",
+  "model_inventory_sha256": "1ccadb2e3d5aefe79f5a8f316631744ab4de18084469d2cf1817fb622cfabf7a",
+  "loaded_jsbsim": {
+    "sha256": "269ebc60feaf8bc9fdd2f2761a46eb5eb06427623f33c67055f21ca65e705150",
+    "version": "1.3.1 Oct  3 2026 12:58:03"
+  },
+  "compiler": "MSVC-19.40.33813.0",
+  "source_fingerprint": "32e177ebd574ffc1db2057957a05c3090c6b8f54c60378a8e01f9c21130c1d65",
+  "scenario": {
+    "type": "ScenarioManifest",
+    "schema_version": 1,
+    "id": "synthetic-flight-probe",
+    "version": "0.1.0-prototype",
+    "compatible_schema_version": 1,
+    "evidence": {
+      "status": "prototype",
+      "report_ids": [],
+      "source_ids": [
+        "original-fixture"
+      ]
+    },
+    "sources": [
+      {
+        "id": "original-fixture",
+        "revision": "0.1.0-prototype",
+        "locator": "urn:flight-simulator:original-synthetic-model",
+        "sha256": "1ccadb2e3d5aefe79f5a8f316631744ab4de18084469d2cf1817fb622cfabf7a",
+        "rights": "redistributable",
+        "license": "MIT",
+        "applicability": "Original synthetic numerical fixture; no aircraft calibration.",
+        "effective_from": null,
+        "effective_until": null
+      }
+    ],
+    "files": [
+      {
+        "path": "inventory.json",
+        "sha256": "1ccadb2e3d5aefe79f5a8f316631744ab4de18084469d2cf1817fb622cfabf7a",
+        "bytes": 782,
+        "role": "dynamics"
+      }
+    ],
+    "jurisdiction": "synthetic",
+    "prerequisites": [],
+    "required_aircraft": {
+      "id": "original-synthetic",
+      "version": "0.1.0-prototype",
+      "sha256": "1ccadb2e3d5aefe79f5a8f316631744ab4de18084469d2cf1817fb622cfabf7a"
+    },
+    "required_world": {
+      "id": "synthetic-world",
+      "version": "0.1.0-prototype",
+      "sha256": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6"
+    },
+    "seed": "9007199254740993",
+    "clock": {
+      "tick_rate_hz": 120,
+      "purpose": "runtime"
+    },
+    "initial_conditions": {
+      "aircraft": {
+        "type": "AircraftSnapshot",
+        "schema_version": 1,
+        "tick": "0",
+        "session_id": "synthetic-session",
+        "clock": {
+          "tick_rate_hz": 120,
+          "purpose": "runtime"
+        },
+        "elapsed_s": 0,
+        "position": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2,
+          "ellipsoid_height_m": 1000
+        },
+        "ecef_position_m": {
+          "x": -1852711.2986649142,
+          "y": -4048248.0426978553,
+          "z": 4553331.821989356
+        },
+        "orientation_body_to_ned": {
+          "w": 0.9999500004166653,
+          "x": 0,
+          "y": 0.009999833334166664,
+          "z": 0
+        },
+        "velocity_body_mps": {
+          "x": 54.98900036666178,
+          "y": 0,
+          "z": 1.0999266681333195
+        },
+        "angular_rate_body_radps": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "acceleration_body_mps2": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "mass_kg": 1100,
+        "center_of_gravity_body_m": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "configuration": {
+          "flap_fraction": 0,
+          "gear_fraction": 1,
+          "trim_fraction": 0
+        },
+        "systems": [],
+        "contacts": [],
+        "validity": "initializing"
+      },
+      "atmosphere": {
+        "type": "AtmosphereSample",
+        "schema_version": 1,
+        "tick": "0",
+        "session_id": "synthetic-session",
+        "position": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2,
+          "ellipsoid_height_m": 1000
+        },
+        "pressure_pa": 89876.27760234236,
+        "temperature_k": 281.6510223716947,
+        "density_kgpm3": 1.111659673699691,
+        "relative_humidity": 0,
+        "wind_toward_ned_mps": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "turbulence_ned_mps": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "seed": "9007199254740993",
+        "model_id": "jsbsim-dry-isa"
+      }
+    },
+    "objectives": [
+      "schema-example"
+    ],
+    "rubric": {
+      "id": "synthetic-rubric",
+      "version": "0.1.0-prototype",
+      "sha256": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6"
+    },
+    "allowed_assists": [],
+    "scheduled_actions": [],
+    "safe_restart_ticks": [
+      "0"
+    ],
+    "evidence_event_kinds": [
+      "pause"
+    ],
+    "source_edition_ids": [
+      "original-fixture"
+    ]
+  },
+  "commands": [
+    {
+      "type": "ControlCommand",
+      "schema_version": 1,
+      "tick": "121",
+      "session_id": "synthetic-session",
+      "sequence": "1",
+      "source_id": "pilot.controls",
+      "authority": "pilot",
+      "assistance": {
+        "profile_id": "unassisted",
+        "active": []
+      },
+      "payload": {
+        "kind": "axes",
+        "roll": 0.02,
+        "pitch": 0,
+        "yaw": 0,
+        "throttle": 0.5627841920323032,
+        "mixture": 1,
+        "left_brake": 0,
+        "right_brake": 0,
+        "trim": 0.016098393362777297
+      }
+    },
+    {
+      "type": "ControlCommand",
+      "schema_version": 1,
+      "tick": "241",
+      "session_id": "synthetic-session",
+      "sequence": "2",
+      "source_id": "pilot.controls",
+      "authority": "pilot",
+      "assistance": {
+        "profile_id": "unassisted",
+        "active": []
+      },
+      "payload": {
+        "kind": "axes",
+        "roll": 0,
+        "pitch": 0,
+        "yaw": 0,
+        "throttle": 0.5627841920323032,
+        "mixture": 1,
+        "left_brake": 0,
+        "right_brake": 0,
+        "trim": 0.016098393362777297
+      }
+    },
+    {
+      "type": "ControlCommand",
+      "schema_version": 1,
+      "tick": "361",
+      "session_id": "synthetic-session",
+      "sequence": "3",
+      "source_id": "pilot.controls",
+      "authority": "pilot",
+      "assistance": {
+        "profile_id": "unassisted",
+        "active": []
+      },
+      "payload": {
+        "kind": "axes",
+        "roll": 0,
+        "pitch": 0.025,
+        "yaw": 0,
+        "throttle": 0.5627841920323032,
+        "mixture": 1,
+        "left_brake": 0,
+        "right_brake": 0,
+        "trim": 0.016098393362777297
+      }
+    },
+    {
+      "type": "ControlCommand",
+      "schema_version": 1,
+      "tick": "481",
+      "session_id": "synthetic-session",
+      "sequence": "4",
+      "source_id": "pilot.controls",
+      "authority": "pilot",
+      "assistance": {
+        "profile_id": "unassisted",
+        "active": []
+      },
+      "payload": {
+        "kind": "axes",
+        "roll": 0,
+        "pitch": 0,
+        "yaw": 0,
+        "throttle": 0.5627841920323032,
+        "mixture": 1,
+        "left_brake": 0,
+        "right_brake": 0,
+        "trim": 0.016098393362777297
+      }
+    },
+    {
+      "type": "ControlCommand",
+      "schema_version": 1,
+      "tick": "601",
+      "session_id": "synthetic-session",
+      "sequence": "5",
+      "source_id": "pilot.controls",
+      "authority": "pilot",
+      "assistance": {
+        "profile_id": "unassisted",
+        "active": []
+      },
+      "payload": {
+        "kind": "axes",
+        "roll": 0,
+        "pitch": 0,
+        "yaw": 0.04,
+        "throttle": 0.5627841920323032,
+        "mixture": 1,
+        "left_brake": 0,
+        "right_brake": 0,
+        "trim": 0.016098393362777297
+      }
+    },
+    {
+      "type": "ControlCommand",
+      "schema_version": 1,
+      "tick": "721",
+      "session_id": "synthetic-session",
+      "sequence": "6",
+      "source_id": "pilot.controls",
+      "authority": "pilot",
+      "assistance": {
+        "profile_id": "unassisted",
+        "active": []
+      },
+      "payload": {
+        "kind": "axes",
+        "roll": 0,
+        "pitch": 0,
+        "yaw": 0,
+        "throttle": 0.5627841920323032,
+        "mixture": 1,
+        "left_brake": 0,
+        "right_brake": 0,
+        "trim": 0.016098393362777297
+      }
+    }
+  ],
+  "states": [
+    {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "0",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 0,
+      "position": {
+        "latitude_rad": 0.7999999999999998,
+        "longitude_rad": -2,
+        "ellipsoid_height_m": 999.999999969735
+      },
+      "ecef_position_m": {
+        "x": -1852711.2986737716,
+        "y": -4048248.042717209,
+        "z": 4553331.821926744
+      },
+      "orientation_body_to_ned": {
+        "w": 0.9998777846692385,
+        "x": -5.340730720216104e-17,
+        "y": 0.01563380071946924,
+        "z": 1.2616617772564475e-16
+      },
+      "velocity_body_mps": {
+        "x": 54.973114270257,
+        "y": -1.2878576374346766e-14,
+        "z": 1.7195079032277585
+      },
+      "angular_rate_body_radps": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "acceleration_body_mps2": {
+        "x": -0.00001294510437859211,
+        "y": 0.005754147421870985,
+        "z": 0.00007216287967918902
+      },
+      "mass_kg": 1099.9999848347804,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0.016098393362777297
+      },
+      "systems": [
+        {
+          "id": "fuel.total",
+          "quantity": "kg",
+          "value": 100,
+          "validity": "valid"
+        },
+        {
+          "id": "engine.throttle",
+          "quantity": "fraction",
+          "value": 0.5627841920323032,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "valid"
+    },
+    {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "60",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 0.5,
+      "position": {
+        "latitude_rad": 0.8000043175727578,
+        "longitude_rad": -1.999999999844952,
+        "ellipsoid_height_m": 1000.0000591465175
+      },
+      "ecef_position_m": {
+        "x": -1852703.088596614,
+        "y": -4048230.105030082,
+        "z": 4553350.981358933
+      },
+      "orientation_body_to_ned": {
+        "w": 0.9998777512796796,
+        "x": -0.000003994324849981237,
+        "y": 0.015635935288576232,
+        "z": 0.0000027546751113964026
+      },
+      "velocity_body_mps": {
+        "x": 54.97309891549775,
+        "y": 0.0023948831684094986,
+        "z": 1.719492367241565
+      },
+      "angular_rate_body_radps": {
+        "x": -0.00003522847599976949,
+        "y": 5.424358839608339e-7,
+        "z": 0.00002230513779957069
+      },
+      "acceleration_body_mps2": {
+        "x": -0.00005193825979509643,
+        "y": 0.005076891247634717,
+        "z": -0.00009731085650080805
+      },
+      "mass_kg": 1099.976468330336,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0.016098393362777297
+      },
+      "systems": [
+        {
+          "id": "fuel.total",
+          "quantity": "kg",
+          "value": 99.97608491040482,
+          "validity": "valid"
+        },
+        {
+          "id": "engine.throttle",
+          "quantity": "fraction",
+          "value": 0.5627841920323032,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "valid"
+    },
+    {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "120",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 1,
+      "position": {
+        "latitude_rad": 0.8000086351431501,
+        "longitude_rad": -1.9999999994045243,
+        "ellipsoid_height_m": 1000.0002611242274
+      },
+      "ecef_position_m": {
+        "x": -1852694.8773753042,
+        "y": -4048212.1678959685,
+        "z": 4553370.140798721
+      },
+      "orientation_body_to_ned": {
+        "w": 0.9998777086551259,
+        "x": -0.000016251633158078146,
+        "y": 0.015638649492020776,
+        "z": 0.000010607808186560578
+      },
+      "velocity_body_mps": {
+        "x": 54.97305871036426,
+        "y": 0.003892719342696439,
+        "z": 1.7194693619582606
+      },
+      "angular_rate_body_radps": {
+        "x": -0.00006203513902724903,
+        "y": 0.000003873841566007564,
+        "z": 0.00003793540570030868
+      },
+      "acceleration_body_mps2": {
+        "x": -0.00010330849359099542,
+        "y": 0.00446383068003909,
+        "z": -0.0002456615802506083
+      },
+      "mass_kg": 1099.9525532410705,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0.016098393362777297
+      },
+      "systems": [
+        {
+          "id": "fuel.total",
+          "quantity": "kg",
+          "value": 99.95216982080964,
+          "validity": "valid"
+        },
+        {
+          "id": "engine.throttle",
+          "quantity": "fraction",
+          "value": 0.5627841920323032,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "valid"
+    },
+    {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "180",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 1.5,
+      "position": {
+        "latitude_rad": 0.8000129527088606,
+        "longitude_rad": -1.9999999979126775,
+        "ellipsoid_height_m": 1000.0006236290378
+      },
+      "ecef_position_m": {
+        "x": -1852686.661918322,
+        "y": -4048194.2327549453,
+        "z": 4553389.300248552
+      },
+      "orientation_body_to_ned": {
+        "w": 0.999858955725946,
+        "x": 0.006113440266276276,
+        "y": 0.015642651203280993,
+        "z": -0.00004434032238510686
+      },
+      "velocity_body_mps": {
+        "x": 54.97297784246289,
+        "y": 0.046733788687156684,
+        "z": 1.7192314300881146
+      },
+      "angular_rate_body_radps": {
+        "x": 0.028688122589090814,
+        "y": 0.000020126386689791556,
+        "z": 0.00041127809827528754
+      },
+      "acceleration_body_mps2": {
+        "x": -0.00022480621489685308,
+        "y": 0.11388972473768721,
+        "z": -0.0006843625699857642
+      },
+      "mass_kg": 1099.9286381518052,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0.016098393362777297
+      },
+      "systems": [
+        {
+          "id": "fuel.total",
+          "quantity": "kg",
+          "value": 99.92825473121445,
+          "validity": "valid"
+        },
+        {
+          "id": "engine.throttle",
+          "quantity": "fraction",
+          "value": 0.5627841920323032,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "valid"
+    },
+    {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "240",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 2,
+      "position": {
+        "latitude_rad": 0.8000172702654054,
+        "longitude_rad": -1.9999999900785814,
+        "ellipsoid_height_m": 1000.00088154923
+      },
+      "ecef_position_m": {
+        "x": -1852678.4207391758,
+        "y": -4048176.309259874,
+        "z": 4553408.459498345
+      },
+      "orientation_body_to_ned": {
+        "w": 0.999791216564377,
+        "x": 0.013132051018056054,
+        "y": 0.015654722234732292,
+        "z": 0.00004678178999378907
+      },
+      "velocity_body_mps": {
+        "x": 54.972800714745674,
+        "y": 0.13520558972030725,
+        "z": 1.718651250538617
+      },
+      "angular_rate_body_radps": {
+        "x": 0.027311805652870957,
+        "y": 0.0000850580058309789,
+        "z": 0.0012672111067541824
+      },
+      "acceleration_body_mps2": {
+        "x": -0.0004944329063434896,
+        "y": 0.22933994411887512,
+        "z": -0.0022618127459059965
+      },
+      "mass_kg": 1099.9047230625397,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0.016098393362777297
+      },
+      "systems": [
+        {
+          "id": "fuel.total",
+          "quantity": "kg",
+          "value": 99.90433964161927,
+          "validity": "valid"
+        },
+        {
+          "id": "engine.throttle",
+          "quantity": "fraction",
+          "value": 0.5627841920323032,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "valid"
+    },
+    {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "300",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 2.5,
+      "position": {
+        "latitude_rad": 0.8000215878029034,
+        "longitude_rad": -1.9999999702328366,
+        "ellipsoid_height_m": 1000.0005067949768
+      },
+      "ecef_position_m": {
+        "x": -1852670.130753259,
+        "y": -4048158.407620631,
+        "z": 4553427.6181254145
+      },
+      "orientation_body_to_ned": {
+        "w": 0.9997845816970331,
+        "x": 0.013598692876435675,
+        "y": 0.015673353252751474,
+        "z": 0.000460163835414293
+      },
+      "velocity_body_mps": {
+        "x": 54.972620943910094,
+        "y": 0.20694708548871932,
+        "z": 1.7192563154241396
+      },
+      "angular_rate_body_radps": {
+        "x": -0.003303006650609333,
+        "y": 0.00006441439362953299,
+        "z": 0.0020241175889394777
+      },
+      "acceleration_body_mps2": {
+        "x": -0.00048744137880529434,
+        "y": 0.2206433690891458,
+        "z": -0.004214033809982794
+      },
+      "mass_kg": 1099.8808079732742,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0.016098393362777297
+      },
+      "systems": [
+        {
+          "id": "fuel.total",
+          "quantity": "kg",
+          "value": 99.8804245520241,
+          "validity": "valid"
+        },
+        {
+          "id": "engine.throttle",
+          "quantity": "fraction",
+          "value": 0.5627841920323032,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "valid"
+    },
+    {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "360",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 3,
+      "position": {
+        "latitude_rad": 0.8000259053118332,
+        "longitude_rad": -1.9999999380014086,
+        "ellipsoid_height_m": 999.999738079413
+      },
+      "ecef_position_m": {
+        "x": -1852661.790534391,
+        "y": -4048140.528720671,
+        "z": 4553446.776258755
+      },
+      "orientation_body_to_ned": {
+        "w": 0.9997960791720019,
+        "x": 0.012682788417534396,
+        "y": 0.015680349110292438,
+        "z": 0.001036147686282818
+      },
+      "velocity_body_mps": {
+        "x": 54.97259636065614,
+        "y": 0.24538593181191432,
+        "z": 1.7191271864099487
+      },
+      "angular_rate_body_radps": {
+        "x": -0.0040217369518710955,
+        "y": 0.00004949216160851715,
+        "z": 0.002430439459799421
+      },
+      "acceleration_body_mps2": {
+        "x": -0.0004479115349116836,
+        "y": 0.19323952469789957,
+        "z": -0.0036997755277040374
+      },
+      "mass_kg": 1099.8568928840086,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0.016098393362777297
+      },
+      "systems": [
+        {
+          "id": "fuel.total",
+          "quantity": "kg",
+          "value": 99.8565094624289,
+          "validity": "valid"
+        },
+        {
+          "id": "engine.throttle",
+          "quantity": "fraction",
+          "value": 0.5627841920323032,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "valid"
+    },
+    {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "420",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 3.5,
+      "position": {
+        "latitude_rad": 0.8000302224832344,
+        "longitude_rad": -1.9999998944692492,
+        "ellipsoid_height_m": 1000.0782946590047
+      },
+      "ecef_position_m": {
+        "x": -1852653.4281751944,
+        "y": -4048122.722334972,
+        "z": 4553465.98971615
+      },
+      "orientation_body_to_ned": {
+        "w": 0.999530818444111,
+        "x": 0.01162556108210961,
+        "y": 0.028276948475518957,
+        "z": 0.001844856331742205
+      },
+      "velocity_body_mps": {
+        "x": 54.92404914745227,
+        "y": 0.2615557858506173,
+        "z": 2.5821145023406182
+      },
+      "angular_rate_body_radps": {
+        "x": -0.004342689994158818,
+        "y": 0.046732980556033143,
+        "z": 0.0026107612795170263
+      },
+      "acceleration_body_mps2": {
+        "x": 0.0004968592998166019,
+        "y": 0.16905751372418276,
+        "z": -2.054155548233222
+      },
+      "mass_kg": 1099.832977794743,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0.016098393362777297
+      },
+      "systems": [
+        {
+          "id": "fuel.total",
+          "quantity": "kg",
+          "value": 99.83259437283373,
+          "validity": "valid"
+        },
+        {
+          "id": "engine.throttle",
+          "quantity": "fraction",
+          "value": 0.5627841920323032,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "valid"
+    },
+    {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "480",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 4,
+      "position": {
+        "latitude_rad": 0.8000345348832523,
+        "longitude_rad": -1.999999839200917,
+        "ellipsoid_height_m": 1000.5888437608968
+      },
+      "ecef_position_m": {
+        "x": -1852645.1525900299,
+        "y": -4048105.23110259,
+        "z": 4553485.491820058
+      },
+      "orientation_body_to_ned": {
+        "w": 0.9992955653442422,
+        "x": 0.010535271635313436,
+        "y": 0.035923540984308444,
+        "z": 0.0026230398491004126
+      },
+      "velocity_body_mps": {
+        "x": 54.83822512674527,
+        "y": 0.2629699041874452,
+        "z": 2.4498785959364637
+      },
+      "angular_rate_body_radps": {
+        "x": -0.004390780877830802,
+        "y": 0.02754818630616647,
+        "z": 0.002633257657172555
+      },
+      "acceleration_body_mps2": {
+        "x": -0.18885307660823059,
+        "y": 0.1481157623994461,
+        "z": -1.7212296912352438
+      },
+      "mass_kg": 1099.8090627054776,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0.016098393362777297
+      },
+      "systems": [
+        {
+          "id": "fuel.total",
+          "quantity": "kg",
+          "value": 99.80867928323855,
+          "validity": "valid"
+        },
+        {
+          "id": "engine.throttle",
+          "quantity": "fraction",
+          "value": 0.5627841920323032,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "valid"
+    },
+    {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "540",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 4.5,
+      "position": {
+        "latitude_rad": 0.8000388357903224,
+        "longitude_rad": -1.999999773926975,
+        "ellipsoid_height_m": 1001.4606019527963
+      },
+      "ecef_position_m": {
+        "x": -1852636.9630427083,
+        "y": -4048088.034900062,
+        "z": 4553505.201969722
+      },
+      "orientation_body_to_ned": {
+        "w": 0.9994647477051385,
+        "x": 0.00948563106689271,
+        "y": 0.031138136649797452,
+        "z": 0.003264558767338758
+      },
+      "velocity_body_mps": {
+        "x": 54.71573219975168,
+        "y": 0.2565281482299051,
+        "z": 1.6007657221245557
+      },
+      "angular_rate_body_radps": {
+        "x": -0.0042929304997773605,
+        "y": -0.014567422460977149,
+        "z": 0.002571725810945134
+      },
+      "acceleration_body_mps2": {
+        "x": -0.32520947796209193,
+        "y": 0.12948262705034638,
+        "z": 0.33694297887214547
+      },
+      "mass_kg": 1099.7851476162123,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0.016098393362777297
+      },
+      "systems": [
+        {
+          "id": "fuel.total",
+          "quantity": "kg",
+          "value": 99.78476419364337,
+          "validity": "valid"
+        },
+        {
+          "id": "engine.throttle",
+          "quantity": "fraction",
+          "value": 0.5627841920323032,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "valid"
+    },
+    {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "600",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 5,
+      "position": {
+        "latitude_rad": 0.8000431245742474,
+        "longitude_rad": -1.999999701514922,
+        "ellipsoid_height_m": 1002.3187540854207
+      },
+      "ecef_position_m": {
+        "x": -1852628.7636726147,
+        "y": -4048070.8935907064,
+        "z": 4553524.848485437
+      },
+      "orientation_body_to_ned": {
+        "w": 0.9994701132703311,
+        "x": 0.008452350819772091,
+        "y": 0.03118699384701714,
+        "z": 0.003927067582449132
+      },
+      "velocity_body_mps": {
+        "x": 54.56266442957436,
+        "y": 0.24466721760478488,
+        "z": 1.73365660669365
+      },
+      "angular_rate_body_radps": {
+        "x": -0.004110167781347665,
+        "y": 0.0023885722666508913,
+        "z": 0.0024585671257227847
+      },
+      "acceleration_body_mps2": {
+        "x": -0.2898553712560377,
+        "y": 0.11276603747092986,
+        "z": 0.06617203430342
+      },
+      "mass_kg": 1099.7612325269467,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0.016098393362777297
+      },
+      "systems": [
+        {
+          "id": "fuel.total",
+          "quantity": "kg",
+          "value": 99.76084910404818,
+          "validity": "valid"
+        },
+        {
+          "id": "engine.throttle",
+          "quantity": "fraction",
+          "value": 0.5627841920323032,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "valid"
+    },
+    {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "660",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 5.5,
+      "position": {
+        "latitude_rad": 0.8000474021760481,
+        "longitude_rad": -1.9999996262718118,
+        "ellipsoid_height_m": 1003.1408745957276
+      },
+      "ecef_position_m": {
+        "x": -1852620.5636247287,
+        "y": -4048053.7810797854,
+        "z": 4553544.419455536
+      },
+      "orientation_body_to_ned": {
+        "w": 0.9994623458871488,
+        "x": 0.008223121618440604,
+        "y": 0.03070915192539749,
+        "z": 0.00802168390231649
+      },
+      "velocity_body_mps": {
+        "x": 54.422132124921596,
+        "y": -0.1969660364988432,
+        "z": 1.7230015952614444
+      },
+      "angular_rate_body_radps": {
+        "x": 0.0023034173117645012,
+        "y": -0.0035154059786339604,
+        "z": 0.015803014970930788
+      },
+      "acceleration_body_mps2": {
+        "x": -0.2795600319523115,
+        "y": 0.06754490031772027,
+        "z": 0.13201911092280383
+      },
+      "mass_kg": 1099.7373174376814,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0.016098393362777297
+      },
+      "systems": [
+        {
+          "id": "fuel.total",
+          "quantity": "kg",
+          "value": 99.736934014453,
+          "validity": "valid"
+        },
+        {
+          "id": "engine.throttle",
+          "quantity": "fraction",
+          "value": 0.5627841920323032,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "valid"
+    },
+    {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "720",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 6,
+      "position": {
+        "latitude_rad": 0.8000516691197522,
+        "longitude_rad": -1.9999995476554622,
+        "ellipsoid_height_m": 1003.9280187466841
+      },
+      "ecef_position_m": {
+        "x": -1852612.3600143334,
+        "y": -4048036.69686382,
+        "z": 4553563.91796264
+      },
+      "orientation_body_to_ned": {
+        "w": 0.9994393516587788,
+        "x": 0.009658152189669906,
+        "y": 0.0299308676152048,
+        "z": 0.011482404624567458
+      },
+      "velocity_body_mps": {
+        "x": 54.28697024516448,
+        "y": -0.5125142788597774,
+        "z": 1.7214284670138693
+      },
+      "angular_rate_body_radps": {
+        "x": 0.007928352686160515,
+        "y": -0.0029716249839978797,
+        "z": 0.012474784126408634
+      },
+      "acceleration_body_mps2": {
+        "x": -0.2603076186854002,
+        "y": 0.17623609214434618,
+        "z": 0.17374930532144245
+      },
+      "mass_kg": 1099.713402348416,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0.016098393362777297
+      },
+      "systems": [
+        {
+          "id": "fuel.total",
+          "quantity": "kg",
+          "value": 99.71301892485782,
+          "validity": "valid"
+        },
+        {
+          "id": "engine.throttle",
+          "quantity": "fraction",
+          "value": 0.5627841920323032,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "valid"
+    },
+    {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "780",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 6.5,
+      "position": {
+        "latitude_rad": 0.8000559260953777,
+        "longitude_rad": -1.9999994564997146,
+        "ellipsoid_height_m": 1004.6666603541371
+      },
+      "ecef_position_m": {
+        "x": -1852604.110503679,
+        "y": -4048019.6464893883,
+        "z": 4553583.33736523
+      },
+      "orientation_body_to_ned": {
+        "w": 0.999452710209404,
+        "x": 0.011455982357637194,
+        "y": 0.02909584740721633,
+        "z": 0.010792228081108886
+      },
+      "velocity_body_mps": {
+        "x": 54.165725742493514,
+        "y": -0.2781523522832161,
+        "z": 1.7229315300080366
+      },
+      "angular_rate_body_radps": {
+        "x": 0.005223292453363698,
+        "y": -0.003893609776255736,
+        "z": -0.0029891274887557887
+      },
+      "acceleration_body_mps2": {
+        "x": -0.23967443784220893,
+        "y": 0.30480831888353055,
+        "z": 0.205380124375867
+      },
+      "mass_kg": 1099.6894872591504,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0.016098393362777297
+      },
+      "systems": [
+        {
+          "id": "fuel.total",
+          "quantity": "kg",
+          "value": 99.68910383526264,
+          "validity": "valid"
+        },
+        {
+          "id": "engine.throttle",
+          "quantity": "fraction",
+          "value": 0.5627841920323032,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "valid"
+    },
+    {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "840",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 7,
+      "position": {
+        "latitude_rad": 0.8000601739108214,
+        "longitude_rad": -1.9999993487824228,
+        "ellipsoid_height_m": 1005.3489931605712
+      },
+      "ecef_position_m": {
+        "x": -1852595.7950128042,
+        "y": -4048002.629106739,
+        "z": 4553602.675648108
+      },
+      "orientation_body_to_ned": {
+        "w": 0.9994771951195792,
+        "x": 0.012301689353434645,
+        "y": 0.028078279551380363,
+        "z": 0.010276920374550757
+      },
+      "velocity_body_mps": {
+        "x": 54.05507619577596,
+        "y": -0.0793396397520114,
+        "z": 1.7226142989377895
+      },
+      "angular_rate_body_radps": {
+        "x": 0.0017278935773680972,
+        "y": -0.004388416372456999,
+        "z": -0.0009360785737075795
+      },
+      "acceleration_body_mps2": {
+        "x": -0.21733012957571668,
+        "y": 0.27179582608561387,
+        "z": 0.23835721683057592
+      },
+      "mass_kg": 1099.6655721698849,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0.016098393362777297
+      },
+      "systems": [
+        {
+          "id": "fuel.total",
+          "quantity": "kg",
+          "value": 99.66518874566745,
+          "validity": "valid"
+        },
+        {
+          "id": "engine.throttle",
+          "quantity": "fraction",
+          "value": 0.5627841920323032,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "valid"
+    },
+    {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "900",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 7.5,
+      "position": {
+        "latitude_rad": 0.8000644135325575,
+        "longitude_rad": -1.9999992263772177,
+        "ellipsoid_height_m": 1005.9673233445333
+      },
+      "ecef_position_m": {
+        "x": -1852587.417059116,
+        "y": -4047985.6323559172,
+        "z": 4553621.9315802315
+      },
+      "orientation_body_to_ned": {
+        "w": 0.9995081710143447,
+        "x": 0.012432740235156491,
+        "y": 0.026919294858759928,
+        "z": 0.010207576113444888
+      },
+      "velocity_body_mps": {
+        "x": 53.95664063621257,
+        "y": 0.05477691598964714,
+        "z": 1.7231493035586907
+      },
+      "angular_rate_body_radps": {
+        "x": -0.0006421253605096044,
+        "y": -0.004926117240499489,
+        "z": 0.00045268664128679883
+      },
+      "acceleration_body_mps2": {
+        "x": -0.19206485657276484,
+        "y": 0.24110909294730945,
+        "z": 0.2660714784653931
+      },
+      "mass_kg": 1099.6416570806196,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0.016098393362777297
+      },
+      "systems": [
+        {
+          "id": "fuel.total",
+          "quantity": "kg",
+          "value": 99.64127365607227,
+          "validity": "valid"
+        },
+        {
+          "id": "engine.throttle",
+          "quantity": "fraction",
+          "value": 0.5627841920323032,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "valid"
+    },
+    {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "960",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 8,
+      "position": {
+        "latitude_rad": 0.8000686460108286,
+        "longitude_rad": -1.9999990910154788,
+        "ellipsoid_height_m": 1006.51533040374
+      },
+      "ecef_position_m": {
+        "x": -1852578.9798229241,
+        "y": -4047968.6446624766,
+        "z": 4553641.105287317
+      },
+      "orientation_body_to_ned": {
+        "w": 0.9995441086269161,
+        "x": 0.012086939410819564,
+        "y": 0.025624407752363375,
+        "z": 0.010434104285633931
+      },
+      "velocity_body_mps": {
+        "x": 53.87191590005467,
+        "y": 0.14179764105580936,
+        "z": 1.723405775571326
+      },
+      "angular_rate_body_radps": {
+        "x": -0.0021905538060763285,
+        "y": -0.005396614945076111,
+        "z": 0.0013575221778419657
+      },
+      "acceleration_body_mps2": {
+        "x": -0.16448383204400308,
+        "y": 0.21287161522567472,
+        "z": 0.29078166209980044
+      },
+      "mass_kg": 1099.617741991354,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0.016098393362777297
+      },
+      "systems": [
+        {
+          "id": "fuel.total",
+          "quantity": "kg",
+          "value": 99.6173585664771,
+          "validity": "valid"
+        },
+        {
+          "id": "engine.throttle",
+          "quantity": "fraction",
+          "value": 0.5627841920323032,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "valid"
+    },
+    {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "1020",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 8.5,
+      "position": {
+        "latitude_rad": 0.8000728724649054,
+        "longitude_rad": -1.9999989442753323,
+        "ellipsoid_height_m": 1006.9875457234099
+      },
+      "ecef_position_m": {
+        "x": -1852570.4859797703,
+        "y": -4047951.654988759,
+        "z": 4553660.197812378
+      },
+      "orientation_body_to_ned": {
+        "w": 0.9995824791335217,
+        "x": 0.011437016633566614,
+        "y": 0.024215336173764836,
+        "z": 0.010848020731812104
+      },
+      "velocity_body_mps": {
+        "x": 53.80193268758074,
+        "y": 0.19481574290616543,
+        "z": 1.7236605820750968
+      },
+      "angular_rate_body_radps": {
+        "x": -0.003144921762661057,
+        "y": -0.005796003463944235,
+        "z": 0.0019126581347092232
+      },
+      "acceleration_body_mps2": {
+        "x": -0.13505062113054822,
+        "y": 0.18711435575616256,
+        "z": 0.3114839300495303
+      },
+      "mass_kg": 1099.5938269020885,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0.016098393362777297
+      },
+      "systems": [
+        {
+          "id": "fuel.total",
+          "quantity": "kg",
+          "value": 99.5934434768819,
+          "validity": "valid"
+        },
+        {
+          "id": "engine.throttle",
+          "quantity": "fraction",
+          "value": 0.5627841920323032,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "valid"
+    },
+    {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "1080",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 9,
+      "position": {
+        "latitude_rad": 0.8000770940677444,
+        "longitude_rad": -1.9999987875777199,
+        "ellipsoid_height_m": 1007.3794768374186
+      },
+      "ecef_position_m": {
+        "x": -1852561.9377497265,
+        "y": -4047934.6529836305,
+        "z": 4553679.211136791
+      },
+      "orientation_body_to_ned": {
+        "w": 0.9996210833134348,
+        "x": 0.010607368420346985,
+        "y": 0.022712569894001323,
+        "z": 0.011371574177756425
+      },
+      "velocity_body_mps": {
+        "x": 53.74742014251111,
+        "y": 0.2235570922392487,
+        "z": 1.7238280244222977
+      },
+      "angular_rate_body_radps": {
+        "x": -0.003674306647928246,
+        "y": -0.006117171367168762,
+        "z": 0.002217824115206821
+      },
+      "acceleration_body_mps2": {
+        "x": -0.10423463433913943,
+        "y": 0.16380030504278653,
+        "z": 0.3280901924592495
+      },
+      "mass_kg": 1099.5699118128227,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0.016098393362777297
+      },
+      "systems": [
+        {
+          "id": "fuel.total",
+          "quantity": "kg",
+          "value": 99.56952838728672,
+          "validity": "valid"
+        },
+        {
+          "id": "engine.throttle",
+          "quantity": "fraction",
+          "value": 0.5627841920323032,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "valid"
+    },
+    {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "1140",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 9.5,
+      "position": {
+        "latitude_rad": 0.8000813120306615,
+        "longitude_rad": -1.9999986221892765,
+        "ellipsoid_height_m": 1007.687620399467
+      },
+      "ecef_position_m": {
+        "x": -1852553.3369419416,
+        "y": -4047917.629049005,
+        "z": 4553698.148121606
+      },
+      "orientation_body_to_ned": {
+        "w": 0.9996582196129961,
+        "x": 0.009686450768364952,
+        "y": 0.021138089693633174,
+        "z": 0.011949803169553795
+      },
+      "velocity_body_mps": {
+        "x": 53.708855385040216,
+        "y": 0.2352300942618321,
+        "z": 1.7239146242915768
+      },
+      "angular_rate_body_radps": {
+        "x": -0.0039040881641881383,
+        "y": -0.006354473382637158,
+        "z": 0.002346958714787337
+      },
+      "acceleration_body_mps2": {
+        "x": -0.07247938675281644,
+        "y": 0.14284385805638775,
+        "z": 0.34037466620699813
+      },
+      "mass_kg": 1099.5459967235574,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0.016098393362777297
+      },
+      "systems": [
+        {
+          "id": "fuel.total",
+          "quantity": "kg",
+          "value": 99.54561329769155,
+          "validity": "valid"
+        },
+        {
+          "id": "engine.throttle",
+          "quantity": "fraction",
+          "value": 0.5627841920323032,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "valid"
+    },
+    {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "1200",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 10,
+      "position": {
+        "latitude_rad": 0.8000855275882792,
+        "longitude_rad": -1.9999984492292548,
+        "ellipsoid_height_m": 1007.9094908734564
+      },
+      "ecef_position_m": {
+        "x": -1852544.6850196258,
+        "y": -4047900.574407725,
+        "z": 4553717.012461354
+      },
+      "orientation_body_to_ned": {
+        "w": 0.999692707505247,
+        "x": 0.008736079364607732,
+        "y": 0.01951423910747798,
+        "z": 0.012544558590099647
+      },
+      "velocity_body_mps": {
+        "x": 53.686494251443435,
+        "y": 0.23515964039136888,
+        "z": 1.7239162439598648
+      },
+      "angular_rate_body_radps": {
+        "x": -0.003926950976524205,
+        "y": -0.006505703980298257,
+        "z": 0.0023547038964197246
+      },
+      "acceleration_body_mps2": {
+        "x": -0.040221139002546716,
+        "y": 0.12412563589560503,
+        "z": 0.3482143086942912
+      },
+      "mass_kg": 1099.522081634292,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0.016098393362777297
+      },
+      "systems": [
+        {
+          "id": "fuel.total",
+          "quantity": "kg",
+          "value": 99.52169820809637,
+          "validity": "valid"
+        },
+        {
+          "id": "engine.throttle",
+          "quantity": "fraction",
+          "value": 0.5627841920323032,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "valid"
+    }
+  ]
+}

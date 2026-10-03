@@ -381,26 +381,57 @@
     {
       "id": "prototype-aircraft",
       "class": "aircraft-model",
-      "name": "Original synthetic aircraft fixture",
-      "version": "not-authored",
+      "name": "Original synthetic JSBSim numerical fixture",
+      "version": "0.1.0-prototype",
       "owner": "content-maintainer",
-      "scope": "P1 headless harness only, visibly prototype; no manufacturer performance claim.",
-      "decision": "Metadata/reference only; excluded from public repository assets and releases.",
-      "license": "Unresolved product-specific rights",
-      "redistribution": "excluded",
-      "evidence": "not-acquired",
+      "scope": "Only the three original-synthetic XML files at native/fdm_jsbsim/models/original-synthetic/ and their hashed inventory; P1 numerical harness content, no real aircraft/manufacturer/approved training claim.",
+      "decision": "Original project-authored parameters and XML under project MIT; permission applies to this exact reviewed file inventory. Fidelity, harness acceptance and release packaging remain separate gates.",
+      "license": "MIT",
+      "redistribution": "permitted",
+      "evidence": "synthetic",
       "source": {
-        "url": "https://github.com/brettbergin/flight-simulator/issues/14",
-        "revision": "not-authored",
-        "rights_url": "https://github.com/brettbergin/flight-simulator/issues/14",
-        "applicability": "P1 headless harness only, visibly prototype; no manufacturer performance claim."
+        "url": "https://github.com/brettbergin/flight-simulator/tree/codex/fdm-harness/native/fdm_jsbsim/models/original-synthetic",
+        "revision": "sha256:1ccadb2e3d5aefe79f5a8f316631744ab4de18084469d2cf1817fb622cfabf7a",
+        "rights_url": "https://github.com/brettbergin/flight-simulator/blob/95f1ed41cea762b33e78d0466ce66c56380631c4/LICENSE",
+        "applicability": "Original synthetic model0.1.0-prototype, exact LF inventory digest; XML fdm_config version2.0 is a JSBSim format version, not this package version."
       },
       "obligations": [
-        "verify-product-rights",
-        "no-redistribution"
+        "retain-notices",
+        "retain-source-attribution"
       ],
-      "notice_files": [],
-      "blocker": "Issue14 must author original coefficients/files and register exact paths/digests and project license before inclusion."
+      "notice_files": [
+        {
+          "path": "third_party/licenses/notices/OriginalSynthetic-MIT.txt",
+          "sha256": "ca8c1205d820d40917b54d548b97dde200bc24bc6c3166358e8bc6cc27eb0e9e",
+          "source_url": "https://github.com/brettbergin/flight-simulator/blob/95f1ed41cea762b33e78d0466ce66c56380631c4/LICENSE"
+        }
+      ],
+      "evidence_file": "third_party/licenses/evidence/original-synthetic.md",
+      "content_policy": {
+        "model_id": "original-synthetic",
+        "root": "native/fdm_jsbsim/models/original-synthetic",
+        "inventory_path": "native/fdm_jsbsim/models/original-synthetic/inventory.json",
+        "inventory_sha256": "1ccadb2e3d5aefe79f5a8f316631744ab4de18084469d2cf1817fb622cfabf7a",
+        "files": [
+          {
+            "path": "aircraft/original-synthetic/original-synthetic.xml",
+            "bytes": 4691,
+            "sha256": "e271188986517f459197bb2a4573d5e912a1eeb31e9ad92593ed0ab43424136c"
+          },
+          {
+            "path": "engine/original-synthetic-direct.xml",
+            "bytes": 100,
+            "sha256": "30c8dbec55a756c71d639aef1cf720decff0ba6730af5ec2062608a08d24d00b"
+          },
+          {
+            "path": "engine/original-synthetic-thrust.xml",
+            "bytes": 561,
+            "sha256": "547581e279e9b3f383422ddff7991b0ff1cef6f02054bf0a979cd6859d9ef073"
+          }
+        ],
+        "immutable_vendor_models_allowed": false,
+        "audit_note": "Existing generic audit does not enforce content_policy. #14 verifies model inventory, #15 compares staged content against these exact reviewed hashes."
+      }
     },
     {
       "id": "visual-content",
