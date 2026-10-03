@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.25)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+  project(FlightContracts LANGUAGES CXX)
+endif()
+add_library(flight_contracts INTERFACE)
+add_library(flight::contracts ALIAS flight_contracts)
+target_compile_features(flight_contracts INTERFACE cxx_std_20)
+target_include_directories(flight_contracts INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")

@@ -1,0 +1,17 @@
+{
+  "type": "InstrumentSnapshot",
+  "schema_version": 1,
+  "tick": "0",
+  "session_id": "synthetic-session",
+  "channels": [
+    {
+      "id": "airspeed",
+      "sensor_tick": "0",
+      "quantity": "mps",
+      "value": null,
+      "latency_s": 0.1,
+      "filter_id": "none",
+      "status": "off"
+    }
+  ]
+}

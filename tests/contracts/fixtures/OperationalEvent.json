@@ -1,0 +1,14 @@
+{
+  "type": "OperationalEvent",
+  "schema_version": 1,
+  "tick": "0",
+  "session_id": "synthetic-session",
+  "sequence": "1",
+  "source_id": "sim",
+  "confidence": "observed",
+  "content_version": "0.1.0-prototype",
+  "payload": {
+    "kind": "pause",
+    "paused": true
+  }
+}

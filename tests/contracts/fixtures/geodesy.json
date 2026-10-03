@@ -1,0 +1,87 @@
+{
+  "provenance": "Original analytical cases from WGS84 defining constants; not operational airport data.",
+  "references": [
+    "https://earth-info.nga.mil/?action=wgs84&dir=wgs84"
+  ],
+  "tolerance_m": 0.00001,
+  "cases": [
+    {
+      "name": "equator-prime-meridian",
+      "geodetic": [
+        0,
+        0,
+        0
+      ],
+      "ecef_m": [
+        6378137,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "equator-east-90",
+      "geodetic": [
+        0,
+        1.5707963267948966,
+        0
+      ],
+      "ecef_m": [
+        0,
+        6378137,
+        0
+      ]
+    },
+    {
+      "name": "north-pole",
+      "geodetic": [
+        1.5707963267948966,
+        0,
+        0
+      ],
+      "ecef_m": [
+        0,
+        0,
+        6356752.314245179
+      ]
+    },
+    {
+      "name": "south-pole",
+      "geodetic": [
+        -1.5707963267948966,
+        0,
+        0
+      ],
+      "ecef_m": [
+        0,
+        0,
+        -6356752.314245179
+      ]
+    },
+    {
+      "name": "equator-dateline-1000m",
+      "geodetic": [
+        0,
+        3.141592653589793,
+        1000
+      ],
+      "ecef_m": [
+        -6379137,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "latitude45-longitude45",
+      "geodetic": [
+        0.7853981633974483,
+        0.7853981633974483,
+        0
+      ],
+      "ecef_m": [
+        3194419.1450605746,
+        3194419.1450605746,
+        4487348.408865919
+      ]
+    }
+  ]
+}

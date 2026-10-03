@@ -1,0 +1,94 @@
+{
+  "registry_version": 1,
+  "dialect": "https://json-schema.org/draft/2020-12/schema",
+  "definitions": {
+    "path": "v1/definitions.schema.json",
+    "sha256": "0714adcf551304bd83e6b73159919d0415b259334e50b73beb0421fe11eb9855"
+  },
+  "contracts": [
+    {
+      "type": "ControlCommand",
+      "schema_version": 1,
+      "path": "v1/ControlCommand.schema.json",
+      "sha256": "9bbf4e527e97d3fde438734d65c0714fc94e2ed5d6de12481661db02cf807c1a"
+    },
+    {
+      "type": "SessionControl",
+      "schema_version": 1,
+      "path": "v1/SessionControl.schema.json",
+      "sha256": "4b798a43d8744402892b425009cfa5868fe62bef1d8bb5fec463fbd6555a377a"
+    },
+    {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "path": "v1/AircraftSnapshot.schema.json",
+      "sha256": "cc43b16103f563636690447ec41b19d60e02622512fa276c2606b9559cd18d1d"
+    },
+    {
+      "type": "InstrumentSnapshot",
+      "schema_version": 1,
+      "path": "v1/InstrumentSnapshot.schema.json",
+      "sha256": "b662d9760ded7dde5a6fe8f7433564766eeb8ebd3c7bf8485a6b8fbff4827624"
+    },
+    {
+      "type": "AtmosphereSample",
+      "schema_version": 1,
+      "path": "v1/AtmosphereSample.schema.json",
+      "sha256": "e96b033badf1f067bf77a13892e2246ec5291755f10ede7d61cbadcc356266ac"
+    },
+    {
+      "type": "GroundSample",
+      "schema_version": 1,
+      "path": "v1/GroundSample.schema.json",
+      "sha256": "d29949333b3427a590bb18729a38d57fe51757b1b26cd6009dea0380d8090885"
+    },
+    {
+      "type": "OperationalEvent",
+      "schema_version": 1,
+      "path": "v1/OperationalEvent.schema.json",
+      "sha256": "85b21a0dffbd2e9c8682520ee541026f2f5124ba6b68985987d41be57184c49f"
+    },
+    {
+      "type": "SessionManifest",
+      "schema_version": 1,
+      "path": "v1/SessionManifest.schema.json",
+      "sha256": "c5c523c9ac2b1d52a9798271b598d3359896d0342eb59a48d958f5ec7f9b0366"
+    },
+    {
+      "type": "ReplayHeader",
+      "schema_version": 1,
+      "path": "v1/ReplayHeader.schema.json",
+      "sha256": "3f0fe532eb1af690c69516ad9510ae24860f05281793a5bb956fdd569f0a849b"
+    },
+    {
+      "type": "Checkpoint",
+      "schema_version": 1,
+      "path": "v1/Checkpoint.schema.json",
+      "sha256": "d89949f423b70803b092a6303dfbd3ed0bbd1024c2cccad3b2098d0e591bd79c"
+    },
+    {
+      "type": "TrainingResult",
+      "schema_version": 1,
+      "path": "v1/TrainingResult.schema.json",
+      "sha256": "9023c3187e1215fe532f505fc16eec547f8b75114d13feb19ad55a9e307d5a55"
+    },
+    {
+      "type": "AircraftManifest",
+      "schema_version": 1,
+      "path": "v1/AircraftManifest.schema.json",
+      "sha256": "cc3464a02dd4b4367ea436b2c11c3b86000add3b7d8f5b2db5e954a9a033c21e"
+    },
+    {
+      "type": "WorldPackage",
+      "schema_version": 1,
+      "path": "v1/WorldPackage.schema.json",
+      "sha256": "730beaaf63878ddd86d673556d1e42f87f9cf11fab646f9a36a8c74ffe40a40c"
+    },
+    {
+      "type": "ScenarioManifest",
+      "schema_version": 1,
+      "path": "v1/ScenarioManifest.schema.json",
+      "sha256": "05e52c4e58b1ce7ac25f9950fccc0143e8026af3675276d0330499f307e2cdd1"
+    }
+  ]
+}

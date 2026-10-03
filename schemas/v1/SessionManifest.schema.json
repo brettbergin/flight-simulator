@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://flight-simulator.invalid/contracts/v1/SessionManifest.schema.json",
+  "title": "SessionManifest/v1",
+  "$ref": "definitions.schema.json#/$defs/SessionManifest"
+}

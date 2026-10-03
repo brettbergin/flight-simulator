@@ -1,0 +1,19 @@
+{
+  "type": "ReplayHeader",
+  "schema_version": 1,
+  "session": {
+    "id": "synthetic-session",
+    "version": "0.1.0-prototype",
+    "sha256": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6"
+  },
+  "build_fingerprint": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6",
+  "contract_set_sha256": "0f7dedf44b12b57916d6ba7afbf1f315ebdfa8e34ad02eed0188d2ac1fec4fcc",
+  "clock": {
+    "tick_rate_hz": 120,
+    "purpose": "runtime"
+  },
+  "seed": "9007199254740993",
+  "record_count": "0",
+  "command_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "determinism": "unproven"
+}

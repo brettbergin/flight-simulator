@@ -1,0 +1,12 @@
+{
+  "type": "SessionControl",
+  "schema_version": 1,
+  "tick": "0",
+  "session_id": "synthetic-session",
+  "sequence": "1",
+  "source_id": "session.owner",
+  "payload": {
+    "kind": "pause",
+    "paused": true
+  }
+}
