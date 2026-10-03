@@ -1,0 +1,11 @@
+{
+  "name": "flight-simulator-foundations",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "check": "node tools/check-docs.mjs",
+    "backlog:preview": "node tools/sync-github.mjs",
+    "backlog:apply": "node tools/sync-github.mjs --apply"
+  }
+}

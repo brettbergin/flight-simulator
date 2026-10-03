@@ -1,0 +1,18 @@
+name: Realism discrepancy
+description: Aircraft, operational, instrument, weather, or airport behavior differs from evidence
+labels: ['type:bug', 'area:validation']
+body:
+  - type: textarea
+    id: configuration
+    attributes:
+      label: Exact configuration and reproduction
+      description: Aircraft variant/serial profile, mass/CG, weather, altitude, assists, version and replay seed.
+    validations:
+      required: true
+  - type: textarea
+    id: reference
+    attributes:
+      label: Reference and measured discrepancy
+      description: Source/version/section and expected vs observed values. Avoid uploading restricted manuals; report a lawful citation or your own observation.
+    validations:
+      required: true
