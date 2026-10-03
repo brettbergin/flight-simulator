@@ -1,0 +1,490 @@
+{
+  "schema_version": 1,
+  "id": "validation-matrix-v1",
+  "revision": "1.0.0",
+  "sources": [
+    {
+      "id": "original-equations",
+      "revision": "f09ac4035bbd5c27fe6ba6d995e878dc5ce2dd4d",
+      "section": "aerodynamics six axis functions; metrics; original synthetic model0.1.0-prototype",
+      "url": "https://github.com/brettbergin/flight-simulator/tree/f09ac4035bbd5c27fe6ba6d995e878dc5ce2dd4d/native/fdm_jsbsim/models/original-synthetic",
+      "rights": "project-MIT-original",
+      "use": "numerical fixture only"
+    },
+    {
+      "id": "jsbsim-units",
+      "revision": "3b25f25e49b42d0489c04ac805674fc1450ca579",
+      "section": "FGXMLElement.cpp length/area conversions and FGAerodynamics.cpp force/moment axis transform",
+      "url": "https://github.com/JSBSim-Team/jsbsim/blob/3b25f25e49b42d0489c04ac805674fc1450ca579/src/input_output/FGXMLElement.cpp",
+      "rights": "reference-only-LGPL",
+      "use": "source-derived rounding budget; no source copy"
+    },
+    {
+      "id": "faa-instruments",
+      "revision": "FAA-H-8083-25C; official chapter link checked2026-10-03",
+      "section": "Chapter8 Airspeed Indicator pp8-8/8-9",
+      "url": "https://www.faa.gov/sites/faa.gov/files/10_phak_ch8.pdf",
+      "rights": "reference-only",
+      "use": "IAS/CAS/TAS definitions; no aircraft numbers"
+    },
+    {
+      "id": "faa-performance",
+      "revision": "FAA-H-8083-25C; official chapter link checked2026-10-03",
+      "section": "Chapter11 Takeoff/Landing Performance Charts",
+      "url": "https://www.faa.gov/sites/faa.gov/files/13_phak_ch11.pdf",
+      "rights": "reference-only",
+      "use": "ground-roll versus obstacle endpoints; no chart reproduction"
+    }
+  ],
+  "rows": [
+    {
+      "id": "original-force-identities",
+      "maneuver": "numerical",
+      "configuration": {
+        "package": "original-synthetic",
+        "version": "0.1.0-prototype",
+        "serial": "original-no-serial",
+        "poh_revision": "not-applicable",
+        "engine": "original ideal turbine/direct",
+        "propeller": "none",
+        "panel": "none"
+      },
+      "source_ids": [
+        "original-equations",
+        "jsbsim-units"
+      ],
+      "method": "independent-coefficients",
+      "status": "supported",
+      "quantity": "six-axis-force-moment",
+      "unit": "N-and-Nm",
+      "airspeed_domain": "TAS",
+      "distance_endpoint": "not-applicable",
+      "conditions": {
+        "mass_kg": 1100,
+        "cg_datum_m": [
+          0,
+          0,
+          0
+        ],
+        "pressure_altitude_m": null,
+        "temperature_k": null,
+        "wind_toward_ned_mps": null,
+        "runway_surface": null,
+        "runway_slope": null,
+        "power_setting": "recorded diagnostic throttle",
+        "mixture": "fixed1-prototype",
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "technique": "accepted scripted synthetic harness; sampled states only",
+        "obstacle_height_m": null,
+        "distance_origin": null,
+        "distance_end": null
+      },
+      "uncertainty": {
+        "kind": "source-rounding-bound",
+        "absolute": 1e-06,
+        "relative": 1e-07,
+        "basis": "M-to-FT3.2808399 versus exact1/.3048; area is its square. <=1e-7 times unsigned coefficient term sum covers geometry/damping conversion and floating-point cancellation; fixed before comparisons."
+      },
+      "expected": "original-polynomial-v1",
+      "threshold_status": "provisional-numerical-only",
+      "reason": null
+    },
+    {
+      "id": "c172s-trim-tas",
+      "maneuver": "trim",
+      "configuration": {
+        "package": "c172s-analog-v1",
+        "version": null,
+        "serial": null,
+        "poh_revision": null,
+        "engine": null,
+        "propeller": null,
+        "panel": null
+      },
+      "source_ids": [
+        "faa-instruments",
+        "faa-performance"
+      ],
+      "method": "aircraft-performance",
+      "status": "unsupported",
+      "quantity": "longitudinal-equilibrium",
+      "unit": "mps2",
+      "airspeed_domain": "TAS",
+      "distance_endpoint": "not-applicable",
+      "conditions": {
+        "mass_kg": null,
+        "cg_datum_m": null,
+        "pressure_altitude_m": null,
+        "temperature_k": null,
+        "wind_toward_ned_mps": null,
+        "runway_surface": null,
+        "runway_slope": null,
+        "power_setting": null,
+        "mixture": null,
+        "flap_fraction": null,
+        "gear_fraction": null,
+        "technique": null,
+        "obstacle_height_m": null,
+        "distance_origin": null,
+        "distance_end": null
+      },
+      "uncertainty": null,
+      "expected": null,
+      "threshold_status": "unratified-awaiting-source",
+      "reason": "#28 exact serial/equipment/POH applicability and derived-data rights unresolved; no source-supported performance values or uncertainty. Ground/propeller/instruments also need their capability gates. Handbook definitions cannot replace an aircraft reference."
+    },
+    {
+      "id": "c172s-cruise-tas",
+      "maneuver": "cruise",
+      "configuration": {
+        "package": "c172s-analog-v1",
+        "version": null,
+        "serial": null,
+        "poh_revision": null,
+        "engine": null,
+        "propeller": null,
+        "panel": null
+      },
+      "source_ids": [
+        "faa-instruments",
+        "faa-performance"
+      ],
+      "method": "aircraft-performance",
+      "status": "unsupported",
+      "quantity": "cruise-speed",
+      "unit": "mps",
+      "airspeed_domain": "TAS",
+      "distance_endpoint": "not-applicable",
+      "conditions": {
+        "mass_kg": null,
+        "cg_datum_m": null,
+        "pressure_altitude_m": null,
+        "temperature_k": null,
+        "wind_toward_ned_mps": null,
+        "runway_surface": null,
+        "runway_slope": null,
+        "power_setting": null,
+        "mixture": null,
+        "flap_fraction": null,
+        "gear_fraction": null,
+        "technique": null,
+        "obstacle_height_m": null,
+        "distance_origin": null,
+        "distance_end": null
+      },
+      "uncertainty": null,
+      "expected": null,
+      "threshold_status": "unratified-awaiting-source",
+      "reason": "#28 exact serial/equipment/POH applicability and derived-data rights unresolved; no source-supported performance values or uncertainty. Ground/propeller/instruments also need their capability gates. Handbook definitions cannot replace an aircraft reference."
+    },
+    {
+      "id": "c172s-climb-ias",
+      "maneuver": "climb",
+      "configuration": {
+        "package": "c172s-analog-v1",
+        "version": null,
+        "serial": null,
+        "poh_revision": null,
+        "engine": null,
+        "propeller": null,
+        "panel": null
+      },
+      "source_ids": [
+        "faa-instruments",
+        "faa-performance"
+      ],
+      "method": "aircraft-performance",
+      "status": "unsupported",
+      "quantity": "climb-reference-speed",
+      "unit": "mps",
+      "airspeed_domain": "IAS",
+      "distance_endpoint": "not-applicable",
+      "conditions": {
+        "mass_kg": null,
+        "cg_datum_m": null,
+        "pressure_altitude_m": null,
+        "temperature_k": null,
+        "wind_toward_ned_mps": null,
+        "runway_surface": null,
+        "runway_slope": null,
+        "power_setting": null,
+        "mixture": null,
+        "flap_fraction": null,
+        "gear_fraction": null,
+        "technique": null,
+        "obstacle_height_m": null,
+        "distance_origin": null,
+        "distance_end": null
+      },
+      "uncertainty": null,
+      "expected": null,
+      "threshold_status": "unratified-awaiting-source",
+      "reason": "#28 exact serial/equipment/POH applicability and derived-data rights unresolved; no source-supported performance values or uncertainty. Ground/propeller/instruments also need their capability gates. Handbook definitions cannot replace an aircraft reference."
+    },
+    {
+      "id": "c172s-takeoff-ground-roll",
+      "maneuver": "takeoff",
+      "configuration": {
+        "package": "c172s-analog-v1",
+        "version": null,
+        "serial": null,
+        "poh_revision": null,
+        "engine": null,
+        "propeller": null,
+        "panel": null
+      },
+      "source_ids": [
+        "faa-instruments",
+        "faa-performance"
+      ],
+      "method": "aircraft-performance",
+      "status": "unsupported",
+      "quantity": "runway-distance",
+      "unit": "m",
+      "airspeed_domain": "IAS",
+      "distance_endpoint": "ground-roll",
+      "conditions": {
+        "mass_kg": null,
+        "cg_datum_m": null,
+        "pressure_altitude_m": null,
+        "temperature_k": null,
+        "wind_toward_ned_mps": null,
+        "runway_surface": null,
+        "runway_slope": null,
+        "power_setting": null,
+        "mixture": null,
+        "flap_fraction": null,
+        "gear_fraction": null,
+        "technique": null,
+        "obstacle_height_m": null,
+        "distance_origin": null,
+        "distance_end": null
+      },
+      "uncertainty": null,
+      "expected": null,
+      "threshold_status": "unratified-awaiting-source",
+      "reason": "#28 exact serial/equipment/POH applicability and derived-data rights unresolved; no source-supported performance values or uncertainty. Ground/propeller/instruments also need their capability gates. Handbook definitions cannot replace an aircraft reference."
+    },
+    {
+      "id": "c172s-takeoff-over-obstacle",
+      "maneuver": "takeoff",
+      "configuration": {
+        "package": "c172s-analog-v1",
+        "version": null,
+        "serial": null,
+        "poh_revision": null,
+        "engine": null,
+        "propeller": null,
+        "panel": null
+      },
+      "source_ids": [
+        "faa-instruments",
+        "faa-performance"
+      ],
+      "method": "aircraft-performance",
+      "status": "unsupported",
+      "quantity": "runway-distance",
+      "unit": "m",
+      "airspeed_domain": "IAS",
+      "distance_endpoint": "over-obstacle",
+      "conditions": {
+        "mass_kg": null,
+        "cg_datum_m": null,
+        "pressure_altitude_m": null,
+        "temperature_k": null,
+        "wind_toward_ned_mps": null,
+        "runway_surface": null,
+        "runway_slope": null,
+        "power_setting": null,
+        "mixture": null,
+        "flap_fraction": null,
+        "gear_fraction": null,
+        "technique": null,
+        "obstacle_height_m": null,
+        "distance_origin": null,
+        "distance_end": null
+      },
+      "uncertainty": null,
+      "expected": null,
+      "threshold_status": "unratified-awaiting-source",
+      "reason": "#28 exact serial/equipment/POH applicability and derived-data rights unresolved; no source-supported performance values or uncertainty. Ground/propeller/instruments also need their capability gates. Handbook definitions cannot replace an aircraft reference."
+    },
+    {
+      "id": "c172s-landing-ground-roll",
+      "maneuver": "landing",
+      "configuration": {
+        "package": "c172s-analog-v1",
+        "version": null,
+        "serial": null,
+        "poh_revision": null,
+        "engine": null,
+        "propeller": null,
+        "panel": null
+      },
+      "source_ids": [
+        "faa-instruments",
+        "faa-performance"
+      ],
+      "method": "aircraft-performance",
+      "status": "unsupported",
+      "quantity": "runway-distance",
+      "unit": "m",
+      "airspeed_domain": "IAS",
+      "distance_endpoint": "ground-roll",
+      "conditions": {
+        "mass_kg": null,
+        "cg_datum_m": null,
+        "pressure_altitude_m": null,
+        "temperature_k": null,
+        "wind_toward_ned_mps": null,
+        "runway_surface": null,
+        "runway_slope": null,
+        "power_setting": null,
+        "mixture": null,
+        "flap_fraction": null,
+        "gear_fraction": null,
+        "technique": null,
+        "obstacle_height_m": null,
+        "distance_origin": null,
+        "distance_end": null
+      },
+      "uncertainty": null,
+      "expected": null,
+      "threshold_status": "unratified-awaiting-source",
+      "reason": "#28 exact serial/equipment/POH applicability and derived-data rights unresolved; no source-supported performance values or uncertainty. Ground/propeller/instruments also need their capability gates. Handbook definitions cannot replace an aircraft reference."
+    },
+    {
+      "id": "c172s-landing-over-obstacle",
+      "maneuver": "landing",
+      "configuration": {
+        "package": "c172s-analog-v1",
+        "version": null,
+        "serial": null,
+        "poh_revision": null,
+        "engine": null,
+        "propeller": null,
+        "panel": null
+      },
+      "source_ids": [
+        "faa-instruments",
+        "faa-performance"
+      ],
+      "method": "aircraft-performance",
+      "status": "unsupported",
+      "quantity": "runway-distance",
+      "unit": "m",
+      "airspeed_domain": "IAS",
+      "distance_endpoint": "over-obstacle",
+      "conditions": {
+        "mass_kg": null,
+        "cg_datum_m": null,
+        "pressure_altitude_m": null,
+        "temperature_k": null,
+        "wind_toward_ned_mps": null,
+        "runway_surface": null,
+        "runway_slope": null,
+        "power_setting": null,
+        "mixture": null,
+        "flap_fraction": null,
+        "gear_fraction": null,
+        "technique": null,
+        "obstacle_height_m": null,
+        "distance_origin": null,
+        "distance_end": null
+      },
+      "uncertainty": null,
+      "expected": null,
+      "threshold_status": "unratified-awaiting-source",
+      "reason": "#28 exact serial/equipment/POH applicability and derived-data rights unresolved; no source-supported performance values or uncertainty. Ground/propeller/instruments also need their capability gates. Handbook definitions cannot replace an aircraft reference."
+    },
+    {
+      "id": "c172s-stall-ias",
+      "maneuver": "stall",
+      "configuration": {
+        "package": "c172s-analog-v1",
+        "version": null,
+        "serial": null,
+        "poh_revision": null,
+        "engine": null,
+        "propeller": null,
+        "panel": null
+      },
+      "source_ids": [
+        "faa-instruments",
+        "faa-performance"
+      ],
+      "method": "aircraft-performance",
+      "status": "unsupported",
+      "quantity": "stall-speed",
+      "unit": "mps",
+      "airspeed_domain": "IAS",
+      "distance_endpoint": "not-applicable",
+      "conditions": {
+        "mass_kg": null,
+        "cg_datum_m": null,
+        "pressure_altitude_m": null,
+        "temperature_k": null,
+        "wind_toward_ned_mps": null,
+        "runway_surface": null,
+        "runway_slope": null,
+        "power_setting": null,
+        "mixture": null,
+        "flap_fraction": null,
+        "gear_fraction": null,
+        "technique": null,
+        "obstacle_height_m": null,
+        "distance_origin": null,
+        "distance_end": null
+      },
+      "uncertainty": null,
+      "expected": null,
+      "threshold_status": "unratified-awaiting-source",
+      "reason": "#28 exact serial/equipment/POH applicability and derived-data rights unresolved; no source-supported performance values or uncertainty. Ground/propeller/instruments also need their capability gates. Handbook definitions cannot replace an aircraft reference."
+    },
+    {
+      "id": "c172s-stall-cas",
+      "maneuver": "stall",
+      "configuration": {
+        "package": "c172s-analog-v1",
+        "version": null,
+        "serial": null,
+        "poh_revision": null,
+        "engine": null,
+        "propeller": null,
+        "panel": null
+      },
+      "source_ids": [
+        "faa-instruments",
+        "faa-performance"
+      ],
+      "method": "aircraft-performance",
+      "status": "unsupported",
+      "quantity": "stall-speed",
+      "unit": "mps",
+      "airspeed_domain": "CAS",
+      "distance_endpoint": "not-applicable",
+      "conditions": {
+        "mass_kg": null,
+        "cg_datum_m": null,
+        "pressure_altitude_m": null,
+        "temperature_k": null,
+        "wind_toward_ned_mps": null,
+        "runway_surface": null,
+        "runway_slope": null,
+        "power_setting": null,
+        "mixture": null,
+        "flap_fraction": null,
+        "gear_fraction": null,
+        "technique": null,
+        "obstacle_height_m": null,
+        "distance_origin": null,
+        "distance_end": null
+      },
+      "uncertainty": null,
+      "expected": null,
+      "threshold_status": "unratified-awaiting-source",
+      "reason": "#28 exact serial/equipment/POH applicability and derived-data rights unresolved; no source-supported performance values or uncertainty. Ground/propeller/instruments also need their capability gates. Handbook definitions cannot replace an aircraft reference."
+    }
+  ]
+}
