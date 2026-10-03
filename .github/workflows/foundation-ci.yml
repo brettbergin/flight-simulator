@@ -30,6 +30,13 @@ jobs:
         with:
           node-version: '22'
       - run: node tools/check-docs.mjs
+      - name: Verify rights inventory and notice integrity
+        run: node tools/license-audit/audit.mjs
+      - name: Test rights audit rejection cases
+        run: node tools/license-audit/test.mjs
+      - name: Check dependency pins against reviewed rights
+        if: ${{ hashFiles('third_party/dependencies.lock.json') != '' }}
+        run: node tools/license-audit/audit.mjs --dependency-lock third_party/dependencies.lock.json
       - name: Preview GitHub backlog without mutations
         run: node tools/sync-github.mjs
       - name: Render agent assignments without GitHub access

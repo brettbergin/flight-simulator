@@ -31,7 +31,9 @@ git diff --check
 PASS
 ```
 
-The lock was independently authored/acquired by the toolchain owner and cross-checked against the register's exact JSBSim/godot-cpp/SQLite source revision, version and acquisition digest, plus the Godot runtime/template version. This branch does not modify the toolchain lock or workflow. The integration owner must run the same check against the merged lock, not a sibling worktree.
+The lock was independently authored/acquired by the toolchain owner and cross-checked against the register's exact JSBSim/godot-cpp/SQLite source revision, version and acquisition digest, plus the Godot runtime/template version. This branch does not modify the toolchain lock. Foundation CI runs the real inventory and all audit rejection checks on both Ubuntu and Windows. Its dependency-lock cross-check is guarded by `hashFiles('third_party/dependencies.lock.json') != ''` until issue #12's lock lands, then checks the merged lock automatically. Package evidence remains a separate gate.
+
+PR #83 was updated by merging current main, preserving both histories and the accepted action pin updates. The coordinator independently reran the 33 audit checks, real notice hashes, source-lock cross-check and documentation verification before requesting continuous CI enforcement.
 
 Remaining package gate owned by issue #15: a reviewed reproducible library-only corresponding-source bundle and independent digest, clean source build, real DLL replacement evidence, staged complete notices, authentic package file identities, and release-job invocation of the auditor. The full upstream JSBSim ZIP is an acquisition artifact containing excluded model data and is not approved as the distributable source bundle. Integrity tests do not establish the truth of legal/source/replacement assertions; scoped source and package review remain required.
 
