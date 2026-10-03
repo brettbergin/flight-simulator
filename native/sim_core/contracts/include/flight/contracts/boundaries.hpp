@@ -110,6 +110,12 @@ enum class Quantity { meters, meters_per_second, radians, radians_per_second, ke
 struct SystemState { std::string id; Quantity quantity{}; SystemValue value; Validity validity{Validity::valid}; };
 struct Contact { std::string id; BodyPosition point_body_m; BodyForce force_body_n; bool on_ground{}; };
 struct Configuration { double flap_fraction{}, gear_fraction{1}, trim_fraction{}; };
+template<class T> inline bool unique_identifiers(const std::vector<T>& items, std::string T::*member) noexcept {
+  // Bounded records; no allocation and no mutation of the published snapshot.
+  for (std::size_t i = 0; i < items.size(); ++i)
+    for (std::size_t j = 0; j < i; ++j) if (items[i].*member == items[j].*member) return false;
+  return true;
+}
 struct AircraftSnapshot {
   SampleHeader header; ClockConfig clock; double elapsed_s{}; GeodeticPosition position; EcefPosition ecef_position_m;
   QuaternionBodyToNed orientation_body_to_ned; BodyVelocity velocity_body_mps; BodyRate angular_rate_body_radps;
@@ -123,6 +129,7 @@ inline bool valid(const AircraftSnapshot& s) noexcept {
       !std::isfinite(s.mass_kg) || s.mass_kg < 0.001 || s.mass_kg > 1000000 || !std::isfinite(s.elapsed_s) ||
       !fraction(s.configuration.flap_fraction) || !fraction(s.configuration.gear_fraction) || !std::isfinite(s.configuration.trim_fraction) ||
       std::abs(s.configuration.trim_fraction) > 1 || s.systems.size() > 256 || s.contacts.size() > 32) return false;
+  if (!unique_identifiers(s.systems, &SystemState::id) || !unique_identifiers(s.contacts, &Contact::id)) return false;
   const auto time = static_cast<double>(s.header.tick.value) / s.clock.tick_rate_hz;
   if (std::abs(time - s.elapsed_s) > std::max(1e-9, time * std::numeric_limits<double>::epsilon() * 4)) return false;
   const auto expected_ecef = geodesy::to_ecef(s.position);
@@ -145,7 +152,7 @@ struct InstrumentChannel {
 };
 struct InstrumentSnapshot { SampleHeader header; std::vector<InstrumentChannel> channels; };
 inline bool valid(const InstrumentSnapshot& s) noexcept {
-  if (!stable_id(s.header.session_id) || s.channels.size() > 256) return false;
+  if (!stable_id(s.header.session_id) || s.channels.size() > 256 || !unique_identifiers(s.channels, &InstrumentChannel::id)) return false;
   for (const auto& channel : s.channels) {
     if (!stable_id(channel.id) || !stable_id(channel.filter_id) || channel.sensor_tick > s.header.tick ||
         !std::isfinite(channel.latency_s) || channel.latency_s < 0 || channel.latency_s > 60) return false;
@@ -225,6 +232,18 @@ struct TrainingResult {
   enum class Repeatability { same_build, unverified } repeatability{Repeatability::unverified};
   Assistance assistance; std::vector<Observation> observations; std::vector<std::string> invalid_reasons;
 };
+inline bool valid(const TrainingResult& result) noexcept {
+  if (!stable_id(result.session_id) || result.observations.size() > 256 || result.invalid_reasons.size() > 128 ||
+      !unique_identifiers(result.observations, &Observation::objective_id)) return false;
+  if ((result.status == TrainingResult::Status::invalid) != !result.invalid_reasons.empty()) return false;
+  if (result.status == TrainingResult::Status::complete && result.observations.empty()) return false;
+  for (const auto& observation : result.observations) {
+    if (!stable_id(observation.objective_id) || !stable_id(observation.explanation_id) || observation.start_tick > observation.end_tick ||
+        observation.evidence_event_sequences.size() > 256 ||
+        (result.status == TrainingResult::Status::complete && observation.result == Observation::Result::not_observed)) return false;
+  }
+  return std::all_of(result.invalid_reasons.begin(), result.invalid_reasons.end(), [](const auto& reason) { return stable_id(reason); });
+}
 struct PackManifest { std::string id, version; Evidence evidence; std::vector<Source> sources; std::vector<FileRef> files; };
 struct AircraftIdentity { std::string manufacturer, family, variant, configuration_id, serial_applicability, engine, propeller, panel; std::optional<std::string> poh_source_id; };
 struct DynamicsDefinition {
@@ -247,6 +266,15 @@ struct WorldPackage {
   enum class Product { terrain, airport, navaid, vector, imagery }; std::vector<Product> products;
   enum class UpdatePolicy { fixed_scenario, explicit_owner_update } update_policy{UpdatePolicy::fixed_scenario};
 };
+inline bool source_references_resolved(const WorldPackage& world) noexcept {
+  const auto& sources = world.pack.sources;
+  if (sources.empty() || sources.size() > 1024 || !unique_identifiers(sources, &Source::id)) return false;
+  const auto resolves = [&](const std::string& id) {
+    return stable_id(id) && std::any_of(sources.begin(), sources.end(), [&](const auto& source) { return source.id == id; });
+  };
+  if (!std::all_of(world.pack.evidence.source_ids.begin(), world.pack.evidence.source_ids.end(), resolves)) return false;
+  return !world.magnetic_model || resolves(world.magnetic_model->source_id);
+}
 struct ScheduledAction { Tick tick; std::string action_id, target_id; };
 struct ScenarioManifest {
   PackManifest pack; std::string jurisdiction; std::vector<std::string> prerequisites; ContentRef required_aircraft, required_world;

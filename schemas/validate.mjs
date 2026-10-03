@@ -56,6 +56,10 @@ function semanticErrors(data) {
       walk(child, childPath);
     }
     if (value.type === 'AircraftSnapshot') {
+      for (const field of ['systems', 'contacts']) {
+        const ids = value[field].map(item => item.id);
+        if (new Set(ids).size !== ids.length) bad(`${path}/${field}`, 'duplicate stable identifier');
+      }
       const expected = ecef(value.position), actual = value.ecef_position_m;
       if (Math.hypot(actual.x - expected.x, actual.y - expected.y, actual.z - expected.z) > 0.0001) bad(path + '/ecef_position_m', 'geodetic/ECEF representations differ by more than 0.1 mm');
       const time = Number(BigInt(value.tick)) / value.clock.tick_rate_hz;
@@ -70,6 +74,7 @@ function semanticErrors(data) {
   };
   walk(data);
   if (data.type === 'InstrumentSnapshot') {
+    if (new Set(data.channels.map(channel => channel.id)).size !== data.channels.length) bad('/channels', 'duplicate stable identifier');
     for (const [i, channel] of data.channels.entries()) {
       if (BigInt(channel.sensor_tick) > BigInt(data.tick)) bad(`/channels/${i}/sensor_tick`, 'future sensor sample');
       if (channel.status === 'normal' && channel.value === null) bad(`/channels/${i}/value`, 'normal channel needs sensed value');
@@ -89,7 +94,8 @@ function semanticErrors(data) {
   }
   if (data.type === 'TrainingResult') {
     if ((data.status === 'invalid') !== (data.invalid_reasons.length > 0)) bad('/invalid_reasons', 'invalid status requires reasons; other statuses cannot have invalid reasons');
-    if (data.status === 'complete' && data.observations.some(o => o.result === 'not-observed')) bad('/observations', 'unobserved objective cannot be complete');
+    if (data.status === 'complete' && (data.observations.length === 0 || data.observations.some(o => o.result === 'not-observed'))) bad('/observations', 'complete result requires nonempty observed objectives');
+    if (new Set(data.observations.map(o => o.objective_id)).size !== data.observations.length) bad('/observations', 'duplicate objective identifier');
   }
   if (data.type === 'WorldPackage') {
     const c = data.coverage;
@@ -109,7 +115,8 @@ function semanticErrors(data) {
     const sourceIds = new Set(data.sources.map(s => s.id));
     const paths = new Set(data.files.map(f => f.path));
     for (const sourceId of [...data.evidence.source_ids, ...(data.limit_source_ids ?? []), ...(data.dynamics?.parameter_source_ids ?? []),
-      ...(data.source_edition_ids ?? []), ...(data.identity?.poh_source_id ? [data.identity.poh_source_id] : [])]) {
+      ...(data.source_edition_ids ?? []), ...(data.identity?.poh_source_id ? [data.identity.poh_source_id] : []),
+      ...(data.magnetic_model ? [data.magnetic_model.source_id] : [])]) {
       if (!sourceIds.has(sourceId)) bad('/sources', `unresolved source id: ${sourceId}`);
     }
     for (const path of [data.dynamics?.model_path, data.mapping_path].filter(Boolean)) if (!paths.has(path)) bad('/files', `missing referenced file: ${path}`);

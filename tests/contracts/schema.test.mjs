@@ -65,6 +65,15 @@ test('fixed runtime tick and sensed rather than hidden truth constraints', () =>
   reject('InstrumentSnapshot', d => { d.channels[0].value = 10; });
   reject('InstrumentSnapshot', d => { d.channels[0].latency_s = -0.1; });
 });
+test('duplicate channel/system/contact identifiers cannot create conflicting interpretations', () => {
+  reject('InstrumentSnapshot', d => { const other = structuredClone(d.channels[0]); other.status = 'normal'; other.value = 20; d.channels.push(other); });
+  reject('AircraftSnapshot', d => { const other = structuredClone(d.systems[0]); other.value = 50; d.systems.push(other); });
+  reject('AircraftSnapshot', d => { const contact = { id: 'left-main', point_body_m: { x: 0, y: 0, z: 0 }, force_body_n: { x: 0, y: 0, z: 0 }, on_ground: true };
+    d.contacts = [contact, { ...structuredClone(contact), on_ground: false }]; });
+  reject('SessionManifest', d => { d.initial_conditions.aircraft.systems.push(structuredClone(d.initial_conditions.aircraft.systems[0])); });
+  const unique = copy('InstrumentSnapshot'); const channel = structuredClone(unique.channels[0]); channel.id = 'altimeter'; unique.channels.push(channel);
+  assert.equal(validateContract(unique).valid, true);
+});
 test('ground data missing cannot masquerade as a valid contact and normal/friction are physical', () => {
   reject('GroundSample', d => { d.sample.normal_ned.z = 0; });
   reject('GroundSample', d => { d.sample.dynamic_friction = 0.9; });
@@ -98,6 +107,9 @@ test('content paths, source/effective intervals, coverage, sizes and evidence ar
   reject('WorldPackage', d => { d.effective_until = '2026-02-30T00:00:00Z'; });
   reject('WorldPackage', d => { d.vertical_datum = 'navd88'; });
   reject('WorldPackage', d => { d.coverage.crosses_antimeridian = true; });
+  reject('WorldPackage', d => { d.magnetic_model = { id: 'synthetic-magnetic', epoch_year: 2025, source_id: 'missing-source' }; });
+  const magnetic = copy('WorldPackage'); magnetic.magnetic_model = { id: 'synthetic-magnetic', epoch_year: 2025, source_id: 'original-fixture' };
+  assert.equal(validateContract(magnetic).valid, true);
   reject('AircraftManifest', d => { d.files[0].bytes = 2147483648; });
 });
 test('training evidence range/completeness and invalid reasons are consistent', () => {
@@ -105,4 +117,10 @@ test('training evidence range/completeness and invalid reasons are consistent', 
   reject('TrainingResult', d => { d.status = 'complete'; });
   reject('TrainingResult', d => { d.status = 'invalid'; });
   reject('TrainingResult', d => { d.invalid_reasons = ['bad-state']; });
+  reject('TrainingResult', d => { d.status = 'complete'; d.observations = []; });
+  reject('TrainingResult', d => { const other = structuredClone(d.observations[0]); other.result = 'met'; d.observations.push(other); });
+  const complete = copy('TrainingResult'); complete.status = 'complete'; complete.observations[0].result = 'met';
+  assert.equal(validateContract(complete).valid, true);
+  const emptyIncomplete = copy('TrainingResult'); emptyIncomplete.observations = [];
+  assert.equal(validateContract(emptyIncomplete).valid, true);
 });

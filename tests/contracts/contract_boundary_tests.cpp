@@ -125,8 +125,31 @@ void state_boundaries() {
   instruments.channels[0].sensor_tick = {11}; check(!c::valid(instruments), "instrument rejects future sample"); instruments.channels[0].sensor_tick = {9};
   instruments.channels[0].status = c::InstrumentStatus::off; check(!c::valid(instruments), "powered-off instrument cannot expose truth"); instruments.channels[0].value.reset();
   check(c::valid(instruments), "powered-off channel has no value");
+  auto second_channel = instruments.channels[0]; second_channel.status = c::InstrumentStatus::normal; second_channel.value = 20.0;
+  instruments.channels.push_back(second_channel); check(!c::valid(instruments), "conflicting duplicate instrument ID rejected");
+  instruments.channels.back().id = "altimeter"; check(c::valid(instruments), "distinct instrument IDs accepted");
+  state.systems = {{"engine.rotation", c::Quantity::radians_per_second, 0.0, c::Validity::valid}, {"engine.rotation", c::Quantity::radians_per_second, 20.0, c::Validity::valid}};
+  check(!c::valid(state), "conflicting duplicate system ID rejected"); state.systems.back().id = "propeller.rotation";
+  check(c::valid(state), "distinct system IDs accepted");
+  state.contacts = {{"left-main", {0, 0, 0}, {0, 0, 0}, true}, {"left-main", {0, 0, 0}, {0, 0, 0}, false}};
+  check(!c::valid(state), "conflicting duplicate contact ID rejected"); state.contacts.back().id = "right-main";
+  check(c::valid(state), "distinct contact IDs accepted");
   c::AtmosphereSample air{{{0}, "session"}, {0, 0, 0}, 101325, 288.15, 1.225, 0, {0, 0, 0}, {0, 0, 0}, {0}, "still-air"};
   check(c::valid(air), "SI atmosphere sample"); air.temperature_k = 0; check(!c::valid(air), "atmosphere rejects zero kelvin");
+  c::TrainingResult result; result.session_id = "session";
+  check(c::valid(result), "empty incomplete training result allowed"); result.status = c::TrainingResult::Status::complete;
+  check(!c::valid(result), "complete result needs objective evidence");
+  result.observations = {{"objective", c::Observation::Result::met, {1}, {2}, {{1}}, "observed"}};
+  check(c::valid(result), "complete result with observed objective accepted");
+  result.observations.push_back(result.observations.front()); result.observations.back().result = c::Observation::Result::not_met;
+  check(!c::valid(result), "conflicting duplicate objective ID rejected"); result.observations.back().objective_id = "second-objective";
+  check(c::valid(result), "unique observed objective IDs accepted");
+  c::WorldPackage world; c::Source source; source.id = "original-fixture"; world.pack.sources.push_back(source);
+  check(c::source_references_resolved(world), "world without magnetic model resolves sources");
+  world.magnetic_model = c::MagneticModel{"synthetic-magnetic", 2025, "missing-source"};
+  check(!c::source_references_resolved(world), "magnetic model cannot cite unknown source");
+  world.magnetic_model->source_id = "original-fixture";
+  check(c::source_references_resolved(world), "magnetic model source resolves declared provenance");
 }
 }
 int main() {
