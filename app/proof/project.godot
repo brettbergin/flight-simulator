@@ -1,0 +1,12 @@
+config_version=5
+[application]
+config/name="Flight Simulator — Native Integration Proof"
+run/main_scene="res://proof.tscn"
+config/features=PackedStringArray("4.5", "GL Compatibility")
+[display]
+window/size/viewport_width=960
+window/size/viewport_height=600
+[rendering]
+renderer/rendering_method="gl_compatibility"
+[debug]
+settings/stdout/print_fps=false

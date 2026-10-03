@@ -63,6 +63,7 @@ endif()
 add_library(flight::sqlite ALIAS flight_sqlite)
 if(FLIGHT_BUILD_GODOT_BINDINGS)
   set(GODOTCPP_USE_STATIC_CPP OFF CACHE BOOL "" FORCE)
+  set(GODOTCPP_DISABLE_EXCEPTIONS OFF CACHE BOOL "" FORCE)
   set(GODOTCPP_PRECISION single CACHE STRING "" FORCE)
   set(GODOTCPP_TARGET template_release CACHE STRING "" FORCE)
   set(GODOTCPP_BUILD_PROFILE "${CMAKE_SOURCE_DIR}/tools/bootstrap/binding-profile.json" CACHE FILEPATH "" FORCE)
@@ -107,6 +108,12 @@ add_subdirectory(native/fdm_jsbsim)
 if(BUILD_TESTING)
   add_subdirectory(tests/fdm)
 endif()
+if(FLIGHT_BUILD_GODOT_BINDINGS)
+  add_subdirectory(native/godot_bridge)
+endif()
+if(EXISTS "${CMAKE_SOURCE_DIR}/native/persistence/proof/CMakeLists.txt")
+  add_subdirectory(native/persistence/proof)
+endif()
 message(STATUS "Toolchain: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}; ${CMAKE_GENERATOR}; x64; C++20; shared JSBSim; dynamic MSVC CRT")
 file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/toolchain-build-manifest.txt" CONTENT
 "Project: FlightSimulator P1 toolchain proof
@@ -120,4 +127,3 @@ Dependencies: third_party/dependencies.lock.json
 JSBSim: dynamic, source model assets excluded
 Godot API: 4.5 single precision on pinned 4.7.2 engine; binding load is probed separately; exported simulator proof belongs to NATIVE-EXPORT
 ")
-
