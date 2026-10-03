@@ -16,7 +16,7 @@ The owner approved the plan and authorized the implementation fleet on 2026-10-0
 - Keep core tests headless, offline, and independent of frame rate. Keep real airport operational data separate from synthetic fixtures.
 - Use explicit SI units and documented frames at module boundaries. Reject invalid states and incompatible content versions.
 - Update documentation and requirement-to-issue mapping when scope changes. Report evidence and remaining limits in PRs.
-- Run `node tools/check-docs.mjs` for foundation changes. Product checks are phase deliverables, not implemented yet.
+- Run `node tools/check-docs.mjs` for documentation/foundation changes. For native work, use [the pinned bootstrap](tools/bootstrap/README.md) and CTest; contract changes also require `npm --prefix schemas run check` and `node --test tests/contracts/schema.test.mjs`. Run checks appropriate to the changed module and retain phase-specific evidence.
 - Do not spend money, provision paid infrastructure, redistribute restricted source material, or publish aviation training-credit claims without explicit owner authorization.
 - Never log credentials or upload local pilot profiles, flight logs, or crash dumps by default.
 

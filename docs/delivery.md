@@ -2,7 +2,9 @@
 
 ## What exists today
 
-`Foundation CI` validates documentation links, required files, backlog structure/dependencies, issue references, action pins, and a mutation-free backlog preview on `ubuntu-24.04` and `windows-2022`. Node 22 is the CI runtime; local tooling supports Node 20+. There are no game binaries or physics tests yet, so these checks do not claim simulator readiness.
+`Foundation CI` validates documentation links, required files, backlog structure/dependencies, issue references, action pins, the rights register and notices, and mutation-free backlog/prompt previews on `ubuntu-24.04` and `windows-2022`. Node 22 is the CI runtime; local tooling supports Node 20+.
+
+`Native CI` builds the pinned C++20 dependencies and native contract tests on both platforms, verifies dependency integrity, checks that JSBSim is a shared library, and requires positive native loading markers from the pinned Godot editor. Schema validation and rejection tests run before compilation. See [the bootstrap instructions](../tools/bootstrap/README.md) for local commands and [the implementation record](evidence/P1/bootstrap.md) for accepted evidence. These are engineering foundation checks; exported flight simulation and aircraft fidelity have separate tasks.
 
 `Foundation release` handles `docs-vMAJOR.MINOR.PATCH` tags on commits reachable from main. It reruns checks, packages the repository source as a ZIP with SHA-256 checksums, creates a draft prerelease with explicit documentation-only notes, attaches the assets, then publishes it. There is no store, server, subscription, or automatic client updater. GitHub Releases is the distribution destination.
 
@@ -16,7 +18,7 @@
 | Release candidate | Both build paths, migration/corruption recovery, cold install, gamepad/hardware bindings, accessibility, pilot review | Signed-off candidate report with actual build SHA |
 | Simulator tag `vX.Y.Z[-alpha.N|-beta.N|-rc.N]` | Repeat release checks against tag; package Windows x64 ZIP; smoke on clean Windows without development PATH; attach evidence and notices | ZIP, SHA256SUMS, SBOM, third-party notices, source/license obligations, known limits, pilot validation summary |
 
-Create the native build/export pipeline in P1, before expensive cockpit content. Use exact engine/export-template/godot-cpp/JSBSim revisions from a reviewed lock manifest; do not use `latest` downloads. Runtime dependency updates need regression evidence and a small dedicated PR. Baseline exact pins in the architecture are research selections, not an implemented dependency lock.
+Create the native export pipeline in P1, before expensive cockpit content. Use exact engine/export-template/godot-cpp/JSBSim revisions from [the reviewed dependency lock](../third_party/dependencies.lock.json); do not use `latest` downloads. Runtime dependency updates need regression evidence and a small dedicated PR. The lock and verified bootstrap now implement the dependency selections; the portable export remains a separate proof.
 
 GitHub-hosted runners handle CPU/headless/import/export checks. They are not evidence for RTX3090 graphics performance, controller feel, or VR. Use a manually dispatched trusted local benchmark on the owner's machine with documented settings and a consented report. Do not expose the owner's PC as a general runner for fork PR code. Avoid permanent self-hosted infrastructure initially.
 
@@ -32,9 +34,9 @@ All artifacts are prepared and validated before release publication. Create a dr
 
 ## Repository policy
 
-Main is kept releasable for its current stage. Squash merge small PRs after required checks and domain evidence. Auto-merge can be used only for already-reviewed changes; pilots and maintainers still own domain review. Suggested protection: no force pushes/deletion, require the two current `docs` checks, resolve discussions, and require up-to-date checks. When core CI lands, add native/export checks. A self-authored owner PR may be merged without an impossible self-review requirement; get an independent agent review now and qualified domain review where specified. Branch protection is configured after verifying actual status-check names.
+Main is kept releasable for its current stage. Squash merge small PRs after required checks and domain evidence. Auto-merge can be used only for already-reviewed changes; pilots and maintainers still own domain review. Protection requires both `docs` and both `native` platform checks, up-to-date branches, resolved discussions and linear history, with no force pushes or deletion and enforcement for administrators. Add export checks after that proof lands. A self-authored owner PR may be merged without an impossible self-review requirement; get an independent agent review now and qualified domain review where specified. Configure protection only after verifying actual status-check names.
 
-Use semantic versioning for APIs/save/content schemas independently of release marketing versions. Keep a changelog with migration, realism, assistance, and content-cycle changes. Record the merge SHA and issue closure evidence in each release candidate report. P0 review is human-owned and remains open after foundation merge.
+Use semantic versioning for APIs/save/content schemas independently of release marketing versions. Keep a changelog with migration, realism, assistance, and content-cycle changes. Record the merge SHA and issue closure evidence in each release candidate report. The owner accepted P0 and authorized implementation; later phase acceptance still requires its own evidence.
 
 Labels: one `type:*`, one `phase:*`, one or more `area:*`, one `priority:*`, and one `status:*` for implementation tasks. Statuses: `ready` (all blocking gates met), `blocked` (linked dependency remains), `in-progress` (claimed branch), `needs-review` (evidence PR ready). Epics may remain blocked until the previous phase gate. A label is a queue signal; linked issue state is the actual dependency evidence. Labels are not auto-updated by the foundation sync tool; the integrator updates them as prerequisites close.
 
