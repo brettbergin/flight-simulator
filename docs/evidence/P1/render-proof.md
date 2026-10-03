@@ -13,7 +13,7 @@ RTX 3090. The native bridge and JSBSim binaries come from the accepted
 aircraft worker. The original native proof scene remains independently runnable.
 
 Hardware receipt: Windows 11 Home 10.0.26200/build 26200; i9-12900K (16 cores,
-24 logical processors); 68,494,241,792 bytes installed RAM; NVIDIA driver
+24 logical processors); 68,494,241,792 bytes reported physical RAM; NVIDIA driver
 32.0.15.9186. The NVIDIA-connected desktop reports 1360×768 at 60 Hz, and the
 Intel-connected display reports 2560×1440 at 164 Hz. Adapter selection is read
 back from the actual rendering device. The experiment renders a 2560×1440
@@ -25,8 +25,8 @@ The frozen [recipe](../../../tools/benchmark/recipe.json) uses 70° vertical FOV
 near/far 0.05/15,000 m, render scale 1, 2× MSAA, no TAA or VSync, a 120 FPS cap,
 10-second warmup and a continuous 600-second measurement per fixture. Actual
 readback reports a 4096 directional shadow atlas and four cascades over 6000 m.
-The three fixtures are clear, dusk and overcast; dusk changes lighting, while
-overcast adds 96 opaque shadow-casting cloud meshes. These are visual proxies
+The three fixtures are clear, dusk and overcast. Clear has no cloud meshes;
+dusk and overcast use 96 opaque shadow-casting cloud meshes and different lighting. These are visual proxies
 and do not model volumetric weather or operational visibility.
 
 The scene contains 64 synthetic 1250 m terrain planes with 32×32 subdivisions,
@@ -136,6 +136,12 @@ corrected CI helper explicitly loads all seven staged script/scene/GLB resources
 checks actual editor/archive/tree/lock identities and executed loader/settings
 bytes, and rejects a separate invalid lazy panel. Root independently reproduced
 the successful compile/headless-rejection and three source-drift negatives.
+
+The first final clear-sky attachment run completed its 600-second measurements
+but reported two leaked ObjectDB instances at exit. The existing guard rejected
+the whole capture. Short clear-sky reproduction was clean; the intermittent
+cleanup defect is still under investigation, so those numbers are not accepted
+as final workload evidence.
 
 ## Artifact identities and remaining gates
 
