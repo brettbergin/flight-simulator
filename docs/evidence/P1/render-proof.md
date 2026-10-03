@@ -93,7 +93,7 @@ During measurement, camera, canonical terrain parent, camera-mounted panel,
 lighting, silent spatial audio and local-coordinate particles share one origin
 version. Projection error has a 0.5-pixel budget, relative-emitter geometry a
 0.001 m budget, canonical arrays remain unchanged, and a deliberately stale
-participant version must be detected before presentation. Silent paused PCM
+participant version must be detected before presentation. Silent PCM
 tests spatial geometry only; audible continuity and world-space particle
 history remain unmeasured.
 
@@ -137,16 +137,34 @@ checks actual editor/archive/tree/lock identities and executed loader/settings
 bytes, and rejects a separate invalid lazy panel. Root independently reproduced
 the successful compile/headless-rejection and three source-drift negatives.
 
-The first final clear-sky attachment run completed its 600-second measurements
-but reported two leaked ObjectDB instances at exit. The existing guard rejected
-the whole capture. Short clear-sky reproduction was clean; the intermittent
-cleanup defect is still under investigation, so those numbers are not accepted
-as final workload evidence.
+Two clear-sky attachment runs completed their 600-second measurements but leaked
+two objects at exit. The verbose repeat identified `AudioStreamWAV` and
+`AudioStreamPlaybackWAV`, each with one retained reference. Both captures remain
+invalid. The [pinned audio server](https://github.com/godotengine/godot/blob/ed1daf0bf001b61586d9930840f2f1394092c079/servers/audio/audio_server.cpp)
+retires stopped playback through mixer and main-thread updates. Immediate exit
+after stopping the emitter could precede that retirement.
+
+The revised fixture stops measurement, closes the trace/report, then observes
+weak references to both actual resources while allowing engine updates. It
+requires both resources to disappear, 64 active/zero queued terrain nodes and
+at least two process opportunities within a two-second monotonic deadline.
+`cleanup.json` and its matching runtime marker record this separate interval;
+the independent verifier checks their clocks and bytes. Shutdown leaks still
+invalidate a capture. No measurement thresholds are relaxed, and this check
+does not establish GPU allocator retirement. Silent PCM is the audio scope;
+an immediate pause request before deferred playback registration did not prove
+an actual paused state.
+
+Actual isolated ownership controls passed: ordinary and queued-node cleanup
+exited cleanly, while a retained WAV reference and an extra active terrain node
+each exhausted the deadline and exited with failure. A revised short exported
+capture observed both resources retire after four process opportunities. Its
+20-second measurements remain diagnostic; final long captures are pending.
 
 ## Artifact identities and remaining gates
 
 Frozen renderer source SHA-256:
-`acde8a0584998eff42f6e74241a9a0b52d15bf74a54314748cbea59b8ee227c7`.
+`f86759f666d9de3baa412f53a144380aeea3ba1cf7e1c69d3d1b96e5a4183bff`.
 Frame source:
 `10f4298a3ad2baafdf0bebbad27dc8930ca0cc0e97f7c3cf29869569054b3787`.
 Panel source:

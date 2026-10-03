@@ -48,6 +48,15 @@ Shorter or alternate resolution/FOV captures are diagnostic and cannot become
 canonical target captures. The engine allocation monitor is not driver-reported
 VRAM residency; working-set peaks are sampled at one-second cadence.
 
+After the final measured frame, the fixture closes its trace/report and waits
+for observed audio stream/playback resources and queued terrain nodes to retire.
+The separate `cleanup.json` receipt must match exactly one runtime marker,
+identify both observed resources, prove their release and 64 active/zero queued
+terrain nodes, and finish after at least two process opportunities within two
+seconds. The reducer checks its monotonic clocks against the final measured
+frame and hashes the receipt. Cleanup never extends the measured interval, and
+any runtime error or shutdown leak still rejects the entire packet.
+
 Before measurement, two actual GPU images hold identical canonical source state
 across an origin transaction. The independent RGB/RGBA PNG decoder validates CRC,
 size and filters, then recomputes changed-pixel counts. The preselected research
