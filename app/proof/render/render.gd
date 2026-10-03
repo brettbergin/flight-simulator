@@ -36,6 +36,11 @@ var rebase_max_audio_m: float = 0.0
 var device_info: Dictionary
 var image_pair: Dictionary
 var failed := false
+var tiles: Array[MeshInstance3D] = []
+var tile_swap_cpu_ms: Array = []
+var tile_swap_epoch: int = 0
+var next_tile_swap_s: float = 5.0
+var terrain_material: Material
 const Frame = preload("res://render/frame.gd")
 
 func require(condition: bool, message: String) -> bool:
@@ -92,6 +97,23 @@ func rebase(eye: Array, time: float) -> void:
 	require(not coherent(),"Mixed-origin negative was not detected")
 	particles.set_meta("origin_version",origin_version)
 	rebase_count+=1
+
+func replace_far_tile() -> void:
+	# Bounded render attachment fixture, not storage/GIS/contact streaming. The
+	# same canonical geometry is replaced before presentation; no missing tile.
+	var begin: int = Time.get_ticks_usec()
+	var index: int = [0,7,56,63][tile_swap_epoch%4]
+	var old: MeshInstance3D = tiles[index]
+	var plane := PlaneMesh.new()
+	plane.size=Vector2(1250,1250)
+	plane.subdivide_width=32
+	plane.subdivide_depth=32
+	var replacement: MeshInstance3D = mesh_node(plane,old.position,world,terrain_material)
+	old.queue_free()
+	tiles[index]=replacement
+	tile_swap_epoch+=1
+	tile_swap_cpu_ms.append((Time.get_ticks_usec()-begin)/1000.0)
+	require(tiles.size()==64,"Bounded render tile count changed")
 
 func material(color: Color) -> StandardMaterial3D:
 	var result := StandardMaterial3D.new()
@@ -204,13 +226,14 @@ func _ready() -> void:
 		sunlight.light_energy=.6
 	world.add_child(sunlight)
 	var grass := material(Color(0.14,0.23,0.10))
+	terrain_material=grass
 	for x in 8:
 		for z in 8:
 			var plane := PlaneMesh.new()
 			plane.size=Vector2(1250,1250)
 			plane.subdivide_width=32
 			plane.subdivide_depth=32
-			mesh_node(plane,Vector3(-4375+x*1250,0,-4375+z*1250),world,grass)
+			tiles.append(mesh_node(plane,Vector3(-4375+x*1250,0,-4375+z*1250),world,grass))
 	box(Vector3(30,0.15,1200),Vector3(0,.12,-200),world,material(Color(.06,.07,.075)))
 	var white := material(Color(.86,.87,.83))
 	for index in 24:
@@ -354,6 +377,7 @@ func finish() -> void:
 	var report := {"duration_s":duration,"warmup_s":warmup,"frames":frames.size(),"average_fps":1000*frames.size()/sum,"frame_ms":{"p95":percentile(frames,.95),"p99":percentile(frames,.99)},"gpu_ms":{"p95":percentile(gpu_ms,.95),"p99":percentile(gpu_ms,.99),"positive_unique_frame_samples":gpu_ms.size(),"duplicate_observations":duplicate_gpu_observations},"render_cpu_ms":{"p95":percentile(render_cpu_ms,.95)},"one_second_process_max_ms":{"p95":percentile(process_max_ms,.95),"samples":process_max_ms.size(),"scope":"Godot one-second process maxima; not per-frame main-thread CPU time"},"peak_godot_video_bytes":peak_video_bytes,"scope":"isolated visual-load experiment; not full-game performance acceptance"}
 	report["device"]=device_info
 	report["rendered_origin_pair"]=image_pair
+	report["render_tile_attachment"]={"replacements":tile_swap_epoch,"steady_tile_count":tiles.size(),"p95_submit_cpu_ms":percentile(tile_swap_cpu_ms,.95),"maximum_submit_cpu_ms":tile_swap_cpu_ms.max() if not tile_swap_cpu_ms.is_empty() else -1,"scope":"new 32x32-subdivision plane mesh every five seconds, four far corners; CPU submission only; GPU allocation/upload effects included in raw callback/render samples; no disk IO, real coverage or contact streaming"}
 	report["rebase"]={"transactions":rebase_count,"origin_version":origin_version,"max_projected_delta_px":rebase_max_pixels,"max_relative_audio_delta_m":rebase_max_audio_m,"canonical_unchanged":true,"mixed_version_negative_detected":true,"particle_scope":"local-coordinate GPU emitter transforms; no world-space particle history claim","audio_scope":"silent paused spatial emitter; geometry only, no audible continuity claim"}
 	raw_trace.flush()
 	raw_trace.close()
@@ -374,6 +398,9 @@ func _process(delta: float) -> void:
 	var frame_ms: float = (now-last_us)/1000.0
 	last_us=now
 	var eye: Array = eye_position(elapsed)
+	if elapsed>=next_tile_swap_s:
+		replace_far_tile()
+		next_tile_swap_s+=5.0
 	apply_frame(eye,elapsed)
 	if Frame.local_position(eye,anchor,render_frame).length()>2000:
 		rebase(eye,elapsed)

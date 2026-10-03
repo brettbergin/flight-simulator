@@ -21,6 +21,8 @@
     "terrain_tiles": 64,
     "terrain_tile_size_m": 1250,
     "terrain_subdivisions": 32,
+    "far_tile_replacement_interval_s": 5,
+    "far_tile_replacement_scope": "bounded render attachment of identical canonical geometry; no disk/GIS/contact streaming",
     "tree_instances": 2400,
     "buildings": 60,
     "runway_m": [30, 1200],
