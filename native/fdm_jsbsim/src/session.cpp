@@ -116,7 +116,8 @@ class Session::Impl {
     // SRand is private in pinned 1.3.1; its documented tied property is the public seam.
     fdm->SetPropertyValue("simulation/randomseed", static_cast<double>(initialization.engine_seed));
     if(fdm->GetPropertyValue("simulation/randomseed") != static_cast<double>(initialization.engine_seed)) throw std::runtime_error("Seed application failed");
-    fdm->SetRootDir(SGPath(config.model_root.string())); fdm->SetAircraftPath(SGPath("aircraft")); fdm->SetEnginePath(SGPath("engine"));
+    const auto root_utf8=config.model_root.u8string();
+    fdm->SetRootDir(SGPath::fromUtf8(std::string(root_utf8.begin(),root_utf8.end()))); fdm->SetAircraftPath(SGPath("aircraft")); fdm->SetEnginePath(SGPath("engine"));
     fdm->Setdt(1.0 / 120);
     if (!fdm->LoadModel("original-synthetic")) throw std::runtime_error("Original synthetic model load failed");
     fdm->GetWinds()->SetTurbType(JSBSim::FGWinds::ttNone);

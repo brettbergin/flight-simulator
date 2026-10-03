@@ -1,0 +1,11 @@
+Microsoft Visual C++ VC143 x64 release runtime - conditional distribution notice
+
+Microsoft runtime binaries are Microsoft software, separately licensed; the project's MIT license does not relicense them.
+The owner confirmed a Visual Studio Community license on 2026-10-03. This records the declared edition without account identifiers, keys or an invented acquisition/version history.
+Applicable Visual Studio terms and the official Distributable Code list govern unmodified listed release runtime files shipped with this program. Debug/tool/system files and Microsoft preview runtimes are outside this scope.
+Distributors and end users must receive protective Microsoft-component terms consistent with the applicable agreement; full reviewed terms and file provenance must be retained with delivery evidence. This notice is project-authored provenance, not a substitute grant or Microsoft's complete agreement.
+
+Primary sources:
+https://visualstudio.microsoft.com/license-terms/vs2022-ga-community/
+https://learn.microsoft.com/en-us/visualstudio/releases/2022/redistribution
+https://learn.microsoft.com/en-us/cpp/windows/redistributing-visual-cpp-files?view=msvc-170
