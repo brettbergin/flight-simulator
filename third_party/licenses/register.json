@@ -61,7 +61,7 @@
       ],
       "library_policy": {
         "linkage": "dynamic",
-        "source_archive_sha256": "73f478b7e411517a72bff961ba73b33d69168945bcf3e813e4b107644e58e4e6",
+        "source_archive_sha256": "f6ea1c2771de5594f0047e27b2facb605dc958c7c8e0008dd43e73df88bf6a62",
         "source_delivery": "Distribute a reproducible library-only corresponding-source bundle with the complete compiled dependency closure, upstream build inputs needed for the DLL, original notices and build/replacement instructions. Exclude aircraft/engine/system XML, tests and unrelated bindings/plugins. Review its file inventory and separate SHA-256 before release; upstream acquisition ZIP is not cleared for redistribution.",
         "modification_policy": "Initial policy permits unmodified upstream library only. Any patch requires reviewed source archive/digest and dated change notices before release."
       },

@@ -69,6 +69,16 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "FDM repeat/convergence/stability proof failed" }
       - name: Prove native initializer loaded in pinned Godot
         run: ./tools/bootstrap/verify-godot.ps1
+      - name: Check original-model observed equation corpus
+        if: hashFiles('tests/reference/observed.mjs') != ''
+        run: |
+          node tests/reference/observed.mjs .local/fdm-proof/hz120
+          if ($LASTEXITCODE -ne 0) { throw "Observed model equation corpus failed" }
+      - name: Prove integrated terrain contact authority
+        if: hashFiles('tests/ground/proof/verify.test.mjs') != ''
+        run: |
+          node --test tests/ground/proof/verify.test.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Ground contact authority proof failed" }
       - name: Prove actual typed native bridge in Godot editor
         run: |
           node tests/export/make-initializer.mjs --check
@@ -109,3 +119,5 @@ jobs:
             .local/fdm-proof/**
             .local/export-proof/**/evidence/**
             .local/build/native-release/replay-proof/**
+            .local/validation/observed-report.json
+            .local/ground-proof/**

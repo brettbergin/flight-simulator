@@ -56,10 +56,16 @@ Reloading the extension in a running editor is disabled.
 
 The portable test has an empty PATH, isolated TEMP/profile directories, a working
 directory outside the payload, and a relocated path containing spaces and Unicode.
-It checks actual code-address-derived loaded JSBSim path/hash, actual CRT module
+It checks actual code-address-derived loaded JSBSim path/hash, all five required CRT module
 paths/hashes, schema validity and clean shutdown. It also exercises destructor-only
 closure and malformed initializer rejection. A separate disposable copy quarantines
 both exported JSBSim locations: startup must fail visibly, without a fallback DLL.
+Separate copies remove each required CRT from both locations. Every control must
+fail; the native proof rejects actual runtime modules outside the payload even
+when Windows can supply a globally installed copy. The package audit parses each
+binary's direct and deferred PE import tables, checks the compiler's report and
+requires the full staged non-system dependency closure. Windows OS/API-set/UCRT
+imports are explicitly classified and remain system-managed.
 Root and `bin/` copies are deliberately retained for Godot exporter dependency
 staging and Windows startup search; the actual loaded module witness identifies
 which identical bytes were selected.

@@ -18,24 +18,26 @@ Python, compiler or development PATH. No global installation was changed.
 | Actual editor and exported scene | Registered `FlightProofSession`; submitted pilot axes with exact uint64 sequence `9007199254740993`; recorded full v1 initial/final aircraft, atmosphere, applied command and observed event; reached tick 121. |
 | Fixed tick/lifecycle | Pause at tick 121 held physics; closed calls rejected; repeated close, destructor and extension termination joined the worker. |
 | Wire rejection | Numeric sequence, unknown field, unsupported authority/version, nonfinite axes, oversized step batch and duplicate open rejected; malformed initializer closed cleanly. |
-| Portable environment | Empty PATH, isolated profile/TEMP, working directory outside package, spaces and Unicode relocation passed. Actual JSBSim and all three CRT modules resolved inside the portable payload. |
+| Portable environment | Empty PATH, isolated profile/TEMP, working directory outside package, spaces and Unicode relocation passed. Actual JSBSim and all five required CRT modules resolved inside the portable payload. |
 | Missing library control | Quarantined root and `bin/` JSBSim DLLs in a disposable export; startup failed visibly with no positive proof marker. |
+| CRT isolation controls | Removed each of five required CRT files from both payload locations in separate copies. Every run failed; installed system-runtime fallbacks were rejected by actual loaded-module path checks. |
+| Dependency closure | Independently parsed every staged PE binary's direct and deferred import tables, compared against the selected compiler's dependency report and enforced complete non-system staging. Windows OS/API-set/UCRT dependencies remain system-managed. |
 | Source closure | 286 archive entries: 279 byte-identical upstream library files plus seven original wrapper/build/inventory files; no upstream aircraft/engine/system XML; repeated generation had identical bytes. |
 | Fresh source rebuild | 108 MSVC build steps completed. Source/header/compile/import receipts retained; vendor hashes unchanged. |
 | Actual DLL replacement | Only JSBSim DLL copies changed. Actual loaded replacement path/hash matched the rebuilt library. Commands, snapshots and events preserved finite-state/unit semantics within frozen `1e-9` absolute / `1e-12` relative tolerance; strings/integer-wire fields exact. |
-| Package audit | Six declared component identities, required notices/primary Microsoft terms, source/replacement/module evidence and reviewed selected CRT pins passed the combined rights/integrity audit. Eight meaningful runtime rejection test groups passed. |
+| Package audit | Six declared component identities, 42 component file declarations, required notices/primary Microsoft terms, source/replacement/module/import evidence and reviewed selected CRT pins passed the combined rights/integrity audit. Twelve meaningful runtime rejection test groups passed. |
 
 Observed baseline JSBSim DLL SHA256:
 `7963d908c74a039e0e8d0664090fad33b777c60e38e9e6e9bb5d85d5da6f7948`.
 Independently rebuilt replacement SHA256:
-`45625ee1eff952fe41d48613c8ecd8ce065cb70d6bdb4bc9f297dad01eccbd49`.
+`793a57e7a4cd6093fa2242775dab1da3e0a6b57f3be329b888f48153b02808d7`.
 Different debug paths/build options may produce different binary hashes; application
 startup does not enforce one JSBSim binary hash. The witness ties this experiment
 to the actual loaded module rather than merely a DLL present in a directory.
 
 Reviewed corresponding-source archive SHA256:
-`73f478b7e411517a72bff961ba73b33d69168945bcf3e813e4b107644e58e4e6`,
-3,766,829 bytes. Acquisition commit is
+`f6ea1c2771de5594f0047e27b2facb605dc958c7c8e0008dd43e73df88bf6a62`,
+3,766,826 bytes. Acquisition commit is
 `3b25f25e49b42d0489c04ac805674fc1450ca579`; acquisition ZIP digest remains distinct.
 The source inventory/build wrapper preserves LGPL library replacement/debugging
 permission and original component attribution. Microsoft components retain their
@@ -43,12 +45,24 @@ separate distributable-code terms, not the project's MIT license.
 
 The selected local CRT is version 14.40.33810.0 from release redist revision
 14.40.33807. The reviewed-runtime inventory digest is
-`eea106b997c65c9c40a294f9ebf36d6d3444f53dc484ad1b4fc0ed979ac8b51d`;
+`22586d40a79d34f6005fae5abf63e4d941b9e9b6fbb02d2fc608eb0461f4c87a`;
 the compiler-bound selected-build digest is
-`8dbfb218b13a95cb401e19aa0019e43fd6f9f0e239c416af04df64a9858c2c13`.
+`0c604c481e7c05d6f70824f893d794e7bbc1e6590e1835494bac5d7dde4fadc2`.
 Exact file hashes and governing terms are in the
 [CRT register evidence](../../../third_party/licenses/evidence/microsoft-vc143-crt.md).
 These local identities do not authorize older-runtime use with hosted 14.44 builds.
+
+Independent review found the initial three-file experiment had omitted direct
+imports `MSVCP140_2.dll` and `MSVCP140_ATOMIC_WAIT.dll`; Windows supplied installed
+copies despite empty PATH. That experiment is superseded. The corrected proof
+stages and witnesses all five files, rejects modules outside the payload and
+passes each missing-file control. The source ZIP changed only three first-party
+EOF whitespace bytes plus their manifest digests; vendor/compiled inputs remained
+unchanged and the new exact archive received independent closure review.
+
+The independent source rebuild retains the unmodified upstream MSVC C4715
+warning in `FGTable::GetValue` in its build log. No vendor warning/source patch is
+hidden by this proof; first-party native targets compile with warnings as errors.
 
 ## Automation and remaining limits
 

@@ -8,11 +8,13 @@ Primary Community DOCX linked by the Microsoft terms page: https://visualstudio.
 
 ## Reviewed local inventory
 
-The register's concrete source-verified/conditional entry covers the three inspected local release files, version 14.40.33810.0. Source is `VC/Redist/MSVC/14.40.33807/x64/Microsoft.VC143.CRT` in the installed VS2022 tree. Each signature verified Valid, architecture is x64, and no debug/tool/System32 binary is in this scope. The actual exported proof loaded these exact files inside its relocated payload. The local inventory does not approve a newer hosted inventory.
+The register's concrete source-verified/conditional entry covers the five inspected local release files, version 14.40.33810.0. Source is `VC/Redist/MSVC/14.40.33807/x64/Microsoft.VC143.CRT` in the installed VS2022 tree. Each signature verified Valid, architecture is x64, and no debug/tool/System32 binary is in this scope. The actual exported proof loaded these exact files inside its relocated payload. The local inventory does not approve a newer hosted inventory.
 
 | Filename | Version | SHA256 |
 |---|---|---|
 | msvcp140.dll | 14.40.33810.0 | a4c2229bdc2a2a630acdc095b4d86008e5c3e3bc7773174354f3da4f5beb9cde |
+| msvcp140_2.dll | 14.40.33810.0 | 713f17b253d802d283d306ce75647e37d83a546aeb1a881e5d9e529e856c007e |
+| msvcp140_atomic_wait.dll | 14.40.33810.0 | aede4ec454a82f146eb4a721e616e2086870107d88aabc6b0bd1eea0a505d935 |
 | vcruntime140.dll | 14.40.33810.0 | 02c6aa0e6e624411a9f19b0360a7865ab15908e26024510e5c38a9c08362c35a |
 | vcruntime140_1.dll | 14.40.33810.0 | 7dd9aa02e271c68ca6d5f18d651d23a15d7259715af43326578f7dde27f37637 |
 
@@ -28,6 +30,6 @@ The REDIST list excludes debug_nonredist; also exclude Microsoft preview/pre-rel
 
 ## Accepted audit boundary
 
-The 18-entry register and actual staged proof pass the rights audit with retained notices. Generic component/file checks now call `tools/export/check-runtime.mjs` for Microsoft CRT package entries. This bounded verifier enforces exact reviewed file pins, version/source revision, x64 PE identities, inspected signatures, staged bytes, immutable inventory digests and compiler/runtime compatibility. Eight runtime test groups cover positive exact identity and missing/unreviewed pins/evidence, unsigned source, forbidden origins, changed bytes, digest mutation and newer compiler than runtime. Unknown hosted identities fail before package clearance and require independent inventory review.
+The 18-entry register and actual staged proof pass the rights audit with retained notices. Generic component/file checks now call `tools/export/check-runtime.mjs` for Microsoft CRT package entries. This bounded verifier enforces exact reviewed file pins/lengths, version/source revision, x64 PE identities, inspected signatures, staged bytes, immutable inventory digests and compiler/runtime compatibility. It independently reads actual direct/deferred PE imports and requires full non-system closure. Twelve runtime test groups cover exact identity, missing/unreviewed pins/evidence, unsigned source, forbidden origins, changed bytes, digest mutation, wrong architecture, newer compiler, omitted imports and missing staged CRTs. Unknown hosted identities fail before package clearance and require independent inventory review.
 
 The original bridge/proof has a separate MIT ledger entry. The [export evidence](../../../docs/evidence/P1/native-export.md) records actual loading and DLL replacement; this rights record consumes the accepted #13 structure and owner's declaration. It does not qualify an aircraft, complete P1 or authorize a public simulator release.
