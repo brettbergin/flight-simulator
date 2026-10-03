@@ -137,7 +137,7 @@ std::string json(const c::OperationalEvent& event) {
       throw std::invalid_argument("Invalid prototype event time scale");
   std::string payload;
   if(const auto* p=std::get_if<c::PauseControl>(&event.payload)) payload=std::string("{\"kind\":\"pause\",\"paused\":")+(p->paused?"true":"false")+"}";
-  else if(const auto* s=std::get_if<c::TimeScaleControl>(&event.payload)) payload="{\"kind\":\"time_scale\",\"scale\":"+number(s->scale)+"}";
+  else if(const auto* s=std::get_if<c::TimeScaleControl>(&event.payload)) payload="{\"kind\":\"time-scale\",\"scale\":"+number(s->scale)+"}";
   else throw std::invalid_argument("Unsupported prototype event serializer");
   return header("OperationalEvent",event.header)+",\"sequence\":\""+c::wire_uint64(event.sequence.value)+"\",\"source_id\":"+quote(event.source_id)+
     ",\"confidence\":\"observed\",\"content_version\":\"0.1.0-prototype\",\"payload\":"+payload+"}";

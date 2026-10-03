@@ -1,6 +1,6 @@
 # ADR-004: Local progress with versioned recording and conditional resume
 
-Date: 2026-10-03. Status: accepted for planning; exact in-flight resume is a proof gate.
+Date: 2026-10-03. Status: accepted for planning and bounded P1 original-flight reconstruction; integrated product resume remains a proof gate.
 
 ## Context
 
@@ -15,6 +15,10 @@ Use WAL with validated backups, pre-migration backup, foreign keys, and idempote
 Recorded playback reads historical snapshots and events without re-integrating physics. Re-simulation uses matching build/compiler/FDM/content hashes and complete accepted inputs/environment/events/seeds. Preserve compatibility categories in the replay header; cross-version physics reproduction is not assumed. Summary/progress data remains readable after aircraft/content updates.
 
 P1 first tests full solver-state restoration, including integrator histories, engine/gear transients, filters, systems, RNG, scenario, and ATC. If no complete safe restore exists, reconstruct from initial conditions and the accepted log in the identical runtime, with visible progress. If neither restore nor reconstruction proves equivalence and acceptable time, initial resume is limited to reviewed ground/scenario restart checkpoints while in-flight recordings and progress remain preserved. A blocking issue tracks exact resume; do not advertise partial state restoration as seamless continuation.
+
+The [P1 reconstruction experiment](../../native/persistence/proof/README.md) selects replay from the original requested initialization recipe and complete original receiving-boundary admission history for the **original synthetic flight-only model**. Fresh process/executive reconstruction of600 seconds plus60 seconds continuation must match every-step canonical telemetry digest, pending commands, source gates, lifecycle sequences, fuel and atmosphere under the exact executable/shared-library/compiler/contract/model identity. It does not use a visible snapshot setter. The pinned [FGPropagate::SetVState](https://github.com/JSBSim-Team/jsbsim/blob/3b25f25e49b42d0489c04ac805674fc1450ca579/src/models/FGPropagate.cpp#L664) assigns selected propagator fields, not a complete executive with engine/gear/filter/integration state.
+
+The existing SessionManifest/v1, ReplayHeader/v1 and Checkpoint/v1 are ratified for this measured `replay-from-start` declaration, with an explicit evidence ID and cross-file identity/digest validation; their layouts remain unchanged. Original accepted control/lifecycle/source registration order is distinct from applied commands and independently sequenced observed events. The private bounded recipe is not a supported product archive format. Contact/terrain, stochastic weather, real C172S systems, ATC, host wall-budget debt/mailboxes, durable writes and migrations remain unsupported. Initial product resume uses reviewed restart checkpoints until the integrated host proves its own complete participating-state boundary; a future contact or system model cannot inherit this flight-only guarantee automatically.
 
 ## Alternatives
 
