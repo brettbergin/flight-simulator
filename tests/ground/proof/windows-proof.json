@@ -1,0 +1,223 @@
+{
+  "version": 1,
+  "classification": "Original ground numerical proof; no C172S, airport, save or playable acceptance",
+  "compiler": "MSVC-19.40.33813.0",
+  "library_version": "1.3.1 Oct  3 2026 12:58:03",
+  "actual_loaded_jsbsim_sha256": "269ebc60feaf8bc9fdd2f2761a46eb5eb06427623f33c67055f21ca65e705150",
+  "executable_sha256": "dcef925d6c12c87b387f59ae038707fa3eef503736a35acede374b961945cbd1",
+  "contract_set_sha256": "0f7dedf44b12b57916d6ba7afbf1f315ebdfa8e34ad02eed0188d2ac1fec4fcc",
+  "inventory_sha256": "9cb5763cde603fd9ce31f4b5540a5fdf46b117169fbb90b4d962d27b2e9bc4a2",
+  "native_receipt_sha256": "ab8882adbdcf5802dcb5709d0e009a49c93ecad3716cb33637ecf708d8ffa520",
+  "checks": 182080,
+  "trials": 30,
+  "sample_hz": 2,
+  "continuous_time_error_bound": false,
+  "thresholds": {
+    "position_m": 0.15,
+    "velocity_mps": 0.15,
+    "attitude_rad": 0.02,
+    "rate_radps": 0.05
+  },
+  "comparisons": [
+    {
+      "name": "flat.stationary",
+      "hz": 60,
+      "maxima": {
+        "position_m": 0.000056661038244282814,
+        "velocity_mps": 0.0005287293235060072,
+        "attitude_rad": 0,
+        "rate_radps": 1.1173249170322427e-8
+      }
+    },
+    {
+      "name": "flat.stationary",
+      "hz": 120,
+      "maxima": {
+        "position_m": 0.000012237477065631282,
+        "velocity_mps": 0.00024247263604065505,
+        "attitude_rad": 0,
+        "rate_radps": 5.472005818594127e-9
+      }
+    },
+    {
+      "name": "flat.coast",
+      "hz": 60,
+      "maxima": {
+        "position_m": 0.000056672343507124006,
+        "velocity_mps": 0.0005301434349471079,
+        "attitude_rad": 2.7797755757238933e-7,
+        "rate_radps": 0.000005381198853122307
+      }
+    },
+    {
+      "name": "flat.coast",
+      "hz": 120,
+      "maxima": {
+        "position_m": 0.000012239770251644622,
+        "velocity_mps": 0.00024279521422416962,
+        "attitude_rad": 5.16191365590357e-8,
+        "rate_radps": 0.0000027946443621216416
+      }
+    },
+    {
+      "name": "flat.steer",
+      "hz": 60,
+      "maxima": {
+        "position_m": 0.08683741438325056,
+        "velocity_mps": 0.0005301434349471079,
+        "attitude_rad": 0.0029658100478489346,
+        "rate_radps": 0.00011860588433665419
+      }
+    },
+    {
+      "name": "flat.steer",
+      "hz": 120,
+      "maxima": {
+        "position_m": 0.028126027869133846,
+        "velocity_mps": 0.00024279521422416962,
+        "attitude_rad": 0.0009596485754158376,
+        "rate_radps": 0.00003661059659976598
+      }
+    },
+    {
+      "name": "flat.brake",
+      "hz": 60,
+      "maxima": {
+        "position_m": 0.03126609345636629,
+        "velocity_mps": 0.025442585197271824,
+        "attitude_rad": 0.000007163910498155823,
+        "rate_radps": 0.00012391023868413978
+      }
+    },
+    {
+      "name": "flat.brake",
+      "hz": 120,
+      "maxima": {
+        "position_m": 0.01024371914528022,
+        "velocity_mps": 0.008454207053548862,
+        "attitude_rad": 0.000001544841549717755,
+        "rate_radps": 0.00012018745597197869
+      }
+    },
+    {
+      "name": "flat.touchdown",
+      "hz": 60,
+      "maxima": {
+        "position_m": 0.02041887110525303,
+        "velocity_mps": 0.04725039655980858,
+        "attitude_rad": 0.00002479750225390743,
+        "rate_radps": 0.0007493648594823985
+      }
+    },
+    {
+      "name": "flat.touchdown",
+      "hz": 120,
+      "maxima": {
+        "position_m": 0.006432432159366738,
+        "velocity_mps": 0.015316935066466133,
+        "attitude_rad": 0.000012808967435280884,
+        "rate_radps": 0.0003761188172983342
+      }
+    },
+    {
+      "name": "slope.stationary",
+      "hz": 60,
+      "maxima": {
+        "position_m": 0.0007013039883279485,
+        "velocity_mps": 0.0005689576278591406,
+        "attitude_rad": 0.000016151016603671896,
+        "rate_radps": 0.00023087824389283874
+      }
+    },
+    {
+      "name": "slope.stationary",
+      "hz": 120,
+      "maxima": {
+        "position_m": 0.00022721290331146032,
+        "velocity_mps": 0.0002491708317114701,
+        "attitude_rad": 0.0000051577824718451335,
+        "rate_radps": 0.00007046774297512145
+      }
+    },
+    {
+      "name": "slope.coast",
+      "hz": 60,
+      "maxima": {
+        "position_m": 0.0000856146645468756,
+        "velocity_mps": 0.0017628616150321683,
+        "attitude_rad": 0.000017413280452881324,
+        "rate_radps": 0.00004126482985355073
+      }
+    },
+    {
+      "name": "slope.coast",
+      "hz": 120,
+      "maxima": {
+        "position_m": 0.00002356661730896328,
+        "velocity_mps": 0.00024196270294852133,
+        "attitude_rad": 3.462716948575456e-7,
+        "rate_radps": 0.000010923294875007074
+      }
+    },
+    {
+      "name": "slope.steer",
+      "hz": 60,
+      "maxima": {
+        "position_m": 0.05233467887476824,
+        "velocity_mps": 0.0010883023101823236,
+        "attitude_rad": 0.0027272481421317845,
+        "rate_radps": 0.00038084312134302744
+      }
+    },
+    {
+      "name": "slope.steer",
+      "hz": 120,
+      "maxima": {
+        "position_m": 0.016901124276593207,
+        "velocity_mps": 0.00035129386231203094,
+        "attitude_rad": 0.0008839372755583429,
+        "rate_radps": 0.00003799655459903279
+      }
+    },
+    {
+      "name": "slope.brake",
+      "hz": 60,
+      "maxima": {
+        "position_m": 0.028338619132324498,
+        "velocity_mps": 0.02542380775758709,
+        "attitude_rad": 0.00008559621820556992,
+        "rate_radps": 0.0017310037879156095
+      }
+    },
+    {
+      "name": "slope.brake",
+      "hz": 120,
+      "maxima": {
+        "position_m": 0.009311587840806759,
+        "velocity_mps": 0.008533187602335887,
+        "attitude_rad": 0.000012959898921595796,
+        "rate_radps": 0.0012559523495591903
+      }
+    },
+    {
+      "name": "slope.touchdown",
+      "hz": 60,
+      "maxima": {
+        "position_m": 0.018200535059132814,
+        "velocity_mps": 0.0471146652526489,
+        "attitude_rad": 0.00008193573366952718,
+        "rate_radps": 0.0013591613934170962
+      }
+    },
+    {
+      "name": "slope.touchdown",
+      "hz": 120,
+      "maxima": {
+        "position_m": 0.005763739597331508,
+        "velocity_mps": 0.01532362994779278,
+        "attitude_rad": 0.000019428897179831378,
+        "rate_radps": 0.0006186112090222136
+      }
+    }
+  ]
+}

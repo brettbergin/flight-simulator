@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "id": "original-ground-contact-proof",
+  "content_version": "0.1.0-prototype",
+  "license": "MIT",
+  "classification": "Original numerical ground cart and synthetic ECEF planes; no aircraft or airport validation",
+  "files": [
+    {
+      "path": "aircraft/ground-cart/ground-cart.xml",
+      "bytes": 2275,
+      "sha256": "c546dc4791fc830e6f656b13c7a564322d51fba8f46b43da10af3d2f7ff041a1"
+    },
+    {
+      "path": "analytical-reference.json",
+      "sha256": "80d519138f8fc78432d63908f2b7523949ed3c57cb72a684e772fe6043763130",
+      "classification": "Independent original geometry/statics equations frozen before observing contact traces"
+    }
+  ],
+  "model_notice": "../../../LICENSE",
+  "prepared_identity": "ground-plane-v1 NUL prefix,12 little-endian binary64 fields in SurfaceConfig order followed by loaded-tile byte;SHA256 used for world/surface identity,generation1",
+  "release_policy": "Not included in the portable flight-only export; future packaging requires rights/register integration of this exact new fixture inventory"
+}

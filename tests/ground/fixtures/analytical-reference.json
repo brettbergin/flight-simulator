@@ -1,0 +1,528 @@
+{
+  "research_only": true,
+  "status": "pre-observation-independent-original-equations",
+  "provenance": "Authored geometry supplied by architecture; frozen before actual contact traces. No Cessna reference.",
+  "model": {
+    "mass_kg": 1100,
+    "cg_fixed_s0_frd_m": [
+      0,
+      0,
+      0
+    ],
+    "wheel_s0_frd_m": {
+      "nose": [
+        2,
+        0,
+        1
+      ],
+      "right": [
+        -1,
+        1.3,
+        1
+      ],
+      "left": [
+        -1,
+        -1.3,
+        1
+      ]
+    },
+    "spring_n_per_m": 150000,
+    "linear_damping_n_per_mps": 10000,
+    "inertia_kg_m2_nominal": [
+      800,
+      1000,
+      1500
+    ]
+  },
+  "sources": [
+    {
+      "url": "https://earth-info.nga.mil/?action=wgs84&dir=wgs84",
+      "section": "WGS84 defining parameters",
+      "checked": "2026-10-03"
+    },
+    {
+      "url": "https://github.com/JSBSim-Team/jsbsim/tree/3b25f25e49b42d0489c04ac805674fc1450ca579/src",
+      "section": "FGInertial.cpp, FGGroundCallback.cpp, FGLGear.cpp, FGXMLElement.cpp"
+    }
+  ],
+  "exact_wgs84": {
+    "a_m": 6378137.0,
+    "inverse_flattening": 298.257223563,
+    "b_m": 6356752.314245179
+  },
+  "pinned_backend_ellipsoid_m": {
+    "a": 6378137.000000209,
+    "b": 6356752.314186481
+  },
+  "provisional_budgets": {
+    "authored_plane_residual_m": 1e-07,
+    "default_ellipsoid_adapter_geometry_m": 0.0001,
+    "xml_length_relative": 1.6e-09,
+    "xml_spring_damper_relative": 3e-07,
+    "xml_inertia_relative": 0.0001
+  },
+  "flat_static_loads": [
+    {
+      "id": "cg-zero",
+      "cg_fixed_s0_frd_m": [
+        "0",
+        "0",
+        "0"
+      ],
+      "weight_fractions": {
+        "nose": "1/3",
+        "right": "1/3",
+        "left": "1/3"
+      }
+    },
+    {
+      "id": "cg-asymmetric",
+      "cg_fixed_s0_frd_m": [
+        "3/10",
+        "13/50",
+        "0"
+      ],
+      "weight_fractions": {
+        "nose": "13/30",
+        "right": "23/60",
+        "left": "11/60"
+      }
+    }
+  ],
+  "declared_gravity_example": {
+    "g_body_down_mps2": "9.81",
+    "weight_n": "10791",
+    "equal_support_each_n": "3597",
+    "compression_each_m": ".02398",
+    "cg_height_above_flat_m": ".97602"
+  },
+  "continuous_flat_contact_spring_cases": [
+    {
+      "compression_m": ".02",
+      "compression_speed_mps": "0.1",
+      "upward_force_n": "4000.00"
+    },
+    {
+      "compression_m": ".02",
+      "compression_speed_mps": "-0.1",
+      "upward_force_n": "2000.00"
+    },
+    {
+      "compression_m": ".02",
+      "compression_speed_mps": "-0.5",
+      "upward_force_n": "0"
+    }
+  ],
+  "planes": [
+    {
+      "id": "equator-zero",
+      "anchor_geodetic_rad_m": [
+        0,
+        0,
+        1000
+      ],
+      "grades_ne": [
+        0,
+        0
+      ],
+      "query_rad": [
+        0,
+        0
+      ],
+      "surface_height_ellipsoid_m": 1000.0,
+      "plane_point_ecef_m": [
+        6379137.0,
+        0.0,
+        0.0
+      ],
+      "normal_ecef": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "normal_query_ned": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "plane_residual_m": 0.0,
+      "agl_for_plus3m_ft": 9.84251968503937,
+      "agl_for_minus_point1m_ft": -0.32808398950131235,
+      "contact_ecef_m": [
+        6379137.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "equator-east",
+      "anchor_geodetic_rad_m": [
+        0,
+        1.5707963267948966,
+        1000
+      ],
+      "grades_ne": [
+        0,
+        0
+      ],
+      "query_rad": [
+        0,
+        1.5707963267948966
+      ],
+      "surface_height_ellipsoid_m": 1000.0,
+      "plane_point_ecef_m": [
+        3.9060948541862245e-10,
+        6379137.0,
+        0.0
+      ],
+      "normal_ecef": [
+        6.123233995736766e-17,
+        1.0,
+        0.0
+      ],
+      "normal_query_ned": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "plane_residual_m": 0.0,
+      "agl_for_plus3m_ft": 9.84251968503937,
+      "agl_for_minus_point1m_ft": -0.32808398950131235,
+      "contact_ecef_m": [
+        3.9060948541862245e-10,
+        6379137.0,
+        0.0
+      ]
+    },
+    {
+      "id": "north-pole",
+      "anchor_geodetic_rad_m": [
+        1.5707963267948966,
+        0,
+        1000
+      ],
+      "grades_ne": [
+        0,
+        0
+      ],
+      "query_rad": [
+        1.5707963267948966,
+        0
+      ],
+      "surface_height_ellipsoid_m": 1000.0,
+      "plane_point_ecef_m": [
+        3.919233248214045e-10,
+        0.0,
+        6357752.314245179
+      ],
+      "normal_ecef": [
+        6.123233995736766e-17,
+        0.0,
+        1.0
+      ],
+      "normal_query_ned": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "plane_residual_m": 0.0,
+      "agl_for_plus3m_ft": 9.84251968503937,
+      "agl_for_minus_point1m_ft": -0.32808398950131235,
+      "contact_ecef_m": [
+        3.919233248214045e-10,
+        0.0,
+        6357752.314245179
+      ]
+    },
+    {
+      "id": "south-pole",
+      "anchor_geodetic_rad_m": [
+        -1.5707963267948966,
+        0,
+        1000
+      ],
+      "grades_ne": [
+        0,
+        0
+      ],
+      "query_rad": [
+        -1.5707963267948966,
+        0
+      ],
+      "surface_height_ellipsoid_m": 1000.0,
+      "plane_point_ecef_m": [
+        3.919233248214045e-10,
+        0.0,
+        -6357752.314245179
+      ],
+      "normal_ecef": [
+        6.123233995736766e-17,
+        0.0,
+        -1.0
+      ],
+      "normal_query_ned": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "plane_residual_m": 0.0,
+      "agl_for_plus3m_ft": 9.84251968503937,
+      "agl_for_minus_point1m_ft": -0.32808398950131235,
+      "contact_ecef_m": [
+        3.919233248214045e-10,
+        0.0,
+        -6357752.314245179
+      ]
+    },
+    {
+      "id": "project-anchor",
+      "anchor_geodetic_rad_m": [
+        0.8,
+        -2,
+        1000
+      ],
+      "grades_ne": [
+        0,
+        0
+      ],
+      "query_rad": [
+        0.8,
+        -2
+      ],
+      "surface_height_ellipsoid_m": 999.9999999998295,
+      "plane_point_ecef_m": [
+        -1852711.2986649142,
+        -4048248.0426978553,
+        4553331.821989356
+      ],
+      "normal_ecef": [
+        -0.2899322930959923,
+        -0.6335136180615656,
+        0.7173560908995228
+      ],
+      "normal_query_ned": [
+        -6.938893903907228e-17,
+        0.0,
+        -1.0
+      ],
+      "plane_residual_m": 0.0,
+      "agl_for_plus3m_ft": 9.84251968503937,
+      "agl_for_minus_point1m_ft": -0.32808398950131235,
+      "contact_ecef_m": [
+        -1852711.2986649142,
+        -4048248.0426978553,
+        4553331.821989356
+      ]
+    },
+    {
+      "id": "slope-0.8--2",
+      "anchor_geodetic_rad_m": [
+        0.8,
+        -2,
+        1000
+      ],
+      "grades_ne": [
+        0.03,
+        0.02
+      ],
+      "query_rad": [
+        0.8,
+        -2
+      ],
+      "surface_height_ellipsoid_m": 999.9999999998223,
+      "plane_point_ecef_m": [
+        -1852711.2986649142,
+        -4048248.0426978553,
+        4553331.821989356
+      ],
+      "normal_ecef": [
+        -0.31686810829419776,
+        -0.6443406973331043,
+        0.6960026348415252
+      ],
+      "normal_query_ned": [
+        -0.029980518991926497,
+        -0.019987012661284387,
+        -0.9993506330642176
+      ],
+      "plane_residual_m": 0.0,
+      "agl_for_plus3m_ft": 9.84251968503937,
+      "agl_for_minus_point1m_ft": -0.32808398950131235,
+      "contact_ecef_m": [
+        -1852711.2986649142,
+        -4048248.0426978553,
+        4553331.821989356
+      ]
+    },
+    {
+      "id": "slope-0.80001--2",
+      "anchor_geodetic_rad_m": [
+        0.8,
+        -2,
+        1000
+      ],
+      "grades_ne": [
+        0.03,
+        0.02
+      ],
+      "query_rad": [
+        0.80001,
+        -2
+      ],
+      "surface_height_ellipsoid_m": 1001.9111147011582,
+      "plane_point_ecef_m": [
+        -1852711.2986649142,
+        -4048248.0426978553,
+        4553331.821989356
+      ],
+      "normal_ecef": [
+        -0.31686810829419776,
+        -0.6443406973331043,
+        0.6960026348415252
+      ],
+      "normal_query_ned": [
+        -0.029990512496757854,
+        -0.019987012661284387,
+        -0.9993503332090601
+      ],
+      "plane_residual_m": 2.9979307925032117e-10,
+      "agl_for_plus3m_ft": 9.84251968503937,
+      "agl_for_minus_point1m_ft": -0.32808398950131235,
+      "contact_ecef_m": [
+        -1852692.8386217752,
+        -4048207.706767719,
+        4553377.568195917
+      ]
+    },
+    {
+      "id": "slope-0.79999--2",
+      "anchor_geodetic_rad_m": [
+        0.8,
+        -2,
+        1000
+      ],
+      "grades_ne": [
+        0.03,
+        0.02
+      ],
+      "query_rad": [
+        0.79999,
+        -2
+      ],
+      "surface_height_ellipsoid_m": 998.0895235692766,
+      "plane_point_ecef_m": [
+        -1852711.2986649142,
+        -4048248.0426978553,
+        4553331.821989356
+      ],
+      "normal_ecef": [
+        -0.31686810829419776,
+        -0.6443406973331043,
+        0.6960026348415252
+      ],
+      "normal_query_ned": [
+        -0.029970525484096913,
+        -0.019987012661284387,
+        -0.99935093281944
+      ],
+      "plane_residual_m": 6.232880878087599e-11,
+      "agl_for_plus3m_ft": 9.84251968503937,
+      "agl_for_minus_point1m_ft": -0.32808398950131235,
+      "contact_ecef_m": [
+        -1852729.7586951186,
+        -4048288.378599729,
+        4553286.075814849
+      ]
+    },
+    {
+      "id": "slope-0.8--1.99999",
+      "anchor_geodetic_rad_m": [
+        0.8,
+        -2,
+        1000
+      ],
+      "grades_ne": [
+        0.03,
+        0.02
+      ],
+      "query_rad": [
+        0.8,
+        -1.99999
+      ],
+      "surface_height_ellipsoid_m": 1000.8905722984948,
+      "plane_point_ecef_m": [
+        -1852711.2986649142,
+        -4048248.0426978553,
+        4553331.821989356
+      ],
+      "normal_ecef": [
+        -0.31686810829419776,
+        -0.6443406973331043,
+        0.6960026348415252
+      ],
+      "normal_query_ned": [
+        -0.029980375588129257,
+        -0.019994190270274437,
+        -0.9993504937883559
+      ],
+      "plane_residual_m": -4.604867043234151e-10,
+      "agl_for_plus3m_ft": 9.84251968503937,
+      "agl_for_minus_point1m_ft": -0.32808398950131235,
+      "contact_ecef_m": [
+        -1852671.0742918788,
+        -4048267.13380069,
+        4553332.460846818
+      ]
+    },
+    {
+      "id": "slope-0.8--2.00001",
+      "anchor_geodetic_rad_m": [
+        0.8,
+        -2,
+        1000
+      ],
+      "grades_ne": [
+        0.03,
+        0.02
+      ],
+      "query_rad": [
+        0.8,
+        -2.00001
+      ],
+      "surface_height_ellipsoid_m": 999.1097477086684,
+      "plane_point_ecef_m": [
+        -1852711.2986649142,
+        -4048248.0426978553,
+        4553331.821989356
+      ],
+      "normal_ecef": [
+        -0.31686810829419776,
+        -0.6443406973331043,
+        0.6960026348415252
+      ],
+      "normal_query_ned": [
+        -0.02998066234423466,
+        -0.019979835050295602,
+        -0.9993507722900723
+      ],
+      "plane_residual_m": 4.448330592765615e-12,
+      "agl_for_plus3m_ft": 9.84251968503937,
+      "agl_for_minus_point1m_ft": -0.32808398950131235,
+      "contact_ecef_m": [
+        -1852751.522934177,
+        -4048228.9513980877,
+        4553331.183361452
+      ]
+    }
+  ],
+  "scope_limits": [
+    "9.81 is an authored gravity example, not a claim about rotating-J2 effective gravity.",
+    "Static load ratios assume purely down body gravity, horizontal plane/body and no horizontal forces.",
+    "Use compressed acting contact arms; uncompressed geometry cannot validate published moments.",
+    "Sloped equilibrium includes friction and moment coupling; W/3 is not a universal slope target.",
+    "Spring cases assume ongoing contact and no entry speed limiter, equivalent at 60/120/240Hz for these declared penetrations/speeds.",
+    "AGL is geodetic vertical height difference, not perpendicular distance to sloped plane.",
+    "All heights are ellipsoid height, not MSL; NED normal basis is at each query.",
+    "No contact/stall/aircraft qualification or observed trace fitting."
+  ]
+}
