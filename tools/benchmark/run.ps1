@@ -90,7 +90,7 @@ $manifest | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $evidence 'manifest
 @{root=$root;project=$project;payload=$payload;evidence=$evidence} | ConvertTo-Json | Set-Content (Join-Path $repo '.local/benchmark/latest-run.json') -Encoding utf8
 if($PrepareOnly) { Write-Output $root; return }
 $startUtc=[DateTimeOffset]::UtcNow.ToString('o')
-$arguments=@('--rendering-method','forward_plus','--rendering-driver','vulkan','--',"duration=$Duration","width=$Width","height=$Height","fov=$Fov","fixture=$Fixture",("output="+$evidence.Replace('\','/')))
+$arguments=@('--verbose','--rendering-method','forward_plus','--rendering-driver','vulkan','--',"duration=$Duration","width=$Width","height=$Height","fov=$Fov","fixture=$Fixture",("output="+$evidence.Replace('\','/')))
 # A task-owned helper runs without a console window. Godot creates its actual
 # renderer surface; the runtime adapter/timestamps and capture prove GPU use.
 $start=[Diagnostics.ProcessStartInfo]::new()
