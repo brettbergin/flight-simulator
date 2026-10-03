@@ -36,6 +36,9 @@ jobs:
       - name: Check independent reference algebra and metadata
         if: ${{ hashFiles('tests/reference/reference.test.mjs') != '' }}
         run: node --test tests/reference/reference.test.mjs
+      - name: Recompute frozen references with independent decimal arithmetic
+        if: ${{ hashFiles('tools/validation/derive.py') != '' }}
+        run: python tools/validation/derive.py
       - name: Report frozen independent reference comparisons
         if: ${{ hashFiles('tools/validation/runner.mjs') != '' }}
         run: node tools/validation/runner.mjs --output .local/validation/algebra-report.json
