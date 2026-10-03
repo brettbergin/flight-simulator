@@ -1,0 +1,271 @@
+{
+  "schema_version": 1,
+  "matrix_revision": "1.0.0",
+  "scope": "original synthetic algebra and sampled backend comparison; no aircraft qualification or training credit",
+  "matrix_sha256": "43d9be28548c56e096e6a18bdd7a45302dd6bde5ae2e0fb38b4506b57cbaa294",
+  "corpus_sha256": "17c97bbdd5e660bc5bfd09054e874a164662d40fa28beed7e8e42152e5e922c8",
+  "model_inventory_sha256": "1ccadb2e3d5aefe79f5a8f316631744ab4de18084469d2cf1817fb622cfabf7a",
+  "results": [
+    {
+      "id": "base",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "alpha-plus",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "alpha-minus",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "beta-plus",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "beta-minus",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "speed-doubled",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "density-halved",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "aileron-plus",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "aileron-minus",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "elevator-plus",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "elevator-minus",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "trim-plus",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "trim-minus",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "rudder-plus",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "rudder-minus",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "roll-rate-plus",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "roll-rate-minus",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "pitch-rate-plus",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "pitch-rate-minus",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "yaw-rate-plus",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "yaw-rate-minus",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "pitch-trim-cancel",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "zero-aero-density",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "denominator-floor",
+      "status": "passed",
+      "classification": "independent-original-algebra",
+      "failed_quantities": []
+    },
+    {
+      "id": "original-force-identities",
+      "status": "passed",
+      "classification": "independent-equation-comparison",
+      "samples": 21,
+      "failed_samples": [],
+      "build": {
+        "platform": "win32",
+        "architecture": "x64",
+        "executable_sha256": "bf6dfe8876f0fddbe7e7618a71bb329fab4535f82be4d6063b60fe6717940ff2",
+        "loaded_jsbsim": {
+          "sha256": "7068d8e82b2c1f83bf7ef7826346c59edf8e07b86467cd44523b6546fa7c2128",
+          "version": "1.3.1 Oct  3 2026 13:58:01"
+        },
+        "compiler": "MSVC-19.40.33813.0",
+        "source_fingerprint": "41964b37264c82f56f617fa26b707f617ca156eee2fe36b44966122726317fc2",
+        "contract_set_sha256": "0f7dedf44b12b57916d6ba7afbf1f315ebdfa8e34ad02eed0188d2ac1fec4fcc",
+        "request_sha256": "7c68e1a496c895061cf1f42aacca6f162a7e5b6d573f66f7046608b3bfad1c01",
+        "dependency_lock_sha256": "1b0047773f31b30bb86804a7fd191dcad99a22ae01c724a33b4894f154a2fb7d",
+        "build_manifest_sha256": "42acdbef0747e71db6eb610fabdae84576daaa039dccaf998282185587cbf243"
+      },
+      "inputs": {
+        "telemetry_sha256": "d95e3464c9153e6ce0699768d5b82469a271ba31c992100e65fa4689a2c1431b",
+        "provenance_sha256": "37f023b53aa2b3ed8c2b1a01482064552562e34849578d8d8d58be9512477318",
+        "scenario_sha256": "d549f9ec91bc03f1d54e5dddf0948a56d154f952e40b96c528f97e2e8ec1cc82",
+        "commands_sha256": "1d9fec3abf56ffd98de2486587a5be7f0f56e0294f6b050d7245c1e39da31999"
+      },
+      "hardware_input_profile": "scripted-headless-no-peripheral"
+    },
+    {
+      "id": "c172s-trim-tas",
+      "status": "unsupported",
+      "reason": "#28 exact serial/equipment/POH applicability and derived-data rights unresolved; no source-supported performance values or uncertainty. Ground/propeller/instruments also need their capability gates. Handbook definitions cannot replace an aircraft reference.",
+      "quantity": "longitudinal-equilibrium",
+      "unit": "mps2",
+      "airspeed_domain": "TAS",
+      "distance_endpoint": "not-applicable"
+    },
+    {
+      "id": "c172s-cruise-tas",
+      "status": "unsupported",
+      "reason": "#28 exact serial/equipment/POH applicability and derived-data rights unresolved; no source-supported performance values or uncertainty. Ground/propeller/instruments also need their capability gates. Handbook definitions cannot replace an aircraft reference.",
+      "quantity": "cruise-speed",
+      "unit": "mps",
+      "airspeed_domain": "TAS",
+      "distance_endpoint": "not-applicable"
+    },
+    {
+      "id": "c172s-climb-ias",
+      "status": "unsupported",
+      "reason": "#28 exact serial/equipment/POH applicability and derived-data rights unresolved; no source-supported performance values or uncertainty. Ground/propeller/instruments also need their capability gates. Handbook definitions cannot replace an aircraft reference.",
+      "quantity": "climb-reference-speed",
+      "unit": "mps",
+      "airspeed_domain": "IAS",
+      "distance_endpoint": "not-applicable"
+    },
+    {
+      "id": "c172s-takeoff-ground-roll",
+      "status": "unsupported",
+      "reason": "#28 exact serial/equipment/POH applicability and derived-data rights unresolved; no source-supported performance values or uncertainty. Ground/propeller/instruments also need their capability gates. Handbook definitions cannot replace an aircraft reference.",
+      "quantity": "runway-distance",
+      "unit": "m",
+      "airspeed_domain": "IAS",
+      "distance_endpoint": "ground-roll"
+    },
+    {
+      "id": "c172s-takeoff-over-obstacle",
+      "status": "unsupported",
+      "reason": "#28 exact serial/equipment/POH applicability and derived-data rights unresolved; no source-supported performance values or uncertainty. Ground/propeller/instruments also need their capability gates. Handbook definitions cannot replace an aircraft reference.",
+      "quantity": "runway-distance",
+      "unit": "m",
+      "airspeed_domain": "IAS",
+      "distance_endpoint": "over-obstacle"
+    },
+    {
+      "id": "c172s-landing-ground-roll",
+      "status": "unsupported",
+      "reason": "#28 exact serial/equipment/POH applicability and derived-data rights unresolved; no source-supported performance values or uncertainty. Ground/propeller/instruments also need their capability gates. Handbook definitions cannot replace an aircraft reference.",
+      "quantity": "runway-distance",
+      "unit": "m",
+      "airspeed_domain": "IAS",
+      "distance_endpoint": "ground-roll"
+    },
+    {
+      "id": "c172s-landing-over-obstacle",
+      "status": "unsupported",
+      "reason": "#28 exact serial/equipment/POH applicability and derived-data rights unresolved; no source-supported performance values or uncertainty. Ground/propeller/instruments also need their capability gates. Handbook definitions cannot replace an aircraft reference.",
+      "quantity": "runway-distance",
+      "unit": "m",
+      "airspeed_domain": "IAS",
+      "distance_endpoint": "over-obstacle"
+    },
+    {
+      "id": "c172s-stall-ias",
+      "status": "unsupported",
+      "reason": "#28 exact serial/equipment/POH applicability and derived-data rights unresolved; no source-supported performance values or uncertainty. Ground/propeller/instruments also need their capability gates. Handbook definitions cannot replace an aircraft reference.",
+      "quantity": "stall-speed",
+      "unit": "mps",
+      "airspeed_domain": "IAS",
+      "distance_endpoint": "not-applicable"
+    },
+    {
+      "id": "c172s-stall-cas",
+      "status": "unsupported",
+      "reason": "#28 exact serial/equipment/POH applicability and derived-data rights unresolved; no source-supported performance values or uncertainty. Ground/propeller/instruments also need their capability gates. Handbook definitions cannot replace an aircraft reference.",
+      "quantity": "stall-speed",
+      "unit": "mps",
+      "airspeed_domain": "CAS",
+      "distance_endpoint": "not-applicable"
+    }
+  ],
+  "counts": {
+    "passed": 25,
+    "failed": 0,
+    "unsupported": 9
+  },
+  "aircraft_qualified": false,
+  "automatically_fitted": false
+}
