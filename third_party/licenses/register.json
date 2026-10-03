@@ -643,6 +643,72 @@
           "source_url": "https://github.com/brettbergin/flight-simulator/blob/main/LICENSE"
         }
       ]
+    },
+    {
+      "id": "original-pipeline-fixture",
+      "class": "visual-assets",
+      "name": "Original synthetic Blender-to-GLB pipeline fixture",
+      "version": "1",
+      "owner": "content-maintainer",
+      "scope": "Only the 14 fixed original pipeline files listed in the reviewed inventory: editable .blend, runtime GLB, receipt, generator, independent checks, actual Godot import checks and related metadata. Two cuboids, translated pivot, blue PBR material and one-second animation; no real aircraft or airfield data.",
+      "decision": "Project-authored original fixture under MIT with retained notice and exact fixed-file provenance; authoring-tool software and its bundled components remain separately licensed.",
+      "license": "MIT",
+      "redistribution": "permitted",
+      "evidence": "synthetic",
+      "source": {
+        "url": "https://github.com/brettbergin/flight-simulator/tree/64b2a829bd9ddd4f6b47bee469ef87154d4f7b5d/assets_source/proof",
+        "revision": "64b2a829bd9ddd4f6b47bee469ef87154d4f7b5d",
+        "rights_url": "https://github.com/brettbergin/flight-simulator/blob/main/LICENSE",
+        "applicability": "Original authored geometry/material/animation and first-party generation/check code only; does not clear Blender, external assets, fonts or a real aircraft."
+      },
+      "obligations": [
+        "retain-notices",
+        "retain-source-attribution"
+      ],
+      "notice_files": [
+        {
+          "path": "third_party/licenses/notices/FirstParty-RenderProof-MIT.txt",
+          "sha256": "ca8c1205d820d40917b54d548b97dde200bc24bc6c3166358e8bc6cc27eb0e9e",
+          "source_url": "https://github.com/brettbergin/flight-simulator/blob/main/LICENSE"
+        }
+      ],
+      "evidence_file": "third_party/licenses/evidence/original-render-proof.md",
+      "source_inventory": {
+        "path": "third_party/licenses/evidence/original-render-pipeline.inventory.json",
+        "sha256": "b5da02707fe101a9c9f9dcda90bda07dd61c4cec9eef126255ece347975f8e34",
+        "files": 14
+      }
+    },
+    {
+      "id": "original-render-proof",
+      "class": "visual-assets",
+      "name": "Original procedural renderer feasibility geometry and synthetic panel",
+      "version": "0.1.0-prototype",
+      "owner": "render-maintainer",
+      "scope": "Project-authored expressions in app/proof/render/render.gd, panel.gd, frame.gd and their render.tscn/.gitattributes: synthetic terrain tiles, runway markings, building/tree/cloud proxies, panel graphics and private presentation transforms. Fixed example panel values; no Cessna drawings, calibrated instruments or real airfield.",
+      "decision": "Original project source and generated geometry under MIT with retained notice. Runtime engine primitives and bundled fallback font remain covered by the separate Godot component. Final frozen renderer code and package hashes must be captured by the renderer owner.",
+      "license": "MIT",
+      "redistribution": "permitted",
+      "evidence": "synthetic",
+      "source": {
+        "url": "https://github.com/brettbergin/flight-simulator",
+        "revision": "original-render-proof-v1",
+        "rights_url": "https://github.com/brettbergin/flight-simulator/blob/main/LICENSE",
+        "applicability": "Only original project-authored procedural renderer expressions and their synthetic output; not third-party implementation, borrowed artwork, font files or future contributor packs. This scope label is not an exact final code digest."
+      },
+      "obligations": [
+        "retain-notices",
+        "retain-source-attribution"
+      ],
+      "notice_files": [
+        {
+          "path": "third_party/licenses/notices/FirstParty-RenderProof-MIT.txt",
+          "sha256": "ca8c1205d820d40917b54d548b97dde200bc24bc6c3166358e8bc6cc27eb0e9e",
+          "source_url": "https://github.com/brettbergin/flight-simulator/blob/main/LICENSE"
+        }
+      ],
+      "evidence_file": "third_party/licenses/evidence/original-render-proof.md",
+      "code_inventory_status": "Deferred until renderer freeze; no exact renderer code or binary inventory is approved by this record."
     }
   ]
 }

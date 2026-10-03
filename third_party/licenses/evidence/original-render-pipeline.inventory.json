@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "id": "original-pipeline-fixture",
+  "version": "1",
+  "reviewed_on": "2026-10-03",
+  "source_revision": "64b2a829bd9ddd4f6b47bee469ef87154d4f7b5d",
+  "original_commit": "1f680a5891664c4d3ae8208b00af7cee919080d4",
+  "scope": "Only these original fixed pipeline fixture assets, source, import checks and metadata; not procedural renderer code or third-party tool binaries.",
+  "files": [
+    {
+      "path": "app/proof/pipeline/.gitattributes",
+      "bytes": 49,
+      "sha256": "8b412461f7297477406ba22dff53511053fb5ad6bef084978bf840ace7cde10d",
+      "license": "MIT",
+      "role": "original-source-and-metadata"
+    },
+    {
+      "path": "app/proof/pipeline/check_import.gd",
+      "bytes": 3207,
+      "sha256": "f5b7611f9c8692c374b3f745af886fe647246e7eb7d51b8e4d0d0bce7cf0823d",
+      "license": "MIT",
+      "role": "original-source-and-metadata"
+    },
+    {
+      "path": "app/proof/pipeline/check_import.tscn",
+      "bytes": 202,
+      "sha256": "f27f1db2ce3779d61d530e41f783dfdb56b1e29452dc63731eae98085563db44",
+      "license": "MIT",
+      "role": "original-source-and-metadata"
+    },
+    {
+      "path": "app/proof/pipeline/pipeline_fixture.glb",
+      "bytes": 4664,
+      "sha256": "6af12b425789a4d0cb344c67e73410c1ea8c031a4a20bd2b98b96939e81c82a8",
+      "license": "MIT",
+      "role": "runtime-content"
+    },
+    {
+      "path": "assets_source/proof/.gitattributes",
+      "bytes": 34,
+      "sha256": "d00db61821b08ead1b6682900957de57861b0f6d6c5313cfac6bc55701cd4528",
+      "license": "MIT",
+      "role": "original-source-and-metadata"
+    },
+    {
+      "path": "assets_source/proof/README.md",
+      "bytes": 1635,
+      "sha256": "ac3300a45c3d2a661eb9ba05d0010bc8446aec6bf65bb39aefa3ae7fef1d25b1",
+      "license": "MIT",
+      "role": "original-source-and-metadata"
+    },
+    {
+      "path": "assets_source/proof/pipeline_fixture.blend",
+      "bytes": 458945,
+      "sha256": "847908a2cc2b851a77f0b492fa4d44de72fc8ac856535bc95043d059ab2eaa6f",
+      "license": "MIT",
+      "role": "editable-source"
+    },
+    {
+      "path": "assets_source/proof/pipeline_fixture.json",
+      "bytes": 1112,
+      "sha256": "589e856506ba343e113c127b2dc6089182e705c1fd43d78cb33bfddefd0236ca",
+      "license": "MIT",
+      "role": "original-source-and-metadata"
+    },
+    {
+      "path": "tools/benchmark/pipeline/.gitattributes",
+      "bytes": 17,
+      "sha256": "86013e6b9434810158ab594bbfd2d77f64b030a5eac5f27fc17afd2f474d561e",
+      "license": "MIT",
+      "role": "original-source-and-metadata"
+    },
+    {
+      "path": "tools/benchmark/pipeline/README.md",
+      "bytes": 4642,
+      "sha256": "efd06756756b1b3899d1649a3157891f2bc8be73ec60c8ec79d9dacf5fa7d24e",
+      "license": "MIT",
+      "role": "original-source-and-metadata"
+    },
+    {
+      "path": "tools/benchmark/pipeline/check_fixture.py",
+      "bytes": 7075,
+      "sha256": "82d80c84bc017e3a50fed23e10ccceae1b716af7a306bc2d46d84b14d4c95426",
+      "license": "MIT",
+      "role": "original-source-and-metadata"
+    },
+    {
+      "path": "tools/benchmark/pipeline/generate_fixture.py",
+      "bytes": 4284,
+      "sha256": "9a265b2946a2f30ac7495f0689f6f0d6f23251fe7442076b78b2f61b3640e985",
+      "license": "MIT",
+      "role": "original-source-and-metadata"
+    },
+    {
+      "path": "tools/benchmark/pipeline/test_fixture.py",
+      "bytes": 4192,
+      "sha256": "9fc6f9e627ce1147bc646eeacbecd1cbb43983f8d8a860215f2abdcecf8d5511",
+      "license": "MIT",
+      "role": "original-source-and-metadata"
+    },
+    {
+      "path": "tools/benchmark/pipeline/verify_pipeline.py",
+      "bytes": 4952,
+      "sha256": "161c7f1e73de6c83b33b8fdb424f2fa2d378f90f7f90fdb313f830d971977975",
+      "license": "MIT",
+      "role": "original-source-and-metadata"
+    }
+  ]
+}
