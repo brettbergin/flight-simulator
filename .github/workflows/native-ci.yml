@@ -1,0 +1,72 @@
+name: Native CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native:
+    name: native (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2022]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12.5'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Validate accepted schemas when contract module is present
+        run: |
+          if (Test-Path schemas/package-lock.json) {
+            npm ci --ignore-scripts --prefix schemas
+            if ($LASTEXITCODE -ne 0) { throw "Schema dependency installation failed" }
+            npm --prefix schemas run check
+            if ($LASTEXITCODE -ne 0) { throw "Schema compilation failed" }
+            node --test tests/contracts/schema.test.mjs
+            if ($LASTEXITCODE -ne 0) { throw "Schema tests failed" }
+          }
+      - name: Validate dependency download integrity
+        run: python tools/bootstrap/test_bootstrap.py
+      - name: Pin headless Linux compiler family
+        if: runner.os == 'Linux'
+        run: |
+          "CC=gcc-13" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "CXX=g++-13" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Compile real shared dependencies, bindings and C++20 smoke
+        run: ./tools/bootstrap/build.ps1 -Python python -WithGodot
+      - name: Verify unchanged source/tool receipts after build
+        run: python tools/bootstrap/bootstrap.py --offline --with-godot
+      - name: Prove native initializer loaded in pinned Godot
+        run: ./tools/bootstrap/verify-godot.ps1
+      - name: Preserve build evidence (no simulator binaries)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: native-evidence-${{ matrix.os }}
+          if-no-files-found: error
+          path: |
+            .local/build/native-release/toolchain-build-manifest.txt
+            .local/build/native-release/Testing/Temporary/LastTest.log
+            .local/toolchain/environment.json
+            .local/build/native-release/dynamic-dependencies.txt
+            .local/build/native-release/godot-binding-load.txt
