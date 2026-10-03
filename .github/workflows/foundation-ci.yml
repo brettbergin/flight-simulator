@@ -33,6 +33,12 @@ jobs:
         run: npm ci --ignore-scripts --prefix schemas
       - name: Check reconstruction declaration rejection cases
         run: node --test tests/replay/declarations.test.mjs
+      - name: Check independent reference algebra and metadata
+        if: ${{ hashFiles('tests/reference/reference.test.mjs') != '' }}
+        run: node --test tests/reference/reference.test.mjs
+      - name: Report frozen independent reference comparisons
+        if: ${{ hashFiles('tools/validation/runner.mjs') != '' }}
+        run: node tools/validation/runner.mjs --output .local/validation/algebra-report.json
       - run: node tools/check-docs.mjs
       - name: Verify rights inventory and notice integrity
         run: node tools/license-audit/audit.mjs
