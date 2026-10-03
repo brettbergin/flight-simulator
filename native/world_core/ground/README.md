@@ -1,6 +1,6 @@
 # Stationary ground provider API v1
 
-This is the separate interface prerequisite for [GROUND-PROOF #16](https://github.com/brettbergin/flight-simulator/issues/16). It reuses accepted `GroundSample/v1`; there is no new wire schema, registry fingerprint or flight-model change. Contract tests exercise the engine-independent boundary. Actual JSBSim contacts, convergence and fallback acceptance require the subsequent consumer proof.
+This is the accepted interface prerequisite for [GROUND-PROOF #16](https://github.com/brettbergin/flight-simulator/issues/16). It reuses `GroundSample/v1`; there is no new wire schema, registry fingerprint or flight-model change. Contract tests exercise the engine-independent boundary. The separate [actual JSBSim consumer proof](../../fdm_jsbsim/ground/README.md) exercises contacts, convergence and fail-closed disposal within its original-cart scope.
 
 Link `flight::ground_contract` and include [provider.hpp](include/flight/ground/provider.hpp). `flight::ground::v1::SurfaceProvider` supplies immutable prepared height-field data. `Identity` binds an exact `ContentRef` world, SHA-256 of the prepared contact surface and a nonzero generation. Generation changes only between completed boundaries; it never changes during an active `Boundary`. A provider cannot silently replace tile/data content under an existing digest.
 
@@ -20,7 +20,7 @@ The consumer must preflight all current CG/gear positions and a documented conse
 
 The upstream callback returns scalar AGL, without a missing-data variant. If an unexpected callback miss, provider exception, response mismatch or capacity exhaustion occurs during integration, the consumer must abort and **discard the executive**. Keep only the previous completed immutable publication, invalidate the session and prohibit retry/resume on the partially mutated executive. Destroying that state is explicit fail-closed disposal, not rollback or a restored checkpoint. Restart/reconstruction requires its own accepted evidence; ground replay is unsupported in this contract.
 
-Successful publication happens once, after a complete finite validated solver step and clock advancement. JSBSim remains the sole gear/contact integrator; Godot cannot apply a second collision force. The forthcoming adapter proof must demonstrate these failure paths and actual flat/sloped contact behavior rather than infer them from provider tests.
+Successful publication happens once, after a complete finite validated solver step and clock advancement. JSBSim remains the sole gear/contact integrator; Godot cannot apply a second collision force. The [consumer evidence](../../../docs/evidence/P1/ground-proof.md) demonstrates actual failure paths and flat/sloped behavior separately from provider tests; #20 still requires a public low-speed flight/ground runtime contract.
 
 ## Checks
 

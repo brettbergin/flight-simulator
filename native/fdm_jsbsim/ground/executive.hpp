@@ -27,6 +27,8 @@ class GroundExecutive final {
  private:
   class Impl;std::unique_ptr<Impl> impl_;
 };
+struct RuntimeInfo {std::string loaded_library_path,version,compiler;};
+RuntimeInfo runtime_info();
 // Private output formatting for accepted AircraftSnapshot/v1, with contacts.
 std::string snapshot_json(const c::AircraftSnapshot& snapshot);
 } // namespace flight::ground::proof

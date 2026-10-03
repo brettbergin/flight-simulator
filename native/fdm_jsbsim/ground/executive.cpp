@@ -13,6 +13,14 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#else
+#include <dlfcn.h>
+#endif
 
 namespace flight::ground::proof {
 namespace j=JSBSim;namespace f=flight::fdm;
@@ -117,12 +125,14 @@ class GroundExecutive::Impl {
     if(!std::isfinite(controls.steering)||std::abs(controls.steering)>1||!std::isfinite(controls.left_brake)||controls.left_brake<0||controls.left_brake>1||
        !std::isfinite(controls.right_brake)||controls.right_brake<0||controls.right_brake>1)throw std::invalid_argument("Invalid proof ground controls");
     const auto next=*c::next_tick(clock.completed_tick());const double dt=clock.integration_step_s();
-    // Gear radius <2.5m. Domain max20m/s, max2rad/s, max400m/s²,
-    // plus 2cm numerical allowance: certify entire horizontal swept footprint.
+    // Gear radius <2.5m. Provisional sweep allowance for max20m/s,
+    // max2rad/s and max400m/s², plus2cm. This specific convex plane certifies
+    // coverage within that footprint; poststep displacement/domain checks
+    // reject before publication. It is not a continuous acceleration bound.
     const double guard=2.5+(20+2*2.5)*dt+.5*400*dt*dt+.02;
     if(!surface->covers(publication.ecef_position_m,guard))return StepStatus::coverage_blocked;
-    boundary=std::make_unique<v1::Boundary>(surface,c::SampleHeader{next,"ground-proof"},256);
     try {
+      boundary=std::make_unique<v1::Boundary>(surface,c::SampleHeader{next,"ground-proof"},256);
       const auto p=executive->GetPropagate();const auto location=p->GetLocation();
       const auto cg_sample=boundary->sample(publication.position);
       if(!std::holds_alternative<c::ValidGround>(cg_sample.sample))return StepStatus::coverage_blocked;
@@ -140,8 +150,7 @@ class GroundExecutive::Impl {
       if(std::hypot(b.x-a.x,b.y-a.y)>guard-2.5||!surface->covers(result.ecef_position_m,2.5))throw std::runtime_error("Ground movement exceeded certified sweep");
       if(!clock.advance())throw std::runtime_error("Ground clock failed");
       publication=std::move(result);diagnostic=next_diagnostics;held_controls=controls;return StepStatus::completed;
-    } catch(const std::exception& error) {
-      std::fprintf(stderr,"Ground terminal: %s\n",error.what());
+    } catch(...) {
       // Preflight malformed/throwing providers and any partial Run are terminal.
       // No checkpoint rollback is claimed: destroy the solver, retain last owned publication.
       executive.reset();return StepStatus::discarded;
@@ -155,6 +164,22 @@ const c::AircraftSnapshot& GroundExecutive::latest()const{return impl_->publicat
 const ContactDiagnostics& GroundExecutive::diagnostics()const{return impl_->diagnostic;}
 GroundControls GroundExecutive::held()const{return impl_->held_controls;}
 bool GroundExecutive::live()const{return bool(impl_->executive);}
+RuntimeInfo runtime_info() {
+  struct Symbol:j::FGJSBBase {using FGJSBBase::CreateIndexedPropertyName;};
+  const void* address=reinterpret_cast<const void*>(&Symbol::CreateIndexedPropertyName);
+  std::filesystem::path library;
+#ifdef _WIN32
+  HMODULE module=nullptr;
+  if(!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,reinterpret_cast<LPCWSTR>(address),&module))throw std::runtime_error("Cannot identify loaded ground JSBSim DLL");
+  std::vector<wchar_t> path(32768);const auto size=GetModuleFileNameW(module,path.data(),static_cast<DWORD>(path.size()));
+  if(size==0||size>=path.size())throw std::runtime_error("Cannot resolve loaded ground JSBSim DLL");
+  library=std::filesystem::path(std::wstring(path.data(),size));
+#else
+  Dl_info info{};if(!dladdr(address,&info)||!info.dli_fname)throw std::runtime_error("Cannot identify loaded ground JSBSim library");
+  library=std::filesystem::canonical(info.dli_fname);
+#endif
+  const auto utf8=library.generic_u8string();return {std::string(utf8.begin(),utf8.end()),j::FGJSBBase::GetVersion(),FLIGHT_GROUND_COMPILER};
+}
 std::string snapshot_json(const c::AircraftSnapshot& snapshot) {
   if(!c::valid(snapshot)||snapshot.validity!=c::Validity::valid)throw std::invalid_argument("Invalid ground publication");
   auto base=snapshot;base.contacts.clear();auto text=f::transport::json(base);std::ostringstream contacts;contacts<<std::setprecision(17)<<"\"contacts\":[";

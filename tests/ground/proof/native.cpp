@@ -20,7 +20,8 @@ double clearance(const p::AnalyticSurface& surface,const c::AircraftSnapshot& st
 }
 struct Trial {
   std::string name;std::uint32_t hz{};std::shared_ptr<const p::AnalyticSurface> surface;
-  std::vector<c::AircraftSnapshot> samples;double peak_compression{},max_height_step{},max_acceleration{},minimum_clearance{100};std::size_t queries{};
+  std::vector<c::AircraftSnapshot> samples;std::vector<p::ContactDiagnostics> diagnostics;
+  double peak_compression{},max_height_step{},max_acceleration{},minimum_clearance{100};std::size_t queries{};
 };
 Trial run(const std::filesystem::path& root,std::uint32_t hz,bool slope,std::string_view operation,double friction=.8) {
   p::SurfaceConfig config;if(slope){config.slope_north=.03;config.slope_east=.02;}
@@ -30,7 +31,7 @@ Trial run(const std::filesystem::path& root,std::uint32_t hz,bool slope,std::str
   if(operation!="stationary")initial.forward_mps=5;
   if(operation=="touchdown"){initial.clearance_m=2;initial.forward_mps=3;initial.down_mps=2;}
   p::GroundExecutive executive(root,surface,hz,initial);
-  Trial result;result.name=std::string(slope?"slope.":"flat.")+std::string(operation);result.hz=hz;result.surface=surface;result.samples.push_back(executive.latest());
+  Trial result;result.name=std::string(slope?"slope.":"flat.")+std::string(operation);result.hz=hz;result.surface=surface;result.samples.push_back(executive.latest());result.diagnostics.push_back(executive.diagnostics());
   double previous=clearance(*surface,executive.latest());
   for(std::uint32_t tick=1;tick<=8*hz;++tick) {
     p::GroundControls controls;
@@ -47,7 +48,7 @@ Trial run(const std::filesystem::path& root,std::uint32_t hz,bool slope,std::str
       result.peak_compression=std::max(result.peak_compression,diagnostic.compression_m[i]);
       check(diagnostic.static_friction[i]==config.static_friction&&diagnostic.dynamic_friction[i]==config.dynamic_friction,"Per-wheel surface friction reaches actual backend properties");
     }
-    if(tick%(hz/2)==0)result.samples.push_back(state);
+    if(tick%(hz/2)==0){result.samples.push_back(state);result.diagnostics.push_back(diagnostic);}
   }
   const auto& final=result.samples.back();
   check(result.peak_compression>0&&result.peak_compression<.25,"Contact penetration within authored 25cm research budget");
@@ -81,7 +82,17 @@ class FaultSurface final:public p::AnalyticSurface {
   }
  private:Mode mode_;c::MissingGround missing_;mutable std::size_t calls_{};
 };
+class IdentityFailureSurface final:public p::AnalyticSurface {
+ public:
+  IdentityFailureSurface():AnalyticSurface({},::identity()){}
+  void inject_failure(){armed_=true;}
+  g::Identity identity()const override {if(armed_){throw std::runtime_error("Injected malformed provider identity");}return AnalyticSurface::identity();}
+ private:bool armed_{};
+};
 void failures_and_tiles(const std::filesystem::path& root) {
+  auto identity_fault=std::make_shared<IdentityFailureSurface>();p::GroundExecutive malformed(root,identity_fault,120,{});
+  const auto malformed_before=p::snapshot_json(malformed.latest());identity_fault->inject_failure();
+  check(malformed.step({.5,1,1})==p::StepStatus::discarded&&!malformed.live()&&p::snapshot_json(malformed.latest())==malformed_before,"Boundary-construction identity exception discards before mutation/publication");
   for(auto missing:{c::MissingGround::outside_coverage,c::MissingGround::not_loaded,c::MissingGround::datum_unresolved,c::MissingGround::invalid_data}) {
     auto provider=std::make_shared<FaultSurface>(FaultSurface::Mode::known_miss,missing);p::GroundExecutive executive(root,provider,120,{});
     const auto before=p::snapshot_json(executive.latest());check(executive.step({.5,1,1})==p::StepStatus::coverage_blocked,"Explicit known miss blocks before mutation");
@@ -140,6 +151,11 @@ int main(int argc,char** argv) {
  try {
   if(argc<2||argc>3)throw std::invalid_argument("Ground fixture root and optional output JSON required");
   const auto root=std::filesystem::path(argv[1]);geometry();failures_and_tiles(root);
+  p::GroundExecutive controls(root,std::make_shared<p::AnalyticSurface>(p::SurfaceConfig{},identity()),120,{});
+  const auto controls_before=p::snapshot_json(controls.latest());
+  rejects([&]{(void)controls.step({2,0,0});},"Out-of-range steering rejected before mutation");
+  rejects([&]{(void)controls.step({0,-1,0});},"Out-of-range brake rejected before mutation");
+  check(controls.live()&&p::snapshot_json(controls.latest())==controls_before,"Invalid commands retain full completed publication");
   std::vector<Trial> trials;
   for(bool slope:{false,true})for(const auto* operation:{"stationary","coast","steer","brake","touchdown"}) {
     const auto offset=trials.size();for(auto hz:{60U,120U,240U})trials.push_back(run(root,hz,slope,operation));
@@ -152,9 +168,14 @@ int main(int argc,char** argv) {
   const auto repeated=run(root,120,false,"touchdown");const auto& original=trials[12+1];
   for(std::size_t i=0;i<original.samples.size();++i)check(p::snapshot_json(original.samples[i])==p::snapshot_json(repeated.samples[i]),"Same-build contact trace repeats byte for byte");
   if(argc==3) {
-    std::ofstream output(std::filesystem::path(argv[2]),std::ios::binary);output<<std::setprecision(17)<<"{\"type\":\"GroundProofReceipt\",\"version\":1,\"fixture_sha256\":\""<<p::fixture_sha256<<"\",\"checks\":"<<checks<<",\"failures\":"<<failures<<",\"trials\":[";
-    for(std::size_t n=0;n<trials.size();++n){if(n)output<<',';const auto& trial=trials[n];output<<"{\"name\":\""<<trial.name<<"\",\"hz\":"<<trial.hz<<",\"peak_compression_m\":"<<trial.peak_compression<<",\"max_height_step_m\":"<<trial.max_height_step<<",\"max_acceleration_mps2\":"<<trial.max_acceleration<<",\"minimum_clearance_m\":"<<trial.minimum_clearance<<",\"queries\":"<<trial.queries<<",\"samples\":[";
-      for(std::size_t i=0;i<trial.samples.size();++i){if(i)output<<',';output<<p::snapshot_json(trial.samples[i]);}output<<"]}";}
+    const auto runtime=p::runtime_info();
+    std::ofstream output(std::filesystem::path(argv[2]),std::ios::binary);output<<std::setprecision(17)<<"{\"type\":\"GroundProofReceipt\",\"version\":1,\"fixture_sha256\":\""<<p::fixture_sha256<<"\",\"loaded_library_path\":"<<std::quoted(runtime.loaded_library_path)<<",\"library_version\":"<<std::quoted(runtime.version)<<",\"compiler\":"<<std::quoted(runtime.compiler)<<",\"checks\":"<<checks<<",\"failures\":"<<failures<<",\"trials\":[";
+    for(std::size_t n=0;n<trials.size();++n){if(n)output<<',';const auto& trial=trials[n];output<<"{\"name\":\""<<trial.name<<"\",\"hz\":"<<trial.hz<<",\"surface_identity_sha256\":\""<<trial.surface->identity().prepared_surface_sha256<<"\",\"peak_compression_m\":"<<trial.peak_compression<<",\"max_height_step_m\":"<<trial.max_height_step<<",\"max_acceleration_mps2\":"<<trial.max_acceleration<<",\"minimum_clearance_m\":"<<trial.minimum_clearance<<",\"queries\":"<<trial.queries<<",\"samples\":[";
+      for(std::size_t i=0;i<trial.samples.size();++i){if(i)output<<',';output<<p::snapshot_json(trial.samples[i]);}output<<"],\"diagnostics\":[";
+      for(std::size_t i=0;i<trial.diagnostics.size();++i){if(i)output<<',';const auto& diagnostic=trial.diagnostics[i];output<<"{\"compression_m\":[";
+        for(std::size_t gear=0;gear<3;++gear){if(gear){output<<',';}output<<diagnostic.compression_m[gear];}output<<"],\"compression_rate_mps\":[";
+        for(std::size_t gear=0;gear<3;++gear){if(gear){output<<',';}output<<diagnostic.compression_rate_mps[gear];}output<<"]}";}
+      output<<"]}";}
     output<<"]}\n";if(!output)throw std::runtime_error("Ground proof output write failed");
   }
   std::cout<<checks<<" ground checks; "<<failures<<" failures\n";return failures?1:0;

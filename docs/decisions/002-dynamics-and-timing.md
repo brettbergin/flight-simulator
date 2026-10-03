@@ -20,6 +20,10 @@ The [stationary ground provider contract](../../native/world_core/ground/README.
 
 The selected C172S has its own serial/configuration/POH provenance gate. Upstream C172P/C172x XML is excluded by the reviewed rights decision. P1 uses the [original synthetic numerical model](../../native/fdm_jsbsim/README.md) with MIT notice and frozen file inventory. Its polynomial coefficients and idealized turbine/direct thruster have no real-aircraft calibration. The adapter/clock proof does not ratify C172S handling, spins, propeller effects, icing, damage, or avionics.
 
+## Ground proof result
+
+The [P1 ground consumer proof](../evidence/P1/ground-proof.md) now exercises a separate original MIT ground cart on external immutable flat/sloped ECEF planes, with actual steering/brakes, contact publication, missing-tile blocking, terminal callback-failure disposal and 60/120/240 Hz comparison. This supports retaining JSBSim as the sole contact solver within that bounded experiment. The seam remains internal: #20 must ratify unified low-speed/gear/world intake before runtime consumers use it. Existing flight-only Session/model and #17 reconstruction scope remain unchanged. The disposal-only callback guard prevents pinned JSBSim property-unbinding getters from querying a failed provider; it never supplies fallback data to an integration step.
+
 ## Alternatives
 
 Godot rigid-body flight forces would give us complete control but require implementing and validating a full dynamics solver. Dual-solving through both JSBSim and engine physics risks duplicate or inconsistent forces. Tying dynamics to render delta makes behavior frame-dependent. A socket-separated JSBSim process adds operational/latency complexity before process isolation is needed; the engine-independent core still allows such an adapter later.
