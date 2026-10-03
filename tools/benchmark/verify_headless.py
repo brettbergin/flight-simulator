@@ -83,7 +83,7 @@ func _initialize() -> void:
 '''
     (project / "compile-all.gd").write_text(source, encoding="utf-8")
     (project / "compile-resources.json").write_text(json.dumps(paths) + "\n", encoding="utf-8")
-    return sha(source.encode("utf-8"))
+    return sha((project / "compile-all.gd").read_bytes())
 
 
 def pinned_editor(candidate, output):
@@ -135,6 +135,7 @@ def main():
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(data)
         (project / "project.godot").write_text(project_config(True), encoding="utf-8")
+        project_config_sha256 = sha((project / "project.godot").read_bytes())
         compile_sha256 = loader(project, paths)
         # Match the accepted native cold-import workaround for the upstream
         # first-discovery shutdown race; no engine/vendor patch is introduced.
@@ -151,6 +152,9 @@ def main():
                 or any(marker in text for marker in ("SCRIPT ERROR:", "FATAL", "leaked at exit", "Assertion failed", "RENDER_PROBE ", "RENDER_DEVICE ", "RENDERED_ORIGIN_PAIR "))):
             raise RuntimeError("Headless execution did not reject GPU claims cleanly")
         unchanged(original, {path: (project / path).read_bytes() for path in paths}, snapshot())
+        if (sha((project / "project.godot").read_bytes()) != project_config_sha256
+                or sha((project / "compile-all.gd").read_bytes()) != compile_sha256):
+            raise ValueError("Generated loader or staged project settings changed during proof")
     # A separate synthetic lazy-panel project proves the exact defect cannot
     # return a successful compilation receipt. Never mutate production inputs.
     with tempfile.TemporaryDirectory(dir=output, prefix="invalid-panel-") as directory:
@@ -181,7 +185,8 @@ def main():
     receipt = {"schema_version": 1, "passed": True, "utc": datetime.now(timezone.utc).isoformat(),
                "scope": "explicit script/resource compile and headless rejection only; no GPU benchmark",
                "godot": identity, "dependency_lock_sha256": sha(lock_bytes), "verifier_sha256": sha(verifier_bytes),
-               "loader_sha256": compile_sha256, "sources_sha256": {path: sha(data) for path, data in original.items()},
+               "loader_sha256": compile_sha256, "staged_project_godot_sha256": project_config_sha256,
+               "sources_sha256": {path: sha(data) for path, data in original.items()},
                "source_inventory": [{"path": path, "bytes": len(original[path]), "sha256": sha(original[path])} for path in paths],
                "compiled_resources": paths, "expected_exit_code": 1,
                "negative_proofs": {"invalid_lazy_panel_rejected": True, "synthetic_panel_sha256": sha(bad_panel),
