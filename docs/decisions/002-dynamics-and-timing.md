@@ -16,6 +16,8 @@ Start with fixed 120 Hz dynamics. Wall time determines how many unchanged steps 
 
 Systems ownership is explicit. Initially JSBSim consumes fuel and updates its mass/CG; project systems model electrical buses, starter availability, sensors, and configuration-specific switch logic. A later custom system replacing an upstream owner must disable overlapping behavior and validate the transfer. Aircraft differences belong in manifests and tested adapters, not presentation-only changes.
 
+The [stationary ground provider contract](../../native/world_core/ground/README.md) prepares immutable height-field queries with exact world/surface identity before a solver boundary. Known missing/datum-invalid contact data blocks before any control, clock or solver mutation. Since JSBSim's callback has no missing-result type and a solver step cannot be assumed reversible, unexpected callback failure aborts and discards the executive; only the last completed publication remains. Neither default-sphere contact nor runway snapping is an approved fallback. This interface decision precedes #16's actual flat/sloped contact and convergence proof; ground reconstruction is not covered by #17's original flight-only evidence.
+
 The selected C172S has its own serial/configuration/POH provenance gate. Upstream C172P/C172x XML is excluded by the reviewed rights decision. P1 uses the [original synthetic numerical model](../../native/fdm_jsbsim/README.md) with MIT notice and frozen file inventory. Its polynomial coefficients and idealized turbine/direct thruster have no real-aircraft calibration. The adapter/clock proof does not ratify C172S handling, spins, propeller effects, icing, damage, or avionics.
 
 ## Alternatives
