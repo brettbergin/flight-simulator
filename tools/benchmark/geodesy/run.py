@@ -16,9 +16,9 @@ def sha(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def assert_unchanged(original, staged, current):
+def assert_unchanged(original, staged, current, label="Frame"):
     if staged != original or current != original:
-        raise ValueError("Frame source changed during staging/proof; result rejected")
+        raise ValueError(f"{label} source changed during staging/proof; result rejected")
 
 
 def reference():
@@ -58,6 +58,7 @@ def main():
     if any(output.iterdir()):
         raise ValueError("Use a fresh geometry evidence directory; preserve prior receipts")
     source = frame.read_bytes()
+    checker_source = (HERE / "check.gd").read_bytes()
     source_hash = sha(source)
     if args.expected_frame_sha256 and source_hash != args.expected_frame_sha256:
         raise ValueError("Frame does not match requested source identity")
@@ -77,34 +78,37 @@ def main():
     if not version.startswith("4.7.2.stable."):
         raise ValueError("Actual engine version differs from pin")
     (output / "frame.gd").write_bytes(source)
-    (output / "check.gd").write_bytes((HERE / "check.gd").read_bytes())
+    (output / "check.gd").write_bytes(checker_source)
     (output / "reference.json").write_text(json.dumps(reference(), indent=2) + "\n", encoding="utf-8")
     (output / "project.godot").write_text('config_version=5\n[application]\nconfig/name="Private render geodesy proof"\n[rendering]\nrenderer/rendering_method="gl_compatibility"\n', encoding="utf-8")
     result = subprocess.run([str(editor), "--headless", "--path", str(output), "--script", "res://check.gd"], capture_output=True, text=True, timeout=60)
     log = result.stdout + result.stderr
     (output / "godot-log.txt").write_text(log, encoding="utf-8")
     assert_unchanged(source, (output / "frame.gd").read_bytes(), frame.read_bytes())
+    executed_checker = (output / "check.gd").read_bytes()
+    assert_unchanged(checker_source, executed_checker, (HERE / "check.gd").read_bytes(), "Checker")
     if result.returncode or "ERROR:" in log or "SCRIPT ERROR:" in log or "RENDER_GEODESY_RESULT " not in log:
         raise RuntimeError("Actual Godot geometry check failed; inspect ignored godot-log.txt")
     report = json.loads((output / "result.json").read_text())
     if report["failures"] or report["transactions"] != 500 or report["canonical_byte_checks"] != 500:
         raise ValueError("Incomplete geometry proof")
-    report.update(frame_source_sha256=source_hash, test_source_sha256=sha((HERE / "check.gd").read_bytes()),
+    report.update(frame_source_sha256=source_hash, test_source_sha256=sha(executed_checker),
                   reference_sha256=sha((output / "reference.json").read_bytes()),
                   actual_godot_version=version, actual_editor_sha256=sha(editor.read_bytes()),
                   actual_editor_tree_sha256=marker["tree_sha256"], dependency_lock_sha256=sha((ROOT / "third_party/dependencies.lock.json").read_bytes()))
     (output / "receipt.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    # Explicit guard negatives: changed current or staged module invalidates receipt.
-    for staged, current in ((source + b"\n", source), (source, source + b"\n")):
-        try:
-            assert_unchanged(source, staged, current)
-        except ValueError:
-            continue
-        raise AssertionError("Changed-source guard failed to reject")
+    # Changed current/staged frame OR checker must invalidate the same receipt.
+    for label, original in (("Frame", source), ("Checker", checker_source)):
+        for staged, current in ((original + b"\n", original), (original, original + b"\n")):
+            try:
+                assert_unchanged(original, staged, current, label)
+            except ValueError:
+                continue
+            raise AssertionError(f"Changed-{label.lower()} source guard failed to reject")
     print(json.dumps(dict(passed=True, checks=report["checks"], frame_source_sha256=source_hash,
                          max_reference_error_px=report["max_reference_error_px"],
                          max_transaction_error_px=report["max_transaction_error_px"],
-                         changed_source_negatives=2)))
+                         changed_source_negatives=4)))
 
 
 if __name__ == "__main__":
