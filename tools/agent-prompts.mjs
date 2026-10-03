@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { setTimeout as delay } from 'node:timers/promises';
 
 const args = process.argv.slice(2);
 if (args.some(x => !['--apply', '--verify'].includes(x)) || (args.includes('--apply') && args.includes('--verify'))) {
@@ -125,22 +126,39 @@ for (const item of backlog.issues) {
   matched.set(item.key, existing[0]);
 }
 const report = [];
+async function saveReport() {
+  const target = '.local/agent-prompt-report.json';
+  const temporary = `${target}.tmp`;
+  fs.writeFileSync(temporary, JSON.stringify(report,null,2)+'\n');
+  // Windows scanners/readers may briefly lock the destination during replacement.
+  for (let attempt = 0; ; attempt++) {
+    try {
+      fs.renameSync(temporary, target);
+      return;
+    } catch (error) {
+      if (!['EPERM','EACCES','EBUSY'].includes(error.code) || attempt >= 6) throw error;
+      await delay(Math.min(50 * 2 ** attempt, 500));
+    }
+  }
+}
 for (const item of backlog.issues) {
   const number = numbers.get(item.key);
   const body = prompts.get(item.key);
   let comment = matched.get(item.key);
+  let changed = false;
   if (apply && !comment) {
     comment = api(`repos/${repo}/issues/${number}/comments`, 'POST', {body});
+    changed = true;
     console.log(`Created agent prompt ${item.key}: #${number}`);
   } else if (apply && comment.body.replaceAll('\r\n','\n') !== body) {
     comment = api(`repos/${repo}/issues/comments/${comment.id}`, 'PATCH', {body});
+    changed = true;
     console.log(`Updated agent prompt ${item.key}: #${number}`);
   }
   const exact = !!comment && comment.body.replaceAll('\r\n','\n') === body;
   report.push({key:item.key,issue:number,comment_id:comment?.id,url:comment?.html_url,exact});
   // Recovery uses remote markers; this atomic report is optional local audit evidence.
-  fs.writeFileSync('.local/agent-prompt-report.json.tmp',JSON.stringify(report,null,2)+'\n');
-  fs.renameSync('.local/agent-prompt-report.json.tmp','.local/agent-prompt-report.json');
+  if (changed || report.length === backlog.issues.length) await saveReport();
 }
 const missing = report.filter(x=>!x.exact);
 if (missing.length) {
