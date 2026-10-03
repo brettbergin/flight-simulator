@@ -13,6 +13,6 @@ node tools/sync-github.mjs
 
 The second command previews the checked-in backlog without contacting GitHub. `--apply` makes explicit GitHub changes using your authenticated `gh` CLI; see [the backlog guide](docs/backlog.md). Never commit `.local/` publication state or private flight logs.
 
-Git signing remains the contributor's normal choice. The owner authorized unsigned commits for the initial autonomous foundation task because signing is interactive; that exception does not change global Git settings.
+Git signing remains the contributor's normal choice. For owner-dispatched agent work on this project, the owner authorized per-command unsigned commits when GPG signing requires interaction. Use `git -c commit.gpgsign=false commit` when needed; do not change global Git settings.
 
 Source contributions use the repository MIT license. Third-party software, data, artwork, aircraft documents, and trademarks retain their respective terms. Do not assume an aircraft document available online can be redistributed.
