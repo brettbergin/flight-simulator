@@ -82,3 +82,4 @@ jobs:
             .local/build/native-release/dynamic-dependencies.txt
             .local/build/native-release/godot-binding-load.txt
             .local/fdm-proof/**
+            .local/build/native-release/replay-proof/**

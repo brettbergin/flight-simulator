@@ -113,6 +113,9 @@ add_subdirectory(native/fdm_jsbsim)
 if(BUILD_TESTING)
   add_subdirectory(tests/fdm)
 endif()
+if(EXISTS "${CMAKE_SOURCE_DIR}/native/persistence/proof/CMakeLists.txt")
+  add_subdirectory(native/persistence/proof)
+endif()
 message(STATUS "Toolchain: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}; ${CMAKE_GENERATOR}; x64; C++20; shared JSBSim; dynamic MSVC CRT")
 file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/toolchain-build-manifest.txt" CONTENT
 "Project: FlightSimulator P1 toolchain proof
