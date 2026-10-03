@@ -390,7 +390,7 @@
       "redistribution": "permitted",
       "evidence": "synthetic",
       "source": {
-        "url": "https://github.com/brettbergin/flight-simulator/tree/codex/fdm-harness/native/fdm_jsbsim/models/original-synthetic",
+        "url": "https://github.com/brettbergin/flight-simulator/tree/f09ac4035bbd5c27fe6ba6d995e878dc5ce2dd4d/native/fdm_jsbsim/models/original-synthetic",
         "revision": "sha256:1ccadb2e3d5aefe79f5a8f316631744ab4de18084469d2cf1817fb622cfabf7a",
         "rights_url": "https://github.com/brettbergin/flight-simulator/blob/95f1ed41cea762b33e78d0466ce66c56380631c4/LICENSE",
         "applicability": "Original synthetic model0.1.0-prototype, exact LF inventory digest; XML fdm_config version2.0 is a JSBSim format version, not this package version."
