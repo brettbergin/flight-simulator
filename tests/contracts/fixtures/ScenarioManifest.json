@@ -1,0 +1,169 @@
+{
+  "type": "ScenarioManifest",
+  "schema_version": 1,
+  "id": "original-synthetic",
+  "version": "0.1.0-prototype",
+  "compatible_schema_version": 1,
+  "evidence": {
+    "status": "prototype",
+    "report_ids": [],
+    "source_ids": [
+      "original-fixture"
+    ]
+  },
+  "sources": [
+    {
+      "id": "original-fixture",
+      "revision": "1",
+      "locator": "urn:flight-simulator:original-contract-fixture",
+      "sha256": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6",
+      "rights": "redistributable",
+      "license": "MIT",
+      "applicability": "Original schema-only synthetic test data; no real airframe or airport.",
+      "effective_from": null,
+      "effective_until": null
+    }
+  ],
+  "files": [
+    {
+      "path": "original-synthetic-model.json",
+      "sha256": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6",
+      "bytes": 116,
+      "role": "dynamics"
+    },
+    {
+      "path": "original-synthetic-mapping.json",
+      "sha256": "42d1298ad8c0e43f12558947bca1fd71db3195ef1b70311180c4f4953b8d935e",
+      "bytes": 111,
+      "role": "mapping"
+    }
+  ],
+  "jurisdiction": "synthetic",
+  "prerequisites": [],
+  "required_aircraft": {
+    "id": "synthetic-aircraft",
+    "version": "0.1.0-prototype",
+    "sha256": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6"
+  },
+  "required_world": {
+    "id": "synthetic-world",
+    "version": "0.1.0-prototype",
+    "sha256": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6"
+  },
+  "seed": "9007199254740993",
+  "clock": {
+    "tick_rate_hz": 120,
+    "purpose": "runtime"
+  },
+  "initial_conditions": {
+    "aircraft": {
+      "type": "AircraftSnapshot",
+      "schema_version": 1,
+      "tick": "0",
+      "session_id": "synthetic-session",
+      "clock": {
+        "tick_rate_hz": 120,
+        "purpose": "runtime"
+      },
+      "elapsed_s": 0,
+      "position": {
+        "latitude_rad": 0,
+        "longitude_rad": 0,
+        "ellipsoid_height_m": 0
+      },
+      "ecef_position_m": {
+        "x": 6378137,
+        "y": 0,
+        "z": 0
+      },
+      "orientation_body_to_ned": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "velocity_body_mps": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "angular_rate_body_radps": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "acceleration_body_mps2": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "mass_kg": 1000,
+      "center_of_gravity_body_m": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "configuration": {
+        "flap_fraction": 0,
+        "gear_fraction": 1,
+        "trim_fraction": 0
+      },
+      "systems": [
+        {
+          "id": "engine.rotation",
+          "quantity": "radps",
+          "value": 0,
+          "validity": "valid"
+        }
+      ],
+      "contacts": [],
+      "validity": "initializing"
+    },
+    "atmosphere": {
+      "type": "AtmosphereSample",
+      "schema_version": 1,
+      "tick": "0",
+      "session_id": "synthetic-session",
+      "position": {
+        "latitude_rad": 0,
+        "longitude_rad": 0,
+        "ellipsoid_height_m": 0
+      },
+      "pressure_pa": 101325,
+      "temperature_k": 288.15,
+      "density_kgpm3": 1.225,
+      "relative_humidity": 0,
+      "wind_toward_ned_mps": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "turbulence_ned_mps": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seed": "9007199254740993",
+      "model_id": "synthetic-still-air"
+    }
+  },
+  "objectives": [
+    "schema-example"
+  ],
+  "rubric": {
+    "id": "synthetic-rubric",
+    "version": "0.1.0-prototype",
+    "sha256": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6"
+  },
+  "allowed_assists": [],
+  "scheduled_actions": [],
+  "safe_restart_ticks": [
+    "0"
+  ],
+  "evidence_event_kinds": [
+    "pause"
+  ],
+  "source_edition_ids": [
+    "original-fixture"
+  ]
+}

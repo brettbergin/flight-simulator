@@ -1,0 +1,97 @@
+{
+  "type": "AircraftManifest",
+  "schema_version": 1,
+  "id": "original-synthetic",
+  "version": "0.1.0-prototype",
+  "compatible_schema_version": 1,
+  "evidence": {
+    "status": "prototype",
+    "report_ids": [],
+    "source_ids": [
+      "original-fixture"
+    ]
+  },
+  "sources": [
+    {
+      "id": "original-fixture",
+      "revision": "1",
+      "locator": "urn:flight-simulator:original-contract-fixture",
+      "sha256": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6",
+      "rights": "redistributable",
+      "license": "MIT",
+      "applicability": "Original schema-only synthetic test data; no real airframe or airport.",
+      "effective_from": null,
+      "effective_until": null
+    }
+  ],
+  "files": [
+    {
+      "path": "original-synthetic-model.json",
+      "sha256": "18df20b6fffc7295090455c0fadae0af0028d8711cee691b5aae53c9e06a10b6",
+      "bytes": 116,
+      "role": "dynamics"
+    },
+    {
+      "path": "original-synthetic-mapping.json",
+      "sha256": "42d1298ad8c0e43f12558947bca1fd71db3195ef1b70311180c4f4953b8d935e",
+      "bytes": 111,
+      "role": "mapping"
+    }
+  ],
+  "identity": {
+    "manufacturer": "Original fixture",
+    "family": "Synthetic",
+    "variant": "Schema example",
+    "configuration_id": "synthetic-config",
+    "serial_applicability": "No real aircraft",
+    "engine": "Unmodeled",
+    "propeller": "Unmodeled",
+    "panel": "Unmodeled",
+    "poh_source_id": null
+  },
+  "dynamics": {
+    "backend": "fixture",
+    "model_path": "original-synthetic-model.json",
+    "provenance": "original-synthetic",
+    "parameter_source_ids": [
+      "original-fixture"
+    ]
+  },
+  "capabilities": [
+    "single-engine-piston"
+  ],
+  "controls": [
+    {
+      "id": "electrical.master",
+      "value_type": "boolean",
+      "minimum": 0,
+      "maximum": 1
+    }
+  ],
+  "mass_envelope_kg": {
+    "minimum": 900,
+    "maximum": 1100
+  },
+  "cg_envelope_body_m": {
+    "minimum": {
+      "x": -1,
+      "y": -1,
+      "z": -1
+    },
+    "maximum": {
+      "x": 1,
+      "y": 1,
+      "z": 1
+    }
+  },
+  "geometry": {
+    "wingspan_m": 10,
+    "length_m": 8,
+    "height_m": 3
+  },
+  "checklist_ids": [],
+  "limit_source_ids": [
+    "original-fixture"
+  ],
+  "mapping_path": "original-synthetic-mapping.json"
+}

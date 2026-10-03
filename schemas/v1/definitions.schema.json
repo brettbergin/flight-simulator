@@ -1,0 +1,3363 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://flight-simulator.invalid/contracts/v1/definitions.schema.json",
+  "$defs": {
+    "uint64": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 20,
+      "pattern": "^(0|[1-9][0-9]{0,19})$"
+    },
+    "geodetic": {
+      "type": "object",
+      "properties": {
+        "latitude_rad": {
+          "type": "number",
+          "minimum": -1.5707963267948966,
+          "maximum": 1.5707963267948966
+        },
+        "longitude_rad": {
+          "type": "number",
+          "minimum": -3.141592653589793,
+          "maximum": 3.141592653589793
+        },
+        "ellipsoid_height_m": {
+          "type": "number",
+          "minimum": -2000,
+          "maximum": 10000000
+        }
+      },
+      "required": [
+        "latitude_rad",
+        "longitude_rad",
+        "ellipsoid_height_m"
+      ],
+      "additionalProperties": false
+    },
+    "ecef_m": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "additionalProperties": false
+    },
+    "ned_mps": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "additionalProperties": false
+    },
+    "body_mps": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "additionalProperties": false
+    },
+    "body_radps": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "additionalProperties": false
+    },
+    "body_mps2": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "additionalProperties": false
+    },
+    "body_m": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "additionalProperties": false
+    },
+    "ned_normal": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "additionalProperties": false
+    },
+    "quaternion_body_to_ned": {
+      "type": "object",
+      "properties": {
+        "w": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "x": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "y": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "z": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        }
+      },
+      "required": [
+        "w",
+        "x",
+        "y",
+        "z"
+      ],
+      "additionalProperties": false
+    },
+    "ControlCommand": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "ControlCommand"
+        },
+        "schema_version": {
+          "const": 1
+        },
+        "tick": {
+          "$ref": "#/$defs/uint64"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "sequence": {
+          "$ref": "#/$defs/uint64"
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "authority": {
+          "enum": [
+            "pilot",
+            "avionics",
+            "scenario",
+            "instructor"
+          ]
+        },
+        "assistance": {
+          "type": "object",
+          "properties": {
+            "profile_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+            },
+            "active": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              },
+              "minItems": 0,
+              "maxItems": 64
+            }
+          },
+          "required": [
+            "profile_id",
+            "active"
+          ],
+          "additionalProperties": false
+        },
+        "payload": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "axes"
+                },
+                "roll": {
+                  "type": "number",
+                  "minimum": -1,
+                  "maximum": 1
+                },
+                "pitch": {
+                  "type": "number",
+                  "minimum": -1,
+                  "maximum": 1
+                },
+                "yaw": {
+                  "type": "number",
+                  "minimum": -1,
+                  "maximum": 1
+                },
+                "throttle": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "mixture": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "left_brake": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "right_brake": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "trim": {
+                  "type": "number",
+                  "minimum": -1,
+                  "maximum": 1
+                }
+              },
+              "required": [
+                "kind",
+                "roll",
+                "pitch",
+                "yaw",
+                "throttle",
+                "mixture",
+                "left_brake",
+                "right_brake",
+                "trim"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "system"
+                },
+                "control_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                },
+                "value": {
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "number",
+                      "minimum": -1,
+                      "maximum": 1
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "kind",
+                "control_id",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "schema_version",
+        "tick",
+        "session_id",
+        "sequence",
+        "source_id",
+        "authority",
+        "assistance",
+        "payload"
+      ],
+      "additionalProperties": false
+    },
+    "SessionControl": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "SessionControl"
+        },
+        "schema_version": {
+          "const": 1
+        },
+        "tick": {
+          "$ref": "#/$defs/uint64"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "sequence": {
+          "$ref": "#/$defs/uint64"
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "payload": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "pause"
+                },
+                "paused": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "kind",
+                "paused"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "time_scale"
+                },
+                "scale": {
+                  "enum": [
+                    0.25,
+                    0.5,
+                    1,
+                    2,
+                    4
+                  ]
+                }
+              },
+              "required": [
+                "kind",
+                "scale"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "schema_version",
+        "tick",
+        "session_id",
+        "sequence",
+        "source_id",
+        "payload"
+      ],
+      "additionalProperties": false
+    },
+    "AircraftSnapshot": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "AircraftSnapshot"
+        },
+        "schema_version": {
+          "const": 1
+        },
+        "tick": {
+          "$ref": "#/$defs/uint64"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "clock": {
+          "type": "object",
+          "properties": {
+            "tick_rate_hz": {
+              "enum": [
+                60,
+                120,
+                240
+              ]
+            },
+            "purpose": {
+              "enum": [
+                "runtime",
+                "convergence"
+              ]
+            }
+          },
+          "required": [
+            "tick_rate_hz",
+            "purpose"
+          ],
+          "additionalProperties": false
+        },
+        "elapsed_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "position": {
+          "$ref": "#/$defs/geodetic"
+        },
+        "ecef_position_m": {
+          "$ref": "#/$defs/ecef_m"
+        },
+        "orientation_body_to_ned": {
+          "$ref": "#/$defs/quaternion_body_to_ned"
+        },
+        "velocity_body_mps": {
+          "$ref": "#/$defs/body_mps"
+        },
+        "angular_rate_body_radps": {
+          "$ref": "#/$defs/body_radps"
+        },
+        "acceleration_body_mps2": {
+          "$ref": "#/$defs/body_mps2"
+        },
+        "mass_kg": {
+          "type": "number",
+          "minimum": 0.001,
+          "maximum": 1000000
+        },
+        "center_of_gravity_body_m": {
+          "$ref": "#/$defs/body_m"
+        },
+        "configuration": {
+          "type": "object",
+          "properties": {
+            "flap_fraction": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "gear_fraction": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "trim_fraction": {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1
+            }
+          },
+          "required": [
+            "flap_fraction",
+            "gear_fraction",
+            "trim_fraction"
+          ],
+          "additionalProperties": false
+        },
+        "systems": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              },
+              "quantity": {
+                "enum": [
+                  "fraction",
+                  "radps",
+                  "pa",
+                  "k",
+                  "kg",
+                  "a",
+                  "v",
+                  "bool"
+                ]
+              },
+              "value": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  }
+                ]
+              },
+              "validity": {
+                "enum": [
+                  "valid",
+                  "unavailable"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "quantity",
+              "value",
+              "validity"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 256
+        },
+        "contacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              },
+              "point_body_m": {
+                "$ref": "#/$defs/body_m"
+              },
+              "force_body_n": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number"
+                  },
+                  "y": {
+                    "type": "number"
+                  },
+                  "z": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "z"
+                ],
+                "additionalProperties": false
+              },
+              "on_ground": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "point_body_m",
+              "force_body_n",
+              "on_ground"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 32
+        },
+        "validity": {
+          "enum": [
+            "valid",
+            "invalid",
+            "initializing"
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "schema_version",
+        "tick",
+        "session_id",
+        "clock",
+        "elapsed_s",
+        "position",
+        "ecef_position_m",
+        "orientation_body_to_ned",
+        "velocity_body_mps",
+        "angular_rate_body_radps",
+        "acceleration_body_mps2",
+        "mass_kg",
+        "center_of_gravity_body_m",
+        "configuration",
+        "systems",
+        "contacts",
+        "validity"
+      ],
+      "additionalProperties": false
+    },
+    "InstrumentSnapshot": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "InstrumentSnapshot"
+        },
+        "schema_version": {
+          "const": 1
+        },
+        "tick": {
+          "$ref": "#/$defs/uint64"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "channels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              },
+              "sensor_tick": {
+                "$ref": "#/$defs/uint64"
+              },
+              "quantity": {
+                "enum": [
+                  "m",
+                  "mps",
+                  "rad",
+                  "radps",
+                  "k",
+                  "pa",
+                  "kg",
+                  "a",
+                  "v",
+                  "fraction",
+                  "bool"
+                ]
+              },
+              "value": {
+                "oneOf": [
+                  {
+                    "oneOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "latency_s": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 60
+              },
+              "filter_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              },
+              "status": {
+                "enum": [
+                  "normal",
+                  "failed",
+                  "unreliable",
+                  "off",
+                  "unavailable"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "sensor_tick",
+              "quantity",
+              "value",
+              "latency_s",
+              "filter_id",
+              "status"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 256
+        }
+      },
+      "required": [
+        "type",
+        "schema_version",
+        "tick",
+        "session_id",
+        "channels"
+      ],
+      "additionalProperties": false
+    },
+    "AtmosphereSample": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "AtmosphereSample"
+        },
+        "schema_version": {
+          "const": 1
+        },
+        "tick": {
+          "$ref": "#/$defs/uint64"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "position": {
+          "$ref": "#/$defs/geodetic"
+        },
+        "pressure_pa": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 200000
+        },
+        "temperature_k": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 400
+        },
+        "density_kgpm3": {
+          "type": "number",
+          "minimum": 0.000001,
+          "maximum": 10
+        },
+        "relative_humidity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "wind_toward_ned_mps": {
+          "$ref": "#/$defs/ned_mps"
+        },
+        "turbulence_ned_mps": {
+          "$ref": "#/$defs/ned_mps"
+        },
+        "seed": {
+          "$ref": "#/$defs/uint64"
+        },
+        "model_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        }
+      },
+      "required": [
+        "type",
+        "schema_version",
+        "tick",
+        "session_id",
+        "position",
+        "pressure_pa",
+        "temperature_k",
+        "density_kgpm3",
+        "relative_humidity",
+        "wind_toward_ned_mps",
+        "turbulence_ned_mps",
+        "seed",
+        "model_id"
+      ],
+      "additionalProperties": false
+    },
+    "GroundSample": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "GroundSample"
+        },
+        "schema_version": {
+          "const": 1
+        },
+        "tick": {
+          "$ref": "#/$defs/uint64"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "position": {
+          "$ref": "#/$defs/geodetic"
+        },
+        "datum": {
+          "const": "wgs84-ellipsoid"
+        },
+        "sample": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "valid"
+                },
+                "surface_height_m": {
+                  "type": "number",
+                  "minimum": -2000,
+                  "maximum": 100000
+                },
+                "normal_ned": {
+                  "$ref": "#/$defs/ned_normal"
+                },
+                "static_friction": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 5
+                },
+                "dynamic_friction": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 5
+                },
+                "material_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                },
+                "world": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                    },
+                    "version": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64,
+                      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[a-z0-9.-]+)?$"
+                    },
+                    "sha256": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64,
+                      "pattern": "^[a-f0-9]{64}$"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "version",
+                    "sha256"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "kind",
+                "surface_height_m",
+                "normal_ned",
+                "static_friction",
+                "dynamic_friction",
+                "material_id",
+                "world"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "missing"
+                },
+                "reason": {
+                  "enum": [
+                    "outside-coverage",
+                    "not-loaded",
+                    "datum-unresolved",
+                    "invalid-data"
+                  ]
+                }
+              },
+              "required": [
+                "kind",
+                "reason"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "schema_version",
+        "tick",
+        "session_id",
+        "position",
+        "datum",
+        "sample"
+      ],
+      "additionalProperties": false
+    },
+    "OperationalEvent": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "OperationalEvent"
+        },
+        "schema_version": {
+          "const": 1
+        },
+        "tick": {
+          "$ref": "#/$defs/uint64"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "sequence": {
+          "$ref": "#/$defs/uint64"
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "confidence": {
+          "enum": [
+            "observed",
+            "derived",
+            "unknown"
+          ]
+        },
+        "content_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[a-z0-9.-]+)?$"
+        },
+        "payload": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "command-rejected"
+                },
+                "command_sequence": {
+                  "$ref": "#/$defs/uint64"
+                },
+                "reason": {
+                  "enum": [
+                    "late",
+                    "duplicate",
+                    "invalid",
+                    "unsupported-control",
+                    "wrong-session",
+                    "unauthorized-source",
+                    "capacity"
+                  ]
+                }
+              },
+              "required": [
+                "kind",
+                "command_sequence",
+                "reason"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "system-state"
+                },
+                "system_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                },
+                "state": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                }
+              },
+              "required": [
+                "kind",
+                "system_id",
+                "state"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "failure"
+                },
+                "failure_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                },
+                "active": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "kind",
+                "failure_id",
+                "active"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "procedure"
+                },
+                "procedure_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                },
+                "step_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                },
+                "result": {
+                  "enum": [
+                    "observed",
+                    "omitted",
+                    "incorrect"
+                  ]
+                }
+              },
+              "required": [
+                "kind",
+                "procedure_id",
+                "step_id",
+                "result"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "clearance"
+                },
+                "clearance_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                },
+                "aircraft_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                },
+                "acknowledged": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "kind",
+                "clearance_id",
+                "aircraft_id",
+                "acknowledged"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "assistance"
+                },
+                "assistance_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                },
+                "active": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "kind",
+                "assistance_id",
+                "active"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "pause"
+                },
+                "paused": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "kind",
+                "paused"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "time-scale"
+                },
+                "scale": {
+                  "enum": [
+                    0.25,
+                    0.5,
+                    1,
+                    2,
+                    4
+                  ]
+                }
+              },
+              "required": [
+                "kind",
+                "scale"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "session-branch"
+                },
+                "parent_session_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                },
+                "parent_tick": {
+                  "$ref": "#/$defs/uint64"
+                }
+              },
+              "required": [
+                "kind",
+                "parent_session_id",
+                "parent_tick"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "save"
+                },
+                "checkpoint_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                },
+                "result": {
+                  "enum": [
+                    "saved",
+                    "failed"
+                  ]
+                }
+              },
+              "required": [
+                "kind",
+                "checkpoint_id",
+                "result"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "schema_version",
+        "tick",
+        "session_id",
+        "sequence",
+        "source_id",
+        "confidence",
+        "content_version",
+        "payload"
+      ],
+      "additionalProperties": false
+    },
+    "SessionManifest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "SessionManifest"
+        },
+        "schema_version": {
+          "const": 1
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "build": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+            },
+            "git_commit": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "pattern": "^[a-f0-9]{40}$"
+            },
+            "fingerprint": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "required": [
+            "id",
+            "git_commit",
+            "fingerprint"
+          ],
+          "additionalProperties": false
+        },
+        "contract_set_sha256": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "aircraft": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[a-z0-9.-]+)?$"
+            },
+            "sha256": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "required": [
+            "id",
+            "version",
+            "sha256"
+          ],
+          "additionalProperties": false
+        },
+        "world": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[a-z0-9.-]+)?$"
+            },
+            "sha256": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "required": [
+            "id",
+            "version",
+            "sha256"
+          ],
+          "additionalProperties": false
+        },
+        "scenario": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[a-z0-9.-]+)?$"
+            },
+            "sha256": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "required": [
+            "id",
+            "version",
+            "sha256"
+          ],
+          "additionalProperties": false
+        },
+        "seed": {
+          "$ref": "#/$defs/uint64"
+        },
+        "clock": {
+          "type": "object",
+          "properties": {
+            "tick_rate_hz": {
+              "enum": [
+                60,
+                120,
+                240
+              ]
+            },
+            "purpose": {
+              "enum": [
+                "runtime",
+                "convergence"
+              ]
+            }
+          },
+          "required": [
+            "tick_rate_hz",
+            "purpose"
+          ],
+          "additionalProperties": false
+        },
+        "calibration": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[a-z0-9.-]+)?$"
+            },
+            "sha256": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "required": [
+            "id",
+            "version",
+            "sha256"
+          ],
+          "additionalProperties": false
+        },
+        "assistance": {
+          "type": "object",
+          "properties": {
+            "profile_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+            },
+            "active": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              },
+              "minItems": 0,
+              "maxItems": 64
+            }
+          },
+          "required": [
+            "profile_id",
+            "active"
+          ],
+          "additionalProperties": false
+        },
+        "initial_conditions": {
+          "type": "object",
+          "properties": {
+            "aircraft": {
+              "$ref": "#/$defs/AircraftSnapshot"
+            },
+            "atmosphere": {
+              "$ref": "#/$defs/AtmosphereSample"
+            }
+          },
+          "required": [
+            "aircraft",
+            "atmosphere"
+          ],
+          "additionalProperties": false
+        },
+        "command_log": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512,
+              "pattern": "^[a-zA-Z0-9_./-]+$"
+            },
+            "sha256": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "bytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            "role": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+            }
+          },
+          "required": [
+            "path",
+            "sha256",
+            "bytes",
+            "role"
+          ],
+          "additionalProperties": false
+        },
+        "event_log": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512,
+              "pattern": "^[a-zA-Z0-9_./-]+$"
+            },
+            "sha256": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "bytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            "role": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+            }
+          },
+          "required": [
+            "path",
+            "sha256",
+            "bytes",
+            "role"
+          ],
+          "additionalProperties": false
+        },
+        "restore_capability": {
+          "enum": [
+            "unsupported",
+            "replay-from-start",
+            "safe-restart",
+            "complete-checkpoint"
+          ]
+        },
+        "restore_evidence_id": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "created_utc": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "maxLength": 32
+        }
+      },
+      "required": [
+        "type",
+        "schema_version",
+        "session_id",
+        "build",
+        "contract_set_sha256",
+        "aircraft",
+        "world",
+        "scenario",
+        "seed",
+        "clock",
+        "calibration",
+        "assistance",
+        "initial_conditions",
+        "command_log",
+        "event_log",
+        "restore_capability",
+        "restore_evidence_id",
+        "created_utc"
+      ],
+      "additionalProperties": false
+    },
+    "ReplayHeader": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "ReplayHeader"
+        },
+        "schema_version": {
+          "const": 1
+        },
+        "session": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[a-z0-9.-]+)?$"
+            },
+            "sha256": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "required": [
+            "id",
+            "version",
+            "sha256"
+          ],
+          "additionalProperties": false
+        },
+        "build_fingerprint": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "contract_set_sha256": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "clock": {
+          "type": "object",
+          "properties": {
+            "tick_rate_hz": {
+              "enum": [
+                60,
+                120,
+                240
+              ]
+            },
+            "purpose": {
+              "enum": [
+                "runtime",
+                "convergence"
+              ]
+            }
+          },
+          "required": [
+            "tick_rate_hz",
+            "purpose"
+          ],
+          "additionalProperties": false
+        },
+        "seed": {
+          "$ref": "#/$defs/uint64"
+        },
+        "record_count": {
+          "$ref": "#/$defs/uint64"
+        },
+        "command_log_sha256": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "determinism": {
+          "enum": [
+            "same-build-tolerances",
+            "unproven"
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "schema_version",
+        "session",
+        "build_fingerprint",
+        "contract_set_sha256",
+        "clock",
+        "seed",
+        "record_count",
+        "command_log_sha256",
+        "determinism"
+      ],
+      "additionalProperties": false
+    },
+    "Checkpoint": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "Checkpoint"
+        },
+        "schema_version": {
+          "const": 1
+        },
+        "tick": {
+          "$ref": "#/$defs/uint64"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "session_manifest_sha256": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "build_fingerprint": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "restore_capability": {
+          "enum": [
+            "replay-from-start",
+            "safe-restart",
+            "complete-checkpoint"
+          ]
+        },
+        "restore_evidence_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "blobs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512,
+                "pattern": "^[a-zA-Z0-9_./-]+$"
+              },
+              "sha256": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647
+              },
+              "role": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              }
+            },
+            "required": [
+              "path",
+              "sha256",
+              "bytes",
+              "role"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 256
+        },
+        "replay_until_tick": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/uint64"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "schema_version",
+        "tick",
+        "session_id",
+        "id",
+        "session_manifest_sha256",
+        "build_fingerprint",
+        "restore_capability",
+        "restore_evidence_id",
+        "blobs",
+        "replay_until_tick"
+      ],
+      "additionalProperties": false
+    },
+    "TrainingResult": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "TrainingResult"
+        },
+        "schema_version": {
+          "const": 1
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "lesson": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[a-z0-9.-]+)?$"
+            },
+            "sha256": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "required": [
+            "id",
+            "version",
+            "sha256"
+          ],
+          "additionalProperties": false
+        },
+        "rubric": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[a-z0-9.-]+)?$"
+            },
+            "sha256": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "required": [
+            "id",
+            "version",
+            "sha256"
+          ],
+          "additionalProperties": false
+        },
+        "status": {
+          "enum": [
+            "complete",
+            "incomplete",
+            "invalid"
+          ]
+        },
+        "repeatability": {
+          "enum": [
+            "same-build",
+            "unverified"
+          ]
+        },
+        "assistance": {
+          "type": "object",
+          "properties": {
+            "profile_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+            },
+            "active": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              },
+              "minItems": 0,
+              "maxItems": 64
+            }
+          },
+          "required": [
+            "profile_id",
+            "active"
+          ],
+          "additionalProperties": false
+        },
+        "observations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "objective_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              },
+              "result": {
+                "enum": [
+                  "met",
+                  "not-met",
+                  "not-observed"
+                ]
+              },
+              "start_tick": {
+                "$ref": "#/$defs/uint64"
+              },
+              "end_tick": {
+                "$ref": "#/$defs/uint64"
+              },
+              "evidence_event_sequences": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/uint64"
+                },
+                "minItems": 0,
+                "maxItems": 256
+              },
+              "explanation_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              }
+            },
+            "required": [
+              "objective_id",
+              "result",
+              "start_tick",
+              "end_tick",
+              "evidence_event_sequences",
+              "explanation_id"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 256
+        },
+        "invalid_reasons": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+          },
+          "minItems": 0,
+          "maxItems": 128
+        }
+      },
+      "required": [
+        "type",
+        "schema_version",
+        "session_id",
+        "lesson",
+        "rubric",
+        "status",
+        "repeatability",
+        "assistance",
+        "observations",
+        "invalid_reasons"
+      ],
+      "additionalProperties": false
+    },
+    "AircraftManifest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "AircraftManifest"
+        },
+        "schema_version": {
+          "const": 1
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[a-z0-9.-]+)?$"
+        },
+        "compatible_schema_version": {
+          "const": 1
+        },
+        "evidence": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "enum": [
+                "prototype",
+                "reference-reviewed",
+                "validated"
+              ]
+            },
+            "report_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              },
+              "minItems": 0,
+              "maxItems": 128
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              },
+              "minItems": 0,
+              "maxItems": 128
+            }
+          },
+          "required": [
+            "status",
+            "report_ids",
+            "source_ids"
+          ],
+          "additionalProperties": false
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              },
+              "revision": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "locator": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2048
+              },
+              "sha256": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "rights": {
+                "enum": [
+                  "redistributable",
+                  "reference-only",
+                  "pending"
+                ]
+              },
+              "license": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "applicability": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "effective_from": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "Z$",
+                    "maxLength": 32
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "effective_until": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "Z$",
+                    "maxLength": 32
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "revision",
+              "locator",
+              "sha256",
+              "rights",
+              "license",
+              "applicability",
+              "effective_from",
+              "effective_until"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 1024
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512,
+                "pattern": "^[a-zA-Z0-9_./-]+$"
+              },
+              "sha256": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647
+              },
+              "role": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              }
+            },
+            "required": [
+              "path",
+              "sha256",
+              "bytes",
+              "role"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 4096
+        },
+        "identity": {
+          "type": "object",
+          "properties": {
+            "manufacturer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "family": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "variant": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "configuration_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+            },
+            "serial_applicability": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "engine": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "propeller": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "panel": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "poh_source_id": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "manufacturer",
+            "family",
+            "variant",
+            "configuration_id",
+            "serial_applicability",
+            "engine",
+            "propeller",
+            "panel",
+            "poh_source_id"
+          ],
+          "additionalProperties": false
+        },
+        "dynamics": {
+          "type": "object",
+          "properties": {
+            "backend": {
+              "enum": [
+                "jsbsim",
+                "fixture"
+              ]
+            },
+            "model_path": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            },
+            "provenance": {
+              "enum": [
+                "original-synthetic",
+                "licensed-source"
+              ]
+            },
+            "parameter_source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              },
+              "minItems": 0,
+              "maxItems": 1024
+            }
+          },
+          "required": [
+            "backend",
+            "model_path",
+            "provenance",
+            "parameter_source_ids"
+          ],
+          "additionalProperties": false
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+          },
+          "minItems": 1,
+          "maxItems": 256
+        },
+        "controls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              },
+              "value_type": {
+                "enum": [
+                  "boolean",
+                  "normalized"
+                ]
+              },
+              "minimum": {
+                "type": "number",
+                "minimum": -1,
+                "maximum": 1
+              },
+              "maximum": {
+                "type": "number",
+                "minimum": -1,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "id",
+              "value_type",
+              "minimum",
+              "maximum"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 256
+        },
+        "mass_envelope_kg": {
+          "type": "object",
+          "properties": {
+            "minimum": {
+              "type": "number",
+              "minimum": 0.001,
+              "maximum": 1000000
+            },
+            "maximum": {
+              "type": "number",
+              "minimum": 0.001,
+              "maximum": 1000000
+            }
+          },
+          "required": [
+            "minimum",
+            "maximum"
+          ],
+          "additionalProperties": false
+        },
+        "cg_envelope_body_m": {
+          "type": "object",
+          "properties": {
+            "minimum": {
+              "$ref": "#/$defs/body_m"
+            },
+            "maximum": {
+              "$ref": "#/$defs/body_m"
+            }
+          },
+          "required": [
+            "minimum",
+            "maximum"
+          ],
+          "additionalProperties": false
+        },
+        "geometry": {
+          "type": "object",
+          "properties": {
+            "wingspan_m": {
+              "type": "number",
+              "minimum": 0.001,
+              "maximum": 200
+            },
+            "length_m": {
+              "type": "number",
+              "minimum": 0.001,
+              "maximum": 200
+            },
+            "height_m": {
+              "type": "number",
+              "minimum": 0.001,
+              "maximum": 100
+            }
+          },
+          "required": [
+            "wingspan_m",
+            "length_m",
+            "height_m"
+          ],
+          "additionalProperties": false
+        },
+        "checklist_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+          },
+          "minItems": 0,
+          "maxItems": 256
+        },
+        "limit_source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+          },
+          "minItems": 0,
+          "maxItems": 256
+        },
+        "mapping_path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        }
+      },
+      "required": [
+        "type",
+        "schema_version",
+        "id",
+        "version",
+        "compatible_schema_version",
+        "evidence",
+        "sources",
+        "files",
+        "identity",
+        "dynamics",
+        "capabilities",
+        "controls",
+        "mass_envelope_kg",
+        "cg_envelope_body_m",
+        "geometry",
+        "checklist_ids",
+        "limit_source_ids",
+        "mapping_path"
+      ],
+      "additionalProperties": false
+    },
+    "WorldPackage": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "WorldPackage"
+        },
+        "schema_version": {
+          "const": 1
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[a-z0-9.-]+)?$"
+        },
+        "compatible_schema_version": {
+          "const": 1
+        },
+        "evidence": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "enum": [
+                "prototype",
+                "reference-reviewed",
+                "validated"
+              ]
+            },
+            "report_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              },
+              "minItems": 0,
+              "maxItems": 128
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              },
+              "minItems": 0,
+              "maxItems": 128
+            }
+          },
+          "required": [
+            "status",
+            "report_ids",
+            "source_ids"
+          ],
+          "additionalProperties": false
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              },
+              "revision": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "locator": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2048
+              },
+              "sha256": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "rights": {
+                "enum": [
+                  "redistributable",
+                  "reference-only",
+                  "pending"
+                ]
+              },
+              "license": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "applicability": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "effective_from": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "Z$",
+                    "maxLength": 32
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "effective_until": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "Z$",
+                    "maxLength": 32
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "revision",
+              "locator",
+              "sha256",
+              "rights",
+              "license",
+              "applicability",
+              "effective_from",
+              "effective_until"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 1024
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512,
+                "pattern": "^[a-zA-Z0-9_./-]+$"
+              },
+              "sha256": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647
+              },
+              "role": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              }
+            },
+            "required": [
+              "path",
+              "sha256",
+              "bytes",
+              "role"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 4096
+        },
+        "coverage": {
+          "type": "object",
+          "properties": {
+            "south_rad": {
+              "type": "number",
+              "minimum": -1.5707963267948966,
+              "maximum": 1.5707963267948966
+            },
+            "north_rad": {
+              "type": "number",
+              "minimum": -1.5707963267948966,
+              "maximum": 1.5707963267948966
+            },
+            "west_rad": {
+              "type": "number",
+              "minimum": -3.141592653589793,
+              "maximum": 3.141592653589793
+            },
+            "east_rad": {
+              "type": "number",
+              "minimum": -3.141592653589793,
+              "maximum": 3.141592653589793
+            },
+            "crosses_antimeridian": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "south_rad",
+            "north_rad",
+            "west_rad",
+            "east_rad",
+            "crosses_antimeridian"
+          ],
+          "additionalProperties": false
+        },
+        "horizontal_datum": {
+          "const": "wgs84"
+        },
+        "vertical_datum": {
+          "enum": [
+            "wgs84-ellipsoid",
+            "egm96",
+            "egm2008",
+            "navd88"
+          ]
+        },
+        "geoid": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                },
+                "version": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64,
+                  "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[a-z0-9.-]+)?$"
+                },
+                "sha256": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64,
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "required": [
+                "id",
+                "version",
+                "sha256"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "magnetic_model": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                },
+                "epoch_year": {
+                  "type": "number",
+                  "minimum": 1900,
+                  "maximum": 2200
+                },
+                "source_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                }
+              },
+              "required": [
+                "id",
+                "epoch_year",
+                "source_id"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "effective_from": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "maxLength": 32
+        },
+        "effective_until": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "maxLength": 32
+        },
+        "data_status": {
+          "enum": [
+            "synthetic",
+            "historical",
+            "current-source"
+          ]
+        },
+        "products": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "terrain",
+              "airport",
+              "navaid",
+              "vector",
+              "imagery"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 5
+        },
+        "update_policy": {
+          "enum": [
+            "fixed-scenario",
+            "explicit-owner-update"
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "schema_version",
+        "id",
+        "version",
+        "compatible_schema_version",
+        "evidence",
+        "sources",
+        "files",
+        "coverage",
+        "horizontal_datum",
+        "vertical_datum",
+        "geoid",
+        "magnetic_model",
+        "effective_from",
+        "effective_until",
+        "data_status",
+        "products",
+        "update_policy"
+      ],
+      "additionalProperties": false
+    },
+    "ScenarioManifest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "ScenarioManifest"
+        },
+        "schema_version": {
+          "const": 1
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[a-z0-9.-]+)?$"
+        },
+        "compatible_schema_version": {
+          "const": 1
+        },
+        "evidence": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "enum": [
+                "prototype",
+                "reference-reviewed",
+                "validated"
+              ]
+            },
+            "report_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              },
+              "minItems": 0,
+              "maxItems": 128
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              },
+              "minItems": 0,
+              "maxItems": 128
+            }
+          },
+          "required": [
+            "status",
+            "report_ids",
+            "source_ids"
+          ],
+          "additionalProperties": false
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              },
+              "revision": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "locator": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2048
+              },
+              "sha256": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "rights": {
+                "enum": [
+                  "redistributable",
+                  "reference-only",
+                  "pending"
+                ]
+              },
+              "license": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "applicability": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "effective_from": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "Z$",
+                    "maxLength": 32
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "effective_until": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "Z$",
+                    "maxLength": 32
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "revision",
+              "locator",
+              "sha256",
+              "rights",
+              "license",
+              "applicability",
+              "effective_from",
+              "effective_until"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 1024
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512,
+                "pattern": "^[a-zA-Z0-9_./-]+$"
+              },
+              "sha256": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647
+              },
+              "role": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              }
+            },
+            "required": [
+              "path",
+              "sha256",
+              "bytes",
+              "role"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 4096
+        },
+        "jurisdiction": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "prerequisites": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+          },
+          "minItems": 0,
+          "maxItems": 128
+        },
+        "required_aircraft": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[a-z0-9.-]+)?$"
+            },
+            "sha256": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "required": [
+            "id",
+            "version",
+            "sha256"
+          ],
+          "additionalProperties": false
+        },
+        "required_world": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[a-z0-9.-]+)?$"
+            },
+            "sha256": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "required": [
+            "id",
+            "version",
+            "sha256"
+          ],
+          "additionalProperties": false
+        },
+        "seed": {
+          "$ref": "#/$defs/uint64"
+        },
+        "clock": {
+          "type": "object",
+          "properties": {
+            "tick_rate_hz": {
+              "enum": [
+                60,
+                120,
+                240
+              ]
+            },
+            "purpose": {
+              "enum": [
+                "runtime",
+                "convergence"
+              ]
+            }
+          },
+          "required": [
+            "tick_rate_hz",
+            "purpose"
+          ],
+          "additionalProperties": false
+        },
+        "initial_conditions": {
+          "type": "object",
+          "properties": {
+            "aircraft": {
+              "$ref": "#/$defs/AircraftSnapshot"
+            },
+            "atmosphere": {
+              "$ref": "#/$defs/AtmosphereSample"
+            }
+          },
+          "required": [
+            "aircraft",
+            "atmosphere"
+          ],
+          "additionalProperties": false
+        },
+        "objectives": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+          },
+          "minItems": 1,
+          "maxItems": 128
+        },
+        "rubric": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[a-z0-9.-]+)?$"
+            },
+            "sha256": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "required": [
+            "id",
+            "version",
+            "sha256"
+          ],
+          "additionalProperties": false
+        },
+        "allowed_assists": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+          },
+          "minItems": 0,
+          "maxItems": 64
+        },
+        "scheduled_actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tick": {
+                "$ref": "#/$defs/uint64"
+              },
+              "action_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              },
+              "target_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+              }
+            },
+            "required": [
+              "tick",
+              "action_id",
+              "target_id"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 1024
+        },
+        "safe_restart_ticks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/uint64"
+          },
+          "minItems": 0,
+          "maxItems": 128
+        },
+        "evidence_event_kinds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+          },
+          "minItems": 0,
+          "maxItems": 128
+        },
+        "source_edition_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+          },
+          "minItems": 0,
+          "maxItems": 128
+        }
+      },
+      "required": [
+        "type",
+        "schema_version",
+        "id",
+        "version",
+        "compatible_schema_version",
+        "evidence",
+        "sources",
+        "files",
+        "jurisdiction",
+        "prerequisites",
+        "required_aircraft",
+        "required_world",
+        "seed",
+        "clock",
+        "initial_conditions",
+        "objectives",
+        "rubric",
+        "allowed_assists",
+        "scheduled_actions",
+        "safe_restart_ticks",
+        "evidence_event_kinds",
+        "source_edition_ids"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

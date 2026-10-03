@@ -1,0 +1,9 @@
+SQLite 3.53.4 core library (sqlite3.c / sqlite3.h)
+
+SQLite's authors dedicate its deliverable library code and documentation to the public domain. No license purchase is required for the original deliverable core. This record does not cover unrelated build tools, extensions, wrappers or externally contributed code.
+
+Primary rights statement: https://sqlite.org/copyright.html
+Selected release: https://sqlite.org/releaselog/3_53_4.html
+SQLITE_SOURCE_ID: 2026-07-24 19:02:57 bf7c7f30031888f4e796e429ab3978879485813aaca6f641c7b33e4e09459bcc
+
+This attribution notice is project-authored, not a license imposed by SQLite. Preserve upstream source headers in corresponding source distributions.
