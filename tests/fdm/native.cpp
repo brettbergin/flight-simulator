@@ -65,6 +65,24 @@ int main(int argc,char** argv) {
   auto controls=session.initialization().solved_controls;
   check(session.register_host_source("pilot.controls",c::Authority::pilot),"Host source registration");
   c::ControlCommand command{{{1},cfg.session_id},{1},"pilot.controls",c::Authority::pilot,{"unassisted",{}},controls};
+  // Private serializers must reject rather than erase meaningful typed metadata.
+  for(const auto validity:{c::Validity::invalid,c::Validity::initializing,c::Validity::unavailable}) {
+    auto changed=initial;changed.validity=validity;rejects([&]{(void)f::transport::json(changed);},"Snapshot serializer cannot relabel validity");
+    changed=initial;changed.systems[0].validity=validity;rejects([&]{(void)f::transport::json(changed);},"Channel serializer cannot relabel validity");
+  }
+  auto changed_command=command;changed_command.assistance.active={"auto-rudder"};rejects([&]{(void)f::transport::json(changed_command);},"Command serializer cannot drop active assists");
+  changed_command=command;changed_command.assistance.profile_id="assisted";rejects([&]{(void)f::transport::json(changed_command);},"Command serializer rejects unsupported assistance profile");
+  changed_command=command;changed_command.authority=static_cast<c::Authority>(255);rejects([&]{(void)f::transport::json(changed_command);},"Command serializer rejects unknown authority");
+  changed_command=command;changed_command.payload=c::SystemControl{"engine.running",true};rejects([&]{(void)f::transport::json(changed_command);},"Command serializer rejects unsupported payload");
+  for(const auto bad_axes:std::array<c::PilotAxes,3>{{{2,0,0,.5,1,0,0,0},{0,0,0,.5,.5,0,0,0},{0,0,0,.5,1,.5,0,0}}}) {
+    changed_command=command;changed_command.payload=bad_axes;rejects([&]{(void)f::transport::json(changed_command);},"Command serializer rejects invalid/unsupported axes");
+  }
+  c::OperationalEvent event{{{0},cfg.session_id},{1},"session.owner",c::OperationalEvent::Confidence::observed,"0.1.0-prototype",c::PauseControl{true}};
+  check(!f::transport::json(event).empty(),"Supported observed event serializer");
+  auto changed_event=event;changed_event.confidence=c::OperationalEvent::Confidence::derived;rejects([&]{(void)f::transport::json(changed_event);},"Event serializer cannot relabel confidence");
+  changed_event=event;changed_event.content_version="9.9.9";rejects([&]{(void)f::transport::json(changed_event);},"Event serializer cannot relabel content version");
+  changed_event=event;changed_event.payload=c::TimeScaleControl{3};rejects([&]{(void)f::transport::json(changed_event);},"Event serializer rejects unsupported time scale");
+  auto changed_init=session.initialization();changed_init.fuel_frozen_during_trim=false;rejects([&]{(void)f::transport::json(changed_init);},"Initialization serializer cannot relabel fuel-freeze policy");
   check(session.submit(command).queued,"Validated command queued");
   check(session.applied_command_log().empty(),"Queue does not publish applied physics log");
   check(session.submit(command).rejection==c::CommandRejection::duplicate,"Duplicate rejection");

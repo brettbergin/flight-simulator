@@ -32,6 +32,9 @@ test('full output wire validation rejects wrong type/NaN/quaternion rather than 
     loaded_library_path:'/synthetic/JSBSim.dll',library_version:'1.3.1',compiler:'MSVC-19.40.33813.0',source_fingerprint:'0'.repeat(64),requested_seed:base.seed,
     trim:{longitudinal:true,gamma_fallback:false,max_cycles:60,max_cycles_per_axis:100,acceleration_tolerance_mps2:.0003048},
     solved_controls:{kind:'axes',...axes},fuel_frozen_during_trim:true,initial_fuel_kg:100,initialization_step_s:1/120};
-  validateOutput([init]);const bad=structuredClone(init);bad.accepted_aircraft.orientation_body_to_ned.w=5;assert.throws(()=>validateOutput([bad]));
+  validateOutput([init]);
+  const ci=structuredClone(init);ci.library_version='1.3.1 [GitHub build 42/commit '+ 'a'.repeat(40)+'] Oct  3 2026 20:31:32';ci.compiler='GNU-13.3.0';validateOutput([ci]);
+  for(const version of ['1.3.2','1.3.1 '+ 'x'.repeat(193),'1.3.1 bad\nmetadata']) {const invalid=structuredClone(ci);invalid.library_version=version;assert.throws(()=>validateOutput([invalid]));}
+  const bad=structuredClone(init);bad.accepted_aircraft.orientation_body_to_ned.w=5;assert.throws(()=>validateOutput([bad]));
   assert.throws(()=>validateOutput([init,{kind:'unexpected',version:1}]));assert.throws(()=>validateOutput([init,{kind:'fdm-diagnostics',version:1,airspeed_mps:NaN}]));
 });

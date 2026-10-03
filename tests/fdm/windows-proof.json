@@ -11,14 +11,14 @@
     "sha256": "269ebc60feaf8bc9fdd2f2761a46eb5eb06427623f33c67055f21ca65e705150",
     "version": "1.3.1 Oct  3 2026 12:58:03"
   },
-  "source_fingerprint": "6030fdf76ce84785a6f56e88aa7af7d4b93a3df8f39820cdf13b8423cd988f1d",
+  "source_fingerprint": "daa69b38b5cf4a3b1c980eaca469864069e02d1c13e4c35bde6bbebc312a8a7b",
   "dependency_lock_sha256": "1b0047773f31b30bb86804a7fd191dcad99a22ae01c724a33b4894f154a2fb7d",
-  "executable_sha256": "9a97111119c72ea99905c348c05f01f0a09cb3c7fe5b5cd9460f2ce42c33b3f9",
+  "executable_sha256": "f52203e0bf34c3cb582b318dd4490cd83cc57a10b3f9ff1c924320c486780988",
   "native_ctest": {
     "passed": 3,
     "total": 3,
     "contract_checks": 239,
-    "fdm_checks": 7662
+    "fdm_checks": 7680
   },
   "node_fdm": {
     "passed": 7,
@@ -26,7 +26,7 @@
   },
   "same_build_repeat": {
     "bit_equal_telemetry": true,
-    "sha256": "e6d994f9e58460170440c76eb89c96be18faa87f8525e1de0c4330ea1eab5f6c"
+    "sha256": "7a9e542ef819c435a4f643c183bb1a14f562b7aeb5d1835fae81b1e9851fdb31"
   },
   "thresholds": {
     "60": {
@@ -99,9 +99,9 @@
     "version": 1,
     "steps": 72000,
     "step_scope": "session.step_fixed-no-output-serialization",
-    "p50_ns": 5400,
-    "p99_ns": 8400,
-    "max_ns": 170700
+    "p50_ns": 5300,
+    "p99_ns": 12600,
+    "max_ns": 1639100
   },
-  "raw_report_sha256": "821fbf546ce5790092c7cdee8fdf19ac7b9295d0d33b9fba471f43733ce23374"
+  "raw_report_sha256": "b0f727d2443192a29a09f47332d81b2510cdfd0dd5836fcdeafc00c911d95fcc"
 }

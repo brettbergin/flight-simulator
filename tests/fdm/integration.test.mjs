@@ -13,6 +13,9 @@ test('actual nearidentity no-trim/wind output passes strict v1 bounds and comple
 test('actual output corruption of receipt/context/order/count/diagnostics fails',()=>{
   const changes=[records=>records[0].initial_fuel_kg=1,records=>records[0].solved_controls.mixture=.5,
     records=>records[0].accepted_atmosphere.temperature_k=300,records=>records[0].source_fingerprint='0'.repeat(64),
+    records=>records[0].accepted_aircraft.validity=records[1].validity='invalid',
+    records=>records[0].accepted_aircraft.systems[0].validity=records[1].systems[0].validity='unavailable',
+    records=>records[3].validity='initializing',records=>records[3].systems[0].validity='invalid',
     records=>records[0].requested_seed='1',records=>records[1].session_id='other-session',records=>records[3].clock={tick_rate_hz:60,purpose:'convergence'},
     records=>records[4].seed='1',records=>records[3].tick='0',records=>records[2].extra='hidden-value',records=>records[2].airspeed_mps=1e10,
     records=>records[5].tick='0',records=>records.pop(),records=>records.push(structuredClone(records.at(-1))),

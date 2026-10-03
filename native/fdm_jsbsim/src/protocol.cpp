@@ -96,7 +96,7 @@ Request decode(std::span<const std::uint8_t> bytes, std::filesystem::path model_
   return result;
 }
 std::string json(const c::AircraftSnapshot& s) {
-  if(!c::valid(s)) throw std::invalid_argument("Invalid snapshot JSON");
+  if(!c::valid(s)||s.validity!=c::Validity::valid) throw std::invalid_argument("Invalid/unsupported snapshot JSON validity");
   const auto q=s.orientation_body_to_ned;
   std::string out=header("AircraftSnapshot",s.header)+",\"clock\":"+clock(s.clock)+",\"elapsed_s\":"+number(s.elapsed_s)+",\"position\":"+position(s.position)+
     ",\"ecef_position_m\":"+vector(s.ecef_position_m)+",\"orientation_body_to_ned\":{\"w\":"+number(q.w)+",\"x\":"+number(q.x)+",\"y\":"+number(q.y)+",\"z\":"+number(q.z)+"}"+
@@ -105,7 +105,7 @@ std::string json(const c::AircraftSnapshot& s) {
     ",\"gear_fraction\":"+number(s.configuration.gear_fraction)+",\"trim_fraction\":"+number(s.configuration.trim_fraction)+"},\"systems\":[";
   for(std::size_t i=0;i<s.systems.size();++i) {
     const auto& sys=s.systems[i]; if(i) out+=',';
-    if(sys.quantity!=c::Quantity::kilograms && sys.quantity!=c::Quantity::fraction) throw std::invalid_argument("Unsupported prototype channel serializer");
+    if(sys.validity!=c::Validity::valid || (sys.quantity!=c::Quantity::kilograms && sys.quantity!=c::Quantity::fraction)) throw std::invalid_argument("Unsupported prototype channel serializer");
     out+="{\"id\":"+quote(sys.id)+",\"quantity\":\""+(sys.quantity==c::Quantity::kilograms?"kg":"fraction")+"\",\"value\":"+number(std::get<double>(sys.value))+",\"validity\":\"valid\"}";
   }
   if(!s.contacts.empty()) throw std::invalid_argument("Prototype has no contact serializer");
@@ -118,11 +118,23 @@ std::string json(const c::AtmosphereSample& w) {
     ",\"turbulence_ned_mps\":"+vector(w.turbulence_ned_mps)+",\"seed\":\""+c::wire_uint64(w.seed.value)+"\",\"model_id\":"+quote(w.model_id)+"}";
 }
 std::string json(const c::ControlCommand& cmd) {
+  const auto* values=std::get_if<c::PilotAxes>(&cmd.payload);
+  if(!c::stable_id(cmd.header.session_id)||!c::stable_id(cmd.source_id)||
+     static_cast<unsigned>(cmd.authority)>static_cast<unsigned>(c::Authority::instructor)||
+     cmd.assistance.profile_id!="unassisted"||!cmd.assistance.active.empty()||!values||!c::valid(*values)||
+     values->mixture!=1||values->left_brake!=0||values->right_brake!=0)
+    throw std::invalid_argument("Invalid/unsupported prototype command JSON");
   const char* auth=cmd.authority==c::Authority::pilot?"pilot":cmd.authority==c::Authority::avionics?"avionics":cmd.authority==c::Authority::scenario?"scenario":"instructor";
   return header("ControlCommand",cmd.header)+",\"sequence\":\""+c::wire_uint64(cmd.sequence.value)+"\",\"source_id\":"+quote(cmd.source_id)+",\"authority\":\""+auth+
     "\",\"assistance\":{\"profile_id\":"+quote(cmd.assistance.profile_id)+",\"active\":[]},\"payload\":"+axes(std::get<c::PilotAxes>(cmd.payload))+"}";
 }
 std::string json(const c::OperationalEvent& event) {
+  if(!c::stable_id(event.header.session_id)||!c::stable_id(event.source_id)||
+     event.confidence!=c::OperationalEvent::Confidence::observed||event.content_version!="0.1.0-prototype")
+    throw std::invalid_argument("Invalid/unsupported prototype event JSON");
+  if(const auto* scale=std::get_if<c::TimeScaleControl>(&event.payload))
+    if(scale->scale!=.25&&scale->scale!=.5&&scale->scale!=1&&scale->scale!=2&&scale->scale!=4)
+      throw std::invalid_argument("Invalid prototype event time scale");
   std::string payload;
   if(const auto* p=std::get_if<c::PauseControl>(&event.payload)) payload=std::string("{\"kind\":\"pause\",\"paused\":")+(p->paused?"true":"false")+"}";
   else if(const auto* s=std::get_if<c::TimeScaleControl>(&event.payload)) payload="{\"kind\":\"time_scale\",\"scale\":"+number(s->scale)+"}";
@@ -131,6 +143,7 @@ std::string json(const c::OperationalEvent& event) {
     ",\"confidence\":\"observed\",\"content_version\":\"0.1.0-prototype\",\"payload\":"+payload+"}";
 }
 std::string json(const Initialization& i) {
+  if(!i.fuel_frozen_during_trim) throw std::invalid_argument("Unsupported initialization fuel-freeze JSON");
   return "{\"kind\":\"fdm-initialization\",\"version\":1,\"loaded_library_path\":"+diagnostic_string(i.loaded_library_path)+",\"library_version\":"+diagnostic_string(i.library_version)+
     ",\"compiler\":"+diagnostic_string(i.compiler)+",\"source_fingerprint\":"+diagnostic_string(i.source_fingerprint)+",\"requested_seed\":\""+c::wire_uint64(i.requested_seed.value)+"\",\"engine_seed\":"+std::to_string(i.engine_seed)+
     ",\"trim\":{\"longitudinal\":"+(i.trim.longitudinal?std::string("true"):std::string("false"))+",\"gamma_fallback\":false,\"max_cycles\":"+std::to_string(i.trim.max_cycles)+

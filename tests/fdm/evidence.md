@@ -1,6 +1,6 @@
 # P1 synthetic dynamics evidence
 
-Local proof on 2026-10-03: Windows x64, MSVC 19.40.33813.0, `/MD`, pinned CMake 3.31.8/Ninja 1.13.1 and actual shared JSBSim 1.3.1. Native CTest 3/3 passed, including 239 accepted-contract checks and 7662 FDM checks. Node 7/7 FDM boundary tests passed. Per-platform CI repeats these proofs and archives generated traces/provenance. Root review and the other P1 issues remain separate acceptance gates.
+Local proof on 2026-10-03: Windows x64, MSVC 19.40.33813.0, `/MD`, pinned CMake 3.31.8/Ninja 1.13.1 and actual shared JSBSim 1.3.1. Native CTest 3/3 passed, including 239 accepted-contract checks and 7680 FDM checks. Node 7/7 FDM boundary tests passed. Per-platform CI repeats these proofs and archives generated traces/provenance. Root review and the other P1 issues remain separate acceptance gates.
 
 The only flight model is the [MIT original synthetic inventory](../../native/fdm_jsbsim/models/original-synthetic/inventory.json), digest `1ccadb2e3d5aefe79f5a8f316631744ab4de18084469d2cf1817fb622cfabf7a`. Its six polynomials, arbitrary inertia and ideal turbine/direct thrust are numerical fixtures. The test-only [asymmetric mass XML](models/aircraft/asymmetric-cg/asymmetric-cg.xml) verifies nonzero weighted structural CG and datum/CG-relative distinctions. No upstream C172 XML, manufacturer calibration, operational airport data or licensing-credit claim belongs to this evidence.
 
@@ -31,7 +31,7 @@ The checked [Windows trace](reference/windows-msvc-19.40.json) is an **observed 
 
 The 600-second trimmed run stayed finite, with guarded speed 20..200 m/s and height 100..20000 m across one-second samples. Mass changed from 1099.999984835kg to 1071.302276301kg; final ellipsoid height 1038.223931213m. Immediate post-trim height was 999.999999970m for a 1000 m request, so later drift is not mislabeled an initialization datum offset. Longitudinal trim does not eliminate every lateral/Earth-rotation term.
 
-Local measured `Session::step_fixed` p50 was 5400 ns, p99 was 8400 ns and maximum 170700 ns over 72000 steps. Output serialization/Node/rendering/contacts are excluded. This is headless prototype performance on the target machine, not a graphics/runtime guarantee; CI retains its own timing rather than imposing hardware-dependent equality.
+Local measured `Session::step_fixed` p50 was 5300 ns, p99 was 12600 ns and maximum 1639100 ns over 72000 steps. Output serialization/Node/rendering/contacts are excluded. This is headless prototype performance on the target machine, not a graphics/runtime guarantee; CI retains its own timing rather than imposing hardware-dependent equality.
 
 Actual library tests establish positive/negative pilot roll/pitch/yaw response; `GetTb2l` matches public yaw+90°, roll+90°, pitch+30° and mixed-vector transforms. A no-trim identity/quasi-identity case preserves strict quaternion component bounds after checked matrix conversion. Nonzero asymmetric wind preserves requested ground velocity and matches `|UVW - NEDwind→body|` true airspeed at initialization and after stepping. Independent nonzero rotating-frame acceleration verifies `UVWdot + PQR×UVW`. A KG/IN mass inventory tests all CG signs/units at 100/50/0 kg fuel; `StructuralToBody(CG)=0` is explicitly different from fixed-datum CG.
 

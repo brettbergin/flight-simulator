@@ -97,7 +97,7 @@ export function validateOutput(records,context) {
   if(records[0].accepted_aircraft.tick!=='0'||!Number.isInteger(records[0].engine_seed)||records[0].engine_seed<0||records[0].engine_seed>2147483647)throw new Error('Invalid initialized boundary');
   const init=records[0];uint64(init.requested_seed);
   if(typeof init.loaded_library_path!=='string'||init.loaded_library_path.length<1||init.loaded_library_path.length>32768||/[\x00-\x1f]/.test(init.loaded_library_path)||
-     typeof init.library_version!=='string'||! /^1\.3\.1(?: [\x20-\x7e]{1,64})?$/.test(init.library_version)||typeof init.compiler!=='string'||!/^(MSVC|GNU)-[0-9.]+$/.test(init.compiler)||! /^[0-9a-f]{64}$/.test(init.source_fingerprint)||
+     typeof init.library_version!=='string'||! /^1\.3\.1(?: [\x20-\x7e]{1,192})?$/.test(init.library_version)||typeof init.compiler!=='string'||!/^(MSVC|GNU)-[0-9.]+$/.test(init.compiler)||! /^[0-9a-f]{64}$/.test(init.source_fingerprint)||
      init.fuel_frozen_during_trim!==true||init.initialization_step_s!==1/120)throw new Error('Invalid native build/initialization receipt');
   finiteRange(init.initial_fuel_kg,0,100.0001);keys(init.trim,['longitudinal','gamma_fallback','max_cycles','max_cycles_per_axis','acceleration_tolerance_mps2']);
   if(typeof init.trim.longitudinal!=='boolean'||init.trim.gamma_fallback!==false||!Number.isInteger(init.trim.max_cycles)||!Number.isInteger(init.trim.max_cycles_per_axis))throw new Error('Invalid trim receipt');
@@ -143,7 +143,7 @@ export function validateOutput(records,context) {
     const seed=BigInt(scenario.seed);if(init.engine_seed!==Number((seed^(seed>>31n)^(seed>>62n))&2147483647n))throw new Error('Wrong engine seed fold');
     const boundary=(record,type,tick)=>{
       if(!record||record.type!==type||record.tick!==String(tick)||record.session_id!==session)throw new Error('Output session/tick/type differs from scheduled boundary');
-      if(type==='AircraftSnapshot'&&!isDeepStrictEqual(record.clock,scenario.clock))throw new Error('Output clock differs from request');
+      if(type==='AircraftSnapshot'&&(!isDeepStrictEqual(record.clock,scenario.clock)||record.validity!=='valid'||record.systems.some(channel=>channel.validity!=='valid')))throw new Error('Output clock/validity differs from supported context');
       if(type==='AtmosphereSample'&&(record.seed!==scenario.seed||record.model_id!=='jsbsim-dry-isa'))throw new Error('Output atmosphere identity differs from request');
     };
     boundary(init.accepted_aircraft,'AircraftSnapshot',0);boundary(init.accepted_atmosphere,'AtmosphereSample',0);
