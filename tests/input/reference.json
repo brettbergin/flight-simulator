@@ -1,0 +1,777 @@
+{
+  "schema_version": 1,
+  "classification": "PRIVATE_PRE_CONSUMER_ANALYTIC_REFERENCE_NOT_EXECUTED_DEVICE_EVIDENCE",
+  "contract_commit": "ff1909c651e5f8f4d3bb8a52cf75bda48a135fbb",
+  "contract_path": "docs/decisions/008-input-presets.md",
+  "contract_normalized_lf_sha256": "7501f60b3d6c192644e009f8a6ef26b401896d681491f0198bcdaf1a29b6f9a3",
+  "sample_result_exact_keys": [
+    "ok",
+    "error",
+    "axes",
+    "actions",
+    "takeover",
+    "brake_hold"
+  ],
+  "notes": [
+    "Key names are symbolic reference aliases; consumers bind actual pinned backend enums.",
+    "Expected numbers are exact decimal-rational algebra, not copied mapper code. Decimal approximations are explanatory only.",
+    "Mode/latch cases are declarative contract transitions, not mock execution or native pause evidence.",
+    "Takeover matches .58 to .6 away from the .03 boundary; neutral rejection .06 is away from .05.",
+    "Frame-rate polling equivalence is not promised: compare explicit elapsed samples and actual admitted commands."
+  ],
+  "case_count": 38,
+  "cases": [
+    {
+      "id": "centered_asymmetric_left",
+      "kind": "analytic_mapping",
+      "input": {
+        "minimum": "-0.8",
+        "center": "0.1",
+        "maximum": "0.9",
+        "deadzone": "0",
+        "saturation": "1",
+        "gain": "1",
+        "slew_per_s": "0",
+        "raw": "-0.35"
+      },
+      "expected": {
+        "mapped": {
+          "rational": "-1/2",
+          "decimal_approximation": -0.5
+        }
+      },
+      "basis": "(-.35-.1)/(.1-(-.8)) = -1/2"
+    },
+    {
+      "id": "centered_asymmetric_right",
+      "kind": "analytic_mapping",
+      "input": {
+        "minimum": "-0.8",
+        "center": "0.1",
+        "maximum": "0.9",
+        "deadzone": "0",
+        "saturation": "1",
+        "gain": "1",
+        "slew_per_s": "0",
+        "raw": "0.5"
+      },
+      "expected": {
+        "mapped": {
+          "rational": "1/2",
+          "decimal_approximation": 0.5
+        }
+      },
+      "basis": "(.5-.1)/(.9-.1) = 1/2"
+    },
+    {
+      "id": "centered_inverted_right",
+      "kind": "analytic_mapping",
+      "input": {
+        "minimum": "-0.8",
+        "center": "0.1",
+        "maximum": "0.9",
+        "deadzone": "0",
+        "saturation": "1",
+        "gain": "1",
+        "slew_per_s": "0",
+        "raw": "0.5",
+        "invert": true
+      },
+      "expected": {
+        "mapped": {
+          "rational": "-1/2",
+          "decimal_approximation": -0.5
+        }
+      },
+      "basis": "Inversion reverses the calibrated signed half-throw."
+    },
+    {
+      "id": "centered_noise_deadzone",
+      "kind": "analytic_mapping",
+      "input": {
+        "normalized": "0.05",
+        "deadzone": "0.1",
+        "saturation": "0.8"
+      },
+      "expected": {
+        "mapped": {
+          "rational": "0",
+          "decimal_approximation": 0.0
+        }
+      },
+      "basis": "Magnitude below deadzone contributes zero."
+    },
+    {
+      "id": "centered_deadzone_half",
+      "kind": "analytic_mapping",
+      "input": {
+        "normalized": "0.45",
+        "deadzone": "0.1",
+        "saturation": "0.8"
+      },
+      "expected": {
+        "mapped": {
+          "rational": "1/2",
+          "decimal_approximation": 0.5
+        }
+      },
+      "basis": "(.45-.1)/(.8-.1) = 1/2"
+    },
+    {
+      "id": "centered_saturated_gain",
+      "kind": "analytic_mapping",
+      "input": {
+        "normalized": "0.9",
+        "deadzone": "0.1",
+        "saturation": "0.8",
+        "gain": "0.35"
+      },
+      "expected": {
+        "mapped": {
+          "rational": "7/20",
+          "decimal_approximation": 0.35
+        }
+      },
+      "basis": "Saturated unit throw multiplied by explicit gain .35."
+    },
+    {
+      "id": "unsigned_asymmetric_quarter",
+      "kind": "analytic_mapping",
+      "input": {
+        "minimum": "-0.7",
+        "maximum": "0.9",
+        "raw": "-0.3"
+      },
+      "expected": {
+        "mapped": {
+          "rational": "1/4",
+          "decimal_approximation": 0.25
+        }
+      },
+      "basis": "(-.3-(-.7))/(.9-(-.7)) = 1/4"
+    },
+    {
+      "id": "unsigned_inverted_quarter",
+      "kind": "analytic_mapping",
+      "input": {
+        "minimum": "-0.7",
+        "maximum": "0.9",
+        "raw": "-0.3",
+        "invert": true
+      },
+      "expected": {
+        "mapped": {
+          "rational": "3/4",
+          "decimal_approximation": 0.75
+        }
+      },
+      "basis": "Unsigned inversion is 1 - calibrated fraction."
+    },
+    {
+      "id": "separate_unsigned_pedals",
+      "kind": "analytic_mapping",
+      "input": {
+        "left_raw": "-0.3",
+        "right_raw": "0.5",
+        "minimum": "-0.7",
+        "maximum": "0.9",
+        "latch": false
+      },
+      "expected": {
+        "left_brake": {
+          "rational": "1/4",
+          "decimal_approximation": 0.25
+        },
+        "right_brake": {
+          "rational": "3/4",
+          "decimal_approximation": 0.75
+        }
+      },
+      "basis": "Each pedal has its own ratio; neither pedal substitutes for the other."
+    },
+    {
+      "id": "analog_wall_slew_bound",
+      "kind": "analytic_mapping",
+      "input": {
+        "target": "1",
+        "held": "0",
+        "slew_per_s": "0.8",
+        "elapsed_us": 250000
+      },
+      "expected": {
+        "mapped": {
+          "rational": "1/5",
+          "decimal_approximation": 0.2
+        }
+      },
+      "basis": "The bounded displacement is .8 * 1/4 = 1/5."
+    },
+    {
+      "id": "centered_negative_endpoint",
+      "kind": "analytic_mapping",
+      "input": {
+        "minimum": "-0.8",
+        "center": "0.1",
+        "maximum": "0.9",
+        "deadzone": "0",
+        "saturation": "1",
+        "gain": "1",
+        "slew_per_s": "0",
+        "raw": "-0.8"
+      },
+      "expected": {
+        "mapped": {
+          "rational": "-1",
+          "decimal_approximation": -1.0
+        }
+      },
+      "basis": "Calibrated minimum reaches exactly -1 despite asymmetric spans."
+    },
+    {
+      "id": "throttle_aliases_count_once",
+      "kind": "digital_slew",
+      "input": {
+        "positive_pressed": [
+          "W",
+          "PageUp"
+        ],
+        "rate": "0.25",
+        "held": "0.4",
+        "elapsed_us": 200000
+      },
+      "expected": {
+        "throttle": {
+          "rational": "9/20",
+          "decimal_approximation": 0.45
+        }
+      },
+      "basis": "ANY alias gives one sign: .4 + .25 * .2 = .45."
+    },
+    {
+      "id": "opposite_aliases_cancel",
+      "kind": "digital_slew",
+      "input": {
+        "positive_pressed": [
+          "W",
+          "PageUp"
+        ],
+        "negative_pressed": [
+          "S"
+        ],
+        "held": "0.4",
+        "elapsed_us": 200000
+      },
+      "expected": {
+        "throttle": {
+          "rational": "2/5",
+          "decimal_approximation": 0.4
+        }
+      },
+      "basis": "Both sides pressed yield digital sign zero."
+    },
+    {
+      "id": "legacy_roll_start_bias",
+      "kind": "digital_slew",
+      "input": {
+        "start_roll": "0.1",
+        "held_roll": "0.1",
+        "digital_sign": 1,
+        "gain": "0.35",
+        "rate": "0.9",
+        "elapsed_us": 250000
+      },
+      "expected": {
+        "target": {
+          "rational": "9/20",
+          "decimal_approximation": 0.45
+        },
+        "roll": {
+          "rational": "13/40",
+          "decimal_approximation": 0.325
+        }
+      },
+      "basis": "Target .45; maximum quarter-second movement .225 gives .325."
+    },
+    {
+      "id": "legacy_yaw_return_start",
+      "kind": "digital_slew",
+      "input": {
+        "start_yaw": "-0.1",
+        "held_yaw": "0.15",
+        "digital_sign": 0,
+        "gain": "0.25",
+        "rate": "0.9",
+        "elapsed_us": 250000,
+        "return_to_start": true
+      },
+      "expected": {
+        "yaw": {
+          "rational": "-3/40",
+          "decimal_approximation": -0.075
+        }
+      },
+      "basis": "Move .225 toward -.1 from .15, yielding -.075, without overshoot."
+    },
+    {
+      "id": "legacy_pitch_target_clamp",
+      "kind": "digital_slew",
+      "input": {
+        "start_pitch": "0.95",
+        "held_pitch": "0.95",
+        "digital_sign": 1,
+        "gain": "0.15",
+        "rate": "0.9",
+        "elapsed_us": 250000
+      },
+      "expected": {
+        "target": {
+          "rational": "1",
+          "decimal_approximation": 1.0
+        },
+        "pitch": {
+          "rational": "1",
+          "decimal_approximation": 1.0
+        }
+      },
+      "basis": "Target 1.10 clamps to 1; movement stops at target, not at 1.175."
+    },
+    {
+      "id": "throttle_negative_rate",
+      "kind": "digital_slew",
+      "input": {
+        "held": "0.4",
+        "digital_sign": -1,
+        "rate": "0.25",
+        "elapsed_us": 120000
+      },
+      "expected": {
+        "throttle": {
+          "rational": "37/100",
+          "decimal_approximation": 0.37
+        }
+      },
+      "basis": ".4 - .25 * .12 = .37."
+    },
+    {
+      "id": "trim_positive_rate",
+      "kind": "digital_slew",
+      "input": {
+        "held": "-0.02",
+        "digital_sign": 1,
+        "rate": "0.08",
+        "elapsed_us": 250000
+      },
+      "expected": {
+        "trim": {
+          "rational": "0",
+          "decimal_approximation": 0.0
+        }
+      },
+      "basis": "-.02 + .08 * .25 = 0."
+    },
+    {
+      "id": "unsigned_release_holds",
+      "kind": "digital_slew",
+      "input": {
+        "held_throttle": "0.37",
+        "held_trim": "-0.12",
+        "digital_sign": 0,
+        "elapsed_us": 250000
+      },
+      "expected": {
+        "throttle": {
+          "rational": "37/100",
+          "decimal_approximation": 0.37
+        },
+        "trim": {
+          "rational": "-3/25",
+          "decimal_approximation": -0.12
+        }
+      },
+      "basis": "Unsigned throttle and signed trim position hold when the rate keys are released."
+    },
+    {
+      "id": "first_ground_hold_seed",
+      "kind": "latch_transition",
+      "input": {
+        "first_successful_configure": true,
+        "start_brakes": [
+          "0.8",
+          "0.8"
+        ],
+        "held_brakes": [
+          "0.8",
+          "0.8"
+        ]
+      },
+      "expected": {
+        "brake_hold": true
+      },
+      "basis": "Both accepted start brakes exceed .5; only first successful configure seeds latch."
+    },
+    {
+      "id": "first_airborne_hold_false",
+      "kind": "latch_transition",
+      "input": {
+        "first_successful_configure": true,
+        "start_brakes": [
+          "0",
+          "0"
+        ],
+        "held_brakes": [
+          "0",
+          "0"
+        ]
+      },
+      "expected": {
+        "brake_hold": false
+      },
+      "basis": "Fresh airborne session does not inherit the prior session latch."
+    },
+    {
+      "id": "later_apply_preserves_false",
+      "kind": "latch_transition",
+      "input": {
+        "first_successful_configure": false,
+        "brake_hold_before": false,
+        "start_brakes": [
+          "0.8",
+          "0.8"
+        ],
+        "held_brakes": [
+          "1",
+          "1"
+        ],
+        "momentary_both_brakes": true
+      },
+      "expected": {
+        "brake_hold": false
+      },
+      "basis": "Apply cannot infer a latch from held momentary Space/pedals or reseed from start."
+    },
+    {
+      "id": "B_edge_one_toggle",
+      "kind": "latch_transition",
+      "input": {
+        "brake_hold_before": true,
+        "B_samples": [
+          false,
+          true,
+          true,
+          false,
+          true
+        ]
+      },
+      "expected": {
+        "brake_hold_after_each": [
+          true,
+          false,
+          false,
+          false,
+          true
+        ]
+      },
+      "basis": "Each rising edge toggles once; held key or OS repeat does not toggle again."
+    },
+    {
+      "id": "held_overrides_return_primary",
+      "kind": "latch_transition",
+      "input": {
+        "brake_hold": false,
+        "primary_brakes": [
+          "0.25",
+          "0.75"
+        ],
+        "left_full_samples": [
+          true,
+          false
+        ]
+      },
+      "expected": {
+        "brakes_after_each": [
+          [
+            "1",
+            "0.75"
+          ],
+          [
+            "0.25",
+            "0.75"
+          ]
+        ]
+      },
+      "basis": "Declared left-full override affects only left; release returns to the pedal values."
+    },
+    {
+      "id": "suspend_preserves_hold",
+      "kind": "latch_transition",
+      "input": {
+        "brake_hold_before": true,
+        "suspend_held_brakes": [
+          "0.2",
+          "0.4"
+        ],
+        "resume_buttons_released": true
+      },
+      "expected": {
+        "brake_hold": true,
+        "first_live_brakes": [
+          "1",
+          "1"
+        ]
+      },
+      "basis": "Suspend/resume preserves latch even if copied held values differ; live override stays visible."
+    },
+    {
+      "id": "suspended_diagnostics_only",
+      "kind": "mode_transition",
+      "input": {
+        "suspended": true,
+        "elapsed_us": 0,
+        "held_axes_marker": "H",
+        "pressed": [
+          "W",
+          "B",
+          "view_cycle"
+        ],
+        "wheel_pulse": true
+      },
+      "expected": {
+        "ok": true,
+        "axes_marker": "H",
+        "actions": [],
+        "takeover": [],
+        "filter_unchanged": true,
+        "latch_unchanged": true
+      },
+      "basis": "Suspended sample diagnostics do not integrate, toggle, or dispatch; copied held axes only."
+    },
+    {
+      "id": "suspended_elapsed_rejects",
+      "kind": "mode_transition",
+      "input": {
+        "suspended": true,
+        "elapsed_us": 1
+      },
+      "expected": {
+        "ok": false,
+        "axes": null,
+        "actions": [],
+        "takeover": [],
+        "mode": "suspended",
+        "filter_unchanged": true,
+        "latch_unchanged": true
+      },
+      "basis": "Nonzero suspended elapsed is not clamped or integrated."
+    },
+    {
+      "id": "resume_unmatched_absolute_allowed",
+      "kind": "mode_transition",
+      "input": {
+        "generation_matches": true,
+        "observed_indices_present": true,
+        "centered_neutral": "0",
+        "persistent_released": true,
+        "held_throttle": "0.6",
+        "mapped_throttle": "0.1"
+      },
+      "expected": {
+        "resume_ok": true,
+        "native_resume_is_separate": true,
+        "next_throttle": {
+          "rational": "3/5",
+          "decimal_approximation": 0.6
+        },
+        "takeover": [
+          "throttle"
+        ]
+      },
+      "basis": "Absolute mismatch does not forbid explicit resume, but must retain held axis until takeover."
+    },
+    {
+      "id": "resume_pressed_flight_key_blocks",
+      "kind": "mode_transition",
+      "input": {
+        "generation_matches": true,
+        "centered_neutral": "0",
+        "persistent_pressed": [
+          "W"
+        ],
+        "initiating_resume_key_pressed": true
+      },
+      "expected": {
+        "resume_ok": false,
+        "mode": "suspended"
+      },
+      "basis": "An initiating UI key is exempt, but a persistent throttle contributor W is not."
+    },
+    {
+      "id": "resume_centered_not_neutral",
+      "kind": "mode_transition",
+      "input": {
+        "generation_matches": true,
+        "calibrated_centered": "0.06",
+        "persistent_released": true
+      },
+      "expected": {
+        "resume_ok": false,
+        "mode": "suspended"
+      },
+      "basis": "Centered magnitude .06 exceeds the .05 neutral requirement, before any aircraft motion."
+    },
+    {
+      "id": "active_source_removed",
+      "kind": "mode_transition",
+      "input": {
+        "selected_slot": "pedals",
+        "pinned_generation": 9,
+        "observed_devices": []
+      },
+      "expected": {
+        "ok": false,
+        "axes": null,
+        "actions": [],
+        "takeover": [],
+        "controller_pause_before_next_tick": true,
+        "no_neutral_guess": true
+      },
+      "basis": "Missing active source invalidates admission; controller pause/solver sequencing needs an actual facade fixture later."
+    },
+    {
+      "id": "slot_reused_generation_changed",
+      "kind": "mode_transition",
+      "input": {
+        "selected_slot": "pedals",
+        "pinned_generation": 9,
+        "raw_generation": 10,
+        "axis_value": "0"
+      },
+      "expected": {
+        "ok": false,
+        "axes": null,
+        "actions": [],
+        "takeover": [],
+        "explicit_reselection_required": true
+      },
+      "basis": "Numeric slot/control reuse with a new generation cannot silently regain authority."
+    },
+    {
+      "id": "bound_axis_unobserved",
+      "kind": "mode_transition",
+      "input": {
+        "bound_axis_index": 2,
+        "raw_observed_axis_indices": [
+          0,
+          1
+        ],
+        "generation_matches": true
+      },
+      "expected": {
+        "configure_or_resume_ok": false,
+        "no_fabricated_zero": true
+      },
+      "basis": "Absent sparse entry is unavailable even if the physical axis might exist."
+    },
+    {
+      "id": "idle_rearms_takeover",
+      "kind": "mode_transition",
+      "input": {
+        "held_throttle": "0.6",
+        "mapped_absolute_throttle": "0.6",
+        "idle_rising_edge": true,
+        "later_unmoved_lever": "0.6"
+      },
+      "expected": {
+        "idle_throttle": {
+          "rational": "0",
+          "decimal_approximation": 0.0
+        },
+        "later_throttle": {
+          "rational": "0",
+          "decimal_approximation": 0.0
+        },
+        "later_takeover": [
+          "throttle"
+        ]
+      },
+      "basis": "Idle sets zero and rearms takeover; an unmoved absolute lever cannot restore power."
+    },
+    {
+      "id": "takeover_matches_then_follows",
+      "kind": "mode_transition",
+      "input": {
+        "held_throttle": "0.6",
+        "mapped_throttle_samples": [
+          "0.1",
+          "0.58",
+          "0.7"
+        ],
+        "slew_per_s": "0"
+      },
+      "expected": {
+        "throttle_after_each": [
+          "0.6",
+          "0.58",
+          "0.7"
+        ],
+        "takeover_after_each": [
+          [
+            "throttle"
+          ],
+          [],
+          []
+        ]
+      },
+      "basis": ".58 is within .03 of .6; direct mapping becomes active only at the match."
+    },
+    {
+      "id": "resume_primes_ui_edges_no_wheel_leak",
+      "kind": "mode_transition",
+      "input": {
+        "suspended": true,
+        "paused_wheel_presses": [
+          4,
+          4
+        ],
+        "resume_key_held": true,
+        "persistent_flight_buttons_released": true
+      },
+      "expected": {
+        "resume_ok": true,
+        "next_actions": [],
+        "wheel_pulses_coalesced_then_consumed": true,
+        "held_UI_edge_primed": true
+      },
+      "basis": "Paused wheel pulses cannot leak into flight; held initiating UI input cannot fire a second edge."
+    },
+    {
+      "id": "invalid_calibration_atomic",
+      "kind": "configuration_rejection",
+      "input": {
+        "centered_minimum": "0",
+        "center": "0.04",
+        "maximum": "1",
+        "previous_active_marker": "A"
+      },
+      "expected": {
+        "ok": false,
+        "previous_active_marker": "A",
+        "filter_unchanged": true
+      },
+      "basis": "Centered left span .04 is smaller than the minimum .05; invalid configure must remain atomic."
+    },
+    {
+      "id": "runtime_mixture_rejected",
+      "kind": "configuration_rejection",
+      "input": {
+        "mixture_kind": "joy_axis",
+        "previous_active_marker": "A"
+      },
+      "expected": {
+        "ok": false,
+        "previous_active_marker": "A",
+        "runtime_mixture": "fixed1"
+      },
+      "basis": "Runtime mixture is fixed1; unsigned analytic kernels never qualify independent mixture hardware."
+    }
+  ]
+}

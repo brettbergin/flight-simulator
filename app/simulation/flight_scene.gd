@@ -5,6 +5,22 @@ extends "res://interactive/preview.gd"
 const Facade = preload("res://simulation/session_facade.gd")
 const Frames = preload("res://simulation/canonical_frames.gd")
 const Participant = preload("res://simulation/origin_participant.gd")
+const Mapper = preload("res://input/input_mapper.gd")
+const Preset = preload("res://input/input_preset.gd")
+const ControlsPanel = preload("res://ui/controls/controls_panel.gd")
+var mapper: RefCounted
+var active_preset: Dictionary={}
+var controls_panel: Control
+var input_problem: String=""
+var input_blocked: bool=false
+var takeover_targets: Array=[]
+# Runtime IDs never enter a preset. Each observed set belongs to one connection.
+var device_connections: Dictionary={}
+var selected_slots: Dictionary={}
+var wheel_pulses: Array=[]
+var connection_generation: int=0
+var dispatching_input: bool=false
+var controls_selection_backup: Dictionary={}
 var facade: RefCounted
 var prepared: Dictionary={}
 var speed_button: Button
@@ -23,10 +39,16 @@ func _ready() -> void:
 			return
 		add_child(harness.new())
 		return
+	if not legacy_proof:
+		for device in Input.get_connected_joypads():
+			observe_connection(device,true)
 	super._ready()
 	if not legacy_proof and facade_visual:
 		set_process(false)
 		call_deferred("run_facade_visual")
+	elif not legacy_proof and "--input-visual-smoke" in OS.get_cmdline_user_args():
+		set_process(false)
+		call_deferred("run_input_visual")
 
 func make_world() -> void:
 	super.make_world()
@@ -109,15 +131,29 @@ func restart() -> bool:
 		return fail(adopted.error)
 	camera_ready=false
 	look_angles=Vector2.ZERO
-	brake_hold=float(controls.left_brake)>0.5 and float(controls.right_brake)>0.5
+	# Configuration cannot run against a live native worker.
+	var paused_start: Dictionary=facade.set_paused(true)
+	adopt_result(paused_start)
+	if not paused_start.ok:
+		return fail("Controls initialization could not pause native flight")
+	mapper=Mapper.new()
+	if active_preset.is_empty():
+		active_preset=Mapper.default_preset()
+	var configured: Dictionary=mapper.configure(active_preset,held_controls,initial.solved_controls,collect_input_raw())
+	input_blocked=not configured.ok
+	input_problem="" if configured.ok else configured.error
+	takeover_targets=[]
+	if configured.ok:
+		brake_hold=mapper.sample(collect_input_raw(),0).brake_hold
 	submitted_count=0
 	event_count=0
 	attempt+=1
-	status="LIVE | %s | fresh attempt %d | engine already running"%[named_start,attempt]
+	status="PAUSED | %s | fresh attempt %d | confirm controls"%[named_start,attempt]
 	last_wall_us=Time.get_ticks_usec()
 	return true
 
 func adopt_result(result: Dictionary) -> void:
+	var was_paused: bool=paused
 	var state: Dictionary=result.readback
 	if state.aircraft!=null:
 		snapshot=state.aircraft.duplicate(true)
@@ -129,6 +165,8 @@ func adopt_result(result: Dictionary) -> void:
 		ground_valid=ground.ground_query_valid
 		plane_clearance=ground.plane_clearance_m
 	paused=state.paused or state.host_mode!="live"
+	if paused and mapper!=null and (not was_paused or not result.ok):
+		mapper.suspend("Native flight paused or rejected",held_controls)
 	stalled=state.host_mode=="stalled"
 	blocked=state.host_mode in ["coverage_blocked","discarded"]
 	native_outcome=state.native_outcome if state.native_outcome!=null else "error"
@@ -147,10 +185,35 @@ func pause_session(value: bool) -> bool:
 		return super.pause_session(value)
 	if facade==null:
 		return false
+	if not value:
+		if mapper==null:
+			status="CONTROLS PAUSED | "+input_problem
+			return false
+		var ready: Dictionary=mapper.resume_confirmed(collect_input_raw())
+		if not ready.ok:
+			input_problem=ready.error
+			status="CONTROLS PAUSED | "+input_problem
+			return false
+	else:
+		input_blocked=true
 	var result: Dictionary=facade.set_paused(value)
 	adopt_result(result)
 	last_wall_us=Time.get_ticks_usec()
-	return result.ok
+	if value and mapper!=null:
+		mapper.suspend("Native flight paused",held_controls)
+	if not result.ok:
+		input_blocked=true
+		input_problem="Native pause/resume rejected; start a fresh attempt"
+		if mapper!=null:
+			mapper.suspend(input_problem,held_controls)
+		# A failed requested pause cannot leave a worker advancing unnoticed.
+		if value:
+			adopt_result(facade.close())
+		return false
+	input_blocked=false
+	if not value:
+		input_problem=""
+	return true
 
 func submit_axes(axes: Dictionary) -> bool:
 	if legacy_proof:
@@ -173,25 +236,75 @@ func _process(delta: float) -> void:
 	var now: int=Time.get_ticks_usec()
 	var elapsed: int=now-last_wall_us
 	last_wall_us=now
-	if not paused and not menu_open and facade!=null:
-		read_keyboard(minf(float(elapsed)/1000000.0,0.25))
-		if submit_axes(controls):
-			advance_wall_us(elapsed)
-	elif paused and facade!=null:
-		adopt_result(facade.advance_wall_us(0))
+	process_input_interval(elapsed)
 	show_state(clampf(float(elapsed)/1000000.0,0.0,0.25))
 	if sound!=null and not snapshot.is_empty():
 		sound.call("update_audio",float(held_controls.get("throttle",0)),flight_speed(),paused,any_wow())
+
+func process_input_interval(elapsed: int) -> void:
+	if facade==null or mapper==null:
+		return
+	var raw: Dictionary=collect_input_raw(controls_panel.get_draft() if controls_panel!=null and controls_panel.visible else {})
+	if not paused and not menu_open and not input_blocked:
+		# Preserve overload semantics before touching input filters; never clamp time.
+		if elapsed<0 or elapsed>250000:
+			adopt_result(facade.advance_wall_us(elapsed))
+			mapper.suspend("Host timing requires recovery",held_controls)
+			input_blocked=true
+			input_problem="Host timing requires a fresh attempt"
+			return
+		var sample: Dictionary=mapper.sample(raw,elapsed)
+		wheel_pulses.clear()
+		if not sample.ok:
+			pause_for_input(sample.error)
+			return
+		controls=sample.axes.duplicate(true)
+		brake_hold=sample.brake_hold
+		takeover_targets=sample.takeover.duplicate()
+		var sampled_facade: RefCounted=facade
+		for action in sample.actions:
+			dispatching_input=true
+			dispatch_input_action(action)
+			dispatching_input=false
+			if facade!=sampled_facade or paused or menu_open or input_blocked:
+				return
+		Input.mouse_mode=Input.MOUSE_MODE_CAPTURED if Mapper.action_pressed(active_preset,raw,"look_hold") else Input.MOUSE_MODE_VISIBLE
+		if submit_axes(controls):
+			advance_wall_us(elapsed)
+	else:
+		wheel_pulses.clear()
+		var diagnostic: Dictionary=mapper.sample(raw,0)
+		if diagnostic.ok:
+			brake_hold=diagnostic.brake_hold
+			takeover_targets=diagnostic.takeover.duplicate()
+		elif not input_blocked:
+			input_problem=diagnostic.error
+		adopt_result(facade.advance_wall_us(0))
+		if controls_panel!=null and controls_panel.visible:
+			controls_panel.update_diagnostics(raw,diagnostic.axes if diagnostic.ok else held_controls,held_controls,controls_diagnostics())
 
 func make_menu(canvas: CanvasLayer) -> void:
 	super.make_menu(canvas)
 	if legacy_proof:
 		return
-	speed_button=add_menu_button(menu.get_child(0),"Flight speed: 1x  (F5 / F6)",cycle_flight_scale)
-	menu.get_child(0).move_child(speed_button,6)
-	# Keep the expanded menu inside the established minimum 960x540 window.
+	var box: VBoxContainer=menu.get_child(0)
+	# Calibration replaces the old global sensitivity and implicit pad picker.
+	for child in box.get_children():
+		if child is HSlider or (child is Label and child!=menu_title and child!=menu_message) or (child is Button and child.text.begins_with("Keyboard / gamepad")):
+			box.remove_child(child)
+			child.queue_free()
+	var controls_button: Button=add_menu_button(box,"Controls and calibration  (F7)",open_controls)
+	box.move_child(controls_button,5)
+	speed_button=add_menu_button(box,"Flight speed: 1x  (F5 / F6)",cycle_flight_scale)
+	box.move_child(speed_button,6)
+	controls_panel=ControlsPanel.new()
+	canvas.add_child(controls_panel)
+	controls_panel.hide()
+	controls_panel.applied.connect(apply_controls)
+	controls_panel.dismissed.connect(dismiss_controls)
+	controls_panel.device_selected.connect(select_input_device)
 	menu.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
-	menu.custom_minimum_size=Vector2(560,516)
+	menu.custom_minimum_size=Vector2(560,490)
 	layout_flight_menu()
 
 func layout_flight_menu() -> void:
@@ -205,11 +318,12 @@ func set_flight_scale(value: float) -> bool:
 	if facade==null:
 		return false
 	var now: int=Time.get_ticks_usec()
-	var settled: Dictionary=facade.advance_wall_us(now-last_wall_us)
-	last_wall_us=now
-	adopt_result(settled)
-	if not settled.ok:
-		return false
+	if not dispatching_input:
+		var settled: Dictionary=facade.advance_wall_us(now-last_wall_us)
+		last_wall_us=now
+		adopt_result(settled)
+		if not settled.ok:
+			return false
 	var result: Dictionary=facade.set_time_scale(value)
 	adopt_result(result)
 	if result.ok and speed_button!=null:
@@ -222,16 +336,254 @@ func cycle_flight_scale() -> void:
 	var index: int=scales.find(current)
 	set_flight_scale(scales[(index+1)%scales.size()])
 
+func _input(event: InputEvent) -> void:
+	if legacy_proof:
+		return
+	if event is InputEventJoypadMotion or event is InputEventJoypadButton:
+		var device: int=event.device
+		if not device_connections.has(device):
+			return
+		var connection: Dictionary=device_connections[device]
+		if event is InputEventJoypadMotion and event.axis>=0 and event.axis<JOY_AXIS_MAX:
+			connection.axes[event.axis]=true
+		elif event is InputEventJoypadButton and event.button_index>=0 and event.button_index<JOY_BUTTON_MAX:
+			connection.buttons[event.button_index]=true
+	elif event is InputEventMouseButton and event.pressed and event.button_index in [4,5,6,7]:
+		if not paused and not menu_open and (controls_panel==null or not controls_panel.visible) and not event.button_index in wheel_pulses:
+			wheel_pulses.append(event.button_index)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if legacy_proof:
+		super._unhandled_input(event)
+		return
+	if controls_panel!=null and controls_panel.visible:
+		return
+	if event is InputEventMouseMotion and not paused and not menu_open and Input.mouse_mode==Input.MOUSE_MODE_CAPTURED:
+		look_angles.x=clampf(look_angles.x-event.relative.x*0.004,-PI,PI)
+		look_angles.y=clampf(look_angles.y-event.relative.y*0.004,-1.2,1.2)
+	elif paused and event is InputEventJoypadButton and event.pressed:
+		var raw: Dictionary=collect_input_raw()
+		if Preset.validate_raw(raw).ok and Mapper.action_pressed(active_preset,raw,"pause_menu"):
+			close_menu()
+
 func _unhandled_key_input(event: InputEvent) -> void:
-	if not legacy_proof and event is InputEventKey and event.pressed and not event.echo and event.physical_keycode in [KEY_F5,KEY_F6]:
-		var scales: Array=[0.25,0.5,1.0,2.0,4.0]
-		var current: float=facade.readback().time_scale if facade!=null else 1.0
-		var index: int=scales.find(current)
-		index=clampi(index+(-1 if event.physical_keycode==KEY_F5 else 1),0,scales.size()-1)
-		set_flight_scale(scales[index])
+	if legacy_proof:
+		super._unhandled_key_input(event)
+		return
+	if not event is InputEventKey or not event.pressed or event.echo:
+		return
+	if controls_panel!=null and controls_panel.visible:
+		return
+	if event.physical_keycode==KEY_ESCAPE:
+		if menu_open:
+			close_menu()
+		else:
+			open_menu("Flight paused")
 		get_viewport().set_input_as_handled()
 		return
-	super._unhandled_key_input(event)
+	if paused or menu_open:
+		# UI press event, not a flight sample: no axis/filter/edge advancement.
+		var raw: Dictionary=collect_input_raw()
+		raw.keys=[event.physical_keycode]
+		raw.mouse_buttons=[]
+		for device in raw.devices:
+			for button in device.buttons: button.pressed=false
+		if not Preset.validate_raw(raw).ok:
+			return
+		for action in active_preset.actions:
+			if Mapper.action_pressed(active_preset,raw,action.id):
+				if action.id=="pause_menu":
+					close_menu()
+				else:
+					dispatch_input_action(action.id)
+		get_viewport().set_input_as_handled()
+
+func dispatch_input_action(action: String) -> void:
+	match action:
+		"pause_menu": open_menu("Flight paused")
+		"restart": start_flight(named_start)
+		"start_ground": start_flight("ground-ready")
+		"start_airborne": start_flight("airborne-prepared")
+		"view_cycle": set_camera_mode((camera_mode+1)%4)
+		"view_cockpit": set_camera_mode(0)
+		"view_chase": set_camera_mode(1)
+		"view_orbit": set_camera_mode(2)
+		"view_panel": set_camera_mode(3)
+		"map_toggle":
+			map_visible=not map_visible
+			flight_map.visible=map_visible
+		"runway_toggle":
+			if map_visible: flight_map.call("toggle_runway")
+		"map_zoom_in":
+			if map_visible: flight_map.call("zoom",0.5)
+		"map_zoom_out":
+			if map_visible: flight_map.call("zoom",2.0)
+		"view_zoom_in","view_zoom_out":
+			var direction: float=-1.0 if action=="view_zoom_in" else 1.0
+			if camera_mode in [0,3]: camera.fov=clampf(camera.fov+direction*3,35,90)
+			else: camera_distance=clampf(camera_distance+direction,6,40)
+		"recenter": look_angles=Vector2.ZERO
+		"help":
+			help_visible=not help_visible
+			panel.call("set_help_visible",help_visible)
+		"overlay":
+			panel_visible=not panel_visible
+			panel.call("set_panel_visible",panel_visible)
+		"controls_panel","controller_select": open_controls()
+		"audio":
+			audio_enabled=not audio_enabled
+			if sound!=null: sound.call("set_enabled",audio_enabled)
+		"fullscreen":
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED if DisplayServer.window_get_mode()==DisplayServer.WINDOW_MODE_FULLSCREEN else DisplayServer.WINDOW_MODE_FULLSCREEN)
+		"speed_down","speed_up":
+			var scales: Array=[0.25,0.5,1.0,2.0,4.0]
+			var index: int=scales.find(facade.readback().time_scale)
+			set_flight_scale(scales[clampi(index+(-1 if action=="speed_down" else 1),0,scales.size()-1)])
+
+func observe_connection(device: int, connected: bool) -> void:
+	if connection_generation==9223372036854775807:
+		selected_slots.clear()
+		device_connections.clear()
+		pause_for_input("Connection generation exhausted; restart application")
+		return
+	connection_generation+=1
+	if connected:
+		device_connections[device]={"generation":connection_generation,"axes":{},"buttons":{}}
+	else:
+		device_connections.erase(device)
+
+func on_joy_connection_changed(device: int, connected: bool) -> void:
+	if legacy_proof:
+		super.on_joy_connection_changed(device,connected)
+		return
+	var active: bool=false
+	for slot in selected_slots:
+		if selected_slots[slot].device==device:
+			active=true
+	observe_connection(device,connected)
+	if active:
+		pause_for_input("Selected controller disconnected or changed generation; reselect in Controls")
+
+func on_focus_lost() -> void:
+	if legacy_proof:
+		super.on_focus_lost()
+		return
+	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
+	if facade!=null:
+		pause_for_input("Window inactive; release controls and confirm Resume")
+
+func pause_for_input(reason: String) -> void:
+	input_blocked=true
+	if facade!=null:
+		pause_session(true)
+	input_blocked=true
+	input_problem=reason
+	if mapper!=null:
+		mapper.suspend(reason,held_controls)
+	wheel_pulses.clear()
+	open_menu("Controls paused")
+	status="CONTROLS PAUSED | "+reason
+
+func collect_input_raw(preset: Dictionary={}) -> Dictionary:
+	var selected: Dictionary=active_preset if preset.is_empty() else preset
+	var key_codes: Dictionary={}
+	for binding in selected.get("axes",[]):
+		if binding.kind=="key_pair":
+			for code in binding.negative+binding.positive: key_codes[code]=true
+	for action in selected.get("actions",[]):
+		for source in action.sources:
+			if source.kind=="physical_keys":
+				for code in source.keys: key_codes[code]=true
+	key_codes[KEY_ESCAPE]=true
+	var keys: Array=[]
+	for code in key_codes:
+		if Input.is_physical_key_pressed(code): keys.append(code)
+	keys.sort()
+	var mouse: Array=[]
+	for button in [1,2,3,8,9]:
+		if Input.is_mouse_button_pressed(button): mouse.append(button)
+	mouse.append_array(wheel_pulses)
+	var devices: Array=[]
+	for slot in selected_slots:
+		var selection: Dictionary=selected_slots[slot]
+		if not device_connections.has(selection.device):
+			continue
+		var connection: Dictionary=device_connections[selection.device]
+		if connection.generation!=selection.generation:
+			continue
+		var axes: Array=[]
+		for index in connection.axes:
+			axes.append({"index":index,"value":Input.get_joy_axis(selection.device,index)})
+		var buttons: Array=[]
+		for index in connection.buttons:
+			buttons.append({"index":index,"pressed":Input.is_joy_button_pressed(selection.device,index)})
+		devices.append({"slot":slot,"generation":connection.generation,"axes":axes,"buttons":buttons})
+	return {"keys":keys,"mouse_buttons":mouse,"devices":devices}
+
+func controls_diagnostics() -> Dictionary:
+	var connected: Array=[]
+	for device in Input.get_connected_joypads():
+		connected.append({"id":device,"name":Input.get_joy_name(device),"guid":Input.get_joy_guid(device)})
+	return {"error":input_problem,"takeover":takeover_targets.duplicate(),"brake_hold":brake_hold,"connected_devices":connected,"transient":true}
+
+func select_input_device(slot: String, device: int) -> void:
+	if not paused or facade==null or facade.readback().host_mode!="paused":
+		return
+	if not device_connections.has(device):
+		input_problem="Device unavailable; explicitly reselect a connected source"
+		return
+	selected_slots[slot]={"device":device,"generation":device_connections[device].generation}
+
+func open_controls() -> void:
+	if controls_panel==null or facade==null:
+		return
+	if not paused and not pause_session(true):
+		return
+	if facade.readback().host_mode!="paused":
+		return
+	menu_open=true
+	menu.hide()
+	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
+	wheel_pulses.clear()
+	controls_selection_backup=selected_slots.duplicate(true)
+	controls_panel.open(active_preset,collect_input_raw(),held_controls,initial.solved_controls)
+	controls_panel.update_diagnostics(collect_input_raw(),held_controls,held_controls,controls_diagnostics())
+
+func apply_controls(preset: Dictionary) -> void:
+	if facade==null or mapper==null or facade.readback().host_mode!="paused":
+		return
+	var applied: Dictionary=mapper.configure(preset,held_controls,initial.solved_controls,collect_input_raw(preset))
+	if not applied.ok:
+		input_problem=applied.error
+		controls_panel.update_diagnostics(collect_input_raw(),held_controls,held_controls,controls_diagnostics())
+		return
+	active_preset=preset.duplicate(true)
+	controls_selection_backup.clear()
+	input_blocked=false
+	input_problem="Preset applied; release centered controls and confirm Resume"
+	brake_hold=mapper.sample(collect_input_raw(),0).brake_hold
+	controls_panel.hide()
+	open_menu("Controls applied · guest preset")
+
+func dismiss_controls() -> void:
+	selected_slots=controls_selection_backup.duplicate(true)
+	controls_selection_backup.clear()
+	controls_panel.hide()
+	open_menu("Flight paused")
+
+func select_controller() -> void:
+	if legacy_proof: super.select_controller()
+	else: open_controls()
+
+func start_flight(start: String) -> void:
+	if legacy_proof:
+		super.start_flight(start)
+		return
+	named_start=start
+	if restart():
+		if controls_panel!=null: controls_panel.hide()
+		open_menu("Fresh flight · confirm controls")
+		close_menu()
 
 func update_canonical_scene_sources() -> void:
 	var visual_ecef: Variant=facade.call("_visual_ecef")
@@ -269,7 +621,7 @@ func show_state(seconds: float=0.0) -> void:
 	if snapshot.is_empty() or current.aircraft==null or current.canonical==null:
 		suppress_geometry()
 		if panel != null:
-			var fault_info: Dictionary={"status":status,"outcome":"error","blocked":blocked,"stalled":stalled,"paused":paused,"input_name":"Keyboard"}
+			var fault_info: Dictionary={"status":status,"outcome":"error","blocked":blocked,"stalled":stalled,"paused":paused,"input_name":active_preset.get("name","Controls")}
 			fault_info.blocked=true
 			fault_info.paused=true
 			panel.call("set_state",snapshot,atmosphere,held_controls,fault_info)
@@ -288,7 +640,7 @@ func show_state(seconds: float=0.0) -> void:
 		world_root.hide()
 		light_root.hide()
 		status="PRESENTATION PAUSED | "+rendered.error+" | R resets"
-		var fault_info: Dictionary={"status":status,"outcome":native_outcome,"blocked":true,"stalled":stalled,"paused":true,"input_name":"Keyboard","clearance_m":plane_clearance,"ground_valid":ground_valid}
+		var fault_info: Dictionary={"status":status,"outcome":native_outcome,"blocked":true,"stalled":stalled,"paused":true,"input_name":active_preset.get("name","Controls"),"clearance_m":plane_clearance,"ground_valid":ground_valid}
 		panel.call("set_state",snapshot,atmosphere,held_controls,fault_info)
 		cockpit_panel.call("set_state",snapshot,atmosphere,held_controls,fault_info)
 		flight_map.call("set_state",snapshot,native_position,native_basis,fault_info)
@@ -341,8 +693,12 @@ func show_state(seconds: float=0.0) -> void:
 	if propeller!=null and not paused:
 		propeller.rotate_z(clampf(seconds,0.0,0.25)*(25+float(held_controls.throttle)*65))
 	var view_names: Array[String]=["COCKPIT","CHASE","ORBIT","PANEL"]
-	var input_name: String = "Keyboard %.1fx · smooth" % input_sensitivity if joy_device<0 else "Gamepad %.1fx · " % input_sensitivity+Input.get_joy_name(joy_device)
-	var display_info: Dictionary={"status":status,"outcome":native_outcome,"blocked":blocked,"stalled":stalled,"paused":paused,"brake_hold":brake_hold,"view_name":view_names[camera_mode],"clearance_m":plane_clearance,"ground_valid":ground_valid,"input_name":input_name,"audio_enabled":audio_enabled}
+	var input_name: String=active_preset.get("name","Controls")+" / guest"
+	if not takeover_targets.is_empty():
+		input_name+=" / match "+", ".join(takeover_targets)
+	if not input_problem.is_empty():
+		input_name+=" / "+input_problem
+	var display_info: Dictionary={"status":status,"outcome":native_outcome,"blocked":blocked,"stalled":stalled,"paused":paused,"brake_hold":brake_hold,"view_name":view_names[camera_mode],"clearance_m":plane_clearance,"ground_valid":ground_valid,"input_name":input_name,"input_label":"CONTROLS","audio_enabled":audio_enabled}
 	panel.call("set_state",snapshot,atmosphere,held_controls,display_info)
 	cockpit_panel.call("set_state",snapshot,atmosphere,held_controls,display_info)
 	flight_map.call("set_state",snapshot,native_position,native_basis,display_info)
@@ -389,4 +745,76 @@ func run_facade_visual() -> void:
 	file.store_string(JSON.stringify(evidence,"\t",false,true))
 	file.close()
 	print("FACADE_VISUAL_SMOKE ",JSON.stringify({"passed":failures.is_empty(),"failures":failures}))
+	get_tree().quit(0 if failures.is_empty() else 1)
+
+func run_input_visual() -> void:
+	# Short actual viewport/controller fixture; gestures/devices remain synthetic.
+	failures=[]
+	var original: Dictionary=active_preset.duplicate(true)
+	var native_before: Dictionary=facade.readback()
+	get_window().size=Vector2i(960,540)
+	await get_tree().process_frame
+	open_controls()
+	process_input_interval(0)
+	await save_view("controls-960")
+	var viewport: Rect2=get_viewport().get_visible_rect()
+	check(controls_panel.visible and viewport.encloses(controls_panel.get_global_rect()),"controls_actual_minimum_panel_inside_viewport")
+	for button in [controls_panel._apply_button]:
+		check(viewport.encloses(button.get_global_rect()),"controls_actual_minimum_apply_visible")
+	check(facade.readback().tick==native_before.tick and facade.readback().held_axes==native_before.held_axes,"controls_open_does_not_change_native_tick_or_axes")
+	controls_panel._learn({"mode":"key","target":"roll","side":"positive"})
+	controls_panel.update_diagnostics({"keys":[],"mouse_buttons":[],"devices":[]},held_controls,held_controls,controls_diagnostics())
+	var learned:=InputEventKey.new()
+	learned.pressed=true
+	learned.physical_keycode=KEY_L
+	controls_panel._input(learned)
+	var draft: Dictionary=controls_panel.get_draft()
+	var learned_axis: Dictionary={}
+	for axis in draft.axes:
+		if axis.target=="roll": learned_axis=axis
+	check(learned_axis.positive==[KEY_L] and active_preset==original,"controls_actual_learn_changes_draft_only")
+	controls_panel._apply()
+	check(active_preset==draft and menu_open and paused and not controls_panel.visible,"controls_actual_apply_coordinator_ack_keeps_native_paused")
+	check(facade.readback().tick==native_before.tick and facade.readback().held_axes==native_before.held_axes and brake_hold,"controls_actual_apply_preserves_ground_brake_latch_and_native_truth")
+	get_window().size=Vector2i(1280,720)
+	await get_tree().process_frame
+	open_controls()
+	process_input_interval(0)
+	await save_view("controls-1280-remapped")
+	var export_path: String=output_directory().path_join("controls-visual-preset.json")
+	controls_panel._save_dialog=true
+	controls_panel._file_selected(export_path)
+	var exported: Dictionary=Preset.decode(FileAccess.get_file_as_bytes(export_path))
+	check(exported.ok and exported.value==active_preset,"controls_actual_selected_path_export_roundtrip")
+	controls_panel._defaults()
+	controls_panel._save_dialog=false
+	controls_panel._file_selected(export_path)
+	check(controls_panel.get_draft()==active_preset,"controls_actual_load_updates_draft_without_apply")
+	var malformed: Dictionary=controls_panel.get_draft()
+	for axis in malformed.axes:
+		if axis.target=="roll":
+			axis.clear()
+			axis.merge({"target":"roll","kind":"fixed","value":2.0})
+	controls_panel._draft=malformed
+	controls_panel._rebuild()
+	check(controls_panel._apply_button.disabled,"controls_actual_invalid_draft_disables_apply")
+	controls_panel._apply()
+	check(active_preset==draft and facade.readback().tick==native_before.tick,"controls_actual_invalid_apply_preserves_active_and_native")
+	await save_view("controls-invalid")
+	controls_panel._cancel()
+	check(menu_open and paused and not controls_panel.visible and active_preset==draft,"controls_actual_cancel_returns_to_paused_flight")
+	on_focus_lost()
+	process_input_interval(8334)
+	check(paused and facade.readback().tick==native_before.tick and facade.readback().held_axes==native_before.held_axes,"controls_actual_focus_pause_before_next_tick")
+	await save_view("controls-paused-menu")
+	var closing: Dictionary=facade.close()
+	check(closing.ok,"controls_actual_visual_worker_joined")
+	facade=null
+	bridge=null
+	if sound!=null: check(bool(await sound.call("shutdown")),"controls_actual_visual_audio_retired")
+	var report: Dictionary={"schema_version":1,"passed":failures.is_empty(),"failures":failures,"scope":"Short actual Windows Controls viewport/preset/native fixture; synthetic key Learn and focus; no human or gamepad/yoke/pedal qualification","windows":[[960,540],[1280,720]],"held_axes":native_before.held_axes,"native_tick":native_before.tick,"preset":draft.name}
+	var receipt:=FileAccess.open(output_directory().path_join("controls-visual-receipt.json"),FileAccess.WRITE)
+	receipt.store_string(JSON.stringify(report,"  "))
+	receipt.close()
+	print("CONTROLS_VISUAL_SMOKE ",JSON.stringify(report))
 	get_tree().quit(0 if failures.is_empty() else 1)

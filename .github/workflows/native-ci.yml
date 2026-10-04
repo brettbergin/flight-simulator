@@ -55,6 +55,13 @@ jobs:
         run: |
           "CC=gcc-13" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           "CXX=g++-13" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Check Windows input editor and portable fixture before native compilation
+        if: runner.os == 'Windows' && hashFiles('tools/input-controls/check.py') != ''
+        run: |
+          python tools/bootstrap/bootstrap.py --with-godot --with-export-templates
+          if ($LASTEXITCODE -ne 0) { throw "Pinned input preflight bootstrap failed" }
+          python tools/input-controls/check.py
+          if ($LASTEXITCODE -ne 0) { throw "Windows input editor/export preflight failed" }
       - name: Compile real shared dependencies, bindings and C++20 smoke
         run: ./tools/bootstrap/build.ps1 -Python python -WithGodot -WithExportTemplates:($IsWindows)
       - name: Verify unchanged source/tool receipts after build
@@ -124,6 +131,8 @@ jobs:
           Copy-SimulationSourceSnapshot app/simulation (Join-Path $project 'simulation') $snapshot -RequiredEntries $entries
           $tests=@(Get-SimulationSourceSnapshot tests/integration/sim_loop -RequiredEntries @('facade_checks.gd','independent-reference.json','scene_checks.gd'))
           Copy-SimulationSourceSnapshot tests/integration/sim_loop (Join-Path $project 'sim_loop_tests') $tests -RequiredEntries @('facade_checks.gd','independent-reference.json','scene_checks.gd')
+          $inputGroups=@(Get-InputSourceGroups -RepoRoot $PWD)
+          Copy-InputSourceGroups -RepoRoot $PWD -DestinationRoot $project -Groups $inputGroups
           node tools/interactive-preview/package.mjs models native/fdm_jsbsim/models/original-interactive (Join-Path $project 'models')
           if ($LASTEXITCODE -ne 0) { throw 'Facade model pin staging failed' }
           Write-SimulationCheckHarness -ProjectRoot $project -RepoRoot $PWD
@@ -147,7 +156,9 @@ jobs:
           Assert-SimulationSourceSnapshot (Join-Path $project 'simulation') $snapshot -RequiredEntries $entries -AllowGeneratedUIDs
           Assert-SimulationSourceSnapshot tests/integration/sim_loop $tests -RequiredEntries @('facade_checks.gd','independent-reference.json','scene_checks.gd')
           Assert-SimulationSourceSnapshot (Join-Path $project 'sim_loop_tests') $tests -RequiredEntries @('facade_checks.gd','independent-reference.json','scene_checks.gd') -AllowGeneratedUIDs
-          @{source=$snapshot;tests=$tests;generated_uid_metadata=@(Get-ChildItem (Join-Path $project 'simulation'),(Join-Path $project 'sim_loop_tests') -Recurse -File -Filter '*.gd.uid'|ForEach-Object {@{path=[IO.Path]::GetRelativePath($project,$_.FullName).Replace([char]92,[char]47);sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}});godot_sha256=(Get-FileHash $environment.tools.godot).Hash.ToLowerInvariant();project_sha256=(Get-FileHash (Join-Path $project 'project.godot')).Hash.ToLowerInvariant();harness_sha256=(Get-FileHash (Join-Path $project 'sim_loop_checks.gd')).Hash.ToLowerInvariant();modules=@(Get-ChildItem (Join-Path $project 'bin') -File | ForEach-Object {@{name=$_.Name;sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}})} | ConvertTo-Json -Depth 12 | Set-Content (Join-Path $evidence 'source-binding.json')
+          Assert-InputSourceGroups -DestinationRoot $PWD -Groups $inputGroups -Authoring
+          Assert-InputSourceGroups -DestinationRoot $project -Groups $inputGroups -AllowGeneratedUIDs
+          @{source=$snapshot;tests=$tests;input_sources=$inputGroups;generated_uid_metadata=@(Get-ChildItem (Join-Path $project 'simulation'),(Join-Path $project 'sim_loop_tests'),(Join-Path $project 'input'),(Join-Path $project 'ui/controls'),(Join-Path $project 'input_tests') -Recurse -File -Filter '*.gd.uid'|ForEach-Object {@{path=[IO.Path]::GetRelativePath($project,$_.FullName).Replace([char]92,[char]47);sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}});godot_sha256=(Get-FileHash $environment.tools.godot).Hash.ToLowerInvariant();project_sha256=(Get-FileHash (Join-Path $project 'project.godot')).Hash.ToLowerInvariant();harness_sha256=(Get-FileHash (Join-Path $project 'sim_loop_checks.gd')).Hash.ToLowerInvariant();modules=@(Get-ChildItem (Join-Path $project 'bin') -File | ForEach-Object {@{name=$_.Name;sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}})} | ConvertTo-Json -Depth 12 | Set-Content (Join-Path $evidence 'source-binding.json')
       - name: Prove Windows corresponding source and actual DLL replacement
         if: runner.os == 'Windows'
         run: |
@@ -184,6 +195,8 @@ jobs:
             .local/build/native-release/toolchain-build-manifest.txt
             .local/build/native-release/Testing/Temporary/LastTest.log
             .local/toolchain/environment.json
+            .local/input-preflight/*/*.json
+            .local/input-preflight/*/*.log
             .local/build/native-release/dynamic-dependencies.txt
             .local/build/native-release/godot-binding-load.txt
             .local/fdm-proof/**

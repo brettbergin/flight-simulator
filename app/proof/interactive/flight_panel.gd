@@ -154,7 +154,7 @@ func _draw_topbar() -> void:
 	_text(Vector2(width * 0.61, 28), view_name, 12, MUTED, true)
 	_text(Vector2(width - 225, 28), "P  PAUSE     R  RESET     H  HELP", 11, MUTED)
 	if not _info.get("blocked",false) and not _info.get("stalled",false):
-		_text(Vector2(width*0.43,28),"PAD" if str(_info.get("input_name","")).begins_with("Gamepad") else "KEYBOARD",10,MUTED,true)
+		_text(Vector2(width*0.43,28),str(_info.get("input_label","PAD" if str(_info.get("input_name","")).begins_with("Gamepad") else "KEYBOARD")),10,MUTED,true)
 	if _info.get("blocked",false) or _info.get("stalled",false):
 		draw_rect(Rect2(0,46,width,32),Color("492a20"))
 		_text(Vector2(18,68),str(_info.get("status","Flight stopped; R starts a fresh attempt")).left(int((width-36)/7.5)),13,AMBER)

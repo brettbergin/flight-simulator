@@ -25,3 +25,22 @@ foreach($name in @('run.ps1','launch.ps1')){
  if('WHOLE_FLIGHT_PREVIEW_SMOKE {"passed":true,"failures":[]}' -match $pattern){throw "$name rejects a clean positive marker"}
 }
 Write-Output 'Preview actual guard negative controls passed (both helpers, known singular/plural shutdown warnings).'
+
+# Exercise actual input source groups, not a parallel packaging implementation.
+. (Join-Path $PSScriptRoot 'simulation-staging.ps1')
+$repo=(Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
+$groups=@(Get-InputSourceGroups $repo)
+$stage=Join-Path $repo ('.local/input-staging-test/'+[Guid]::NewGuid().ToString('N'))
+Copy-InputSourceGroups $repo $stage $groups
+Assert-InputSourceGroups $stage $groups
+$changed=Join-Path $stage 'ui/controls/controls_panel.gd'
+[IO.File]::WriteAllText($changed,'extends Control # mutated stage')
+$rejected=$false
+try{Assert-InputSourceGroups $stage $groups}catch{$rejected=$true}
+if(-not $rejected){throw 'Input/UI staging accepted changed panel bytes'}
+$fixture=Join-Path $stage 'input_tests/reference.json'
+Move-Item -LiteralPath $fixture -Destination ($fixture+'.unbound')
+$rejected=$false
+try{Get-SimulationSourceSnapshot (Join-Path $stage 'input_tests') -RequiredEntries @('input_checks.gd','scene_checks.gd','reference.json')|Out-Null}catch{$rejected=$true}
+if(-not $rejected){throw 'Input staging accepted missing analytic reference'}
+Write-Output 'Input/UI/tests exact recursive staging and changed/missing source negatives passed.'
