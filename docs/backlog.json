@@ -4478,6 +4478,71 @@
       "evidence": [
         "Exact source/inventory/ledger/reference hashes and independent source/numerical review; static 11-case guards, read-only 55-case regeneration, reference binding, license audit and protected hosted checks. No JSBSim trial or runtime proof."
       ]
+    },
+    {
+      "key": "LANDMARK-FREE-FLIGHT",
+      "title": "Add a synthetic landmark itinerary and optional target card",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Add a session-local destination and manual itinerary to the accepted original playable prototype, with an optional readable target card and locator overlay driven by copied native fixed-anchor coordinates.",
+      "depends_on": [
+        "AIRFIELD-LANDMARKS",
+        "SIM-LOOP",
+        "INPUT-CONTROLS-CONTRACT",
+        "COCKPIT-READINGS-CONTRACT"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:ui",
+        "priority:P1",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "app/ui/freeflight/",
+        "tests/ui/freeflight/",
+        "app/simulation/flight_scene.gd",
+        "app/proof/interactive/flight_map.gd",
+        "tools/interactive-preview/",
+        "docs/evidence/P2/landmark-free-flight.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md",
+        ".github/workflows/native-ci.yml"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/decisions/007-sim-loop-facade.md",
+        "docs/decisions/008-input-presets.md",
+        "docs/decisions/009-cockpit-readings.md",
+        "docs/evidence/P1/airfield-landmarks.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [
+        "UX-001",
+        "UX-002",
+        "UX-009",
+        "UX-010",
+        "UX-011",
+        "PRD-015",
+        "PRD-016",
+        "PRD-017"
+      ],
+      "acceptance": [
+        "Paused itinerary choice accepts one to four unique existing landmarks. Manual Next, Stop and return-to-runway36/18 are explicit paused actions; no automatic grading, arrival detection or completion award.",
+        "Optional compact target card and map overlay identify the selected leg, route and target clearly at960x540 and larger supported windows. Hide/display actions cannot affect aircraft controls. Label SYNTHETIC / OPTIONAL AID and geometry units.",
+        "Geometry uses copied authoritative `canonical.anchor_eus_position_m` in the original fixed anchor, never a smoothed or rebased rendering pose. Planar range and bearing from prepared-anchor north are explicit; bearing is unavailable at zero range. No chart, GPS sensor, global geodesic course or landing-suitability claim.",
+        "Malformed, empty, historical/terminal state suppresses current-looking numeric guidance. Paused state stays labeled. A fresh session clears itinerary/progress; selection arrays and returned views are owned copies. Nothing is persisted or uploaded.",
+        "Already-paused route edits preserve actual Readback, debt, held controls, mapper, native command/lifecycle counts and origin. Opening from live flight performs only the normal explicit pause; no aircraft command is introduced.",
+        "Independent cardinal/range/copy/fault/reset/rebase checks, actual controller/native invariance checks, minimum-size UI bounds, short exported GPU views and existing protected package/CI checks pass. Preserve prior owner game and cached artifacts."
+      ],
+      "evidence": [
+        "Independent fixed-anchor geometric/copy/fault/reset fixtures and actual paused native/debt/mapper/origin invariance.",
+        "Minimum-size UI bounds, exact source/package identities and bounded exported GPU captures with preserved original native physics.",
+        "All protected checks and exact-source review before guarded merge; broader production planner, pilot/device and phase gates remain open."
+      ]
     }
   ]
 }

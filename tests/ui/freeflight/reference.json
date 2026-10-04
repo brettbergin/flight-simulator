@@ -1,0 +1,226 @@
+{
+  "format": "LandmarkGeometryReference/v1",
+  "scope": "Private source-only fixed-anchor x/z geometry; no physics coverage, aircraft admission, sensor, geodesic, operational or training claim",
+  "authorship": "Project-original coordinate cases and Decimal equations; MIT; no runtime or model output",
+  "frame": "Accepted fixed-anchor east/up/south; x east, z south; height excluded",
+  "bearing_basis": "Prepared-anchor north; atan2(target.x-own.x, -(target.z-own.z)); normalized [0,360); null at coincident points",
+  "method": "Exact integer Pythagorean ranges; Decimal90 context with 80-digit-or-better atan half-angle/Taylor evaluation and independent quadrant selection; JSON bearings rounded once to binary64",
+  "tolerances_before_observation": {
+    "range_abs_m": 1e-07,
+    "bearing_abs_deg": 1e-07,
+    "bearing_comparison": "shortest wrapped angular difference",
+    "zero_range": "exact null bearing"
+  },
+  "integration_tolerance_basis": "Consistent copied ECEF/geodetic Readback reconstruction can introduce small fixed-anchor cancellation; no output fitting",
+  "case_count": 16,
+  "cases": [
+    {
+      "id": "coincident",
+      "own": {
+        "x": 0,
+        "z": 0
+      },
+      "target": {
+        "x": 0,
+        "z": 0
+      },
+      "range_m": 0,
+      "bearing_deg": null
+    },
+    {
+      "id": "north",
+      "own": {
+        "x": 0,
+        "z": 0
+      },
+      "target": {
+        "x": 0,
+        "z": -10
+      },
+      "range_m": 10,
+      "bearing_deg": 0.0
+    },
+    {
+      "id": "east",
+      "own": {
+        "x": 0,
+        "z": 0
+      },
+      "target": {
+        "x": 10,
+        "z": 0
+      },
+      "range_m": 10,
+      "bearing_deg": 90.0
+    },
+    {
+      "id": "south",
+      "own": {
+        "x": 0,
+        "z": 0
+      },
+      "target": {
+        "x": 0,
+        "z": 10
+      },
+      "range_m": 10,
+      "bearing_deg": 180.0
+    },
+    {
+      "id": "west",
+      "own": {
+        "x": 0,
+        "z": 0
+      },
+      "target": {
+        "x": -10,
+        "z": 0
+      },
+      "range_m": 10,
+      "bearing_deg": 270.0
+    },
+    {
+      "id": "northeast_345",
+      "own": {
+        "x": 0,
+        "z": 0
+      },
+      "target": {
+        "x": 3,
+        "z": -4
+      },
+      "range_m": 5,
+      "bearing_deg": 36.86989764584402
+    },
+    {
+      "id": "southeast_345",
+      "own": {
+        "x": 0,
+        "z": 0
+      },
+      "target": {
+        "x": 3,
+        "z": 4
+      },
+      "range_m": 5,
+      "bearing_deg": 143.13010235415598
+    },
+    {
+      "id": "southwest_345",
+      "own": {
+        "x": 0,
+        "z": 0
+      },
+      "target": {
+        "x": -3,
+        "z": 4
+      },
+      "range_m": 5,
+      "bearing_deg": 216.86989764584402
+    },
+    {
+      "id": "northwest_345",
+      "own": {
+        "x": 0,
+        "z": 0
+      },
+      "target": {
+        "x": -3,
+        "z": -4
+      },
+      "range_m": 5,
+      "bearing_deg": 323.13010235415595
+    },
+    {
+      "id": "noncardinal_5_12_13",
+      "own": {
+        "x": 0,
+        "z": 0
+      },
+      "target": {
+        "x": 5,
+        "z": -12
+      },
+      "range_m": 13,
+      "bearing_deg": 22.619864948040426
+    },
+    {
+      "id": "north_wrap_positive",
+      "own": {
+        "x": 0,
+        "z": 0
+      },
+      "target": {
+        "x": 199,
+        "z": -19800
+      },
+      "range_m": 19801,
+      "bearing_deg": 0.5758321331141864
+    },
+    {
+      "id": "north_wrap_negative",
+      "own": {
+        "x": 0,
+        "z": 0
+      },
+      "target": {
+        "x": -199,
+        "z": -19800
+      },
+      "range_m": 19801,
+      "bearing_deg": 359.4241678668858
+    },
+    {
+      "id": "negative_translated_345",
+      "own": {
+        "x": -4096,
+        "z": -2048
+      },
+      "target": {
+        "x": -4093,
+        "z": -2052
+      },
+      "range_m": 5,
+      "bearing_deg": 36.86989764584402
+    },
+    {
+      "id": "negative_west",
+      "own": {
+        "x": -500,
+        "z": -100
+      },
+      "target": {
+        "x": -1500,
+        "z": -100
+      },
+      "range_m": 1000,
+      "bearing_deg": 270.0
+    },
+    {
+      "id": "large_finite_axis",
+      "own": {
+        "x": 16384,
+        "z": 16384
+      },
+      "target": {
+        "x": 16384,
+        "z": -16384
+      },
+      "range_m": 32768,
+      "bearing_deg": 0.0
+    },
+    {
+      "id": "large_finite_345",
+      "own": {
+        "x": -16384,
+        "z": 16384
+      },
+      "target": {
+        "x": -13384,
+        "z": 12384
+      },
+      "range_m": 5000,
+      "bearing_deg": 36.86989764584402
+    }
+  ]
+}

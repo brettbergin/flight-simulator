@@ -184,6 +184,10 @@ jobs:
           Copy-InputSourceGroups -RepoRoot $PWD -DestinationRoot $project -Groups $inputGroups
           $cockpitGroups=@(Get-CockpitSourceGroups -RepoRoot $PWD)
           Copy-CockpitSourceGroups -RepoRoot $PWD -DestinationRoot $project -Groups $cockpitGroups
+          $freeflightGroups=@(Get-FreeflightSourceGroups -RepoRoot $PWD)
+          Copy-FreeflightSourceGroups -RepoRoot $PWD -DestinationRoot $project -Groups $freeflightGroups
+          python tests/ui/freeflight/reference-generator.py --check
+          if ($LASTEXITCODE -ne 0) { throw 'Landmark reference reproduction failed' }
           node tools/interactive-preview/package.mjs models native/fdm_jsbsim/models/original-interactive (Join-Path $project 'models')
           if ($LASTEXITCODE -ne 0) { throw 'Facade model pin staging failed' }
           Write-SimulationCheckHarness -ProjectRoot $project -RepoRoot $PWD
@@ -211,7 +215,9 @@ jobs:
           Assert-InputSourceGroups -DestinationRoot $project -Groups $inputGroups -AllowGeneratedUIDs
           Assert-CockpitSourceGroups -DestinationRoot $PWD -Groups $cockpitGroups -Authoring
           Assert-CockpitSourceGroups -DestinationRoot $project -Groups $cockpitGroups -AllowGeneratedUIDs
-          @{source=$snapshot;tests=$tests;input_sources=$inputGroups;cockpit_sources=$cockpitGroups;generated_uid_metadata=@(Get-ChildItem (Join-Path $project 'simulation'),(Join-Path $project 'sim_loop_tests'),(Join-Path $project 'input'),(Join-Path $project 'ui/controls'),(Join-Path $project 'input_tests'),(Join-Path $project 'cockpit'),(Join-Path $project 'instrument_tests') -Recurse -File -Filter '*.gd.uid'|ForEach-Object {@{path=[IO.Path]::GetRelativePath($project,$_.FullName).Replace([char]92,[char]47);sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}});godot_sha256=(Get-FileHash $environment.tools.godot).Hash.ToLowerInvariant();project_sha256=(Get-FileHash (Join-Path $project 'project.godot')).Hash.ToLowerInvariant();harness_sha256=(Get-FileHash (Join-Path $project 'sim_loop_checks.gd')).Hash.ToLowerInvariant();modules=@(Get-ChildItem (Join-Path $project 'bin') -File | ForEach-Object {@{name=$_.Name;sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}})} | ConvertTo-Json -Depth 12 | Set-Content (Join-Path $evidence 'source-binding.json')
+          Assert-FreeflightSourceGroups -DestinationRoot $PWD -Groups $freeflightGroups -Authoring
+          Assert-FreeflightSourceGroups -DestinationRoot $project -Groups $freeflightGroups -AllowGeneratedUIDs
+          @{source=$snapshot;tests=$tests;input_sources=$inputGroups;cockpit_sources=$cockpitGroups;freeflight_sources=$freeflightGroups;generated_uid_metadata=@(Get-ChildItem (Join-Path $project 'simulation'),(Join-Path $project 'sim_loop_tests'),(Join-Path $project 'input'),(Join-Path $project 'ui/controls'),(Join-Path $project 'input_tests'),(Join-Path $project 'cockpit'),(Join-Path $project 'instrument_tests'),(Join-Path $project 'ui/freeflight'),(Join-Path $project 'freeflight_tests') -Recurse -File -Filter '*.gd.uid'|ForEach-Object {@{path=[IO.Path]::GetRelativePath($project,$_.FullName).Replace([char]92,[char]47);sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}});godot_sha256=(Get-FileHash $environment.tools.godot).Hash.ToLowerInvariant();project_sha256=(Get-FileHash (Join-Path $project 'project.godot')).Hash.ToLowerInvariant();harness_sha256=(Get-FileHash (Join-Path $project 'sim_loop_checks.gd')).Hash.ToLowerInvariant();modules=@(Get-ChildItem (Join-Path $project 'bin') -File | ForEach-Object {@{name=$_.Name;sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}})} | ConvertTo-Json -Depth 12 | Set-Content (Join-Path $evidence 'source-binding.json')
       - name: Prove Windows corresponding source and actual DLL replacement
         if: steps.scope.outputs.docs_only != 'true' && (runner.os == 'Windows')
         run: |

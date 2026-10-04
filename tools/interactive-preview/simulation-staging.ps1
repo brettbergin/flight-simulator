@@ -100,6 +100,59 @@ function Assert-CockpitSourceGroups {
   Assert-SimulationSourceSnapshot (Join-Path $DestinationRoot $path) $group.snapshot -RequiredEntries $group.required -AllowGeneratedUIDs:$AllowGeneratedUIDs
  }
 }
+# Session-local landmark UI and frozen geometry use the same exact source policy.
+function Get-FreeflightSourceGroups {
+ param([Parameter(Mandatory)][string]$RepoRoot)
+ @(
+  @{source='app/ui/freeflight';destination='ui/freeflight';required=@('landmark_board.gd')},
+  @{source='tests/ui/freeflight';destination='freeflight_tests';required=@('landmark_checks.gd','scene_checks.gd','reference.json','reference-generator.py')}
+ )|ForEach-Object {$_.snapshot=@(Get-SimulationSourceSnapshot (Join-Path $RepoRoot $_.source) -RequiredEntries $_.required);$_}
+}
+function Copy-FreeflightSourceGroups {
+ param([Parameter(Mandatory)][string]$RepoRoot,[Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Groups)
+ foreach($group in $Groups){Copy-SimulationSourceSnapshot (Join-Path $RepoRoot $group.source) (Join-Path $DestinationRoot $group.destination) $group.snapshot -RequiredEntries $group.required}
+}
+function Assert-FreeflightSourceGroups {
+ param([Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Groups,[switch]$Authoring,[switch]$AllowGeneratedUIDs)
+ foreach($group in $Groups){$path=if($Authoring){$group.source}else{$group.destination};Assert-SimulationSourceSnapshot (Join-Path $DestinationRoot $path) $group.snapshot -RequiredEntries $group.required -AllowGeneratedUIDs:$AllowGeneratedUIDs}
+}
+# Read-only native reuse: bind declared compiler/source identities here; the
+# existing actual facade/portable checks still verify the loaded native reply.
+function Get-PreviewNativeBuildIdentity {
+ param([Parameter(Mandatory)][string]$RepoRoot,[Parameter(Mandatory)][string]$NativeBuildRoot)
+ $build=(Get-Item -LiteralPath $NativeBuildRoot -ErrorAction Stop)
+ if(-not $build.PSIsContainer -or ($build.Attributes -band [IO.FileAttributes]::ReparsePoint)){throw 'Native build root must be an ordinary directory'}
+ $cmake=[IO.File]::ReadAllText((Join-Path $RepoRoot 'native/fdm_jsbsim/interactive/CMakeLists.txt'))
+ $lists=[regex]::Matches($cmake,'(?s)set\(INTERACTIVE_SOURCE_PATHS\s+(.*?)\)')
+ if($lists.Count -ne 1){throw 'Expected one native source closure'}
+ $paths=@(($lists[0].Groups[1].Value.Trim() -split '\s+'))
+ $expected=@('native/fdm_jsbsim/interactive/src/session.cpp','native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp','native/fdm_jsbsim/interactive/include/flight/interactive/surface.hpp','tests/interactive/native.cpp','tests/interactive/negatives.hpp','native/fdm_jsbsim/interactive/src/model-pins.hpp')
+ if(($paths -join "`n") -cne ($expected -join "`n")){throw 'Unexpected native closure; review required before reuse'}
+ $bindings=@();$text=''
+ foreach($path in $paths){
+  $file=Get-Item -LiteralPath (Join-Path $RepoRoot $path) -ErrorAction Stop
+  if($file.PSIsContainer -or ($file.Attributes -band [IO.FileAttributes]::ReparsePoint)){throw 'Native source must be ordinary files'}
+  $raw=[IO.File]::ReadAllBytes($file.FullName)
+  $normalized=[IO.File]::ReadAllText($file.FullName).Replace("`r`n","`n")
+  $lfHash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($normalized))).ToLowerInvariant()
+  $text+=$path+':'+$lfHash+"`n"
+  $bindings+=@{path=$path;bytes=$raw.Length;raw_sha256=(Get-FileHash -LiteralPath $file.FullName).Hash.ToLowerInvariant();lf_sha256=$lfHash}
+ }
+ $fingerprint=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($text))).ToLowerInvariant()
+ $pins=[regex]::Matches([IO.File]::ReadAllText((Join-Path $RepoRoot 'app/simulation/session_facade.gd')),'const NATIVE: String\s*=\s*"([a-f0-9]{64})"')
+ if($pins.Count -ne 1 -or $pins[0].Groups[1].Value -cne $fingerprint){throw 'Native source closure differs from accepted facade pin'}
+ $ninja=Join-Path $build.FullName 'build.ninja'
+ $definitions=@([regex]::Matches([IO.File]::ReadAllText($ninja),'FLIGHT_INTERACTIVE_SOURCE_SHA256=[^A-Za-z0-9\r\n]{1,8}([a-f0-9]{64})')|ForEach-Object {$_.Groups[1].Value}|Select-Object -Unique)
+ if($definitions.Count -ne 1 -or $definitions[0] -cne $fingerprint){throw 'Selected native build compile definition differs from source'}
+ $bridge=Join-Path $build.FullName 'bin/flight_godot_bridge.dll'
+ if(-not [Text.Encoding]::ASCII.GetString([IO.File]::ReadAllBytes($bridge)).Contains($fingerprint)){throw 'Selected bridge lacks the accepted native identity'}
+ $witnesses=@('bin/flight_godot_bridge.dll','build.ninja','CMakeCache.txt','toolchain-build-manifest.txt')|ForEach-Object {
+  $file=Get-Item -LiteralPath (Join-Path $build.FullName $_) -ErrorAction Stop
+  if($file.PSIsContainer -or ($file.Attributes -band [IO.FileAttributes]::ReparsePoint)){throw 'Native build witness must be ordinary files'}
+  @{path=$_;bytes=$file.Length;sha256=(Get-FileHash -LiteralPath $file.FullName).Hash.ToLowerInvariant()}
+ }
+ @{root=$build.FullName;declared_source_fingerprint=$fingerprint;source_bindings=$bindings;build_witnesses=@($witnesses);scope='Declared source/compiler/bridge-byte identity; actual loaded facade identity verified by unchanged runtime gates'}
+}
 function Write-SimulationCheckHarness {
  param([Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)][string]$RepoRoot)
  $fixtures=Join-Path $ProjectRoot 'wire_fixtures'
@@ -118,7 +171,7 @@ func check(ok: bool, label: String) -> void:
 func _ready() -> void:
  call_deferred("execute")
 func execute() -> void:
- for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests"]:
+ for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://ui/freeflight","res://freeflight_tests"]:
   for name in DirAccess.get_files_at(folder):
    if name.ends_with(".gd"):
     var script=load(folder.path_join(name)) as Script
@@ -152,8 +205,14 @@ func execute() -> void:
   var result: Dictionary=await load("res://instrument_tests/"+name+"_checks.gd").new().run(self)
   check(failures.size()==prior_failures and result.get("passed",false) and result.get("checks",0)>0 and result.get("failures",["missing"]).is_empty(),"actual_cockpit_"+name+"_checks")
   cockpit_checks[name]=result
+ var freeflight_checks: Dictionary={}
+ for item in [{"name":"geometry","script":"landmark_checks.gd"},{"name":"scene","script":"scene_checks.gd"}]:
+  var before: int=failures.size()
+  var result: Dictionary=await load("res://freeflight_tests/"+item.script).new().run(self)
+  check(failures.size()==before and result.get("passed",false) and result.get("checks",0)>0 and result.get("failures",["missing"]).is_empty(),"actual_freeflight_"+item.name+"_checks")
+  freeflight_checks[item.name]=result
  var scene: Dictionary=await load("res://sim_loop_tests/scene_checks.gd").new().run(self)
- var report: Dictionary={"schema_version":1,"scope":"Headless actual-native facade and synthetic wire/render fixtures; GPU and pilot qualification separate","passed":failures.is_empty(),"checks":checks,"failures":failures.duplicate(),"facade":facade,"origin":origin,"participants":participants,"wire":wire,"scene":scene,"input":input,"input_scene":input_scene,"instruments":instruments,"cockpit":cockpit_checks}
+ var report: Dictionary={"schema_version":1,"scope":"Headless actual-native facade and synthetic wire/render fixtures; GPU and pilot qualification separate","passed":failures.is_empty(),"checks":checks,"failures":failures.duplicate(),"facade":facade,"origin":origin,"participants":participants,"wire":wire,"scene":scene,"input":input,"input_scene":input_scene,"instruments":instruments,"cockpit":cockpit_checks,"freeflight":freeflight_checks}
  var output: String=ProjectSettings.globalize_path("res://facade-check-receipt.json") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("facade-check-receipt.json")
  for argument in OS.get_cmdline_user_args():
   if argument.begins_with("--facade-receipt="): output=argument.trim_prefix("--facade-receipt=")

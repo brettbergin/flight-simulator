@@ -21,6 +21,7 @@ var _clearance_valid := false
 var _clearance_m := 0.0
 var _runway := 36
 var _landmarks: Array[Dictionary] = []
+var _route: Dictionary={}
 var _font: Font = ThemeDB.fallback_font
 
 func _ready() -> void:
@@ -43,12 +44,34 @@ func select_runway(value: int) -> void:
 	_runway=18 if value==18 else 36
 	queue_redraw()
 
+func set_route(view: Dictionary) -> void:
+	# Private copied presentation only. The board owns selection/progress, and
+	# the original native pose remains the map's authoritative position source.
+	_route.clear()
+	if view.get("available")!=true or view.get("active")!=true:
+		queue_redraw()
+		return
+	var target: Variant=view.get("target_anchor_eus_m")
+	var label: Variant=view.get("target_label")
+	if not target is Array or target.size()!=3 or not label is String or label.is_empty() or label.length()>32:
+		queue_redraw()
+		return
+	for scalar in target:
+		if not (scalar is float or scalar is int) or not is_finite(float(scalar)):
+			queue_redraw()
+			return
+	if absf(float(target[0]))>20000.0 or absf(float(target[2]))>20000.0 or float(target[1])!=0.0:
+		queue_redraw()
+		return
+	_route={"target":Vector2(target[0],target[2]),"label":label}
+	queue_redraw()
+
 func toggle_runway() -> void:
 	select_runway(18 if _runway==36 else 36)
 
 func set_state(state: Dictionary, local_position: Vector3, aircraft_basis: Basis, info: Dictionary={}) -> void:
 	_paused=bool(info.get("paused",false))
-	_retained=bool(info.get("blocked",false)) or bool(info.get("stalled",false)) or str(info.get("outcome","completed"))!="completed"
+	_retained=bool(info.get("historical",false)) or bool(info.get("blocked",false)) or bool(info.get("stalled",false)) or str(info.get("outcome","completed")) not in ["completed","paused"]
 	_valid = not state.is_empty() and state.get("validity", "") == "valid" and local_position.is_finite()
 	_clearance_valid=_valid and not _retained and bool(info.get("ground_valid",false)) and is_finite(float(info.get("clearance_m",NAN)))
 	_clearance_m=float(info.get("clearance_m",0.0)) if _clearance_valid else 0.0
@@ -122,7 +145,11 @@ func _draw() -> void:
 	_text(Vector2(14,23),"AIRFIELD LOCATOR",CYAN,14)
 	_text(Vector2(size.x-100,23),"T · RWY %02d" % _runway,Color("ffc477"),12)
 	_text(Vector2(14,43),"SYNTHETIC · OPTIONAL AID · "+("STOPPED" if _retained else "PAUSED" if _paused else "LIVE" if _valid else "UNAVAILABLE"),MUTED,10)
-	var chart := Rect2(12,56,size.x-24,size.y-163)
+	var route_shown: bool=not _route.is_empty() and _valid and not _retained
+	var extra: float=20.0 if route_shown else 0.0
+	if route_shown:
+		_text(Vector2(14,62),"MANUAL LEG: "+_route.label,Color("c9b8ff"),11)
+	var chart := Rect2(12,56+extra,size.x-24,size.y-163-extra)
 	draw_rect(chart,Color("162c2b"))
 	_rectangle(Rect2(-20000,-20000,40000,40000),chart,Color("223c32"))
 	var spacing := extent_m / 4.0
@@ -155,6 +182,13 @@ func _draw() -> void:
 			draw_circle(at,3.5,Color("d2bf83"))
 			var width:=_font.get_string_size(landmark.label,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x
 			_text(Vector2(clampf(at.x+7,chart.position.x+4,chart.end.x-width-4),clampf(at.y-5,chart.position.y+12,chart.end.y-5)),landmark.label,Color("d2bf83"),10)
+	if route_shown:
+		var target_at: Vector2=_point(_route.target,chart)
+		var offset: Vector2=target_at-chart.get_center()
+		var clip_scale: float=minf((chart.size.x*0.5-12)/maxf(absf(offset.x),0.001),(chart.size.y*0.5-12)/maxf(absf(offset.y),0.001))
+		var visible_target: Vector2=chart.get_center()+offset*minf(clip_scale,1.0)
+		draw_line(chart.get_center(),visible_target,Color("c9b8ff"),1.5,true)
+		draw_arc(visible_target,7,0,TAU,24,Color("c9b8ff"),2.0,true)
 	for i in range(1,_trail.size() if _valid and not _retained else 0):
 		var a := _point(_trail[i-1],chart)
 		var b := _point(_trail[i],chart)

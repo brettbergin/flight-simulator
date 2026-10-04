@@ -10,6 +10,11 @@ const Preset = preload("res://input/input_preset.gd")
 const ControlsPanel = preload("res://ui/controls/controls_panel.gd")
 const NativeReadings = preload("res://cockpit/instruments/native_readings.gd")
 const ScanPanel = preload("res://cockpit/instruments/scan_panel.gd")
+const LandmarkBoard = preload("res://ui/freeflight/landmark_board.gd")
+var landmark_board: Control
+var route_open: bool=false
+var route_aids_visible: bool=true
+var route_view: Dictionary={}
 var shared_readings: Dictionary={}
 var scan_panel: Control
 var scan_open: bool=false
@@ -48,6 +53,10 @@ func _ready() -> void:
 		for device in Input.get_connected_joypads():
 			observe_connection(device,true)
 	super._ready()
+	if not legacy_proof and "--landmark-visual-smoke" in OS.get_cmdline_user_args():
+		set_process(false)
+		call_deferred("run_landmark_visual")
+		return
 	if not legacy_proof and "--instrument-visual-smoke" in OS.get_cmdline_user_args():
 		set_process(false)
 		call_deferred("run_instrument_visual")
@@ -304,11 +313,14 @@ func make_menu(canvas: CanvasLayer) -> void:
 			child.queue_free()
 	var controls_button: Button=add_menu_button(box,"Controls and calibration  (F7)",open_controls)
 	var scan_button: Button=add_menu_button(box,"Instrument scan",open_instrument_scan)
+	var route_button: Button=add_menu_button(box,"Landmark route",open_landmark_route)
+	controls_button.text="Controls (F7)"
+	controls_button.tooltip_text="Controls and calibration"
 	var cockpit_row:=HBoxContainer.new()
 	cockpit_row.add_theme_constant_override("separation",8)
 	box.add_child(cockpit_row)
 	box.move_child(cockpit_row,5)
-	for button in [controls_button,scan_button]:
+	for button in [controls_button,scan_button,route_button]:
 		button.reparent(cockpit_row)
 		button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 		button.add_theme_font_size_override("font_size",15)
@@ -326,6 +338,18 @@ func make_menu(canvas: CanvasLayer) -> void:
 	controls_panel.applied.connect(apply_controls)
 	controls_panel.dismissed.connect(dismiss_controls)
 	controls_panel.device_selected.connect(select_input_device)
+	landmark_board=LandmarkBoard.new()
+	canvas.add_child(landmark_board)
+	landmark_board.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var configured: Dictionary=landmark_board.configure(flight_map.get("_landmarks").duplicate(true))
+	if not configured.ok:
+		push_error("Landmark board unavailable: "+configured.error)
+	landmark_board.route_requested.connect(choose_landmark_route)
+	landmark_board.next_requested.connect(next_landmark_leg)
+	landmark_board.stop_requested.connect(stop_landmark_route)
+	landmark_board.return_requested.connect(return_to_runway)
+	landmark_board.dismissed.connect(dismiss_landmark_route)
+	landmark_board.aids_requested.connect(set_route_aids_visible)
 	menu.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	menu.custom_minimum_size=Vector2(560,490)
 	layout_flight_menu()
@@ -381,6 +405,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if controls_panel!=null and controls_panel.visible:
 		return
+	if route_open:
+		return
 	if event is InputEventMouseMotion and not paused and not menu_open and Input.mouse_mode==Input.MOUSE_MODE_CAPTURED:
 		look_angles.x=clampf(look_angles.x-event.relative.x*0.004,-PI,PI)
 		look_angles.y=clampf(look_angles.y-event.relative.y*0.004,-1.2,1.2)
@@ -396,6 +422,11 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	if not event is InputEventKey or not event.pressed or event.echo:
 		return
 	if controls_panel!=null and controls_panel.visible:
+		return
+	if route_open:
+		if event.physical_keycode==KEY_ESCAPE:
+			dismiss_landmark_route()
+		get_viewport().set_input_as_handled()
 		return
 	if event.physical_keycode==KEY_ESCAPE:
 		if menu_open:
@@ -662,7 +693,7 @@ func show_state(seconds: float=0.0) -> void:
 		world_root.hide()
 		light_root.hide()
 		status="PRESENTATION PAUSED | "+rendered.error+" | R resets"
-		var fault_info: Dictionary={"status":status,"outcome":native_outcome,"blocked":true,"stalled":stalled,"paused":true,"input_name":active_preset.get("name","Controls"),"clearance_m":plane_clearance,"ground_valid":ground_valid}
+		var fault_info: Dictionary={"status":status,"outcome":native_outcome,"historical":current.historical,"blocked":true,"stalled":stalled,"paused":true,"input_name":active_preset.get("name","Controls"),"clearance_m":plane_clearance,"ground_valid":ground_valid}
 		publish_readings(current,fault_info)
 		flight_map.call("set_state",snapshot,native_position,native_basis,fault_info)
 		return
@@ -719,7 +750,7 @@ func show_state(seconds: float=0.0) -> void:
 		input_name+=" / match "+", ".join(takeover_targets)
 	if not input_problem.is_empty():
 		input_name+=" / "+input_problem
-	var display_info: Dictionary={"status":status,"outcome":native_outcome,"blocked":blocked,"stalled":stalled,"paused":paused,"brake_hold":brake_hold,"view_name":view_names[camera_mode],"clearance_m":plane_clearance,"ground_valid":ground_valid,"input_name":input_name,"input_label":"CONTROLS","audio_enabled":audio_enabled}
+	var display_info: Dictionary={"status":status,"outcome":native_outcome,"historical":current.historical,"blocked":blocked,"stalled":stalled,"paused":paused,"brake_hold":brake_hold,"view_name":view_names[camera_mode],"clearance_m":plane_clearance,"ground_valid":ground_valid,"input_name":input_name,"input_label":"CONTROLS","audio_enabled":audio_enabled}
 	publish_readings(current,display_info)
 	flight_map.call("set_state",snapshot,native_position,native_basis,display_info)
 	update_canonical_scene_sources()
@@ -840,8 +871,94 @@ func run_input_visual() -> void:
 	get_tree().quit(0 if failures.is_empty() else 1)
 
 # Original MIT view-only instrument routing over accepted native readback.
+func publish_landmark_route(readback: Dictionary, info: Dictionary={}) -> void:
+	if landmark_board==null:
+		return
+	var usable: bool=readback.get("historical")==true or (not info.get("blocked",false) and not info.get("stalled",false))
+	landmark_board.set_aids_visible(route_aids_visible)
+	route_view=landmark_board.observe(readback if usable else null)
+	if route_open and not route_view.available:
+		route_open=false
+		landmark_board.set_open(false)
+		menu.show()
+		menu_message.text="Current landmark guidance unavailable. Flight remains paused."
+	landmark_board.z_index=2 if route_open else -1 if menu_open else 0
+	flight_map.call("set_route",route_view if route_aids_visible else {})
+
+func open_landmark_route() -> void:
+	if legacy_proof or facade==null or landmark_board==null:
+		return
+	if controls_panel!=null and controls_panel.visible:
+		return
+	if not paused and not pause_session(true):
+		return
+	var source: Dictionary=facade.readback()
+	if source.host_mode!="paused":
+		return
+	scan_open=false
+	menu_open=true
+	route_open=true
+	menu.hide()
+	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
+	publish_landmark_route(source)
+	landmark_board.set_open(route_open)
+
+func _route_edit_source() -> Dictionary:
+	if not route_open or not paused or facade==null or landmark_board==null:
+		return {}
+	var source: Dictionary=facade.readback()
+	return source if source.host_mode=="paused" else {}
+
+func choose_landmark_route(indices: Array) -> void:
+	var source: Dictionary=_route_edit_source()
+	if source.is_empty():
+		return
+	var result: Dictionary=landmark_board.choose(indices,source)
+	if result.ok:
+		dismiss_landmark_route()
+
+func next_landmark_leg() -> void:
+	var source: Dictionary=_route_edit_source()
+	if source.is_empty():
+		return
+	if landmark_board.next(source).ok:
+		publish_landmark_route(source)
+
+func stop_landmark_route() -> void:
+	var source: Dictionary=_route_edit_source()
+	if source.is_empty():
+		return
+	if landmark_board.stop(source).ok:
+		dismiss_landmark_route()
+
+func return_to_runway(runway: int) -> void:
+	var source: Dictionary=_route_edit_source()
+	if source.is_empty():
+		return
+	if landmark_board.choose_return(runway,source).ok:
+		flight_map.call("select_runway",runway)
+		dismiss_landmark_route()
+
+func set_route_aids_visible(value: bool) -> void:
+	if landmark_board==null:
+		return
+	route_aids_visible=value
+	landmark_board.set_aids_visible(value)
+	if facade!=null:
+		publish_landmark_route(facade.readback())
+
+func dismiss_landmark_route() -> void:
+	if legacy_proof or not paused or landmark_board==null:
+		return
+	route_open=false
+	landmark_board.set_open(false)
+	menu.show()
+	resume_button.grab_focus()
+	show_state(0)
+
 func publish_readings(readback: Dictionary, info: Dictionary) -> void:
 	shared_readings=NativeReadings.from_readback(readback)
+	publish_landmark_route(readback,info)
 	var source: Dictionary=readback.aircraft if readback.get("aircraft") is Dictionary else {}
 	var held: Dictionary=readback.held_axes if readback.get("held_axes") is Dictionary else {}
 	panel.call("set_native_readings",shared_readings,source,held,info)
@@ -884,15 +1001,67 @@ func on_instrument_selected(_instrument: String) -> void:
 func open_menu(title: String="Flight paused") -> void:
 	if not legacy_proof:
 		scan_open=false
+		route_open=false
+		if landmark_board!=null:
+			landmark_board.set_open(false)
 	super.open_menu(title)
 
 func close_menu() -> void:
+	if not legacy_proof and route_open:
+		dismiss_landmark_route()
+		return
 	if not legacy_proof and scan_open:
 		# Escape/P returns to the menu first. Only the ordinary Resume action
 		# performs the existing native/mapper lifecycle operation.
 		dismiss_instrument_scan()
 		return
 	super.close_menu()
+
+func run_landmark_visual() -> void:
+	# Observer captures only: the accepted native model remains paused at tick 0.
+	failures=[]
+	evidence={"scope":"Optional synthetic route UI over unchanged original native model","views":[]}
+	var dimensions: Array=[Vector2i(960,540),Vector2i(1920,1080),Vector2i(2560,1440)]
+	for index in dimensions.size():
+		if index>0:
+			named_start="airborne-prepared"
+			check(restart(),"landmark_visual_fresh_worker_"+str(index))
+		DisplayServer.window_set_size(dimensions[index])
+		await get_tree().process_frame
+		await get_tree().process_frame
+		var prefix: String="landmark-"+str(dimensions[index].x)
+		var native: Dictionary=facade.readback()
+		check(native.host_mode=="paused" and native.tick=="0","landmark_visual_paused_tick0_"+str(index))
+		set_camera_mode(1)
+		open_menu()
+		await save_view(prefix+"-menu")
+		open_landmark_route()
+		await save_view(prefix+"-chooser")
+		check(route_open and landmark_board.get("_chooser").visible,"landmark_visual_chooser_open_"+str(index))
+		choose_landmark_route([0,1,2])
+		menu_open=false;menu.hide()
+		map_visible=true;flight_map.show()
+		await save_view(prefix+"-target")
+		check(route_view.active and route_view.available and not flight_map.get("_route").is_empty(),"landmark_visual_current_target_"+str(index))
+		check(flight_map.get("_valid") and not flight_map.get("_retained") and not flight_map.call("_runway_metrics").is_empty(),"landmark_visual_paused_locator_current_"+str(index))
+		set_route_aids_visible(false)
+		await save_view(prefix+"-hidden")
+		check(not landmark_board.get("_card").visible and flight_map.get("_route").is_empty() and not route_view.aid_visible,"landmark_visual_aids_hidden_"+str(index))
+		set_route_aids_visible(true)
+		check(facade.readback()==native,"landmark_visual_all_edits_native_unchanged_"+str(index))
+		for name in ["menu","chooser","target","hidden"]:
+			var actual: Dictionary=evidence.get(prefix+"-"+name+"_size",{})
+			check(actual.get("width")==dimensions[index].x and actual.get("height")==dimensions[index].y,"landmark_visual_dimensions_"+str(index)+"_"+name)
+		evidence.views.append({"width":dimensions[index].x,"height":dimensions[index].y,"session_id":native.session_id,"tick":native.tick,"readback_unchanged":facade.readback()==native})
+	var joined: bool=close_session()
+	if sound!=null:
+		joined=bool(await sound.call("shutdown")) and joined
+	check(joined,"landmark_visual_worker_and_audio_joined")
+	var receipt: Dictionary={"passed":failures.is_empty(),"failures":failures,"evidence":evidence,"scope":"Twelve actual GPU observer captures; native paused at tick 0. Manual synthetic geometry only."}
+	var file=FileAccess.open(output_directory().path_join("landmark-visual-receipt.json"),FileAccess.WRITE)
+	file.store_string(JSON.stringify(receipt,"  "));file.close()
+	print("LANDMARK_VISUAL_PASSED" if receipt.passed else "LANDMARK_VISUAL_FAILED")
+	get_tree().quit(0 if receipt.passed else 1)
 
 func run_instrument_visual() -> void:
 	# Bounded GPU evidence over the actual original native model. Synthetic bad

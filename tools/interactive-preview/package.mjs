@@ -46,6 +46,31 @@ function audit(root,proof,build){
   assert.deepEqual(records.map(x=>x.name).sort(),moduleNames);return records;
  }
  const modules=witness(baseline,payload),replacedModules=witness(changed,replacement);
+ const nativeIdentity=json(path.join(evidence,'native-build-identity.json'));
+ assert.equal(path.resolve(nativeIdentity.root),path.resolve(build));
+ assert.match(nativeIdentity.declared_source_fingerprint,/^[a-f0-9]{64}$/);
+ assert.equal(nativeIdentity.source_bindings.length,6);assert.equal(nativeIdentity.build_witnesses.length,4);
+ for(const item of nativeIdentity.source_bindings){const bytes=fs.readFileSync(path.join(repo,item.path));assert.equal(bytes.length,item.bytes);assert.equal(sha(bytes),item.raw_sha256);assert.equal(sha(Buffer.from(bytes.toString('utf8').replaceAll('\r\n','\n'))),item.lf_sha256);}
+ for(const item of nativeIdentity.build_witnesses){const bytes=fs.readFileSync(path.join(build,item.path));assert.equal(bytes.length,item.bytes);assert.equal(sha(bytes),item.sha256);}
+ const bridgeIdentity=nativeIdentity.build_witnesses.find(item=>item.path==='bin/flight_godot_bridge.dll');
+ assert.equal(bridgeIdentity.sha256,modules.find(item=>item.name==='flight_godot_bridge.dll').sha256);
+ assert.equal(bridgeIdentity.sha256,replacedModules.find(item=>item.name==='flight_godot_bridge.dll').sha256);
+ // Current UI drivers must execute in editor, portable and replacement contexts.
+ const uiReceipts=['editor','portable','replacement'].map(name=>json(path.join(evidence,name+'-facade-receipt.json')));
+ for(const receipt of uiReceipts){
+  assert.equal(receipt.passed,true);assert.deepEqual(receipt.failures,[]);
+  assert.deepEqual(Object.keys(receipt.freeflight).sort(),['geometry','scene']);
+  for(const item of Object.values(receipt.freeflight)){assert.equal(item.passed,true);assert(item.checks>0);assert.deepEqual(item.failures,[]);}
+ }
+ const geometry=json(path.join(repo,'tests/ui/freeflight/reference.json'));
+ assert.equal(geometry.case_count,16);assert.equal(geometry.cases.length,16);
+ for(const folder of ['ui/freeflight','freeflight_tests']){
+  const staged=path.join(root,'project',folder),source=path.join(payload,'source/whole-flight-preview',folder);
+  const originals=walk(source).sort();
+  assert.deepEqual(walk(staged).filter(x=>!x.endsWith('.gd.uid')).sort(),originals.filter(x=>!x.endsWith('.gd.uid')).sort());
+  for(const file of originals)assert.equal(sha(fs.readFileSync(path.join(source,file))),sha(fs.readFileSync(path.join(staged,file))),'freeflight corresponding source/'+folder+'/'+file);
+ }
+
  const traces=['loop.records.ndjson','replacement.records.ndjson'].map(name=>fs.readFileSync(path.join(evidence,name),'utf8').trim().split('\n').map(JSON.parse));
  assert.equal(traces[0].length,traces[1].length);traces[0].forEach((a,i)=>compare(a,traces[1][i],'trace/'+i));
  const editorTrace=fs.readFileSync(path.join(evidence,'editor.records.ndjson'),'utf8').trim().split('\n').map(JSON.parse);
