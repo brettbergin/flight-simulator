@@ -30,6 +30,8 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 
 | WHOLE-FLIGHT-PREVIEW | [#98 Deliver a Windows taxi-to-landing engineering preview](https://github.com/brettbergin/flight-simulator/issues/98) | EPIC-P0, CORE-CONTRACTS, FDM-HARNESS, GROUND-PROOF, NATIVE-EXPORT, INTERACTIVE-CONTRACT |
 
+| FLIGHT-UX | [#100 Replace debug presentation with a usable visual flight experience](https://github.com/brettbergin/flight-simulator/issues/100) | WHOLE-FLIGHT-PREVIEW |
+
 ## P2 — First cockpit and synthetic airfield
 
 | Key | Issue | Dependencies |

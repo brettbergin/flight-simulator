@@ -32,6 +32,7 @@ Generated from [roadmap](../roadmap.md) and [backlog](../backlog.json). Consult 
 | [AIRBORNE-PREVIEW](https://github.com/brettbergin/flight-simulator/issues/94) — Deliver a human-controllable Windows airborne engineering preview | cockpit | EPIC-P0, CORE-CONTRACTS, FDM-HARNESS, NATIVE-EXPORT | `app/proof/airborne/`, `tools/preview/` |
 | [INTERACTIVE-CONTRACT](https://github.com/brettbergin/flight-simulator/issues/95) — Ratify the bounded original ground-to-flight prototype contract and model | physics | EPIC-P0, CORE-CONTRACTS, FDM-HARNESS, GROUND-PROOF, LICENSE-REGISTER | `docs/decisions/006-interactive-prototype.md`, `native/fdm_jsbsim/models/original-interactive/`, `third_party/licenses/` |
 | [WHOLE-FLIGHT-PREVIEW](https://github.com/brettbergin/flight-simulator/issues/98) — Deliver a Windows taxi-to-landing engineering preview | physics | EPIC-P0, CORE-CONTRACTS, FDM-HARNESS, GROUND-PROOF, NATIVE-EXPORT, INTERACTIVE-CONTRACT | `native/fdm_jsbsim/interactive/`, `native/godot_bridge/src/interactive*`, `app/proof/interactive/`, `tools/interactive-preview/`, `tests/interactive/`, `CMakeLists.txt` |
+| [FLIGHT-UX](https://github.com/brettbergin/flight-simulator/issues/100) — Replace debug presentation with a usable visual flight experience | ui | WHOLE-FLIGHT-PREVIEW | `app/proof/interactive/`, `tools/interactive-preview/`, `docs/evidence/P1/flight-ux.md` |
 
 ## Agent handoff
 

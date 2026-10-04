@@ -5,6 +5,7 @@ const BUDGET_DENOMINATOR: int = 1000000
 const DEBT_LIMIT: int = 250000 * HZ
 var bridge: RefCounted
 var snapshot: Dictionary = {}
+var atmosphere: Dictionary = {}
 var initial: Dictionary = {}
 var controls: Dictionary = {}
 var last_submitted: Dictionary = {}
@@ -22,6 +23,24 @@ var longitude: float = 0.0
 var airplane: Node3D
 var camera: Camera3D
 var label: Label
+var panel: Control
+var menu: PanelContainer
+var menu_title: Label
+var menu_message: Label
+var resume_button: Button
+var menu_open: bool = false
+var help_visible: bool = false
+var panel_visible: bool = true
+var camera_mode: int = 0
+var look_angles := Vector2.ZERO
+var camera_distance: float = 13.0
+var camera_ready: bool = false
+var input_sensitivity: float = 1.0
+var joy_device: int = -1
+var audio_enabled: bool = true
+var sound: Node
+var quitting: bool = false
+var propeller: Node3D
 var smoke: bool = false
 var visual_smoke: bool = false
 var attempt: int = 0
@@ -43,6 +62,7 @@ var submitted_count: int = 0
 var event_count: int = 0
 
 func _ready() -> void:
+	get_tree().auto_accept_quit=false
 	smoke = "--smoke" in OS.get_cmdline_user_args()
 	visual_smoke = "--visual-smoke" in OS.get_cmdline_user_args()
 	if "--airborne" in OS.get_cmdline_user_args():
@@ -61,6 +81,9 @@ func _ready() -> void:
 		run_smoke()
 	else:
 		last_wall_us = Time.get_ticks_usec()
+		Input.joy_connection_changed.connect(on_joy_connection_changed)
+		get_window().focus_exited.connect(on_focus_lost)
+		open_menu("Ready for your flight")
 
 func close_session() -> bool:
 	if bridge == null:
@@ -94,6 +117,8 @@ func restart() -> bool:
 	var height: float = float(world_anchor.ellipsoid_height_m)
 	origin_ecef = {"x":(radius+height)*cos(latitude)*cos(longitude),"y":(radius+height)*cos(latitude)*sin(longitude),"z":(radius*(1.0-eccentricity)+height)*sin(latitude)}
 	debt = 0
+	camera_ready = false
+	look_angles = Vector2.ZERO
 	paused = false
 	stalled = false
 	blocked = false
@@ -116,6 +141,7 @@ func accept_reply(reply: Dictionary) -> void:
 	last_aircraft_json = reply.aircraft_json
 	last_atmosphere_json = reply.atmosphere_json
 	snapshot = JSON.parse_string(last_aircraft_json)
+	atmosphere = JSON.parse_string(last_atmosphere_json)
 	held_controls = reply.held_axes.duplicate(true)
 	ground_valid = reply.ground_query_valid
 	plane_clearance = float(reply.plane_clearance_m)
@@ -203,45 +229,232 @@ func _process(_delta: float) -> void:
 	var now: int = Time.get_ticks_usec()
 	var elapsed: int = now - last_wall_us
 	last_wall_us = now
-	if not paused and bridge != null:
+	if not paused and not menu_open and bridge != null:
 		read_keyboard(minf(float(elapsed) / 1000000.0, 0.25))
 		if submit_axes(controls):
 			advance_wall_us(elapsed)
 	if not smoke:
 		show_state()
+		if sound != null and not snapshot.is_empty():
+			sound.call("update_audio",float(held_controls.get("throttle",0)),flight_speed(),paused,any_wow())
 
 func axis(positive: Key, negative: Key) -> float:
 	return float(Input.is_physical_key_pressed(positive)) - float(Input.is_physical_key_pressed(negative))
 
+func stick_axis(raw: float) -> float:
+	var dead_zone: float = 0.12
+	return signf(raw)*clampf((absf(raw)-dead_zone)/(1.0-dead_zone),0,1)
+
 func read_keyboard(seconds: float) -> void:
-	controls.roll = clampf(float(initial.solved_controls.roll)+0.35*axis(KEY_RIGHT,KEY_LEFT),-1,1)
-	controls.pitch = clampf(float(initial.solved_controls.pitch)+0.15*axis(KEY_DOWN,KEY_UP),-1,1)
-	controls.yaw = clampf(float(initial.solved_controls.yaw)+0.25*axis(KEY_D,KEY_A),-1,1)
-	controls.throttle = clampf(float(controls.throttle)+0.25*seconds*axis(KEY_PAGEUP,KEY_PAGEDOWN),0,1)
+	var roll_input: float = axis(KEY_RIGHT,KEY_LEFT)
+	var pitch_input: float = axis(KEY_DOWN,KEY_UP)
+	var yaw_input: float = axis(KEY_D,KEY_A)
+	var throttle_input: float = clampf(axis(KEY_PAGEUP,KEY_PAGEDOWN)+axis(KEY_W,KEY_S),-1,1)
+	var pad_brake: bool = false
+	if joy_device >= 0:
+		roll_input = stick_axis(Input.get_joy_axis(joy_device,JOY_AXIS_LEFT_X))
+		pitch_input = -stick_axis(Input.get_joy_axis(joy_device,JOY_AXIS_LEFT_Y))
+		yaw_input = stick_axis(Input.get_joy_axis(joy_device,JOY_AXIS_RIGHT_X))
+		throttle_input = Input.get_joy_axis(joy_device,JOY_AXIS_TRIGGER_RIGHT)-Input.get_joy_axis(joy_device,JOY_AXIS_TRIGGER_LEFT)
+		pad_brake = Input.is_joy_button_pressed(joy_device,JOY_BUTTON_A)
+	# Explicit keyboard/gamepad input profile: ramps pilot commands only.
+	# No attitude/velocity feedback or changes to simulation state.
+	var rate: float = 0.9*seconds
+	controls.roll = move_toward(float(controls.roll),clampf(float(initial.solved_controls.roll)+0.35*input_sensitivity*roll_input,-1,1),rate)
+	controls.pitch = move_toward(float(controls.pitch),clampf(float(initial.solved_controls.pitch)+0.15*input_sensitivity*pitch_input,-1,1),rate)
+	controls.yaw = move_toward(float(controls.yaw),clampf(float(initial.solved_controls.yaw)+0.25*input_sensitivity*yaw_input,-1,1),rate)
+	controls.throttle = clampf(float(controls.throttle)+0.25*seconds*throttle_input,0,1)
 	controls.trim = clampf(float(controls.trim)+0.08*seconds*axis(KEY_BRACKETRIGHT,KEY_BRACKETLEFT),-1,1)
-	var both: bool = brake_hold or Input.is_physical_key_pressed(KEY_SPACE)
+	var both: bool = brake_hold or Input.is_physical_key_pressed(KEY_SPACE) or pad_brake
 	controls.left_brake = 1.0 if both or Input.is_physical_key_pressed(KEY_Q) else 0.0
 	controls.right_brake = 1.0 if both or Input.is_physical_key_pressed(KEY_E) else 0.0
+
+func on_joy_connection_changed(device: int, connected: bool) -> void:
+	if device == joy_device and not connected:
+		joy_device = -1
+		open_menu("Controller disconnected")
+		status = "CONTROLLER LOST | paused before another physics step; keyboard is selected"
+
+func on_focus_lost() -> void:
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	if not smoke and not visual_smoke and not menu_open and bridge != null:
+		open_menu("Flight paused while window is inactive")
+
+func select_controller() -> void:
+	if joy_device >= 0:
+		joy_device = -1
+	else:
+		var connected: Array[int] = Input.get_connected_joypads()
+		if not connected.is_empty():
+			joy_device = connected[0]
+
+func _unhandled_input(event: InputEvent) -> void:
+	if menu_open:
+		return
+	if event is InputEventMouseButton:
+		if event.button_index==MOUSE_BUTTON_RIGHT:
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if event.pressed else Input.MOUSE_MODE_VISIBLE
+		elif event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN]:
+			var direction: float = -1.0 if event.button_index==MOUSE_BUTTON_WHEEL_UP else 1.0
+			if camera_mode==0:
+				camera.fov=clampf(camera.fov+direction*3,45,90)
+			else:
+				camera_distance=clampf(camera_distance+direction,6,40)
+	elif event is InputEventMouseMotion and Input.mouse_mode==Input.MOUSE_MODE_CAPTURED:
+		look_angles.x=clampf(look_angles.x-event.relative.x*0.004,-PI,PI)
+		look_angles.y=clampf(look_angles.y-event.relative.y*0.004,-1.2,1.2)
+	elif event is InputEventJoypadButton and event.pressed and event.device==joy_device and event.button_index==JOY_BUTTON_START:
+		open_menu("Flight paused")
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not event is InputEventKey or not event.pressed or event.echo:
 		return
-	if event.physical_keycode==KEY_P:
-		pause_session(not paused)
-	elif event.physical_keycode==KEY_R:
-		restart()
-	elif event.physical_keycode==KEY_G:
-		named_start="ground-ready"
-		restart()
-	elif event.physical_keycode==KEY_F:
-		named_start="airborne-prepared"
-		restart()
-	elif event.physical_keycode==KEY_B:
-		brake_hold=not brake_hold
-	elif event.physical_keycode==KEY_C:
-		forward_view=not forward_view
-	elif event.physical_keycode==KEY_ESCAPE:
-		get_tree().quit(0 if close_session() else 1)
+	if menu_open:
+		if event.physical_keycode in [KEY_ESCAPE,KEY_P]:
+			close_menu()
+			get_viewport().set_input_as_handled()
+		return
+	match event.physical_keycode:
+		KEY_P:
+			if paused:
+				pause_session(false)
+			else:
+				open_menu("Flight paused")
+		KEY_ESCAPE:
+			open_menu("Flight paused")
+		KEY_R:
+			restart()
+		KEY_G:
+			start_flight("ground-ready")
+		KEY_F:
+			start_flight("airborne-prepared")
+		KEY_B:
+			brake_hold=not brake_hold
+		KEY_C:
+			set_camera_mode((camera_mode+1)%3)
+		KEY_1:
+			set_camera_mode(0)
+		KEY_2:
+			set_camera_mode(1)
+		KEY_3:
+			set_camera_mode(2)
+		KEY_HOME:
+			look_angles=Vector2.ZERO
+		KEY_H:
+			help_visible=not help_visible
+			panel.call("set_help_visible",help_visible)
+		KEY_V:
+			panel_visible=not panel_visible
+			panel.call("set_panel_visible",panel_visible)
+		KEY_J:
+			select_controller()
+		KEY_M:
+			audio_enabled=not audio_enabled
+			if sound != null:
+				sound.call("set_enabled",audio_enabled)
+		KEY_F11:
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED if DisplayServer.window_get_mode()==DisplayServer.WINDOW_MODE_FULLSCREEN else DisplayServer.WINDOW_MODE_FULLSCREEN)
+	get_viewport().set_input_as_handled()
+
+func set_camera_mode(value: int) -> void:
+	camera_mode=value
+	forward_view=camera_mode==0
+	look_angles=Vector2.ZERO
+	camera_ready=false
+	camera.fov=72
+
+func start_flight(start: String) -> void:
+	named_start=start
+	if restart():
+		menu_open=false
+		menu.hide()
+		last_wall_us=Time.get_ticks_usec()
+
+func open_menu(title: String="Flight paused") -> void:
+	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
+	if not paused:
+		pause_session(true)
+	menu_open=true
+	menu_title.text=title
+	menu_message.text="Original light-aircraft prototype · synthetic airfield
+Engine already running. Instrument panel shows derived native truth.
+Arrows fly · W/S throttle · A/D yaw · B brake hold · H help
+Right mouse look · 1/2/3 cameras · scroll zoom · Home recenter"
+	resume_button.disabled=blocked or stalled
+	menu.show()
+	resume_button.grab_focus()
+
+func close_menu() -> void:
+	if pause_session(false):
+		menu_open=false
+		menu.hide()
+		last_wall_us=Time.get_ticks_usec()
+
+func make_menu(canvas: CanvasLayer) -> void:
+	menu=PanelContainer.new()
+	menu.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	menu.position=Vector2(-270,-240)
+	menu.custom_minimum_size=Vector2(540,480)
+	var style:=StyleBoxFlat.new()
+	style.bg_color=Color(0.025,0.045,0.065,0.97)
+	style.border_color=Color(0.24,0.58,0.72)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(14)
+	style.content_margin_left=28
+	style.content_margin_right=28
+	style.content_margin_top=22
+	style.content_margin_bottom=22
+	menu.add_theme_stylebox_override("panel",style)
+	canvas.add_child(menu)
+	var box:=VBoxContainer.new()
+	box.add_theme_constant_override("separation",6)
+	menu.add_child(box)
+	menu_title=Label.new()
+	menu_title.add_theme_font_size_override("font_size",28)
+	box.add_child(menu_title)
+	menu_message=Label.new()
+	menu_message.add_theme_font_size_override("font_size",14)
+	box.add_child(menu_message)
+	resume_button=add_menu_button(box,"Resume flight",close_menu)
+	add_menu_button(box,"Start on runway",func():start_flight("ground-ready"))
+	add_menu_button(box,"Start airborne",func():start_flight("airborne-prepared"))
+	var sensitivity:=HSlider.new()
+	sensitivity.min_value=0.3
+	sensitivity.max_value=1.5
+	sensitivity.step=0.1
+	sensitivity.value=input_sensitivity
+	sensitivity.tooltip_text="Pilot input sensitivity (command mapping only; no flight stabilization)"
+	sensitivity.value_changed.connect(func(value:float):input_sensitivity=value)
+	box.add_child(sensitivity)
+	var sensitivity_label:=Label.new()
+	sensitivity_label.text="Pilot input sensitivity · smooth commands · no stabilizer"
+	sensitivity_label.add_theme_font_size_override("font_size",14)
+	box.add_child(sensitivity_label)
+	add_menu_button(box,"Keyboard / gamepad (J)",select_controller)
+	add_menu_button(box,"Quit",quit_flight)
+	menu.hide()
+
+func add_menu_button(box:VBoxContainer,text:String,action:Callable) -> Button:
+	var button:=Button.new()
+	button.text=text
+	button.custom_minimum_size=Vector2(0,32)
+	button.add_theme_font_size_override("font_size",18)
+	button.pressed.connect(action)
+	box.add_child(button)
+	return button
+
+func quit_flight() -> void:
+	if quitting:
+		return
+	quitting=true
+	var joined: bool = close_session()
+	if sound != null:
+		joined=bool(await sound.call("shutdown")) and joined
+	get_tree().quit(0 if joined else 1)
+
+func _notification(what: int) -> void:
+	if what==NOTIFICATION_WM_CLOSE_REQUEST:
+		quit_flight()
 
 func body_quaternion() -> Quaternion:
 	var q: Dictionary = snapshot.orientation_body_to_ned
@@ -274,74 +487,27 @@ func visual_position() -> Vector3:
 func visual_basis(q: Quaternion) -> Basis:
 	return Basis(ned_to_view(q * Vector3(0,1,0)), ned_to_view(q * Vector3(0,0,-1)), ned_to_view(q * Vector3(-1,0,0)))
 
-func make_box(parent: Node3D, size: Vector3, at: Vector3, color: Color) -> void:
-	var node := MeshInstance3D.new()
-	var mesh := BoxMesh.new()
-	mesh.size = size
-	var material := StandardMaterial3D.new()
-	material.albedo_color = color
-	material.roughness = 0.9
-	mesh.material = material
-	node.mesh = mesh
-	node.position = at
-	parent.add_child(node)
-
 func make_world() -> void:
-	var env := WorldEnvironment.new()
-	var config := Environment.new()
-	config.background_mode = Environment.BG_COLOR
-	config.background_color = Color(0.32,0.58,0.83)
-	config.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	config.ambient_light_color = Color(0.85,0.88,1)
-	config.ambient_light_energy = 0.75
-	env.environment = config
-	add_child(env)
-	var sun := DirectionalLight3D.new()
-	sun.rotation_degrees = Vector3(-45,-35,0)
-	sun.light_energy = 1.1
-	add_child(sun)
-	# Congruent immutable prepared ECEF plane. Meshes have no physics/colliders.
-	make_box(self, Vector3(40000,2,40000), Vector3(0,-1,0), Color(0.22,0.38,0.18))
-	make_box(self, Vector3(40,0.2,1800), Vector3(0,0.02,-800), Color(0.15,0.16,0.17))
-	for i in range(20):
-		make_box(self, Vector3(1.5,0.1,35), Vector3(0,0.16,-i*85), Color.WHITE)
-	for i in range(-12,13):
-		make_box(self, Vector3(40000,0.1,1), Vector3(0,0.12,i*1000), Color(0.30,0.45,0.22))
-		make_box(self, Vector3(1,0.1,40000), Vector3(i*1000,0.12,0), Color(0.30,0.45,0.22))
-	airplane = Node3D.new()
-	add_child(airplane)
-	make_box(airplane, Vector3(0.8,0.7,5), Vector3.ZERO, Color(0.95,0.95,0.9))
-	make_box(airplane, Vector3(9,0.15,1.1), Vector3(0,0,0), Color(0.8,0.18,0.10))
-	make_box(airplane, Vector3(3,0.12,0.8), Vector3(0,0,2), Color(0.8,0.18,0.10))
-	make_box(airplane, Vector3(0.12,1.1,0.8), Vector3(0,0.5,2), Color(0.8,0.18,0.10))
-	for id in ["gear.nose","gear.left","gear.right"]:
-		var wheel := MeshInstance3D.new()
-		var mesh := SphereMesh.new()
-		mesh.radius=0.12
-		mesh.height=0.24
-		wheel.mesh=mesh
-		airplane.add_child(wheel)
-		gears[id]=wheel
-	camera = Camera3D.new()
-	camera.fov = 72
-	camera.far = 50000
-	camera.current = true
-	add_child(camera)
-	var canvas := CanvasLayer.new()
+	var scene: Dictionary = load("res://interactive/flight_world.gd").new().build(self)
+	airplane=scene.airplane
+	camera=scene.camera
+	gears=scene.gears
+	propeller=scene.get("propeller",null)
+	var canvas:=CanvasLayer.new()
 	add_child(canvas)
-	var backing := ColorRect.new()
-	backing.color = Color(0.01,0.02,0.03,0.85)
-	backing.position = Vector2(12,12)
-	backing.size = Vector2(1180,275)
-	canvas.add_child(backing)
-	label = Label.new()
-	label.position = Vector2(24,18)
-	label.add_theme_font_size_override("font_size", 17)
-	canvas.add_child(label)
+	panel=load("res://interactive/flight_panel.gd").new()
+	canvas.add_child(panel)
+	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	make_menu(canvas)
+	if ResourceLoader.exists("res://interactive/flight_sound.gd"):
+		sound=load("res://interactive/flight_sound.gd").new()
+		add_child(sound)
+	set_camera_mode(0)
 
 func show_state() -> void:
 	if snapshot.is_empty():
-		label.text="WHOLE-FLIGHT ENGINEERING PROTOTYPE — NOT C172S\n"+status
+		if panel != null:
+			panel.call("set_state",{}, {},held_controls,{"status":status,"outcome":"error","blocked":blocked,"stalled":stalled,"paused":paused,"input_name":"Keyboard"})
 		return
 	var q: Quaternion = body_quaternion()
 	var basis: Basis = visual_basis(q)
@@ -350,25 +516,33 @@ func show_state() -> void:
 		if gears.has(contact.id):
 			var point: Dictionary = contact.point_body_m
 			gears[contact.id].position=Vector3(float(point.y),-float(point.z),-float(point.x))
-	airplane.visible=not forward_view
-	camera.position=airplane.position+basis*(Vector3(0,0.7,-1.5) if forward_view else Vector3(0,3.5,13))
-	camera.look_at(airplane.position+basis*Vector3(0,0.7,-60),basis.y)
-	var forward: Vector3 = q*Vector3(1,0,0)
-	var right: Vector3 = q*Vector3(0,1,0)
-	var down: Vector3 = q*Vector3(0,0,1)
-	var v: Dictionary = snapshot.velocity_body_mps
-	var body_velocity := Vector3(float(v.x),float(v.y),float(v.z))
-	var ned_velocity: Vector3 = q*body_velocity
-	var bank: float = atan2(right.z,down.z)
-	var pitch: float = asin(clampf(-forward.z,-1,1))
-	var heading: float = fposmod(rad_to_deg(atan2(forward.y,forward.x)),360)
-	var wow_text: String = ""
-	for contact in snapshot.contacts:
-		var force: Dictionary = contact.force_body_n
-		var magnitude: float = sqrt(float(force.x)*float(force.x)+float(force.y)*float(force.y)+float(force.z)*float(force.z))
-		wow_text += "%s: %s %.0fN   " % [contact.id,"WOW" if contact.on_ground else "AIR",magnitude]
-	var clearance: String = "%.2f m" % plane_clearance if ground_valid else "UNAVAILABLE"
-	label.text="WHOLE-FLIGHT ENGINEERING PROTOTYPE — NOT C172S | engine already running; no startup procedures\n"+status+"\n"+"CG ellipsoid height %.2f m | Synthetic-plane clearance %s | Earth-relative speed %.1f m/s\n" % [float(snapshot.position.ellipsoid_height_m),clearance,body_velocity.length()]+"True heading %.1f° | Pitch %.1f° | Bank %.1f° | Vertical speed %.1f m/s | Tick %s /120Hz\n" % [heading,rad_to_deg(pitch),rad_to_deg(bank),-ned_velocity.z,snapshot.tick]+wow_text+"\n"+"ACTUAL throttle %.0f%% | trim %.3f | brakes L %.0f%% / R %.0f%% | B hold %s | %s view\n" % [float(held_controls.throttle)*100,float(held_controls.trim),float(held_controls.left_brake)*100,float(held_controls.right_brake)*100,"ON" if brake_hold else "OFF","forward engineering" if forward_view else "chase"]+"Arrows roll/pitch (Down nose-up) | A/D yaw+steer | PgUp/PgDn throttle | [ / ] trim\n"+"B toggle brake hold | Space both service brakes | Q/E left/right brake | C camera | P pause | R fresh | G ground / F airborne | Esc quit\n"+"Synthetic 40km prepared plane; generic original airframe; no calibrated performance, systems or training-credit claim"
+	airplane.visible=camera_mode!=0
+	var target_position: Vector3
+	var look_target: Vector3
+	var up: Vector3 = Vector3.UP
+	if camera_mode==0:
+		target_position=airplane.position+basis*Vector3(0,0.65,-1.1)
+		var direction:=Vector3(sin(look_angles.x)*cos(look_angles.y),sin(look_angles.y),-cos(look_angles.x)*cos(look_angles.y))
+		look_target=target_position+basis*direction*60
+		up=basis.y
+	elif camera_mode==1:
+		target_position=airplane.position+basis*Vector3(sin(look_angles.x)*camera_distance,3.5+look_angles.y*5,cos(look_angles.x)*camera_distance)
+		look_target=airplane.position+basis*Vector3(0,0.5,-4)
+	else:
+		target_position=airplane.position+Vector3(sin(look_angles.x)*camera_distance,(0.25+sin(look_angles.y))*camera_distance,cos(look_angles.x)*camera_distance)
+		target_position.y=maxf(target_position.y,0.35)
+		look_target=airplane.position+Vector3.UP*0.4
+	if camera_mode==0 or not camera_ready or paused:
+		camera.position=target_position
+	else:
+		camera.position=camera.position.lerp(target_position,1.0-exp(-9.0*get_process_delta_time()))
+	camera_ready=true
+	camera.look_at(look_target,up)
+	if propeller!=null and not paused:
+		propeller.rotate_z(get_process_delta_time()*(25+float(held_controls.throttle)*65))
+	var view_names: Array[String]=["COCKPIT","CHASE","ORBIT"]
+	var input_name: String = "Keyboard %.1fx · smooth" % input_sensitivity if joy_device<0 else "Gamepad %.1fx · " % input_sensitivity+Input.get_joy_name(joy_device)
+	panel.call("set_state",snapshot,atmosphere,held_controls,{"status":status,"outcome":native_outcome,"blocked":blocked,"stalled":stalled,"paused":paused,"brake_hold":brake_hold,"view_name":view_names[camera_mode],"clearance_m":plane_clearance,"ground_valid":ground_valid,"input_name":input_name,"audio_enabled":audio_enabled})
 
 func check(condition: bool, description: String) -> void:
 	if not condition:
@@ -416,9 +590,70 @@ func run_smoke() -> void:
 	var previous_id: String = snapshot.session_id
 	named_start="ground-ready"
 	check(restart() and snapshot.tick=="0" and debt==0 and snapshot.session_id!=previous_id,"explicit_fresh_ground_reset")
+	run_ux_checks()
 	show_state()
 	check(close_session(),"final_worker_joined")
 	finish_smoke()
+
+func run_ux_checks() -> void:
+	var saved: String = last_aircraft_json
+	var saved_controls: Dictionary = held_controls.duplicate(true)
+	open_menu("UX functional test")
+	check(menu_open and paused and menu.visible,"ux_menu_visibly_pauses_native")
+	var result: Dictionary = bridge.call("step_fixed",32)
+	check(result.completed==0 and result.aircraft_json==saved and held_controls==saved_controls,"ux_menu_preserves_aircraft_and_controls")
+	var key:=InputEventKey.new()
+	key.physical_keycode=KEY_F
+	key.pressed=true
+	_unhandled_key_input(key)
+	check(named_start=="ground-ready" and last_aircraft_json==saved,"ux_menu_consumes_flight_shortcuts")
+	for view in range(3):
+		set_camera_mode(view)
+		show_state()
+		check(last_aircraft_json==saved and held_controls==saved_controls,"ux_camera_%d_does_not_mutate_flight" % view)
+	check(absf(stick_axis(0.1))<0.000001 and absf(stick_axis(-1)+1)<0.000001 and absf(stick_axis(1)-1)<0.000001,"ux_gamepad_dead_zone_and_signed_endpoints")
+	close_menu()
+	check(not menu_open and not paused and last_aircraft_json==saved,"ux_menu_resume_same_native_state")
+	joy_device=123
+	on_joy_connection_changed(123,false)
+	check(joy_device==-1 and menu_open and paused and last_aircraft_json==saved,"ux_synthetic_gamepad_disconnect_pauses_before_step")
+	close_menu()
+	set_camera_mode(0)
+	# Synthetic engine input event exercises the same physical-key reader.
+	key.physical_keycode=KEY_RIGHT
+	key.keycode=KEY_RIGHT
+	Input.parse_input_event(key)
+	Input.flush_buffered_events()
+	read_keyboard(0.1)
+	check(absf(float(controls.roll)-0.09)<0.00001,"ux_keyboard_press_ramps_command")
+	read_keyboard(0.4)
+	check(absf(float(controls.roll)-0.35)<0.00001,"ux_keyboard_hold_reaches_profile_limit")
+	var release:=InputEventKey.new()
+	release.keycode=KEY_RIGHT
+	release.physical_keycode=KEY_RIGHT
+	release.pressed=false
+	Input.parse_input_event(release)
+	Input.flush_buffered_events()
+	read_keyboard(0.1)
+	check(absf(float(controls.roll)-0.26)<0.00001,"ux_keyboard_release_ramps_to_neutral")
+	read_keyboard(0.4)
+	check(absf(float(controls.roll))<0.00001,"ux_keyboard_neutral_preserves_trim_baseline")
+	var saved_snapshot: Dictionary = snapshot.duplicate(true)
+	var saved_status: String = status
+	snapshot={}
+	blocked=true
+	status="Initialization unavailable; R starts a fresh attempt"
+	show_state()
+	check(panel.get("_info").blocked and panel.get("_info").status==status,"ux_missing_initial_state_fault_reaches_panel")
+	snapshot=saved_snapshot
+	blocked=false
+	status=saved_status
+	var climb: Dictionary=snapshot.duplicate(true)
+	climb.orientation_body_to_ned={"w":1.0,"x":0.0,"y":0.0,"z":0.0}
+	climb.velocity_body_mps={"x":30.0,"y":40.0,"z":12.0}
+	var readings: Dictionary=panel.call("_derive_readings",climb,atmosphere)
+	check(absf(float(readings.ground_kt)-50.0*1.9438444924406)<0.000001,"ux_groundspeed_excludes_vertical_component")
+	evidence["ux_scope"]="Actual menu/native state and camera checks; synthetic keyboard/gamepad mapping, not hardware acceptance"
 
 func any_wow() -> bool:
 	for contact in snapshot.contacts:
@@ -524,6 +759,8 @@ func run_automated_loop() -> void:
 	evidence["automated_loop"]={"scope":"Test-only scripted feedback via pilot API; not unassisted human handling","takeoff_tick":str(takeoff_tick),"touchdown_tick":str(touchdown_tick),"stop_tick":snapshot.tick,"maximum_plane_clearance_m":maximum_clearance,"final_speed_mps":flight_speed(),"all_wow":all_wow(),"last_state":snapshot.duplicate(true)}
 
 func finish_smoke() -> void:
+	if sound != null:
+		check(bool(await sound.call("shutdown")),"audio_resources_retired")
 	evidence["scope"] = "Original combined-model whole-flight preview; headless functional proof only; automated driver distinct from human handling"
 	evidence["failures"] = failures
 	evidence["passed"] = failures.is_empty()
@@ -541,6 +778,7 @@ func save_view(name: String) -> void:
 	var output: String = OS.get_executable_path().get_base_dir() if not OS.has_feature("editor") else ProjectSettings.globalize_path("res://")
 	var image: Image = get_viewport().get_texture().get_image()
 	check(image.save_png(output.path_join(name + ".png")) == OK, name + "_PNG_saved")
+	evidence[name+"_size"]={"width":image.get_width(),"height":image.get_height()}
 
 func run_visual_smoke() -> void:
 	if DisplayServer.get_name() == "headless":
@@ -551,6 +789,12 @@ func run_visual_smoke() -> void:
 	named_start="airborne-prepared"
 	check(restart(),"visual_airborne_named_start")
 	await save_view("view-airborne-initial")
+	set_camera_mode(1)
+	await save_view("view-chase")
+	set_camera_mode(2)
+	look_angles=Vector2(0.85,0.15)
+	await save_view("view-orbit")
+	set_camera_mode(0)
 	controls.roll = clampf(float(controls.roll)+0.15,-1,1)
 	controls.pitch = clampf(float(controls.pitch)+0.015,-1,1)
 	check(submit_axes(controls), "visual_control_queued")
@@ -563,7 +807,19 @@ func run_visual_smoke() -> void:
 	named_start="ground-ready"
 	check(restart(),"visual_ground_fresh_reset")
 	await save_view("view-reset")
+	open_menu("Flight paused")
+	await save_view("view-pause-menu")
+	close_menu()
+	panel.call("set_help_visible",true)
+	await save_view("view-controls-help")
+	panel.call("set_help_visible",false)
+	get_window().size=Vector2i(960,540)
+	await save_view("view-small-window")
+	get_window().size=Vector2i(1920,1080)
+	await save_view("view-full-hd")
 	check(close_session(), "visual_final_joined")
+	if sound != null:
+		check(bool(await sound.call("shutdown")),"visual_audio_resources_retired")
 	evidence["scope"] = "Actual GPU visual smoke; original combined model, no C172S claim"
 	evidence["frames_drawn"] = Engine.get_frames_drawn()
 	evidence["controlled_native_ticks"] = 120
