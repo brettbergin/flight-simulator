@@ -29,12 +29,46 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12.5'
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '22'
+      - name: Classify immutable PR source using the accepted base classifier
+        id: scope
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          New-Item -ItemType Directory -Force .local/native-ci-scope | Out-Null
+          $trusted = '.local/native-ci-scope/classify-native.mjs'
+          $source = $null
+          if ($env:GITHUB_EVENT_NAME -eq 'pull_request' -and $env:PR_BASE_SHA -cmatch '^[0-9a-f]{40}$') {
+            $source = & git show ($env:PR_BASE_SHA + ':tools/ci/classify-native.mjs') 2>$null
+            if ($LASTEXITCODE -ne 0) { $source = $null }
+          }
+          if ($null -eq $source) {
+            @{version=1;docs_only=$false;reason='no-accepted-base-classifier-full';runtime_proof_executed=$null} | ConvertTo-Json | Set-Content .local/native-ci-scope/receipt.json
+            'docs_only=false' | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+            $global:LASTEXITCODE = 0
+          } else {
+            $source | Set-Content -LiteralPath $trusted -Encoding utf8
+            node $trusted
+            if ($LASTEXITCODE -ne 0) { throw 'Scope classifier failed; native checks cannot pass' }
+          }
+      - name: Test fail-closed source classifier on real Git objects
+        run: |
+          node --test tools/ci/classify-native.test.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'CI source-classification guard tests failed' }
+      - name: Validate documentation and backlog on every scope
+        run: |
+          node tools/check-docs.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Documentation or backlog validation failed' }
+      - name: Report documentation-only scope without runtime claims
+        if: steps.scope.outputs.docs_only == 'true'
+        run: |
+          'Documentation-only source scope: schemas, documentation, reference fixtures and guard tests run. Native bootstrap, compilation and exports skipped. This is not runtime or aircraft acceptance.' | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
       - name: Validate accepted schemas when contract module is present
         run: |
           if (Test-Path native/sim_core/contracts/CMakeLists.txt) {
@@ -57,22 +91,25 @@ jobs:
       - name: Validate dependency download integrity
         run: python tools/bootstrap/test_bootstrap.py
       - name: Pin headless Linux compiler family
-        if: runner.os == 'Linux'
+        if: steps.scope.outputs.docs_only != 'true' && (runner.os == 'Linux')
         run: |
           "CC=gcc-13" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           "CXX=g++-13" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Check Windows input editor and portable fixture before native compilation
-        if: runner.os == 'Windows' && hashFiles('tools/input-controls/check.py') != ''
+        if: steps.scope.outputs.docs_only != 'true' && (runner.os == 'Windows' && hashFiles('tools/input-controls/check.py') != '')
         run: |
           python tools/bootstrap/bootstrap.py --with-godot --with-export-templates
           if ($LASTEXITCODE -ne 0) { throw "Pinned input preflight bootstrap failed" }
           python tools/input-controls/check.py
           if ($LASTEXITCODE -ne 0) { throw "Windows input editor/export preflight failed" }
       - name: Compile real shared dependencies, bindings and C++20 smoke
+        if: steps.scope.outputs.docs_only != 'true'
         run: ./tools/bootstrap/build.ps1 -Python python -WithGodot -WithExportTemplates:($IsWindows)
       - name: Verify unchanged source/tool receipts after build
+        if: steps.scope.outputs.docs_only != 'true'
         run: python tools/bootstrap/bootstrap.py --offline --with-godot
       - name: Prove authoritative synthetic dynamics and strict scenario boundaries
+        if: steps.scope.outputs.docs_only != 'true'
         run: |
           node tests/fdm/make-transport-fixture.mjs --check
           if ($LASTEXITCODE -ne 0) { throw "Native transport fixture drift" }
@@ -81,8 +118,10 @@ jobs:
           node tests/fdm/proof.mjs
           if ($LASTEXITCODE -ne 0) { throw "FDM repeat/convergence/stability proof failed" }
       - name: Prove native initializer loaded in pinned Godot
+        if: steps.scope.outputs.docs_only != 'true'
         run: ./tools/bootstrap/verify-godot.ps1
       - name: Prove original asset import and CPU render-frame geometry
+        if: steps.scope.outputs.docs_only != 'true'
         run: |
           $environment = Get-Content .local/toolchain/environment.json -Raw | ConvertFrom-Json
           python tools/benchmark/pipeline/verify_pipeline.py --godot $environment.tools.godot --output .local/pipeline-proof/ci
@@ -92,20 +131,22 @@ jobs:
           python tools/benchmark/verify_headless.py --godot $environment.tools.godot --output .local/render-headless/ci
           if ($LASTEXITCODE -ne 0) { throw "Renderer compilation/headless rejection failed" }
       - name: Check original-model observed equation corpus
-        if: hashFiles('tests/reference/observed.mjs') != ''
+        if: steps.scope.outputs.docs_only != 'true' && (hashFiles('tests/reference/observed.mjs') != '')
         run: |
           node tests/reference/observed.mjs .local/fdm-proof/hz120
           if ($LASTEXITCODE -ne 0) { throw "Observed model equation corpus failed" }
       - name: Prove integrated terrain contact authority
-        if: hashFiles('tests/ground/proof/verify.test.mjs') != ''
+        if: steps.scope.outputs.docs_only != 'true' && (hashFiles('tests/ground/proof/verify.test.mjs') != '')
         run: |
           node --test tests/ground/proof/verify.test.mjs
           if ($LASTEXITCODE -ne 0) { throw "Ground contact authority proof failed" }
       - name: Prove one-executive ground-to-flight loop and fail-closed boundaries
+        if: steps.scope.outputs.docs_only != 'true'
         run: |
           node --test tests/interactive/verify.test.mjs
           if ($LASTEXITCODE -ne 0) { throw "Interactive ground-to-flight repeat, v1 records or boundary checks failed" }
       - name: Prove actual typed native bridge in Godot editor
+        if: steps.scope.outputs.docs_only != 'true'
         run: |
           node tests/export/make-initializer.mjs --check
           if ($LASTEXITCODE -ne 0) { throw "Bridge initializer fixture drift" }
@@ -117,6 +158,7 @@ jobs:
             ./tools/export/proof.ps1 -EditorOnly -Python python
           }
       - name: Check actual native simulation facade and scene resource compilation
+        if: steps.scope.outputs.docs_only != 'true'
         run: |
           ./tools/interactive-preview/simulation-staging.test.ps1
           ./tools/interactive-preview/check-guards.ps1
@@ -171,7 +213,7 @@ jobs:
           Assert-CockpitSourceGroups -DestinationRoot $project -Groups $cockpitGroups -AllowGeneratedUIDs
           @{source=$snapshot;tests=$tests;input_sources=$inputGroups;cockpit_sources=$cockpitGroups;generated_uid_metadata=@(Get-ChildItem (Join-Path $project 'simulation'),(Join-Path $project 'sim_loop_tests'),(Join-Path $project 'input'),(Join-Path $project 'ui/controls'),(Join-Path $project 'input_tests'),(Join-Path $project 'cockpit'),(Join-Path $project 'instrument_tests') -Recurse -File -Filter '*.gd.uid'|ForEach-Object {@{path=[IO.Path]::GetRelativePath($project,$_.FullName).Replace([char]92,[char]47);sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}});godot_sha256=(Get-FileHash $environment.tools.godot).Hash.ToLowerInvariant();project_sha256=(Get-FileHash (Join-Path $project 'project.godot')).Hash.ToLowerInvariant();harness_sha256=(Get-FileHash (Join-Path $project 'sim_loop_checks.gd')).Hash.ToLowerInvariant();modules=@(Get-ChildItem (Join-Path $project 'bin') -File | ForEach-Object {@{name=$_.Name;sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}})} | ConvertTo-Json -Depth 12 | Set-Content (Join-Path $evidence 'source-binding.json')
       - name: Prove Windows corresponding source and actual DLL replacement
-        if: runner.os == 'Windows'
+        if: steps.scope.outputs.docs_only != 'true' && (runner.os == 'Windows')
         run: |
           python tools/export/source-bundle.py --output .local/export-ci-source
           if ($LASTEXITCODE -ne 0) { throw "Corresponding source generation failed" }
@@ -185,12 +227,12 @@ jobs:
           node tools/export/package.mjs .local/export-ci-source
           if ($LASTEXITCODE -ne 0) { throw "Package selected-runtime/rights audit failed; unknown hosted CRT identities require review" }
       - name: Prove human-controlled Windows preview in editor and portable export
-        if: runner.os == 'Windows'
+        if: steps.scope.outputs.docs_only != 'true' && (runner.os == 'Windows')
         run: |
           $proof = Get-Content .local/export-proof/latest-run.json -Raw | ConvertFrom-Json
           ./tools/preview/run.ps1 -ExportProofRoot $proof.root -ToolchainRoot .local/toolchain
       - name: Prove Windows ground-to-flight player and replaceable native package
-        if: runner.os == 'Windows'
+        if: steps.scope.outputs.docs_only != 'true' && (runner.os == 'Windows')
         run: |
           node --test tools/interactive-preview/verify.test.mjs
           if ($LASTEXITCODE -ne 0) { throw "Interactive model staging rejection failed" }
@@ -203,6 +245,7 @@ jobs:
           name: native-evidence-${{ matrix.os }}
           if-no-files-found: error
           path: |
+            .local/native-ci-scope/receipt.json
             .local/build/native-release/toolchain-build-manifest.txt
             .local/build/native-release/Testing/Temporary/LastTest.log
             .local/toolchain/environment.json
