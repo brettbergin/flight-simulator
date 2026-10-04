@@ -2,6 +2,7 @@ extends RefCounted
 # Original MIT. Private ADR011 qualification and closed owned-value validation.
 const NativeReadings = preload("res://cockpit/instruments/native_readings.gd")
 const Frames = preload("res://simulation/canonical_frames.gd")
+const Wire = preload("res://simulation/wire_validation.gd")
 const U64 = preload("res://simulation/uint64.gd")
 const Tick = preload("res://replay/observed/tick_math.gd")
 const MODEL: Dictionary = {"id":"original-interactive-prototype","version":"0.1.0-prototype","backend_model":"original-interactive"}
@@ -106,16 +107,37 @@ static func qualify(value: Variant) -> Dictionary:
 static func changed_identity(value: Variant, bound: Variant) -> bool:
 	if bound==null or not value is Dictionary:
 		return false
-	# Only shape-qualified identity fields classify rejection; never adopt their tick.
-	for key in ["session_id","native_source_fingerprint","prepared_world_sha256","named_start"]:
-		if value.get(key) is String and value[key]!=bound[key]:
+	# A malformed observation never becomes an identity change merely because a
+	# String differs. Only complete source admission rejected by an identity rule
+	# can reach this classification. The supplied tick is still never adopted.
+	var error: String = NativeReadings.from_readback(value).error
+	if error not in ["Unexpected model identity","Invalid source fingerprint or prepared world identity","Unexpected prepared world anchor","Source publication must be valid runtime120Hz"] and not error.is_empty():
+		return false
+	if not identifier(value.get("session_id")) or not hex(value.get("native_source_fingerprint")) or not hex(value.get("prepared_world_sha256")):
+		return false
+	if value.get("named_start") not in ["ground-ready","airborne-prepared"]:
+		return false
+	var model: Variant = value.get("model_identity")
+	if not keys(model,MODEL.keys()) or not identifier(model.id) or not Wire._version(model.version) or not identifier(model.backend_model):
+		return false
+	var anchor: Variant = value.get("world_anchor")
+	if not keys(anchor,ANCHOR.keys()):
+		return false
+	for key in ANCHOR:
+		if typeof(anchor[key])!=TYPE_FLOAT or not is_finite(anchor[key]):
+			return false
+	if absf(anchor.latitude_rad)>PI/2 or absf(anchor.longitude_rad)>PI or anchor.ellipsoid_height_m<-2000.0 or anchor.ellipsoid_height_m>10000000.0:
+		return false
+	var aircraft: Variant = value.get("aircraft")
+	var weather: Variant = value.get("atmosphere")
+	if not Wire.aircraft(aircraft) or not Wire.atmosphere(weather) or aircraft.validity!="valid" or aircraft.session_id!=value.session_id or weather.session_id!=value.session_id or aircraft.tick!=value.get("tick") or weather.tick!=value.get("tick") or aircraft.position!=weather.position:
+		return false
+	if not U64.valid(weather.seed):
+		return false
+	for key in ["session_id","native_source_fingerprint","prepared_world_sha256","named_start","model_identity","world_anchor"]:
+		if value[key]!=bound[key]:
 			return true
-	for key in ["model_identity","world_anchor"]:
-		if value.get(key) is Dictionary and keys(value[key],bound[key].keys()) and value[key]!=bound[key]:
-			return true
-	if value.get("atmosphere") is Dictionary and U64.valid(value.atmosphere.get("seed")) and value.atmosphere.seed!=bound.seed:
-		return true
-	return false
+	return weather.seed!=bound.seed or aircraft.clock!=bound.clock
 
 static func observation(readback: Dictionary, readings: Dictionary) -> Dictionary:
 	return {"aircraft":readback.aircraft.duplicate(true),"atmosphere":readback.atmosphere.duplicate(true),
