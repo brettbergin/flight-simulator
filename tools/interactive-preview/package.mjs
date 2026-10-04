@@ -59,7 +59,16 @@ function audit(root,proof,build){
  const uiReceipts=['editor','portable','replacement'].map(name=>json(path.join(evidence,name+'-facade-receipt.json')));
  for(const receipt of uiReceipts){
   assert.equal(receipt.passed,true);assert.deepEqual(receipt.failures,[]);
-  assert.deepEqual(Object.keys(receipt).sort(),['schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive'].sort(),'Facade receipt closed shape');
+  assert.deepEqual(Object.keys(receipt).sort(),['schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive','wind'].sort(),'Facade receipt closed shape');
+  assert.deepEqual(Object.keys(receipt.wind).sort(),['bridge','cue','scene']);
+  for(const [name,item] of Object.entries(receipt.wind)){
+   const keys=name==='bridge'?['passed','checks','failures']:name==='cue'?['passed','checks','failures','scope','reference_cases','reference_sha256','runway_expectations']:['passed','checks','failures','scope'];
+   assert.deepEqual(Object.keys(item).sort(),keys.sort(),'Wind receipt closed shape/'+name);
+   assert.equal(item.passed,true);assert(Number.isSafeInteger(item.checks)&&item.checks>0);assert.deepEqual(item.failures,[]);
+   if(name!=='bridge'){assert.equal(typeof item.scope,'string');assert(item.scope.length>0&&item.scope.length<=1024);}
+  }
+  assert.equal(receipt.wind.cue.reference_cases,22);assert.equal(receipt.wind.cue.runway_expectations,8);
+  assert.equal(receipt.wind.cue.reference_sha256,'7d71cbb4f8d9ad12fe91501d5e020f14bbf02516d363512e69b6fa41320856c3');
   assert.equal(receipt.schema_version,1);assert(Number.isSafeInteger(receipt.checks)&&receipt.checks>0);assert.equal(typeof receipt.scope,'string');assert(receipt.scope.length>0&&receipt.scope.length<=1024);
   assert.deepEqual(Object.keys(receipt.freeflight).sort(),['geometry','scene']);
   for(const item of Object.values(receipt.freeflight)){assert.equal(item.passed,true);assert(item.checks>0);assert.deepEqual(item.failures,[]);}
@@ -88,7 +97,8 @@ function audit(root,proof,build){
   for(const file of originals)assert.equal(sha(fs.readFileSync(path.join(source,file))),sha(fs.readFileSync(path.join(staged,file))),'freeflight corresponding source/'+folder+'/'+file);
  }
  const observedGroups=[['app/replay/observed','replay/observed',['recorder.gd','review.gd','tick_math.gd','values.gd']],['app/ui/debrief/observed','ui/debrief/observed',['panel.gd']],['tests/debrief/observed','observed_tests',['recorder_checks.gd','scene_checks.gd','expected-v1.json','generate.py','preparation-binding-v2.json','root-ratification-v1.json','README.md','.gitattributes']],['app/replay/observed_archive','replay/observed_archive',['codec.gd','strict_json.gd','files.gd','windows_io.ps1']],['tests/debrief/observed_archive','observed_archive_tests',['archive_checks.gd','file_checks.gd','scene_checks.gd','visual_checks.gd','windows_fixture.ps1','generate.py','source-binding-v1.json','root-ratification-v1.json','README.md','.gitattributes','reference/expected-text-v1.json','reference/expected-binary64-v1.json']]];
- for(const [authored,folder,required] of observedGroups){
+ const windGroups=[['app/world/wind','world/wind',['wind_cue.gd']],['app/ui/wind','ui/wind',['panel.gd']],['tests/world/wind','wind_tests',['wind_checks.gd','ratification-v1.json','reference/expected-v1.json','reference/generate.py','reference/manifest-v1.json','reference/NOTICE-MIT.txt']],['tests/integration/wind','wind_scene_tests',['scene_checks.gd','visual_checks.gd']]];
+ for(const [authored,folder,required] of [...observedGroups,...windGroups]){
   const author=path.join(repo,authored),staged=path.join(root,'project',folder),source=path.join(payload,'source/whole-flight-preview',folder);
   const originals=walk(author).sort();
   for(const entry of required)assert(originals.includes(entry),'Required observed source missing/'+entry);

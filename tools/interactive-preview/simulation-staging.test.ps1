@@ -110,6 +110,110 @@ $orphan=Join-Path $freeflightProject 'freeflight_tests/orphan.gd.uid'
 Must-Reject {Assert-FreeflightSourceGroups $freeflightProject $freeflightGroups -AllowGeneratedUIDs} 'orphan landmark driver UID'
 Write-Output 'PASS landmark recursive source/reference staging and changed/missing/unbound/UID negatives.'
 
+# Closed wind groups must remain nonempty/distinct and carry their actual entrypoints.
+$windFixture=Join-Path $testRoot 'wind-repo'
+foreach($definition in Get-WindSourceDefinitions){
+ foreach($entry in @($definition.required)+@('nested/original.txt')){
+  $file=Join-Path $windFixture ($definition.source+'/'+$entry)
+  New-Item -ItemType Directory -Path (Split-Path $file) -Force|Out-Null
+  [IO.File]::WriteAllText($file,'bound wind fixture '+$definition.source+'/'+$entry)
+ }
+}
+$windGroups=@(Get-WindSourceGroups $windFixture)
+$windProject=Join-Path $testRoot 'wind-project'
+$windSource=Join-Path $testRoot 'wind-source'
+Copy-WindSourceGroups $windFixture $windProject $windGroups
+Copy-WindSourceGroups $windFixture $windSource $windGroups
+Assert-WindSourceGroups $windFixture $windGroups -Authoring
+Assert-WindSourceGroups $windProject $windGroups
+Assert-WindSourceGroups $windSource $windGroups
+if(-not (Test-Path -LiteralPath (Join-Path $windSource 'wind_scene_tests/visual_checks.gd')) -or -not (Test-Path -LiteralPath (Join-Path $windProject 'world/wind/nested/original.txt'))){throw 'Wind visual/nested corresponding-source missing'}
+Must-Reject {Copy-WindSourceGroups $windFixture (Join-Path $testRoot 'wind-empty') @()} 'missing all wind groups'
+Must-Reject {Assert-WindSourceGroups $windProject @($windGroups[0],$windGroups[1],$windGroups[2])} 'missing wind scene group'
+foreach($field in @('snapshot','required')){
+ $empty=@($windGroups|ForEach-Object {$copy=$_.Clone();$copy[$field]=@();$copy})
+ $fresh=Join-Path $testRoot ('wind-empty-'+$field)
+ Must-Reject {Copy-WindSourceGroups $windFixture $fresh $empty} ('empty wind '+$field+' before copy')
+ if(Test-Path -LiteralPath $fresh){throw 'Wind invalid descriptor created a destination'}
+ Must-Reject {Assert-WindSourceGroups $windProject $empty} ('empty wind '+$field+' assertion')
+}
+$duplicated=@($windGroups[0],$windGroups[1],$windGroups[2],$windGroups[2])
+Must-Reject {Copy-WindSourceGroups $windFixture (Join-Path $testRoot 'wind-duplicate') $duplicated} 'duplicated wind group before copy'
+Must-Reject {Assert-WindSourceGroups $windProject $duplicated} 'duplicated wind group assertion'
+foreach($field in @('source','destination','required')){
+ $changed=@($windGroups|ForEach-Object {$_.Clone()})
+ if($field -eq 'required'){$changed[3][$field]=@('scene_checks.gd')}else{$changed[3][$field]='unknown/alias'}
+ Must-Reject {Assert-WindSourceGroups $windProject $changed} ('unknown/omitted wind '+$field+' roster')
+}
+$windVisual=Join-Path $windFixture 'tests/integration/wind/visual_checks.gd'
+$visualBytes=[IO.File]::ReadAllBytes($windVisual)
+Remove-Item -LiteralPath $windVisual
+Must-Reject {Get-WindSourceGroups $windFixture} 'missing mandatory wind visual driver'
+[IO.File]::WriteAllBytes($windVisual,$visualBytes)
+$windBound=Join-Path $windProject 'wind_tests/reference/expected-v1.json'
+$windBoundBytes=[IO.File]::ReadAllBytes($windBound)
+[IO.File]::WriteAllText($windBound,'tampered')
+Must-Reject {Assert-WindSourceGroups $windProject $windGroups} 'changed wind reference bytes'
+[IO.File]::WriteAllBytes($windBound,$windBoundBytes)
+$windUID=Join-Path $windProject 'world/wind/wind_cue.gd.uid'
+[IO.File]::WriteAllText($windUID,"uid://c6ia3qumfvccx`n")
+Assert-WindSourceGroups $windProject $windGroups -AllowGeneratedUIDs
+Must-Reject {Assert-WindSourceGroups $windProject $windGroups} 'wind UID in exact corresponding source'
+[IO.File]::WriteAllText($windUID,'malformed UID')
+Must-Reject {Assert-WindSourceGroups $windProject $windGroups -AllowGeneratedUIDs} 'malformed wind generated UID'
+[IO.File]::WriteAllText($windUID,"uid://c6ia3qumfvccx`n")
+[IO.File]::WriteAllText((Join-Path $windProject 'wind_scene_tests/orphan.gd.uid'),"uid://c6ia3qumfvccx`n")
+Must-Reject {Assert-WindSourceGroups $windProject $windGroups -AllowGeneratedUIDs} 'orphan wind driver UID'
+Write-Output 'PASS closed four wind groups; recursive source/visual binding and empty/duplicate/alias/missing/drift/UID negatives.'
+
+# Real ratified public bytes are copied into a private fixture. Guard failures
+# use an intentionally nonexistent executable: no unqualified generator runs.
+$windReferences=Join-Path $testRoot 'wind-references'
+$windReferenceRoot=Join-Path $windReferences 'tests/world/wind'
+New-Item -ItemType Directory -Path $windReferenceRoot -Force|Out-Null
+Copy-Item -LiteralPath (Join-Path $repo 'tests/world/wind/reference') -Destination $windReferenceRoot -Recurse
+$bindingPath=Join-Path $windReferenceRoot 'ratification-v1.json'
+Copy-Item -LiteralPath (Join-Path $repo 'tests/world/wind/ratification-v1.json') -Destination $bindingPath
+$bindingOriginal=[IO.File]::ReadAllBytes($bindingPath)
+function Write-WindBinding($Binding){
+ [IO.File]::WriteAllText($bindingPath,($Binding|ConvertTo-Json -Depth 12),[Text.UTF8Encoding]::new($false))
+}
+function Must-RejectWindReference([string]$ExpectedMessage,[string]$Label){
+ $observed=''
+ try{Assert-WindReferences $windReferences 'NONEXISTENT-WIND-GENERATOR-EXECUTABLE'}catch{$observed=$_.Exception.Message}
+ if($observed -cne $ExpectedMessage){throw "Wind guard failed to reject $Label before generator execution: $observed"}
+}
+foreach($mutation in @('empty','omitted','duplicate','changed-pin','escaped-path','extra-field','float-bytes')){
+ $binding=[Text.Encoding]::UTF8.GetString($bindingOriginal)|ConvertFrom-Json
+ if($mutation -eq 'empty'){$binding.published_files=@()}
+ elseif($mutation -eq 'omitted'){$binding.published_files=@($binding.published_files|Where-Object path -ne 'reference/generate.py')}
+ elseif($mutation -eq 'duplicate'){$binding.published_files[1]=$binding.published_files[0]}
+ elseif($mutation -eq 'changed-pin'){$binding.published_files[1].sha256='a'*64}
+ elseif($mutation -eq 'escaped-path'){$binding.published_files[1].path='../alternate.py'}
+ elseif($mutation -eq 'extra-field'){$binding.published_files[1]|Add-Member -NotePropertyName other -NotePropertyValue 'unknown'}
+ else{$binding.published_files[1].bytes=[double]9621}
+ Write-WindBinding $binding
+ $message=if($mutation -in @('empty','omitted')){'Frozen wind reference roster incomplete'}else{'Frozen wind reference roster differs from accepted pins'}
+ Must-RejectWindReference $message ('reference roster '+$mutation)
+}
+[IO.File]::WriteAllBytes($bindingPath,$bindingOriginal)
+foreach($entry in @('reference/generate.py','reference/expected-v1.json')){
+ $file=Join-Path $windReferenceRoot $entry;$original=[IO.File]::ReadAllBytes($file)
+ [IO.File]::WriteAllBytes($file,([byte[]]@($original[0..($original.Length-2)]+[byte]32)))
+ Must-RejectWindReference 'Frozen wind reference bytes changed' ('changed same-length '+$entry)
+ [IO.File]::WriteAllBytes($file,$original)
+}
+$binding=[Text.Encoding]::UTF8.GetString($bindingOriginal)|ConvertFrom-Json
+$binding.original_ratification_sha256='a'*64
+Write-WindBinding $binding
+Must-RejectWindReference 'Accepted wind ratification required' 'wrong preconsumer ratification binding'
+[IO.File]::WriteAllBytes($bindingPath,$bindingOriginal)
+Assert-WindReferences $windReferences (Get-Command python -ErrorAction Stop).Source
+foreach($file in Get-ChildItem -LiteralPath $windReferenceRoot -Recurse -File){
+ $relative=[IO.Path]::GetRelativePath($windReferenceRoot,$file.FullName)
+ if((Get-FileHash -LiteralPath $file.FullName).Hash -cne (Get-FileHash -LiteralPath (Join-Path $repo ('tests/world/wind/'+$relative))).Hash){throw 'Readonly wind reference regeneration changed bytes'}
+}
+Write-Output 'PASS fixed accepted reference roster/hash/size/ratification admission before read-only generator execution.'
 # All observed producer/UI/fixtures are mandatory, recursive and independently
 # bound; these staging checks do not load Godot or execute any native code.
 $observedFixture=Join-Path $testRoot 'observed-repo'
@@ -157,7 +261,55 @@ Write-Output 'PASS observed recursive source/UI/reference binding and missing/em
 # A passing host marker cannot hide skipped or vacuous observed checks.
 $receipt=[pscustomobject]@{schema_version=1;scope='fixture';passed=$true;checks=1;failures=@();facade=$null;origin=$null;participants=$null;wire=$null;scene=$null;input=$null;input_scene=$null;instruments=$null;cockpit=$null;freeflight=$null;observed=[pscustomobject]@{recorder=[pscustomobject]@{passed=$true;checks=1;failures=@();reference_cases=42;reference_sha256='a4c3184c46f2eb76c85ff4ba43fc8aac49e772a447576eeec5663fff1ac78844';scope='pure fixture'};scene=[pscustomobject]@{passed=$true;checks=1;failures=@();scope='scene fixture'}}}
 $receipt|Add-Member -NotePropertyName observed_archive -NotePropertyValue ([pscustomobject]@{codec=[pscustomobject]@{passed=$true;checks=1;failures=@();scope='codec fixture';reference_cases=40;reference_sha256='961d8903f702f1d46374998db06b7517a1ca067333b3613bd2adbf3a8c06b15e';binary64_cases=26;binary64_sha256='406b00475e444f71f6e1f57fd37100c52b86c076e0dccbf664bb5bfc05c028d8'};files=[pscustomobject]@{passed=$true;checks=1;failures=@();scope='files fixture'};scene=[pscustomobject]@{passed=$true;checks=1;failures=@();scope='scene fixture'}})
+function New-WindReceiptFixture {
+ [pscustomobject]@{
+  bridge=[pscustomobject]@{passed=$true;checks=1;failures=@()}
+  cue=[pscustomobject]@{passed=$true;checks=1;failures=@();scope='pure fixture';reference_cases=22;runway_expectations=8;reference_sha256='7d71cbb4f8d9ad12fe91501d5e020f14bbf02516d363512e69b6fa41320856c3'}
+  scene=[pscustomobject]@{passed=$true;checks=1;failures=@();scope='actual scene fixture'}
+ }
+}
+$receipt|Add-Member -NotePropertyName wind -NotePropertyValue (New-WindReceiptFixture)
 Assert-PreviewFacadeReceipt $receipt
+foreach($name in @('bridge','cue','scene')){
+ foreach($wrong in @(0,-1,'1',[double]1)){
+  $receipt.wind=New-WindReceiptFixture;$receipt.wind.$name.checks=$wrong
+  Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('zero/malformed wind '+$name+' checks')
+ }
+ foreach($wrong in @($false,'true')){
+  $receipt.wind=New-WindReceiptFixture;$receipt.wind.$name.passed=$wrong
+  Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('failed/coerced wind '+$name+' marker')
+ }
+ $receipt.wind=New-WindReceiptFixture;$receipt.wind.$name.failures=@('actual_failure')
+ Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('failed wind '+$name+' assertions')
+ $receipt.wind=New-WindReceiptFixture;$receipt.wind.$name.failures=$null
+ Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('null wind '+$name+' failure array')
+ $receipt.wind=New-WindReceiptFixture;$receipt.wind.$name|Add-Member -NotePropertyName other -NotePropertyValue $true
+ Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('extra wind '+$name+' receipt key')
+ $receipt.wind=New-WindReceiptFixture;$receipt.wind.PSObject.Properties.Remove($name)
+ Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('missing wind '+$name+' result')
+}
+foreach($name in @('cue','scene')){
+ foreach($wrong in @('',1,('x'*1025))){
+  $receipt.wind=New-WindReceiptFixture;$receipt.wind.$name.scope=$wrong
+  Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('malformed wind '+$name+' scope')
+ }
+}
+foreach($field in @('reference_cases','runway_expectations')){
+ $value=if($field -eq 'reference_cases'){22}else{8}
+ foreach($wrong in @(($value-1),[double]$value,([string]$value))){
+  $receipt.wind=New-WindReceiptFixture;$receipt.wind.cue.$field=$wrong
+  Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('wind reference count/type '+$field)
+ }
+}
+$receipt.wind=New-WindReceiptFixture;$receipt.wind.cue.reference_sha256='a'*64
+Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'wind wrong frozen reference identity'
+$receipt.wind=[pscustomobject]@{}
+Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'empty wind result group'
+$receipt.PSObject.Properties.Remove('wind')
+Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'missing wind top-level group'
+$receipt|Add-Member -NotePropertyName wind -NotePropertyValue (New-WindReceiptFixture)
+Assert-PreviewFacadeReceipt $receipt
+Write-Output 'PASS closed mandatory wind cue/bridge/scene receipts and nonvacuous/failed/type/count/reference negatives.'
 foreach($name in @('codec','files','scene')){
  $receipt.observed_archive.$name.checks=0
  Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('zero archive '+$name+' checks')
@@ -250,5 +402,5 @@ Get-PreviewNativeBuildIdentity $identityRepo $identityBuild|Out-Null
 Write-Output 'PASS selected native source/compile/bridge witnesses and identity/closure/missing-file negatives; no native execution.'
 
 $runnerText=[IO.File]::ReadAllText((Join-Path $PSScriptRoot 'run.ps1'))
-if($runnerText -notmatch 'exclude_filter="[^"\r\n]*landmark\*\.png,landmark\*-receipt\.json,observed\*\.png,observed\*-receipt\.json"'){throw 'Landmark/observed observer output must be excluded from PCK authoring'}
-Write-Output 'PASS bounded landmark visual observer output exclusion; source/reference groups remain exact.'
+if($runnerText -notmatch 'exclude_filter="[^"\r\n]*landmark\*\.png,landmark\*-receipt\.json,observed\*\.png,observed\*-receipt\.json,wind\*\.png,wind\*-receipt\.json"'){throw 'Landmark/observed/wind observer output must be excluded from PCK authoring'}
+Write-Output 'PASS bounded landmark/observed/wind visual observer output exclusion; source/reference groups remain exact.'

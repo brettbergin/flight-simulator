@@ -23,6 +23,11 @@ var _runway := 36
 var _landmarks: Array[Dictionary] = []
 var _route: Dictionary={}
 var _font: Font = ThemeDB.fallback_font
+var _wind_cue: Dictionary={}
+
+func set_wind_cue(value: Dictionary) -> void:
+	_wind_cue=value.duplicate(true)
+	queue_redraw()
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -213,6 +218,17 @@ func _draw() -> void:
 		_text(chart.get_center()-Vector2(78,0),"LAST STATE · STOPPED" if _valid and _retained else "STATE UNAVAILABLE",Color("ffc477"),12)
 	_text(Vector2(chart.end.x-18,chart.position.y+18),"N",INK,12)
 	draw_line(Vector2(chart.end.x-14,chart.position.y+33),Vector2(chart.end.x-14,chart.position.y+22),INK,1.5)
+	if _wind_cue.get("state") in ["live","paused"] and _wind_cue.get("speed_mps",0.0)>0.0:
+		var flow: Array=_wind_cue.wind_toward_airfield_eus_mps
+		# Scale first; tiny actual binary64 winds must not underflow to calm.
+		var largest: float=maxf(absf(flow[0]),absf(flow[2]))
+		var direction: Vector2=Vector2(flow[0]/largest,flow[2]/largest).normalized()
+		var at: Vector2=chart.position+Vector2(36,38)
+		var end_wind: Vector2=at+direction*20.0
+		var across:=Vector2(-direction.y,direction.x)
+		draw_line(at-direction*16.0,end_wind,CYAN,2.0,true)
+		draw_colored_polygon(PackedVector2Array([end_wind,end_wind-direction*8.0+across*4.0,end_wind-direction*8.0-across*4.0]),CYAN)
+		_text(at+Vector2(-20,35),"WIND TO",CYAN,10)
 	var metrics:=_runway_metrics()
 	var line:=chart.end.y+19
 	_text(Vector2(14,line),"RWY %02d END · GEOMETRY / NATIVE TRUTH" % _runway,CYAN,11)

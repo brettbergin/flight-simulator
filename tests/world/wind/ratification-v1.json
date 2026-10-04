@@ -1,0 +1,69 @@
+{
+  "status": "ratified-before-consumer-and-backend-observations",
+  "issue": 142,
+  "accepted_contract_merge": "265a604257292728a47e38f744aa396e09b2ab58",
+  "accepted_contract_sha256": "64548f1c876f77d635bd116710fcd5ca44d27e436b8b6b105d0c66406ea20e8f",
+  "contract_pr": {
+    "mergeCommit": {
+      "oid": "265a604257292728a47e38f744aa396e09b2ab58"
+    },
+    "mergedAt": "2026-10-04T16:07:50Z",
+    "state": "MERGED",
+    "url": "https://github.com/brettbergin/flight-simulator/pull/141"
+  },
+  "original_packet_hashes": {
+    "expected-v1.json": "7d71cbb4f8d9ad12fe91501d5e020f14bbf02516d363512e69b6fa41320856c3",
+    "generate.py": "6a66257c468846caab502e1b7681c16ad00a09e5380d95266c082ab0ff5c263c",
+    "manifest-v1.json": "a0391a9b0535c6910a9acdfb5d0b2082d5ef9db8e46676e98967b79c772e03b2",
+    "README.md": "815b2dcbacaa6ef886bfacef593b90e41a4087a04d86277914b797d84b32b048",
+    "NOTICE-MIT.txt": "2cc02afe02dd0ffa0ca25e51b8a1fb2fe4a9f0adb95bf768031abd24c8da9c16"
+  },
+  "independent_coordinator_source_math_review_sha256": "f4dbac27f4df322d86524999509469d95ec355a5a70b49e5f576398ecef1201e",
+  "read_only_regeneration": {
+    "passed": true,
+    "case_count": 22,
+    "runway_expectation_count": 8,
+    "expected_sha256": "7d71cbb4f8d9ad12fe91501d5e020f14bbf02516d363512e69b6fa41320856c3",
+    "mode": "read-only-check",
+    "no_consumer_output": true
+  },
+  "decision": "Accept unchanged preconsumer reference bytes and existing criteria for issue142 implementation. Preserve original proposed metadata; add this ratification separately.",
+  "limitations": [
+    "Reference acceptance is not native behavior, aircraft fidelity, pilot evaluation or phase acceptance.",
+    "No new consumer or backend observations were used to select these references or comparison budgets."
+  ],
+  "original_ratification_sha256": "d00105f6bf7e1214bef4bfcf7e00a07e95726880fe99f73ebfacd9a9c123b6fe",
+  "publication_policy": "Original proposal-status packet remains byte-identical historical provenance. This separate metadata records accepted contract and coordinator ratification before consumers. No native/consumer output used; reference acceptance alone proves no aircraft or backend behavior.",
+  "published_files": [
+    {
+      "path": "reference/expected-v1.json",
+      "bytes": 71446,
+      "sha256": "7d71cbb4f8d9ad12fe91501d5e020f14bbf02516d363512e69b6fa41320856c3"
+    },
+    {
+      "path": "reference/generate.py",
+      "bytes": 9621,
+      "sha256": "6a66257c468846caab502e1b7681c16ad00a09e5380d95266c082ab0ff5c263c"
+    },
+    {
+      "path": "reference/manifest-v1.json",
+      "bytes": 1848,
+      "sha256": "a0391a9b0535c6910a9acdfb5d0b2082d5ef9db8e46676e98967b79c772e03b2"
+    },
+    {
+      "path": "reference/NOTICE-MIT.txt",
+      "bytes": 1092,
+      "sha256": "2cc02afe02dd0ffa0ca25e51b8a1fb2fe4a9f0adb95bf768031abd24c8da9c16"
+    },
+    {
+      "path": "reference/preparation-receipt.json",
+      "bytes": 1876,
+      "sha256": "be841b0d8cbebbc02dfd20af155b1f0ed8af2e65988d562e9df48f2c6aecedd7"
+    },
+    {
+      "path": "reference/README.md",
+      "bytes": 2650,
+      "sha256": "815b2dcbacaa6ef886bfacef593b90e41a4087a04d86277914b797d84b32b048"
+    }
+  ]
+}

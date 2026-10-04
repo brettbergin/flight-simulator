@@ -15,6 +15,14 @@ const ObservedValues = preload("res://replay/observed/values.gd")
 const ObservedPanel = preload("res://ui/debrief/observed/panel.gd")
 const ArchiveCodec = preload("res://replay/observed_archive/codec.gd")
 const ArchiveFiles = preload("res://replay/observed_archive/files.gd")
+const WindCue = preload("res://world/wind/wind_cue.gd")
+const WindPanel = preload("res://ui/wind/panel.gd")
+var wind_draft: String="calm"
+var current_wind_profile: String="calm"
+var wind_panel: Control
+var wind_label: Label
+var wind_card: PanelContainer
+var windsock_visual: MeshInstance3D
 var archive_files: RefCounted=ArchiveFiles.new()
 var archive_dialog: FileDialog
 var archive_operation: Dictionary={}
@@ -74,6 +82,10 @@ func _ready() -> void:
 		for device in Input.get_connected_joypads():
 			observe_connection(device,true)
 	super._ready()
+	if not legacy_proof and "--wind-visual-smoke" in OS.get_cmdline_user_args():
+		set_process(false)
+		call_deferred("run_wind_visual")
+		return
 	if not legacy_proof and "--observed-archive-visual-smoke" in OS.get_cmdline_user_args():
 		set_process(false)
 		call_deferred("run_archive_visual")
@@ -111,6 +123,7 @@ func make_world() -> void:
 	for child in world_children:
 		if child is Node3D and child!=airplane and child!=camera and child!=cockpit.root:
 			child.reparent(light_root if child is Light3D else world_root,true)
+	windsock_visual=world_root.find_child("SteadyWindsock",true,false) as MeshInstance3D
 
 func close_session() -> bool:
 	if legacy_proof:
@@ -136,24 +149,30 @@ func close_session() -> bool:
 		adopt_result(result)
 	return result.ok
 
-func restart(replace_confirmed: bool=false) -> bool:
+func restart(replace_confirmed: bool=false, selected_wind: Variant=null) -> bool:
 	if legacy_proof:
 		return super.restart()
 	if not archive_operation.is_empty(): return false
+	var requested_wind: Variant=current_wind_profile if selected_wind==null else selected_wind
+	if not Facade.valid_wind_profile(requested_wind):
+		status="Invalid synthetic wind selection; flight unchanged"
+		return false
 	if recorded_flight_advanced() and not replace_confirmed:
-		request_discard("restart",named_start)
+		request_discard("restart",named_start,requested_wind)
 		return false
 	if recorded_flight_advanced() and not review_boundary():
-		return restart_failed("Recorded flight replacement requires a verified paused or joined boundary")
+		status="Recorded flight replacement requires a verified paused or joined boundary; flight unchanged"
+		return false
 	initializing_recording=true
 	if not close_session():
-		return restart_failed("Native worker did not join")
+		initializing_recording=false
+		return fail("Native worker did not join")
 	facade=Facade.new()
 	# The inherited view checks a nonnull host reference; it never owns or calls
 	# a native executive. Ordinary lifecycle/input overrides use the facade.
 	bridge=facade
 	var model_root: String=flight_model_root()
-	var result: Dictionary=facade.start(model_root,named_start)
+	var result: Dictionary=facade.start(model_root,named_start,requested_wind)
 	if not result.ok:
 		return restart_failed(result.error)
 	adopt_result(result)
@@ -216,9 +235,10 @@ func restart(replace_confirmed: bool=false) -> bool:
 	var begun: Dictionary=observed_recorder.begin(facade.readback(),true)
 	initializing_recording=false
 	if not begun.ok:
-		return fail("Flight observation recording unavailable: "+begun.error)
+		return restart_failed("Flight observation recording unavailable: "+begun.error)
 	observed_status=begun.status
 	review_joined=false
+	current_wind_profile=requested_wind
 	return true
 
 func adopt_result(result: Dictionary) -> void:
@@ -369,13 +389,14 @@ func make_menu(canvas: CanvasLayer) -> void:
 	var scan_button: Button=add_menu_button(box,"Instrument scan",open_instrument_scan)
 	var route_button: Button=add_menu_button(box,"Landmark route",open_landmark_route)
 	var review_button: Button=add_menu_button(box,"Flight review",open_observed_review)
+	var wind_button: Button=add_menu_button(box,"Wind",open_wind)
 	controls_button.text="Controls (F7)"
 	controls_button.tooltip_text="Controls and calibration"
 	var cockpit_row:=HBoxContainer.new()
 	cockpit_row.add_theme_constant_override("separation",8)
 	box.add_child(cockpit_row)
 	box.move_child(cockpit_row,5)
-	for button in [controls_button,scan_button,route_button,review_button]:
+	for button in [controls_button,scan_button,route_button,review_button,wind_button]:
 		button.reparent(cockpit_row)
 		button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 		button.add_theme_font_size_override("font_size",15)
@@ -428,6 +449,27 @@ func make_menu(canvas: CanvasLayer) -> void:
 	# not its delete shortcut. Keep file management outside this guest chooser.
 	archive_dialog.set_process_shortcut_input(false)
 	make_discard_confirmation(canvas)
+	wind_panel=WindPanel.new()
+	canvas.add_child(wind_panel)
+	wind_panel.draft_selected.connect(select_wind_draft)
+	wind_panel.start_requested.connect(start_wind_draft)
+	wind_panel.dismissed.connect(dismiss_wind)
+	wind_card=PanelContainer.new()
+	wind_card.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	var wind_style:=StyleBoxFlat.new()
+	wind_style.bg_color=Color(0.02,0.05,0.08,0.96)
+	wind_style.set_content_margin_all(6.0)
+	wind_style.set_corner_radius_all(4)
+	wind_card.add_theme_stylebox_override("panel",wind_style)
+	canvas.add_child(wind_card)
+	wind_label=Label.new()
+	wind_label.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	wind_label.add_theme_font_size_override("font_size",12)
+	wind_label.add_theme_color_override("font_color",Color("d1e9ec"))
+	wind_label.add_theme_color_override("font_shadow_color",Color.BLACK)
+	wind_label.add_theme_constant_override("shadow_offset_x",1)
+	wind_label.add_theme_constant_override("shadow_offset_y",1)
+	wind_card.add_child(wind_label)
 	menu.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	menu.custom_minimum_size=Vector2(560,490)
 	layout_flight_menu()
@@ -507,6 +549,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		return
 	if not pending_discard.is_empty():
 		if event.physical_keycode==KEY_ESCAPE: cancel_discard()
+		get_viewport().set_input_as_handled()
+		return
+	if wind_panel!=null and wind_panel.visible:
+		if event.physical_keycode==KEY_ESCAPE: dismiss_wind()
 		get_viewport().set_input_as_handled()
 		return
 	if review_open:
@@ -697,6 +743,63 @@ func open_controls() -> void:
 	controls_panel.open(active_preset,collect_input_raw(),held_controls,initial.solved_controls)
 	controls_panel.update_diagnostics(collect_input_raw(),held_controls,held_controls,controls_diagnostics())
 
+func open_wind() -> void:
+	if legacy_proof or wind_panel==null or facade==null or not archive_operation.is_empty() or not pending_discard.is_empty(): return
+	if review_open or scan_open or route_open or (controls_panel!=null and controls_panel.visible): return
+	if not review_boundary():
+		status="Pause the flight before choosing a wind draft"
+		return
+	menu_open=true
+	menu.hide()
+	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
+	wind_panel.open(wind_draft,current_wind_profile,WindCue.from_readback(facade.readback()),review_boundary())
+
+func select_wind_draft(value: Variant) -> void:
+	if not Facade.valid_wind_profile(value) or not archive_operation.is_empty() or not pending_discard.is_empty(): return
+	wind_draft=value
+
+func start_wind_draft(start: String) -> void:
+	if wind_panel==null or not wind_panel.visible: return
+	request_discard("restart",start,wind_draft)
+
+func dismiss_wind() -> void:
+	if wind_panel==null or not wind_panel.visible or not pending_discard.is_empty(): return
+	wind_panel.hide()
+	open_menu("Wind draft retained · current flight paused")
+	resume_button.grab_focus()
+	show_state(0)
+
+func update_wind_presentation(readback: Dictionary) -> void:
+	var cue: Dictionary=WindCue.from_readback(readback)
+	# A newly opened worker is not the current scene until setup and recording
+	# adoption succeed. Failed replacement cannot present its wind as current.
+	if cue.state not in ["empty","invalid"] and (observed_status.is_empty() or cue.session_id!=observed_status.get("session_id")):
+		cue=WindCue.from_readback({})
+	if wind_label!=null:
+		wind_label.text="SYNTHETIC STEADY WIND / NATIVE TRUTH\n"+WindPanel.describe(cue)
+		var viewport_height: float=get_viewport().get_visible_rect().size.y
+		var overlay_height: float=minf(viewport_height*0.34,455.0) if panel.get("_panel_visible") else 32.0
+		wind_card.position=Vector2(16,viewport_height-overlay_height-52.0)
+		wind_card.visible=not menu_open and camera_mode!=3
+	if wind_panel!=null and wind_panel.visible:
+		wind_panel.set_context(wind_draft,current_wind_profile,cue,review_boundary() and archive_operation.is_empty() and pending_discard.is_empty())
+	flight_map.call("set_wind_cue",cue)
+	if windsock_visual==null: return
+	windsock_visual.visible=cue.state in ["live","paused"]
+	if not windsock_visual.visible: return
+	if cue.speed_mps==0.0:
+		windsock_visual.position=Vector3(-52,5.8,80)
+		windsock_visual.basis=Basis(Vector3.FORWARD,deg_to_rad(8.0))
+		return
+	var flow: Array=cue.wind_toward_airfield_eus_mps
+	var largest: float=maxf(absf(flow[0]),absf(flow[2]))
+	var direction: Vector3=Vector3(flow[0]/largest,0.0,flow[2]/largest).normalized()
+	# Cylinder mouth is +Y, its downstream narrow end is -Y.
+	var upstream: Vector3=-direction
+	var across: Vector3=Vector3.UP.cross(upstream).normalized()
+	windsock_visual.basis=Basis(across,upstream,across.cross(upstream))
+	windsock_visual.position=Vector3(-52,6.8,80)+direction
+
 func apply_controls(preset: Dictionary) -> void:
 	if not archive_operation.is_empty(): return
 	if facade==null or mapper==null or facade.readback().host_mode!="paused":
@@ -729,13 +832,17 @@ func start_flight(start: String) -> void:
 	if legacy_proof:
 		super.start_flight(start)
 		return
-	request_discard("restart",start)
+	request_discard("restart",start,wind_draft)
 
-func perform_start(start: String) -> void:
+func perform_start(start: String, selected_wind: Variant=null) -> void:
 	if not archive_operation.is_empty(): return
+	if start not in ["ground-ready","airborne-prepared"] or (selected_wind!=null and not Facade.valid_wind_profile(selected_wind)):
+		status="Invalid fresh-start selection; flight unchanged"
+		return
 	var prior_start: String=named_start
 	named_start=start
-	if restart(true):
+	if restart(true,selected_wind):
+		if wind_panel!=null: wind_panel.hide()
 		if controls_panel!=null: controls_panel.hide()
 		if observed_panel!=null: observed_panel.set_open(false)
 		review_open=false
@@ -780,6 +887,7 @@ func show_state(seconds: float=0.0) -> void:
 	flight_map.size=Vector2(minf(420,get_viewport().get_visible_rect().size.x*0.42),minf(500,get_viewport().get_visible_rect().size.y-map_top-14))
 	flight_map.position=Vector2(get_viewport().get_visible_rect().size.x-flight_map.size.x-14,map_top)
 	var current: Dictionary=facade.readback()
+	update_wind_presentation(current)
 	if snapshot.is_empty() or current.aircraft==null or current.canonical==null:
 		suppress_geometry()
 		if panel != null:
@@ -1122,6 +1230,9 @@ func close_menu() -> void:
 	if not legacy_proof and not pending_discard.is_empty():
 		cancel_discard()
 		return
+	if not legacy_proof and wind_panel!=null and wind_panel.visible:
+		dismiss_wind()
+		return
 	if not legacy_proof and review_open:
 		dismiss_observed_review()
 		return
@@ -1136,6 +1247,9 @@ func close_menu() -> void:
 	super.close_menu()
 
 func restart_failed(message: String) -> bool:
+	if facade!=null:
+		var stopped: Dictionary=facade.close()
+		if not stopped.ok: message+="; failed setup worker join unconfirmed"
 	initializing_recording=false
 	return fail(message)
 
@@ -1326,23 +1440,26 @@ func make_discard_confirmation(canvas: CanvasLayer) -> void:
 		card.position=(discard_layer.size-card.size)*0.5)
 	discard_layer.hide()
 
-func request_discard(action: String, start: String="") -> void:
+func request_discard(action: String, start: String="", selected_wind: Variant=null) -> void:
 	if not archive_operation.is_empty(): return
 	if not pending_discard.is_empty() or not action in ["restart","quit"]: return
 	if action=="restart" and not start in ["ground-ready","airborne-prepared"]: return
+	var requested_wind: Variant=current_wind_profile if selected_wind==null else selected_wind
+	if action=="restart" and not Facade.valid_wind_profile(requested_wind): return
 	if not recorded_flight_advanced():
-		if action=="restart": perform_start(start)
+		if action=="restart": perform_start(start,requested_wind)
 		else: await perform_quit()
 		return
 	if not ensure_review_boundary():
 		status="Cannot discard until native flight is paused or its worker has joined"
 		return
-	pending_discard={"action":action,"start":start,"session_id":observed_status.session_id}
+	pending_discard={"action":action,"start":start,"session_id":observed_status.session_id,"wind_profile":requested_wind}
 	menu_open=true
 	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
 	discard_message.text="This flight has %d recorded observations. %s discards its in-memory review. Cancel keeps the flight paused and the review available. Only explicitly saved review files remain on disk."%[observed_status.sample_count,"Restarting" if action=="restart" else "Quitting"]
 	discard_accept.text="Discard and restart" if action=="restart" else "Discard and quit"
 	discard_layer.show()
+	discard_layer.move_to_front()
 	discard_cancel.grab_focus()
 
 func cancel_discard() -> void:
@@ -1353,6 +1470,8 @@ func cancel_discard() -> void:
 		observed_panel.get("_back").grab_focus()
 	elif controls_panel!=null and controls_panel.visible:
 		pass
+	elif wind_panel!=null and wind_panel.visible:
+		wind_panel.get("_back").grab_focus()
 	elif route_open or scan_open:
 		pass
 	else:
@@ -1367,7 +1486,7 @@ func confirm_discard() -> void:
 	var decision: Dictionary=pending_discard.duplicate(true)
 	pending_discard.clear()
 	discard_layer.hide()
-	if decision.action=="restart": perform_start(decision.start)
+	if decision.action=="restart": perform_start(decision.start,decision.wind_profile)
 	else: await perform_quit()
 
 func quit_flight() -> void:
@@ -1384,6 +1503,9 @@ func _exit_tree() -> void:
 	# Forced shutdown can lose an unsaved review, but native ownership must join.
 	archive_operation.clear()
 	super._exit_tree()
+
+func run_wind_visual() -> void:
+	await load("res://wind_scene_tests/visual_checks.gd").new().run(self)
 
 func run_archive_visual() -> void:
 	await load("res://observed_archive_tests/visual_checks.gd").new().run(self)

@@ -42,7 +42,7 @@ The accepted [observed flight review contract](decisions/011-observed-flight-rev
 
 The accepted [recorded-review interchange contract](decisions/012-observed-review-interchange.md) defines explicit new-file Save/Open of historical path and instrument observations. [Issue138 implementation evidence](evidence/P2/observed-review-interchange.md) tracks its codec, file creation and paused UI consumers; automatic profiles, physics continuation and pilot/phase acceptance remain separate.
 
-The proposed [steady-wind start contract](decisions/013-steady-wind-starts.md) prepares four explicit synthetic conditions for fresh flights and native-truth wind/windsock/map cues. It changes no current flight or review format; actual native signs/trim, independent references, runtime consumers and pilot/phase acceptance remain separate gates.
+The accepted [steady-wind start contract](decisions/013-steady-wind-starts.md) defines four explicit synthetic conditions for fresh flights and native-truth wind/windsock/map cues. It changes no current flight or review format; actual native signs/trim, independent references, runtime consumers and pilot/phase acceptance remain separate gates.
 
 ## Read in this order
 

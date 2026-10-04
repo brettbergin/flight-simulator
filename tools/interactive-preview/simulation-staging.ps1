@@ -118,6 +118,67 @@ function Assert-FreeflightSourceGroups {
 }
 # Recorded observations, view-only UI and independently frozen fixtures are
 # mandatory exact recursive groups in editor, export and corresponding source.
+function Get-WindSourceDefinitions {
+ @(
+  @{source='app/world/wind';destination='world/wind';required=@('wind_cue.gd')},
+  @{source='app/ui/wind';destination='ui/wind';required=@('panel.gd')},
+  @{source='tests/world/wind';destination='wind_tests';required=@('wind_checks.gd','ratification-v1.json','reference/expected-v1.json','reference/generate.py','reference/manifest-v1.json','reference/NOTICE-MIT.txt')},
+  @{source='tests/integration/wind';destination='wind_scene_tests';required=@('scene_checks.gd','visual_checks.gd')}
+ )
+}
+function Get-WindSourceGroups {
+ param([Parameter(Mandatory)][string]$RepoRoot)
+ Get-WindSourceDefinitions | ForEach-Object {$_.snapshot=@(Get-SimulationSourceSnapshot (Join-Path $RepoRoot $_.source) -RequiredEntries $_.required);$_}
+}
+function Assert-WindSourceDescriptors {
+ param([Parameter(Mandatory)][object[]]$Groups)
+ $definitions=@(Get-WindSourceDefinitions)
+ if($Groups.Count -ne $definitions.Count){throw 'All four wind source groups are mandatory'}
+ $seen=@()
+ foreach($group in $Groups){
+  if($group.source -isnot [string] -or $group.destination -isnot [string] -or $group.required -isnot [array] -or $group.snapshot -isnot [array] -or $group.required.Count -eq 0 -or $group.snapshot.Count -eq 0){throw 'Wind source groups must have nonempty snapshots and required entrypoints'}
+  $matching=@($definitions|Where-Object {$_.source -ceq $group.source})
+  if($matching.Count -ne 1 -or $seen -ccontains $group.source){throw 'Wind source group roster unknown or duplicated'}
+  $definition=$matching[0]
+  if($group.destination -cne $definition.destination -or ($group.required -join "`n") -cne ($definition.required -join "`n")){throw 'Wind source group destination/entrypoints differ from closed roster'}
+  $seen+=$group.source
+ }
+}
+function Copy-WindSourceGroups {
+ param([Parameter(Mandatory)][string]$RepoRoot,[Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Groups)
+ Assert-WindSourceDescriptors -Groups $Groups
+ foreach($group in $Groups){Copy-SimulationSourceSnapshot (Join-Path $RepoRoot $group.source) (Join-Path $DestinationRoot $group.destination) $group.snapshot -RequiredEntries $group.required}
+}
+function Assert-WindSourceGroups {
+ param([Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Groups,[switch]$Authoring,[switch]$AllowGeneratedUIDs)
+ Assert-WindSourceDescriptors -Groups $Groups
+ foreach($group in $Groups){$path=if($Authoring){$group.source}else{$group.destination};Assert-SimulationSourceSnapshot (Join-Path $DestinationRoot $path) $group.snapshot -RequiredEntries $group.required -AllowGeneratedUIDs:$AllowGeneratedUIDs}
+}
+function Assert-WindReferences {
+ param([Parameter(Mandatory)][string]$RepoRoot,[Parameter(Mandatory)][string]$Python)
+ $binding=Get-Content (Join-Path $RepoRoot 'tests/world/wind/ratification-v1.json') -Raw | ConvertFrom-Json
+ if($binding.status -cne 'ratified-before-consumer-and-backend-observations' -or $binding.accepted_contract_sha256 -cne '64548f1c876f77d635bd116710fcd5ca44d27e436b8b6b105d0c66406ea20e8f' -or $binding.accepted_contract_merge -cne '265a604257292728a47e38f744aa396e09b2ab58' -or $binding.original_ratification_sha256 -cne 'd00105f6bf7e1214bef4bfcf7e00a07e95726880fe99f73ebfacd9a9c123b6fe'){throw 'Accepted wind ratification required'}
+ # Fixed accepted LF-byte roster: metadata cannot omit or replace a generator
+ # pin and thereby authorize executing changed reference-generation code.
+ $frozen=@(
+  @{path='reference/expected-v1.json';bytes=71446;sha256='7d71cbb4f8d9ad12fe91501d5e020f14bbf02516d363512e69b6fa41320856c3'},
+  @{path='reference/generate.py';bytes=9621;sha256='6a66257c468846caab502e1b7681c16ad00a09e5380d95266c082ab0ff5c263c'},
+  @{path='reference/manifest-v1.json';bytes=1848;sha256='a0391a9b0535c6910a9acdfb5d0b2082d5ef9db8e46676e98967b79c772e03b2'},
+  @{path='reference/NOTICE-MIT.txt';bytes=1092;sha256='2cc02afe02dd0ffa0ca25e51b8a1fb2fe4a9f0adb95bf768031abd24c8da9c16'},
+  @{path='reference/preparation-receipt.json';bytes=1876;sha256='be841b0d8cbebbc02dfd20af155b1f0ed8af2e65988d562e9df48f2c6aecedd7'},
+  @{path='reference/README.md';bytes=2650;sha256='815b2dcbacaa6ef886bfacef593b90e41a4087a04d86277914b797d84b32b048'}
+ )
+ if($binding.published_files -isnot [array] -or $binding.published_files.Count -ne $frozen.Count){throw 'Frozen wind reference roster incomplete'}
+ for($i=0;$i -lt $frozen.Count;$i++){
+  $file=$binding.published_files[$i];$pin=$frozen[$i]
+  if((($file.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "bytes`npath`nsha256" -or $file.path -isnot [string] -or $file.path -cne $pin.path -or ($file.bytes -isnot [long] -and $file.bytes -isnot [int]) -or $file.bytes -ne $pin.bytes -or $file.sha256 -isnot [string] -or $file.sha256 -cne $pin.sha256){throw 'Frozen wind reference roster differs from accepted pins'}
+  $path=Join-Path $RepoRoot ('tests/world/wind/'+$pin.path)
+  $actual=Get-Item -LiteralPath $path -ErrorAction Stop
+  if($actual.PSIsContainer -or ($actual.Attributes -band [IO.FileAttributes]::ReparsePoint) -or $actual.Length -ne $pin.bytes -or (Get-FileHash -LiteralPath $path).Hash.ToLowerInvariant() -cne $pin.sha256){throw 'Frozen wind reference bytes changed'}
+ }
+ & $Python (Join-Path $RepoRoot 'tests/world/wind/reference/generate.py') --check
+ if($LASTEXITCODE -ne 0){throw 'Independent wind reference reproduction rejected'}
+}
 function Get-ObservedReviewSourceGroups {
  param([Parameter(Mandatory)][string]$RepoRoot)
  @(
@@ -165,7 +226,7 @@ print('PASS readonly observed reference regeneration:42 cases')
 }
 function Assert-PreviewFacadeReceipt {
  param([Parameter(Mandatory)]$Receipt)
- $keys=@('schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive')
+ $keys=@('schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive','wind')
  if((($Receipt.PSObject.Properties.Name|Sort-Object) -join "`n") -cne (($keys|Sort-Object) -join "`n")){throw 'Facade receipt exact shape rejected'}
  if(($Receipt.schema_version -isnot [long] -and $Receipt.schema_version -isnot [int]) -or $Receipt.schema_version -ne 1 -or $Receipt.scope -isnot [string] -or [string]::IsNullOrWhiteSpace($Receipt.scope) -or $Receipt.scope.Length -gt 1024 -or $Receipt.passed -isnot [bool] -or -not $Receipt.passed -or ($Receipt.checks -isnot [long] -and $Receipt.checks -isnot [int]) -or $Receipt.checks -le 0 -or $Receipt.failures -isnot [array] -or $Receipt.failures.Count -ne 0){throw 'Facade receipt must contain actual passing checks'}
  if((($Receipt.observed.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "recorder`nscene"){throw 'Both observed recorder and scene results are mandatory'}
@@ -189,6 +250,21 @@ function Assert-PreviewFacadeReceipt {
   if(($codec.($count.key) -isnot [long] -and $codec.($count.key) -isnot [int]) -or $codec.($count.key) -ne $count.value){throw 'Archive frozen case count rejected'}
  }
  if($codec.reference_sha256 -isnot [string] -or $codec.reference_sha256 -cne '961d8903f702f1d46374998db06b7517a1ca067333b3613bd2adbf3a8c06b15e' -or $codec.binary64_sha256 -isnot [string] -or $codec.binary64_sha256 -cne '406b00475e444f71f6e1f57fd37100c52b86c076e0dccbf664bb5bfc05c028d8'){throw 'Archive frozen reference identity rejected'}
+ if((($Receipt.wind.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "bridge`ncue`nscene"){throw 'All wind cue/bridge/scene results are mandatory'}
+ foreach($name in @('cue','bridge','scene')){
+  $item=$Receipt.wind.$name
+  $names=@('passed','checks','failures')
+  if($name -ne 'bridge'){$names+=@('scope')}
+  if($name -eq 'cue'){$names+=@('reference_cases','runway_expectations','reference_sha256')}
+  if((($item.PSObject.Properties.Name|Sort-Object) -join "`n") -cne (($names|Sort-Object) -join "`n")){throw "Wind $name receipt exact shape rejected"}
+  if($item.passed -isnot [bool] -or -not $item.passed -or ($item.checks -isnot [long] -and $item.checks -isnot [int]) -or $item.checks -le 0 -or $item.failures -isnot [array] -or $item.failures.Count -ne 0){throw "Wind $name checks missing, vacuous or failed"}
+  if($name -ne 'bridge' -and ($item.scope -isnot [string] -or [string]::IsNullOrWhiteSpace($item.scope) -or $item.scope.Length -gt 1024)){throw "Wind $name scope malformed"}
+ }
+ $cue=$Receipt.wind.cue
+ foreach($count in @(@{key='reference_cases';value=22},@{key='runway_expectations';value=8})){
+  if(($cue.($count.key) -isnot [long] -and $cue.($count.key) -isnot [int]) -or $cue.($count.key) -ne $count.value){throw 'Wind frozen case count rejected'}
+ }
+ if($cue.reference_sha256 -isnot [string] -or $cue.reference_sha256 -cne '7d71cbb4f8d9ad12fe91501d5e020f14bbf02516d363512e69b6fa41320856c3'){throw 'Wind frozen reference identity rejected'}
 }
 # Read-only native reuse: bind declared compiler/source identities here; the
 # existing actual facade/portable checks still verify the loaded native reply.
@@ -247,7 +323,7 @@ func _ready() -> void:
 func stage(boundary: String, name: String) -> void:
  print("PROOF_STAGE "+boundary+" "+name+" ms="+str(Time.get_ticks_msec()))
 func execute() -> void:
- for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests"]:
+ for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests","res://world/wind","res://ui/wind","res://wind_tests","res://wind_scene_tests"]:
   for name in DirAccess.get_files_at(folder):
    if name.ends_with(".gd"):
     var script=load(folder.path_join(name)) as Script
@@ -263,6 +339,17 @@ func execute() -> void:
  var facade: Dictionary=facade_script.run(ProjectSettings.globalize_path("res://models"))
  stage("end","facade")
  check(facade.get("checks",0)>0 and facade.get("failures",["missing"]).is_empty(),"actual_native_facade_checks")
+ var wind_checks: Dictionary={}
+ for name in ["cue","bridge","scene"]:
+  var before_wind: int=failures.size()
+  stage("begin","wind."+name)
+  var wind_result: Dictionary
+  if name=="cue": wind_result=load("res://wind_tests/wind_checks.gd").run()
+  elif name=="bridge": wind_result=load("res://simulation/steady_wind_bridge_checks.gd").new().run(ProjectSettings.globalize_path("res://models"))
+  else: wind_result=await load("res://wind_scene_tests/scene_checks.gd").new().run(self)
+  stage("end","wind."+name)
+  check(failures.size()==before_wind and wind_result.get("passed",false) and wind_result.get("checks",0)>0 and wind_result.get("failures",["missing"]).is_empty(),"actual_wind_"+name+"_checks")
+  wind_checks[name]=wind_result
  stage("begin","origin")
  var origin: Dictionary=load("res://simulation/render_origin_checks.gd").new().run(self)
  stage("end","origin")
@@ -330,7 +417,7 @@ func execute() -> void:
  stage("begin","simulation.scene")
  var scene: Dictionary=await load("res://sim_loop_tests/scene_checks.gd").new().run(self)
  stage("end","simulation.scene")
- var report: Dictionary={"schema_version":1,"scope":"Headless actual-native facade and synthetic wire/render fixtures; GPU and pilot qualification separate","passed":failures.is_empty(),"checks":checks,"failures":failures.duplicate(),"facade":facade,"origin":origin,"participants":participants,"wire":wire,"scene":scene,"input":input,"input_scene":input_scene,"instruments":instruments,"cockpit":cockpit_checks,"freeflight":freeflight_checks,"observed":observed_checks,"observed_archive":archive_checks}
+ var report: Dictionary={"schema_version":1,"scope":"Headless actual-native facade and synthetic wire/render fixtures; GPU and pilot qualification separate","passed":failures.is_empty(),"checks":checks,"failures":failures.duplicate(),"facade":facade,"origin":origin,"participants":participants,"wire":wire,"scene":scene,"input":input,"input_scene":input_scene,"instruments":instruments,"cockpit":cockpit_checks,"freeflight":freeflight_checks,"observed":observed_checks,"observed_archive":archive_checks,"wind":wind_checks}
  var output: String=ProjectSettings.globalize_path("res://facade-check-receipt.json") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("facade-check-receipt.json")
  for argument in OS.get_cmdline_user_args():
   if argument.begins_with("--facade-receipt="): output=argument.trim_prefix("--facade-receipt=")

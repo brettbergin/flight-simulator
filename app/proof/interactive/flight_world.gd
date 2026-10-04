@@ -639,8 +639,9 @@ func build(parent: Node3D) -> Dictionary:
 	sock.bottom_radius=0.12
 	sock.height=2.0
 	var windsock := mesh_node(parent,sock,Vector3(-52,5.8,80),material(Color(0.92,0.31,0.09)))
+	windsock.name="SteadyWindsock"
 	windsock.rotation_degrees.z=8
-	# Decorative drooping windsock, not a native wind sensor (prepared wind zero).
+	# Direction-only cosmetic cue; ordinary scene supplies qualified native wind.
 	var landmarks := countryside(parent)
 	trees(parent)
 	distant_ridges(parent)
