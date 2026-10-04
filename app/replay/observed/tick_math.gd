@@ -6,7 +6,7 @@ static func _result(value: Variant, error: String = "") -> Dictionary:
 	return {"ok":error.is_empty(),"error":error,"value":value}
 
 static func subtract(newer: Variant, older: Variant) -> Dictionary:
-	if not U64.valid(newer) or not U64.valid(older) or U64.compare(newer,older)<0:
+	if typeof(newer)!=TYPE_STRING or typeof(older)!=TYPE_STRING or not U64.valid(newer) or not U64.valid(older) or U64.compare(newer,older)<0:
 		return _result(null,"Invalid or reversed uint64 subtraction")
 	var result: String = ""
 	var borrow: int = 0
@@ -20,7 +20,7 @@ static func subtract(newer: Variant, older: Variant) -> Dictionary:
 	return _result(result) if U64.valid(result) else _result(null,"Invalid uint64 difference")
 
 static func add_small(tick: Variant, amount: Variant) -> Dictionary:
-	if not U64.valid(tick) or typeof(amount)!=TYPE_INT or amount<0 or amount>144000:
+	if typeof(tick)!=TYPE_STRING or not U64.valid(tick) or typeof(amount)!=TYPE_INT or amount<0 or amount>144000:
 		return _result(null,"Invalid bounded uint64 addition")
 	var result: String = ""
 	var carry: int = amount
