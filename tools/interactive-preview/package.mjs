@@ -10,12 +10,26 @@ const write=(file,value)=>{fs.mkdirSync(path.dirname(file),{recursive:true});fs.
 const register=json(path.join(repo,'third_party/licenses/register.json'));
 const model=register.entries.find(e=>e.id==='original-interactive-prototype');
 const policy=model.content_policy;
-function models(source,destination){
- assert.equal(sha(fs.readFileSync(path.join(source,'inventory.json'))),policy.inventory_sha256,'Frozen model inventory changed');
- const inventory=json(path.join(source,'inventory.json'));assert.deepEqual(inventory.files,policy.files);
- for(const pin of policy.files){
+const piston=register.entries.find(e=>e.id==='original-piston-prop-v1');
+function models(source,destination,profile='original-interactive-prototype'){
+ assert(['original-interactive-prototype','original-piston-prop-v1'].includes(profile),'Unknown model profile');
+ const selected=profile==='original-piston-prop-v1'?piston.content_policy:policy;
+ assert.equal(sha(fs.readFileSync(path.join(source,'inventory.json'))),selected.inventory_sha256,'Frozen model inventory changed');
+ const inventory=json(path.join(source,'inventory.json'));assert.deepEqual(inventory.files,selected.files);
+ if(profile==='original-piston-prop-v1'){
+  assert.deepEqual(inventory.metadata,selected.metadata);
+  assert(!fs.lstatSync(source).isSymbolicLink(),'Model root alias');
+  assert.deepEqual(walk(source).sort(),['inventory.json',...selected.files.map(x=>x.path),...selected.metadata.map(x=>x.path)].sort(),'Exact piston source closure');
+ }
+ // Validate every file BEFORE copying any payload; metadata is native-pinned.
+ const files=[...selected.files,...(selected.metadata??[])];
+ for(const pin of files){
+  const file=path.join(source,pin.path);
+  if(profile==='original-piston-prop-v1')assert(!fs.lstatSync(file).isSymbolicLink()&&fs.realpathSync(file)===file,'Model file alias');
+  const bytes=fs.readFileSync(file);assert.equal(bytes.length,pin.bytes);assert.equal(sha(bytes),pin.sha256,'Model XML or metadata changed');
+ }
+ for(const pin of files){
   const bytes=fs.readFileSync(path.join(source,pin.path));
-  assert.equal(bytes.length,pin.bytes);assert.equal(sha(bytes),pin.sha256,'Model XML changed');
   const target=path.join(destination,pin.path);fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,bytes);
  }
  fs.copyFileSync(path.join(source,'inventory.json'),path.join(destination,'inventory.json'));
@@ -63,6 +77,11 @@ function audit(root,proof,build){
  const dependencies=json(path.join(evidence,'native-dependencies.json'));checkDependencies(dependencies,{packageRoot:payload});
  for(const pin of policy.files){const b=fs.readFileSync(path.join(payload,'models',pin.path));assert.equal(sha(b),pin.sha256);assert.equal(b.length,pin.bytes);}
  assert.equal(sha(fs.readFileSync(path.join(payload,'models/inventory.json'))),policy.inventory_sha256);
+ const pistonPolicy=piston.content_policy;
+ assert.equal(sha(fs.readFileSync(path.join(payload,'piston-models/inventory.json'))),pistonPolicy.inventory_sha256);
+ for(const pin of [...pistonPolicy.files,...pistonPolicy.metadata]){
+  const bytes=fs.readFileSync(path.join(payload,'piston-models',pin.path));assert.equal(bytes.length,pin.bytes);assert.equal(sha(bytes),pin.sha256);
+ }
  // Retain accepted vendor/source/notice declarations while replacing current binaries/content and adding authored source.
  const accepted=json(path.join(proof,'evidence/package-inventory.json'));
  const components=accepted.components.filter(c=>c.id!=='original-synthetic').map(c=>({...c,files:c.files.filter(f=>fs.existsSync(path.join(payload,f.path))).map(f=>({...f,sha256:sha(fs.readFileSync(path.join(payload,f.path)))}))}));
@@ -71,12 +90,14 @@ function audit(root,proof,build){
  function stage(id,file,value){const dest=path.join(payload,file);write(dest,value);declare(id,file,'evidence');}
  for(const file of walk(payload)){
   if(file.startsWith('models/'))declare(model.id,file,'content');
+  else if(file.startsWith('piston-models/'))declare(piston.id,file,'content');
   else if(file.startsWith('source/whole-flight-preview/'))declare('native-export-proof',file,'source');
   else if(file.endsWith('.exe'))declare('godot',file,'binary');
   else if(file.endsWith('.pck')||['launch.ps1','README.md'].includes(file))declare('native-export-proof',file,'content');
   else if(['portable-smoke.log','smoke-receipt.json','loop.records.ndjson'].includes(file))declare('native-export-proof',file,'evidence');
  }
  for(const notice of model.notice_files){const target='notices/'+path.basename(notice.path);fs.copyFileSync(path.join(repo,notice.path),path.join(payload,target));declare(model.id,target,'notice');component(model.id).notices.push({register_path:notice.path,package_path:target});}
+ for(const notice of piston.notice_files){const target='notices/'+path.basename(notice.path);fs.copyFileSync(path.join(repo,notice.path),path.join(payload,target));declare(piston.id,target,'notice');component(piston.id).notices.push({register_path:notice.path,package_path:target});}
  stage('microsoft-vc143-crt','evidence/selected-runtime.json',runtime);stage('microsoft-vc143-crt','evidence/native-dependencies.json',dependencies);
  stage('jsbsim','evidence/jsbsim-replacement.json',replacementEvidence);stage('jsbsim','evidence/baseline-modules.json',modules);stage('jsbsim','evidence/replacement-modules.json',replacedModules);
  assert.equal(sha(fs.readFileSync(path.join(payload,'source/jsbsim-1.3.1-library-source.zip'))),register.entries.find(x=>x.id==='jsbsim').library_policy.source_archive_sha256);

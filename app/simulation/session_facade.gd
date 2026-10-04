@@ -165,7 +165,7 @@ static func _decode(encoded: String) -> Variant:
 static func valid_axes(value: Variant, profile_id: String="original-interactive-prototype") -> bool:
 	if profile_id not in ["original-interactive-prototype","original-piston-prop-v1"]:
 		return false
-	if not value is Dictionary or not _keys(value,["kind","roll","pitch","yaw","throttle","mixture","left_brake","right_brake","trim"]) or value.kind!="axes":
+	if not value is Dictionary or not _keys(value,["kind","roll","pitch","yaw","throttle","mixture","left_brake","right_brake","trim"]) or typeof(value.kind)!=TYPE_STRING or value.kind!="axes":
 		return false
 	for key in ["roll","pitch","yaw","throttle","mixture","left_brake","right_brake","trim"]:
 		var item: Variant=value[key]

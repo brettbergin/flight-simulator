@@ -16,3 +16,16 @@ test('runtime model staging pins actual bytes and rejects altered XML/inventory'
  fs.writeFileSync(path.join(source,'inventory.json'),'{}\n');
  const inventory=run(source,path.join(temporary,'inventory'));assert.notEqual(inventory.status,0);assert.match(inventory.stderr,/Frozen model inventory changed/);
 });
+test('piston staging checks all metadata and rejects unknown profile or unbound content',()=>{
+ const temporary=fs.mkdtempSync(path.join(root,'piston-'));
+ const source=path.join(temporary,'source');fs.cpSync(path.join(repo,'native/fdm_jsbsim/models/original-piston-prop'),source,{recursive:true});
+ const stage=(profile='original-piston-prop-v1')=>spawnSync(process.execPath,[path.join(repo,'tools/interactive-preview/package.mjs'),'models',source,path.join(temporary,'staged'),profile],{encoding:'utf8'});
+ assert.equal(stage().status,0);
+ assert.equal(fs.readdirSync(path.join(temporary,'staged')).length,6);
+ assert.notEqual(stage('unknown').status,0);
+ fs.appendFileSync(path.join(source,'parameter-ledger.json'),' ');
+ assert.notEqual(stage().status,0);
+ fs.copyFileSync(path.join(repo,'native/fdm_jsbsim/models/original-piston-prop/parameter-ledger.json'),path.join(source,'parameter-ledger.json'));
+ fs.writeFileSync(path.join(source,'unknown.xml'),'<aircraft/>');
+ assert.notEqual(stage().status,0);
+});

@@ -118,7 +118,7 @@ func check(ok: bool, label: String) -> void:
 func _ready() -> void:
  call_deferred("execute")
 func execute() -> void:
- for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests"]:
+ for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://engine_tests"]:
   for name in DirAccess.get_files_at(folder):
    if name.ends_with(".gd"):
     var script=load(folder.path_join(name)) as Script
@@ -146,6 +146,18 @@ func execute() -> void:
  check(failures.size()==input_scene_failures and input_scene.has("initial_tick"),"actual_input_scene_checks")
  var instruments: Dictionary=load("res://instrument_tests/instrument_checks.gd").run()
  check(instruments.get("passed",false) and instruments.get("checks",0)>0 and instruments.get("failures",["missing"]).is_empty(),"native_truth_reading_checks")
+ var engine_status: Dictionary=load("res://engine_tests/status_checks.gd").new().run()
+ check(engine_status.get("passed",false) and engine_status.get("checks",0)>0,"synthetic_engine_status_checks")
+ var engine_facade: Dictionary=load("res://engine_tests/facade_checks.gd").new().run(ProjectSettings.globalize_path("res://piston-models") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("piston-models"))
+ check(engine_facade.get("passed",false) and engine_facade.get("checks",0)>0,"synthetic_engine_intent_checks")
+ var engine_input: Dictionary=load("res://engine_tests/input_boundary_checks.gd").new().run()
+ check(engine_input.get("passed",false) and engine_input.get("checks",0)>0,"independent_synthetic_piston_input_checks")
+ var piston_input: Dictionary=load("res://input_tests/piston_checks.gd").new().run()
+ check(piston_input.get("passed",false) and piston_input.get("checks",0)>0,"synthetic_piston_mapper_codec_checks")
+ var piston_panel: Dictionary=await load("res://input_tests/piston_panel_checks.gd").new().run(self)
+ check(piston_panel.get("passed",false) and piston_panel.get("checks",0)>0,"synthetic_paused_piston_editor_checks")
+ var piston_presentation: Dictionary=await load("res://engine_tests/presentation_checks.gd").new().run(self)
+ check(piston_presentation.get("passed",false) and piston_presentation.get("checks",0)>0,"synthetic_piston_menu_layout_checks")
  var cockpit_checks: Dictionary={}
  for name in ["adapter","scan","scene"]:
   var prior_failures: int=failures.size()
@@ -153,7 +165,7 @@ func execute() -> void:
   check(failures.size()==prior_failures and result.get("passed",false) and result.get("checks",0)>0 and result.get("failures",["missing"]).is_empty(),"actual_cockpit_"+name+"_checks")
   cockpit_checks[name]=result
  var scene: Dictionary=await load("res://sim_loop_tests/scene_checks.gd").new().run(self)
- var report: Dictionary={"schema_version":1,"scope":"Headless actual-native facade and synthetic wire/render fixtures; GPU and pilot qualification separate","passed":failures.is_empty(),"checks":checks,"failures":failures.duplicate(),"facade":facade,"origin":origin,"participants":participants,"wire":wire,"scene":scene,"input":input,"input_scene":input_scene,"instruments":instruments,"cockpit":cockpit_checks}
+ var report: Dictionary={"schema_version":1,"scope":"Headless actual-native facade and synthetic wire/render fixtures; GPU and pilot qualification separate","passed":failures.is_empty(),"checks":checks,"failures":failures.duplicate(),"facade":facade,"origin":origin,"participants":participants,"wire":wire,"scene":scene,"input":input,"input_scene":input_scene,"instruments":instruments,"cockpit":cockpit_checks,"synthetic_engine_status":engine_status,"synthetic_engine_facade":engine_facade,"independent_piston_input":engine_input,"synthetic_piston_input":piston_input,"synthetic_piston_panel":piston_panel,"synthetic_piston_presentation":piston_presentation}
  var output: String=ProjectSettings.globalize_path("res://facade-check-receipt.json") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("facade-check-receipt.json")
  for argument in OS.get_cmdline_user_args():
   if argument.begins_with("--facade-receipt="): output=argument.trim_prefix("--facade-receipt=")

@@ -100,6 +100,9 @@ func restart() -> bool:
 		return super.restart()
 	if not close_session():
 		return fail("Native worker did not join")
+	held_systems.clear()
+	pending_systems.clear()
+	engine_status.clear()
 	facade=Facade.new()
 	# The inherited view checks a nonnull host reference; it never owns or calls
 	# a native executive. Ordinary lifecycle/input overrides use the facade.
@@ -191,6 +194,10 @@ func suspend_mapper(reason: String) -> void:
 	if not result.ok:
 		input_blocked=true
 		input_problem=result.error
+		pending_systems.clear()
+	else:
+		pending_systems=feedback.value.duplicate(true)
+		pending_systems["engine.starter"]=false
 
 func choose_profile() -> void:
 	# An explicit paused menu choice starts a fresh session; selection never

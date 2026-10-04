@@ -138,6 +138,10 @@ func run(root: String) -> Dictionary:
 	var bad: Dictionary=systems.duplicate(true);bad["engine.starter"]=1
 	axes.mixture=0.0
 	check(not facade.set_pilot_intent(axes,bad).ok,"numeric_bool_rejects_complete_intent")
+	var before_pending: Dictionary=facade.get("_pending").duplicate(true)
+	var before_systems: Dictionary=facade.get("_pending_systems").duplicate(true)
+	var bad_axes: Dictionary=axes.duplicate(true);bad_axes.kind=StringName("axes")
+	check(not facade.set_pilot_intent(bad_axes,systems).ok and facade.get("_pending")==before_pending and facade.get("_pending_systems")==before_systems and adapter.calls==0 and adapter.runs==0,"stringname_kind_rejected_before_intent_or_native")
 	advanced=facade.advance_wall_us(8334)
 	check(advanced.ok and advanced.readback.held_axes.mixture==1.0 and advanced.readback.aircraft.systems[7].value,"invalid_intent_atomic_local_preserves_valid")
 	facade.close()
