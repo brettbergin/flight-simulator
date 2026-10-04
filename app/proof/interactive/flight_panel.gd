@@ -125,10 +125,13 @@ func _draw_topbar() -> void:
 	_text(Vector2(247, 28), "PROTOTYPE", 10, AMBER, true)
 	var status := "PAUSED" if _info.get("paused", false) else "LIVE"
 	var status_color := AMBER if _info.get("paused", false) else GREEN
-	var outcome := str(_info.get("status", ""))
+	var outcome := str(_info.get("outcome", ""))
 	if outcome in ["discarded", "coverage_blocked", "error"]:
 		status = "STOPPED" if outcome == "discarded" else "GROUND UNAVAILABLE"
 		status_color = RED
+	if _info.get("blocked",false) or _info.get("stalled",false):
+		status="RESTART REQUIRED"
+		status_color=RED
 	if _readings.get("valid", false) == false:
 		status = "WAITING FOR STATE"
 		status_color = MUTED
@@ -137,6 +140,9 @@ func _draw_topbar() -> void:
 	var view_name := str(_info.get("view_name", "FLIGHT VIEW")).to_upper()
 	_text(Vector2(width * 0.61, 28), view_name, 12, MUTED, true)
 	_text(Vector2(width - 225, 28), "P  PAUSE     R  RESET     H  HELP", 11, MUTED)
+	if _info.get("blocked",false) or _info.get("stalled",false):
+		draw_rect(Rect2(0,46,width,32),Color("492a20"))
+		_text(Vector2(18,68),str(_info.get("status","Flight stopped; R starts a fresh attempt")).left(int((width-36)/7.5)),13,AMBER)
 
 func _draw_panel() -> void:
 	var compact := size.y < 900.0

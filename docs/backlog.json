@@ -3865,6 +3865,55 @@
       "evidence": [
         "Exact-source native and portable receipts, actual graphics captures, local launcher and scoped engineering evaluation; later P2 cockpit/runtime and calibrated C172 gates remain open."
       ]
+    },
+    {
+      "key": "FLIGHT-UX",
+      "title": "Replace debug presentation with a usable visual flight experience",
+      "kind": "spike",
+      "phase": "P1",
+      "parent": "EPIC-P1",
+      "summary": "Improve the accepted original whole-flight preview with an original light-aircraft/airfield presentation, responsive native-truth instrument panel, smoother explicit input profile, camera controls, audio and safe session menus.",
+      "depends_on": [
+        "WHOLE-FLIGHT-PREVIEW"
+      ],
+      "labels": [
+        "type:spike",
+        "phase:P1",
+        "area:ui",
+        "priority:P0",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "app/proof/interactive/",
+        "tools/interactive-preview/",
+        "docs/evidence/P1/flight-ux.md"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/decisions/006-interactive-prototype.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [
+        "UX-002",
+        "UX-009",
+        "UX-010",
+        "UX-011",
+        "UX-012",
+        "UX-013",
+        "PRD-001",
+        "PRD-015",
+        "PRD-034"
+      ],
+      "acceptance": [
+        "Original authored aircraft, runway and scenery materially improve visual flight cues while preserving the immutable prepared plane, native pose/contact ownership and model identity. Decorative geometry has no implied collision or airport authority.",
+        "Responsive graphical instruments and controls remain readable at 720p and resized windows; TAS, ellipsoid height, true heading and kinematic/body-rate indications name their actual source, without fabricated IAS/sensors or C172 limits.",
+        "Keyboard input transitions are bounded and visible as an explicit input profile; optional gamepad mapping/dead zones and disconnect pause retain sole pilot command authority. No flight-state stabilization or hidden feedback assists.",
+        "Cockpit/chase/orbit, mouse look/recenter/zoom, help/display/audio toggles and pause/start/restart/quit UI work without modifying aircraft state through rendering. Menus consume flight input and preserve native pause state/debt.",
+        "Actual editor/exported whole-flight checks, targeted UX negatives and reference-PC resized/camera/panel graphics evidence pass; package includes exact authored helper sources, required native libraries and notices. Human owner takeoff/landing report is qualitative and not C172/fidelity qualification."
+      ],
+      "evidence": [
+        "Exact package/source identities, scoped actual functional and graphical evidence, local runnable handoff, independent review and protected CI. P1/#18 and production P2/C172 gates remain open."
+      ]
     }
   ]
 }
