@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "classification": "Reviewed private scripted original combined prototype; contract/model only, no public runtime or phase acceptance",
+  "reviewed_on": "2026-10-03",
+  "compiled_source_fingerprint": "195d899990cd87bbd5b7ddce56ccb846288b4ee64f195b71b0b3d7391c8f5bd0",
+  "source_files": [
+    {
+      "path": "session.cpp",
+      "bytes": 22094,
+      "sha256": "b6c252d37db899ffd45cc93aaf97f95d33c76ac071c57abee5bd0dbd52a07bab"
+    },
+    {
+      "path": "session.hpp",
+      "bytes": 1711,
+      "sha256": "5e791acf6b8bcd1f5184026dedbaf5b695cf9ff225fe871da4066ec50e5f1faf"
+    },
+    {
+      "path": "surface.hpp",
+      "bytes": 6001,
+      "sha256": "baa6c1ae805d9176c2e26dbfd4455d2bedfac3474eaa8151b17d0b23b64d8a19"
+    },
+    {
+      "path": "main.cpp",
+      "bytes": 7038,
+      "sha256": "18c799d356c9a989010694f37561c927e005dd0abdc59e8a1cf500c308318763"
+    },
+    {
+      "path": "negatives.hpp",
+      "bytes": 6766,
+      "sha256": "9f93999fa4088004626e7f3296b30e2cd34df63f62b1b71985674bb35d44840a"
+    },
+    {
+      "path": "model-pins.hpp",
+      "bytes": 561,
+      "sha256": "d353dd31af8596199eaa6c11bf2f310d9bb7767738b39473a82dff6de762ae2c"
+    }
+  ],
+  "frozen_private_packet_sha256": "f0aab13a57fe081323228522670f9bf404a2605e8a91b167a9b928544838873d",
+  "frozen_private_inventory_sha256": "61c1a7856e4190e5627c52a4ec446db312af57fbacd753fdd7ee0a6998095f91",
+  "public_model_inventory_sha256": "98b30b5641ce86cc6f0af6298424606aa96a1e4a35ef3e9fcaf377bebb3f00cd",
+  "public_model_xml_bytes_match_private": true,
+  "executable_sha256": "25d13636ce6b35f1393d553a4b320e59faa01a34647947ed20310d6b8e377c7f",
+  "copied_jsbsim_sha256": "269ebc60feaf8bc9fdd2f2761a46eb5eb06427623f33c67055f21ca65e705150",
+  "contract_set_sha256": "0f7dedf44b12b57916d6ba7afbf1f315ebdfa8e34ad02eed0188d2ac1fec4fcc",
+  "dependency_lock_sha256": "1b0047773f31b30bb86804a7fd191dcad99a22ae01c724a33b4894f154a2fb7d",
+  "schema_records_validated": 10406,
+  "state_samples": 745,
+  "actual_applied_commands": 8916,
+  "native_negative_readback_checks": 1267,
+  "exact_same_build_repeat": true,
+  "authority": "scenario.proof/scenario; scripted feedback, not human pilot control",
+  "ground": {
+    "private": true,
+    "passed": true,
+    "stationary": true,
+    "takeoff": true,
+    "air_control": true,
+    "touchdown": true,
+    "stopped_all_wow": true,
+    "live": true,
+    "final_tick": 8916,
+    "final_speed_mps": 0.09499805601606333,
+    "final_clearance_m": 0.9760921830618059,
+    "takeoff_tick": 3755,
+    "touchdown_tick": 7182,
+    "max_clearance_m": 32.7513144194878,
+    "fault": "",
+    "prepared_surface_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+    "compiled_source_fingerprint": "195d899990cd87bbd5b7ddce56ccb846288b4ee64f195b71b0b3d7391c8f5bd0"
+  },
+  "receipt_norm_roundoff_mps": 8.881784197001252e-16,
+  "roundoff_chronology": "Selected after observed one-ULP C++ std::hypot versus JS Math.hypot receipt difference; arithmetic allowance only, not physics budget",
+  "artifacts": [
+    {
+      "path": "frozen-ground.json",
+      "bytes": 512,
+      "sha256": "6212f66fda32c6191a31d866cd66c27b849b72e98433a617d53437c1712f2536"
+    },
+    {
+      "path": "frozen-ground.ndjson",
+      "bytes": 1301223,
+      "sha256": "c3fa4454c7103db0af4c69310b85e18e05e9b80bd41a6be51e39b555de3c2c61"
+    },
+    {
+      "path": "frozen-ground.atmosphere.ndjson",
+      "bytes": 347564,
+      "sha256": "55706230f63d906936ec41ddaa5537acfb8ef6c80d12ab0d98440bce0fb0feb9"
+    },
+    {
+      "path": "frozen-ground.commands.ndjson",
+      "bytes": 3371017,
+      "sha256": "06c5b08146d5b39167d39cf8688fe62db820097c499454b440ccdcf425ee4a7c"
+    },
+    {
+      "path": "frozen-ground.csv",
+      "bytes": 77568,
+      "sha256": "3402079658420da1a0f8888059665d70fc247588d5beaf41436f2f22cb22869c"
+    },
+    {
+      "path": "frozen-repeat.json",
+      "bytes": 512,
+      "sha256": "6212f66fda32c6191a31d866cd66c27b849b72e98433a617d53437c1712f2536"
+    },
+    {
+      "path": "frozen-checks.json",
+      "bytes": 143,
+      "sha256": "27813bdade68c2c0d77d4ab07e8a50343d5cc85cf35cff1079f0219e3a198b9f"
+    }
+  ],
+  "independent_review": "Actual 1267 native checks and full loop rerun; state/atmosphere/command/CSV traces byte-match frozen outputs; read-only source/model/lineage/schema/hash review passed",
+  "limits": [
+    "Private source is not a public consumer in this PR",
+    "No human handling/Cessna fidelity/full convergence/phase-exit acceptance",
+    "DLL field identifies copied bytes, not observed loaded-module path",
+    "New package export/staging tests remain required"
+  ]
+}

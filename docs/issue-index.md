@@ -24,6 +24,10 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | RENDER-PROOF | [#18 Benchmark representative cockpit readability and regional rendering](https://github.com/brettbergin/flight-simulator/issues/18) | EPIC-P0, TOOLCHAIN, NATIVE-EXPORT |
 | VALIDATION-CORPUS | [#19 Create versioned aircraft reference matrix and regression corpus](https://github.com/brettbergin/flight-simulator/issues/19) | EPIC-P0, LICENSE-REGISTER, CORE-CONTRACTS, FDM-HARNESS |
 
+| AIRBORNE-PREVIEW | [#94 Deliver a human-controllable Windows airborne engineering preview](https://github.com/brettbergin/flight-simulator/issues/94) | EPIC-P0, CORE-CONTRACTS, FDM-HARNESS, NATIVE-EXPORT |
+
+| INTERACTIVE-CONTRACT | [#95 Ratify the bounded original ground-to-flight prototype contract and model](https://github.com/brettbergin/flight-simulator/issues/95) | EPIC-P0, CORE-CONTRACTS, FDM-HARNESS, GROUND-PROOF, LICENSE-REGISTER |
+
 ## P2 — First cockpit and synthetic airfield
 
 | Key | Issue | Dependencies |
