@@ -783,7 +783,7 @@
       "evidence": "synthetic",
       "source": {
         "url": "https://github.com/brettbergin/flight-simulator/tree/main/native/fdm_jsbsim/models/original-piston-prop",
-        "revision": "sha256:f8ef5011243ef8cf16e13924a5cdc902c2055ba4789a4bfd0cba209533594b7a",
+        "revision": "sha256:f7766fda173d8ee83d4c4a8c02f6333124175a1f7064d3f4d8e78df3d17da12a",
         "rights_url": "https://github.com/brettbergin/flight-simulator/blob/95f1ed41cea762b33e78d0466ce66c56380631c4/LICENSE",
         "applicability": "original-piston-prop-v1 0.1.0-prototype exact LF inventory and metadata hashes. Main URL is a future publication locator, not present availability or integrity authority; XML2.0/prop convention1.1 are separate format/convention versions."
       },
@@ -803,7 +803,7 @@
         "model_id": "original-piston-prop-v1",
         "root": "native/fdm_jsbsim/models/original-piston-prop",
         "inventory_path": "native/fdm_jsbsim/models/original-piston-prop/inventory.json",
-        "inventory_sha256": "f8ef5011243ef8cf16e13924a5cdc902c2055ba4789a4bfd0cba209533594b7a",
+        "inventory_sha256": "f7766fda173d8ee83d4c4a8c02f6333124175a1f7064d3f4d8e78df3d17da12a",
         "files": [
           {
             "path": "aircraft/original-piston-prop/original-piston-prop.xml",
@@ -812,8 +812,8 @@
           },
           {
             "path": "engine/original-piston.xml",
-            "bytes": 1882,
-            "sha256": "0d1b3eb87f1af2131a495c26ae7a3fb2fdd2a38d3d4309c67a77daaff2cf069e"
+            "bytes": 1870,
+            "sha256": "4212b398118be77cdff44f6e41abfded7e4fd8fcfece422dba27fd64ad30b638"
           },
           {
             "path": "engine/original-fixed-prop.xml",
@@ -824,8 +824,8 @@
         "metadata": [
           {
             "path": "parameter-ledger.json",
-            "bytes": 23206,
-            "sha256": "b59fff1d35dbd702392d12cfa4ac9477d9fafa8927454a067e60d06aaaaed24a"
+            "bytes": 23421,
+            "sha256": "eb471b5590351bee000c346acfa091a2c84ae526540794afe0e23833ca02106c"
           },
           {
             "path": "NOTICE-MIT.txt",
@@ -834,8 +834,8 @@
           },
           {
             "path": "README.md",
-            "bytes": 2637,
-            "sha256": "5b5db85e1df978659a7c82620639393eefd527072400d002b09437c219ade559"
+            "bytes": 3197,
+            "sha256": "7c7e04079448568a25fad6a49dbca63edc97d91d4e5c47cd2ffd7e36ddb096df"
           }
         ],
         "immutable_vendor_models_allowed": false,

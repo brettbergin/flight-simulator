@@ -12,7 +12,7 @@ REPO = HERE.parents[2]
 PACK = REPO / 'native/fdm_jsbsim/models/original-piston-prop'
 XML_HASHES = {
     'aircraft/original-piston-prop/original-piston-prop.xml': 'b9a41861fcbca1917978312d73a192cbe2c2ea0e6ef0e13512c76148a6c9d4c5',
-    'engine/original-piston.xml': '0d1b3eb87f1af2131a495c26ae7a3fb2fdd2a38d3d4309c67a77daaff2cf069e',
+    'engine/original-piston.xml': '4212b398118be77cdff44f6e41abfded7e4fd8fcfece422dba27fd64ad30b638',
     'engine/original-fixed-prop.xml': 'b4f3f376f062d869a338bb2757466c9ba23d6320d895d3fc5921e351748bb0af',
 }
 FT_M = D('.3048')
@@ -160,7 +160,7 @@ def packet(model_pack=PACK):
 
 
 if __name__ == '__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--check',action='store_true');parser.add_argument('--model-pack',type=Path,default=PACK);parser.add_argument('--output',type=Path,default=HERE/'expected-v2.json');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--check',action='store_true');parser.add_argument('--model-pack',type=Path,default=PACK);parser.add_argument('--output',type=Path,default=HERE/'expected-v3.json');args=parser.parse_args()
     result=packet(args.model_pack)
     b=(json.dumps(result,indent=2)+'\n').encode('utf-8');output=args.output
     if args.check:

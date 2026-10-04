@@ -6,13 +6,15 @@ From the repository root:
 
 ```sh
 python tests/engine/reference/generate.py --check
-python tests/engine/check_model.py --model-root native/fdm_jsbsim/models/original-piston-prop --reference-packet tests/engine/reference/expected-v2.json
+python tests/engine/check_model.py --model-root native/fdm_jsbsim/models/original-piston-prop --reference-packet tests/engine/reference/expected-v3.json
 python -m unittest discover -s tests/engine -p test_check_model.py
 ```
 
 `generate.py` uses only Python's standard library and 80-digit Decimal arithmetic. Numeric expectations are decimal strings. The read-only check regenerates all 55 cases and compares exact serialized bytes. Generation refuses to overwrite an existing packet. Boolean values, branches, identities and ordering compare exactly. Future comparison code must parse numeric strings explicitly and retain tick/sequence integer identity.
 
 The binding revision `expected-v2.json` preserves all cases and budgets from the original pre-solver v1 packet, SHA256 `57a0b8f4ed8fecf9d9ba9a7a8666ec6c80395d90680a4048d5a57e14abd170c9`. Only the source inventory and ledger metadata bindings changed. The three XML files and numerical parameters are unchanged. The historic preparation manifest is retained as `reference-manifest-v2.json`; its private preparation paths describe provenance, not required checkout files. Current publication hashes and independent review appear in [source evidence](../../../docs/evidence/P3/original-piston-source.md).
+
+The current `expected-v3.json` changes only the piston XML/ledger/inventory bindings after the unsupported oil-temperature unit attribute was removed. The authored scalar remains 350 Kelvin, and all 55 cases, numerical expectations and budgets are byte-for-byte identical as JSON values to v2. The failed first model load produced no coupled tick. `expected-v2.json` and `reference-manifest-v2.json` remain unchanged historical artifacts. `reference-manifest-v3.json` records this source-only rebinding; it does not assert runtime acceptance.
 
 ## Coverage and budgets
 

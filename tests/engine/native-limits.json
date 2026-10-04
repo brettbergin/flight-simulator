@@ -1,0 +1,423 @@
+{
+  "format": "OriginalPistonPretrial/v1",
+  "status": "proposed-before-backend-observation; independent Root ratification required",
+  "observed_backend_output": false,
+  "self_approval": false,
+  "contract": "docs/decisions/010-original-piston-profile.md",
+  "profile": {
+    "id": "original-piston-prop-v1",
+    "version": "0.1.0-prototype",
+    "backend_model": "original-piston-prop"
+  },
+  "recipe": "piston-cold-ground",
+  "runtime_hz": 120,
+  "research_hz": [
+    60,
+    240
+  ],
+  "seed": 42,
+  "initial_fuel_kg": 100,
+  "world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+  "command_lane": {
+    "source_id": "pilot.controls",
+    "authority": "pilot",
+    "assistance_profile": "unassisted",
+    "sequence_start": 1,
+    "system_order": [
+      "engine.ignition_left",
+      "engine.ignition_right",
+      "engine.starter",
+      "fuel.feed"
+    ],
+    "timing": "emit changed complete axes first, then changed systems at boundary t; target tick=t*hz+1, before its Run; no feedback-dependent phase changes"
+  },
+  "schedule": [
+    {
+      "at_elapsed_s": 0,
+      "phase": "cold-settle",
+      "axes": {
+        "roll": 0,
+        "pitch": 0,
+        "yaw": 0,
+        "throttle": 0,
+        "mixture": 0,
+        "left_brake": 1,
+        "right_brake": 1,
+        "trim": 0
+      },
+      "systems": {
+        "engine.ignition_left": false,
+        "engine.ignition_right": false,
+        "engine.starter": false,
+        "fuel.feed": true
+      }
+    },
+    {
+      "at_elapsed_s": 1,
+      "phase": "deliberate-crank",
+      "axes": {
+        "roll": 0,
+        "pitch": 0,
+        "yaw": 0,
+        "throttle": 0.15,
+        "mixture": 1,
+        "left_brake": 1,
+        "right_brake": 1,
+        "trim": 0
+      },
+      "systems": {
+        "engine.ignition_left": true,
+        "engine.ignition_right": true,
+        "engine.starter": true,
+        "fuel.feed": true
+      }
+    },
+    {
+      "at_elapsed_s": 8,
+      "phase": "starter-release",
+      "axes": {
+        "roll": 0,
+        "pitch": 0,
+        "yaw": 0,
+        "throttle": 0.15,
+        "mixture": 1,
+        "left_brake": 1,
+        "right_brake": 1,
+        "trim": 0
+      },
+      "systems": {
+        "engine.ignition_left": true,
+        "engine.ignition_right": true,
+        "engine.starter": false,
+        "fuel.feed": true
+      }
+    },
+    {
+      "at_elapsed_s": 13,
+      "phase": "both-ignition",
+      "axes": {
+        "roll": 0,
+        "pitch": 0,
+        "yaw": 0,
+        "throttle": 0.35,
+        "mixture": 1,
+        "left_brake": 1,
+        "right_brake": 1,
+        "trim": 0
+      },
+      "systems": {
+        "engine.ignition_left": true,
+        "engine.ignition_right": true,
+        "engine.starter": false,
+        "fuel.feed": true
+      }
+    },
+    {
+      "at_elapsed_s": 17,
+      "phase": "right-ignition",
+      "axes": {
+        "roll": 0,
+        "pitch": 0,
+        "yaw": 0,
+        "throttle": 0.35,
+        "mixture": 1,
+        "left_brake": 1,
+        "right_brake": 1,
+        "trim": 0
+      },
+      "systems": {
+        "engine.ignition_left": false,
+        "engine.ignition_right": true,
+        "engine.starter": false,
+        "fuel.feed": true
+      }
+    },
+    {
+      "at_elapsed_s": 21,
+      "phase": "left-ignition",
+      "axes": {
+        "roll": 0,
+        "pitch": 0,
+        "yaw": 0,
+        "throttle": 0.35,
+        "mixture": 1,
+        "left_brake": 1,
+        "right_brake": 1,
+        "trim": 0
+      },
+      "systems": {
+        "engine.ignition_left": true,
+        "engine.ignition_right": false,
+        "engine.starter": false,
+        "fuel.feed": true
+      }
+    },
+    {
+      "at_elapsed_s": 25,
+      "phase": "both-restored",
+      "axes": {
+        "roll": 0,
+        "pitch": 0,
+        "yaw": 0,
+        "throttle": 0.35,
+        "mixture": 1,
+        "left_brake": 1,
+        "right_brake": 1,
+        "trim": 0
+      },
+      "systems": {
+        "engine.ignition_left": true,
+        "engine.ignition_right": true,
+        "engine.starter": false,
+        "fuel.feed": true
+      }
+    },
+    {
+      "at_elapsed_s": 29,
+      "phase": "taxi",
+      "axes": {
+        "roll": 0,
+        "pitch": 0,
+        "yaw": 0,
+        "throttle": 0.15,
+        "mixture": 1,
+        "left_brake": 0,
+        "right_brake": 0,
+        "trim": 0
+      },
+      "systems": {
+        "engine.ignition_left": true,
+        "engine.ignition_right": true,
+        "engine.starter": false,
+        "fuel.feed": true
+      }
+    },
+    {
+      "at_elapsed_s": 39,
+      "phase": "brake-to-stop",
+      "axes": {
+        "roll": 0,
+        "pitch": 0,
+        "yaw": 0,
+        "throttle": 0,
+        "mixture": 1,
+        "left_brake": 1,
+        "right_brake": 1,
+        "trim": 0
+      },
+      "systems": {
+        "engine.ignition_left": true,
+        "engine.ignition_right": true,
+        "engine.starter": false,
+        "fuel.feed": true
+      }
+    },
+    {
+      "at_elapsed_s": 51,
+      "phase": "mixture-cutoff",
+      "axes": {
+        "roll": 0,
+        "pitch": 0,
+        "yaw": 0,
+        "throttle": 0,
+        "mixture": 0,
+        "left_brake": 1,
+        "right_brake": 1,
+        "trim": 0
+      },
+      "systems": {
+        "engine.ignition_left": true,
+        "engine.ignition_right": true,
+        "engine.starter": false,
+        "fuel.feed": true
+      }
+    }
+  ],
+  "end_elapsed_s": 111,
+  "targets": {
+    "shaft_radps_domain": [
+      0,
+      376.99111843077515
+    ],
+    "first_running_deadline_s": 8,
+    "cranking_min_radps": 3.141592653589793,
+    "cranking_deadline_s": 2,
+    "starter_release_s": 8,
+    "warm_running_window_s": [
+      8,
+      51
+    ],
+    "warm_shaft_radps": [
+      50.26548245743669,
+      314.1592653589793
+    ],
+    "taxi_window_s": [
+      29,
+      39
+    ],
+    "taxi_forward_distance_min_m": 1,
+    "taxi_end_forward_speed_min_mps": 0.5,
+    "taxi_speed_max_mps": 8,
+    "stopped_deadline_s": 51,
+    "stopped_speed_max_mps": 0.1,
+    "shutdown_s": 51,
+    "coast_60rpm_deadline_s": 81,
+    "coast_1rpm_deadline_s": 111,
+    "coast_60rpm_radps": 6.283185307179586,
+    "coast_1rpm_radps": 0.10471975511965977,
+    "fuel_abs_tolerance_kg": 1e-10,
+    "fuel_rel_tolerance": 1e-10,
+    "actual_request_max_kg_per_tick": 0.001,
+    "feed_off_starved_max_ticks": 1,
+    "feed_off_running_false_max_ticks": 2,
+    "depletion_starved_max_ticks_after_drain": 1,
+    "depletion_running_false_max_ticks_after_drain": 2,
+    "warm_shaft_window_s": [
+      8,
+      29
+    ],
+    "pre_shutdown": {
+      "sample_at_completed_s": 51,
+      "running": true,
+      "shaft_positive": true,
+      "starter": false,
+      "feed": true,
+      "mixture": 1,
+      "fuel_flow_positive_at_ticks": [
+        "51*hz-1",
+        "51*hz"
+      ],
+      "failure": "fail scenario before applying shutdown; no successful shutdown claim if already stalled"
+    },
+    "coast_rationale_envelope": {
+      "density_min_kgpm3": 1,
+      "failure": "visible failed envelope check; do not invoke decay hypothesis outside source assumptions",
+      "pumping_source_upper_bound_hp_max": 0,
+      "pmep_source_upper_bound_pa_max": 0,
+      "oracle": {
+        "classification": "source-derived upper bound, not measured private PMEP/pumping",
+        "unboosted": "model boost0 implies TMAP=MAP",
+        "map_pa": "actual piston.getManifoldPressure_inHg()*3386.38",
+        "ambient_pa": "actual engine.in.Pressure*47.88 (PSF input consumed by this engine Calculate)",
+        "pmep_source_upper_pa": "(map_pa-ambient_pa)*0.8",
+        "displacement_m3": "accepted XML displacement_in3 * pinned FGJSBBase::in3tom3",
+        "shaft_stage": "actual piston.getRPM() cached pre-propeller engine RPM, nonnegative; not public post-step shaft",
+        "pumping_upper_hp": "pmep_source_upper_pa*displacement_m3*cachedRPM/(4*22371)",
+        "basis": "FGPiston doMAP PMEP=(TMAP-pamb)*VE; doEnginePower FMEP=0 or negative, hence pumping=(PMEP+FMEP)*displacement_m3*RPM/(4*22371)<=upper",
+        "raw_power_note": "GetPowerAvailable()/550+1 is not this oracle; it recovers pumping only if IndicatedHP is independently known=-1. Post-step Running=false alone is insufficient; feed-off firstK can still combust."
+      }
+    },
+    "mixture_and_ignition_running_false_max_ticks": 1,
+    "shutdown_tick_counting": "first applied completed tick K counts as1: mixture/ignition1=>K; feed2=>K+1. Depletion max_ticks_after_drain counts offsets:2 after drainK=>K+2."
+  },
+  "cold_negative_cases": [
+    {
+      "id": "no-spark",
+      "override_systems": {
+        "engine.ignition_left": false,
+        "engine.ignition_right": false
+      },
+      "override_begin_s": 1
+    },
+    {
+      "id": "no-feed",
+      "override_systems": {
+        "fuel.feed": false
+      },
+      "override_begin_s": 1
+    },
+    {
+      "id": "mixture-zero",
+      "override_axes": {
+        "mixture": 0
+      },
+      "override_begin_s": 1
+    }
+  ],
+  "negative_end_elapsed_s": 13,
+  "shutdown_variants": [
+    {
+      "id": "ignition-off",
+      "change_at_s": 51,
+      "override_axes": {
+        "throttle": 0,
+        "mixture": 1
+      },
+      "override_systems": {
+        "engine.ignition_left": false,
+        "engine.ignition_right": false
+      }
+    },
+    {
+      "id": "feed-off",
+      "change_at_s": 51,
+      "override_axes": {
+        "throttle": 0,
+        "mixture": 1
+      },
+      "override_systems": {
+        "fuel.feed": false
+      }
+    }
+  ],
+  "convergence": {
+    "sample_grid_s": 0.1,
+    "shaft_120_vs_240_abs_radps": 0.10471975511965977,
+    "shaft_120_vs_240_rel": 0.03,
+    "shaft_60_vs_240_abs_radps": 0.20943951023931953,
+    "shaft_60_vs_240_rel": 0.06,
+    "refinement_slack_radps": 0.10471975511965977,
+    "event_time_abs_s": 0.25,
+    "position_120_vs_240_abs_m": 0.2,
+    "position_120_vs_240_rel_travelled": 0.02,
+    "velocity_120_vs_240_abs_mps": 0.05,
+    "velocity_120_vs_240_rel": 0.03,
+    "discrete_switches_exact": true,
+    "event_neighborhood_s": 0.25,
+    "sample_grid_ticks": {
+      "60": 6,
+      "120": 12,
+      "240": 24
+    },
+    "position_frame": "WGS84 Earth-centred Earth-fixed binary64 metres, common exact prepared-world identity; no per-run floating origin",
+    "velocity_frame": "body velocity transformed by completed body-to-local-NED quaternion, then query-local NED-to-ECEF rotation at completed geodetic position; binary64 ECEF m/s",
+    "position_error": "Euclidean norm of ECEF position120-position240",
+    "velocity_error": "Euclidean norm of ECEF velocity120-velocity240",
+    "speed": "Euclidean norm of native body velocity_mps (equal to orthonormal world norm)",
+    "reference_travelled_distance": "sum Euclidean norms of successive ECEF position differences at EVERY240Hz completed tick since tick0",
+    "shaft_error": "absolute scalar rad/s difference at matched times",
+    "relative_reference": "absolute shaft240 for shaft; ECEF velocity240 norm for velocity; accumulated240Hz path since0 for position",
+    "refinement_error": "at each retained sample abs(shaft120-shaft240)<=abs(shaft60-shaft240)+1RPM(rad/s)",
+    "first_running_event": "earliest completed tick with actual engine.running=true, absent event is FAIL",
+    "first_stopped_event": "first completed tick >=39*hz+1 with speed<=0.1m/s (after t39 command admission and that tick Run); absent event is FAIL",
+    "event_time": "completed_tick/hz; compare absolute differences across rates",
+    "transition_exclusion": "union of closed +/-0.25s intervals around each rate first-Running event and fixed shutdown command application t51+1/hz; all excluded samples are retained and labeled"
+  },
+  "tiny_fuel_fixture": {
+    "id": "backend-mechanism-piston-partial-draw-v1",
+    "evidence_class": "backend mechanism only; not production Session admission",
+    "construction": "standalone headless executive; accepted model and prepared world; production cold setup from shaft zero; no InitRunning, RPM writes, trim or hidden positive tick",
+    "setup_schedule_through_s": 8,
+    "seed_at_elapsed_s": 8,
+    "starter_false_before_seed": true,
+    "initial_observed_contents_kg": 1e-07,
+    "seed_count": 1,
+    "post_seed_observation_ticks": 8,
+    "precondition_running": true,
+    "precondition_shaft_min_radps": 50.26548245743669,
+    "precondition_prior_flow_min_kgps": 0.0001,
+    "first_actual_request_min_kg": 2e-07,
+    "actual_request_max_kg_per_tick": 0.001,
+    "final_partial_request_minus_actual_max_kg": 0.001,
+    "two_tick_potential_flow_minus_actual_max_kg": 0.002,
+    "fuel_nonnegative": true,
+    "production_mutation_api_allowed": false,
+    "trace_stage_identity": "seed once before K; MassBalance(K) before Propulsion(K); engine Calculate(K) before tank Drain(K); publication after Drain(K)",
+    "seed_boundary_order": [
+      "observe natural cold setup through completed t8 with100kg",
+      "set actual starter request false through typed harness method at t8 boundary; no Run",
+      "seed tank once to1e-7kg before K Run",
+      "observe K through K+7; do not mutate tank or shaft again"
+    ]
+  }
+}

@@ -3,9 +3,11 @@
 #include <flight/fdm/session.hpp>
 // ADR 006 bounded engineering prototype. Historical APIs/models stay unchanged.
 namespace flight::interactive {
-enum class Start { ground, airborne };
+enum class Profile { legacy, piston };
+enum class Start { ground, airborne, piston_cold_ground };
 enum class Status { completed, paused, coverage_blocked, discarded };
 struct Config {
+  Profile profile{Profile::legacy};
   std::filesystem::path model_root;
   std::shared_ptr<const AnalyticSurface> surface;
   std::string session_id{"interactive-probe"};
@@ -17,6 +19,13 @@ struct Config {
   bool trim{};
 };
 struct Step {Status status{};std::vector<c::ControlCommand> applied;};
+// Native-only completed-stage engineering trace. No wire keys or mutation API.
+struct PistonDiagnostics {
+  c::SampleHeader header;
+  double pre_prop_engine_rpm{},post_prop_rpm{},fuel_flow_lb_per_s{},fuel_used_lb{};
+  double manifold_pressure_inhg{},engine_input_pressure_psf{},engine_input_density_slug_per_ft3{};
+  double raw_engine_power_ftlb_per_s{},tank_contents_lb{},mass_slug{};
+};
 class Session final {
  public:
   // Every method and destruction belongs to the construction thread. Readbacks
@@ -31,6 +40,8 @@ class Session final {
   c::AircraftSnapshot latest()const;
   c::AtmosphereSample atmosphere()const;
   c::PilotAxes held()const;
+  Profile profile()const;
+  PistonDiagnostics piston_diagnostics()const;
   std::string fault()const;
   bool paused()const;
   double time_scale()const;
@@ -40,6 +51,7 @@ class Session final {
  private:class Impl;std::unique_ptr<Impl> impl_;
 };
 std::string snapshot_json(const c::AircraftSnapshot&);
-std::string command_json(const c::ControlCommand&);
+bool piston_system_id(std::string_view);
+std::string command_json(const c::ControlCommand&,Profile=Profile::legacy);
 std::string source_fingerprint();
 }

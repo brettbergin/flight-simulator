@@ -17,8 +17,8 @@
     },
     {
       "path": "engine/original-piston.xml",
-      "bytes": 1882,
-      "sha256": "0d1b3eb87f1af2131a495c26ae7a3fb2fdd2a38d3d4309c67a77daaff2cf069e"
+      "bytes": 1870,
+      "sha256": "4212b398118be77cdff44f6e41abfded7e4fd8fcfece422dba27fd64ad30b638"
     },
     {
       "path": "engine/original-fixed-prop.xml",
@@ -328,10 +328,10 @@
     {
       "id": "engine.design-oil-temp-degK",
       "xml_value": "350",
-      "xml_unit": "DEGK",
-      "effective_meaning": "DEGK",
+      "xml_unit": null,
+      "effective_meaning": "K; implicit FGPiston loader target DEG K (DEGK)",
       "provenance": "original-design-choice",
-      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "reason": "Pinned FGPiston.cpp242 requests DEG K/DEGK; FGXMLElement.cpp481..529 accepts raw target-unit scalar only without unit attribute. DEG K/DEGK is absent from its conversion map. Keep authored350; not a measured sensor or manufacturer value.",
       "parameter_number": 30
     },
     {

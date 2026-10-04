@@ -45,7 +45,7 @@ jobs:
       - name: Recompute frozen piston references without a solver
         run: python tests/engine/reference/generate.py --check
       - name: Bind original piston source to independent references
-        run: python tests/engine/check_model.py --model-root native/fdm_jsbsim/models/original-piston-prop --reference-packet tests/engine/reference/expected-v2.json
+        run: python tests/engine/check_model.py --model-root native/fdm_jsbsim/models/original-piston-prop --reference-packet tests/engine/reference/expected-v3.json
       - name: Check independent reference algebra and metadata
         if: ${{ hashFiles('tests/reference/reference.test.mjs') != '' }}
         run: node --test tests/reference/reference.test.mjs

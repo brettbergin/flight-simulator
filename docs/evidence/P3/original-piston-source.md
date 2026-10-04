@@ -29,3 +29,19 @@ Local Windows source checks pass: 11 static guard tests, exact read-only referen
 Protected hosted checks and final tracked-source review must pass before merge. No old model XML, runtime pin, native library, bridge, app scene or owner-running game changed. The old default profile and its accepted proofs retain their own identities.
 
 Next work implements native cold tick0, immediate-boundary ignition/starter/feed and mixture, actual shaft/fuel/combustion observations, rejection/fail-stop behavior and bounded coupled runtime trials. Integrated startup success/latency, RPM domain, fuel-use baseline and convergence require limits frozen before first observation. EngineStatus/input/scene consumers and exact exported/replacement proofs follow those gates. C172S applicability, sensed power/indications, calibrated physics, controls hardware, pilot evaluation and owner phase acceptance remain open.
+
+## Consumer loader correction in issue127
+
+The first authorized bounded native suite failed in model loading, before any coupled tick: the pinned backend rejected `unit="DEGK"` on `design-oil-temp-degK`. The historical receipt SHA256 is `60bed0b6b503a8564a7e59323363437600f2a8c328a200b362eac823062e4289`; all nine invoked processes retained identical stderr SHA256 `4acb7efb3205ce64c482ada5a6ff8a73e2571be7c50e5891300f90384ecbc419`. Research-clock and tiny-fuel cases were not reached. This is failed loader evidence, not startup/flight evidence.
+
+Pinned `FGPiston.cpp:242` requests target `DEGK`; `FGXMLElement.cpp:481..529` has no registered conversion for that label and accepts the raw number in target units when the XML unit attribute is absent. The correction removes only that attribute, retaining the authored Kelvin value350. No scalar value, table, world, control schedule, pass/fail target or numerical budget changes.
+
+| Current corrected artifact | SHA256 |
+|---|---|
+| Piston XML | 4212b398118be77cdff44f6e41abfded7e4fd8fcfece422dba27fd64ad30b638 |
+| Parameter ledger | eb471b5590351bee000c346acfa091a2c84ae526540794afe0e23833ca02106c |
+| Model inventory | f7766fda173d8ee83d4c4a8c02f6333124175a1f7064d3f4d8e78df3d17da12a |
+| Independent expected-v3 binding | 36aac20d85e841743d7eb9a357be8a0d40d8f103c1cbc60e084dde9ef23db63b |
+| Current Decimal generator | cfe6e02e11a24f9debdcd86b3aa50e185ae6d6b92ff93952917192dac926bc91 |
+
+The frozen-artifact table above records accepted issue125 history. `expected-v2.json` and its manifest remain exact historical files. Current v3 rebinds only corrected source hashes: all55 cases and budgets compare exactly as JSON values. The checker now requires the implicit Kelvin branch and a twelfth corruption guard rejects rehashed explicit unsupported DEG K syntax even when its ledger/hash bindings are changed. The reference generator/checker and approved schedules pass source-only checks. Model/source metadata and rights/native pins bind the correction; these static results do not assert a successful retry. Remaining runtime gates still apply.
