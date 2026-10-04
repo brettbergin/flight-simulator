@@ -40,6 +40,8 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 
 | AIRCRAFT-GROUND-UX | [#108 Fix intersecting cabin glazing and clarify rollout controls](https://github.com/brettbergin/flight-simulator/issues/108) | AIRFIELD-LANDMARKS |
 
+| THIRD-PERSON-STABILITY | [#110 Smooth third-person aircraft motion and keep camera tracking in the same frame](https://github.com/brettbergin/flight-simulator/issues/110) | AIRCRAFT-GROUND-UX |
+
 ## P2 — First cockpit and synthetic airfield
 
 | Key | Issue | Dependencies |

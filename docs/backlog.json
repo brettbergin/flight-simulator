@@ -4111,6 +4111,54 @@
       "evidence": [
         "Bounded presentation/control feedback only; actual owner flight history unknown. P1 renderer/owner acceptance, production input/cockpit, C172 calibration and pilot review remain open."
       ]
+    },
+    {
+      "key": "THIRD-PERSON-STABILITY",
+      "title": "Smooth third-person aircraft motion and keep camera tracking in the same frame",
+      "kind": "bug",
+      "phase": "P1",
+      "parent": "EPIC-P1",
+      "summary": "Present consecutive accepted native ticks smoothly and follow the same render translation after the owner clarified that third-person aircraft motion, rather than geometry, has small jolts.",
+      "depends_on": [
+        "AIRCRAFT-GROUND-UX"
+      ],
+      "labels": [
+        "type:bug",
+        "phase:P1",
+        "area:ui",
+        "priority:P0",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "app/proof/interactive/preview.gd",
+        "app/proof/interactive/flight_render_pose.gd",
+        "app/proof/interactive/flight_render_pose_checks.gd",
+        "app/proof/interactive/flight_camera_checks.gd",
+        "tools/interactive-preview/README.md",
+        "docs/evidence/P1/third-person-stability.md"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/decisions/006-interactive-prototype.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [
+        "UX-001",
+        "UX-009",
+        "UX-010",
+        "PRD-015",
+        "PRD-016",
+        "PRD-034"
+      ],
+      "acceptance": [
+        "A private render buffer interpolates local position and shortest-arc rigid attitude only between consecutive accepted native120Hz ticks, with declared one-tick presentation latency and no extrapolation, stale-session blending or physics/filter/assist changes.",
+        "Third-person camera shares interpolated translation; easing changes viewing offset only. Instruments, map, contact truth and held controls retain raw native values. Pause, fault, reset, invalid pose and session changes collapse or clear presentation history explicitly.",
+        "Independent synthetic30/60/144/240Hz and irregular-cadence fixtures verify continuous linear motion and camera phase. Actual fixed-input native schedule tests retain endpoint aircraft/weather/held data, completed ticks, debt and command counts; observer/pause/reset/fault negatives pass. Live frame-polled keyboard input is not claimed equivalent.",
+        "Fresh frozen editor/export/rebuilt-DLL and short exported moving chase/orbit GPU checks pass. Bind source/package/capture receipts; independent review and all four protected checks precede merge. Supply a separate verified owner update without interrupting an existing flight."
+      ],
+      "evidence": [
+        "Bounded original preview presentation correction: nominal8.333ms visual delay, raw native instruments/map, 59 planned GPU PNGs (prior43 plus16 moving-camera views) with separate capture tick counters. Production #20, P1 renderer/owner, C172 and human handling gates remain independent."
+      ]
     }
   ]
 }

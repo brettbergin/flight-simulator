@@ -1,6 +1,11 @@
 extends Node3D
 
 const AircraftChecks = preload("res://interactive/flight_aircraft_checks.gd")
+const RenderPose = preload("res://interactive/flight_render_pose.gd")
+const RenderPoseChecks = preload("res://interactive/flight_render_pose_checks.gd")
+const CameraChecks = preload("res://interactive/flight_camera_checks.gd")
+var render_pose: RefCounted=RenderPose.new()
+var camera_follow_offset := Vector3.ZERO
 
 const HZ: int = 120
 const BUDGET_DENOMINATOR: int = 1000000
@@ -95,6 +100,7 @@ func _ready() -> void:
 		open_menu("Ready for your flight")
 
 func close_session() -> bool:
+	render_pose.clear()
 	if bridge == null:
 		return true
 	var closed: Dictionary = bridge.call("close")
@@ -137,6 +143,7 @@ func restart() -> bool:
 	submitted_count = 0
 	event_count = 0
 	attempt += 1
+	reset_render_pose()
 	status = "LIVE | %s | fresh attempt %d | engine already running" % [named_start,attempt]
 	last_wall_us = Time.get_ticks_usec()
 	evidence["runtime_modules"] = reply.runtime_modules
@@ -157,6 +164,7 @@ func accept_reply(reply: Dictionary) -> void:
 	native_outcome = reply.outcome
 
 func fail(message: String) -> bool:
+	render_pose.clear()
 	status = message + " | R starts a fresh attempt"
 	paused = true
 	blocked = true
@@ -178,6 +186,7 @@ func pause_session(value: bool) -> bool:
 	if not reply.get("ok", false) or reply.get("rejection", -1) != 0:
 		return fail("Pause rejected: " + str(reply))
 	paused = value
+	reset_render_pose()
 	last_wall_us = Time.get_ticks_usec()
 	status = "PAUSED | P resumes; R starts a fresh attempt" if value else "LIVE | original synthetic model"
 	return true
@@ -193,7 +202,18 @@ func submit_axes(axes: Dictionary) -> bool:
 	submitted_count += 1
 	return true
 
-func step_ticks(count: int) -> bool:
+func reset_render_pose() -> void:
+	# Private visual history, cleared at lifecycle/coordinate-frame boundaries.
+	if snapshot.is_empty() or origin_ecef.is_empty():
+		render_pose.clear()
+		return
+	render_pose.reset(str(snapshot.session_id),int(snapshot.tick),visual_position(),visual_basis(body_quaternion()))
+
+func step_ticks(count: int, retain_adjacent: bool=true) -> bool:
+	# Preserve exact native ticks/commands, retain only its final adjacent pair.
+	# A batch above the native cap is still rejected before any partial stepping.
+	if retain_adjacent and count>=2 and count<=32:
+		return step_ticks(count-1,false) and step_ticks(1,false)
 	var old_tick: int = int(snapshot.tick)
 	var reply: Dictionary = bridge.call("step_fixed", count)
 	if not reply.get("ok", false):
@@ -210,10 +230,13 @@ func step_ticks(count: int) -> bool:
 		for event_json in reply.events_json:
 			trace_file.store_line(event_json)
 	if reply.outcome!="completed":
+		render_pose.clear()
 		paused = true
 		blocked = true
 		status = "NATIVE %s | %d actual ticks | %s | R fresh attempt; retained state is historical on discard" % [reply.outcome,completed,reply.fault]
 		return false
+	if completed>0 and not render_pose.push(str(snapshot.session_id),int(snapshot.tick),visual_position(),visual_basis(body_quaternion())):
+		return fail("Invalid rigid presentation pose")
 	return completed==count
 
 func advance_wall_us(elapsed_us: int) -> bool:
@@ -243,7 +266,7 @@ func _process(_delta: float) -> void:
 		if submit_axes(controls):
 			advance_wall_us(elapsed)
 	if not smoke:
-		show_state()
+		show_state(clampf(float(elapsed)/1000000.0,0.0,0.25))
 		if sound != null and not snapshot.is_empty():
 			sound.call("update_audio",float(held_controls.get("throttle",0)),flight_speed(),paused,any_wow())
 
@@ -554,7 +577,7 @@ func make_world() -> void:
 		add_child(sound)
 	set_camera_mode(0)
 
-func show_state() -> void:
+func show_state(seconds: float=0.0) -> void:
 	var map_top: float=124.0 if snapshot.is_empty() or blocked or stalled or native_outcome in ["discarded","error","coverage_blocked"] else 92.0
 	flight_map.size=Vector2(minf(420,get_viewport().get_visible_rect().size.x*0.42),minf(500,get_viewport().get_visible_rect().size.y-map_top-14))
 	flight_map.position=Vector2(get_viewport().get_visible_rect().size.x-flight_map.size.x-14,map_top)
@@ -565,9 +588,16 @@ func show_state() -> void:
 			cockpit_panel.call("set_state",{}, {},held_controls,fault_info)
 			flight_map.call("set_state",{},Vector3.ZERO,Basis.IDENTITY,fault_info)
 		return
-	var q: Quaternion = body_quaternion()
-	var basis: Basis = visual_basis(q)
-	airplane.transform=Transform3D(basis,visual_position())
+	var native_basis: Basis=visual_basis(body_quaternion())
+	var native_position: Vector3=visual_position()
+	var native_pose:=Transform3D(native_basis,native_position)
+	var live: bool=not paused and not blocked and not stalled and native_outcome=="completed"
+	var presentation: Transform3D=render_pose.sample(float(debt)/BUDGET_DENOMINATOR,live) if render_pose.has_pose() else native_pose
+	# Fault/pause displays the copied native endpoint, never a historical blend.
+	if not live:
+		presentation=native_pose
+	var basis: Basis=presentation.basis
+	airplane.transform=presentation
 	cockpit.root.transform=airplane.transform
 	cockpit.root.visible=camera_mode in [0,3]
 	cockpit_builder.call("update_controls",held_controls)
@@ -593,20 +623,26 @@ func show_state() -> void:
 		target_position=airplane.position+Vector3(sin(look_angles.x)*camera_distance,(0.25+sin(look_angles.y))*camera_distance,cos(look_angles.x)*camera_distance)
 		target_position.y=maxf(target_position.y,0.35)
 		look_target=airplane.position+Vector3.UP*0.4
+	var desired_offset: Vector3=target_position-airplane.position
 	if camera_mode in [0,3] or not camera_ready or paused:
-		camera.position=target_position
+		camera_follow_offset=desired_offset
 	else:
-		camera.position=camera.position.lerp(target_position,1.0-exp(-9.0*get_process_delta_time()))
+		# Ease only the view offset; translation follows the same rendered pose.
+		# Diagnostic/repeated show_state(0) calls cannot advance the camera filter.
+		camera_follow_offset=camera_follow_offset.lerp(desired_offset,1.0-exp(-9.0*clampf(seconds,0.0,0.25)))
+	camera.position=airplane.position+camera_follow_offset
+	if camera_mode==2:
+		camera.position.y=maxf(camera.position.y,0.35)
 	camera_ready=true
 	camera.look_at(look_target,up)
 	if propeller!=null and not paused:
-		propeller.rotate_z(get_process_delta_time()*(25+float(held_controls.throttle)*65))
+		propeller.rotate_z(clampf(seconds,0.0,0.25)*(25+float(held_controls.throttle)*65))
 	var view_names: Array[String]=["COCKPIT","CHASE","ORBIT","PANEL"]
 	var input_name: String = "Keyboard %.1fx · smooth" % input_sensitivity if joy_device<0 else "Gamepad %.1fx · " % input_sensitivity+Input.get_joy_name(joy_device)
 	var display_info: Dictionary={"status":status,"outcome":native_outcome,"blocked":blocked,"stalled":stalled,"paused":paused,"brake_hold":brake_hold,"view_name":view_names[camera_mode],"clearance_m":plane_clearance,"ground_valid":ground_valid,"input_name":input_name,"audio_enabled":audio_enabled}
 	panel.call("set_state",snapshot,atmosphere,held_controls,display_info)
 	cockpit_panel.call("set_state",snapshot,atmosphere,held_controls,display_info)
-	flight_map.call("set_state",snapshot,airplane.position,basis,display_info)
+	flight_map.call("set_state",snapshot,native_position,native_basis,display_info)
 
 func check(condition: bool, description: String) -> void:
 	if not condition:
@@ -661,6 +697,7 @@ func run_smoke() -> void:
 
 func run_ux_checks() -> void:
 	AircraftChecks.new().check_mesh(self)
+	RenderPoseChecks.new().run(self)
 	var saved: String = last_aircraft_json
 	var saved_controls: Dictionary = held_controls.duplicate(true)
 	open_menu("UX functional test")
@@ -787,6 +824,7 @@ func run_ux_checks() -> void:
 	var strip: Dictionary=panel.call("_control_strip_values")
 	check(strip.throttle_percent==0 and strip.left_percent==20 and strip.right_percent==80 and absf(float(strip.ground_kt)-float(panel.get("_readings").ground_kt))<0.000001,"ux_compact_strip_uses_native_held_axes_and_horizontal_speed")
 	run_locator_checks()
+	CameraChecks.new().run(self)
 	set_camera_mode(0)
 	evidence["ux_scope"]="Actual menu/native state and camera checks; synthetic keyboard/gamepad mapping, not hardware acceptance"
 
@@ -1136,6 +1174,7 @@ func run_visual_smoke() -> void:
 	status=saved_status
 	show_state()
 	await AircraftChecks.new().capture_views(self)
+	await CameraChecks.new().capture(self)
 	check(close_session(), "visual_final_joined")
 	if sound != null:
 		check(bool(await sound.call("shutdown")),"visual_audio_resources_retired")
