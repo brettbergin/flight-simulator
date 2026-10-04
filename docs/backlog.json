@@ -4509,7 +4509,8 @@
         "docs/backlog.json",
         "docs/issue-index.md",
         "docs/requirements.md",
-        "docs/phases/p2-first-flight.md"
+        "docs/phases/p2-first-flight.md",
+        ".github/workflows/native-ci.yml"
       ],
       "docs": [
         "docs/experience-and-progress.md",
