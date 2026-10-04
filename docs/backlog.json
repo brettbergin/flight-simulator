@@ -3962,6 +3962,54 @@
       "evidence": [
         "Local runnable handoff with checked artifact identities, actual exported GPU viewport captures, independent source/package review and four protected CI checks. P1/#18, production P2, C172 calibration/sensors, real-airport/navigation and training qualification gates remain open."
       ]
+    },
+    {
+      "key": "ENVIRONMENT-STABILITY",
+      "title": "Eliminate terrain and airfield surface flicker in the playable preview",
+      "kind": "bug",
+      "phase": "P1",
+      "parent": "EPIC-P1",
+      "summary": "Replace competing millimetre-separated terrain, pavement and marking faces with one filtered ground presentation; inspect scenery at ground, approach and airborne distances in the exported Windows game.",
+      "depends_on": [
+        "COCKPIT-UX"
+      ],
+      "labels": [
+        "type:bug",
+        "phase:P1",
+        "area:ui",
+        "priority:P0",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "app/proof/interactive/flight_world.gd",
+        "app/proof/interactive/preview.gd",
+        "app/proof/interactive/project-settings.cfg",
+        "tools/interactive-preview/README.md",
+        "docs/evidence/P1/environment-stability.md"
+      ],
+      "docs": [
+        "docs/world-and-data.md",
+        "docs/decisions/006-interactive-prototype.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [
+        "UX-001",
+        "UX-009",
+        "UX-010",
+        "PRD-015",
+        "PRD-017",
+        "PRD-033",
+        "PRD-034"
+      ],
+      "acceptance": [
+        "Terrain variation, runway/taxi/apron intersections and painted markings share a single flat ground surface, removing overlapping coplanar faces while preserving the prepared physics plane and existing synthetic airfield bounds. Original MIT procedural presentation only.",
+        "Thin surface detail is filtered at distance; runway orientation, grass, pavement and painted cues remain readable in actual exported runway, low approach, overhead and moving-camera inspections. No floating markings, depth-disabled ground, invented real-airport or terrain collision claims.",
+        "Camera, scenery and capture actions preserve authoritative native state and held pilot controls. Actual whole-flight editor/export/replacement checks remain passing; environment motion/coverage checks and reference-PC GPU images are tied to the frozen source/package.",
+        "Independently review the exact source and package; all four protected CI checks pass before merge. Provide a separate runnable local build and preserve existing owner sessions. Broader P1/P2, C172 and real-region gates remain open."
+      ],
+      "evidence": [
+        "Exact reviewed source/package bindings, local Windows handoff, exported GPU captures and independent review. This resolves presentation defects in the accepted prototype; it does not accept production terrain or aircraft fidelity."
+      ]
     }
   ]
 }

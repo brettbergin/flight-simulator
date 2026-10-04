@@ -34,6 +34,7 @@ Generated from [roadmap](../roadmap.md) and [backlog](../backlog.json). Consult 
 | [WHOLE-FLIGHT-PREVIEW](https://github.com/brettbergin/flight-simulator/issues/98) — Deliver a Windows taxi-to-landing engineering preview | physics | EPIC-P0, CORE-CONTRACTS, FDM-HARNESS, GROUND-PROOF, NATIVE-EXPORT, INTERACTIVE-CONTRACT | `native/fdm_jsbsim/interactive/`, `native/godot_bridge/src/interactive*`, `app/proof/interactive/`, `tools/interactive-preview/`, `tests/interactive/`, `CMakeLists.txt` |
 | [FLIGHT-UX](https://github.com/brettbergin/flight-simulator/issues/100) — Replace debug presentation with a usable visual flight experience | ui | WHOLE-FLIGHT-PREVIEW | `app/proof/interactive/`, `tools/interactive-preview/`, `docs/evidence/P1/flight-ux.md` |
 | [COCKPIT-UX](https://github.com/brettbergin/flight-simulator/issues/102) — Add a physical prototype cockpit, focused panel view and local flight map | ui | FLIGHT-UX | `app/proof/interactive/`, `tools/interactive-preview/`, `docs/evidence/P1/cockpit-ux.md` |
+| [ENVIRONMENT-STABILITY](https://github.com/brettbergin/flight-simulator/issues/104) — Eliminate terrain and airfield surface flicker in the playable preview | ui | COCKPIT-UX | `app/proof/interactive/flight_world.gd`, `app/proof/interactive/preview.gd`, `app/proof/interactive/project-settings.cfg`, `tools/interactive-preview/README.md`, `docs/evidence/P1/environment-stability.md` |
 
 ## Agent handoff
 

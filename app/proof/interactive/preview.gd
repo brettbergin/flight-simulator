@@ -380,8 +380,8 @@ func set_camera_mode(value: int) -> void:
 	look_angles=Vector2.ZERO
 	camera_ready=false
 	camera.fov=58 if camera_mode==3 else 72
-	# Preserve depth precision for millimetre-height runway markings. Cabin
-	# surfaces are farther than this plane; a tiny near plane erases the runway.
+	# Keep the nearby cockpit visible. Ground color and markings share a single
+	# surface; their ordering no longer depends on the camera's depth precision.
 	camera.near=0.1
 	panel_visible=not forward_view
 	panel.call("set_panel_visible",panel_visible)
@@ -866,12 +866,78 @@ func save_view(name: String) -> void:
 	check(image.save_png(output.path_join(name + ".png")) == OK, name + "_PNG_saved")
 	evidence[name+"_size"]={"width":image.get_width(),"height":image.get_height()}
 
+func save_environment_view(name: String, eye: Vector3, target: Vector3) -> Image:
+	# GPU diagnostic observer only. Never teleport or command the native aircraft.
+	show_state()
+	airplane.hide()
+	cockpit.root.hide()
+	panel.call("set_panel_visible",false)
+	camera.position=eye
+	camera.look_at(target,Vector3.UP)
+	camera.fov=60
+	await RenderingServer.frame_post_draw
+	await RenderingServer.frame_post_draw
+	var image: Image=get_viewport().get_texture().get_image()
+	check(image.save_png(output_directory().path_join(name+".png"))==OK,name+"_PNG_saved")
+	evidence[name+"_observer"]={"eye_eus_m":[eye.x,eye.y,eye.z],"target_eus_m":[target.x,target.y,target.z],"width":image.get_width(),"height":image.get_height()}
+	return image
+
+func run_environment_visual_checks() -> void:
+	check(get_viewport().msaa_3d==Viewport.MSAA_4X,"environment_geometry_four_sample_antialiasing")
+	evidence["environment_msaa_3d"]="4x MSAA for geometry edges; procedural ground detail uses shader footprint filtering"
+	check(pause_session(true),"environment_native_paused")
+	var before: Dictionary=bridge.call("read_state").duplicate(true)
+	var saved_controls: Dictionary=controls.duplicate(true)
+	var saved_submitted: int=submitted_count
+	var saved_sequence: int=command_sequence
+	var saved_camera_mode: int=camera_mode
+	var saved_fov: float=camera.fov
+	var configurations: Array[Array]=[
+		["view-environment-runway-south",Vector3(0,1.72,80),Vector3(0,0,-500)],
+		["view-environment-runway-north",Vector3(0,2,-1670),Vector3(0,0,-900)],
+		["view-environment-approach",Vector3(0,35,340),Vector3(0,0,-200)],
+		["view-environment-apron",Vector3(60,18,180),Vector3(100,0,10)],
+		["view-environment-overhead",Vector3(180,1400,200),Vector3(0,0,-800)],
+		["view-environment-fields",Vector3(3000,1200,-2600),Vector3(900,0,-1500)],
+		["view-environment-boundary",Vector3(19500,900,0),Vector3(22500,0,0)],
+		["view-environment-corner",Vector3(19500,1200,-19500),Vector3(22500,0,-22500)]
+	]
+	for configuration in configurations:
+		await save_environment_view(configuration[0],configuration[1],configuration[2])
+	var first: Image
+	for frame in range(5):
+		var image: Image=await save_environment_view("view-environment-motion-%02d" % frame,Vector3(frame*3,15,270-frame*18),Vector3(0,0,-500))
+		if frame==0:
+			first=image
+	var returned: Image=await save_environment_view("view-environment-motion-return",Vector3(0,15,270),Vector3(0,0,-500))
+	first.convert(Image.FORMAT_RGB8)
+	returned.convert(Image.FORMAT_RGB8)
+	var original_bytes: PackedByteArray=first.get_data()
+	var returned_bytes: PackedByteArray=returned.get_data()
+	var changed: int=0
+	check(original_bytes.size()==returned_bytes.size(),"environment_return_frame_same_size")
+	if original_bytes.size()==returned_bytes.size():
+		for index in range(original_bytes.size()):
+			if absi(int(original_bytes[index])-int(returned_bytes[index]))>2:
+				changed+=1
+	var fraction: float=float(changed)/maxi(1,original_bytes.size())
+	evidence["environment_return_view_changed_byte_fraction"]=fraction
+	check(fraction<0.001,"environment_paused_return_view_stable")
+	var after: Dictionary=bridge.call("read_state")
+	check(after==before and controls==saved_controls and submitted_count==saved_submitted and command_sequence==saved_sequence,"environment_observer_sweep_preserves_authoritative_state_and_commands")
+	evidence["environment_scope"]="14 actual GPU captures: both runway ends, approach, apron, overhead, fields, coverage boundary/corner and five-step camera-only sweep/return; native aircraft paused and unchanged. Observer positions are diagnostics, not flight or pilot handling evidence."
+	set_camera_mode(saved_camera_mode)
+	camera.fov=saved_fov
+	show_state()
+	check(pause_session(false),"environment_native_resumed")
+
 func run_visual_smoke() -> void:
 	if DisplayServer.get_name() == "headless":
 		fail("Visual smoke requires the coordinator-owned GPU window")
 		finish_smoke()
 		return
 	await save_view("view-ground-initial")
+	await run_environment_visual_checks()
 	named_start="airborne-prepared"
 	check(restart(),"visual_airborne_named_start")
 	await save_view("view-airborne-initial")

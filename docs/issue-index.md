@@ -34,6 +34,8 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 
 | COCKPIT-UX | [#102 Add a physical prototype cockpit, focused panel view and local flight map](https://github.com/brettbergin/flight-simulator/issues/102) | FLIGHT-UX |
 
+| ENVIRONMENT-STABILITY | [#104 Eliminate terrain and airfield surface flicker in the playable preview](https://github.com/brettbergin/flight-simulator/issues/104) | COCKPIT-UX |
+
 ## P2 — First cockpit and synthetic airfield
 
 | Key | Issue | Dependencies |
