@@ -12,6 +12,10 @@ var _takeover: Dictionary = {}
 var _configured: bool = false
 var _live: bool = false
 var _brake_hold: bool = false
+var _v2: bool = false
+var _held_systems: Dictionary = {}
+var _system_intents: Dictionary = {}
+var _system_edges: Dictionary = {}
 
 static func _pair(target: String, negative: Array, positive: Array, rate: float, gain: float, returning: bool) -> Dictionary:
 	return {"target":target,"kind":"key_pair","negative":negative,"positive":positive,"rate":rate,"gain":gain,"return_to_start":returning}
@@ -101,7 +105,7 @@ func _required(preset: Dictionary) -> Dictionary:
 			if not required.has(axis.slot):
 				required[axis.slot]={"axes":[],"buttons":[]}
 			required[axis.slot].axes.append(int(axis.index))
-	for action in preset.actions:
+	for action in preset.actions+preset.get("systems",[]):
 		for source in action.sources:
 			if source.kind=="joy_button":
 				if not required.has(source.slot):
@@ -140,6 +144,8 @@ func configure(preset: Dictionary, held_axes: Dictionary, start_axes: Dictionary
 	var pins: Dictionary = {}
 	for slot in _required(checked.value):
 		pins[slot]=_device(raw_checked.value,slot).generation
+	_v2=false
+	_held_systems.clear(); _system_intents.clear(); _system_edges.clear()
 	_preset=checked.value.duplicate(true)
 	_values=held_axes.duplicate(true)
 	_start=start_axes.duplicate(true)
@@ -155,7 +161,7 @@ func configure(preset: Dictionary, held_axes: Dictionary, start_axes: Dictionary
 func _arm_takeover() -> void:
 	_takeover.clear()
 	for axis in _preset.get("axes",[]):
-		if axis.kind=="joy_axis" and axis.target in ["throttle","trim"]:
+		if axis.kind=="joy_axis" and axis.target in (["throttle","trim","mixture"] if _v2 else ["throttle","trim"]):
 			_takeover[axis.target]=true
 
 static func _normalized(axis: Dictionary, value: float) -> float:
@@ -215,19 +221,27 @@ func resume_confirmed(current_raw: Dictionary) -> Dictionary:
 			var value: float = _normalized(axis,float(_reading(_device(raw,axis.slot),"axes",int(axis.index))))
 			if absf(value)>0.05:
 				return {"ok":false,"error":"Center/release flight axis: "+axis.target}
+	if _v2:
+		for binding in _preset.systems:
+			if _engine_pressed(binding,raw):
+				return {"ok":false,"error":"Release engine source: "+binding.id}
 	for id in ["idle","left_brake","right_brake","both_brakes","brake_hold"]:
 		if action_pressed(_preset,raw,id,false):
 			return {"ok":false,"error":"Release flight override: "+id}
 	_edges.clear()
 	for action in _preset.actions:
 		_edges[action.id]=action_pressed(_preset,raw,action.id,false)
+	if _v2:
+		_system_edges.clear()
+		for id in Preset.SYSTEM_IDS: _system_edges[id]=false
+		_system_intents["engine.starter"]=false
 	_live=true
 	return {"ok":true,"error":""}
 
 func _failure(error: String) -> Dictionary:
 	return {"ok":false,"error":error,"axes":null,"actions":[],"takeover":[],"brake_hold":_brake_hold if Thread.is_main_thread() else false}
 
-func sample(raw: Dictionary, elapsed_us: int) -> Dictionary:
+func _sample_axes(raw: Dictionary, elapsed_us: int) -> Dictionary:
 	if not Thread.is_main_thread() or not _configured:
 		return _failure("Input mapper requires configured main thread")
 	if elapsed_us<0 or elapsed_us>250000 or (not _live and elapsed_us!=0):
@@ -283,3 +297,59 @@ func sample(raw: Dictionary, elapsed_us: int) -> Dictionary:
 		if action_pressed(_preset,input,"right_brake"):
 			output.right_brake=1.0
 	return {"ok":true,"error":"","axes":output,"actions":actions,"takeover":_takeover_names(input),"brake_hold":_brake_hold}
+
+static func default_preset_v2() -> Dictionary:
+	var preset: Dictionary=default_preset()
+	preset.version=2; preset.name="Keyboard piston (prototype)"
+	preset["profile"]=Preset.PISTON_PROFILE.duplicate(true); preset["capability_revision"]="piston-controls-v1"
+	for i in preset.axes.size():
+		if preset.axes[i].target=="mixture": preset.axes[i]=_pair("mixture",[KEY_COMMA],[KEY_PERIOD],0.25,1.0,false)
+	preset["systems"]=[]
+	for pair in [["engine.ignition_left",KEY_F8],["engine.ignition_right",KEY_F9],["engine.starter",KEY_F12],["fuel.feed",KEY_F10]]:
+		preset.systems.append({"id":pair[0],"kind":"momentary" if pair[0]=="engine.starter" else "toggle","sources":[{"kind":"physical_keys","keys":[pair[1]]}]})
+	return preset
+static func _engine_pressed(binding: Dictionary, raw: Dictionary) -> bool:
+	return action_pressed({"actions":[binding]},raw,binding.id,false)
+func configure_v2(preset: Dictionary, held_axes: Dictionary, start_axes: Dictionary, initial_raw: Dictionary, profile: Dictionary, held_systems: Dictionary) -> Dictionary:
+	if not Thread.is_main_thread(): return {"ok":false,"error":"Input mapper requires main thread"}
+	var checked: Dictionary=Preset.validate_preset_v2(preset)
+	var raw_checked: Dictionary=Preset.validate_raw(initial_raw)
+	if not checked.ok: return {"ok":false,"error":checked.error}
+	if not raw_checked.ok: return {"ok":false,"error":raw_checked.error}
+	if not Preset.valid_profile(profile) or profile!=checked.value.profile or not Preset.valid_systems(held_systems) or not Preset.valid_axes_v2(held_axes) or not Preset.valid_axes_v2(start_axes): return {"ok":false,"error":"Invalid verified piston profile/held/start controls"}
+	var error: String=_check_raw(raw_checked.value,checked.value,{},true)
+	if not error.is_empty(): return {"ok":false,"error":error}
+	var pins: Dictionary={}
+	for slot in _required(checked.value): pins[slot]=_device(raw_checked.value,slot).generation
+	_v2=true; _preset=checked.value.duplicate(true); _values=held_axes.duplicate(true); _start=start_axes.duplicate(true); _pins=pins
+	_edges.clear(); _system_edges.clear(); _held_systems=held_systems.duplicate(true); _system_intents=held_systems.duplicate(true)
+	_arm_takeover()
+	if not _configured: _brake_hold=float(start_axes.left_brake)>0.5 and float(start_axes.right_brake)>0.5
+	_configured=true; _live=false
+	return {"ok":true,"error":""}
+func suspend_v2(_reason: String, held_axes: Dictionary, held_systems: Dictionary) -> Dictionary:
+	if not Thread.is_main_thread(): return {"ok":false,"error":"Input mapper requires main thread"}
+	_live=false; _edges.clear(); _system_edges.clear()
+	if _v2: _system_intents["engine.starter"]=false
+	if not _configured or not _v2 or not Preset.valid_axes_v2(held_axes) or not Preset.valid_systems(held_systems): return {"ok":false,"error":"Invalid held controls or unconfigured piston mapper"}
+	_values=held_axes.duplicate(true); _held_systems=held_systems.duplicate(true); _system_intents=held_systems.duplicate(true)
+	_system_intents["engine.starter"]=false
+	_arm_takeover()
+	return {"ok":true,"error":""}
+func sample(raw: Dictionary, elapsed_us: int) -> Dictionary:
+	var result: Dictionary=_sample_axes(raw,elapsed_us)
+	if not _v2: return result
+	if not result.ok:
+		result["systems"]=null
+		return result
+	if not _live:
+		result["systems"]=_held_systems.duplicate(true)
+		return result
+	# Raw was validated before any axis, edge or engine intent mutation.
+	for binding in _preset.systems:
+		var pressed: bool=_engine_pressed(binding,raw)
+		if binding.kind=="momentary": _system_intents[binding.id]=pressed
+		elif pressed and not _system_edges.get(binding.id,false): _system_intents[binding.id]=not _system_intents[binding.id]
+		_system_edges[binding.id]=pressed
+	result["systems"]=_system_intents.duplicate(true)
+	return result
