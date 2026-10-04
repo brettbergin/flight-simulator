@@ -44,6 +44,8 @@ The accepted [recorded-review interchange contract](decisions/012-observed-revie
 
 The accepted [steady-wind start contract](decisions/013-steady-wind-starts.md) defines four explicit synthetic conditions for fresh flights and native-truth wind/windsock/map cues. It changes no current flight or review format; actual native signs/trim, independent references, runtime consumers and pilot/phase acceptance remain separate gates.
 
+The [selectable steady-wind implementation](evidence/P2/steady-wind-flight.md) adds the paused Wind chooser, qualified FROM/TO cues and direction-only windsock. Its final Windows package, rebuilt DLL and exported visual review passed; the current player uses OpenGL Compatibility, while Forward+ and aircraft/pilot qualification remain separate gates.
+
 ## Read in this order
 
 1. [Product scope and requirements](product.md): expected pilot experience and initial boundaries.
