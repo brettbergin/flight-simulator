@@ -161,23 +161,128 @@ func aircraft(parent: Node3D) -> Dictionary:
 		rod(gear,Vector3(lean,0.57,0.04),Vector3(lean,0.85,0.04),0.052,ivory)
 	return {"airplane":airplane,"gears":gears,"propeller":propeller}
 
-func paint_line(parent: Node3D, a: Vector3, b: Vector3, width: float, paint: Material) -> void:
-	var strip := box(parent,Vector3(width,0.002,a.distance_to(b)),(a+b)*0.5,paint)
-	strip.rotation.y=atan2(b.x-a.x,b.z-a.z)
-	strip.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+# One opaque surface owns all grass, asphalt and paint. Coordinates are fixed
+# to the prepared world's anchor frame, not the moving/rebased camera frame.
+const GROUND_SHADER := """
+shader_type spatial;
+render_mode diffuse_burley, specular_disabled;
+varying vec2 anchor_xz;
+void vertex() { anchor_xz = VERTEX.xz; }
 
-func surface_text(parent: Node3D, text: String, at: Vector3, height: float, color: Color) -> void:
-	var label := Label3D.new()
-	label.text=text
-	label.font_size=160
-	label.pixel_size=height/160.0
-	label.modulate=color
-	label.outline_size=0
-	label.no_depth_test=false
-	label.shaded=false
-	label.rotation_degrees.x=-90
-	label.position=at
-	parent.add_child(label)
+// Box-filter coverage preserves real widths and fades subpixel strokes instead
+// of letting distant thin paint alternate between full brightness and nothing.
+float rect_coverage(vec2 p, vec2 center, vec2 half_size, vec2 footprint) {
+    vec2 q = p - center;
+    vec2 a = max(footprint, vec2(0.0001));
+    vec2 overlap = max(vec2(0.0), min(q + a, half_size) - max(q - a, -half_size));
+    vec2 coverage = clamp(overlap / (2.0 * a), vec2(0.0), vec2(1.0));
+    return coverage.x * coverage.y;
+}
+float hash21(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float value_noise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    return mix(mix(hash21(i), hash21(i + vec2(1.0, 0.0)), f.x),
+               mix(hash21(i + vec2(0.0, 1.0)), hash21(i + vec2(1.0, 1.0)), f.x), f.y);
+}
+float digit(vec2 p, int n, vec2 aa) {
+    // Original seven-segment synthetic numbers; these are decorative runway
+    // cues, not real-airport data or a regulatory marking specification.
+    int bits = 127;
+    if (n == 1) { bits = 6; }
+    if (n == 3) { bits = 79; }
+    if (n == 6) { bits = 125; }
+    float mask = 0.0;
+    if ((bits & 1) != 0) { mask = max(mask, rect_coverage(p, vec2(0.0, 4.2), vec2(1.65, 0.35), aa)); }
+    if ((bits & 2) != 0) { mask = max(mask, rect_coverage(p, vec2(1.65, 2.1), vec2(0.35, 1.9), aa)); }
+    if ((bits & 4) != 0) { mask = max(mask, rect_coverage(p, vec2(1.65, -2.1), vec2(0.35, 1.9), aa)); }
+    if ((bits & 8) != 0) { mask = max(mask, rect_coverage(p, vec2(0.0, -4.2), vec2(1.65, 0.35), aa)); }
+    if ((bits & 16) != 0) { mask = max(mask, rect_coverage(p, vec2(-1.65, -2.1), vec2(0.35, 1.9), aa)); }
+    if ((bits & 32) != 0) { mask = max(mask, rect_coverage(p, vec2(-1.65, 2.1), vec2(0.35, 1.9), aa)); }
+    if ((bits & 64) != 0) { mask = max(mask, rect_coverage(p, vec2(0.0), vec2(1.65, 0.35), aa)); }
+    return mask;
+}
+void fragment() {
+    vec2 p = anchor_xz;
+    vec2 aa = max(fwidth(p) * 0.5, vec2(0.0001));
+    float pixel_m = max(aa.x, aa.y) * 2.0;
+    float broad = mix(value_noise(p / 260.0), 0.5, smoothstep(65.0, 260.0, pixel_m));
+    float middle = mix(value_noise(p / 75.0), 0.5, smoothstep(18.75, 75.0, pixel_m));
+    float detail = (value_noise(p / 6.0) - 0.5) * (1.0 - smoothstep(1.0, 6.0, pixel_m));
+    vec3 color = mix(vec3(0.14, 0.225, 0.085), vec3(0.21, 0.29, 0.12), broad);
+    color += (middle - 0.5) * vec3(0.028, 0.032, 0.013) + detail * vec3(0.014, 0.019, 0.009);
+    float runway = rect_coverage(p, vec2(0.0, -800.0), vec2(20.0, 900.0), aa);
+    float paving = max(runway, rect_coverage(p, vec2(82.0, -800.0), vec2(7.5, 920.0), aa));
+    paving = max(paving, rect_coverage(p, vec2(132.0, 25.0), vec2(65.0, 95.0), aa));
+    for (int i = 0; i < 3; i++) {
+        float z = i == 0 ? 30.0 : (i == 1 ? -800.0 : -1630.0);
+        paving = max(paving, rect_coverage(p, vec2(49.0, z), vec2(32.5, 7.5), aa));
+    }
+    vec3 asphalt = vec3(0.105, 0.13, 0.15) + detail * 0.010;
+    color = mix(color, asphalt, paving);
+    // Skip the detailed marking work over the large uninterrupted grass area.
+    if (p.x > -22.0 - aa.x && p.x < 200.0 + aa.x && p.y > -1720.0 - aa.y && p.y < 125.0 + aa.y) {
+        float white = 0.0;
+        for (int side = 0; side < 2; side++) {
+            float x = side == 0 ? -18.0 : 18.0;
+            white = max(white, rect_coverage(p, vec2(x, -800.0), vec2(0.175, 895.0), aa));
+        }
+        for (int i = 0; i < 20; i++) {
+            white = max(white, rect_coverage(p, vec2(0.0, -36.0 - float(i) * 85.0), vec2(0.425, 16.0), aa));
+        }
+        for (int end = 0; end < 2; end++) {
+            float z = -12.0 - float(end) * 1600.0;
+            for (int i = 0; i < 6; i++) {
+                float x = i < 3 ? -15.0 + float(i) * 4.0 : 7.0 + float(i - 3) * 4.0;
+                white = max(white, rect_coverage(p, vec2(x, z), vec2(1.15, 13.5), aa));
+            }
+            for (int side = 0; side < 2; side++) {
+                float x = side == 0 ? -11.0 : 11.0;
+                white = max(white, rect_coverage(p, vec2(x, end == 0 ? -280.0 : -1320.0), vec2(2.5, 16.0), aa));
+            }
+        }
+        vec2 south = vec2(p.x, -(p.y + 76.0));
+        vec2 north = vec2(-p.x, p.y + 1528.0);
+        white = max(white, digit(south - vec2(-3.0, 0.0), 3, aa));
+        white = max(white, digit(south - vec2(3.0, 0.0), 6, aa));
+        white = max(white, digit(north - vec2(-3.0, 0.0), 1, aa));
+        white = max(white, digit(north - vec2(3.0, 0.0), 8, aa));
+        color = mix(color, vec3(0.91, 0.92, 0.83), white * runway);
+        float yellow = rect_coverage(p, vec2(82.0, -795.0), vec2(0.11, 893.0), aa);
+        for (int i = 0; i < 3; i++) {
+            float z = i == 0 ? 30.0 : (i == 1 ? -800.0 : -1630.0);
+            yellow = max(yellow, rect_coverage(p, vec2(53.0, z), vec2(29.0, 0.11), aa));
+            for (int j = 0; j < 4; j++) {
+                float dx = j < 2 ? -1.3 + float(j) * 0.6 : 0.7 + float(j - 2) * 0.6;
+                yellow = max(yellow, rect_coverage(p, vec2(30.0 + dx, z), vec2(0.10, 7.0), aa));
+            }
+        }
+        for (int i = 0; i < 5; i++) {
+            float x = 108.0 + float(i) * 19.0;
+            yellow = max(yellow, rect_coverage(p, vec2(x, 34.0), vec2(0.10, 18.0), aa));
+            yellow = max(yellow, rect_coverage(p, vec2(x, 16.0), vec2(5.0, 0.10), aa));
+        }
+        color = mix(color, vec3(0.95, 0.68, 0.17), yellow * paving);
+    }
+    ALBEDO = color;
+    ROUGHNESS = 0.96;
+}
+"""
+
+func ground(parent: Node3D) -> MeshInstance3D:
+	var shader := Shader.new()
+	shader.code = GROUND_SHADER
+	var paint := ShaderMaterial.new()
+	paint.shader = shader
+	var plane := PlaneMesh.new()
+	# Decorative skirt continues beneath the distant ridges so the sky cannot
+	# show through their feet. Native resident coverage remains +/-20000 m.
+	plane.size = Vector2(80000, 80000)
+	var node := mesh_node(parent, plane, Vector3.ZERO, paint)
+	node.name = "PrototypeGroundSurface"
+	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	return node
 
 func hangar(parent: Node3D, at: Vector3, paint: Material) -> void:
 	var building := Node3D.new()
@@ -299,47 +404,10 @@ func build(parent: Node3D) -> Dictionary:
 	sun.directional_shadow_mode=DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
 	sun.directional_shadow_max_distance=1800
 	parent.add_child(sun)
-	# Exact same prepared plane: all scenery is decorative and has no collider.
-	var grass: Material=material(Color(0.16,0.25,0.10))
+	# Same prepared surface and ±20km bounds, with no colliders or depth layers.
+	var ground_surface := ground(parent)
 	var asphalt: Material=material(Color(0.105,0.13,0.15),0.94)
 	var white: Material=material(Color(0.91,0.92,0.83))
-	var yellow: Material=material(Color(0.95,0.68,0.17))
-	box(parent,Vector3(40000,2,40000),Vector3(0,-1,0),grass)
-	var patches := RandomNumberGenerator.new()
-	patches.seed=404
-	for i in range(75):
-		var x: float=patches.randf_range(-8000,8000)
-		var z: float=patches.randf_range(-8000,8000)
-		if absf(x)<400 and z>-2300 and z<600:
-			continue
-		var patch := box(parent,Vector3(patches.randf_range(300,1200),0.002,patches.randf_range(250,950)),Vector3(x,0.001,z),material(Color(patches.randf_range(0.14,0.20),patches.randf_range(0.22,0.29),patches.randf_range(0.08,0.13))))
-		patch.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	box(parent,Vector3(40,0.004,1800),Vector3(0,0.002,-800),asphalt)
-	for x in [-18.0,18.0]:
-		paint_line(parent,Vector3(x,0.006,95),Vector3(x,0.006,-1695),0.35,white)
-	for i in range(20):
-		paint_line(parent,Vector3(0,0.007,-20-i*85),Vector3(0,0.007,-52-i*85),0.85,white)
-	for end in [0.0,-1600.0]:
-		for x in [-15.0,-11.0,-7.0,7.0,11.0,15.0]:
-			box(parent,Vector3(2.3,0.003,27),Vector3(x,0.007,end-12),white)
-	for x in [-11.0,11.0]:
-		box(parent,Vector3(5,0.003,32),Vector3(x,0.007,-280),white)
-		box(parent,Vector3(5,0.003,32),Vector3(x,0.007,-1320),white)
-	surface_text(parent,"36",Vector3(0,0.012,-76),9.5,Color(0.93,0.94,0.88))
-	surface_text(parent,"18",Vector3(0,0.012,-1528),9.5,Color(0.93,0.94,0.88))
-	# Parallel taxiway and a small apron, directional cues without procedures.
-	box(parent,Vector3(15,0.004,1840),Vector3(82,0.002,-800),asphalt)
-	box(parent,Vector3(130,0.004,190),Vector3(132,0.002,25),asphalt)
-	for z in [30.0,-800.0,-1630.0]:
-		box(parent,Vector3(65,0.004,15),Vector3(49,0.002,z),asphalt)
-		paint_line(parent,Vector3(24,0.007,z),Vector3(82,0.007,z),0.22,yellow)
-		for offset in [-1.3,-0.7,0.7,1.3]:
-			paint_line(parent,Vector3(30+offset,0.008,z-7),Vector3(30+offset,0.008,z+7),0.20,yellow)
-	paint_line(parent,Vector3(82,0.007,98),Vector3(82,0.007,-1688),0.22,yellow)
-	for i in range(5):
-		var x: float=108+i*19
-		paint_line(parent,Vector3(x,0.007,16),Vector3(x,0.007,52),0.20,yellow)
-		paint_line(parent,Vector3(x-5,0.007,16),Vector3(x+5,0.007,16),0.20,yellow)
 	for i in range(3):
 		hangar(parent,Vector3(116+i*42,0,109),material(Color(0.53+0.05*i,0.57+0.02*i,0.52)))
 	box(parent,Vector3(20,5,13),Vector3(181,2.5,-87),material(Color(0.68,0.64,0.52)))
@@ -367,5 +435,6 @@ func build(parent: Node3D) -> Dictionary:
 	camera.far=50000
 	camera.current=true
 	parent.add_child(camera)
+	result["ground"]=ground_surface
 	result["camera"]=camera
 	return result
