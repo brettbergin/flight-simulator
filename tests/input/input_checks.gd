@@ -427,7 +427,7 @@ func _locked_replacement(target: String, prior_preset: Dictionary) -> Dictionary
 	var ready_ps := ready.replace("'","''")
 	var release_ps := release.replace("'","''")
 	var done_ps := done.replace("'","''")
-	var script := "$ErrorActionPreference='Stop'; $heldFile=[IO.File]::Open('%s',[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::Read); try { [IO.File]::WriteAllText('%s','LOCKED'); $timer=[Diagnostics.Stopwatch]::StartNew(); while(-not [IO.File]::Exists('%s') -and $timer.Elapsed.TotalSeconds -lt 15){ Start-Sleep -Milliseconds 20 } } finally { $heldFile.Dispose(); [IO.File]::WriteAllText('%s','CLOSED') }; [Environment]::Exit(0)" % [target_ps,ready_ps,release_ps,done_ps]
+	var script := "$ErrorActionPreference='Stop'; $heldFile=[IO.File]::Open('%s',[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::Read); try { [IO.File]::WriteAllText('%s','LOCKED'); $timer=[Diagnostics.Stopwatch]::StartNew(); while(-not [IO.File]::Exists('%s') -and $timer.Elapsed.TotalSeconds -lt 15){ [Threading.Thread]::Sleep(20) } } finally { $heldFile.Dispose(); [IO.File]::WriteAllText('%s','CLOSED') }; [Environment]::Exit(0)" % [target_ps,ready_ps,release_ps,done_ps]
 	# End only this owned fixture process after finally closes the handle and marker.
 	# Environment.Exit is outside try/finally so cleanup always precedes exit:
 	# https://learn.microsoft.com/en-us/dotnet/api/system.environment.exit
