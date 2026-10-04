@@ -46,9 +46,9 @@ and the whole loop rerun from a Unicode path. Historical editor and portable
 | Final reference-PC package component | SHA-256 |
 |---|---|
 | `preview.gd` | `84b7863903470e1939f1aa26c46ba0d2d45c9a7e3295959e518117ee445428e4` |
-| Exported PCK | `b8341f0e696e6d0472839260361ed4afa88d1f2ef7b41ddfc01d960eb343a148` |
-| Native bridge | `9ef8f97a41596f6bd3b94ec11d5e242833fd0a32568fddda954b1dc0b82b738d` |
-| Package manifest | `bffe2119e306eadb57cff79b138826c01499e5c29d48e6f35cb62f1eb11bd408` |
+| Exported PCK | `4cb6abd817379808858c179d463e2fb593570cc439f53b969e32810336626099` |
+| Native bridge | `5fa8c9ff0bf82ce79b8110b625c17c8d62c589acc746ee05d6f785d2f6a7d256` |
+| Package manifest | `4d285be15505147c3da3e6ddb343aa809e44fbe5cfd3c7f1e33c9b4667176996` |
 | Prepared world identity | `04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5` |
 
 ## Actual reference-PC graphics diagnostic
@@ -63,6 +63,12 @@ runway were readable. These four captures use chase view; forward view has
 source review but no separate graphics capture in this diagnostic.
 
 ## Reproduction and remaining evidence
+
+GCC's warnings-as-errors caught three misleadingly indented guard lines in
+the first player integration. Explicit braces preserve their control flow.
+The corrected source was rebuilt and freshly packaged; editor, portable,
+replacement, historical API and actual graphics checks passed again. The
+table records this corrected package, keeping the earlier package distinct.
 
 The Windows runner stages a fresh project and payload, checks pinned tools,
 executes editor/exported checks and the replacement loop, and saves exact
