@@ -158,7 +158,7 @@ func run(host: Node) -> Dictionary:
 	_check(scene.pause_session(true),"pause_before_fresh_attempt")
 	var old_session: String=scene.facade.readback().session_id
 	var old_worker: CountedBridge=_observed
-	_check(scene.restart(),"actual_fresh_attempt")
+	_check(scene.restart(true),"actual_fresh_attempt")
 	_check(old_worker.joined,"old_actual_worker_joined_on_reset")
 	_observed=CountedBridge.new(scene.facade._bridge)
 	scene.facade._bridge=_observed

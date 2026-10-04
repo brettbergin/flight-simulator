@@ -82,7 +82,7 @@ func run(host: Node)->Dictionary:
  _check(scene.pause_session(true),"scan_scene_pause_before_reset")
  scene.named_start="airborne-prepared"
  var old_session: String=scene.facade.readback().session_id
- _check(scene.restart(),"scan_scene_actual_fresh_start")
+ _check(scene.restart(true),"scan_scene_actual_fresh_start")
  scene.show_state(0.0)
  _check(scene.facade.readback().session_id!=old_session and scene.facade.readback().tick=="0" and scene.scan_panel.focused()==null,"scan_scene_reset_fresh_session_clears_stale_focus")
  _shared(scene,"scan_fresh_airborne")

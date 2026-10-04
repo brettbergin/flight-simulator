@@ -4598,6 +4598,71 @@
         "Exact source/record-shape review, independently frozen tick/target/gap/reference expectations, unchanged public schema checks and canonical documentation consistency.",
         "All protected checks and exact-final contract review before guarded merge; consumer/native/viewport delivery and durable replay, debrief, aircraft/pilot and phase gates stay separate."
       ]
+    },
+    {
+      "key": "OBSERVED-FLIGHT-REVIEW",
+      "title": "Add paused recorded path and instrument timeline",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Implement a usable memory-only recorded flight review with sampled path/instrument/held-control views, explicit missing observations and scene-owned default-Cancel discard lifecycle.",
+      "depends_on": [
+        "OBSERVED-REVIEW-CONTRACT",
+        "LANDMARK-FREE-FLIGHT"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:ui",
+        "priority:P1",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "app/replay/observed/",
+        "app/ui/debrief/observed/",
+        "tests/debrief/observed/",
+        "app/simulation/flight_scene.gd",
+        "tests/input/scene_checks.gd",
+        "tests/instruments/scene_checks.gd",
+        "tests/ui/freeflight/scene_checks.gd",
+        "tools/interactive-preview/",
+        ".github/workflows/native-ci.yml",
+        "docs/evidence/P2/observed-flight-review.md",
+        "docs/README.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md",
+        "tests/integration/sim_loop/scene_checks.gd"
+      ],
+      "docs": [
+        "docs/decisions/011-observed-flight-review.md",
+        "docs/decisions/007-sim-loop-facade.md",
+        "docs/decisions/008-input-presets.md",
+        "docs/decisions/009-cockpit-readings.md",
+        "docs/evidence/P1/save-proof.md",
+        "docs/experience-and-progress.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [
+        "PRD-025",
+        "UX-017",
+        "UX-021"
+      ],
+      "acceptance": [
+        "Implement all closed ADR011 recorder/status/recording/review-selection values and main-thread rejection semantics. Qualify actual NativeReadings and all three canonical arrays against Frames; copy real metadata, atmosphere seed42, aircraft elapsed_s and native-held axes. Return bounded status each frame; full-history copies only for explicit paused/stopped review.",
+        "Target two observations per simulated second, retain at most2401 actual samples/144000 relative ticks, and distinguish late samples, skipped targets and uncaptured tails. Efficient decimal arithmetic preserves full uint64 tick identity without per-tick work or absolute float scheduling. Later-start, exact limit and near-maximum exhaustion labels are honest.",
+        "Review actual captured samples through keyboard/controller-accessible controls in a separate recorded map and graphs. Use stored binary64 fixed-anchor coordinates; preserve unavailable channels as gaps, break across missing targets/tails, show recorded/historical/prototype labels and qualified sampled summaries. Do not invent interpolated states, procedural events, scores, arrival detection or aircraft limits.",
+        "Ordinary live opening first takes the existing explicit pause. Scrub/dismiss preserve native Readback, held controls, debt, mapper, input latches, camera, origins and lifecycle/command counts. Resume remains explicit. Other paused panels and route state remain usable with bounded modal focus and released-input takeover.",
+        "Once verified native time advances, restart/named-start/quit requires explicit Discard and restart/quit; Cancel is default and preserves the verified paused baseline. Keep the previous record until joined close and qualified new initialization succeed; failed reset preserves review. Initialization-only, stopped and malformed/terminal states follow ADR011 exactly. Exit/process loss remains memory-only.",
+        "Consume the independently frozen pre-consumer42-case arithmetic packet with unchanged budgets, expanding the complete2401-sample schedule. Add meaningful full qualification/copy/thread/lifecycle/gap/unavailable rejection fixtures and actual-native controller invariance evidence. No fitted golden values or tolerance changes from observed failures.",
+        "Exact-source editor, portable and replaceable-native package checks and protected Windows/Linux checks pass. Review exported views at960x540 and larger supported windows, including real recorded path, gap/unavailable/limit and default-Cancel confirmation. Publish exact source/package identities and remaining pilot/phase limits before reviewed guarded merge."
+      ],
+      "evidence": [
+        "Independently ratified full-range decimal/target/gap/chord expectations; all2401dense samples expanded, complete input/type/copy/thread rejection evidence.",
+        "Actual unchanged native/controller review/cursor/discard/failed-reset invariance, exact-source exported/replaceable package and actual bounded minimum-size/recorded/gap/unavailable/limit/confirmation views.",
+        "Independent exact-final source/visual/package review and all protected checks before guarded merge. Durable logs/replay, lessons, aircraft/hardware/pilot and phase gates remain separate."
+      ]
     }
   ]
 }

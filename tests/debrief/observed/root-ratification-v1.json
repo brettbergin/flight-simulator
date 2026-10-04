@@ -1,0 +1,21 @@
+{
+  "status": "ratified-before-consumer-output",
+  "reviewer": "root",
+  "contract_commit": "c0cbb263af25f00cb223a7f3d18b7d1e4c458739",
+  "contract_git_lf_sha256": "3e51db2734f07019520993cbc1546235a65695c437975e44e9b2544bd746af21",
+  "generator_sha256": "212ad8eac94b43db801ada0597b8a3e07982151bd8baa03ca75cbc04605e874c",
+  "expected_sha256": "a4c3184c46f2eb76c85ff4ba43fc8aac49e772a447576eeec5663fff1ac78844",
+  "source_binding_sha256": "fcb76adfb662edba38d6b233740be37a7341f3cd389ad52896e79a28a34e6a4d",
+  "cases": 42,
+  "method": "Source-reviewed integer/Fraction/Decimal generator, immutable regeneration, independent hand-calculated all 18 schedule summary tuples, successful arithmetic and target/time/gap invariants. Rejection classes inspected in source.",
+  "limits": [
+    "Declared qualification inputs only, no actual Readback/thread/lifecycle acceptance.",
+    "No consumer/native/Godot output used or fitted budget.",
+    "Consumer must expand the full 2401-sample case and add actual invalid-input/copy/lifecycle/native invariance evidence."
+  ],
+  "budgets": {
+    "tick_target_count_integer": "exact",
+    "relative_time_rational": "exact",
+    "chord_abs_m_decimal": "0.0000000001"
+  }
+}

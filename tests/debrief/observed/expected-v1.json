@@ -1,0 +1,1409 @@
+{
+  "fixture_version": 1,
+  "scope": "Independent pre-consumer arithmetic and declared qualification categories only; no Readback/parser/native/Godot/model observation or acceptance.",
+  "method": "Python arbitrary-precision integers, Fraction relative times, Decimal80 horizontal chords. No runtime helper implementation, fitted budgets or observed consumer output.",
+  "tolerances_before_observation": {
+    "tick_target_count_integer": "exact",
+    "relative_time_rational": "exact",
+    "chord_abs_m_decimal": "0.0000000001"
+  },
+  "qualification_categories": "current/historical/foreign/malformed/closed_empty are test inputs, not proof that actual wire validation qualifies them.",
+  "near_maximum_rule": "Evaluate next representable target; horizon-add overflow alone does not discard a representable prefix. First sample retained before next-target exhaustion.",
+  "arithmetic_case_count": 24,
+  "sampling_case_count": 18,
+  "total_case_count": 42,
+  "arithmetic_cases": [
+    {
+      "id": "subtract_zero",
+      "operation": "subtract",
+      "a": "0",
+      "b": "0",
+      "expected": {
+        "ok": true,
+        "error_kind": null,
+        "decimal": "0",
+        "bounded_int": 0
+      }
+    },
+    {
+      "id": "subtract_one",
+      "operation": "subtract",
+      "a": "1",
+      "b": "0",
+      "expected": {
+        "ok": true,
+        "error_kind": null,
+        "decimal": "1",
+        "bounded_int": 1
+      }
+    },
+    {
+      "id": "subtract_grid",
+      "operation": "subtract",
+      "a": "60",
+      "b": "0",
+      "expected": {
+        "ok": true,
+        "error_kind": null,
+        "decimal": "60",
+        "bounded_int": 60
+      }
+    },
+    {
+      "id": "subtract_window",
+      "operation": "subtract",
+      "a": "144000",
+      "b": "0",
+      "expected": {
+        "ok": true,
+        "error_kind": null,
+        "decimal": "144000",
+        "bounded_int": 144000
+      }
+    },
+    {
+      "id": "subtract_over_window",
+      "operation": "subtract",
+      "a": "144001",
+      "b": "0",
+      "expected": {
+        "ok": true,
+        "error_kind": null,
+        "decimal": "144001",
+        "bounded_int": null
+      }
+    },
+    {
+      "id": "subtract_full_range",
+      "operation": "subtract",
+      "a": "18446744073709551615",
+      "b": "0",
+      "expected": {
+        "ok": true,
+        "error_kind": null,
+        "decimal": "18446744073709551615",
+        "bounded_int": null
+      }
+    },
+    {
+      "id": "subtract_borrow",
+      "operation": "subtract",
+      "a": "1000000",
+      "b": "999999",
+      "expected": {
+        "ok": true,
+        "error_kind": null,
+        "decimal": "1",
+        "bounded_int": 1
+      }
+    },
+    {
+      "id": "subtract_above_binary64_exact",
+      "operation": "subtract",
+      "a": "9007199254741069",
+      "b": "9007199254741009",
+      "expected": {
+        "ok": true,
+        "error_kind": null,
+        "decimal": "60",
+        "bounded_int": 60
+      }
+    },
+    {
+      "id": "subtract_max_minus60",
+      "operation": "subtract",
+      "a": "18446744073709551615",
+      "b": "18446744073709551555",
+      "expected": {
+        "ok": true,
+        "error_kind": null,
+        "decimal": "60",
+        "bounded_int": 60
+      }
+    },
+    {
+      "id": "subtract_reversed",
+      "operation": "subtract",
+      "a": "59",
+      "b": "60",
+      "expected": {
+        "ok": false,
+        "error_kind": "reversed",
+        "decimal": null,
+        "bounded_int": null
+      }
+    },
+    {
+      "id": "subtract_leading_zero",
+      "operation": "subtract",
+      "a": "060",
+      "b": "0",
+      "expected": {
+        "ok": false,
+        "error_kind": "invalid_tick",
+        "decimal": null,
+        "bounded_int": null
+      }
+    },
+    {
+      "id": "subtract_whitespace",
+      "operation": "subtract",
+      "a": " 60",
+      "b": "0",
+      "expected": {
+        "ok": false,
+        "error_kind": "invalid_tick",
+        "decimal": null,
+        "bounded_int": null
+      }
+    },
+    {
+      "id": "subtract_tick_overflow",
+      "operation": "subtract",
+      "a": "18446744073709551616",
+      "b": "0",
+      "expected": {
+        "ok": false,
+        "error_kind": "invalid_tick",
+        "decimal": null,
+        "bounded_int": null
+      }
+    },
+    {
+      "id": "add_small_zero",
+      "operation": "add_small",
+      "a": "0",
+      "b": 0,
+      "expected": {
+        "ok": true,
+        "error_kind": null,
+        "decimal": "0",
+        "bounded_int": null
+      }
+    },
+    {
+      "id": "add_small_grid",
+      "operation": "add_small",
+      "a": "0",
+      "b": 60,
+      "expected": {
+        "ok": true,
+        "error_kind": null,
+        "decimal": "60",
+        "bounded_int": null
+      }
+    },
+    {
+      "id": "add_small_decimal_carry",
+      "operation": "add_small",
+      "a": "999999",
+      "b": 1,
+      "expected": {
+        "ok": true,
+        "error_kind": null,
+        "decimal": "1000000",
+        "bounded_int": null
+      }
+    },
+    {
+      "id": "add_small_window",
+      "operation": "add_small",
+      "a": "0",
+      "b": 144000,
+      "expected": {
+        "ok": true,
+        "error_kind": null,
+        "decimal": "144000",
+        "bounded_int": null
+      }
+    },
+    {
+      "id": "add_small_above_binary64_exact",
+      "operation": "add_small",
+      "a": "9007199254741009",
+      "b": 60,
+      "expected": {
+        "ok": true,
+        "error_kind": null,
+        "decimal": "9007199254741069",
+        "bounded_int": null
+      }
+    },
+    {
+      "id": "add_small_maximum_exact",
+      "operation": "add_small",
+      "a": "18446744073709551555",
+      "b": 60,
+      "expected": {
+        "ok": true,
+        "error_kind": null,
+        "decimal": "18446744073709551615",
+        "bounded_int": null
+      }
+    },
+    {
+      "id": "add_small_overflow",
+      "operation": "add_small",
+      "a": "18446744073709551556",
+      "b": 60,
+      "expected": {
+        "ok": false,
+        "error_kind": "overflow",
+        "decimal": null,
+        "bounded_int": null
+      }
+    },
+    {
+      "id": "add_small_negative_amount",
+      "operation": "add_small",
+      "a": "1",
+      "b": -1,
+      "expected": {
+        "ok": false,
+        "error_kind": "invalid_small",
+        "decimal": null,
+        "bounded_int": null
+      }
+    },
+    {
+      "id": "add_small_noncanonical",
+      "operation": "add_small",
+      "a": "01",
+      "b": 1,
+      "expected": {
+        "ok": false,
+        "error_kind": "invalid_tick",
+        "decimal": null,
+        "bounded_int": null
+      }
+    },
+    {
+      "id": "add_small_wrong_tick_type",
+      "operation": "add_small",
+      "a": 1,
+      "b": 1,
+      "expected": {
+        "ok": false,
+        "error_kind": "invalid_tick",
+        "decimal": null,
+        "bounded_int": null
+      }
+    },
+    {
+      "id": "add_small_boolean_amount",
+      "operation": "add_small",
+      "a": "1",
+      "b": true,
+      "expected": {
+        "ok": false,
+        "error_kind": "invalid_small",
+        "decimal": null,
+        "bounded_int": null
+      }
+    }
+  ],
+  "sampling_cases": [
+    {
+      "id": "exact_grid",
+      "first_tick": "0",
+      "observations": [
+        {
+          "kind": "current",
+          "tick": "30",
+          "position_xz_m": [
+            0,
+            0
+          ]
+        },
+        {
+          "kind": "current",
+          "tick": "60",
+          "position_xz_m": [
+            0,
+            0
+          ]
+        },
+        {
+          "kind": "current",
+          "tick": "61",
+          "position_xz_m": [
+            0,
+            0
+          ]
+        },
+        {
+          "kind": "current",
+          "tick": "120",
+          "position_xz_m": [
+            0,
+            0
+          ]
+        }
+      ],
+      "expected": {
+        "state": "recording",
+        "first_tick": "0",
+        "last_observed_tick": "120",
+        "last_sample_tick": "120",
+        "sample_count": 3,
+        "seal_reason": null,
+        "late_sample_count": 0,
+        "skipped_target_count": 0,
+        "uncaptured_tail_targets": 0,
+        "window_clipped": false,
+        "counting_span_s_exact": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "sampled_planar_track_m_decimal": "0",
+        "samples": [
+          {
+            "tick": "0",
+            "target_tick": "0",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          },
+          {
+            "tick": "60",
+            "target_tick": "60",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          },
+          {
+            "tick": "120",
+            "target_tick": "120",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "late_without_missing_target",
+      "first_tick": "0",
+      "observations": [
+        {
+          "kind": "current",
+          "tick": "61",
+          "position_xz_m": [
+            3,
+            4
+          ]
+        }
+      ],
+      "expected": {
+        "state": "recording",
+        "first_tick": "0",
+        "last_observed_tick": "61",
+        "last_sample_tick": "61",
+        "sample_count": 2,
+        "seal_reason": null,
+        "late_sample_count": 1,
+        "skipped_target_count": 0,
+        "uncaptured_tail_targets": 0,
+        "window_clipped": false,
+        "counting_span_s_exact": {
+          "numerator": 61,
+          "denominator": 120
+        },
+        "sampled_planar_track_m_decimal": "5",
+        "samples": [
+          {
+            "tick": "0",
+            "target_tick": "0",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          },
+          {
+            "tick": "61",
+            "target_tick": "60",
+            "late_by_ticks": 1,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              3,
+              4
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "late_then_real_gap",
+      "first_tick": "0",
+      "observations": [
+        {
+          "kind": "current",
+          "tick": "61",
+          "position_xz_m": [
+            3,
+            4
+          ]
+        },
+        {
+          "kind": "current",
+          "tick": "181",
+          "position_xz_m": [
+            6,
+            8
+          ]
+        }
+      ],
+      "expected": {
+        "state": "recording",
+        "first_tick": "0",
+        "last_observed_tick": "181",
+        "last_sample_tick": "181",
+        "sample_count": 3,
+        "seal_reason": null,
+        "late_sample_count": 2,
+        "skipped_target_count": 1,
+        "uncaptured_tail_targets": 0,
+        "window_clipped": false,
+        "counting_span_s_exact": {
+          "numerator": 181,
+          "denominator": 120
+        },
+        "sampled_planar_track_m_decimal": "5",
+        "samples": [
+          {
+            "tick": "0",
+            "target_tick": "0",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          },
+          {
+            "tick": "61",
+            "target_tick": "60",
+            "late_by_ticks": 1,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              3,
+              4
+            ]
+          },
+          {
+            "tick": "181",
+            "target_tick": "180",
+            "late_by_ticks": 1,
+            "skipped_targets_before": 1,
+            "gap_before": true,
+            "position_xz_m": [
+              6,
+              8
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "several_skipped_targets",
+      "first_tick": "0",
+      "observations": [
+        {
+          "kind": "current",
+          "tick": "241",
+          "position_xz_m": [
+            3,
+            4
+          ]
+        }
+      ],
+      "expected": {
+        "state": "recording",
+        "first_tick": "0",
+        "last_observed_tick": "241",
+        "last_sample_tick": "241",
+        "sample_count": 2,
+        "seal_reason": null,
+        "late_sample_count": 1,
+        "skipped_target_count": 3,
+        "uncaptured_tail_targets": 0,
+        "window_clipped": false,
+        "counting_span_s_exact": {
+          "numerator": 241,
+          "denominator": 120
+        },
+        "sampled_planar_track_m_decimal": "0",
+        "samples": [
+          {
+            "tick": "0",
+            "target_tick": "0",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          },
+          {
+            "tick": "241",
+            "target_tick": "240",
+            "late_by_ticks": 1,
+            "skipped_targets_before": 3,
+            "gap_before": true,
+            "position_xz_m": [
+              3,
+              4
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "late_after_exact_grid",
+      "first_tick": "0",
+      "observations": [
+        {
+          "kind": "current",
+          "tick": "60",
+          "position_xz_m": [
+            3,
+            4
+          ]
+        },
+        {
+          "kind": "current",
+          "tick": "120",
+          "position_xz_m": [
+            6,
+            8
+          ]
+        },
+        {
+          "kind": "current",
+          "tick": "301",
+          "position_xz_m": [
+            9,
+            12
+          ]
+        }
+      ],
+      "expected": {
+        "state": "recording",
+        "first_tick": "0",
+        "last_observed_tick": "301",
+        "last_sample_tick": "301",
+        "sample_count": 4,
+        "seal_reason": null,
+        "late_sample_count": 1,
+        "skipped_target_count": 2,
+        "uncaptured_tail_targets": 0,
+        "window_clipped": false,
+        "counting_span_s_exact": {
+          "numerator": 301,
+          "denominator": 120
+        },
+        "sampled_planar_track_m_decimal": "10",
+        "samples": [
+          {
+            "tick": "0",
+            "target_tick": "0",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          },
+          {
+            "tick": "60",
+            "target_tick": "60",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              3,
+              4
+            ]
+          },
+          {
+            "tick": "120",
+            "target_tick": "120",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              6,
+              8
+            ]
+          },
+          {
+            "tick": "301",
+            "target_tick": "300",
+            "late_by_ticks": 1,
+            "skipped_targets_before": 2,
+            "gap_before": true,
+            "position_xz_m": [
+              9,
+              12
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "manual_before_due_target",
+      "first_tick": "0",
+      "observations": [
+        {
+          "kind": "current",
+          "tick": "30",
+          "position_xz_m": [
+            3,
+            4
+          ]
+        },
+        {
+          "kind": "manual",
+          "tick": null,
+          "position_xz_m": [
+            0,
+            0
+          ]
+        }
+      ],
+      "expected": {
+        "state": "sealed",
+        "first_tick": "0",
+        "last_observed_tick": "30",
+        "last_sample_tick": "0",
+        "sample_count": 1,
+        "seal_reason": "manual",
+        "late_sample_count": 0,
+        "skipped_target_count": 0,
+        "uncaptured_tail_targets": 0,
+        "window_clipped": false,
+        "counting_span_s_exact": {
+          "numerator": 1,
+          "denominator": 4
+        },
+        "sampled_planar_track_m_decimal": "0",
+        "samples": [
+          {
+            "tick": "0",
+            "target_tick": "0",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "qualified_newer_terminal_tail",
+      "first_tick": "0",
+      "observations": [
+        {
+          "kind": "current",
+          "tick": "60",
+          "position_xz_m": [
+            0,
+            0
+          ]
+        },
+        {
+          "kind": "historical",
+          "tick": "181",
+          "position_xz_m": [
+            0,
+            0
+          ]
+        }
+      ],
+      "expected": {
+        "state": "sealed",
+        "first_tick": "0",
+        "last_observed_tick": "181",
+        "last_sample_tick": "60",
+        "sample_count": 2,
+        "seal_reason": "terminal",
+        "late_sample_count": 0,
+        "skipped_target_count": 2,
+        "uncaptured_tail_targets": 2,
+        "window_clipped": false,
+        "counting_span_s_exact": {
+          "numerator": 181,
+          "denominator": 120
+        },
+        "sampled_planar_track_m_decimal": "0",
+        "samples": [
+          {
+            "tick": "0",
+            "target_tick": "0",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          },
+          {
+            "tick": "60",
+            "target_tick": "60",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "terminal_before_first_retained_target",
+      "first_tick": "0",
+      "observations": [
+        {
+          "kind": "current",
+          "tick": "30",
+          "position_xz_m": [
+            0,
+            0
+          ]
+        },
+        {
+          "kind": "historical",
+          "tick": "61",
+          "position_xz_m": [
+            0,
+            0
+          ]
+        }
+      ],
+      "expected": {
+        "state": "sealed",
+        "first_tick": "0",
+        "last_observed_tick": "61",
+        "last_sample_tick": "0",
+        "sample_count": 1,
+        "seal_reason": "terminal",
+        "late_sample_count": 0,
+        "skipped_target_count": 1,
+        "uncaptured_tail_targets": 1,
+        "window_clipped": false,
+        "counting_span_s_exact": {
+          "numerator": 61,
+          "denominator": 120
+        },
+        "sampled_planar_track_m_decimal": "0",
+        "samples": [
+          {
+            "tick": "0",
+            "target_tick": "0",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "foreign_tick_preserves_verified_endpoint",
+      "first_tick": "0",
+      "observations": [
+        {
+          "kind": "current",
+          "tick": "30",
+          "position_xz_m": [
+            0,
+            0
+          ]
+        },
+        {
+          "kind": "foreign",
+          "tick": "100000",
+          "position_xz_m": [
+            0,
+            0
+          ]
+        }
+      ],
+      "expected": {
+        "state": "sealed",
+        "first_tick": "0",
+        "last_observed_tick": "30",
+        "last_sample_tick": "0",
+        "sample_count": 1,
+        "seal_reason": "identity_changed",
+        "late_sample_count": 0,
+        "skipped_target_count": 0,
+        "uncaptured_tail_targets": 0,
+        "window_clipped": false,
+        "counting_span_s_exact": {
+          "numerator": 1,
+          "denominator": 4
+        },
+        "sampled_planar_track_m_decimal": "0",
+        "samples": [
+          {
+            "tick": "0",
+            "target_tick": "0",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "malformed_tick_preserves_verified_endpoint",
+      "first_tick": "0",
+      "observations": [
+        {
+          "kind": "current",
+          "tick": "30",
+          "position_xz_m": [
+            0,
+            0
+          ]
+        },
+        {
+          "kind": "malformed",
+          "tick": "100000",
+          "position_xz_m": [
+            0,
+            0
+          ]
+        }
+      ],
+      "expected": {
+        "state": "sealed",
+        "first_tick": "0",
+        "last_observed_tick": "30",
+        "last_sample_tick": "0",
+        "sample_count": 1,
+        "seal_reason": "invalid_observation",
+        "late_sample_count": 0,
+        "skipped_target_count": 0,
+        "uncaptured_tail_targets": 0,
+        "window_clipped": false,
+        "counting_span_s_exact": {
+          "numerator": 1,
+          "denominator": 4
+        },
+        "sampled_planar_track_m_decimal": "0",
+        "samples": [
+          {
+            "tick": "0",
+            "target_tick": "0",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "exact_final_window_target",
+      "first_tick": "0",
+      "observations": [
+        {
+          "kind": "current",
+          "tick": "144000",
+          "position_xz_m": [
+            0,
+            0
+          ]
+        }
+      ],
+      "expected": {
+        "state": "sealed",
+        "first_tick": "0",
+        "last_observed_tick": "144000",
+        "last_sample_tick": "144000",
+        "sample_count": 2,
+        "seal_reason": "limit",
+        "late_sample_count": 0,
+        "skipped_target_count": 2399,
+        "uncaptured_tail_targets": 0,
+        "window_clipped": false,
+        "counting_span_s_exact": {
+          "numerator": 1200,
+          "denominator": 1
+        },
+        "sampled_planar_track_m_decimal": "0",
+        "samples": [
+          {
+            "tick": "0",
+            "target_tick": "0",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          },
+          {
+            "tick": "144000",
+            "target_tick": "144000",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 2399,
+            "gap_before": true,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "dense_complete_window",
+      "first_tick": "0",
+      "observed_grid": {
+        "first": 60,
+        "last": 144000,
+        "step": 60
+      },
+      "expected": {
+        "state": "sealed",
+        "first_tick": "0",
+        "last_observed_tick": "144000",
+        "last_sample_tick": "144000",
+        "sample_count": 2401,
+        "seal_reason": "limit",
+        "late_sample_count": 0,
+        "skipped_target_count": 0,
+        "uncaptured_tail_targets": 0,
+        "window_clipped": false,
+        "counting_span_s_exact": {
+          "numerator": 1200,
+          "denominator": 1
+        },
+        "sampled_planar_track_m_decimal": "0",
+        "exact_samples_grid": {
+          "first": "0",
+          "step_ticks": 60,
+          "count": 2401,
+          "late": 0,
+          "skipped": 0,
+          "position_xz_m": [
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "id": "qualified_beyond_window",
+      "first_tick": "0",
+      "observations": [
+        {
+          "kind": "current",
+          "tick": "60",
+          "position_xz_m": [
+            0,
+            0
+          ]
+        },
+        {
+          "kind": "current",
+          "tick": "144001",
+          "position_xz_m": [
+            0,
+            0
+          ]
+        }
+      ],
+      "expected": {
+        "state": "sealed",
+        "first_tick": "0",
+        "last_observed_tick": "144001",
+        "last_sample_tick": "60",
+        "sample_count": 2,
+        "seal_reason": "limit",
+        "late_sample_count": 0,
+        "skipped_target_count": 2399,
+        "uncaptured_tail_targets": 2399,
+        "window_clipped": true,
+        "counting_span_s_exact": {
+          "numerator": 1200,
+          "denominator": 1
+        },
+        "sampled_planar_track_m_decimal": "0",
+        "samples": [
+          {
+            "tick": "0",
+            "target_tick": "0",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          },
+          {
+            "tick": "60",
+            "target_tick": "60",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "later_first_above_2pow53",
+      "first_tick": "9007199254741009",
+      "observations": [
+        {
+          "kind": "current",
+          "tick": "9007199254741039",
+          "position_xz_m": [
+            0,
+            0
+          ]
+        },
+        {
+          "kind": "current",
+          "tick": "9007199254741070",
+          "position_xz_m": [
+            0,
+            0
+          ]
+        },
+        {
+          "kind": "current",
+          "tick": "9007199254741190",
+          "position_xz_m": [
+            0,
+            0
+          ]
+        }
+      ],
+      "expected": {
+        "state": "recording",
+        "first_tick": "9007199254741009",
+        "last_observed_tick": "9007199254741190",
+        "last_sample_tick": "9007199254741190",
+        "sample_count": 3,
+        "seal_reason": null,
+        "late_sample_count": 2,
+        "skipped_target_count": 1,
+        "uncaptured_tail_targets": 0,
+        "window_clipped": false,
+        "counting_span_s_exact": {
+          "numerator": 181,
+          "denominator": 120
+        },
+        "sampled_planar_track_m_decimal": "0",
+        "samples": [
+          {
+            "tick": "9007199254741009",
+            "target_tick": "9007199254741009",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          },
+          {
+            "tick": "9007199254741070",
+            "target_tick": "9007199254741069",
+            "late_by_ticks": 1,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          },
+          {
+            "tick": "9007199254741190",
+            "target_tick": "9007199254741189",
+            "late_by_ticks": 1,
+            "skipped_targets_before": 1,
+            "gap_before": true,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "near_maximum_decimal_carry",
+      "first_tick": "18446744073709551494",
+      "observations": [
+        {
+          "kind": "current",
+          "tick": "18446744073709551554",
+          "position_xz_m": [
+            0,
+            0
+          ]
+        },
+        {
+          "kind": "current",
+          "tick": "18446744073709551614",
+          "position_xz_m": [
+            0,
+            0
+          ]
+        }
+      ],
+      "expected": {
+        "state": "sealed",
+        "first_tick": "18446744073709551494",
+        "last_observed_tick": "18446744073709551614",
+        "last_sample_tick": "18446744073709551614",
+        "sample_count": 3,
+        "seal_reason": "tick_exhausted",
+        "late_sample_count": 0,
+        "skipped_target_count": 0,
+        "uncaptured_tail_targets": 0,
+        "window_clipped": false,
+        "counting_span_s_exact": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "sampled_planar_track_m_decimal": "0",
+        "samples": [
+          {
+            "tick": "18446744073709551494",
+            "target_tick": "18446744073709551494",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          },
+          {
+            "tick": "18446744073709551554",
+            "target_tick": "18446744073709551554",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          },
+          {
+            "tick": "18446744073709551614",
+            "target_tick": "18446744073709551614",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "last_grid_at_uint64_maximum",
+      "first_tick": "18446744073709551555",
+      "observations": [
+        {
+          "kind": "current",
+          "tick": "18446744073709551615",
+          "position_xz_m": [
+            0,
+            0
+          ]
+        }
+      ],
+      "expected": {
+        "state": "sealed",
+        "first_tick": "18446744073709551555",
+        "last_observed_tick": "18446744073709551615",
+        "last_sample_tick": "18446744073709551615",
+        "sample_count": 2,
+        "seal_reason": "tick_exhausted",
+        "late_sample_count": 0,
+        "skipped_target_count": 0,
+        "uncaptured_tail_targets": 0,
+        "window_clipped": false,
+        "counting_span_s_exact": {
+          "numerator": 1,
+          "denominator": 2
+        },
+        "sampled_planar_track_m_decimal": "0",
+        "samples": [
+          {
+            "tick": "18446744073709551555",
+            "target_tick": "18446744073709551555",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          },
+          {
+            "tick": "18446744073709551615",
+            "target_tick": "18446744073709551615",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "initial_future_target_exhausted",
+      "first_tick": "18446744073709551585",
+      "observations": [],
+      "expected": {
+        "state": "sealed",
+        "first_tick": "18446744073709551585",
+        "last_observed_tick": "18446744073709551585",
+        "last_sample_tick": "18446744073709551585",
+        "sample_count": 1,
+        "seal_reason": "tick_exhausted",
+        "late_sample_count": 0,
+        "skipped_target_count": 0,
+        "uncaptured_tail_targets": 0,
+        "window_clipped": false,
+        "counting_span_s_exact": {
+          "numerator": 0,
+          "denominator": 1
+        },
+        "sampled_planar_track_m_decimal": "0",
+        "samples": [
+          {
+            "tick": "18446744073709551585",
+            "target_tick": "18446744073709551585",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "empty_closed_keeps_previous_tick",
+      "first_tick": "0",
+      "observations": [
+        {
+          "kind": "current",
+          "tick": "61",
+          "position_xz_m": [
+            0,
+            0
+          ]
+        },
+        {
+          "kind": "closed_empty",
+          "tick": null,
+          "position_xz_m": [
+            0,
+            0
+          ]
+        }
+      ],
+      "expected": {
+        "state": "sealed",
+        "first_tick": "0",
+        "last_observed_tick": "61",
+        "last_sample_tick": "61",
+        "sample_count": 2,
+        "seal_reason": "closed",
+        "late_sample_count": 1,
+        "skipped_target_count": 0,
+        "uncaptured_tail_targets": 0,
+        "window_clipped": false,
+        "counting_span_s_exact": {
+          "numerator": 61,
+          "denominator": 120
+        },
+        "sampled_planar_track_m_decimal": "0",
+        "samples": [
+          {
+            "tick": "0",
+            "target_tick": "0",
+            "late_by_ticks": 0,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          },
+          {
+            "tick": "61",
+            "target_tick": "60",
+            "late_by_ticks": 1,
+            "skipped_targets_before": 0,
+            "gap_before": false,
+            "position_xz_m": [
+              0,
+              0
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

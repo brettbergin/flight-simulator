@@ -1,0 +1,19 @@
+{
+  "status": "final-contract-rebound-before-consumer-output",
+  "contract_commit": "51e5657ce4ddc3f2a24a53123612acc01c170e8e",
+  "contract_path": "docs/decisions/011-observed-flight-review.md",
+  "contract_git_lf_sha256": "3161b23caa0a15d27ba59349339aa054f9a3aa0e1690697e8e0150a2be654fab",
+  "cases": 42,
+  "generator_sha256": "212ad8eac94b43db801ada0597b8a3e07982151bd8baa03ca75cbc04605e874c",
+  "expected_sha256": "a4c3184c46f2eb76c85ff4ba43fc8aac49e772a447576eeec5663fff1ac78844",
+  "qualification": "Final wording clarifies canonical validation/closed null and legacy elapsed validation; all42 expected arithmetic cases and preoutput budgets remain unchanged. Original v1 bindings retained.",
+  "limits": [
+    "Qualification categories are declared inputs; no Readback parsing/metadata validation acceptance.",
+    "No native simulation, Godot runtime, empirical fitting or pilot/source/model performance claim.",
+    "Root independently reviews numerical oracle before consumer observations."
+  ],
+  "author": "Original project engineering fixtures; MIT under repository LICENSE.",
+  "original_private_ratification_sha256": "56160268a400632d02d2e472dd867e93506160cc9a9ea9366798f9f07e6c1b08",
+  "published_root_ratification_lf_sha256": "33785f7405638a8ebb2b5d724439e1b2ce5b1a8c5f997cd03799dac8d5376f0d",
+  "publication_note": "Root ratification was normalized to LF for portable publication; semantic JSON and all42 numeric expectations/budgets remain unchanged. The original private bytes and review are retained separately."
+}
