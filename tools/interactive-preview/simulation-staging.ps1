@@ -123,12 +123,14 @@ function Get-ObservedReviewSourceGroups {
  @(
   @{source='app/replay/observed';destination='replay/observed';required=@('recorder.gd','review.gd','tick_math.gd','values.gd')},
   @{source='app/ui/debrief/observed';destination='ui/debrief/observed';required=@('panel.gd')},
-  @{source='tests/debrief/observed';destination='observed_tests';required=@('recorder_checks.gd','scene_checks.gd','expected-v1.json','generate.py','preparation-binding-v2.json','root-ratification-v1.json','README.md','.gitattributes')}
+  @{source='tests/debrief/observed';destination='observed_tests';required=@('recorder_checks.gd','scene_checks.gd','expected-v1.json','generate.py','preparation-binding-v2.json','root-ratification-v1.json','README.md','.gitattributes')},
+  @{source='app/replay/observed_archive';destination='replay/observed_archive';required=@('codec.gd','strict_json.gd','files.gd','windows_io.ps1')},
+  @{source='tests/debrief/observed_archive';destination='observed_archive_tests';required=@('archive_checks.gd','file_checks.gd','scene_checks.gd','visual_checks.gd','windows_fixture.ps1','generate.py','source-binding-v1.json','root-ratification-v1.json','README.md','.gitattributes','reference/expected-text-v1.json','reference/expected-binary64-v1.json')}
  )|ForEach-Object {$_.snapshot=@(Get-SimulationSourceSnapshot (Join-Path $RepoRoot $_.source) -RequiredEntries $_.required);$_}
 }
 function Copy-ObservedReviewSourceGroups {
  param([Parameter(Mandatory)][string]$RepoRoot,[Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Groups)
- if($Groups.Count -ne 3){throw 'All three observed review source groups are mandatory'}
+ if($Groups.Count -ne 5){throw 'All five observed review/archive source groups are mandatory'}
  foreach($group in $Groups){
   if($group.snapshot.Count -le 0 -or $group.required.Count -le 0){throw 'Observed source group snapshots and entrypoints cannot be empty'}
   Copy-SimulationSourceSnapshot (Join-Path $RepoRoot $group.source) (Join-Path $DestinationRoot $group.destination) $group.snapshot -RequiredEntries $group.required
@@ -136,7 +138,7 @@ function Copy-ObservedReviewSourceGroups {
 }
 function Assert-ObservedReviewSourceGroups {
  param([Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Groups,[switch]$Authoring,[switch]$AllowGeneratedUIDs)
- if($Groups.Count -ne 3){throw 'All three observed review source groups are mandatory'}
+ if($Groups.Count -ne 5){throw 'All five observed review/archive source groups are mandatory'}
  foreach($group in $Groups){
   if($group.snapshot.Count -le 0 -or $group.required.Count -le 0){throw 'Observed source group snapshots and entrypoints cannot be empty'}
   $path=if($Authoring){$group.source}else{$group.destination}
@@ -163,7 +165,7 @@ print('PASS readonly observed reference regeneration:42 cases')
 }
 function Assert-PreviewFacadeReceipt {
  param([Parameter(Mandatory)]$Receipt)
- $keys=@('schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed')
+ $keys=@('schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive')
  if((($Receipt.PSObject.Properties.Name|Sort-Object) -join "`n") -cne (($keys|Sort-Object) -join "`n")){throw 'Facade receipt exact shape rejected'}
  if(($Receipt.schema_version -isnot [long] -and $Receipt.schema_version -isnot [int]) -or $Receipt.schema_version -ne 1 -or $Receipt.scope -isnot [string] -or [string]::IsNullOrWhiteSpace($Receipt.scope) -or $Receipt.scope.Length -gt 1024 -or $Receipt.passed -isnot [bool] -or -not $Receipt.passed -or ($Receipt.checks -isnot [long] -and $Receipt.checks -isnot [int]) -or $Receipt.checks -le 0 -or $Receipt.failures -isnot [array] -or $Receipt.failures.Count -ne 0){throw 'Facade receipt must contain actual passing checks'}
  if((($Receipt.observed.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "recorder`nscene"){throw 'Both observed recorder and scene results are mandatory'}
@@ -174,6 +176,19 @@ function Assert-PreviewFacadeReceipt {
   if($item.passed -isnot [bool] -or -not $item.passed -or ($item.checks -isnot [long] -and $item.checks -isnot [int]) -or $item.checks -le 0 -or $item.failures -isnot [array] -or $item.failures.Count -ne 0 -or $item.scope -isnot [string] -or [string]::IsNullOrWhiteSpace($item.scope) -or $item.scope.Length -gt 1024){throw "Observed $name checks did not execute successfully"}
  }
  if(($Receipt.observed.recorder.reference_cases -isnot [long] -and $Receipt.observed.recorder.reference_cases -isnot [int]) -or $Receipt.observed.recorder.reference_cases -ne 42 -or $Receipt.observed.recorder.reference_sha256 -isnot [string] -or $Receipt.observed.recorder.reference_sha256 -cne 'a4c3184c46f2eb76c85ff4ba43fc8aac49e772a447576eeec5663fff1ac78844'){throw 'Observed frozen reference receipt identity rejected'}
+ if((($Receipt.observed_archive.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "codec`nfiles`nscene"){throw 'All archive codec/files/scene results are mandatory'}
+ foreach($name in @('codec','files','scene')){
+  $item=$Receipt.observed_archive.$name
+  $names=@('passed','checks','failures','scope')
+  if($name -eq 'codec'){$names+=@('reference_cases','reference_sha256','binary64_cases','binary64_sha256')}
+  if((($item.PSObject.Properties.Name|Sort-Object) -join "`n") -cne (($names|Sort-Object) -join "`n")){throw "Archive $name receipt exact shape rejected"}
+  if($item.passed -isnot [bool] -or -not $item.passed -or ($item.checks -isnot [long] -and $item.checks -isnot [int]) -or $item.checks -le 0 -or $item.failures -isnot [array] -or $item.failures.Count -ne 0 -or $item.scope -isnot [string] -or [string]::IsNullOrWhiteSpace($item.scope) -or $item.scope.Length -gt 1024){throw "Archive $name checks missing, vacuous or failed"}
+ }
+ $codec=$Receipt.observed_archive.codec
+ foreach($count in @(@{key='reference_cases';value=40},@{key='binary64_cases';value=26})){
+  if(($codec.($count.key) -isnot [long] -and $codec.($count.key) -isnot [int]) -or $codec.($count.key) -ne $count.value){throw 'Archive frozen case count rejected'}
+ }
+ if($codec.reference_sha256 -isnot [string] -or $codec.reference_sha256 -cne '961d8903f702f1d46374998db06b7517a1ca067333b3613bd2adbf3a8c06b15e' -or $codec.binary64_sha256 -isnot [string] -or $codec.binary64_sha256 -cne '406b00475e444f71f6e1f57fd37100c52b86c076e0dccbf664bb5bfc05c028d8'){throw 'Archive frozen reference identity rejected'}
 }
 # Read-only native reuse: bind declared compiler/source identities here; the
 # existing actual facade/portable checks still verify the loaded native reply.
@@ -230,7 +245,7 @@ func check(ok: bool, label: String) -> void:
 func _ready() -> void:
  call_deferred("execute")
 func execute() -> void:
- for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests"]:
+ for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests"]:
   for name in DirAccess.get_files_at(folder):
    if name.ends_with(".gd"):
     var script=load(folder.path_join(name)) as Script
@@ -279,8 +294,15 @@ func execute() -> void:
  var observed_scene: Dictionary=await load("res://observed_tests/scene_checks.gd").new().run(self)
  check(failures.size()==observed_before and observed_scene.get("passed",false) and observed_scene.get("checks",0)>0 and observed_scene.get("failures",["missing"]).is_empty(),"actual_observed_scene_checks")
  observed_checks["scene"]=observed_scene
+ var archive_checks: Dictionary={}
+ for name in ["codec","files","scene"]:
+  var before_archive: int=failures.size()
+  var driver: Script=load("res://observed_archive_tests/"+("archive" if name=="codec" else "file" if name=="files" else "scene")+"_checks.gd")
+  var archive_result: Dictionary=driver.run() if name=="codec" else driver.new().run() if name=="files" else await driver.new().run(self)
+  check(failures.size()==before_archive and archive_result.get("passed",false) and archive_result.get("checks",0)>0 and archive_result.get("failures",["missing"]).is_empty(),"actual_archive_"+name+"_checks")
+  archive_checks[name]=archive_result
  var scene: Dictionary=await load("res://sim_loop_tests/scene_checks.gd").new().run(self)
- var report: Dictionary={"schema_version":1,"scope":"Headless actual-native facade and synthetic wire/render fixtures; GPU and pilot qualification separate","passed":failures.is_empty(),"checks":checks,"failures":failures.duplicate(),"facade":facade,"origin":origin,"participants":participants,"wire":wire,"scene":scene,"input":input,"input_scene":input_scene,"instruments":instruments,"cockpit":cockpit_checks,"freeflight":freeflight_checks,"observed":observed_checks}
+ var report: Dictionary={"schema_version":1,"scope":"Headless actual-native facade and synthetic wire/render fixtures; GPU and pilot qualification separate","passed":failures.is_empty(),"checks":checks,"failures":failures.duplicate(),"facade":facade,"origin":origin,"participants":participants,"wire":wire,"scene":scene,"input":input,"input_scene":input_scene,"instruments":instruments,"cockpit":cockpit_checks,"freeflight":freeflight_checks,"observed":observed_checks,"observed_archive":archive_checks}
  var output: String=ProjectSettings.globalize_path("res://facade-check-receipt.json") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("facade-check-receipt.json")
  for argument in OS.get_cmdline_user_args():
   if argument.begins_with("--facade-receipt="): output=argument.trim_prefix("--facade-receipt=")

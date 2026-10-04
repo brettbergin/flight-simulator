@@ -64,6 +64,7 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | OBSERVED-REVIEW-CONTRACT | [#132 Ratify bounded recorded flight observations and read-only review](https://github.com/brettbergin/flight-simulator/issues/132) | SIM-LOOP-CONTRACT, INPUT-CONTROLS-CONTRACT, COCKPIT-READINGS-CONTRACT |
 | OBSERVED-FLIGHT-REVIEW | [#134 Add paused recorded path and instrument timeline](https://github.com/brettbergin/flight-simulator/issues/134) | OBSERVED-REVIEW-CONTRACT, LANDMARK-FREE-FLIGHT |
 | OBSERVED-ARCHIVE-CONTRACT | [#136 Define exact recorded-review Save/Open interchange](https://github.com/brettbergin/flight-simulator/issues/136) | OBSERVED-REVIEW-CONTRACT, OBSERVED-FLIGHT-REVIEW, INPUT-CONTROLS-CONTRACT |
+| OBSERVED-REVIEW-FILES | [#138 Save and reopen exact paused flight reviews](https://github.com/brettbergin/flight-simulator/issues/138) | OBSERVED-ARCHIVE-CONTRACT, OBSERVED-FLIGHT-REVIEW |
 
 ## P3 — Complete circuit and durable progress
 

@@ -114,6 +114,7 @@ Write-Output 'PASS landmark recursive source/reference staging and changed/missi
 # bound; these staging checks do not load Godot or execute any native code.
 $observedFixture=Join-Path $testRoot 'observed-repo'
 $observedEntries=@('app/replay/observed/recorder.gd','app/replay/observed/review.gd','app/replay/observed/tick_math.gd','app/replay/observed/values.gd','app/replay/observed/nested/original.txt','app/ui/debrief/observed/panel.gd','tests/debrief/observed/recorder_checks.gd','tests/debrief/observed/scene_checks.gd','tests/debrief/observed/expected-v1.json','tests/debrief/observed/generate.py','tests/debrief/observed/preparation-binding-v2.json','tests/debrief/observed/root-ratification-v1.json','tests/debrief/observed/README.md','tests/debrief/observed/.gitattributes')
+$observedEntries+=@('app/replay/observed_archive/codec.gd','app/replay/observed_archive/strict_json.gd','app/replay/observed_archive/files.gd','app/replay/observed_archive/windows_io.ps1','tests/debrief/observed_archive/archive_checks.gd','tests/debrief/observed_archive/file_checks.gd','tests/debrief/observed_archive/scene_checks.gd','tests/debrief/observed_archive/visual_checks.gd','tests/debrief/observed_archive/windows_fixture.ps1','tests/debrief/observed_archive/generate.py','tests/debrief/observed_archive/source-binding-v1.json','tests/debrief/observed_archive/root-ratification-v1.json','tests/debrief/observed_archive/README.md','tests/debrief/observed_archive/.gitattributes','tests/debrief/observed_archive/reference/expected-text-v1.json','tests/debrief/observed_archive/reference/expected-binary64-v1.json')
 foreach($entry in $observedEntries){
  $file=Join-Path $observedFixture $entry
  New-Item -ItemType Directory -Path (Split-Path $file) -Force|Out-Null
@@ -155,7 +156,29 @@ Write-Output 'PASS observed recursive source/UI/reference binding and missing/em
 
 # A passing host marker cannot hide skipped or vacuous observed checks.
 $receipt=[pscustomobject]@{schema_version=1;scope='fixture';passed=$true;checks=1;failures=@();facade=$null;origin=$null;participants=$null;wire=$null;scene=$null;input=$null;input_scene=$null;instruments=$null;cockpit=$null;freeflight=$null;observed=[pscustomobject]@{recorder=[pscustomobject]@{passed=$true;checks=1;failures=@();reference_cases=42;reference_sha256='a4c3184c46f2eb76c85ff4ba43fc8aac49e772a447576eeec5663fff1ac78844';scope='pure fixture'};scene=[pscustomobject]@{passed=$true;checks=1;failures=@();scope='scene fixture'}}}
+$receipt|Add-Member -NotePropertyName observed_archive -NotePropertyValue ([pscustomobject]@{codec=[pscustomobject]@{passed=$true;checks=1;failures=@();scope='codec fixture';reference_cases=40;reference_sha256='961d8903f702f1d46374998db06b7517a1ca067333b3613bd2adbf3a8c06b15e';binary64_cases=26;binary64_sha256='406b00475e444f71f6e1f57fd37100c52b86c076e0dccbf664bb5bfc05c028d8'};files=[pscustomobject]@{passed=$true;checks=1;failures=@();scope='files fixture'};scene=[pscustomobject]@{passed=$true;checks=1;failures=@();scope='scene fixture'}})
 Assert-PreviewFacadeReceipt $receipt
+foreach($name in @('codec','files','scene')){
+ $receipt.observed_archive.$name.checks=0
+ Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('zero archive '+$name+' checks')
+ $receipt.observed_archive.$name.checks=1
+ $receipt.observed_archive.$name.passed='true'
+ Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('string archive '+$name+' passing marker')
+ $receipt.observed_archive.$name.passed=$true
+ $receipt.observed_archive.$name.failures=@('failed')
+ Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('failed archive '+$name+' result')
+ $receipt.observed_archive.$name.failures=@()
+}
+$receipt.observed_archive.codec.binary64_cases=25
+Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'archive binary64 case count drift'
+$receipt.observed_archive.codec.binary64_cases=26
+$receipt.observed_archive.codec.reference_sha256='a'*64
+Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'archive reference identity drift'
+$receipt.observed_archive.codec.reference_sha256='961d8903f702f1d46374998db06b7517a1ca067333b3613bd2adbf3a8c06b15e'
+$fullArchive=$receipt.observed_archive
+$receipt.observed_archive=[pscustomobject]@{}
+Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'missing archive children'
+$receipt.observed_archive=$fullArchive
 $receipt.observed.scene.checks=0
 Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'zero actual observed scene checks'
 $receipt.observed.scene.checks=1

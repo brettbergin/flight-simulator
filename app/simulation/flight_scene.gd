@@ -11,7 +11,15 @@ const ControlsPanel = preload("res://ui/controls/controls_panel.gd")
 const NativeReadings = preload("res://cockpit/instruments/native_readings.gd")
 const ScanPanel = preload("res://cockpit/instruments/scan_panel.gd")
 const ObservedRecorder = preload("res://replay/observed/recorder.gd")
+const ObservedValues = preload("res://replay/observed/values.gd")
 const ObservedPanel = preload("res://ui/debrief/observed/panel.gd")
+const ArchiveCodec = preload("res://replay/observed_archive/codec.gd")
+const ArchiveFiles = preload("res://replay/observed_archive/files.gd")
+var archive_files: RefCounted=ArchiveFiles.new()
+var archive_dialog: FileDialog
+var archive_operation: Dictionary={}
+var archive_imported: bool=false
+var archive_message: String=""
 var observed_recorder: RefCounted=ObservedRecorder.new()
 var observed_panel: Control
 var review_open: bool=false
@@ -66,6 +74,10 @@ func _ready() -> void:
 		for device in Input.get_connected_joypads():
 			observe_connection(device,true)
 	super._ready()
+	if not legacy_proof and "--observed-archive-visual-smoke" in OS.get_cmdline_user_args():
+		set_process(false)
+		call_deferred("run_archive_visual")
+		return
 	if not legacy_proof and "--observed-visual-smoke" in OS.get_cmdline_user_args():
 		set_process(false)
 		call_deferred("run_observed_visual")
@@ -103,6 +115,7 @@ func make_world() -> void:
 func close_session() -> bool:
 	if legacy_proof:
 		return super.close_session()
+	if not archive_operation.is_empty(): return false
 	render_pose.clear()
 	if facade==null:
 		bridge=null
@@ -126,6 +139,7 @@ func close_session() -> bool:
 func restart(replace_confirmed: bool=false) -> bool:
 	if legacy_proof:
 		return super.restart()
+	if not archive_operation.is_empty(): return false
 	if recorded_flight_advanced() and not replace_confirmed:
 		request_discard("restart",named_start)
 		return false
@@ -239,6 +253,7 @@ func adopt_result(result: Dictionary) -> void:
 func pause_session(value: bool) -> bool:
 	if legacy_proof:
 		return super.pause_session(value)
+	if not archive_operation.is_empty(): return false
 	if facade==null:
 		return false
 	if not value:
@@ -298,6 +313,7 @@ func _process(delta: float) -> void:
 		sound.call("update_audio",float(held_controls.get("throttle",0)),flight_speed(),paused,any_wow())
 
 func process_input_interval(elapsed: int) -> void:
+	if not archive_operation.is_empty(): return
 	if facade==null or mapper==null:
 		return
 	var raw: Dictionary=collect_input_raw(controls_panel.get_draft() if controls_panel!=null and controls_panel.visible else {})
@@ -393,6 +409,17 @@ func make_menu(canvas: CanvasLayer) -> void:
 	canvas.add_child(observed_panel)
 	observed_panel.set_open(false)
 	observed_panel.dismissed.connect(dismiss_observed_review)
+	observed_panel.save_requested.connect(func():begin_archive_operation("save"))
+	observed_panel.open_requested.connect(func():begin_archive_operation("open"))
+	observed_panel.current_requested.connect(show_current_review)
+	archive_dialog=FileDialog.new()
+	archive_dialog.access=FileDialog.ACCESS_FILESYSTEM
+	archive_dialog.filters=PackedStringArray(["*.fsreview.json ; Recorded flight review"])
+	archive_dialog.use_native_dialog=false
+	archive_dialog.current_dir=OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS)
+	archive_dialog.file_selected.connect(finish_archive_operation)
+	archive_dialog.canceled.connect(cancel_archive_operation)
+	observed_panel.add_child(archive_dialog)
 	make_discard_confirmation(canvas)
 	menu.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	menu.custom_minimum_size=Vector2(560,490)
@@ -447,6 +474,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if legacy_proof:
 		super._unhandled_input(event)
 		return
+	if not archive_operation.is_empty(): return
 	if controls_panel!=null and controls_panel.visible:
 		return
 	if route_open or review_open or not pending_discard.is_empty():
@@ -464,6 +492,9 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		super._unhandled_key_input(event)
 		return
 	if not event is InputEventKey or not event.pressed or event.echo:
+		return
+	if not archive_operation.is_empty():
+		get_viewport().set_input_as_handled()
 		return
 	if controls_panel!=null and controls_panel.visible:
 		return
@@ -505,6 +536,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func dispatch_input_action(action: String) -> void:
+	if not archive_operation.is_empty(): return
 	match action:
 		"pause_menu": open_menu("Flight paused")
 		"restart": start_flight(named_start)
@@ -579,6 +611,7 @@ func on_focus_lost() -> void:
 		pause_for_input("Window inactive; release controls and confirm Resume")
 
 func pause_for_input(reason: String) -> void:
+	if not archive_operation.is_empty(): return
 	input_blocked=true
 	if facade!=null:
 		pause_session(true)
@@ -633,6 +666,7 @@ func controls_diagnostics() -> Dictionary:
 	return {"error":input_problem,"takeover":takeover_targets.duplicate(),"brake_hold":brake_hold,"connected_devices":connected,"transient":true}
 
 func select_input_device(slot: String, device: int) -> void:
+	if not archive_operation.is_empty(): return
 	if not paused or facade==null or facade.readback().host_mode!="paused":
 		return
 	if not device_connections.has(device):
@@ -641,6 +675,7 @@ func select_input_device(slot: String, device: int) -> void:
 	selected_slots[slot]={"device":device,"generation":device_connections[device].generation}
 
 func open_controls() -> void:
+	if not archive_operation.is_empty(): return
 	if controls_panel==null or facade==null:
 		return
 	if not paused and not pause_session(true):
@@ -656,6 +691,7 @@ func open_controls() -> void:
 	controls_panel.update_diagnostics(collect_input_raw(),held_controls,held_controls,controls_diagnostics())
 
 func apply_controls(preset: Dictionary) -> void:
+	if not archive_operation.is_empty(): return
 	if facade==null or mapper==null or facade.readback().host_mode!="paused":
 		return
 	var applied: Dictionary=mapper.configure(preset,held_controls,initial.solved_controls,collect_input_raw(preset))
@@ -672,6 +708,7 @@ func apply_controls(preset: Dictionary) -> void:
 	open_menu("Controls applied · guest preset")
 
 func dismiss_controls() -> void:
+	if not archive_operation.is_empty(): return
 	selected_slots=controls_selection_backup.duplicate(true)
 	controls_selection_backup.clear()
 	controls_panel.hide()
@@ -688,12 +725,14 @@ func start_flight(start: String) -> void:
 	request_discard("restart",start)
 
 func perform_start(start: String) -> void:
+	if not archive_operation.is_empty(): return
 	var prior_start: String=named_start
 	named_start=start
 	if restart(true):
 		if controls_panel!=null: controls_panel.hide()
 		if observed_panel!=null: observed_panel.set_open(false)
 		review_open=false
+		clear_imported_review()
 		open_menu("Fresh flight · confirm controls")
 		close_menu()
 	else:
@@ -1061,6 +1100,7 @@ func on_instrument_selected(_instrument: String) -> void:
 	dismiss_instrument_scan()
 
 func open_menu(title: String="Flight paused") -> void:
+	if not archive_operation.is_empty(): return
 	if not legacy_proof:
 		if review_open: return
 		if not pending_discard.is_empty(): return
@@ -1071,6 +1111,7 @@ func open_menu(title: String="Flight paused") -> void:
 	super.open_menu(title)
 
 func close_menu() -> void:
+	if not archive_operation.is_empty(): return
 	if not legacy_proof and not pending_discard.is_empty():
 		cancel_discard()
 		return
@@ -1121,7 +1162,7 @@ func ensure_review_boundary() -> bool:
 	return false
 
 func open_observed_review() -> void:
-	if legacy_proof or observed_panel==null or not pending_discard.is_empty(): return
+	if legacy_proof or observed_panel==null or not pending_discard.is_empty() or not archive_operation.is_empty(): return
 	if controls_panel!=null and controls_panel.visible: return
 	if not ensure_review_boundary():
 		status="Review requires a verified pause or joined stop"
@@ -1130,6 +1171,9 @@ func open_observed_review() -> void:
 	if not observed_panel.set_recording(record):
 		status="Recorded flight cannot be qualified for review"
 		return
+	archive_imported=false
+	archive_message=""
+	observed_panel.set_file_context(false)
 	scan_open=false
 	route_open=false
 	if landmark_board!=null: landmark_board.set_open(false)
@@ -1140,10 +1184,91 @@ func open_observed_review() -> void:
 	observed_panel.set_open(true)
 
 func dismiss_observed_review() -> void:
-	if not review_open or not pending_discard.is_empty(): return
+	if not review_open or not pending_discard.is_empty() or not archive_operation.is_empty(): return
 	observed_panel.set_open(false)
 	review_open=false
+	clear_imported_review()
 	open_menu("Recorded flight retained · paused")
+
+func clear_imported_review() -> void:
+	# Dismiss releases imported copies without copying the current live history.
+	if archive_imported and observed_panel!=null:
+		observed_panel.set_recording(ObservedValues.empty_recording())
+	archive_imported=false
+	archive_message=""
+	if observed_panel!=null: observed_panel.set_file_context(false)
+
+func show_current_review() -> void:
+	if not review_open or not archive_operation.is_empty() or not review_boundary(): return
+	var current: Variant=observed_recorder.recording()
+	if observed_panel.set_recording(current):
+		archive_imported=false
+		archive_message="Current paused flight. Save new review always saves this flight."
+		observed_panel.set_file_context(false,archive_message)
+
+func begin_archive_operation(action: String, show_dialog: bool=true) -> bool:
+	if legacy_proof or not review_open or not archive_operation.is_empty() or not pending_discard.is_empty() or not action in ["save","open"]: return false
+	if initializing_recording or not review_boundary():
+		archive_feedback("A verified pause or joined stop is required.")
+		return false
+	var bytes:=PackedByteArray()
+	if action=="save":
+		# Exactly one current snapshot, even while an imported file is displayed.
+		var encoded: Dictionary=ArchiveCodec.encode(observed_recorder.recording())
+		if not encoded.ok:
+			archive_feedback("Review not saved: "+encoded.error)
+			return false
+		bytes=encoded.value.duplicate()
+	archive_operation={"action":action,"session_id":observed_status.get("session_id"),"bytes":bytes,"prior_message":archive_message}
+	observed_panel.set_file_context(archive_imported,"Choose a new file." if action=="save" else "Choose a historical review file.",true)
+	if show_dialog:
+		archive_dialog.file_mode=FileDialog.FILE_MODE_SAVE_FILE if action=="save" else FileDialog.FILE_MODE_OPEN_FILE
+		archive_dialog.title="Save new review — existing files are preserved" if action=="save" else "Open historical recorded review"
+		if action=="save":
+			var stamp: String=Time.get_datetime_string_from_system(true).replace(":","-")
+			archive_dialog.current_file="flight-review-"+stamp+"-"+str(Time.get_ticks_usec())+".fsreview.json"
+		archive_dialog.popup_centered_ratio(0.82)
+	return true
+
+func cancel_archive_operation() -> void:
+	if archive_operation.is_empty(): return
+	archive_message=archive_operation.prior_message
+	archive_operation.clear()
+	if archive_dialog!=null: archive_dialog.hide()
+	observed_panel.set_file_context(archive_imported,archive_message)
+
+func finish_archive_operation(path: String) -> Dictionary:
+	var rejected: Dictionary={"ok":false,"error":"No matching paused file operation","state":"rejected","path":"","temp_path":null,"value":null,"payload_sha256":null}
+	if archive_operation.is_empty(): return rejected
+	if initializing_recording or not review_boundary() or archive_operation.session_id!=observed_status.get("session_id"):
+		cancel_archive_operation()
+		archive_feedback(rejected.error)
+		return rejected
+	var action: String=archive_operation.action
+	var result: Dictionary=archive_files.save_new(path,archive_operation.bytes) if action=="save" else archive_files.open(path)
+	# The operation gate stays held until the file owner has joined its helper.
+	if result.ok and action=="open":
+		if observed_panel.set_recording(result.value):
+			archive_imported=true
+		else:
+			result=rejected.duplicate(true)
+			result.error="Historical candidate could not be qualified; previous view retained"
+	archive_operation.clear()
+	if archive_dialog!=null: archive_dialog.hide()
+	if result.ok:
+		archive_feedback("Saved new review. This flight remains paused or stopped; its memory record is retained." if action=="save" else "Opened historical file. Its author is unverified; the current airplane is unchanged.")
+	else:
+		var message: String=result.error
+		if action=="open": message="Review not opened: "+message
+		elif result.state!="recovery_required" and not message.begins_with("Review not saved:"): message="Review not saved: "+message
+		if result.temp_path!=null: message+="\nAvailable temporary: "+result.temp_path
+		if result.state=="recovery_required" and not result.path.is_empty(): message+="\nInspect selected target: "+result.path
+		archive_feedback(message)
+	return result.duplicate(true)
+
+func archive_feedback(message: String) -> void:
+	archive_message=message
+	observed_panel.set_file_context(archive_imported,message)
 
 func make_discard_confirmation(canvas: CanvasLayer) -> void:
 	discard_layer=Control.new()
@@ -1191,6 +1316,7 @@ func make_discard_confirmation(canvas: CanvasLayer) -> void:
 	discard_layer.hide()
 
 func request_discard(action: String, start: String="") -> void:
+	if not archive_operation.is_empty(): return
 	if not pending_discard.is_empty() or not action in ["restart","quit"]: return
 	if action=="restart" and not start in ["ground-ready","airborne-prepared"]: return
 	if not recorded_flight_advanced():
@@ -1203,7 +1329,7 @@ func request_discard(action: String, start: String="") -> void:
 	pending_discard={"action":action,"start":start,"session_id":observed_status.session_id}
 	menu_open=true
 	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
-	discard_message.text="This flight has %d recorded observations. %s discards its in-memory review. Cancel keeps the flight paused and the review available. Nothing is saved to disk."%[observed_status.sample_count,"Restarting" if action=="restart" else "Quitting"]
+	discard_message.text="This flight has %d recorded observations. %s discards its in-memory review. Cancel keeps the flight paused and the review available. Only explicitly saved review files remain on disk."%[observed_status.sample_count,"Restarting" if action=="restart" else "Quitting"]
 	discard_accept.text="Discard and restart" if action=="restart" else "Discard and quit"
 	discard_layer.show()
 	discard_cancel.grab_focus()
@@ -1240,7 +1366,16 @@ func quit_flight() -> void:
 		await request_discard("quit")
 
 func perform_quit() -> void:
+	if not archive_operation.is_empty(): return
 	await super.quit_flight()
+
+func _exit_tree() -> void:
+	# Forced shutdown can lose an unsaved review, but native ownership must join.
+	archive_operation.clear()
+	super._exit_tree()
+
+func run_archive_visual() -> void:
+	await load("res://observed_archive_tests/visual_checks.gd").new().run(self)
 
 func run_observed_visual() -> void:
 	# Bounded observer: actual fixed-intent flight first; additional display-only
