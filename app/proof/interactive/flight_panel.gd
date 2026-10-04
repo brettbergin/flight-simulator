@@ -100,6 +100,7 @@ func _draw() -> void:
 	if size.x < 640.0 or size.y < 400.0:
 		return
 	_draw_topbar()
+	_draw_control_strip()
 	if _panel_visible:
 		_draw_panel()
 	if _help_visible:
@@ -157,6 +158,29 @@ func _draw_topbar() -> void:
 	if _info.get("blocked",false) or _info.get("stalled",false):
 		draw_rect(Rect2(0,46,width,32),Color("492a20"))
 		_text(Vector2(18,68),str(_info.get("status","Flight stopped; R starts a fresh attempt")).left(int((width-36)/7.5)),13,AMBER)
+
+func _control_strip_values() -> Dictionary:
+	return {"valid":_readings.get("valid",false) and not _held.is_empty(),
+		"ground_kt":float(_readings.get("ground_kt",0.0)),
+		"throttle_percent":roundi(float(_held.get("throttle",0.0))*100),
+		"left_percent":roundi(float(_held.get("left_brake",0.0))*100),
+		"right_percent":roundi(float(_held.get("right_brake",0.0))*100)}
+
+func _draw_control_strip() -> void:
+	# Remains visible when the full overlay is hidden in cockpit/panel view.
+	# Numbers are native-held controls/current copied motion, never pending intent.
+	var retained: bool=_info.get("blocked",false) or _info.get("stalled",false) or str(_info.get("outcome","")) in ["discarded","error","coverage_blocked"]
+	var top: float=84.0 if retained else 51.0
+	var values:=_control_strip_values()
+	_box(Rect2(10,top,size.x-20,34),Color(0.035,0.064,0.095,0.95),Color("425162"),6)
+	var baseline:=top+23.0
+	var valid: bool=values.valid
+	_text(Vector2(23,baseline),"GS %05.1f kt" % float(values.ground_kt) if valid else "GS — kt",16,INK)
+	_text(Vector2(174,baseline),"THR %03d%%" % int(values.throttle_percent) if valid else "THR —",16,CYAN)
+	_text(Vector2(319,baseline),"BRAKES L %03d%%  R %03d%%" % [int(values.left_percent),int(values.right_percent)] if valid else "BRAKES L —  R —",15,AMBER)
+	var scope: String="RETAINED" if retained else "PAUSED" if _info.get("paused",false) else "NATIVE HELD"
+	_text(Vector2(574,baseline),scope,11,RED if retained else AMBER if _info.get("paused",false) else MUTED)
+	_text(Vector2(size.x-258,baseline),"X IDLE   HOLD SPACE   B TOGGLE",11,MUTED)
 
 func _draw_panel() -> void:
 	var compact := size.y < 900.0
@@ -501,8 +525,8 @@ func _draw_help() -> void:
 	_text(rect.position + Vector2(24, 34), "FLIGHT CONTROLS", 21)
 	_text(rect.position + Vector2(width - 110, 32), "H  CLOSE", 12, CYAN)
 	var rows := ["↑ / ↓  Pitch    ← / →  Roll    A / D  Yaw & steering",
-		"W / S or Page Up / Down  Throttle    [ / ]  Trim",
-		"B  Brake hold    Space  Both brakes    Q / E  Left / right",
+		"W / S or Page Up / Down  Throttle    X  Idle    [ / ]  Trim",
+		"B  Toggle brake hold    Hold Space  Both brakes    Q / E  Left / right",
 		"1  Cockpit    2  Chase    3  External    4  Panel    C  Cycle views",
 		"Hold right mouse  Look    Scroll  Zoom    Home  Reset look",
 		"P / Escape  Pause menu    R  Fresh start    G / F  Ground / air",

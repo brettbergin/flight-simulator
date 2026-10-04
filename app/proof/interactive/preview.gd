@@ -1,5 +1,7 @@
 extends Node3D
 
+const AircraftChecks = preload("res://interactive/flight_aircraft_checks.gd")
+
 const HZ: int = 120
 const BUDGET_DENOMINATOR: int = 1000000
 const DEBT_LIMIT: int = 250000 * HZ
@@ -337,6 +339,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
 			start_flight("airborne-prepared")
 		KEY_B:
 			brake_hold=not brake_hold
+		KEY_X:
+			if not paused and not blocked and not stalled and bridge != null and not controls.is_empty():
+				# Pilot intent only; the next typed command applies at the next tick.
+				controls.throttle=0.0
 		KEY_C:
 			set_camera_mode((camera_mode+1)%4)
 		KEY_1:
@@ -406,8 +412,8 @@ func open_menu(title: String="Flight paused") -> void:
 	menu_title.text=title
 	menu_message.text="Original light-aircraft prototype · synthetic airfield
 Engine already running. Instrument panel shows derived native truth.
-Arrows fly · W/S throttle · A/D yaw · B brake hold · H help
-1 cockpit · 2 chase · 3 orbit · 4 panel · Tab flight map
+Arrows fly · W/S throttle · X idle · A/D yaw · H help
+B toggle hold · Hold Space brakes · 1/2/3/4 views · Tab map
 Right mouse look · scroll zoom · Home recenter · V overlay"
 	resume_button.disabled=blocked or stalled
 	menu.show()
@@ -549,6 +555,9 @@ func make_world() -> void:
 	set_camera_mode(0)
 
 func show_state() -> void:
+	var map_top: float=124.0 if snapshot.is_empty() or blocked or stalled or native_outcome in ["discarded","error","coverage_blocked"] else 92.0
+	flight_map.size=Vector2(minf(420,get_viewport().get_visible_rect().size.x*0.42),minf(500,get_viewport().get_visible_rect().size.y-map_top-14))
+	flight_map.position=Vector2(get_viewport().get_visible_rect().size.x-flight_map.size.x-14,map_top)
 	if snapshot.is_empty():
 		if panel != null:
 			var fault_info: Dictionary={"status":status,"outcome":"error","blocked":blocked,"stalled":stalled,"paused":paused,"input_name":"Keyboard"}
@@ -597,8 +606,6 @@ func show_state() -> void:
 	var display_info: Dictionary={"status":status,"outcome":native_outcome,"blocked":blocked,"stalled":stalled,"paused":paused,"brake_hold":brake_hold,"view_name":view_names[camera_mode],"clearance_m":plane_clearance,"ground_valid":ground_valid,"input_name":input_name,"audio_enabled":audio_enabled}
 	panel.call("set_state",snapshot,atmosphere,held_controls,display_info)
 	cockpit_panel.call("set_state",snapshot,atmosphere,held_controls,display_info)
-	flight_map.size=Vector2(minf(420,get_viewport().get_visible_rect().size.x*0.42),minf(500,get_viewport().get_visible_rect().size.y-90))
-	flight_map.position=Vector2(get_viewport().get_visible_rect().size.x-flight_map.size.x-14,64)
 	flight_map.call("set_state",snapshot,airplane.position,basis,display_info)
 
 func check(condition: bool, description: String) -> void:
@@ -653,6 +660,7 @@ func run_smoke() -> void:
 	finish_smoke()
 
 func run_ux_checks() -> void:
+	AircraftChecks.new().check_mesh(self)
 	var saved: String = last_aircraft_json
 	var saved_controls: Dictionary = held_controls.duplicate(true)
 	open_menu("UX functional test")
@@ -664,6 +672,15 @@ func run_ux_checks() -> void:
 	key.pressed=true
 	_unhandled_key_input(key)
 	check(named_start=="ground-ready" and last_aircraft_json==saved,"ux_menu_consumes_flight_shortcuts")
+	var menu_intent: Dictionary=controls.duplicate(true)
+	controls.throttle=0.65
+	var menu_idle_intent: Dictionary=controls.duplicate(true)
+	var menu_idle_count: int=submitted_count
+	var menu_idle_sequence: int=command_sequence
+	key.physical_keycode=KEY_X
+	_unhandled_key_input(key)
+	check(controls==menu_idle_intent and held_controls==saved_controls and last_aircraft_json==saved and submitted_count==menu_idle_count and command_sequence==menu_idle_sequence,"ux_menu_x_idle_has_no_intent_or_native_side_effect")
+	controls=menu_intent
 	for view in range(4):
 		set_camera_mode(view)
 		show_state()
@@ -703,6 +720,14 @@ func run_ux_checks() -> void:
 	show_state()
 	check(panel.get("_info").blocked and panel.get("_info").status==status,"ux_missing_initial_state_fault_reaches_panel")
 	check(cockpit_panel.get("_info").blocked and not panel.get("_panel_visible"),"ux_fault_visible_with_cockpit_overlay_hidden")
+	# Error publications reserve the fault strip before blocked becomes true.
+	var saved_outcome: String=native_outcome
+	snapshot=saved_snapshot
+	blocked=false
+	native_outcome="error"
+	show_state()
+	check(flight_map.position.y==124.0 and panel.get("_info").outcome=="error","ux_error_publication_map_clears_retained_control_strip")
+	native_outcome=saved_outcome
 	snapshot=saved_snapshot
 	blocked=false
 	status=saved_status
@@ -743,6 +768,24 @@ func run_ux_checks() -> void:
 	flight_map.call("set_state",snapshot,airplane.position,airplane.basis)
 	check(flight_map.get("_trail").size()==1 and flight_map.get("_session")==snapshot.session_id,"ux_map_new_native_session_clears_history")
 	check(last_aircraft_json==saved and held_controls==saved_controls,"ux_map_dashboard_and_panel_view_do_not_mutate_native_state")
+	# The idle shortcut changes only pilot intent, then uses normal next-tick admission.
+	controls={"kind":"axes","roll":0.02,"pitch":0.01,"yaw":-0.03,"throttle":0.6,"mixture":1.0,"left_brake":0.2,"right_brake":0.8,"trim":0.04}
+	check(submit_axes(controls) and step_ticks(1),"ux_idle_fixture_actual_nonzero_native_throttle")
+	var before_idle: Dictionary=held_controls.duplicate(true)
+	var idle_tick: String=snapshot.tick
+	var idle_count: int=submitted_count
+	var idle_key:=InputEventKey.new()
+	idle_key.physical_keycode=KEY_X
+	idle_key.pressed=true
+	_unhandled_key_input(idle_key)
+	var expected_idle: Dictionary=before_idle.duplicate(true)
+	expected_idle.throttle=0.0
+	check(controls==expected_idle and held_controls==before_idle and snapshot.tick==idle_tick and submitted_count==idle_count,"ux_x_idle_changes_only_pending_pilot_throttle")
+	check(submit_axes(controls) and step_ticks(1),"ux_x_idle_uses_normal_next_tick_pilot_command")
+	check(held_controls==expected_idle and int(snapshot.tick)==int(idle_tick)+1,"ux_x_idle_actual_native_zero_preserves_all_other_axes")
+	show_state()
+	var strip: Dictionary=panel.call("_control_strip_values")
+	check(strip.throttle_percent==0 and strip.left_percent==20 and strip.right_percent==80 and absf(float(strip.ground_kt)-float(panel.get("_readings").ground_kt))<0.000001,"ux_compact_strip_uses_native_held_axes_and_horizontal_speed")
 	run_locator_checks()
 	set_camera_mode(0)
 	evidence["ux_scope"]="Actual menu/native state and camera checks; synthetic keyboard/gamepad mapping, not hardware acceptance"
@@ -1092,6 +1135,7 @@ func run_visual_smoke() -> void:
 	blocked=false
 	status=saved_status
 	show_state()
+	await AircraftChecks.new().capture_views(self)
 	check(close_session(), "visual_final_joined")
 	if sound != null:
 		check(bool(await sound.call("shutdown")),"visual_audio_resources_retired")
