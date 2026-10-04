@@ -568,8 +568,8 @@ func _bounded_text(value: String, width: float, pixels: int) -> String:
 		fitted=fitted.left(fitted.length()-1)
 	return fitted+"…"
 
-# Draft original MIT fragment for the shared drawing boundary; activate only
-# after checked PR118. NativeReadings remains the authoritative SI producer.
+# Original MIT shared drawing boundary. NativeReadings remains the
+# authoritative SI producer; display conversion does not change flight.
 static func _reading_keys(value: Variant, keys: Array) -> bool:
 	if not value is Dictionary or value.size()!=keys.size():
 		return false

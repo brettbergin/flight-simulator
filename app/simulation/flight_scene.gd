@@ -839,7 +839,7 @@ func run_input_visual() -> void:
 	print("CONTROLS_VISUAL_SMOKE ",JSON.stringify(report))
 	get_tree().quit(0 if failures.is_empty() else 1)
 
-# Draft original MIT scene routing, activated only after checked controls merge.
+# Original MIT view-only instrument routing over accepted native readback.
 func publish_readings(readback: Dictionary, info: Dictionary) -> void:
 	shared_readings=NativeReadings.from_readback(readback)
 	var source: Dictionary=readback.aircraft if readback.get("aircraft") is Dictionary else {}
@@ -942,8 +942,12 @@ func run_instrument_visual() -> void:
 		var output: String=OS.get_executable_path().get_base_dir() if not OS.has_feature("editor") else ProjectSettings.globalize_path("res://")
 		var image: Image=get_viewport().get_texture().get_image()
 		check(image.save_png(output.path_join(prefix+"-invalid.png"))==OK,"instrument_visual_invalid_png_"+str(index))
+		check(image.get_width()==dimensions[index].x and image.get_height()==dimensions[index].y,"instrument_visual_actual_invalid_dimensions_"+str(index))
 		check(shared_readings.state=="invalid" and not panel.get("_readings").valid and not cockpit_panel.get("_readings").valid,"instrument_visual_invalid_all_views_"+str(index))
 		check(facade.readback()==closed.readback,"instrument_visual_closed_native_unchanged_"+str(index))
+		for name in ["outside","cockpit","dashboard","scan","tas","attitude","ellipsoid_height","heading_true","body_yaw_rate","vertical_speed","retained"]:
+			var actual_size: Dictionary=evidence.get(prefix+"-"+name+"_size",{})
+			check(actual_size.get("width")==dimensions[index].x and actual_size.get("height")==dimensions[index].y,"instrument_visual_actual_dimensions_"+str(index)+"_"+name)
 		evidence.views.append({"width":image.get_width(),"height":image.get_height(),"native_tick":native.tick,"session_id":native.session_id,"default_eye":[cockpit.eye.x,cockpit.eye.y,cockpit.eye.z],"default_panel_focus":[cockpit.panel_focus.x,cockpit.panel_focus.y,cockpit.panel_focus.z]})
 	var joined: bool=close_session()
 	if sound!=null:
