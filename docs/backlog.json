@@ -4370,6 +4370,56 @@
       "evidence": [
         "Reviewed exact contract and canonical requirement/dependency mapping; no model/consumer implementation or aircraft acceptance inferred from contract closure."
       ]
+    },
+    {
+      "key": "DOCS-NATIVE-CI-SCOPE",
+      "title": "Bound native CI work for documentation-only PRs",
+      "kind": "task",
+      "phase": "P1",
+      "parent": "EPIC-P1",
+      "summary": "Reduce documentation and contract PR iteration latency with a narrow immutable-source scope classifier while preserving protected checks, default full runtime proof and explicit evidence limits. The issue remains open until actual hosted full-adoption, documentation-only and mixed/code probes pass.",
+      "depends_on": [
+        "CORE-CONTRACTS",
+        "TOOLCHAIN",
+        "NATIVE-EXPORT"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P1",
+        "area:delivery",
+        "priority:P1",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "tools/ci/classify-native.mjs",
+        "tools/ci/classify-native.test.mjs",
+        "tools/ci/README.md",
+        ".github/workflows/native-ci.yml",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p1-flight-core.md"
+      ],
+      "docs": [
+        "docs/delivery.md",
+        "docs/agent-operations.md",
+        "docs/roadmap.md",
+        "tools/ci/README.md"
+      ],
+      "requirements": [
+        "PRD-032"
+      ],
+      "acceptance": [
+        "Default to full proof. Only exact immutable PR event base/head and actual tested merge trees with exclusively added/modified regular nonexecutable allowed prose/backlog files may use documentation scope.",
+        "Run the classifier from accepted immutable base source; changed classifier/workflow cannot exempt itself. Unknown, unavailable, malformed, dirty, mixed, delete, rename, symlink, mode or nonPR evidence chooses full.",
+        "Preserve all four protected check names, existing native proof bodies/actions and Foundation workflow. Schema/docs/frozen numeric references/integrity/classifier guards always run; explicit scope receipts identify skipped runtime work without aircraft/runtime acceptance.",
+        "Independently review exact sources and adversarial real-Git tests. Initial adoption runs full protected Linux/Windows CI; after checked merge, demonstrate actual documentation-only artifacts/skips and a productive mixed/code change running full on both platforms.",
+        "Update canonical mappings and retain reviewed source and hosted scope evidence. Keep this issue open until all three rollout cases are observed; documentation-only success does not grant new runtime, source, aircraft, hardware, pilot or phase qualification."
+      ],
+      "evidence": [
+        "Reviewed exact classifier/workflow/README/mapping sources and adversarial real-Git guard results.",
+        "Hosted Linux/Windows protected full-adoption checks, then source-bound documentation-only scope receipts/artifacts and productive mixed/code full-runtime receipts. Use Refs #124 while these rollout observations remain outstanding."
+      ]
     }
   ]
 }

@@ -1,0 +1,13 @@
+# Native CI source scope
+
+The native workflow keeps both protected native job names. Full compilation, Godot/export and library-replacement proofs remain the default. [Delivery policy](../../docs/delivery.md) and independent source/phase review still apply.
+
+Only pull requests with exact immutable event base/head and the actual tested two-parent merge can qualify for the narrow documentation path. Both base-to-head and base-to-tested-merge raw Git diffs must contain only added/modified nonexecutable regular files under docs with .md extensions, exact docs/backlog.json, or root README.md, AGENTS.md, CONTRIBUTING.md and SECURITY.md. Native/app/schema/test/model/license/asset/tool/build/workflow paths, deletions, renames, symlinks/mode changes, unknown evidence and every nonPR event run full proof.
+
+The workflow extracts the classifier from the accepted immutable base commit. New classifier/workflow source cannot exempt itself; initial adoption has no accepted classifier and runs full. Missing/unreadable evidence falls back to full, while guard/check failures fail the job. Both immutable trees are checked, including merge-only code changes. No workflow path filter or absent protected job is used.
+
+Schema compilation/semantic tests, documentation/backlog validation, frozen numeric references, bootstrap-integrity tests and real-Git source guards run in every scope. The unchanged Foundation workflow also runs. Documentation scope skips only native-dependent bootstrap/compile/Godot/export proof steps and writes an explicit summary and .local/native-ci-scope/receipt.json artifact. That receipt says runtime_proof_executed=false only for documentation scope; full scope records null until separate actual native receipts establish execution. Documentation success grants no new runtime, aircraft, source, hardware, pilot or phase qualification.
+
+Run `node --test tools/ci/classify-native.test.mjs` for adversarial real-Git fixtures. Tests cover exact path/mode/type/status handling, unknown events/objects/repositories/parents, dirty tracked state and merge-only runtime injection. Preserve these guards and all existing named native proof bodies when changing the workflow.
+
+Rollout requires full hosted Linux/Windows adoption, an actual documentation-only PR with explicit artifacts/skips, and a productive mixed/code PR using the accepted classifier and running full. [Issue124](https://github.com/brettbergin/flight-simulator/issues/124) stays open until those observations exist. The four protected checks remain necessary; independently reviewed final source and separate realism gates remain required.
