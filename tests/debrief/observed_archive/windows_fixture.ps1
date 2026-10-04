@@ -10,20 +10,55 @@ function ChildPath([string]$name) {
 }
 switch ($taskData.mode) {
     'lock' {
+        # Closed fixed test hooks only; bounds concern actor lifecycle, not physics.
+        if ($taskData.nonce -isnot [string] -or $taskData.lock_case -isnot [string] -or $taskData.nonce -notmatch '^[a-f0-9]{32}$' -or $taskData.nonce -ne [IO.Path]::GetFileName($taskRoot).Substring(23) -or $taskData.lock_case -notin @('','delayed-ready','expiry','early-exit')) { throw 'Lock data' }
+        $actorPid = [Diagnostics.Process]::GetCurrentProcess().Id
+        $utf8 = [Text.UTF8Encoding]::new($false)
+        function LockMarker([string]$name,[string]$phase,[string]$reason) {
+            $marker = @{ phase=$phase; nonce=$taskData.nonce; pid=$actorPid; reason=$reason } | ConvertTo-Json -Compress
+            [IO.File]::WriteAllText((ChildPath $name),$marker,$utf8)
+        }
         $file = $null
+        $reason = 'failed'
+        $exitCode = 2
         try {
-            $file = [IO.FileStream]::new((ChildPath 'locked.json'),[IO.FileMode]::Open,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
-            [IO.File]::WriteAllText((ChildPath 'lock-ready'),'READY')
-            $timer = [Diagnostics.Stopwatch]::StartNew()
-            while (-not [IO.File]::Exists((ChildPath 'lock-release'))) {
-                if ($timer.ElapsedMilliseconds -gt 15000) { throw 'Fixture release timeout' }
-                Start-Sleep -Milliseconds 10
+            if ($taskData.lock_case -eq 'early-exit') {
+                $reason = 'early_exit'
+                $exitCode = 125
+            } else {
+                if ($taskData.lock_case -eq 'delayed-ready') { Start-Sleep -Milliseconds 6000 }
+                $file = [IO.FileStream]::new((ChildPath 'locked.json'),[IO.FileMode]::Open,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
+                LockMarker 'lock-ready' 'LOCKED' 'held'
+                # Lifetime begins after actual lock acquisition/readiness. This
+                # covers the production actor's85s watchdog/caller100s deadline.
+                $timer = [Diagnostics.Stopwatch]::StartNew()
+                $lease = if ($taskData.lock_case -eq 'expiry') { 1000 } else { 120000 }
+                while ($true) {
+                    if ($timer.ElapsedMilliseconds -ge $lease) {
+                        $reason = 'expired'
+                        $exitCode = 124
+                        break
+                    }
+                    if ([IO.File]::Exists((ChildPath 'lock-release'))) {
+                        try {
+                            $release = [IO.File]::ReadAllText((ChildPath 'lock-release'),$utf8) | ConvertFrom-Json
+                            $keys = @($release.PSObject.Properties.Name | Sort-Object)
+                            if (($keys -join ',') -eq 'nonce,phase,pid,reason' -and $release.phase -is [string] -and $release.reason -is [string] -and $release.nonce -is [string] -and ($release.pid -is [int] -or $release.pid -is [long]) -and $release.phase -ceq 'RELEASE' -and $release.reason -ceq 'requested' -and $release.nonce -ceq $taskData.nonce -and $release.pid -eq $actorPid) {
+                                $reason = 'released'
+                                $exitCode = 0
+                                break
+                            }
+                        } catch {} # Partial/foreign requests cannot release the lock.
+                    }
+                    Start-Sleep -Milliseconds 10
+                }
             }
         } finally {
             if ($null -ne $file) { $file.Dispose() }
-            [IO.File]::WriteAllText((ChildPath 'lock-closed'),'CLOSED')
+            LockMarker 'lock-closed' 'CLOSED' $reason
         }
-        [Environment]::Exit(0)
+        # Disposal acknowledgement is not process retirement; caller observes exit.
+        [Environment]::Exit($exitCode)
     }
     'junction-create' {
         $target = ChildPath 'junction-real'

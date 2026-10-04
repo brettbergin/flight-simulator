@@ -5,6 +5,8 @@ const ArchiveFiles = preload("res://replay/observed_archive/files.gd")
 const ArchiveChecks = preload("res://observed_archive_tests/archive_checks.gd")
 const REF: String = "res://observed_archive_tests/reference/"
 var _root: String = ""
+# Private fixed proof hooks; never archive/UI/native input.
+var _lock_case: String = ""
 var _race_bytes := "independent competing target; preserve exactly".to_utf8_buffer()
 
 static func _check(r: Dictionary, condition: bool, label: String) -> void:
@@ -59,7 +61,7 @@ func _fixture(mode: String, asynchronous: bool = false) -> Dictionary:
 	_stage("begin","fixture."+mode)
 	var executable: String = OS.get_environment("SystemRoot").path_join("System32/WindowsPowerShell/v1.0/powershell.exe")
 	var source: String = FileAccess.get_file_as_string("res://observed_archive_tests/windows_fixture.ps1")
-	var data: String = Marshalls.raw_to_base64(JSON.stringify({"root":_root,"mode":mode}).to_utf8_buffer())
+	var data: String = Marshalls.raw_to_base64(JSON.stringify({"root":_root,"mode":mode,"nonce":_root.get_file().trim_prefix(".observed-archive-test-"),"lock_case":_lock_case}).to_utf8_buffer())
 	# Trusted script only; JSON/data is base64 alphabet, never executable path text.
 	var command: String = "$env:FS_ARCHIVE_TEST_DATA='" + data + "'\n" + source
 	var args := PackedStringArray(["-NoProfile","-NonInteractive","-EncodedCommand",Marshalls.raw_to_base64(command.to_utf16_buffer())])
@@ -72,13 +74,55 @@ func _fixture(mode: String, asynchronous: bool = false) -> Dictionary:
 	_stage("end","fixture."+mode)
 	return {"exit":exit_code,"output":"".join(output)}
 
-static func _wait_marker(path: String, milliseconds: int = 5000) -> bool:
+func _lock_marker(name: String, pid: int, phase: String, reason: String) -> bool:
+	var file := FileAccess.open(_root.path_join(name), FileAccess.READ)
+	if file == null:
+		return false
+	if file.get_length() <= 0 or file.get_length() > 1024:
+		file.close()
+		return false
+	var parser := JSON.new()
+	var parsed: int = parser.parse(file.get_as_text())
+	file.close()
+	if parsed != OK:
+		return false
+	var marker: Variant = parser.data
+	if not ArchiveChecks._keys(marker,["phase","nonce","pid","reason"]):
+		return false
+	if typeof(marker.phase) != TYPE_STRING or typeof(marker.nonce) != TYPE_STRING or typeof(marker.reason) != TYPE_STRING:
+		return false
+	if typeof(marker.pid) not in [TYPE_INT,TYPE_FLOAT] or not is_finite(float(marker.pid)) or float(marker.pid) != floor(float(marker.pid)) or float(marker.pid) <= 0 or float(marker.pid) > 2147483647:
+		return false
+	# JSON restores only this bounded OS PID, never simulation tick identities.
+	return int(marker.pid) == pid and marker.nonce == _root.get_file().trim_prefix(".observed-archive-test-") and marker.phase == phase and marker.reason == reason
+
+func _held(pid: int) -> bool:
+	return pid > 0 and OS.is_process_running(pid) and _lock_marker("lock-ready",pid,"LOCKED","held") and not FileAccess.file_exists(_root.path_join("lock-closed"))
+
+func _wait_lock(pid: int, phase: String, reason: String, milliseconds: int) -> bool:
 	var end: int = Time.get_ticks_msec() + milliseconds
-	while Time.get_ticks_msec() < end:
-		if FileAccess.file_exists(path):
-			return true
+	var name: String = "lock-ready" if phase == "LOCKED" else "lock-closed"
+	while pid > 0 and Time.get_ticks_msec() < end:
+		if _lock_marker(name,pid,phase,reason):
+			return _held(pid) if phase == "LOCKED" else true
+		if phase == "LOCKED" and FileAccess.file_exists(_root.path_join("lock-closed")):
+			return false
+		if not OS.is_process_running(pid):
+			# Actor writes acknowledgement before exit; reread after observing exit
+			# to tolerate an earlier partial/foreign/incomplete read.
+			return _lock_marker(name,pid,phase,reason) if phase == "CLOSED" else false
 		OS.delay_msec(10)
 	return false
+
+static func _wait_exit(pid: int, milliseconds: int) -> bool:
+	var end: int = Time.get_ticks_msec() + milliseconds
+	while pid > 0 and OS.is_process_running(pid) and Time.get_ticks_msec() < end:
+		OS.delay_msec(10)
+	return pid > 0 and not OS.is_process_running(pid)
+
+func _release_lock(pid: int) -> bool:
+	var request: Dictionary = {"phase":"RELEASE","nonce":_root.get_file().trim_prefix(".observed-archive-test-"),"pid":pid,"reason":"requested"}
+	return _write(_root.path_join("lock-release"),JSON.stringify(request).to_utf8_buffer())
 
 static func _foreign(leaf: RefCounted, path: String, bytes: PackedByteArray) -> Dictionary:
 	return {"open":leaf.open(path), "save":leaf.save_new(path, bytes)}
@@ -149,20 +193,24 @@ func run() -> Dictionary:
 	_check(r, _write(locked_path,bytes), "actual-share-lock-fixture")
 	var locker: Dictionary = _fixture("lock",true)
 	var lock_pid: int = locker.pid
-	_check(r, lock_pid > 0 and _wait_marker(_root.path_join("lock-ready")), "actual-share-lock-acquired")
-	if lock_pid > 0 and FileAccess.file_exists(_root.path_join("lock-ready")):
+	_stage("begin","lock-ready")
+	var acquired: bool = _wait_lock(lock_pid,"LOCKED","held",45000)
+	_stage("end","lock-ready")
+	_check(r, acquired, "actual-share-lock-acquired")
+	if acquired:
 		_receipt(r, _open(leaf,locked_path,"share-locked"),false,"rejected","actual-share-locked-open")
 		_retired(r,leaf,"actual-share-locked-open")
-	_check(r, _write(_root.path_join("lock-release"),"RELEASE".to_utf8_buffer()), "actual-share-lock-release-request")
-	_check(r, _wait_marker(_root.path_join("lock-closed")), "actual-share-lock-disposed-marker")
-	var lock_deadline: int = Time.get_ticks_msec() + 5000
-	while lock_pid > 0 and OS.is_process_running(lock_pid) and Time.get_ticks_msec() < lock_deadline:
-		OS.delay_msec(10)
-	var lock_joined: bool = lock_pid > 0 and not OS.is_process_running(lock_pid)
+		_check(r, _held(lock_pid), "actual-share-lock-held-through-rejected-open")
+	_stage("begin","lock-release")
+	_check(r, _release_lock(lock_pid), "actual-share-lock-release-request")
+	_check(r, _wait_lock(lock_pid,"CLOSED","released",10000), "actual-share-lock-disposed-marker")
+	var lock_joined: bool = _wait_exit(lock_pid,10000)
 	_check(r, lock_joined and OS.get_process_exit_code(lock_pid) == 0, "actual-share-lock-child-retired")
+	_stage("end","lock-release")
 	if lock_pid > 0 and not lock_joined:
-		# Only this driver-created child; timeout still fails and is never a join.
+		# Only this created child. Forced cleanup never satisfies the join proof.
 		OS.kill(lock_pid)
+		_check(r, _wait_exit(lock_pid,10000), "failed-lock-owned-child-cleanup-retired")
 	_check(r, FileAccess.get_file_as_bytes(locked_path) == bytes, "locked-file-unchanged")
 	var junction: Dictionary = _fixture("junction-create")
 	_check(r, junction.exit == 0 and junction.output.contains("JUNCTION_READY"), "actual-junction-created")
