@@ -4632,7 +4632,8 @@
         "docs/backlog.json",
         "docs/issue-index.md",
         "docs/requirements.md",
-        "docs/phases/p2-first-flight.md"
+        "docs/phases/p2-first-flight.md",
+        "tests/integration/sim_loop/scene_checks.gd"
       ],
       "docs": [
         "docs/decisions/011-observed-flight-review.md",

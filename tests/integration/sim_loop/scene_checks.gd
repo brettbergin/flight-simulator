@@ -139,7 +139,7 @@ func run(host: Node) -> Dictionary:
  host.check(absf(float(floor[1])+250.0)<0.000001 and scene.camera.position.y>=float(floor[1])+0.35-0.0001,"scene_actual_orbit_clearance_uses_shifted_canonical_plane")
  host.check(scene.world_root.position.distance_to(-shift)<0.0001 and scene.light_root.position.distance_to(-shift)<0.0001,"scene_actual_world_light_adopt_same_origin")
  var old_session: String=truth.session_id
- host.check(scene.restart(),"scene_actual_reset_joins_then_initializes")
+ host.check(scene.restart(true),"scene_actual_reset_joins_then_initializes")
  scene.set_process(false)
  scene.show_state(0.0)
  var fresh: Dictionary=scene.facade.readback()
@@ -152,7 +152,7 @@ func run(host: Node) -> Dictionary:
  # Direct read_state calls inside the fixture are observers, not solver writes.
  for callback_phase in ["prepare","commit"]:
   if callback_phase=="commit":
-   host.check(scene.restart(),"scene_callback_reset_between_transaction_stages")
+   host.check(scene.restart(true),"scene_callback_reset_between_transaction_stages")
    scene.set_process(false)
    scene.show_state(0.0)
   host.check(scene.pause_session(false),"scene_callback_"+callback_phase+"_starts_explicitly_live")
@@ -178,7 +178,7 @@ func run(host: Node) -> Dictionary:
    scene.adopt_result(stopped)
    scene.show_state(0.0)
    host.check(not stopped.ok and stopped.readback.host_mode=="discarded" and not stopped.readback.native_live and stopped.readback.tick==callback_truth.tick and _hidden(scene),"scene_actual_commit_callback_terminal_recovery_joins_after_transaction_without_step")
- host.check(scene.restart(),"scene_actual_reset_after_callback_faults")
+ host.check(scene.restart(true),"scene_actual_reset_after_callback_faults")
  scene.set_process(false)
  host.check(scene.pause_session(true),"scene_actual_pause_before_synthetic_origin_commit_fault")
  scene.show_state(0.0)
@@ -192,7 +192,7 @@ func run(host: Node) -> Dictionary:
  scene.show_state(0.0)
  host.check(not failed.ok and not terminal.ok and terminal.readback.host_mode=="discarded" and not terminal.readback.native_live and terminal.readback.tick==fault_truth.tick,"scene_actual_paused_commit_fault_stops_and_joins_without_tick")
  host.check(_hidden(scene) and not scene.facade.visual_pose().valid,"scene_actual_partial_commit_failure_hides_all_geometry")
- host.check(scene.restart(),"scene_actual_reset_reconstructs_faulted_adapters")
+ host.check(scene.restart(true),"scene_actual_reset_reconstructs_faulted_adapters")
  scene.set_process(false)
  scene.show_state(0.0)
  var retained: Dictionary=scene.snapshot.duplicate(true)
