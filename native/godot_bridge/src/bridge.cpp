@@ -1,5 +1,8 @@
 #include "codec.hpp"
 #include "worker.hpp"
+#ifdef FLIGHT_HAS_INTERACTIVE
+#include "interactive_worker.hpp"
+#endif
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/godot.hpp>
@@ -130,11 +133,17 @@ class FlightProofSession final : public godot::RefCounted {
 void initialize(godot::ModuleInitializationLevel level) {
   if(level!=godot::MODULE_INITIALIZATION_LEVEL_SCENE) return;
   godot::ClassDB::register_class<FlightProofSession>();
+#ifdef FLIGHT_HAS_INTERACTIVE
+  register_interactive_bridge();
+#endif
   godot::UtilityFunctions::print("FLIGHT_BRIDGE_INITIALIZED");
 }
 void terminate(godot::ModuleInitializationLevel level) {
   if(level!=godot::MODULE_INITIALIZATION_LEVEL_SCENE) return;
   Worker::close_all();
+#ifdef FLIGHT_HAS_INTERACTIVE
+  close_interactive_bridges();
+#endif
   godot::UtilityFunctions::print("FLIGHT_BRIDGE_TERMINATED_JOINED");
 }
 }
