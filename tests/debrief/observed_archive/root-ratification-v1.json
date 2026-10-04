@@ -1,0 +1,35 @@
+{
+  "ratified": true,
+  "reviewer": "/root",
+  "accepted_main": "203281125d696cc567eee8133f9cda74fa56b6df",
+  "contract_source_head": "2409a543af654af763fc1b84fa47a61cb030d0e5",
+  "contract_git_lf_sha256": "bde453e84734251f0f687aebc5b18f895ae7b71970a3c67b0274b605e5a79c5d",
+  "binary64_expected_sha256": "406b00475e444f71f6e1f57fd37100c52b86c076e0dccbf664bb5bfc05c028d8",
+  "archive_expected_sha256": "961d8903f702f1d46374998db06b7517a1ca067333b3613bd2adbf3a8c06b15e",
+  "archive_generator_sha256": "402ceb96e5f335981d8b94608e1cc0b2d580d1340392d21f30024e541c54220f",
+  "budgets": {
+    "float_bits": "exact64-bit equality",
+    "type_and_ticks": "exact",
+    "archive_bytes": 8388608,
+    "payload_bytes": 8388608,
+    "depth": 16,
+    "values": 250000,
+    "samples": 2401
+  },
+  "cases": {
+    "scalar": 26,
+    "archive_positive": 8,
+    "archive_negative": 32
+  },
+  "dense_reference": {
+    "samples": 2401,
+    "payload_bytes": 3990531,
+    "file_bytes": 4643883,
+    "payload_values": 225725,
+    "outer_values": 6,
+    "payload_depth": 7,
+    "outer_depth": 1
+  },
+  "review": "Generator source inspected, all declared file/text/digest/metric/leaf bits independently checked; dense2401 exact grids/floatbits expanded;32 negative reasons reviewed against strict contract. No codec/native/IO/GPU output observed.",
+  "limits": "Synthetic preconsumer references; no runtime/durability/aircraft/pilot/phase acceptance."
+}

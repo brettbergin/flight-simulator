@@ -1,0 +1,1848 @@
+{
+  "status": "independent-preconsumer-fixtures-awaiting-root-review",
+  "license": "MIT",
+  "contract_head": "2409a543af654af763fc1b84fa47a61cb030d0e5",
+  "contract_git_lf_sha256": "bde453e84734251f0f687aebc5b18f895ae7b71970a3c67b0274b605e5a79c5d",
+  "scope": "Representation/schema/grammar references only; no codec import/output, native flight, actual IO or acceptance claim.",
+  "bit_budget": "Exact64bits/type; no tolerance",
+  "tick_budget": "Exactdecimal String identity; never scheduling viafloat",
+  "fingerprint_scope": "f*64 is structurally valid synthetic reference metadata, not an executed native binary identity.",
+  "positions_scope": "Synthetic fixed-anchor EUS; recorded channel scalars arbitrary finite mock observations, not flight dynamics.",
+  "serialization": "Deterministic compact ASCII JSON key insertion order is a reference choice; decoder must accept other permitted order/whitespace.",
+  "positives": [
+    {
+      "id": "minimal",
+      "file": "minimal.fsreview.json",
+      "sha256": "e830a36a899f216a44da263df16f59fc94611c7e44a3c610f3f968d0250965bf",
+      "payload_sha256": "98257a78e778f5e3e35aef2bd2e04eec4019366211a34ec363b7abfe4d7a63ff",
+      "expected": "accept",
+      "metrics": {
+        "samples": 1,
+        "payload_bytes": 2473,
+        "file_bytes": 3023,
+        "payload_values": 125,
+        "outer_values": 6,
+        "payload_depth": 7,
+        "outer_depth": 1
+      },
+      "numeric_types_and_bits": [
+        {
+          "path": "/contract_version",
+          "type": "int",
+          "value": 1
+        },
+        {
+          "path": "/metadata/world_anchor/latitude_rad",
+          "type": "float",
+          "le_hex": "9a9999999999e93f"
+        },
+        {
+          "path": "/metadata/world_anchor/longitude_rad",
+          "type": "float",
+          "le_hex": "00000000000000c0"
+        },
+        {
+          "path": "/metadata/world_anchor/ellipsoid_height_m",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/metadata/clock/tick_rate_hz",
+          "type": "int",
+          "value": 120
+        },
+        {
+          "path": "/samples/0/late_by_ticks",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/0/skipped_targets_before",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/0/elapsed_s",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/anchor_eus_position_m/0",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/anchor_eus_position_m/1",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/anchor_eus_position_m/2",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/readings/readings/tas/value",
+          "type": "float",
+          "le_hex": "000000000000f03f"
+        },
+        {
+          "path": "/samples/0/readings/readings/ground_speed/value",
+          "type": "float",
+          "le_hex": "0000000000000040"
+        },
+        {
+          "path": "/samples/0/readings/readings/pitch/value",
+          "type": "float",
+          "le_hex": "0000000000000840"
+        },
+        {
+          "path": "/samples/0/readings/readings/bank/value",
+          "type": "float",
+          "le_hex": "0000000000001040"
+        },
+        {
+          "path": "/samples/0/readings/readings/heading_true/value",
+          "type": "float",
+          "le_hex": "0000000000001440"
+        },
+        {
+          "path": "/samples/0/readings/readings/ellipsoid_height/value",
+          "type": "float",
+          "le_hex": "0000000000001840"
+        },
+        {
+          "path": "/samples/0/readings/readings/vertical_speed/value",
+          "type": "float",
+          "le_hex": "0000000000001c40"
+        },
+        {
+          "path": "/samples/0/readings/readings/body_yaw_rate/value",
+          "type": "float",
+          "le_hex": "0000000000002040"
+        },
+        {
+          "path": "/samples/0/readings/readings/fuel_total/value",
+          "type": "float",
+          "le_hex": "0000000000002240"
+        },
+        {
+          "path": "/samples/0/held_axes/roll",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/pitch",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/yaw",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/throttle",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/mixture",
+          "type": "float",
+          "le_hex": "000000000000f03f"
+        },
+        {
+          "path": "/samples/0/held_axes/left_brake",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/right_brake",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/trim",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/skipped_target_count",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/late_sample_count",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/uncaptured_tail_targets",
+          "type": "int",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "id": "dense-2401",
+      "file": "dense-2401.fsreview.json",
+      "sha256": "33d5e338aa0dd7b57157dcb0bce613e3d1a1126170c5045a0dfb8b2b93ea8afc",
+      "payload_sha256": "30e57c6fd1096f79cea7453a188d88e6ac6adc00ac402abce74bdf777a9bd6f0",
+      "expected": "accept",
+      "metrics": {
+        "samples": 2401,
+        "payload_bytes": 3990531,
+        "file_bytes": 4643883,
+        "payload_values": 225725,
+        "outer_values": 6,
+        "payload_depth": 7,
+        "outer_depth": 1
+      },
+      "numeric_types_and_bits": {
+        "shared_template": "minimal",
+        "elapsed_s": "float(actual absolute tick)/120 legacy field consistency only",
+        "position": "float3i,0,float4i; ticks exact60i",
+        "clock_type": "int",
+        "axes_type": "float",
+        "channel_types": "float"
+      }
+    },
+    {
+      "id": "clock-float-axes-integer",
+      "file": "clock-float-axes-integer.fsreview.json",
+      "sha256": "27e27c50438d5150c33680a94f51afe75113cfaa813d333f21c3d13082587314",
+      "payload_sha256": "b4b542e53c6a55241a15703cce7e89ea9651d25a38ec6cf7b5809d59e1b87822",
+      "expected": "accept",
+      "metrics": {
+        "samples": 1,
+        "payload_bytes": 2233,
+        "file_bytes": 2755,
+        "payload_values": 118,
+        "outer_values": 6,
+        "payload_depth": 7,
+        "outer_depth": 1
+      },
+      "numeric_types_and_bits": [
+        {
+          "path": "/contract_version",
+          "type": "int",
+          "value": 1
+        },
+        {
+          "path": "/metadata/world_anchor/latitude_rad",
+          "type": "float",
+          "le_hex": "9a9999999999e93f"
+        },
+        {
+          "path": "/metadata/world_anchor/longitude_rad",
+          "type": "float",
+          "le_hex": "00000000000000c0"
+        },
+        {
+          "path": "/metadata/world_anchor/ellipsoid_height_m",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/metadata/clock/tick_rate_hz",
+          "type": "float",
+          "le_hex": "0000000000005e40"
+        },
+        {
+          "path": "/samples/0/late_by_ticks",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/0/skipped_targets_before",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/0/elapsed_s",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/anchor_eus_position_m/0",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/anchor_eus_position_m/1",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/anchor_eus_position_m/2",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/readings/readings/tas/value",
+          "type": "float",
+          "le_hex": "000000000000f03f"
+        },
+        {
+          "path": "/samples/0/readings/readings/ground_speed/value",
+          "type": "float",
+          "le_hex": "0000000000000040"
+        },
+        {
+          "path": "/samples/0/readings/readings/pitch/value",
+          "type": "float",
+          "le_hex": "0000000000000840"
+        },
+        {
+          "path": "/samples/0/readings/readings/bank/value",
+          "type": "float",
+          "le_hex": "0000000000001040"
+        },
+        {
+          "path": "/samples/0/readings/readings/heading_true/value",
+          "type": "float",
+          "le_hex": "0000000000001440"
+        },
+        {
+          "path": "/samples/0/readings/readings/ellipsoid_height/value",
+          "type": "float",
+          "le_hex": "0000000000001840"
+        },
+        {
+          "path": "/samples/0/readings/readings/vertical_speed/value",
+          "type": "float",
+          "le_hex": "0000000000001c40"
+        },
+        {
+          "path": "/samples/0/readings/readings/body_yaw_rate/value",
+          "type": "float",
+          "le_hex": "0000000000002040"
+        },
+        {
+          "path": "/samples/0/readings/readings/fuel_total/value",
+          "type": "float",
+          "le_hex": "0000000000002240"
+        },
+        {
+          "path": "/samples/0/held_axes/roll",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/0/held_axes/pitch",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/0/held_axes/yaw",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/0/held_axes/throttle",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/0/held_axes/mixture",
+          "type": "int",
+          "value": 1
+        },
+        {
+          "path": "/samples/0/held_axes/left_brake",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/0/held_axes/right_brake",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/0/held_axes/trim",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/skipped_target_count",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/late_sample_count",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/uncaptured_tail_targets",
+          "type": "int",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "id": "unavailable",
+      "file": "unavailable.fsreview.json",
+      "sha256": "0809f304caa6a75246f983f95ee89b908fd1423466c1010996fe6264eb9b272e",
+      "payload_sha256": "f0d058efec4cedc87f4b39dd049540f8f428f6058a0f89f5356a43cf910bf042",
+      "expected": "accept",
+      "metrics": {
+        "samples": 1,
+        "payload_bytes": 2474,
+        "file_bytes": 3020,
+        "payload_values": 124,
+        "outer_values": 6,
+        "payload_depth": 7,
+        "outer_depth": 1
+      },
+      "numeric_types_and_bits": [
+        {
+          "path": "/contract_version",
+          "type": "int",
+          "value": 1
+        },
+        {
+          "path": "/metadata/world_anchor/latitude_rad",
+          "type": "float",
+          "le_hex": "9a9999999999e93f"
+        },
+        {
+          "path": "/metadata/world_anchor/longitude_rad",
+          "type": "float",
+          "le_hex": "00000000000000c0"
+        },
+        {
+          "path": "/metadata/world_anchor/ellipsoid_height_m",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/metadata/clock/tick_rate_hz",
+          "type": "int",
+          "value": 120
+        },
+        {
+          "path": "/samples/0/late_by_ticks",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/0/skipped_targets_before",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/0/elapsed_s",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/anchor_eus_position_m/0",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/anchor_eus_position_m/1",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/anchor_eus_position_m/2",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/readings/readings/tas/value",
+          "type": "float",
+          "le_hex": "000000000000f03f"
+        },
+        {
+          "path": "/samples/0/readings/readings/ground_speed/value",
+          "type": "float",
+          "le_hex": "0000000000000040"
+        },
+        {
+          "path": "/samples/0/readings/readings/pitch/value",
+          "type": "float",
+          "le_hex": "0000000000000840"
+        },
+        {
+          "path": "/samples/0/readings/readings/bank/value",
+          "type": "float",
+          "le_hex": "0000000000001040"
+        },
+        {
+          "path": "/samples/0/readings/readings/heading_true/value",
+          "type": "float",
+          "le_hex": "0000000000001440"
+        },
+        {
+          "path": "/samples/0/readings/readings/ellipsoid_height/value",
+          "type": "float",
+          "le_hex": "0000000000001840"
+        },
+        {
+          "path": "/samples/0/readings/readings/vertical_speed/value",
+          "type": "float",
+          "le_hex": "0000000000001c40"
+        },
+        {
+          "path": "/samples/0/readings/readings/body_yaw_rate/value",
+          "type": "float",
+          "le_hex": "0000000000002040"
+        },
+        {
+          "path": "/samples/0/held_axes/roll",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/pitch",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/yaw",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/throttle",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/mixture",
+          "type": "float",
+          "le_hex": "000000000000f03f"
+        },
+        {
+          "path": "/samples/0/held_axes/left_brake",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/right_brake",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/trim",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/skipped_target_count",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/late_sample_count",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/uncaptured_tail_targets",
+          "type": "int",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "id": "signed-zero-subnormal",
+      "file": "signed-zero-subnormal.fsreview.json",
+      "sha256": "327b23e82f0119f94968020a2f0f7424c78efa09d55665b1fca17b871e80159f",
+      "payload_sha256": "ff6745a83f18c48d45b07b4716e1e288a1e35ceda8a0901729fbdd3d8d75d438",
+      "expected": "accept",
+      "metrics": {
+        "samples": 1,
+        "payload_bytes": 2473,
+        "file_bytes": 3023,
+        "payload_values": 125,
+        "outer_values": 6,
+        "payload_depth": 7,
+        "outer_depth": 1
+      },
+      "numeric_types_and_bits": [
+        {
+          "path": "/contract_version",
+          "type": "int",
+          "value": 1
+        },
+        {
+          "path": "/metadata/world_anchor/latitude_rad",
+          "type": "float",
+          "le_hex": "9a9999999999e93f"
+        },
+        {
+          "path": "/metadata/world_anchor/longitude_rad",
+          "type": "float",
+          "le_hex": "00000000000000c0"
+        },
+        {
+          "path": "/metadata/world_anchor/ellipsoid_height_m",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/metadata/clock/tick_rate_hz",
+          "type": "int",
+          "value": 120
+        },
+        {
+          "path": "/samples/0/late_by_ticks",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/0/skipped_targets_before",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/0/elapsed_s",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/anchor_eus_position_m/0",
+          "type": "float",
+          "le_hex": "0000000000000080"
+        },
+        {
+          "path": "/samples/0/anchor_eus_position_m/1",
+          "type": "float",
+          "le_hex": "0100000000000000"
+        },
+        {
+          "path": "/samples/0/anchor_eus_position_m/2",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/readings/readings/tas/value",
+          "type": "float",
+          "le_hex": "000000000000f03f"
+        },
+        {
+          "path": "/samples/0/readings/readings/ground_speed/value",
+          "type": "float",
+          "le_hex": "0000000000000040"
+        },
+        {
+          "path": "/samples/0/readings/readings/pitch/value",
+          "type": "float",
+          "le_hex": "0000000000000840"
+        },
+        {
+          "path": "/samples/0/readings/readings/bank/value",
+          "type": "float",
+          "le_hex": "0000000000001040"
+        },
+        {
+          "path": "/samples/0/readings/readings/heading_true/value",
+          "type": "float",
+          "le_hex": "0000000000001440"
+        },
+        {
+          "path": "/samples/0/readings/readings/ellipsoid_height/value",
+          "type": "float",
+          "le_hex": "0000000000001840"
+        },
+        {
+          "path": "/samples/0/readings/readings/vertical_speed/value",
+          "type": "float",
+          "le_hex": "0000000000001c40"
+        },
+        {
+          "path": "/samples/0/readings/readings/body_yaw_rate/value",
+          "type": "float",
+          "le_hex": "0000000000002040"
+        },
+        {
+          "path": "/samples/0/readings/readings/fuel_total/value",
+          "type": "float",
+          "le_hex": "0000000000002240"
+        },
+        {
+          "path": "/samples/0/held_axes/roll",
+          "type": "float",
+          "le_hex": "0000000000000080"
+        },
+        {
+          "path": "/samples/0/held_axes/pitch",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/yaw",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/throttle",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/mixture",
+          "type": "float",
+          "le_hex": "000000000000f03f"
+        },
+        {
+          "path": "/samples/0/held_axes/left_brake",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/right_brake",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/trim",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/skipped_target_count",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/late_sample_count",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/uncaptured_tail_targets",
+          "type": "int",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "id": "full-uint64-over-2pow53",
+      "file": "full-uint64-over-2pow53.fsreview.json",
+      "sha256": "5434c2c85be998551ec3a40edb874a242484f7c02bf2d6eab319454a976cb88f",
+      "payload_sha256": "9f511feebdabac770c83bce7781e16838308a6f04ad39d6da174bcbe2d1ee6c0",
+      "expected": "accept",
+      "metrics": {
+        "samples": 2,
+        "payload_bytes": 4243,
+        "file_bytes": 5067,
+        "payload_values": 219,
+        "outer_values": 6,
+        "payload_depth": 7,
+        "outer_depth": 1
+      },
+      "numeric_types_and_bits": [
+        {
+          "path": "/contract_version",
+          "type": "int",
+          "value": 1
+        },
+        {
+          "path": "/metadata/world_anchor/latitude_rad",
+          "type": "float",
+          "le_hex": "9a9999999999e93f"
+        },
+        {
+          "path": "/metadata/world_anchor/longitude_rad",
+          "type": "float",
+          "le_hex": "00000000000000c0"
+        },
+        {
+          "path": "/metadata/world_anchor/ellipsoid_height_m",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/metadata/clock/tick_rate_hz",
+          "type": "int",
+          "value": 120
+        },
+        {
+          "path": "/samples/0/late_by_ticks",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/0/skipped_targets_before",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/0/elapsed_s",
+          "type": "float",
+          "le_hex": "111111111111d142"
+        },
+        {
+          "path": "/samples/0/anchor_eus_position_m/0",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/anchor_eus_position_m/1",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/anchor_eus_position_m/2",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/readings/readings/tas/value",
+          "type": "float",
+          "le_hex": "000000000000f03f"
+        },
+        {
+          "path": "/samples/0/readings/readings/ground_speed/value",
+          "type": "float",
+          "le_hex": "0000000000000040"
+        },
+        {
+          "path": "/samples/0/readings/readings/pitch/value",
+          "type": "float",
+          "le_hex": "0000000000000840"
+        },
+        {
+          "path": "/samples/0/readings/readings/bank/value",
+          "type": "float",
+          "le_hex": "0000000000001040"
+        },
+        {
+          "path": "/samples/0/readings/readings/heading_true/value",
+          "type": "float",
+          "le_hex": "0000000000001440"
+        },
+        {
+          "path": "/samples/0/readings/readings/ellipsoid_height/value",
+          "type": "float",
+          "le_hex": "0000000000001840"
+        },
+        {
+          "path": "/samples/0/readings/readings/vertical_speed/value",
+          "type": "float",
+          "le_hex": "0000000000001c40"
+        },
+        {
+          "path": "/samples/0/readings/readings/body_yaw_rate/value",
+          "type": "float",
+          "le_hex": "0000000000002040"
+        },
+        {
+          "path": "/samples/0/readings/readings/fuel_total/value",
+          "type": "float",
+          "le_hex": "0000000000002240"
+        },
+        {
+          "path": "/samples/0/held_axes/roll",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/pitch",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/yaw",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/throttle",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/mixture",
+          "type": "float",
+          "le_hex": "000000000000f03f"
+        },
+        {
+          "path": "/samples/0/held_axes/left_brake",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/right_brake",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/trim",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/1/late_by_ticks",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/1/skipped_targets_before",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/1/elapsed_s",
+          "type": "float",
+          "le_hex": "311111111111d142"
+        },
+        {
+          "path": "/samples/1/anchor_eus_position_m/0",
+          "type": "float",
+          "le_hex": "0000000000000840"
+        },
+        {
+          "path": "/samples/1/anchor_eus_position_m/1",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/1/anchor_eus_position_m/2",
+          "type": "float",
+          "le_hex": "0000000000001040"
+        },
+        {
+          "path": "/samples/1/readings/readings/tas/value",
+          "type": "float",
+          "le_hex": "000000000000f03f"
+        },
+        {
+          "path": "/samples/1/readings/readings/ground_speed/value",
+          "type": "float",
+          "le_hex": "0000000000000040"
+        },
+        {
+          "path": "/samples/1/readings/readings/pitch/value",
+          "type": "float",
+          "le_hex": "0000000000000840"
+        },
+        {
+          "path": "/samples/1/readings/readings/bank/value",
+          "type": "float",
+          "le_hex": "0000000000001040"
+        },
+        {
+          "path": "/samples/1/readings/readings/heading_true/value",
+          "type": "float",
+          "le_hex": "0000000000001440"
+        },
+        {
+          "path": "/samples/1/readings/readings/ellipsoid_height/value",
+          "type": "float",
+          "le_hex": "0000000000001840"
+        },
+        {
+          "path": "/samples/1/readings/readings/vertical_speed/value",
+          "type": "float",
+          "le_hex": "0000000000001c40"
+        },
+        {
+          "path": "/samples/1/readings/readings/body_yaw_rate/value",
+          "type": "float",
+          "le_hex": "0000000000002040"
+        },
+        {
+          "path": "/samples/1/readings/readings/fuel_total/value",
+          "type": "float",
+          "le_hex": "0000000000002240"
+        },
+        {
+          "path": "/samples/1/held_axes/roll",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/1/held_axes/pitch",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/1/held_axes/yaw",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/1/held_axes/throttle",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/1/held_axes/mixture",
+          "type": "float",
+          "le_hex": "000000000000f03f"
+        },
+        {
+          "path": "/samples/1/held_axes/left_brake",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/1/held_axes/right_brake",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/1/held_axes/trim",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/skipped_target_count",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/late_sample_count",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/uncaptured_tail_targets",
+          "type": "int",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "id": "max-uint64",
+      "file": "max-uint64.fsreview.json",
+      "sha256": "f59cddbc8dc5793d90fd8e48dddf9db6b0fa91c85742e5c27c6e6bed00b86d47",
+      "payload_sha256": "a0f51ed792203b2d912ec94513972cc5ac040045be2492d840a4ee416c31b082",
+      "expected": "accept",
+      "metrics": {
+        "samples": 1,
+        "payload_bytes": 2577,
+        "file_bytes": 3129,
+        "payload_values": 125,
+        "outer_values": 6,
+        "payload_depth": 7,
+        "outer_depth": 1
+      },
+      "numeric_types_and_bits": [
+        {
+          "path": "/contract_version",
+          "type": "int",
+          "value": 1
+        },
+        {
+          "path": "/metadata/world_anchor/latitude_rad",
+          "type": "float",
+          "le_hex": "9a9999999999e93f"
+        },
+        {
+          "path": "/metadata/world_anchor/longitude_rad",
+          "type": "float",
+          "le_hex": "00000000000000c0"
+        },
+        {
+          "path": "/metadata/world_anchor/ellipsoid_height_m",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/metadata/clock/tick_rate_hz",
+          "type": "int",
+          "value": 120
+        },
+        {
+          "path": "/samples/0/late_by_ticks",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/0/skipped_targets_before",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/0/elapsed_s",
+          "type": "float",
+          "le_hex": "1111111111118143"
+        },
+        {
+          "path": "/samples/0/anchor_eus_position_m/0",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/anchor_eus_position_m/1",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/anchor_eus_position_m/2",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/readings/readings/tas/value",
+          "type": "float",
+          "le_hex": "000000000000f03f"
+        },
+        {
+          "path": "/samples/0/readings/readings/ground_speed/value",
+          "type": "float",
+          "le_hex": "0000000000000040"
+        },
+        {
+          "path": "/samples/0/readings/readings/pitch/value",
+          "type": "float",
+          "le_hex": "0000000000000840"
+        },
+        {
+          "path": "/samples/0/readings/readings/bank/value",
+          "type": "float",
+          "le_hex": "0000000000001040"
+        },
+        {
+          "path": "/samples/0/readings/readings/heading_true/value",
+          "type": "float",
+          "le_hex": "0000000000001440"
+        },
+        {
+          "path": "/samples/0/readings/readings/ellipsoid_height/value",
+          "type": "float",
+          "le_hex": "0000000000001840"
+        },
+        {
+          "path": "/samples/0/readings/readings/vertical_speed/value",
+          "type": "float",
+          "le_hex": "0000000000001c40"
+        },
+        {
+          "path": "/samples/0/readings/readings/body_yaw_rate/value",
+          "type": "float",
+          "le_hex": "0000000000002040"
+        },
+        {
+          "path": "/samples/0/readings/readings/fuel_total/value",
+          "type": "float",
+          "le_hex": "0000000000002240"
+        },
+        {
+          "path": "/samples/0/held_axes/roll",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/pitch",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/yaw",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/throttle",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/mixture",
+          "type": "float",
+          "le_hex": "000000000000f03f"
+        },
+        {
+          "path": "/samples/0/held_axes/left_brake",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/right_brake",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/trim",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/skipped_target_count",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/late_sample_count",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/uncaptured_tail_targets",
+          "type": "int",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "id": "late-gap-tail",
+      "file": "late-gap-tail.fsreview.json",
+      "sha256": "4c54f9adff1741d167f22d6ac2f3d8b0f6c52d714c3afccc1eca0e4349c15810",
+      "payload_sha256": "508e4e1c27151a0649f713de456d1b48d49362b066b82f6551574926779218c9",
+      "expected": "accept",
+      "metrics": {
+        "samples": 3,
+        "payload_bytes": 5782,
+        "file_bytes": 6878,
+        "payload_values": 313,
+        "outer_values": 6,
+        "payload_depth": 7,
+        "outer_depth": 1
+      },
+      "numeric_types_and_bits": [
+        {
+          "path": "/contract_version",
+          "type": "int",
+          "value": 1
+        },
+        {
+          "path": "/metadata/world_anchor/latitude_rad",
+          "type": "float",
+          "le_hex": "9a9999999999e93f"
+        },
+        {
+          "path": "/metadata/world_anchor/longitude_rad",
+          "type": "float",
+          "le_hex": "00000000000000c0"
+        },
+        {
+          "path": "/metadata/world_anchor/ellipsoid_height_m",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/metadata/clock/tick_rate_hz",
+          "type": "int",
+          "value": 120
+        },
+        {
+          "path": "/samples/0/late_by_ticks",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/0/skipped_targets_before",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/0/elapsed_s",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/anchor_eus_position_m/0",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/anchor_eus_position_m/1",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/anchor_eus_position_m/2",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/readings/readings/tas/value",
+          "type": "float",
+          "le_hex": "000000000000f03f"
+        },
+        {
+          "path": "/samples/0/readings/readings/ground_speed/value",
+          "type": "float",
+          "le_hex": "0000000000000040"
+        },
+        {
+          "path": "/samples/0/readings/readings/pitch/value",
+          "type": "float",
+          "le_hex": "0000000000000840"
+        },
+        {
+          "path": "/samples/0/readings/readings/bank/value",
+          "type": "float",
+          "le_hex": "0000000000001040"
+        },
+        {
+          "path": "/samples/0/readings/readings/heading_true/value",
+          "type": "float",
+          "le_hex": "0000000000001440"
+        },
+        {
+          "path": "/samples/0/readings/readings/ellipsoid_height/value",
+          "type": "float",
+          "le_hex": "0000000000001840"
+        },
+        {
+          "path": "/samples/0/readings/readings/vertical_speed/value",
+          "type": "float",
+          "le_hex": "0000000000001c40"
+        },
+        {
+          "path": "/samples/0/readings/readings/body_yaw_rate/value",
+          "type": "float",
+          "le_hex": "0000000000002040"
+        },
+        {
+          "path": "/samples/0/readings/readings/fuel_total/value",
+          "type": "float",
+          "le_hex": "0000000000002240"
+        },
+        {
+          "path": "/samples/0/held_axes/roll",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/pitch",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/yaw",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/throttle",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/mixture",
+          "type": "float",
+          "le_hex": "000000000000f03f"
+        },
+        {
+          "path": "/samples/0/held_axes/left_brake",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/right_brake",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/0/held_axes/trim",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/1/late_by_ticks",
+          "type": "int",
+          "value": 1
+        },
+        {
+          "path": "/samples/1/skipped_targets_before",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "path": "/samples/1/elapsed_s",
+          "type": "float",
+          "le_hex": "444444444444e03f"
+        },
+        {
+          "path": "/samples/1/anchor_eus_position_m/0",
+          "type": "float",
+          "le_hex": "0000000000000840"
+        },
+        {
+          "path": "/samples/1/anchor_eus_position_m/1",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/1/anchor_eus_position_m/2",
+          "type": "float",
+          "le_hex": "0000000000001040"
+        },
+        {
+          "path": "/samples/1/readings/readings/tas/value",
+          "type": "float",
+          "le_hex": "000000000000f03f"
+        },
+        {
+          "path": "/samples/1/readings/readings/ground_speed/value",
+          "type": "float",
+          "le_hex": "0000000000000040"
+        },
+        {
+          "path": "/samples/1/readings/readings/pitch/value",
+          "type": "float",
+          "le_hex": "0000000000000840"
+        },
+        {
+          "path": "/samples/1/readings/readings/bank/value",
+          "type": "float",
+          "le_hex": "0000000000001040"
+        },
+        {
+          "path": "/samples/1/readings/readings/heading_true/value",
+          "type": "float",
+          "le_hex": "0000000000001440"
+        },
+        {
+          "path": "/samples/1/readings/readings/ellipsoid_height/value",
+          "type": "float",
+          "le_hex": "0000000000001840"
+        },
+        {
+          "path": "/samples/1/readings/readings/vertical_speed/value",
+          "type": "float",
+          "le_hex": "0000000000001c40"
+        },
+        {
+          "path": "/samples/1/readings/readings/body_yaw_rate/value",
+          "type": "float",
+          "le_hex": "0000000000002040"
+        },
+        {
+          "path": "/samples/1/readings/readings/fuel_total/value",
+          "type": "float",
+          "le_hex": "0000000000002240"
+        },
+        {
+          "path": "/samples/1/held_axes/roll",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/1/held_axes/pitch",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/1/held_axes/yaw",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/1/held_axes/throttle",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/1/held_axes/mixture",
+          "type": "float",
+          "le_hex": "000000000000f03f"
+        },
+        {
+          "path": "/samples/1/held_axes/left_brake",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/1/held_axes/right_brake",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/1/held_axes/trim",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/2/late_by_ticks",
+          "type": "int",
+          "value": 1
+        },
+        {
+          "path": "/samples/2/skipped_targets_before",
+          "type": "int",
+          "value": 1
+        },
+        {
+          "path": "/samples/2/elapsed_s",
+          "type": "float",
+          "le_hex": "222222222222f83f"
+        },
+        {
+          "path": "/samples/2/anchor_eus_position_m/0",
+          "type": "float",
+          "le_hex": "0000000000002240"
+        },
+        {
+          "path": "/samples/2/anchor_eus_position_m/1",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/2/anchor_eus_position_m/2",
+          "type": "float",
+          "le_hex": "0000000000002840"
+        },
+        {
+          "path": "/samples/2/readings/readings/tas/value",
+          "type": "float",
+          "le_hex": "000000000000f03f"
+        },
+        {
+          "path": "/samples/2/readings/readings/ground_speed/value",
+          "type": "float",
+          "le_hex": "0000000000000040"
+        },
+        {
+          "path": "/samples/2/readings/readings/pitch/value",
+          "type": "float",
+          "le_hex": "0000000000000840"
+        },
+        {
+          "path": "/samples/2/readings/readings/bank/value",
+          "type": "float",
+          "le_hex": "0000000000001040"
+        },
+        {
+          "path": "/samples/2/readings/readings/heading_true/value",
+          "type": "float",
+          "le_hex": "0000000000001440"
+        },
+        {
+          "path": "/samples/2/readings/readings/ellipsoid_height/value",
+          "type": "float",
+          "le_hex": "0000000000001840"
+        },
+        {
+          "path": "/samples/2/readings/readings/vertical_speed/value",
+          "type": "float",
+          "le_hex": "0000000000001c40"
+        },
+        {
+          "path": "/samples/2/readings/readings/body_yaw_rate/value",
+          "type": "float",
+          "le_hex": "0000000000002040"
+        },
+        {
+          "path": "/samples/2/readings/readings/fuel_total/value",
+          "type": "float",
+          "le_hex": "0000000000002240"
+        },
+        {
+          "path": "/samples/2/held_axes/roll",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/2/held_axes/pitch",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/2/held_axes/yaw",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/2/held_axes/throttle",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/2/held_axes/mixture",
+          "type": "float",
+          "le_hex": "000000000000f03f"
+        },
+        {
+          "path": "/samples/2/held_axes/left_brake",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/2/held_axes/right_brake",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/samples/2/held_axes/trim",
+          "type": "float",
+          "le_hex": "0000000000000000"
+        },
+        {
+          "path": "/skipped_target_count",
+          "type": "int",
+          "value": 2
+        },
+        {
+          "path": "/late_sample_count",
+          "type": "int",
+          "value": 2
+        },
+        {
+          "path": "/uncaptured_tail_targets",
+          "type": "int",
+          "value": 1
+        }
+      ]
+    }
+  ],
+  "negatives": [
+    {
+      "id": "utf8-bom",
+      "file": "utf8-bom.bin",
+      "sha256": "d0d3a2f65810ec894be8bebd90441c7038c902fd36ab67dd634c5ec4c82bc20d",
+      "bytes": 3026,
+      "expected": "reject",
+      "reason": "Strict raw UTF8/BOM/NUL refusal before parse"
+    },
+    {
+      "id": "utf8-overlong",
+      "file": "utf8-overlong.bin",
+      "sha256": "f2a36c93a2c2c91854efcca29098779bcfbcf5c323069a8a61ddcda918abd59d",
+      "bytes": 3025,
+      "expected": "reject",
+      "reason": "Strict raw UTF8/BOM/NUL refusal before parse"
+    },
+    {
+      "id": "utf8-stray",
+      "file": "utf8-stray.bin",
+      "sha256": "18763290e01e124edc0aae5573205e635a72a0c14011471d965c24a4c342222a",
+      "bytes": 3024,
+      "expected": "reject",
+      "reason": "Strict raw UTF8/BOM/NUL refusal before parse"
+    },
+    {
+      "id": "utf8-surrogate",
+      "file": "utf8-surrogate.bin",
+      "sha256": "30bb2ac03020a593f46b38e74a9ff1aff3e3fb5c1a220d113c684b1f3564dcbc",
+      "bytes": 3026,
+      "expected": "reject",
+      "reason": "Strict raw UTF8/BOM/NUL refusal before parse"
+    },
+    {
+      "id": "utf8-above-max",
+      "file": "utf8-above-max.bin",
+      "sha256": "5a68c588cfb9a755a3369d0693c3acd69bc48ec10f49d6462e4d93797a292112",
+      "bytes": 3027,
+      "expected": "reject",
+      "reason": "Strict raw UTF8/BOM/NUL refusal before parse"
+    },
+    {
+      "id": "nul",
+      "file": "nul.bin",
+      "sha256": "1952520fe319a003f4472b5db376fdd1b7c211a1d8327926865e81e3a0463066",
+      "bytes": 3024,
+      "expected": "reject",
+      "reason": "Strict raw UTF8/BOM/NUL refusal before parse"
+    },
+    {
+      "id": "utf8-incomplete",
+      "file": "utf8-incomplete.bin",
+      "sha256": "5883c870275a6c75b6d417d244615193c864078f3e8d18faa37b51a950421a33",
+      "bytes": 3024,
+      "expected": "reject",
+      "reason": "Truncated UTF8 sequence"
+    },
+    {
+      "id": "truncated",
+      "file": "truncated.bin",
+      "sha256": "929e842b91bb955e93dba689caf9ae7f4bb25061712f657ac0d352b155b54026",
+      "bytes": 3022,
+      "expected": "reject",
+      "reason": "Unclosed root object"
+    },
+    {
+      "id": "outer-duplicate",
+      "file": "outer-duplicate.bin",
+      "sha256": "e5b337ff2250fbfeb2b83a81ebf7a8c854efbb88a467b8e99a276bd3f8fa5b08",
+      "bytes": 3055,
+      "expected": "reject",
+      "reason": "Duplicate outer key"
+    },
+    {
+      "id": "outer-escaped-key",
+      "file": "outer-escaped-key.bin",
+      "sha256": "44ac3fc0e5d1e3eb3cb6a3ac33790053d05283e39342766307fb9e5ae4f38490",
+      "bytes": 3028,
+      "expected": "reject",
+      "reason": "All escaped keys forbidden"
+    },
+    {
+      "id": "negative-zero",
+      "file": "negative-zero.bin",
+      "sha256": "d559644dd2fc9945deeda068b21994cc4cf1ce6be639567135844e6d7c6e8b0d",
+      "bytes": 3024,
+      "expected": "reject",
+      "reason": "Canonical integer grammar only"
+    },
+    {
+      "id": "fraction",
+      "file": "fraction.bin",
+      "sha256": "c91fed68c66ae2373dfa99ea331e465f3f9831a2622887bfad20f1c0393d72d2",
+      "bytes": 3025,
+      "expected": "reject",
+      "reason": "Canonical integer grammar only"
+    },
+    {
+      "id": "exponent",
+      "file": "exponent.bin",
+      "sha256": "1fa070355b20c43194b892bae0d0aeb15a625a803aa642fd6a6dfe2d4826327c",
+      "bytes": 3025,
+      "expected": "reject",
+      "reason": "Canonical integer grammar only"
+    },
+    {
+      "id": "leading-zero",
+      "file": "leading-zero.bin",
+      "sha256": "6b533ec3880d3f3a5fde12bdab99d745e91069113b5aa5d9202fb92b587db43c",
+      "bytes": 3024,
+      "expected": "reject",
+      "reason": "Canonical integer grammar only"
+    },
+    {
+      "id": "plus",
+      "file": "plus.bin",
+      "sha256": "6806789a730c232e9dc7bece4f18fb181d11e98eeddaf6c45ea65dfef4bd9c86",
+      "bytes": 3024,
+      "expected": "reject",
+      "reason": "Canonical integer grammar only"
+    },
+    {
+      "id": "trailing-comma",
+      "file": "trailing-comma.bin",
+      "sha256": "365c4327b82c273a211a73edcdbcfaf60865d946b249ecac88bf1bd95f11f20b",
+      "bytes": 3024,
+      "expected": "reject",
+      "reason": "Trailing commas forbidden"
+    },
+    {
+      "id": "comment",
+      "file": "comment.bin",
+      "sha256": "73234214167f4ac4cc7a0ebfaa26aee5b228fe43568e602edf3d207a5363719d",
+      "bytes": 3028,
+      "expected": "reject",
+      "reason": "Comments forbidden"
+    },
+    {
+      "id": "trailing-token",
+      "file": "trailing-token.bin",
+      "sha256": "04d0bbb260a13b6156010df49be2804a71c6ec51943012a68c8a7a8cfe074aa9",
+      "bytes": 3028,
+      "expected": "reject",
+      "reason": "Trailing non-whitespace forbidden"
+    },
+    {
+      "id": "non-json-space",
+      "file": "non-json-space.bin",
+      "sha256": "b32e62029010cb61f7bf6cad4b6101cc34e112667abdcd63ef8cd81ac1eb21b3",
+      "bytes": 3025,
+      "expected": "reject",
+      "reason": "Only RFC8259 whitespace"
+    },
+    {
+      "id": "lone-high-surrogate",
+      "file": "lone-high-surrogate.bin",
+      "sha256": "869b09ad22898778e0482081aa7e259b3734ad9f4ba0b93c903dcbd1230a953a",
+      "bytes": 3009,
+      "expected": "reject",
+      "reason": "Unicode scalar value escape qualification"
+    },
+    {
+      "id": "lone-low-surrogate",
+      "file": "lone-low-surrogate.bin",
+      "sha256": "53d0ee24b94f2d846ba8c098727f613954d05bfd7af48ee5a89f70ddbff0fa68",
+      "bytes": 3009,
+      "expected": "reject",
+      "reason": "Unicode scalar value escape qualification"
+    },
+    {
+      "id": "reversed-surrogates",
+      "file": "reversed-surrogates.bin",
+      "sha256": "3fff76466c8cd4150dd6e1c3d11e2eef3455638cc312d827e12b3da4fe4fe85f",
+      "bytes": 3015,
+      "expected": "reject",
+      "reason": "Unicode scalar value escape qualification"
+    },
+    {
+      "id": "checksum-corrupt",
+      "file": "checksum-corrupt.bin",
+      "sha256": "cb762c45fc19d0c47f1c1bffe0dc364de06aab119b93d3ab21f87eafa42e207d",
+      "bytes": 3023,
+      "expected": "reject",
+      "reason": "Payload digest mismatch"
+    },
+    {
+      "id": "future-version",
+      "file": "future-version.bin",
+      "sha256": "6230b6ec3c4eacf7020127978e32dcdd11f7d1a5c3ce487c32481915511d88d1",
+      "bytes": 3023,
+      "expected": "reject",
+      "reason": "Unsupported archive version"
+    },
+    {
+      "id": "outer-extra",
+      "file": "outer-extra.bin",
+      "sha256": "de00b1d50f9e99dca5c86e0d0fa67205531c569ebda669bb9cf313a8aaf8656f",
+      "bytes": 3036,
+      "expected": "reject",
+      "reason": "Closed envelope keys"
+    },
+    {
+      "id": "tag-uppercase",
+      "file": "tag-uppercase.bin",
+      "sha256": "3d1341bf506db2e8c82721278f5742eba594fd1bfeaa6377ee8728ab044d45b2",
+      "bytes": 3023,
+      "expected": "reject",
+      "reason": "Only16 lowercase hex tag"
+    },
+    {
+      "id": "tag-nan",
+      "file": "tag-nan.bin",
+      "sha256": "59d2dcea68fa665dc8305358cbe42dcc151598880ee218f5dde848c0a008b696",
+      "bytes": 3023,
+      "expected": "reject",
+      "reason": "Nonfinite tagged scalar rejected even with valid digest"
+    },
+    {
+      "id": "tag-extra",
+      "file": "tag-extra.bin",
+      "sha256": "21c30b6857b7ba9757723b0143a8d13a92e2b441d6ffc3df022b9df18e223b16",
+      "bytes": 3035,
+      "expected": "reject",
+      "reason": "Exactly one tag key"
+    },
+    {
+      "id": "tag-wrong-position",
+      "file": "tag-wrong-position.bin",
+      "sha256": "af7c5f4c47157d785cd33fe9c26ae44043572292791363c7663dc4876b90e024",
+      "bytes": 3056,
+      "expected": "reject",
+      "reason": "Seed remains canonical String"
+    },
+    {
+      "id": "inner-malformed-count",
+      "file": "inner-malformed-count.bin",
+      "sha256": "6cf773e7036b82f37d363b8533d0bcf419a9f5e1dae0a00aef1700ea250d7010",
+      "bytes": 3023,
+      "expected": "reject",
+      "reason": "Recomputed digest cannot bypass recording count consistency"
+    },
+    {
+      "id": "inner-duplicate",
+      "file": "inner-duplicate.bin",
+      "sha256": "eeccea9be47e47608443002fbc45492570fbcd08ba1ec441c7f9c3b64df2944d",
+      "bytes": 3046,
+      "expected": "reject",
+      "reason": "Duplicate inner key even with correct digest"
+    },
+    {
+      "id": "inner-escaped-key",
+      "file": "inner-escaped-key.bin",
+      "sha256": "9ad1372dbd52da5922325b0efa97d5408850d118f64e1d131acfbcd93a2285fb",
+      "bytes": 3029,
+      "expected": "reject",
+      "reason": "Escaped inner key even with correct digest"
+    }
+  ],
+  "generator_sha256": "402ceb96e5f335981d8b94608e1cc0b2d580d1340392d21f30024e541c54220f"
+}
