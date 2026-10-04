@@ -2,7 +2,7 @@
 
 A Windows-first flight simulator built around realistic Cessna operations, repeatable practice, and evidence-based aircraft validation.
 
-**Current stage: P1 engineering previews.** The native foundation runs an original synthetic aircraft. The [Windows airborne preview](tools/preview/README.md) adds keyboard flight controls, a flight view, live indications, pause and fresh restart. Ground operations, a complete cockpit and C172S validation remain separate work.
+**Current stage: P1 engineering previews.** The [Windows whole-flight preview](tools/interactive-preview/README.md) connects ground steering, takeoff, flight, touchdown and braking through one original synthetic aircraft model. It includes keyboard controls, chase/forward views, live native indications, pause and fresh ground/airborne starts. A complete cockpit, real airports and calibrated C172S behavior remain future work. See [actual evidence and limits](docs/evidence/P1/interactive-preview.md).
 
 Start with [the project plan](docs/README.md), [the roadmap](docs/roadmap.md), and [the issue index](docs/issue-index.md).
 
