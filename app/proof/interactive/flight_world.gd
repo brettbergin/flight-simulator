@@ -84,7 +84,7 @@ func fuselage(parent: Node3D, paint: Material, glass: Material) -> MeshInstance3
 						var tangent: Vector3 = Vector3(-sin(theta)*station.z,cos(theta)*station.w,0)
 						var along: Vector3 = Vector3(cos(theta)*slope.z,slope.y+sin(theta)*slope.w,1)
 						normals.append(tangent.cross(along).normalized())
-				for index in [0,1,2,1,3,2]:
+				for index in [0,2,1,1,2,3]:
 					surface.set_normal(normals[index])
 					surface.add_vertex(corners[index])
 	var mesh := ArrayMesh.new()
@@ -97,7 +97,7 @@ func fuselage(parent: Node3D, paint: Material, glass: Material) -> MeshInstance3
 	parent.add_child(node)
 	return node
 
-func wing(parent: Node3D, span: float, chord: float, height: float, aft: float, paint: Material) -> void:
+func wing(parent: Node3D, span: float, chord: float, height: float, aft: float, paint: Material) -> MeshInstance3D:
 	# Cambered original airfoil surface; purely visual, not aerodynamic input.
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -112,10 +112,10 @@ func wing(parent: Node3D, span: float, chord: float, height: float, aft: float, 
 				for edge in [index,(index+1)%chord_stations.size()]:
 					var section: Vector2 = chord_stations[edge]
 					corners.append(Vector3(x,height+0.025*absf(x)+section.y*chord*taper,aft+section.x*chord*taper+0.10*absf(x)/(span*0.5)))
-			for vertex in [0,1,2,1,3,2]:
+			for vertex in [0,2,1,1,2,3]:
 				surface.add_vertex(corners[vertex])
 	surface.generate_normals()
-	mesh_node(parent,surface.commit(),Vector3.ZERO,paint)
+	return mesh_node(parent,surface.commit(),Vector3.ZERO,paint)
 
 func aircraft(parent: Node3D) -> Dictionary:
 	var airplane := Node3D.new()
@@ -130,8 +130,10 @@ func aircraft(parent: Node3D) -> Dictionary:
 	var metal: Material = material(Color(0.48,0.55,0.58),0.32,0.72)
 	var tire: Material = material(Color(0.018,0.021,0.025),0.96)
 	fuselage(airplane,ivory,glass)
-	wing(airplane,9.0,1.55,0.89,-0.30,ivory)
-	wing(airplane,3.20,0.88,0.28,2.92,ivory)
+	var main_wing: MeshInstance3D=wing(airplane,9.0,1.55,0.89,-0.30,ivory)
+	main_wing.name="OriginalMainWing"
+	var tail_wing: MeshInstance3D=wing(airplane,3.20,0.88,0.28,2.92,ivory)
+	tail_wing.name="OriginalTailWing"
 	# Frames are the unglazed regions of the continuous cabin shell.
 	for side in [-1.0,1.0]:
 		rod(airplane,Vector3(side*0.51,-0.28,0.33),Vector3(side*2.65,0.92,0.04),0.032,ivory)
@@ -363,7 +365,7 @@ func pitched_roof(parent: Node3D, width: float, depth: float, eaves: float, rise
 			for point in [face[0],face[index+1],face[index]]:
 				surface.add_vertex(point)
 	surface.generate_normals()
-	mesh_node(parent,surface.commit(),Vector3.ZERO,paint)
+	return mesh_node(parent,surface.commit(),Vector3.ZERO,paint)
 
 func hangar(parent: Node3D, at: Vector3, paint: Material) -> void:
 	var building := Node3D.new()

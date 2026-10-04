@@ -8,6 +8,7 @@ func check_mesh(host: Node) -> void:
 	var seen: Dictionary={}
 	var duplicate: bool=false
 	var valid_normals: bool=true
+	var clockwise: bool=true
 	var counts: Array[int]=[]
 	for surface in range(mesh.get_surface_count()):
 		var arrays: Array=mesh.surface_get_arrays(surface)
@@ -17,6 +18,9 @@ func check_mesh(host: Node) -> void:
 		for normal in normals:
 			valid_normals=valid_normals and normal.is_finite() and absf(normal.length()-1)<0.0001
 		for index in range(0,vertices.size(),3):
+			var face: Vector3=(vertices[index+1]-vertices[index]).cross(vertices[index+2]-vertices[index])
+			var outward: Vector3=normals[index]+normals[index+1]+normals[index+2]
+			clockwise=clockwise and face.dot(outward)<-0.0000001
 			var corners: Array[String]=[]
 			for vertex in [vertices[index],vertices[index+1],vertices[index+2]]:
 				corners.append("%.6f,%.6f,%.6f" % [vertex.x,vertex.y,vertex.z])
@@ -27,7 +31,25 @@ func check_mesh(host: Node) -> void:
 			seen[key]=true
 	host.check(not duplicate,"aircraft_glazing_has_no_duplicate_shell_faces")
 	host.check(valid_normals and counts[0]>0 and counts[1]>0,"aircraft_material_partitions_have_finite_unit_normals")
+	host.check(clockwise,"aircraft_shell_clockwise_front_faces_match_outward_normals")
 	host.evidence["aircraft_shell_triangle_counts"]=counts
+	check_wing(host,"OriginalMainWing",0.89,1.55,-0.30,9.0)
+	check_wing(host,"OriginalTailWing",0.28,0.88,2.92,3.20)
+
+func check_wing(host: Node, name: String, height: float, chord: float, aft: float, span: float) -> void:
+	var wing: MeshInstance3D=host.airplane.get_node(name)
+	var arrays: Array=wing.mesh.surface_get_arrays(0)
+	var vertices: PackedVector3Array=arrays[Mesh.ARRAY_VERTEX]
+	var normals: PackedVector3Array=arrays[Mesh.ARRAY_NORMAL]
+	var outward_clockwise: bool=true
+	for index in range(0,vertices.size(),3):
+		var midpoint: Vector3=(vertices[index]+vertices[index+1]+vertices[index+2])/3.0
+		var taper: float=1.0-0.20*absf(midpoint.x)/(span*0.5)
+		var inside:=Vector3(midpoint.x,height+0.025*absf(midpoint.x)+0.02*chord*taper,aft-0.02*chord*taper+0.10*absf(midpoint.x)/(span*0.5))
+		var face: Vector3=(vertices[index+1]-vertices[index]).cross(vertices[index+2]-vertices[index])
+		var normal: Vector3=normals[index]+normals[index+1]+normals[index+2]
+		outward_clockwise=outward_clockwise and face.dot(midpoint-inside)<0 and normal.dot(midpoint-inside)>0
+	host.check(outward_clockwise,name+"_clockwise_faces_and_outward_normals")
 
 func capture_views(host: Node) -> void:
 	var was_paused: bool=host.paused
