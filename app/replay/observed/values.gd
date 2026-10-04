@@ -14,15 +14,15 @@ static func keys(value: Variant, names: Array) -> bool:
 	if not value is Dictionary or value.size()!=names.size():
 		return false
 	for key in value:
-		if not key is String or not names.has(key):
+		if typeof(key)!=TYPE_STRING or not names.has(key):
 			return false
 	return true
 
 static func text(value: Variant, limit: int = 1024) -> bool:
-	return value is String and value.length()<=limit
+	return typeof(value)==TYPE_STRING and value.length()<=limit
 
 static func hex(value: Variant) -> bool:
-	if not value is String or value.length()!=64:
+	if typeof(value)!=TYPE_STRING or value.length()!=64:
 		return false
 	for i in value.length():
 		var code: int = value.unicode_at(i)
@@ -42,7 +42,7 @@ static func count(value: Variant, maximum: int = 2400) -> bool:
 	return typeof(value)==TYPE_INT and value>=0 and value<=maximum
 
 static func identifier(value: Variant) -> bool:
-	if not value is String or value.is_empty() or value.length()>128 or value.unicode_at(0)<97 or value.unicode_at(0)>122:
+	if typeof(value)!=TYPE_STRING or value.is_empty() or value.length()>128 or value.unicode_at(0)<97 or value.unicode_at(0)>122:
 		return false
 	var separator: bool = false
 	for i in value.length():
@@ -56,7 +56,7 @@ static func identifier(value: Variant) -> bool:
 	return not separator
 
 static func axes(value: Variant) -> bool:
-	if not keys(value,["kind","roll","pitch","yaw","throttle","mixture","left_brake","right_brake","trim"]) or value.kind!="axes":
+	if not keys(value,["kind","roll","pitch","yaw","throttle","mixture","left_brake","right_brake","trim"]) or typeof(value.kind)!=TYPE_STRING or value.kind!="axes":
 		return false
 	for key in ["roll","pitch","yaw","trim","throttle","mixture","left_brake","right_brake"]:
 		if typeof(value[key]) not in [TYPE_FLOAT,TYPE_INT] or not is_finite(float(value[key])):
@@ -85,6 +85,8 @@ static func qualify(value: Variant) -> Dictionary:
 		return {"ok":false,"error":"Observed review requires seed42","kind":"invalid","readings":readings}
 	if typeof(value.aircraft.elapsed_s)!=TYPE_FLOAT:
 		return {"ok":false,"error":"Observed elapsed_s must be binary64","kind":"invalid","readings":readings}
+	if not valid_metadata(metadata(value)) or not axes(value.held_axes):
+		return {"ok":false,"error":"Observed metadata or axes have incompatible closed types","kind":"invalid","readings":readings}
 	if value.canonical!=null:
 		var anchor: Dictionary = Frames.anchor(value.world_anchor.latitude_rad,value.world_anchor.longitude_rad,value.world_anchor.ellipsoid_height_m)
 		var expected: Dictionary = Frames.derive(value.aircraft,anchor)
@@ -118,7 +120,7 @@ static func changed_identity(value: Variant, bound: Variant) -> bool:
 	if value.get("named_start") not in ["ground-ready","airborne-prepared"]:
 		return false
 	var model: Variant = value.get("model_identity")
-	if not keys(model,MODEL.keys()) or not identifier(model.id) or not Wire._version(model.version) or not identifier(model.backend_model):
+	if not keys(model,MODEL.keys()) or not identifier(model.id) or typeof(model.version)!=TYPE_STRING or not Wire._version(model.version) or not identifier(model.backend_model):
 		return false
 	var anchor: Variant = value.get("world_anchor")
 	if not keys(anchor,ANCHOR.keys()):
@@ -163,23 +165,26 @@ static func valid_metadata(value: Variant) -> bool:
 		return false
 	if not keys(value.model_identity,MODEL.keys()) or value.model_identity!=MODEL:
 		return false
+	for key in MODEL:
+		if typeof(value.model_identity[key])!=TYPE_STRING:
+			return false
 	if not keys(value.world_anchor,ANCHOR.keys()) or value.world_anchor!=ANCHOR:
 		return false
 	for key in ANCHOR:
 		if typeof(value.world_anchor[key])!=TYPE_FLOAT:
 			return false
-	return hex(value.native_source_fingerprint) and value.prepared_world_sha256==NativeReadings.WORLD and value.seed=="42" and keys(value.clock,CLOCK.keys()) and value.clock.purpose=="runtime" and typeof(value.clock.tick_rate_hz) in [TYPE_INT,TYPE_FLOAT] and value.clock.tick_rate_hz==120 and value.named_start in ["ground-ready","airborne-prepared"] and U64.valid(value.first_tick)
+	return hex(value.native_source_fingerprint) and typeof(value.prepared_world_sha256)==TYPE_STRING and value.prepared_world_sha256==NativeReadings.WORLD and typeof(value.seed)==TYPE_STRING and value.seed=="42" and keys(value.clock,CLOCK.keys()) and typeof(value.clock.purpose)==TYPE_STRING and value.clock.purpose=="runtime" and typeof(value.clock.tick_rate_hz) in [TYPE_INT,TYPE_FLOAT] and value.clock.tick_rate_hz==120 and typeof(value.named_start)==TYPE_STRING and value.named_start in ["ground-ready","airborne-prepared"] and typeof(value.first_tick)==TYPE_STRING and U64.valid(value.first_tick)
 
 static func valid_readings(value: Variant, session: String, tick: String) -> bool:
 	if not keys(value,["session_id","tick","state","native_truth","readings","error"]):
 		return false
-	if value.session_id!=session or value.tick!=tick or value.state not in ["live","paused"] or typeof(value.native_truth)!=TYPE_BOOL or not value.native_truth or value.error!="":
+	if typeof(value.session_id)!=TYPE_STRING or typeof(value.tick)!=TYPE_STRING or typeof(value.state)!=TYPE_STRING or typeof(value.error)!=TYPE_STRING or value.session_id!=session or value.tick!=tick or value.state not in ["live","paused"] or typeof(value.native_truth)!=TYPE_BOOL or not value.native_truth or value.error!="":
 		return false
 	if not keys(value.readings,NativeReadings.UNITS.keys()):
 		return false
 	for key in NativeReadings.UNITS:
 		var channel: Variant = value.readings[key]
-		if not keys(channel,["value","unit","valid","error"]) or channel.unit!=NativeReadings.UNITS[key] or typeof(channel.valid)!=TYPE_BOOL or not text(channel.error):
+		if not keys(channel,["value","unit","valid","error"]) or typeof(channel.unit)!=TYPE_STRING or channel.unit!=NativeReadings.UNITS[key] or typeof(channel.valid)!=TYPE_BOOL or not text(channel.error):
 			return false
 		if channel.valid:
 			if typeof(channel.value)!=TYPE_FLOAT or not is_finite(channel.value) or channel.error!="":
@@ -191,13 +196,13 @@ static func valid_readings(value: Variant, session: String, tick: String) -> boo
 static func valid_recording(value: Variant) -> bool:
 	if not keys(value,["contract_version","state","metadata","last_observed_tick","samples","seal_reason","error","skipped_target_count","late_sample_count","uncaptured_tail_targets"]):
 		return false
-	if typeof(value.contract_version)!=TYPE_INT or value.contract_version!=1 or not value.state is String or not text(value.error):
+	if typeof(value.contract_version)!=TYPE_INT or value.contract_version!=1 or typeof(value.state)!=TYPE_STRING or not text(value.error):
 		return false
 	if not count(value.skipped_target_count) or not count(value.late_sample_count) or not count(value.uncaptured_tail_targets) or not value.samples is Array or value.samples.size()>2401:
 		return false
 	if value.state=="empty":
 		return value==empty_recording()
-	if value.state not in ["recording","sealed"] or not valid_metadata(value.metadata) or not U64.valid(value.last_observed_tick) or value.samples.is_empty():
+	if value.state not in ["recording","sealed"] or not valid_metadata(value.metadata) or typeof(value.last_observed_tick)!=TYPE_STRING or not U64.valid(value.last_observed_tick) or value.samples.is_empty():
 		return false
 	if U64.compare(value.last_observed_tick,value.metadata.first_tick)<0:
 		return false
@@ -205,7 +210,7 @@ static func valid_recording(value: Variant) -> bool:
 		if value.seal_reason!=null or value.error!="" or value.uncaptured_tail_targets!=0:
 			return false
 	else:
-		if not value.seal_reason is String or value.seal_reason not in REASONS:
+		if typeof(value.seal_reason)!=TYPE_STRING or value.seal_reason not in REASONS:
 			return false
 		if value.seal_reason in ["manual","limit","closed","tick_exhausted"] and value.error!="":
 			return false
@@ -219,7 +224,7 @@ static func valid_recording(value: Variant) -> bool:
 		var item: Variant = value.samples[index]
 		if not keys(item,["tick","target_tick","late_by_ticks","skipped_targets_before","gap_before","elapsed_s","anchor_eus_position_m","readings","held_axes"]):
 			return false
-		if not U64.valid(item.tick) or not U64.valid(item.target_tick) or not count(item.late_by_ticks,59) or not count(item.skipped_targets_before) or typeof(item.gap_before)!=TYPE_BOOL or item.gap_before!=(item.skipped_targets_before>0):
+		if typeof(item.tick)!=TYPE_STRING or typeof(item.target_tick)!=TYPE_STRING or not U64.valid(item.tick) or not U64.valid(item.target_tick) or not count(item.late_by_ticks,59) or not count(item.skipped_targets_before) or typeof(item.gap_before)!=TYPE_BOOL or item.gap_before!=(item.skipped_targets_before>0):
 			return false
 		if typeof(item.elapsed_s)!=TYPE_FLOAT or not is_finite(item.elapsed_s) or item.elapsed_s<0.0 or not floats(item.anchor_eus_position_m,3) or not axes(item.held_axes):
 			return false
