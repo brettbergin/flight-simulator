@@ -117,7 +117,7 @@ static func changed_identity(value: Variant, bound: Variant) -> bool:
 		return false
 	if not identifier(value.get("session_id")) or not hex(value.get("native_source_fingerprint")) or not hex(value.get("prepared_world_sha256")):
 		return false
-	if value.get("named_start") not in ["ground-ready","airborne-prepared"]:
+	if typeof(value.get("named_start"))!=TYPE_STRING or value.named_start not in ["ground-ready","airborne-prepared"]:
 		return false
 	var model: Variant = value.get("model_identity")
 	if not keys(model,MODEL.keys()) or not identifier(model.id) or typeof(model.version)!=TYPE_STRING or not Wire._version(model.version) or not identifier(model.backend_model):
@@ -134,7 +134,7 @@ static func changed_identity(value: Variant, bound: Variant) -> bool:
 	var weather: Variant = value.get("atmosphere")
 	if not Wire.aircraft(aircraft) or not Wire.atmosphere(weather) or aircraft.validity!="valid" or aircraft.session_id!=value.session_id or weather.session_id!=value.session_id or aircraft.tick!=value.get("tick") or weather.tick!=value.get("tick") or aircraft.position!=weather.position:
 		return false
-	if not U64.valid(weather.seed):
+	if typeof(weather.seed)!=TYPE_STRING or not U64.valid(weather.seed) or typeof(aircraft.clock.purpose)!=TYPE_STRING:
 		return false
 	for key in ["session_id","native_source_fingerprint","prepared_world_sha256","named_start","model_identity","world_anchor"]:
 		if value[key]!=bound[key]:
