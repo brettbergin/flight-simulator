@@ -89,6 +89,9 @@ func _ready() -> void:
 	_summary=_label("RECORDED OBSERVATIONS / ORIGINAL PROTOTYPE",13)
 	_summary.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(_summary)
+	var wind_warning:=_label("Saved reviews do not retain wind setup or resume a flight",12)
+	wind_warning.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(wind_warning)
 	var tools:=HBoxContainer.new()
 	tools.add_theme_constant_override("separation",8)
 	box.add_child(tools)

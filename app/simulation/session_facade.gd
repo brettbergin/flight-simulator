@@ -7,13 +7,14 @@ const Wire = preload("res://simulation/wire_validation.gd")
 const QUANTA: int = 4000000
 const MAX_INT: int = 9223372036854775807
 const WORLD: String = "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5"
-const NATIVE: String = "35cf7b603d99b9accb123405f7569a901ed9e28d32110acbc296b376facd6416"
+const NATIVE: String = "5fd66c2a861fe0556e077a37f556f3273f584eac26081ffe641a6e0525d1a218"
 const INVENTORY: String = "98b30b5641ce86cc6f0af6298424606aa96a1e4a35ef3e9fcaf377bebb3f00cd"
 
 var render_origin: RefCounted
 var _factory: Callable
 var _bridge: RefCounted
 var _root: String = ""
+var _wind_profile: String = "calm"
 var _command_sequence: String = "0"
 var _lifecycle_sequence: String = "0"
 var _pending: Variant = null
@@ -197,10 +198,24 @@ func _halt(message: String, mode: String="discarded", incomplete: bool=true) -> 
 	if not _closed_join():
 		_truth.error+="; native close/join unconfirmed"
 
-func start(model_root: String, named_start: String) -> Dictionary:
+static func valid_wind_profile(value: Variant) -> bool:
+	return typeof(value)==TYPE_STRING and value in ["calm","from-north","from-west","from-east"]
+
+static func _nominal_wind(profile: String) -> Array:
+	match profile:
+		"calm": return [0.0,0.0,0.0]
+		"from-north": return [-5.0,0.0,0.0]
+		"from-west": return [0.0,5.0,0.0]
+		"from-east": return [0.0,-5.0,0.0]
+	return []
+
+func start(model_root: String, named_start: String, wind_profile: Variant="calm") -> Dictionary:
 	var entry_error: String=_entry_error()
 	if not entry_error.is_empty():
 		return _entry_rejection(entry_error)
+	# Selection admission precedes any close, factory call or host mutation.
+	if not valid_wind_profile(wind_profile) or named_start not in ["ground-ready","airborne-prepared"]:
+		return _entry_rejection("Supported named start and exact synthetic wind String required")
 	_begin()
 	if _bridge!=null or _truth.host_mode!="closed":
 		return _result(false,"Close before starting a fresh session")
@@ -215,8 +230,8 @@ func start(model_root: String, named_start: String) -> Dictionary:
 		_bridge=ClassDB.instantiate("FlightInteractiveSession") as RefCounted
 	if _bridge==null:
 		return _result(false,"Native interactive session unavailable")
-	var reply: Variant=_call("open_session",[model_root,named_start])
-	if not reply is Dictionary or reply.get("ok")!=true or reply.get("named_start")!=named_start or reply.get("prepared_world_sha256")!=WORLD or reply.get("native_source_fingerprint")!=NATIVE:
+	var reply: Variant=_call("open_session",[model_root,named_start,wind_profile])
+	if not reply is Dictionary or not _keys(reply,["ok","schema_version","aircraft_json","atmosphere_json","held_axes","outcome","completed","live","historical","paused","time_scale","fault","queued","rejection","ground_query_valid","surface_height_m","plane_clearance_m","applied_commands_json","events_json","runtime_modules","named_start","native_source_fingerprint","world_anchor","prepared_world_sha256","wind_profile"]) or reply.get("ok")!=true or typeof(reply.get("wind_profile"))!=TYPE_STRING or reply.wind_profile!=wind_profile or reply.get("named_start")!=named_start or reply.get("prepared_world_sha256")!=WORLD or reply.get("native_source_fingerprint")!=NATIVE:
 		_closed_join()
 		return _result(false,"Native initialization or pinned identity validation failed")
 	var anchor_value: Variant=reply.get("world_anchor")
@@ -231,11 +246,12 @@ func start(model_root: String, named_start: String) -> Dictionary:
 	if _prepared.is_empty():
 		_closed_join()
 		return _result(false,"Invalid prepared anchor range")
-	if not _accept(reply,0,true):
+	if not _accept(reply,0,true,false,wind_profile):
 		_closed_join()
 		return _result(false,"Invalid native initial publication")
 	_truth.world_anchor=anchor_value.duplicate(true)
 	_root=model_root
+	_wind_profile=wind_profile
 	_truth.named_start=named_start
 	_truth.model_identity={"id":"original-interactive-prototype","version":"0.1.0-prototype","backend_model":"original-interactive"}
 	_truth.native_source_fingerprint=NATIVE
@@ -258,7 +274,7 @@ func start(model_root: String, named_start: String) -> Dictionary:
 	render_origin=Origin.new(_truth.session_id,_prepared.ecef,_prepared.rotation)
 	return _result(true)
 
-func _accept(reply: Dictionary, requested: int, initial: bool=false, step_reply: bool=false) -> bool:
+func _accept(reply: Dictionary, requested: int, initial: bool=false, step_reply: bool=false, initial_wind_profile: String="") -> bool:
 	if reply.get("ok")!=true or reply.get("schema_version")!=1 or not reply.get("completed") is int or reply.completed<0 or reply.completed>requested:
 		return false
 	if not reply.get("aircraft_json") is String or not reply.get("atmosphere_json") is String or not valid_axes(reply.get("held_axes")):
@@ -292,6 +308,13 @@ func _accept(reply: Dictionary, requested: int, initial: bool=false, step_reply:
 			return false
 	if not Wire.aircraft(aircraft) or not Wire.atmosphere(weather) or not U64.valid(weather.seed) or aircraft.configuration.flap_fraction!=0 or aircraft.configuration.gear_fraction!=1:
 		return false
+	var nominal: Array=_nominal_wind(initial_wind_profile if initial else _wind_profile)
+	if nominal.size()!=3 or weather.seed!="42" or weather.model_id!="jsbsim-dry-isa" or weather.relative_humidity!=0.0:
+		return false
+	for index in 3:
+		var axis: String=["x","y","z"][index]
+		if absf(weather.wind_toward_ned_mps[axis]-nominal[index])>1e-6 or weather.turbulence_ned_mps[axis]!=0.0:
+			return false
 	if reply.outcome=="completed" and (not reply.live or reply.paused):
 		return false
 	if reply.outcome=="paused" and (not reply.live or not reply.paused):
@@ -649,7 +672,7 @@ func reset(named_start: String) -> Dictionary:
 	previous_events=_events.duplicate(true)
 	var complete: bool=_complete
 	_truth.host_mode="closed"
-	var result: Dictionary=start(_root,named_start)
+	var result: Dictionary=start(_root,named_start,_wind_profile)
 	result.events=previous_events+result.events
 	result.observation_complete=result.observation_complete and complete
 	return result

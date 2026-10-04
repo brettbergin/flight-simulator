@@ -4840,6 +4840,75 @@
         "Reviewed closed ADR013 with exact vector/units/frames/lifecycle/source identity boundaries and independent source review.",
         "Canonical issue/requirement/phase mapping and explicit future consumer proof gates; no runtime acceptance from the contract PR."
       ]
+    },
+    {
+      "key": "STEADY-WIND-FLIGHT",
+      "title": "Add selectable steady wind and native-truth flight cues",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Select original synthetic steady-wind conditions for fresh flights; actual native wind drives copied current cues, a TO map arrow and direction-only windsock while drafts leave the current airplane unchanged.",
+      "depends_on": [
+        "STEADY-WIND-CONTRACT",
+        "OBSERVED-REVIEW-FILES"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:core",
+        "priority:P1",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp",
+        "native/fdm_jsbsim/interactive/src/session.cpp",
+        "native/godot_bridge/src/interactive_bridge.cpp",
+        "tests/interactive/",
+        "app/simulation/",
+        "app/world/wind/",
+        "app/ui/wind/",
+        "app/proof/interactive/flight_world.gd",
+        "app/proof/interactive/flight_map.gd",
+        "app/ui/debrief/observed/panel.gd",
+        "tests/world/wind/",
+        "tests/integration/sim_loop/",
+        "tests/integration/wind/",
+        "tests/ui/freeflight/scene_checks.gd",
+        "tools/interactive-preview/",
+        ".github/workflows/native-ci.yml",
+        ".gitattributes",
+        "docs/"
+      ],
+      "docs": [
+        "docs/decisions/013-steady-wind-starts.md",
+        "docs/decisions/007-sim-loop-facade.md",
+        "docs/decisions/009-cockpit-readings.md",
+        "docs/decisions/011-observed-flight-review.md",
+        "docs/decisions/012-observed-review-interchange.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [
+        "PRD-007",
+        "PRD-008",
+        "REAL-011",
+        "SAFE-022"
+      ],
+      "acceptance": [
+        "Admit only exact real String IDs calm/from-north/from-west/from-east, with native checked enum and calm compatibility for omitted selection. Preserve both named starts, original model/XML/prepared world/seed42/dry ISA/zero turbulence and120Hz external publication. Wrong type, unknown/invalid enum and foreign thread fail before allocation or accepted-state mutation. No coercion or silent calm fallback.",
+        "Set table NED-toward vectors only during fresh initialization. Prove actual RunIC and post-trim ground/air velocity, actual wind and accepted controls. Publish observed native values unchanged; enforce the predeclared1e-6m/s/component nominal wind engineering criterion at admitted states without clamping, retuning, hidden completed ticks or changes to existing convergence budgets. Preserve terminal fault and last-valid historical behavior.",
+        "Exercise all four profiles with both starts, nonzero signed aerodynamic/reference cases, repeated same-input runs, pause/reset and actual bridge two/three-argument binding. Freeze comparison criteria before new output. Separate requested state from actual trimmed state; total forces/contact trajectory cannot masquerade as isolated aerodynamic-channel evidence.",
+        "Keep public wire/Result/Readback and ADR011/012 recording/archive versions unchanged. Echo exactly the accepted profile through the internal open metadata; capture it privately for reset. A fresh two-argument start defaults calm. Invalid selection preserves the old accepted session and evidence; a failed replacement truthfully reports the old session as closed/historical.",
+        "Implement the pure closed WindCue contract using qualified copied native truth and the reviewed source/model/world/seed closure. Preserve exact actual wind bits and canonical tick strings. Robust tiny horizontal winds remain positive with a bearing; invalid/mismatched/historical state never displays invented calm or live weather. Honor tight pure/reference budgets separately from native nominal agreement.",
+        "Clearly distinguish menu draft from current conditions. Resume/Cancel/invalid choices preserve the airplane; changing a started flight requires explicit fresh-start/discard confirmation with default Cancel. Reset uses the accepted current profile. The map arrow says TO, text says FROM and degrees true, and the existing cosmetic windsock follows actual native flow without collision/physics authority.",
+        "Label conditions SYNTHETIC STEADY WIND / NATIVE TRUTH and sock STEADY PRESET / DIRECTION CUE. Display that saved reviews do not retain wind setup or resume a flight beside selection and review guidance. Add no hidden weather fields or inferred restart recipe to saved observations.",
+        "Use a separate native build root and reviewed new fingerprint/pins. Preserve accepted binaries, toolchain caches, unsuccessful evidence and the owner's running game. CTest, relevant schema/contract checks, unchanged calm regressions, new wind groups, editor/portable/rebuilt-DLL replacement, source/UID/resource/model/rights/CRT/loaded-DLL closure and protected Windows/Linux CI must pass.",
+        "Capture and independently inspect exact final exported views at960x540,1920x1080 and2560x1440 for all four profiles, current/draft distinction, pause, historical/unavailable state and review warning. Retain screenshots and meaningful native-state invariance evidence. No C172 performance, crosswind limit, real weather, sensor, pilot or training-credit claim."
+      ],
+      "evidence": [
+        "Unchanged independent references ratified before observations; actual native RunIC/posttrim/step airflow and component agreement plus closed type/default binding admission.",
+        "Actual facade/menu/mapper/origin/recorder invariance, explicit default-Cancel replacement, retained/unavailable labels and source-qualified FROM/TO/sock presentation.",
+        "Separate reviewed native closure, editor/portable/source-rebuilt replacement and exact final package/source/rights closure, all four protected checks and fresh independently inspected three-size GPU views."
+      ]
     }
   ]
 }

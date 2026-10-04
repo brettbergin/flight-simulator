@@ -27,8 +27,15 @@ class ObservedAdapter extends RefCounted:
 	func _init(mutant: String = "") -> void:
 		mode = mutant
 		native = ClassDB.instantiate("FlightInteractiveSession") as RefCounted
-	func open_session(model_root: String, named_start: String) -> Dictionary:
-		latest = native.call("open_session",model_root,named_start)
+	func open_session(model_root: String, named_start: String, wind_profile: Variant="calm") -> Dictionary:
+		latest = native.call("open_session",model_root,named_start,wind_profile)
+		if mode=="wind_missing": latest.erase("wind_profile")
+		elif mode=="wind_echo": latest.wind_profile="calm"
+		elif mode=="wind_extra": latest.wind_setup={"profile":wind_profile}
+		elif mode=="wind_actual":
+			var weather: Dictionary=JSON.parse_string(latest.atmosphere_json)
+			weather.wind_toward_ned_mps.x=5.0
+			latest.atmosphere_json=JSON.stringify(weather)
 		return latest.duplicate(true)
 	func read_state() -> Dictionary:
 		return native.call("read_state")
@@ -495,6 +502,39 @@ static func _unjoined_reset(model_root: String, report: Dictionary) -> void:
 	observed[0].mode = ""
 	_check(report,facade.close().ok and observed[0].joined,"synthetic unjoined fixture explicitly cleans up")
 
+static func _wind_cases(model_root: String, report: Dictionary) -> void:
+	for profile in ["calm","from-north","from-west","from-east"]:
+		for start_name in ["ground-ready","airborne-prepared"]:
+			var facade:=Facade.new()
+			var opened: Dictionary=facade.start(model_root,start_name,profile)
+			_check(report,opened.ok,"wind_admitted_"+profile+"_"+start_name)
+			if opened.ok:
+				_result_shape(report,opened,"unchanged_wind_result_shape")
+				var nominal: Array=Facade._nominal_wind(profile)
+				for index in 3:
+					_check(report,absf(opened.readback.atmosphere.wind_toward_ned_mps[["x","y","z"][index]]-nominal[index])<=1e-6,"wind_actual_nominal_component")
+				_adopt_absent(facade,report,"wind accepted origin")
+				_check(report,facade.set_paused(true).ok,"wind paused")
+				var baseline: Dictionary=facade.readback()
+				for bad in [null,0,{},Vector3.ZERO,&"calm","CALM","from-south",""]:
+					var rejected: Dictionary=facade.start(model_root,start_name,bad)
+					_check(report,not rejected.ok and facade.readback()==baseline,"invalid_wind_preserves_actual_current")
+				var reset: Dictionary=facade.reset(start_name)
+				_check(report,reset.ok and facade.get("_wind_profile")==profile,"wind_reset_preserves_accepted_profile")
+			_check(report,facade.close().ok,"wind_owned_worker_joined")
+	for mode in ["wind_missing","wind_echo","wind_extra","wind_actual"]:
+		var adapters: Array=[]
+		var factory: Callable=func() -> RefCounted:
+			var adapter:=ObservedAdapter.new(mode)
+			adapters.append(adapter)
+			return adapter
+		var facade:=Facade.new(factory)
+		for bad in [null,0,&"from-west","from-south"]:
+			_check(report,not facade.start(model_root,"ground-ready",bad).ok and adapters.is_empty(),"invalid_wind_preallocation")
+		var rejected: Dictionary=facade.start(model_root,"ground-ready","from-west")
+		_check(report,not rejected.ok and adapters.size()==1 and adapters[0].joined and not facade.readback().native_live,"wind_bad_open_joined_"+mode)
+		_check(report,facade.close().ok,"wind_bad_open_host_closed")
+
 static func run(model_root: String) -> Dictionary:
 	var report: Dictionary = {"checks":0,"failures":[],"native_profiles":[],"synthetic_faults":[],"scope":"Original same-build ADR007 facade/coordinate fixtures; no pilot, aircraft calibration or product performance qualification"}
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://sim_loop_tests/independent-reference.json"))
@@ -510,6 +550,7 @@ static func run(model_root: String) -> Dictionary:
 	_native_lifecycle(model_root,report)
 	_reachable_guards(model_root,report)
 	_unjoined_reset(model_root,report)
+	_wind_cases(model_root,report)
 	_fault_cases(model_root,report)
 	_close_pause_rejection(model_root,report)
 	return report
