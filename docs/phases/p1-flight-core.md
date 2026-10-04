@@ -30,6 +30,7 @@ Generated from [roadmap](../roadmap.md) and [backlog](../backlog.json). Consult 
 | [RENDER-PROOF](https://github.com/brettbergin/flight-simulator/issues/18) — Benchmark representative cockpit readability and regional rendering | cockpit | EPIC-P0, TOOLCHAIN, NATIVE-EXPORT | `app/proof/`, `assets_source/proof/`, `tools/benchmark/` |
 | [VALIDATION-CORPUS](https://github.com/brettbergin/flight-simulator/issues/19) — Create versioned aircraft reference matrix and regression corpus | validation | EPIC-P0, LICENSE-REGISTER, CORE-CONTRACTS, FDM-HARNESS | `tests/reference/`, `tools/validation/`, `docs/evidence/P1/` |
 | [AIRBORNE-PREVIEW](https://github.com/brettbergin/flight-simulator/issues/94) — Deliver a human-controllable Windows airborne engineering preview | cockpit | EPIC-P0, CORE-CONTRACTS, FDM-HARNESS, NATIVE-EXPORT | `app/proof/airborne/`, `tools/preview/` |
+| [INTERACTIVE-CONTRACT](https://github.com/brettbergin/flight-simulator/issues/95) — Ratify the bounded original ground-to-flight prototype contract and model | physics | EPIC-P0, CORE-CONTRACTS, FDM-HARNESS, GROUND-PROOF, LICENSE-REGISTER | `docs/decisions/006-interactive-prototype.md`, `native/fdm_jsbsim/models/original-interactive/`, `third_party/licenses/` |
 
 ## Agent handoff
 

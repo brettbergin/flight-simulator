@@ -3763,6 +3763,52 @@
       "evidence": [
         "Original-model functional receipt, actual GPU screenshots, portable launch instructions and exact source/package hashes; no C172S, takeoff/landing or training-credit acceptance."
       ]
+    },
+    {
+      "key": "INTERACTIVE-CONTRACT",
+      "title": "Ratify the bounded original ground-to-flight prototype contract and model",
+      "kind": "spike",
+      "phase": "P1",
+      "parent": "EPIC-P1",
+      "summary": "Ratify one original combined aircraft and immutable synthetic ground plane so the next engineering preview can taxi, take off, fly, land and stop under a single authoritative executive.",
+      "depends_on": [
+        "EPIC-P0",
+        "CORE-CONTRACTS",
+        "FDM-HARNESS",
+        "GROUND-PROOF",
+        "LICENSE-REGISTER"
+      ],
+      "labels": [
+        "type:spike",
+        "phase:P1",
+        "area:physics",
+        "priority:P0",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "docs/decisions/006-interactive-prototype.md",
+        "native/fdm_jsbsim/models/original-interactive/",
+        "third_party/licenses/"
+      ],
+      "docs": [
+        "docs/contracts.md",
+        "docs/agent-operations.md",
+        "docs/evidence/P1/ground-proof.md"
+      ],
+      "requirements": [
+        "PRD-001",
+        "PRD-004",
+        "PRD-006",
+        "PRD-034"
+      ],
+      "acceptance": [
+        "Publish exact original model bytes, lineage, identity, MIT notice and independently checked rights inventory; historical flight-only and ground-cart packages remain unchanged.",
+        "Ratify named ground and airborne starts, SI/frame/datum and congruent prepared-plane identity, owner-thread/value-readback API, existing v1 command authority, fixed120Hz stepping, lifecycle and fail-closed coverage semantics before public consumers.",
+        "Record actual independently repeated single-executive ground→takeoff→touchdown→all-wheels stop and strict-v1 evidence as synthetic scripted proof, with no Cessna, human handling or phase-gate claim."
+      ],
+      "evidence": [
+        "Small reviewed ADR/model/rights PR, frozen native trial fingerprints and separate consumer handoff."
+      ]
     }
   ]
 }
