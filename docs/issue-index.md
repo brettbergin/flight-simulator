@@ -47,7 +47,8 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | Key | Issue | Dependencies |
 |---|---|---|
 | EPIC-P2 | [#3 First cockpit and synthetic airfield](https://github.com/brettbergin/flight-simulator/issues/3) | EPIC-P1 |
-| SIM-LOOP | [#20 Integrate fixed-tick core, interpolation, terrain queries and pause](https://github.com/brettbergin/flight-simulator/issues/20) | EPIC-P1, NATIVE-EXPORT, GROUND-PROOF |
+| SIM-LOOP-CONTRACT | [#112 Ratify the synchronous flight-loop and render-origin interface](https://github.com/brettbergin/flight-simulator/issues/112) | CORE-CONTRACTS, NATIVE-EXPORT, INTERACTIVE-CONTRACT |
+| SIM-LOOP | [#20 Integrate fixed-tick core, interpolation, terrain queries and pause](https://github.com/brettbergin/flight-simulator/issues/20) | EPIC-P1, NATIVE-EXPORT, GROUND-PROOF, SIM-LOOP-CONTRACT |
 | INPUT-PROFILES | [#21 Implement keyboard, mouse, gamepad and calibrated flight-device bindings](https://github.com/brettbergin/flight-simulator/issues/21) | EPIC-P1, CORE-CONTRACTS |
 | SYNTHETIC-AIRFIELD | [#22 Build deterministic runway, markings and ground collision fixture](https://github.com/brettbergin/flight-simulator/issues/22) | EPIC-P1, GROUND-PROOF, SIM-LOOP |
 | COCKPIT-ASSET | [#23 Create correctly scaled interactive conventional-panel cockpit](https://github.com/brettbergin/flight-simulator/issues/23) | EPIC-P1, LICENSE-REGISTER, RENDER-PROOF |

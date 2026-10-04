@@ -1017,7 +1017,8 @@
       "depends_on": [
         "EPIC-P1",
         "NATIVE-EXPORT",
-        "GROUND-PROOF"
+        "GROUND-PROOF",
+        "SIM-LOOP-CONTRACT"
       ],
       "labels": [
         "type:task",
@@ -4158,6 +4159,54 @@
       ],
       "evidence": [
         "Bounded original preview presentation correction: nominal8.333ms visual delay, raw native instruments/map, 59 planned GPU PNGs (prior43 plus16 moving-camera views) with separate capture tick counters. Production #20, P1 renderer/owner, C172 and human handling gates remain independent."
+      ]
+    },
+    {
+      "key": "SIM-LOOP-CONTRACT",
+      "title": "Ratify the synchronous flight-loop and render-origin interface",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Publish the reusable app facade, exact wall pacing, copied native state and atomic render-origin contracts before production consumers; architecture preparation preserves phase and fidelity gates.",
+      "depends_on": [
+        "CORE-CONTRACTS",
+        "NATIVE-EXPORT",
+        "INTERACTIVE-CONTRACT"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:core",
+        "priority:P0",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "docs/decisions/007-sim-loop-facade.md",
+        "docs/contracts.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md"
+      ],
+      "docs": [
+        "docs/contracts.md",
+        "docs/decisions/003-geodesy-and-render-origin.md",
+        "docs/decisions/006-interactive-prototype.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [
+        "PRD-002",
+        "PRD-007",
+        "SAFE-030"
+      ],
+      "acceptance": [
+        "Publish exact app methods/result/readback/presentation/origin participant contracts over the existing native API, with owned copies, full uint64 identities, pilot/lifecycle authority and no new model or wire records.",
+        "Define rational five-scale wall pacing, bounded overflow/stall/debt, verified partial completion, actual exactly-once command/event observation, paused drain and joined reset behavior matching source.",
+        "Specify canonical ECEF/current-NED presentation, adjacent one-tick interpolation, raw map/instrument/native truth and atomic origin adoption with explicit prepared-plane camera constraints and participant failure handling.",
+        "Independent contract/source review, documentation and schema checks plus all protected CI precede merge; copyable issue prompt and #20 dependency handoff remain separate from consumer and phase/pilot acceptance."
+      ],
+      "evidence": [
+        "Exact reviewed contract/source references and check results; no consumer, aircraft fidelity or human phase acceptance is inferred."
       ]
     }
   ]

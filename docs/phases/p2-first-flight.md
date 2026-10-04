@@ -20,7 +20,7 @@ Generated from [roadmap](../roadmap.md) and [backlog](../backlog.json). Consult 
 
 | Task | Area | Dependencies | Owned paths |
 |---|---|---|---|
-| [SIM-LOOP](https://github.com/brettbergin/flight-simulator/issues/20) — Integrate fixed-tick core, interpolation, terrain queries and pause | core | EPIC-P1, NATIVE-EXPORT, GROUND-PROOF | `app/simulation/`, `native/godot_bridge/`, `tests/integration/` |
+| [SIM-LOOP](https://github.com/brettbergin/flight-simulator/issues/20) — Integrate fixed-tick core, interpolation, terrain queries and pause | core | EPIC-P1, NATIVE-EXPORT, GROUND-PROOF, SIM-LOOP-CONTRACT | `app/simulation/`, `native/godot_bridge/`, `tests/integration/` |
 | [INPUT-PROFILES](https://github.com/brettbergin/flight-simulator/issues/21) — Implement keyboard, mouse, gamepad and calibrated flight-device bindings | input | EPIC-P1, CORE-CONTRACTS | `app/input/`, `app/ui/controls/`, `tests/input/` |
 | [SYNTHETIC-AIRFIELD](https://github.com/brettbergin/flight-simulator/issues/22) — Build deterministic runway, markings and ground collision fixture | world | EPIC-P1, GROUND-PROOF, SIM-LOOP | `content/world/synthetic/`, `app/world/`, `tests/world/` |
 | [COCKPIT-ASSET](https://github.com/brettbergin/flight-simulator/issues/23) — Create correctly scaled interactive conventional-panel cockpit | cockpit | EPIC-P1, LICENSE-REGISTER, RENDER-PROOF | `assets_source/c172/`, `app/cockpit/`, `content/aircraft/prototype/` |
@@ -28,6 +28,7 @@ Generated from [roadmap](../roadmap.md) and [backlog](../backlog.json). Consult 
 | [FLIGHT-AUDIO](https://github.com/brettbergin/flight-simulator/issues/25) — Implement state-driven engine, wind and warning sound with captions | audio | EPIC-P1, SIM-LOOP, LICENSE-REGISTER | `app/audio/`, `assets_source/audio/`, `tests/audio/` |
 | [HUD-CAMERA](https://github.com/brettbergin/flight-simulator/issues/26) — Implement cockpit views, optional training HUD and assistance visibility | ui | EPIC-P1, COCKPIT-ASSET, SIX-PACK, INPUT-PROFILES | `app/ui/hud/`, `app/camera/`, `tests/ui/` |
 | [FIRST-FLIGHT](https://github.com/brettbergin/flight-simulator/issues/27) — Validate first pilot-operable takeoff, circuit and landing prototype | validation | EPIC-P1, SYNTHETIC-AIRFIELD, HUD-CAMERA, FLIGHT-AUDIO | `content/scenarios/first-flight/`, `tests/scenarios/first-flight/`, `docs/evidence/P2/` |
+| [SIM-LOOP-CONTRACT](https://github.com/brettbergin/flight-simulator/issues/112) — Ratify the synchronous flight-loop and render-origin interface | core | CORE-CONTRACTS, NATIVE-EXPORT, INTERACTIVE-CONTRACT | `docs/decisions/007-sim-loop-facade.md`, `docs/contracts.md`, `docs/backlog.json`, `docs/issue-index.md`, `docs/requirements.md`, `docs/phases/p2-first-flight.md` |
 
 ## Agent handoff
 
