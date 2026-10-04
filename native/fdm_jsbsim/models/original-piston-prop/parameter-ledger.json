@@ -1,0 +1,668 @@
+{
+  "schema_version": 1,
+  "status": "original-engineering-prototype-unvalidated-no-backend-trial",
+  "identity": {
+    "id": "original-piston-prop-v1",
+    "version": "0.1.0-prototype",
+    "backend_model": "original-piston-prop"
+  },
+  "authorship": "Project-original engineering choices, not vendor aircraft/engine XML or manufacturer facts. Backend API syntax and algorithm inspection are separately pinned JSBSim source, not copied model data.",
+  "license": "MIT",
+  "contract": "docs/decisions/010-original-piston-profile.md",
+  "xml_files": [
+    {
+      "path": "aircraft/original-piston-prop/original-piston-prop.xml",
+      "bytes": 6784,
+      "sha256": "b9a41861fcbca1917978312d73a192cbe2c2ea0e6ef0e13512c76148a6c9d4c5"
+    },
+    {
+      "path": "engine/original-piston.xml",
+      "bytes": 1882,
+      "sha256": "0d1b3eb87f1af2131a495c26ae7a3fb2fdd2a38d3d4309c67a77daaff2cf069e"
+    },
+    {
+      "path": "engine/original-fixed-prop.xml",
+      "bytes": 826,
+      "sha256": "b4f3f376f062d869a338bb2757466c9ba23d6320d895d3fc5921e351748bb0af"
+    }
+  ],
+  "lineage": [
+    {
+      "path": "native/fdm_jsbsim/models/original-interactive/aircraft/original-interactive/original-interactive.xml",
+      "sha256": "0213ab8c1176e5d20b01f980da9cb94913f3e9ad8866838adc7e77bf3130722a",
+      "inherited_subtrees": [
+        {
+          "element": "metrics",
+          "unchanged_xml_subtree_sha256": "795087d537e791d41f9296bb246d5e0396fce7a7f2aba220d5d07306c5befaff",
+          "provenance": "project-original MIT legacy airframe; exact structural subtree equivalence"
+        },
+        {
+          "element": "mass_balance",
+          "unchanged_xml_subtree_sha256": "5d199d1d6a8c0923e4c5a13af3b98284062446715f4ea4148a3036b653d72897",
+          "provenance": "project-original MIT legacy airframe; exact structural subtree equivalence"
+        },
+        {
+          "element": "ground_reactions",
+          "unchanged_xml_subtree_sha256": "0eb6396f9e02d7407a7c06bb36d19901f5a095e67710ffd4864d2f42dbd5e50e",
+          "provenance": "project-original MIT legacy airframe; exact structural subtree equivalence"
+        },
+        {
+          "element": "flight_control",
+          "unchanged_xml_subtree_sha256": "7332584eb6729ea6f0ad874dcffd014d70c686f035daccfa0efa9af472b37b52",
+          "provenance": "project-original MIT legacy airframe; exact structural subtree equivalence"
+        },
+        {
+          "element": "aerodynamics",
+          "unchanged_xml_subtree_sha256": "8448bf0890d9782018e759b1e075c7badf263a03d964b96dc74e3d44b6548c51",
+          "provenance": "project-original MIT legacy airframe; exact structural subtree equivalence"
+        }
+      ]
+    },
+    {
+      "path": "native/fdm_jsbsim/models/original-interactive/inventory.json",
+      "sha256": "98b30b5641ce86cc6f0af6298424606aa96a1e4a35ef3e9fcaf377bebb3f00cd"
+    }
+  ],
+  "parameters": [
+    {
+      "id": "engine.minmp",
+      "xml_value": "8",
+      "xml_unit": "INHG",
+      "effective_meaning": "INHG",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 1
+    },
+    {
+      "id": "engine.maxmp",
+      "xml_value": "28",
+      "xml_unit": "INHG",
+      "effective_meaning": "INHG",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 2
+    },
+    {
+      "id": "engine.man-press-lag",
+      "xml_value": "0.5",
+      "xml_unit": null,
+      "effective_meaning": "s",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 3
+    },
+    {
+      "id": "engine.displacement",
+      "xml_value": "286.277630558369908854908378301344700322467061518056517936342",
+      "xml_unit": "IN3",
+      "effective_meaning": "IN3",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 4
+    },
+    {
+      "id": "engine.maxhp",
+      "xml_value": "150",
+      "xml_unit": "HP",
+      "effective_meaning": "HP",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 5
+    },
+    {
+      "id": "engine.static-friction",
+      "xml_value": "1",
+      "xml_unit": "HP",
+      "effective_meaning": "HP",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 6
+    },
+    {
+      "id": "engine.sparkfaildrop",
+      "xml_value": "0.1",
+      "xml_unit": null,
+      "effective_meaning": "fractional drop; effective single-magneto multiplier=1-input=0.9",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 7
+    },
+    {
+      "id": "engine.cycles",
+      "xml_value": "4",
+      "xml_unit": null,
+      "effective_meaning": "cycle count",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 8
+    },
+    {
+      "id": "engine.idlerpm",
+      "xml_value": "600",
+      "xml_unit": null,
+      "effective_meaning": "rev/min",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 9
+    },
+    {
+      "id": "engine.maxrpm",
+      "xml_value": "2400",
+      "xml_unit": null,
+      "effective_meaning": "rev/min parameter; not hard overspeed clamp",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 10
+    },
+    {
+      "id": "engine.maxthrottle",
+      "xml_value": "1",
+      "xml_unit": null,
+      "effective_meaning": "fraction",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 11
+    },
+    {
+      "id": "engine.minthrottle",
+      "xml_value": "0",
+      "xml_unit": null,
+      "effective_meaning": "fraction",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 12
+    },
+    {
+      "id": "engine.bsfc",
+      "xml_value": "0.4",
+      "xml_unit": "LBS/HP*HR",
+      "effective_meaning": "LBS/HP*HR",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 13
+    },
+    {
+      "id": "engine.volumetric-efficiency",
+      "xml_value": "0.8",
+      "xml_unit": null,
+      "effective_meaning": "fraction",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 14
+    },
+    {
+      "id": "engine.compression-ratio",
+      "xml_value": "8",
+      "xml_unit": null,
+      "effective_meaning": "ratio",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 15
+    },
+    {
+      "id": "engine.bore",
+      "xml_value": "4.5",
+      "xml_unit": "IN",
+      "effective_meaning": "IN",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 16
+    },
+    {
+      "id": "engine.stroke",
+      "xml_value": "4.5",
+      "xml_unit": "IN",
+      "effective_meaning": "IN",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 17
+    },
+    {
+      "id": "engine.cylinders",
+      "xml_value": "4",
+      "xml_unit": null,
+      "effective_meaning": "count",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 18
+    },
+    {
+      "id": "engine.cylinder-head-mass",
+      "xml_value": "3",
+      "xml_unit": "KG",
+      "effective_meaning": "KG",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 19
+    },
+    {
+      "id": "engine.air-intake-impedance-factor",
+      "xml_value": "0.2",
+      "xml_unit": null,
+      "effective_meaning": "dimensionless impedance coefficient",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 20
+    },
+    {
+      "id": "engine.ram-air-factor",
+      "xml_value": "1",
+      "xml_unit": null,
+      "effective_meaning": "dimensionless factor",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 21
+    },
+    {
+      "id": "engine.cooling-factor",
+      "xml_value": "0.5",
+      "xml_unit": null,
+      "effective_meaning": "backend thermal multiplier; not sensed output",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 22
+    },
+    {
+      "id": "engine.starter-rpm",
+      "xml_value": "1200",
+      "xml_unit": null,
+      "effective_meaning": "rev/min",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 23
+    },
+    {
+      "id": "engine.starter-torque",
+      "xml_value": "60",
+      "xml_unit": null,
+      "effective_meaning": "ft*lbf raw XML number (not converted)",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 24
+    },
+    {
+      "id": "engine.dynamic-fmep",
+      "xml_value": "18000",
+      "xml_unit": "PA",
+      "effective_meaning": "API PA tag; effective pressure-per-(m/s) coefficient in friction expression",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 25
+    },
+    {
+      "id": "engine.static-fmep",
+      "xml_value": "45000",
+      "xml_unit": "PA",
+      "effective_meaning": "PA",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 26
+    },
+    {
+      "id": "engine.peak-piston-speed",
+      "xml_value": "100",
+      "xml_unit": null,
+      "effective_meaning": "ft/s raw XML number",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 27
+    },
+    {
+      "id": "engine.numboostspeeds",
+      "xml_value": "0",
+      "xml_unit": null,
+      "effective_meaning": "count; zero disables all boost branches",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 28
+    },
+    {
+      "id": "engine.oil-pressure-relief-valve-psi",
+      "xml_value": "60",
+      "xml_unit": "PSI",
+      "effective_meaning": "PSI",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 29
+    },
+    {
+      "id": "engine.design-oil-temp-degK",
+      "xml_value": "350",
+      "xml_unit": "DEGK",
+      "effective_meaning": "DEGK",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 30
+    },
+    {
+      "id": "engine.oil-pressure-rpm-max",
+      "xml_value": "1800",
+      "xml_unit": null,
+      "effective_meaning": "rev/min",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 31
+    },
+    {
+      "id": "engine.oil-viscosity-index",
+      "xml_value": "0.25",
+      "xml_unit": null,
+      "effective_meaning": "backend thermal coefficient; not sensed output",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 32
+    },
+    {
+      "id": "propeller.ixx",
+      "xml_value": "2",
+      "xml_unit": "SLUG*FT2",
+      "effective_meaning": "SLUG*FT2",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 1
+    },
+    {
+      "id": "propeller.diameter",
+      "xml_value": "6",
+      "xml_unit": "FT",
+      "effective_meaning": "FT",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 2
+    },
+    {
+      "id": "propeller.numblades",
+      "xml_value": "2",
+      "xml_unit": null,
+      "effective_meaning": "count",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 3
+    },
+    {
+      "id": "propeller.gearratio",
+      "xml_value": "1",
+      "xml_unit": null,
+      "effective_meaning": "engine RPM / propeller RPM",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 4
+    },
+    {
+      "id": "propeller.minpitch",
+      "xml_value": "20",
+      "xml_unit": null,
+      "effective_meaning": "degree-valued raw pitch selector; fixed 1D table does not calculate blade geometry",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 5
+    },
+    {
+      "id": "propeller.maxpitch",
+      "xml_value": "20",
+      "xml_unit": null,
+      "effective_meaning": "degree-valued raw pitch selector; equals minpitch",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 6
+    },
+    {
+      "id": "propeller.minrpm",
+      "xml_value": "0",
+      "xml_unit": null,
+      "effective_meaning": "rev/min; unused for fixed pitch constspeed0",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 7
+    },
+    {
+      "id": "propeller.maxrpm",
+      "xml_value": "2400",
+      "xml_unit": null,
+      "effective_meaning": "rev/min parameter; not hard overspeed clamp",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 8
+    },
+    {
+      "id": "propeller.constspeed",
+      "xml_value": "0",
+      "xml_unit": null,
+      "effective_meaning": "integer mode; zero disables governor",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 9
+    },
+    {
+      "id": "propeller.reversepitch",
+      "xml_value": "0",
+      "xml_unit": null,
+      "effective_meaning": "raw degree-valued parameter; reverse is not admitted",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 10
+    },
+    {
+      "id": "propeller.ct_factor",
+      "xml_value": "1",
+      "xml_unit": null,
+      "effective_meaning": "dimensionless factor",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 11
+    },
+    {
+      "id": "propeller.cp_factor",
+      "xml_value": "1",
+      "xml_unit": null,
+      "effective_meaning": "dimensionless factor",
+      "provenance": "original-design-choice",
+      "reason": "Simple authored engineering input; not manufacturer calibration",
+      "parameter_number": 12
+    }
+  ],
+  "tables": {
+    "COMBUSTION": {
+      "rows": [
+        [
+          "0",
+          "0"
+        ],
+        [
+          "0.5",
+          "0.8"
+        ],
+        [
+          "1",
+          "0.95"
+        ],
+        [
+          "1.5",
+          "0.75"
+        ],
+        [
+          "2",
+          "0.5"
+        ]
+      ],
+      "type": "internal 1D",
+      "interpolation": "linear interior; clamp both endpoint values outside domain, no extrapolation",
+      "input": "equivalence_ratio dimensionless",
+      "output": "dimensionless",
+      "provenance": "original-piecewise-choice; no default/vendor table copy"
+    },
+    "MIXTURE": {
+      "rows": [
+        [
+          "0",
+          "0"
+        ],
+        [
+          "0.04",
+          "0"
+        ],
+        [
+          "0.06",
+          "0.75"
+        ],
+        [
+          "0.08",
+          "1"
+        ],
+        [
+          "0.10",
+          "1"
+        ],
+        [
+          "0.12",
+          "0.5"
+        ],
+        [
+          "0.16",
+          "0"
+        ]
+      ],
+      "type": "internal 1D",
+      "interpolation": "linear interior; clamp both endpoint values outside domain, no extrapolation",
+      "input": "fuel/air mass-flow ratio",
+      "output": "dimensionless",
+      "provenance": "original-piecewise-choice; no default/vendor table copy"
+    },
+    "C_THRUST": {
+      "rows": [
+        [
+          "-1",
+          "0.12"
+        ],
+        [
+          "0",
+          "0.12"
+        ],
+        [
+          "1",
+          "0"
+        ],
+        [
+          "2",
+          "-0.06"
+        ]
+      ],
+      "type": "internal 1D",
+      "interpolation": "linear interior; clamp both endpoint values outside domain, no extrapolation",
+      "input": "J dimensionless only normal n>.01 branch; nearzero key=V(ft/s)/D(ft)",
+      "output": "dimensionless",
+      "provenance": "original-piecewise-choice; no default/vendor table copy"
+    },
+    "C_POWER": {
+      "rows": [
+        [
+          "-1",
+          "0.06"
+        ],
+        [
+          "0",
+          "0.06"
+        ],
+        [
+          "1",
+          "0.04"
+        ],
+        [
+          "2",
+          "0.02"
+        ]
+      ],
+      "type": "internal 1D",
+      "interpolation": "linear interior; clamp both endpoint values outside domain, no extrapolation",
+      "input": "J dimensionless only normal n>.01 branch; nearzero key=V(ft/s)/D(ft)",
+      "output": "dimensionless",
+      "provenance": "original-piecewise-choice; no default/vendor table copy"
+    }
+  },
+  "backend_constants": {
+    "R_air_J_kg_K": "287.3",
+    "fuel_calorific_J_kg": "47300000",
+    "Cp_air_J_kg_K": "1005",
+    "Cp_fuel_J_kg_K": "1700",
+    "standard_pressure_Pa": "101320.73",
+    "mixture_position_to_sea_level_equivalence": "1.3",
+    "fuel_flow_equivalence_reference_pressure_Pa": "101325",
+    "air_fuel_reference_ratio": "14.7",
+    "piston_flow_kg_to_lb_approx": "2.2046",
+    "xml_KG_to_LBS": "1/0.45359237 (not FGJSBBase.kgtolb2.20462)",
+    "public_lb_to_kg": "0.45359237",
+    "engine_HP_to_prop_ft_lbf_per_s": "550",
+    "starter_torque_power_denominator": "5252",
+    "pumping_power_denominator": "cycles*22371",
+    "internal_inHg_to_Pa": "3386.38",
+    "xml_INHG_to_PA_if_conversion_requested": "3386.0 (these XML parameters use INHG directly)",
+    "XML_slug_ft2_to_kg_m2_if_conversion_requested": "1.35594 (prop ixx uses SLUG*FT2 directly)",
+    "startup_running_rpm_threshold": "0.8*IdleRPM; strict RPM>threshold when not Running",
+    "low_indicated_hp_running_cutoff": "0.125",
+    "prop_normal_J_min_RPS": "0.01; normal only strictly greater",
+    "prop_load_floor_RPS": "0.01; floor applies strictly less",
+    "prop_excess_torque_normal_min_omega": "0.01 rad/s; otherwise divisor1.0",
+    "prop_engine_reaction_min_omega": "max(0.01,omega)",
+    "prop_RPM_negative_clamp": "0",
+    "prop_version_1_1_sense_multiplier": "-1",
+    "internal_airflow_gamma": "1.3"
+  },
+  "retained_backend_defaults": {
+    "engine_starter_gain": "1; no battery/current/electrical supply dynamics",
+    "engine_fuel_density_default_lbs_gal": "6.02 before propulsion overrides from tank density6",
+    "prop_reverse_feather_advance": "false/false/0; no exposed commands",
+    "optional_CT_MACH_CP_MACH": "absent; scale1",
+    "tank_external_flow": "0; no refill command",
+    "tank_area": "1ft2; temperature=-9999 disables thermal branch",
+    "tank_grain_type": "UNKNOWN; zero point-radius gives no tank inertia",
+    "reset_initialization": "Fresh engine ResetToIC sets actual environment MAP/temperatures and shaft0, Running/Starter/Cranking/Starvedfalse; magneto mask explicitly set0 after IC by consumer. No InitRunning/positive hidden tick."
+  },
+  "installation": {
+    "thruster_structural_location_m": [
+      "-2",
+      "0",
+      "0"
+    ],
+    "thruster_orientation_rad": [
+      "0",
+      "0",
+      "0"
+    ],
+    "sense": "1",
+    "p_factor": "0",
+    "feed_indices": [
+      0
+    ],
+    "tank_count": 1,
+    "tank_location_m": [
+      "0",
+      "0",
+      "0"
+    ],
+    "tank_capacity_contents_lbs": "220.462262184877580722973801345027033854207027336019783577929",
+    "tank_usable_kg": "100",
+    "tank_unusable_gal": "0",
+    "tank_standpipe_lbs": "0",
+    "tank_radius_in": "0",
+    "tank_priority": "1",
+    "tank_density_lbs_gal": "6",
+    "tank_temperature_sentinel": "-9999",
+    "fuel_phase": "FGPropulsion calculates engine/thrust before tank Drain and Starved; MassBalance precedes drain; no same-tick post-fuel mass/CG consistency claim"
+  },
+  "limits": [
+    "Original polynomial airframe and ground gear remain uncalibrated; no C172/source-specific operating limits or phase acceptance.",
+    "Positive CP is deliberately dissipative throughout clamped domain; no freestream self-start/windmill or guaranteed coasting duration.",
+    "CT/CP outside J[-1,2] clamp to endpoint; negative CT at high J is an authored surrogate, not measured windmill behavior.",
+    "Fixed pitch20 is only a backend selector; no blade-element/twist/airfoil geometry fidelity.",
+    "Thermal/oil internals are pinned numerical substrate, not public oil/temperature sensors or engine procedures.",
+    "MaxHP and MaxRPM are scaling/geometry parameters, not guarantees or hard physical limits.",
+    "Final fuel shortage/requested-power discrepancy and starvation chronology require pre-observation bounds before trial/ship."
+  ],
+  "geometry_derivation": {
+    "displacement_IN3": "cylinders*pi*bore_IN^2*stroke_IN/4 =91.125*pi",
+    "pi_decimal": "3.141592653589793238462643383279502884197169399375105820974944",
+    "decimal_precision": 60,
+    "displacement_exact_decimal_approximation": "286.277630558369908854908378301344700322467061518056517936342",
+    "no_backend_output_used": true
+  }
+}

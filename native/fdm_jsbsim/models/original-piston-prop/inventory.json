@@ -1,0 +1,83 @@
+{
+  "id": "original-piston-prop-v1",
+  "version": "0.1.0-prototype",
+  "backend_model": "original-piston-prop",
+  "license": "MIT",
+  "status": "original-engineering-prototype-unvalidated-no-backend-trial",
+  "files": [
+    {
+      "path": "aircraft/original-piston-prop/original-piston-prop.xml",
+      "bytes": 6784,
+      "sha256": "b9a41861fcbca1917978312d73a192cbe2c2ea0e6ef0e13512c76148a6c9d4c5"
+    },
+    {
+      "path": "engine/original-piston.xml",
+      "bytes": 1882,
+      "sha256": "0d1b3eb87f1af2131a495c26ae7a3fb2fdd2a38d3d4309c67a77daaff2cf069e"
+    },
+    {
+      "path": "engine/original-fixed-prop.xml",
+      "bytes": 826,
+      "sha256": "b4f3f376f062d869a338bb2757466c9ba23d6320d895d3fc5921e351748bb0af"
+    }
+  ],
+  "metadata": [
+    {
+      "path": "parameter-ledger.json",
+      "bytes": 23206,
+      "sha256": "b59fff1d35dbd702392d12cfa4ac9477d9fafa8927454a067e60d06aaaaed24a"
+    },
+    {
+      "path": "NOTICE-MIT.txt",
+      "bytes": 1069,
+      "sha256": "ca8c1205d820d40917b54d548b97dde200bc24bc6c3166358e8bc6cc27eb0e9e"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2637,
+      "sha256": "5b5db85e1df978659a7c82620639393eefd527072400d002b09437c219ade559"
+    }
+  ],
+  "contract": "docs/decisions/010-original-piston-profile.md",
+  "lineage": [
+    {
+      "path": "native/fdm_jsbsim/models/original-interactive/aircraft/original-interactive/original-interactive.xml",
+      "sha256": "0213ab8c1176e5d20b01f980da9cb94913f3e9ad8866838adc7e77bf3130722a",
+      "inherited_subtrees": [
+        {
+          "element": "metrics",
+          "unchanged_xml_subtree_sha256": "795087d537e791d41f9296bb246d5e0396fce7a7f2aba220d5d07306c5befaff",
+          "provenance": "project-original MIT legacy airframe; exact structural subtree equivalence"
+        },
+        {
+          "element": "mass_balance",
+          "unchanged_xml_subtree_sha256": "5d199d1d6a8c0923e4c5a13af3b98284062446715f4ea4148a3036b653d72897",
+          "provenance": "project-original MIT legacy airframe; exact structural subtree equivalence"
+        },
+        {
+          "element": "ground_reactions",
+          "unchanged_xml_subtree_sha256": "0eb6396f9e02d7407a7c06bb36d19901f5a095e67710ffd4864d2f42dbd5e50e",
+          "provenance": "project-original MIT legacy airframe; exact structural subtree equivalence"
+        },
+        {
+          "element": "flight_control",
+          "unchanged_xml_subtree_sha256": "7332584eb6729ea6f0ad874dcffd014d70c686f035daccfa0efa9af472b37b52",
+          "provenance": "project-original MIT legacy airframe; exact structural subtree equivalence"
+        },
+        {
+          "element": "aerodynamics",
+          "unchanged_xml_subtree_sha256": "8448bf0890d9782018e759b1e075c7badf263a03d964b96dc74e3d44b6548c51",
+          "provenance": "project-original MIT legacy airframe; exact structural subtree equivalence"
+        }
+      ]
+    },
+    {
+      "path": "native/fdm_jsbsim/models/original-interactive/inventory.json",
+      "sha256": "98b30b5641ce86cc6f0af6298424606aa96a1e4a35ef3e9fcaf377bebb3f00cd"
+    }
+  ],
+  "controls_capability_revision": "piston-controls-v1",
+  "accepted_start": "piston-cold-ground",
+  "runtime_consumer": "not-implemented",
+  "independent_reference": "pending independently frozen exact source/reference leaf; no backend trial"
+}
