@@ -3717,6 +3717,98 @@
       "evidence": [
         "Normal-envelope reference matrix and P3 performance review."
       ]
+    },
+    {
+      "key": "AIRBORNE-PREVIEW",
+      "title": "Deliver a human-controllable Windows airborne engineering preview",
+      "kind": "spike",
+      "phase": "P1",
+      "parent": "EPIC-P1",
+      "summary": "Give the owner an immediately flyable engineering preview using the accepted native flight-only API while the combined ground-to-flight prototype is developed.",
+      "depends_on": [
+        "EPIC-P0",
+        "CORE-CONTRACTS",
+        "FDM-HARNESS",
+        "NATIVE-EXPORT"
+      ],
+      "labels": [
+        "type:spike",
+        "phase:P1",
+        "area:cockpit",
+        "priority:P0",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "app/proof/airborne/",
+        "tools/preview/"
+      ],
+      "docs": [
+        "docs/contracts.md",
+        "docs/delivery.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "PRD-001",
+        "PRD-015",
+        "PRD-034",
+        "UX-009",
+        "UX-010"
+      ],
+      "acceptance": [
+        "A Windows preview starts airborne and lets a human control roll, pitch, yaw, throttle and trim through the accepted authoritative native bridge.",
+        "Readable state-derived indications, a flight view, pause/resume and fresh restart work; prototype, datum and unavailable ground-contact limits remain visible.",
+        "Fixed120Hz stepping preserves fractional wall debt with bounded batches; stalls and native failures stop visibly rather than silently changing physics.",
+        "Headless functional and actual reference-PC graphics checks verify controls, state, pause, restart and joined shutdown; source/native/model/package identities and reproduction instructions are recorded."
+      ],
+      "evidence": [
+        "Original-model functional receipt, actual GPU screenshots, portable launch instructions and exact source/package hashes; no C172S, takeoff/landing or training-credit acceptance."
+      ]
+    },
+    {
+      "key": "INTERACTIVE-CONTRACT",
+      "title": "Ratify the bounded original ground-to-flight prototype contract and model",
+      "kind": "spike",
+      "phase": "P1",
+      "parent": "EPIC-P1",
+      "summary": "Ratify one original combined aircraft and immutable synthetic ground plane so the next engineering preview can taxi, take off, fly, land and stop under a single authoritative executive.",
+      "depends_on": [
+        "EPIC-P0",
+        "CORE-CONTRACTS",
+        "FDM-HARNESS",
+        "GROUND-PROOF",
+        "LICENSE-REGISTER"
+      ],
+      "labels": [
+        "type:spike",
+        "phase:P1",
+        "area:physics",
+        "priority:P0",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "docs/decisions/006-interactive-prototype.md",
+        "native/fdm_jsbsim/models/original-interactive/",
+        "third_party/licenses/"
+      ],
+      "docs": [
+        "docs/contracts.md",
+        "docs/agent-operations.md",
+        "docs/evidence/P1/ground-proof.md"
+      ],
+      "requirements": [
+        "PRD-001",
+        "PRD-004",
+        "PRD-006",
+        "PRD-034"
+      ],
+      "acceptance": [
+        "Publish exact original model bytes, lineage, identity, MIT notice and independently checked rights inventory; historical flight-only and ground-cart packages remain unchanged.",
+        "Ratify named ground and airborne starts, SI/frame/datum and congruent prepared-plane identity, owner-thread/value-readback API, existing v1 command authority, fixed120Hz stepping, lifecycle and fail-closed coverage semantics before public consumers.",
+        "Record actual independently repeated single-executive ground→takeoff→touchdown→all-wheels stop and strict-v1 evidence as synthetic scripted proof, with no Cessna, human handling or phase-gate claim."
+      ],
+      "evidence": [
+        "Small reviewed ADR/model/rights PR, frozen native trial fingerprints and separate consumer handoff."
+      ]
     }
   ]
 }
