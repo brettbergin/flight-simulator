@@ -2,7 +2,7 @@
 
 A Windows-first flight simulator built around realistic Cessna operations, repeatable practice, and evidence-based aircraft validation.
 
-**Current stage: P1 native foundation.** The owner approved the plan; versioned contracts, the pinned native toolchain and source-rights gates have landed. The [headless harness](native/fdm_jsbsim/README.md) runs an original synthetic aircraft for numerical proofs. A playable cockpit and C172S validation remain later gates.
+**Current stage: P1 engineering previews.** The native foundation runs an original synthetic aircraft. The [Windows airborne preview](tools/preview/README.md) adds keyboard flight controls, a flight view, live indications, pause and fresh restart. Ground operations, a complete cockpit and C172S validation remain separate work.
 
 Start with [the project plan](docs/README.md), [the roadmap](docs/roadmap.md), and [the issue index](docs/issue-index.md).
 
