@@ -42,7 +42,7 @@ func _ready() -> void:
 	margin.add_child(scroll)
 	var box:=VBoxContainer.new()
 	box.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-	box.add_theme_constant_override("separation",16)
+	box.add_theme_constant_override("separation",10)
 	scroll.add_child(box)
 	_label(box,"SYNTHETIC STEADY WIND / NATIVE TRUTH",23)
 	_current=_label(box,"Current conditions unavailable",18)

@@ -24,6 +24,12 @@ The latest isolated focused run passed 30,606 facade and 126 scene assertions, i
 
 These focused checks do not establish editor/exported/rebuilt-DLL equivalence, GPU readability, reference-PC performance, real crosswind handling or pilot evaluation. Final package closure and reviewed exported views must be recorded before this implementation issue closes.
 
+## Exported visual review and correction
+
+The first export at source `58522eb5a9396da60db4f15ec5e7bb35105cc5e9` passed editor, portable and separately rebuilt-DLL integration, including unchanged archive codec/file/scene checks. Its 39 exported views passed 215 automated assertions, but independent image review rejected two visual defects: Back was clipped by the scroll viewport at 960x540, and the wind label lost contrast over white runway paint. Passing automation did not establish visual acceptance; those artifacts and findings are retained unchanged.
+
+The corrected panel reduces spacing so its controls fit at the minimum size; the native wind cue has a dark backing. The visual observer now checks ScrollContainer ancestor containment as well as viewport bounds. A fresh isolated source GPU run passed 230 assertions and its reviewed minimum-size images show both corrections. This compatibility-renderer source check does not replace the pending corrected Forward+ Windows export and independent final image review.
+
 ## Remaining limits
 
 This is an original engineering prototype, not a validated C172S model. The preset strength is not an aircraft crosswind limit. Gusts, turbulence, live/real weather, pressure instruments, airport operational sources, durable pilot profiles and training credit are separate backlog requirements. Rendering and the direction-only windsock have no physics or collision authority. Phase gates and pilot evaluation remain open.

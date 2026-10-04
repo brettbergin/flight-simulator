@@ -37,6 +37,12 @@ func _display_shot(name: String, dimensions: Vector2i) -> void:
 
 func _visible_bounds(control: Control, dimensions: Vector2i, name: String) -> void:
 	_check(Rect2(Vector2.ZERO,Vector2(dimensions)).encloses(control.get_global_rect()),"bounds_"+name)
+	# Viewport containment alone misses children clipped by a scroll viewport.
+	var ancestor: Node=control.get_parent()
+	while ancestor!=null:
+		if ancestor is ScrollContainer:
+			_check(ancestor.get_global_rect().encloses(control.get_global_rect()),"scroll_bounds_"+name)
+		ancestor=ancestor.get_parent()
 
 func _warning(node: Node) -> Label:
 	if node is Label and node.text=="Saved reviews do not retain wind setup or resume a flight": return node
@@ -47,7 +53,8 @@ func _warning(node: Node) -> Label:
 
 func run(scene: Node) -> void:
 	_scene=scene
-	_scene.failures=[]
+	var empty_failures: Array[String]=[]
+	_scene.failures=empty_failures
 	if DisplayServer.get_name()=="headless":
 		_check(false,"requires_actual_GPU_window")
 		_write_receipt()

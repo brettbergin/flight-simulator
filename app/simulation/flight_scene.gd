@@ -21,6 +21,7 @@ var wind_draft: String="calm"
 var current_wind_profile: String="calm"
 var wind_panel: Control
 var wind_label: Label
+var wind_card: PanelContainer
 var windsock_visual: MeshInstance3D
 var archive_files: RefCounted=ArchiveFiles.new()
 var archive_dialog: FileDialog
@@ -453,6 +454,14 @@ func make_menu(canvas: CanvasLayer) -> void:
 	wind_panel.draft_selected.connect(select_wind_draft)
 	wind_panel.start_requested.connect(start_wind_draft)
 	wind_panel.dismissed.connect(dismiss_wind)
+	wind_card=PanelContainer.new()
+	wind_card.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	var wind_style:=StyleBoxFlat.new()
+	wind_style.bg_color=Color(0.02,0.05,0.08,0.96)
+	wind_style.set_content_margin_all(6.0)
+	wind_style.set_corner_radius_all(4)
+	wind_card.add_theme_stylebox_override("panel",wind_style)
+	canvas.add_child(wind_card)
 	wind_label=Label.new()
 	wind_label.mouse_filter=Control.MOUSE_FILTER_IGNORE
 	wind_label.add_theme_font_size_override("font_size",12)
@@ -460,7 +469,7 @@ func make_menu(canvas: CanvasLayer) -> void:
 	wind_label.add_theme_color_override("font_shadow_color",Color.BLACK)
 	wind_label.add_theme_constant_override("shadow_offset_x",1)
 	wind_label.add_theme_constant_override("shadow_offset_y",1)
-	canvas.add_child(wind_label)
+	wind_card.add_child(wind_label)
 	menu.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	menu.custom_minimum_size=Vector2(560,490)
 	layout_flight_menu()
@@ -770,8 +779,8 @@ func update_wind_presentation(readback: Dictionary) -> void:
 		wind_label.text="SYNTHETIC STEADY WIND / NATIVE TRUTH\n"+WindPanel.describe(cue)
 		var viewport_height: float=get_viewport().get_visible_rect().size.y
 		var overlay_height: float=minf(viewport_height*0.34,455.0) if panel.get("_panel_visible") else 32.0
-		wind_label.position=Vector2(16,viewport_height-overlay_height-44.0)
-		wind_label.visible=not menu_open and camera_mode!=3
+		wind_card.position=Vector2(16,viewport_height-overlay_height-52.0)
+		wind_card.visible=not menu_open and camera_mode!=3
 	if wind_panel!=null and wind_panel.visible:
 		wind_panel.set_context(wind_draft,current_wind_profile,cue,review_boundary() and archive_operation.is_empty() and pending_discard.is_empty())
 	flight_map.call("set_wind_cue",cue)
