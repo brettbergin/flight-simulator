@@ -206,10 +206,10 @@ jobs:
             [Environment]::SetEnvironmentVariable($name,$directory,'Process')
           }
           foreach($operation in @(
-            @{name='import';args=@('--headless','--path',$project,'--editor','--quit-after','120','--frame-delay','100')},
-            @{name='checks';args=@('--headless','--path',$project,'res://sim_loop_checks.tscn')}
+            @{name='import';timeout=120;args=@('--headless','--path',$project,'--editor','--quit-after','120','--frame-delay','100')},
+            @{name='checks';timeout=600;args=@('--headless','--path',$project,'res://sim_loop_checks.tscn')}
           )) {
-            $result=Invoke-ProofProcess $environment.tools.godot $operation.args $root (Join-Path $evidence ($operation.name+'.log'))
+            $result=Invoke-ProofProcess $environment.tools.godot $operation.args $root (Join-Path $evidence ($operation.name+'.log')) -TimeoutSeconds $operation.timeout
             if($result.exit_code -ne 0 -or $result.text -match 'ERROR:|SCRIPT ERROR:|FATAL|ObjectDB instances? (?:(?:was|were) )?leaked|RID allocations leaked|resources still in use|Assertion failed') { throw 'Headless simulation facade resource/check run failed' }
           }
           $receipt=Get-Content (Join-Path $project 'facade-check-receipt.json') -Raw | ConvertFrom-Json
