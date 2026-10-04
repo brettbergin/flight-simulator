@@ -204,6 +204,7 @@ func set_aids_visible(value: bool) -> void:
 	_refresh()
 
 func set_open(value: bool) -> void:
+	var was_open: bool=_open
 	_open=value and _view.available and _view.paused
 	if _open:
 		_draft.clear()
@@ -211,6 +212,8 @@ func set_open(value: bool) -> void:
 			if index>=0:
 				_draft.append(index)
 	_refresh()
+	if _open and not was_open and not _choice_buttons.is_empty():
+		_choice_buttons[0].grab_focus()
 
 func _ready() -> void:
 	mouse_filter=Control.MOUSE_FILTER_IGNORE
