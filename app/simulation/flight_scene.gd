@@ -10,6 +10,19 @@ const Preset = preload("res://input/input_preset.gd")
 const ControlsPanel = preload("res://ui/controls/controls_panel.gd")
 const NativeReadings = preload("res://cockpit/instruments/native_readings.gd")
 const ScanPanel = preload("res://cockpit/instruments/scan_panel.gd")
+const ObservedRecorder = preload("res://replay/observed/recorder.gd")
+const ObservedPanel = preload("res://ui/debrief/observed/panel.gd")
+var observed_recorder: RefCounted=ObservedRecorder.new()
+var observed_panel: Control
+var review_open: bool=false
+var observed_status: Dictionary={}
+var discard_layer: Control
+var discard_message: Label
+var discard_cancel: Button
+var discard_accept: Button
+var pending_discard: Dictionary={}
+var initializing_recording: bool=false
+var review_joined: bool=true
 const LandmarkBoard = preload("res://ui/freeflight/landmark_board.gd")
 var landmark_board: Control
 var route_open: bool=false
@@ -53,6 +66,10 @@ func _ready() -> void:
 		for device in Input.get_connected_joypads():
 			observe_connection(device,true)
 	super._ready()
+	if not legacy_proof and "--observed-visual-smoke" in OS.get_cmdline_user_args():
+		set_process(false)
+		call_deferred("run_observed_visual")
+		return
 	if not legacy_proof and "--landmark-visual-smoke" in OS.get_cmdline_user_args():
 		set_process(false)
 		call_deferred("run_landmark_visual")
@@ -91,26 +108,40 @@ func close_session() -> bool:
 		bridge=null
 		return true
 	var result: Dictionary=facade.close()
+	# Retain the old prefix when replacement fails, but still label its actual
+	# confirmed stop. New-session publications remain held until begin succeeds.
+	if initializing_recording and not observed_status.is_empty():
+		var ended: Dictionary=observed_recorder.observe(result.readback)
+		if ended.status!=null: observed_status=ended.status
+	else:
+		observe_flight(result.readback)
 	if result.ok:
+		review_joined=true
 		facade=null
 		bridge=null
 	else:
 		adopt_result(result)
 	return result.ok
 
-func restart() -> bool:
+func restart(replace_confirmed: bool=false) -> bool:
 	if legacy_proof:
 		return super.restart()
+	if recorded_flight_advanced() and not replace_confirmed:
+		request_discard("restart",named_start)
+		return false
+	if recorded_flight_advanced() and not review_boundary():
+		return restart_failed("Recorded flight replacement requires a verified paused or joined boundary")
+	initializing_recording=true
 	if not close_session():
-		return fail("Native worker did not join")
+		return restart_failed("Native worker did not join")
 	facade=Facade.new()
 	# The inherited view checks a nonnull host reference; it never owns or calls
 	# a native executive. Ordinary lifecycle/input overrides use the facade.
 	bridge=facade
-	var model_root: String=ProjectSettings.globalize_path("res://models") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("models")
+	var model_root: String=flight_model_root()
 	var result: Dictionary=facade.start(model_root,named_start)
 	if not result.ok:
-		return fail(result.error)
+		return restart_failed(result.error)
 	adopt_result(result)
 	initial={"solved_controls":held_controls.duplicate(true),"accepted_aircraft":snapshot.duplicate(true)}
 	controls=held_controls.duplicate(true)
@@ -136,24 +167,24 @@ func restart() -> bool:
 		node.set_script(null)
 		node.set_script(Participant)
 		if not node.call("configure",snapshot.session_id,prepared.ecef,prepared.rotation,[float(node.position.x),float(node.position.y),float(node.position.z)],node.basis):
-			return fail("Invalid canonical scene participant "+item.id)
+			return restart_failed("Invalid canonical scene participant "+item.id)
 		if item.id in ["ownship","cockpit"] and not node.call("set_canonical_pose",result.readback.canonical.ecef_position_m,node.basis):
-			return fail("Invalid binary64 ownship origin source")
+			return restart_failed("Invalid binary64 ownship origin source")
 		var registered: Dictionary=facade.render_origin.register_participant(item.id,node,item.categories)
 		if not registered.ok:
-			return fail(registered.error)
+			return restart_failed(registered.error)
 	if not facade.render_origin.register_participant("nonspatial",null,["spatial_audio","local_particles"]).ok:
-		return fail("Required absent origin categories rejected")
+		return restart_failed("Required absent origin categories rejected")
 	var adopted: Dictionary=facade.render_origin.rebase(prepared.ecef)
 	if not adopted.ok:
-		return fail(adopted.error)
+		return restart_failed(adopted.error)
 	camera_ready=false
 	look_angles=Vector2.ZERO
 	# Configuration cannot run against a live native worker.
 	var paused_start: Dictionary=facade.set_paused(true)
 	adopt_result(paused_start)
 	if not paused_start.ok:
-		return fail("Controls initialization could not pause native flight")
+		return restart_failed("Controls initialization could not pause native flight")
 	mapper=Mapper.new()
 	if active_preset.is_empty():
 		active_preset=Mapper.default_preset()
@@ -168,11 +199,18 @@ func restart() -> bool:
 	attempt+=1
 	status="PAUSED | %s | fresh attempt %d | confirm controls"%[named_start,attempt]
 	last_wall_us=Time.get_ticks_usec()
+	var begun: Dictionary=observed_recorder.begin(facade.readback(),true)
+	initializing_recording=false
+	if not begun.ok:
+		return fail("Flight observation recording unavailable: "+begun.error)
+	observed_status=begun.status
+	review_joined=false
 	return true
 
 func adopt_result(result: Dictionary) -> void:
 	var was_paused: bool=paused
 	var state: Dictionary=result.readback
+	observe_flight(state)
 	if state.aircraft!=null:
 		snapshot=state.aircraft.duplicate(true)
 		atmosphere=state.atmosphere.duplicate(true)
@@ -314,13 +352,14 @@ func make_menu(canvas: CanvasLayer) -> void:
 	var controls_button: Button=add_menu_button(box,"Controls and calibration  (F7)",open_controls)
 	var scan_button: Button=add_menu_button(box,"Instrument scan",open_instrument_scan)
 	var route_button: Button=add_menu_button(box,"Landmark route",open_landmark_route)
+	var review_button: Button=add_menu_button(box,"Flight review",open_observed_review)
 	controls_button.text="Controls (F7)"
 	controls_button.tooltip_text="Controls and calibration"
 	var cockpit_row:=HBoxContainer.new()
 	cockpit_row.add_theme_constant_override("separation",8)
 	box.add_child(cockpit_row)
 	box.move_child(cockpit_row,5)
-	for button in [controls_button,scan_button,route_button]:
+	for button in [controls_button,scan_button,route_button,review_button]:
 		button.reparent(cockpit_row)
 		button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 		button.add_theme_font_size_override("font_size",15)
@@ -350,6 +389,11 @@ func make_menu(canvas: CanvasLayer) -> void:
 	landmark_board.return_requested.connect(return_to_runway)
 	landmark_board.dismissed.connect(dismiss_landmark_route)
 	landmark_board.aids_requested.connect(set_route_aids_visible)
+	observed_panel=ObservedPanel.new()
+	canvas.add_child(observed_panel)
+	observed_panel.set_open(false)
+	observed_panel.dismissed.connect(dismiss_observed_review)
+	make_discard_confirmation(canvas)
 	menu.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	menu.custom_minimum_size=Vector2(560,490)
 	layout_flight_menu()
@@ -405,7 +449,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if controls_panel!=null and controls_panel.visible:
 		return
-	if route_open:
+	if route_open or review_open or not pending_discard.is_empty():
 		return
 	if event is InputEventMouseMotion and not paused and not menu_open and Input.mouse_mode==Input.MOUSE_MODE_CAPTURED:
 		look_angles.x=clampf(look_angles.x-event.relative.x*0.004,-PI,PI)
@@ -422,6 +466,14 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	if not event is InputEventKey or not event.pressed or event.echo:
 		return
 	if controls_panel!=null and controls_panel.visible:
+		return
+	if not pending_discard.is_empty():
+		if event.physical_keycode==KEY_ESCAPE: cancel_discard()
+		get_viewport().set_input_as_handled()
+		return
+	if review_open:
+		if event.physical_keycode==KEY_ESCAPE: dismiss_observed_review()
+		get_viewport().set_input_as_handled()
 		return
 	if route_open:
 		if event.physical_keycode==KEY_ESCAPE:
@@ -633,11 +685,21 @@ func start_flight(start: String) -> void:
 	if legacy_proof:
 		super.start_flight(start)
 		return
+	request_discard("restart",start)
+
+func perform_start(start: String) -> void:
+	var prior_start: String=named_start
 	named_start=start
-	if restart():
+	if restart(true):
 		if controls_panel!=null: controls_panel.hide()
+		if observed_panel!=null: observed_panel.set_open(false)
+		review_open=false
 		open_menu("Fresh flight · confirm controls")
 		close_menu()
+	else:
+		named_start=prior_start
+		open_menu("Restart failed · recorded flight retained")
+
 
 func update_canonical_scene_sources() -> void:
 	var visual_ecef: Variant=facade.call("_visual_ecef")
@@ -1000,6 +1062,8 @@ func on_instrument_selected(_instrument: String) -> void:
 
 func open_menu(title: String="Flight paused") -> void:
 	if not legacy_proof:
+		if review_open: return
+		if not pending_discard.is_empty(): return
 		scan_open=false
 		route_open=false
 		if landmark_board!=null:
@@ -1007,6 +1071,12 @@ func open_menu(title: String="Flight paused") -> void:
 	super.open_menu(title)
 
 func close_menu() -> void:
+	if not legacy_proof and not pending_discard.is_empty():
+		cancel_discard()
+		return
+	if not legacy_proof and review_open:
+		dismiss_observed_review()
+		return
 	if not legacy_proof and route_open:
 		dismiss_landmark_route()
 		return
@@ -1016,6 +1086,238 @@ func close_menu() -> void:
 		dismiss_instrument_scan()
 		return
 	super.close_menu()
+
+func restart_failed(message: String) -> bool:
+	initializing_recording=false
+	return fail(message)
+
+func flight_model_root() -> String:
+	return ProjectSettings.globalize_path("res://models") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("models")
+
+func observe_flight(readback: Dictionary) -> void:
+	if legacy_proof or initializing_recording or observed_status.is_empty(): return
+	var result: Dictionary=observed_recorder.observe(readback)
+	if result.status!=null: observed_status=result.status
+
+func recorded_flight_advanced() -> bool:
+	return not observed_status.is_empty() and observed_status.state!="empty" and observed_status.first_tick!=observed_status.last_observed_tick
+
+func review_boundary() -> bool:
+	if facade==null: return review_joined
+	var state: Dictionary=facade.readback()
+	return (state.host_mode=="paused" and state.native_live and state.paused and not state.historical) or (state.host_mode=="closed" and not state.native_live and review_joined)
+
+func ensure_review_boundary() -> bool:
+	if review_boundary(): return true
+	if facade==null: return false
+	var state: Dictionary=facade.readback()
+	if state.host_mode=="live":
+		return pause_session(true) and review_boundary()
+	if state.host_mode in ["closed","stalled","coverage_blocked","discarded"]:
+		var result: Dictionary=facade.close()
+		adopt_result(result)
+		review_joined=result.ok and not result.readback.native_live
+		return review_joined
+	return false
+
+func open_observed_review() -> void:
+	if legacy_proof or observed_panel==null or not pending_discard.is_empty(): return
+	if controls_panel!=null and controls_panel.visible: return
+	if not ensure_review_boundary():
+		status="Review requires a verified pause or joined stop"
+		return
+	var record: Variant=observed_recorder.recording()
+	if not observed_panel.set_recording(record):
+		status="Recorded flight cannot be qualified for review"
+		return
+	scan_open=false
+	route_open=false
+	if landmark_board!=null: landmark_board.set_open(false)
+	menu_open=true
+	menu.hide()
+	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
+	review_open=true
+	observed_panel.set_open(true)
+
+func dismiss_observed_review() -> void:
+	if not review_open or not pending_discard.is_empty(): return
+	observed_panel.set_open(false)
+	review_open=false
+	open_menu("Recorded flight retained · paused")
+
+func make_discard_confirmation(canvas: CanvasLayer) -> void:
+	discard_layer=Control.new()
+	canvas.add_child(discard_layer)
+	discard_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	discard_layer.z_index=45
+	var shade:=ColorRect.new()
+	shade.color=Color("101923ed")
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	shade.mouse_filter=Control.MOUSE_FILTER_STOP
+	discard_layer.add_child(shade)
+	var card:=PanelContainer.new()
+	card.custom_minimum_size=Vector2(540,210)
+	discard_layer.add_child(card)
+	var margin:=MarginContainer.new()
+	for side in ["left","right","top","bottom"]: margin.add_theme_constant_override("margin_"+side,20)
+	card.add_child(margin)
+	var box:=VBoxContainer.new()
+	box.add_theme_constant_override("separation",14)
+	margin.add_child(box)
+	var title:=Label.new()
+	title.text="Discard this recorded flight?"
+	title.add_theme_font_size_override("font_size",22)
+	box.add_child(title)
+	discard_message=Label.new()
+	discard_message.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	discard_message.custom_minimum_size.x=480
+	discard_message.add_theme_font_size_override("font_size",16)
+	box.add_child(discard_message)
+	var buttons:=HBoxContainer.new()
+	buttons.add_theme_constant_override("separation",12)
+	box.add_child(buttons)
+	discard_cancel=Button.new()
+	discard_cancel.text="Cancel · keep recorded flight"
+	discard_cancel.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	discard_cancel.pressed.connect(cancel_discard)
+	buttons.add_child(discard_cancel)
+	discard_accept=Button.new()
+	discard_accept.pressed.connect(confirm_discard)
+	discard_accept.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	buttons.add_child(discard_accept)
+	discard_layer.resized.connect(func():
+		card.size=card.get_combined_minimum_size()
+		card.position=(discard_layer.size-card.size)*0.5)
+	discard_layer.hide()
+
+func request_discard(action: String, start: String="") -> void:
+	if not pending_discard.is_empty() or not action in ["restart","quit"]: return
+	if action=="restart" and not start in ["ground-ready","airborne-prepared"]: return
+	if not recorded_flight_advanced():
+		if action=="restart": perform_start(start)
+		else: await perform_quit()
+		return
+	if not ensure_review_boundary():
+		status="Cannot discard until native flight is paused or its worker has joined"
+		return
+	pending_discard={"action":action,"start":start,"session_id":observed_status.session_id}
+	menu_open=true
+	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
+	discard_message.text="This flight has %d recorded observations. %s discards its in-memory review. Cancel keeps the flight paused and the review available. Nothing is saved to disk."%[observed_status.sample_count,"Restarting" if action=="restart" else "Quitting"]
+	discard_accept.text="Discard and restart" if action=="restart" else "Discard and quit"
+	discard_layer.show()
+	discard_cancel.grab_focus()
+
+func cancel_discard() -> void:
+	if pending_discard.is_empty(): return
+	pending_discard.clear()
+	discard_layer.hide()
+	if review_open:
+		observed_panel.get("_back").grab_focus()
+	elif controls_panel!=null and controls_panel.visible:
+		pass
+	elif route_open or scan_open:
+		pass
+	else:
+		open_menu("Recorded flight retained · paused")
+
+func confirm_discard() -> void:
+	if pending_discard.is_empty(): return
+	if pending_discard.session_id!=observed_status.session_id or not review_boundary():
+		status="Discard request no longer matches the verified flight boundary"
+		cancel_discard()
+		return
+	var decision: Dictionary=pending_discard.duplicate(true)
+	pending_discard.clear()
+	discard_layer.hide()
+	if decision.action=="restart": perform_start(decision.start)
+	else: await perform_quit()
+
+func quit_flight() -> void:
+	if legacy_proof:
+		await super.quit_flight()
+	else:
+		await request_discard("quit")
+
+func perform_quit() -> void:
+	await super.quit_flight()
+
+func run_observed_visual() -> void:
+	# Bounded observer: actual fixed-intent flight first; additional display-only
+	# records are conspicuously synthetic and never enter the live recorder.
+	failures=[]
+	var dimensions: Array[Vector2i]=[Vector2i(960,540),Vector2i(1920,1080),Vector2i(2560,1440)]
+	var inputs: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://instrument_tests/reference.json"))
+	var fixture: RefCounted=load("res://observed_tests/recorder_checks.gd").new()
+	fixture.set("_seed",inputs.cases[0].input.duplicate(true))
+	for index in dimensions.size():
+		named_start="airborne-prepared"
+		check(restart(true),"observed_visual_fresh_actual_worker_"+str(index))
+		menu_open=false;menu.hide()
+		check(pause_session(false),"observed_visual_explicit_resume_"+str(index))
+		for frame in 300:
+			check(advance_wall_us(250000),"observed_visual_actual_interval_"+str(index)+"_"+str(frame))
+		check(pause_session(true),"observed_visual_explicit_pause_"+str(index))
+		show_state(0.0)
+		var native: Dictionary=facade.readback()
+		check(native.tick=="9000" and observed_status.sample_count==151,"observed_visual_real_75s_151_samples_"+str(index))
+		get_window().size=dimensions[index]
+		await get_tree().process_frame
+		await get_tree().process_frame
+		var prefix: String="observed-"+str(dimensions[index].x)
+		open_observed_review()
+		observed_panel.set("_channel","tas")
+		observed_panel.get("_graph_choice").select(0)
+		observed_panel.get("_painting").queue_redraw()
+		await save_view(prefix+"-flight")
+		check(observed_panel.visible and observed_panel.get("_record").samples.size()==151,"observed_visual_actual_record_open_"+str(index))
+		var viewport: Rect2=get_viewport().get_visible_rect()
+		for control in [observed_panel.get("_back"),observed_panel.get("_cursor"),observed_panel.get("_summary"),observed_panel.get("_instant"),observed_panel.get("_controls"),observed_panel.get("_graph_choice")]:
+			check(viewport.encloses(control.get_global_rect()),"observed_visual_inside_"+str(index)+"_"+str(control.get_index()))
+		observed_panel.select_sample(0)
+		observed_panel.set("_channel","ellipsoid_height")
+		observed_panel.get("_graph_choice").select(2)
+		observed_panel.get("_painting").queue_redraw()
+		await save_view(prefix+"-height")
+		var synthetic: RefCounted=ObservedRecorder.new()
+		check(synthetic.begin(fixture.call("_source","0",0.0,0.0)).ok,"observed_visual_synthetic_gap_begin_"+str(index))
+		check(synthetic.observe(fixture.call("_source","61",3.0,4.0)).ok,"observed_visual_synthetic_late_"+str(index))
+		var unavailable: Dictionary=fixture.call("_source","181",6.0,8.0)
+		unavailable.aircraft.systems=[]
+		check(synthetic.observe(unavailable).ok,"observed_visual_synthetic_gap_fuel_unavailable_"+str(index))
+		check(synthetic.observe(fixture.call("_source","241",9.0,12.0)).ok,"observed_visual_synthetic_gap_end_"+str(index))
+		check(observed_panel.set_recording(synthetic.recording()),"observed_visual_synthetic_gap_record_"+str(index))
+		observed_panel.get("_title").text="SYNTHETIC UI FIXTURE · gaps / unavailable fuel"
+		observed_panel.set("_channel","fuel_total")
+		observed_panel.get("_graph_choice").select(4)
+		observed_panel.select_sample(2)
+		await save_view(prefix+"-gap")
+		var limited: RefCounted=ObservedRecorder.new()
+		check(limited.begin(fixture.call("_source","0",0.0,0.0)).ok,"observed_visual_synthetic_limit_begin_"+str(index))
+		check(limited.observe(fixture.call("_source","61",3.0,4.0)).ok,"observed_visual_synthetic_limit_sample_"+str(index))
+		check(limited.observe(fixture.call("_source","144001",20.0,30.0)).ok,"observed_visual_synthetic_beyond_window_"+str(index))
+		check(observed_panel.set_recording(limited.recording()),"observed_visual_synthetic_limit_record_"+str(index))
+		observed_panel.get("_title").text="SYNTHETIC UI FIXTURE · sealed recording limit"
+		await save_view(prefix+"-limit")
+		check(facade.readback()==native,"observed_visual_display_fixtures_do_not_change_native_"+str(index))
+		dismiss_observed_review()
+		observed_panel.get("_title").text="Recorded flight review"
+		start_flight("ground-ready")
+		check(not pending_discard.is_empty() and pending_discard.session_id==native.session_id and get_viewport().gui_get_focus_owner()==discard_cancel,"observed_visual_discard_default_cancel_"+str(index))
+		await save_view(prefix+"-discard")
+		cancel_discard()
+		check(facade.readback()==native,"observed_visual_cancel_preserves_actual_flight_"+str(index))
+		for name in ["flight","height","gap","limit","discard"]:
+			var image: Image=Image.load_from_file(output_directory().path_join(prefix+"-"+name+".png"))
+			check(image!=null and image.get_width()==dimensions[index].x and image.get_height()==dimensions[index].y,"observed_visual_exact_dimensions_"+str(index)+"_"+name)
+	var joined: bool=close_session()
+	if sound!=null: joined=bool(await sound.call("shutdown")) and joined
+	check(joined,"observed_visual_worker_audio_joined")
+	var report: Dictionary={"passed":failures.is_empty(),"failures":failures,"scope":"Fifteen bounded exported GPU views. Each size has 75 actual simulated seconds/151 observed samples; gap/unavailable/limit records are explicit independent synthetic display fixtures. No human flight, aircraft or phase acceptance.","windows":[[960,540],[1920,1080],[2560,1440]]}
+	var file:=FileAccess.open(output_directory().path_join("observed-visual-receipt.json"),FileAccess.WRITE)
+	file.store_string(JSON.stringify(report,"  ",false,true));file.close()
+	print("OBSERVED_VISUAL_SMOKE ",JSON.stringify(report))
+	get_tree().quit(0 if report.passed else 1)
 
 func run_landmark_visual() -> void:
 	# Observer captures only: the accepted native model remains paused at tick 0.

@@ -110,6 +110,70 @@ $orphan=Join-Path $freeflightProject 'freeflight_tests/orphan.gd.uid'
 Must-Reject {Assert-FreeflightSourceGroups $freeflightProject $freeflightGroups -AllowGeneratedUIDs} 'orphan landmark driver UID'
 Write-Output 'PASS landmark recursive source/reference staging and changed/missing/unbound/UID negatives.'
 
+# All observed producer/UI/fixtures are mandatory, recursive and independently
+# bound; these staging checks do not load Godot or execute any native code.
+$observedFixture=Join-Path $testRoot 'observed-repo'
+$observedEntries=@('app/replay/observed/recorder.gd','app/replay/observed/review.gd','app/replay/observed/tick_math.gd','app/replay/observed/values.gd','app/replay/observed/nested/original.txt','app/ui/debrief/observed/panel.gd','tests/debrief/observed/recorder_checks.gd','tests/debrief/observed/scene_checks.gd','tests/debrief/observed/expected-v1.json','tests/debrief/observed/generate.py','tests/debrief/observed/preparation-binding-v2.json','tests/debrief/observed/root-ratification-v1.json','tests/debrief/observed/README.md','tests/debrief/observed/.gitattributes')
+foreach($entry in $observedEntries){
+ $file=Join-Path $observedFixture $entry
+ New-Item -ItemType Directory -Path (Split-Path $file) -Force|Out-Null
+ [IO.File]::WriteAllText($file,'bound observed fixture '+$entry)
+}
+$observedGroups=@(Get-ObservedReviewSourceGroups $observedFixture)
+$observedProject=Join-Path $testRoot 'observed-project'
+$observedSource=Join-Path $testRoot 'observed-source'
+Copy-ObservedReviewSourceGroups $observedFixture $observedProject $observedGroups
+Copy-ObservedReviewSourceGroups $observedFixture $observedSource $observedGroups
+Assert-ObservedReviewSourceGroups $observedFixture $observedGroups -Authoring
+Assert-ObservedReviewSourceGroups $observedProject $observedGroups
+Assert-ObservedReviewSourceGroups $observedSource $observedGroups
+if(-not (Test-Path -LiteralPath (Join-Path $observedProject 'replay/observed/nested/original.txt')) -or -not (Test-Path -LiteralPath (Join-Path $observedSource 'observed_tests/preparation-binding-v2.json'))){throw 'Observed nested source/frozen bindings missing'}
+Must-Reject {Copy-ObservedReviewSourceGroups $observedFixture (Join-Path $testRoot 'missing-observed') @()} 'empty observed source groups'
+Must-Reject {Assert-ObservedReviewSourceGroups $observedProject @($observedGroups[0],$observedGroups[1])} 'missing observed fixture group'
+$emptyGroups=@($observedGroups|ForEach-Object {@{source=$_.source;destination=$_.destination;required=$_.required;snapshot=@()}})
+Must-Reject {Assert-ObservedReviewSourceGroups $observedProject $emptyGroups} 'empty observed snapshots'
+$bound=Join-Path $observedProject 'observed_tests/expected-v1.json'
+$boundBytes=[IO.File]::ReadAllBytes($bound)
+[IO.File]::WriteAllText($bound,'tampered expected values')
+Must-Reject {Assert-ObservedReviewSourceGroups $observedProject $observedGroups} 'changed observed expected bytes'
+[IO.File]::WriteAllBytes($bound,$boundBytes)
+$driver=Join-Path $observedFixture 'tests/debrief/observed/scene_checks.gd'
+$driverBytes=[IO.File]::ReadAllBytes($driver)
+Remove-Item -LiteralPath $driver
+Must-Reject {Get-ObservedReviewSourceGroups $observedFixture} 'missing actual observed scene driver'
+[IO.File]::WriteAllBytes($driver,$driverBytes)
+$uid=Join-Path $observedProject 'replay/observed/recorder.gd.uid'
+[IO.File]::WriteAllText($uid,"uid://c6ia3qumfvccx`n")
+Assert-ObservedReviewSourceGroups $observedProject $observedGroups -AllowGeneratedUIDs
+Must-Reject {Assert-ObservedReviewSourceGroups $observedProject $observedGroups} 'generated UID in exact observed source'
+[IO.File]::WriteAllText($uid,'invalid UID')
+Must-Reject {Assert-ObservedReviewSourceGroups $observedProject $observedGroups -AllowGeneratedUIDs} 'malformed observed generated UID'
+[IO.File]::WriteAllText($uid,"uid://c6ia3qumfvccx`n")
+[IO.File]::WriteAllText((Join-Path $observedProject 'observed_tests/orphan.gd.uid'),"uid://c6ia3qumfvccx`n")
+Must-Reject {Assert-ObservedReviewSourceGroups $observedProject $observedGroups -AllowGeneratedUIDs} 'orphan observed test UID'
+Write-Output 'PASS observed recursive source/UI/reference binding and missing/empty/drift/UID negatives.'
+
+# A passing host marker cannot hide skipped or vacuous observed checks.
+$receipt=[pscustomobject]@{schema_version=1;scope='fixture';passed=$true;checks=1;failures=@();facade=$null;origin=$null;participants=$null;wire=$null;scene=$null;input=$null;input_scene=$null;instruments=$null;cockpit=$null;freeflight=$null;observed=[pscustomobject]@{recorder=[pscustomobject]@{passed=$true;checks=1;failures=@();reference_cases=42;reference_sha256='a4c3184c46f2eb76c85ff4ba43fc8aac49e772a447576eeec5663fff1ac78844';scope='pure fixture'};scene=[pscustomobject]@{passed=$true;checks=1;failures=@();scope='scene fixture'}}}
+Assert-PreviewFacadeReceipt $receipt
+$receipt.observed.scene.checks=0
+Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'zero actual observed scene checks'
+$receipt.observed.scene.checks=1
+$receipt.observed.scene.passed='true'
+Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'String passing observed marker'
+$receipt.observed.scene.passed=$true
+$receipt.observed.scene.failures=@('actual_fixture_failure')
+Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'observed scene failed assertions'
+$receipt.observed.scene.failures=@()
+$receipt.observed.recorder.reference_sha256='a'*64
+Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'changed observed frozen reference identity'
+$receipt.observed.recorder.reference_sha256='a4c3184c46f2eb76c85ff4ba43fc8aac49e772a447576eeec5663fff1ac78844'
+$receipt.observed=[pscustomobject]@{}
+Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'empty observed result group'
+$receipt.PSObject.Properties.Remove('observed')
+Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'missing observed result group'
+Write-Output 'PASS fixed mandatory observed receipt groups and vacuous/failed/malformed controls.'
+
 # A declared native build is admitted from its exact closed source set, facade
 # pin and compiler definition; no fixture executes the fake binary.
 $identityRepo=Join-Path $testRoot 'identity-repo'
@@ -163,5 +227,5 @@ Get-PreviewNativeBuildIdentity $identityRepo $identityBuild|Out-Null
 Write-Output 'PASS selected native source/compile/bridge witnesses and identity/closure/missing-file negatives; no native execution.'
 
 $runnerText=[IO.File]::ReadAllText((Join-Path $PSScriptRoot 'run.ps1'))
-if($runnerText -notmatch 'exclude_filter="[^"\r\n]*landmark\*\.png,landmark\*-receipt\.json"'){throw 'Landmark observer output must be excluded from PCK authoring'}
+if($runnerText -notmatch 'exclude_filter="[^"\r\n]*landmark\*\.png,landmark\*-receipt\.json,observed\*\.png,observed\*-receipt\.json"'){throw 'Landmark/observed observer output must be excluded from PCK authoring'}
 Write-Output 'PASS bounded landmark visual observer output exclusion; source/reference groups remain exact.'

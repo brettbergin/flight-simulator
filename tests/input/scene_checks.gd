@@ -120,7 +120,7 @@ func run(host: Node) -> Dictionary:
  scene.apply_controls(Mapper.default_preset())
  var previous_mapper: RefCounted=scene.mapper
  scene.named_start="airborne-prepared"
- host.check(scene.restart(),"input_scene_fresh_airborne_restart_joins_old_session")
+ host.check(scene.restart(true),"input_scene_fresh_airborne_restart_joins_old_session")
  scene.set_process(false)
  var fresh: Dictionary=scene.facade.readback()
  host.check(fresh.session_id!=first.session_id and fresh.tick=="0" and fresh.host_mode=="paused" and scene.mapper!=previous_mapper and scene.mapper.sample(scene.synthetic_raw,0).ok and not scene.mapper.sample(scene.synthetic_raw,0).brake_hold,"input_scene_actual_fresh_airborne_mapper_resets_latch_and_edges")

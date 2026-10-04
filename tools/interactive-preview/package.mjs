@@ -59,8 +59,17 @@ function audit(root,proof,build){
  const uiReceipts=['editor','portable','replacement'].map(name=>json(path.join(evidence,name+'-facade-receipt.json')));
  for(const receipt of uiReceipts){
   assert.equal(receipt.passed,true);assert.deepEqual(receipt.failures,[]);
+  assert.deepEqual(Object.keys(receipt).sort(),['schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed'].sort(),'Facade receipt closed shape');
+  assert.equal(receipt.schema_version,1);assert(Number.isSafeInteger(receipt.checks)&&receipt.checks>0);assert.equal(typeof receipt.scope,'string');assert(receipt.scope.length>0&&receipt.scope.length<=1024);
   assert.deepEqual(Object.keys(receipt.freeflight).sort(),['geometry','scene']);
   for(const item of Object.values(receipt.freeflight)){assert.equal(item.passed,true);assert(item.checks>0);assert.deepEqual(item.failures,[]);}
+  assert.deepEqual(Object.keys(receipt.observed).sort(),['recorder','scene'],'Both observed checks must execute');
+  for(const [name,item] of Object.entries(receipt.observed)){
+   assert.deepEqual(Object.keys(item).sort(),(name==='recorder'?['passed','checks','failures','reference_cases','reference_sha256','scope']:['passed','checks','failures','scope']).sort(),'Observed receipt closed shape/'+name);
+   assert.equal(item.passed,true);assert(Number.isSafeInteger(item.checks)&&item.checks>0);assert.deepEqual(item.failures,[]);assert.equal(typeof item.scope,'string');assert(item.scope.length>0&&item.scope.length<=1024);
+  }
+  assert.equal(receipt.observed.recorder.reference_cases,42);
+  assert.equal(receipt.observed.recorder.reference_sha256,'a4c3184c46f2eb76c85ff4ba43fc8aac49e772a447576eeec5663fff1ac78844');
  }
  const geometry=json(path.join(repo,'tests/ui/freeflight/reference.json'));
  assert.equal(geometry.case_count,16);assert.equal(geometry.cases.length,16);
@@ -70,6 +79,26 @@ function audit(root,proof,build){
   assert.deepEqual(walk(staged).filter(x=>!x.endsWith('.gd.uid')).sort(),originals.filter(x=>!x.endsWith('.gd.uid')).sort());
   for(const file of originals)assert.equal(sha(fs.readFileSync(path.join(source,file))),sha(fs.readFileSync(path.join(staged,file))),'freeflight corresponding source/'+folder+'/'+file);
  }
+ const observedGroups=[['app/replay/observed','replay/observed',['recorder.gd','review.gd','tick_math.gd','values.gd']],['app/ui/debrief/observed','ui/debrief/observed',['panel.gd']],['tests/debrief/observed','observed_tests',['recorder_checks.gd','scene_checks.gd','expected-v1.json','generate.py','preparation-binding-v2.json','root-ratification-v1.json','README.md','.gitattributes']]];
+ for(const [authored,folder,required] of observedGroups){
+  const author=path.join(repo,authored),staged=path.join(root,'project',folder),source=path.join(payload,'source/whole-flight-preview',folder);
+  const originals=walk(author).sort();
+  for(const entry of required)assert(originals.includes(entry),'Required observed source missing/'+entry);
+  assert.deepEqual(walk(source).sort(),originals,'Observed corresponding-source resource set/'+folder);
+  const authoredUIDs=new Set(originals.filter(file=>file.endsWith('.gd.uid')));
+  const stagedFiles=walk(staged);
+  for(const file of stagedFiles.filter(file=>file.endsWith('.gd.uid')&&!authoredUIDs.has(file))){
+   assert(originals.includes(file.slice(0,-4)),'Orphan observed generated UID/'+file);
+   const bytes=fs.readFileSync(path.join(staged,file));assert(bytes.length<=64);assert.match(bytes.toString('utf8'),/^uid:\/\/[a-z0-9]{1,20}\r?\n?$/);
+  }
+  assert.deepEqual(stagedFiles.filter(file=>!file.endsWith('.gd.uid')||authoredUIDs.has(file)).sort(),originals,'Observed staged resource set/'+folder);
+  for(const file of originals){
+   const expected=sha(fs.readFileSync(path.join(author,file)));
+   assert.equal(sha(fs.readFileSync(path.join(source,file))),expected,'Observed corresponding source/'+folder+'/'+file);
+   assert.equal(sha(fs.readFileSync(path.join(staged,file))),expected,'Observed staged source/'+folder+'/'+file);
+  }
+ }
+ assert.equal(sha(fs.readFileSync(path.join(repo,'tests/debrief/observed/expected-v1.json'))),'a4c3184c46f2eb76c85ff4ba43fc8aac49e772a447576eeec5663fff1ac78844');
 
  const traces=['loop.records.ndjson','replacement.records.ndjson'].map(name=>fs.readFileSync(path.join(evidence,name),'utf8').trim().split('\n').map(JSON.parse));
  assert.equal(traces[0].length,traces[1].length);traces[0].forEach((a,i)=>compare(a,traces[1][i],'trace/'+i));
@@ -109,7 +138,7 @@ function audit(root,proof,build){
  assert.deepEqual(auditRelease(register,manifest,{repoRoot:repo,packageRoot:payload}),[]);
  assert.deepEqual(auditDependencyLock(register,json(path.join(repo,'third_party/dependencies.lock.json'))),[]);
  write(path.join(evidence,'package-inventory.json'),manifest);
- write(path.join(evidence,'package-audit.json'),{schema_version:1,rights_integrity_passed:true,actual_combined_replacement_passed:true,model_pins_verified:true,actual_seven_modules_inside_payload:true,exact_editor_portable_repeat:true,runtime_verification:runtime,trace_records_compared:traces[0].length});
+ write(path.join(evidence,'package-audit.json'),{schema_version:1,rights_integrity_passed:true,actual_combined_replacement_passed:true,model_pins_verified:true,actual_seven_modules_inside_payload:true,exact_editor_portable_repeat:true,observed_editor_portable_replacement_checks_passed:true,observed_source_closure_verified:true,runtime_verification:runtime,trace_records_compared:traces[0].length});
  console.log('PASS combined package model/source/notices/full PE+CRT closure and actual replacement loop');
 }
 const [mode,...args]=process.argv.slice(2);
