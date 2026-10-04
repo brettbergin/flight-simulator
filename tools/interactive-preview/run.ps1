@@ -9,6 +9,25 @@ $repo=(Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 function Assert-PreviewProcessResult($Result,[string]$Label){
  if($Result.exit_code -ne 0 -or $Result.text -match 'ERROR:|SCRIPT ERROR:|FATAL|ObjectDB instances? (?:(?:was|were) )?leaked|RID allocations leaked|resources still in use|Assertion failed'){throw "Preview $Label failed; raw evidence retained"}
 }
+function Save-PreviewFacadeObservation {
+ param([string]$TargetPath,[string]$Evidence,[string]$Name)
+ $raw=Join-Path $TargetPath 'facade-check-receipt.json'
+ if(-not (Test-Path -LiteralPath $raw -PathType Leaf)){return}
+ # Preserve failed process output before the unchanged process guard throws.
+ Copy-Item -LiteralPath $raw -Destination (Join-Path $Evidence ($Name+'-facade-observed-receipt.json'))
+ try{$observed=Get-Content -LiteralPath $raw -Raw -ErrorAction Stop|ConvertFrom-Json -ErrorAction Stop}
+ catch{throw 'Exported facade receipt unreadable or malformed; copied raw evidence retained'}
+ if($observed.passed -ne $true){
+  $names=@()
+  foreach($group in @(@{name='host';value=$observed},@{name='facade';value=$observed.facade},@{name='input';value=$observed.input})){
+   foreach($failure in @($group.value.failures)){
+    # Print only bounded fixture identifiers, never copied values or local paths.
+    if($failure -is [string] -and $failure -cmatch '^[A-Za-z0-9_-]{1,96}$' -and $names.Count -lt 16){$names+=($group.name+':'+$failure)}
+   }
+  }
+  Write-Output ('Exported facade failure assertions: '+$(if($names.Count){$names -join ', '}else{'no bounded assertion identifiers available; inspect retained receipt'}))
+ }
+}
 & (Join-Path $PSScriptRoot 'check-guards.ps1')
 $proof=(Resolve-Path -LiteralPath $ExportProofRoot).Path
 $toolchain=(Resolve-Path -LiteralPath $ToolchainRoot).Path
@@ -150,6 +169,7 @@ Copy-Item -LiteralPath (Join-Path $replacement 'loop.records.ndjson') -Destinati
 Copy-Item -LiteralPath (Join-Path $replacement 'portable-smoke.log') -Destination (Join-Path $evidence 'replacement.log')
 foreach($target in @(@{name='portable';path=$payload},@{name='replacement';path=$replacement})){
  $result=Invoke-ProofProcess -Executable (Join-Path $target.path 'WholeFlightPreview.exe') -Arguments @('--headless','--','--facade-checks') -WorkingDirectory $root -Log (Join-Path $evidence ($target.name+'-facade.log')) -CleanEnvironment -ProfileRoot (Join-Path $root ('facade-userdata-'+$target.name))
+ Save-PreviewFacadeObservation -TargetPath $target.path -Evidence $evidence -Name $target.name
  Assert-PreviewProcessResult $result ($target.name+'-facade')
  if($result.text -notmatch 'SIM_LOOP_CHECKS_PASSED' -or $result.text -notmatch 'FLIGHT_BRIDGE_TERMINATED_JOINED'){throw 'Exported actual facade checks failed'}
  $receipt=Get-Content (Join-Path $target.path 'facade-check-receipt.json') -Raw | ConvertFrom-Json
