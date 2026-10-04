@@ -76,7 +76,7 @@ func run() -> Dictionary:
 		r.scope = "Non-Windows truthful unsupported selected Windows file capability and path/type refusals only; no NTFS/IO durability claim"
 		r.passed = r.failures.is_empty()
 		return r
-	var parent: String = ProjectSettings.globalize_path("res://").replace("\\", "/").simplify_path()
+	var parent: String = OS.get_cache_dir().replace("\\", "/").simplify_path().trim_suffix("/")
 	_root = parent.path_join(".observed-archive-test-" + Crypto.new().generate_random_bytes(16).hex_encode())
 	_check(r, _root.begins_with(parent + "/") and _root.get_file().begins_with(".observed-archive-test-"), "disposable-root-contained")
 	_check(r, DirAccess.make_dir_absolute(_root) == OK, "disposable-root-create")
@@ -199,7 +199,7 @@ func run() -> Dictionary:
 
 func _cleanup(r: Dictionary) -> void:
 	# Only direct files in the fresh nonce directory. Never recurse/follow links.
-	var parent: String = ProjectSettings.globalize_path("res://").replace("\\", "/").simplify_path()
+	var parent: String = OS.get_cache_dir().replace("\\", "/").simplify_path().trim_suffix("/")
 	_check(r, _root.get_base_dir() == parent and _root.get_file().begins_with(".observed-archive-test-"), "cleanup-contained")
 	if _root.get_base_dir() != parent or not _root.get_file().begins_with(".observed-archive-test-"):
 		return
