@@ -61,7 +61,7 @@ $facadeTestSnapshot=@(Get-SimulationSourceSnapshot -SourceRoot $facadeTestRoot -
 $inputGroups=@(Get-InputSourceGroups -RepoRoot $repo)
 $cockpitGroups=@(Get-CockpitSourceGroups -RepoRoot $repo)
 $engineTestRoot=Join-Path $repo 'tests/engine'
-$engineTestEntries=@('status_checks.gd','facade_checks.gd','input_boundary_checks.gd','reference/expected-v2.json')
+$engineTestEntries=@('status_checks.gd','facade_checks.gd','input_boundary_checks.gd','presentation_checks.gd','reference/expected-v3.json')
 $engineTestSnapshot=@(Get-SimulationSourceSnapshot -SourceRoot $engineTestRoot -RequiredEntries $engineTestEntries)
 $inputs=@()
 foreach($directory in @('app/proof/interactive','app/simulation','app/input','app/ui/controls','tests/input','app/cockpit','tests/instruments','tests/engine','content/aircraft/prototype','tests/integration/sim_loop','tools/interactive-preview','native/godot_bridge','native/fdm_jsbsim/interactive','native/fdm_jsbsim/models/original-interactive','native/fdm_jsbsim/models/original-piston-prop')){
