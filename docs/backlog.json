@@ -4663,6 +4663,64 @@
         "Actual unchanged native/controller review/cursor/discard/failed-reset invariance, exact-source exported/replaceable package and actual bounded minimum-size/recorded/gap/unavailable/limit/confirmation views.",
         "Independent exact-final source/visual/package review and all protected checks before guarded merge. Durable logs/replay, lessons, aircraft/hardware/pilot and phase gates remain separate."
       ]
+    },
+    {
+      "key": "OBSERVED-ARCHIVE-CONTRACT",
+      "title": "Define exact recorded-review Save/Open interchange",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Ratify bounded exact recorded-review guest interchange with schema-qualified historical opening and no-overwrite explicit new-file saving before codec, IO and UI consumers.",
+      "depends_on": [
+        "OBSERVED-REVIEW-CONTRACT",
+        "OBSERVED-FLIGHT-REVIEW",
+        "INPUT-CONTROLS-CONTRACT"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:core",
+        "priority:P1",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "docs/decisions/012-observed-review-interchange.md",
+        "docs/contracts.md",
+        "docs/README.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md",
+        "docs/evidence/P2/observed-flight-review.md"
+      ],
+      "docs": [
+        "docs/decisions/004-persistence-and-replay.md",
+        "docs/decisions/008-input-presets.md",
+        "docs/decisions/011-observed-flight-review.md",
+        "docs/evidence/P2/observed-flight-review.md",
+        "docs/experience-and-progress.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [
+        "PRD-025",
+        "UX-017",
+        "UX-018",
+        "UX-021",
+        "UX-022"
+      ],
+      "acceptance": [
+        "Specify exact closed versioned archive/payload, strict UTF-8/JSON grammar, duplicate/escaped key rejection, bounded size/depth/strings/counts and exact binary64/canonical uint64 preservation; corruption digest never implies authenticity or aviation validation.",
+        "Existing ADR011 Recording qualification remains authoritative after schema-specific decoding; unsupported versions, malformed types, nonfinite values and incompatible model/world identities reject intact. No public wire schema, native/model or recorder authority changes.",
+        "Save takes an owned current snapshot only at a verified pause/joined stop, does not seal/clear its recording, creates a new explicitly selected file and never overwrites an existing target. Define verified local-NTFS atomic creation, temporary/error/race receipts and recovery limits without a hardware power-loss promise.",
+        "Open validates a bounded explicitly selected file into a separate historical view. Failed/canceled Open preserves the previous historical selection and current native/recorder/mapper/camera/origin state. Modal keys cannot control the airplane; dismiss returns to paused flight without resume.",
+        "Define provenance/display labels, guest file privacy, copied main-thread ownership and independent preconsumer bit/schema/file-boundary references plus actual native UI invariance, isolated exported views and package source-closure gates.",
+        "Keep broad #34/#35/#52/#74/#75 and aircraft/device/pilot/phase gates open; document future consumer ownership, acceptance and agent handoff. Automatic database/library, autosave, profiles, physics resume, scoring and training credit are outside this leaf."
+      ],
+      "evidence": [
+        "Exact closed archive/bit/tick/type/integrity/strict grammar and paused snapshot/import/native ownership contract source review before consumers.",
+        "Independent preconsumer representation/reference gates; selected local NTFS no-overwrite atomic creation and recovery semantics specified without claiming unmeasured IO/power-loss acceptance.",
+        "Documentation/schema consistency, exact-head independent review and all protected checks before guarded contract merge; broad storage, profiles, replay, aircraft/hardware/pilot and phase gates remain open."
+      ]
     }
   ]
 }

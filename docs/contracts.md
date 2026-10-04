@@ -137,3 +137,7 @@ The schema suite checks all14 boundaries/hash fixtures, incompatible/unknown pay
 ## Bounded observed flight review seam
 
 [ADR011](decisions/011-observed-flight-review.md), proposed by [#132](https://github.com/brettbergin/flight-simulator/issues/132), defines one copied in-memory recording and a paused read-only path/timeline review. Two-hertz target sampling retains actual native ticks and explicit lateness/gaps; efficient decimal arithmetic preserves uint64 order. Scene-owned pause/discard/reset admission keeps review separate from physics, input, origins and camera. These private app values leave public schemas and durable replay/persistence contracts unchanged. Consumers wait for the checked contract merge; aircraft, pilot and phase gates remain separate.
+
+## Explicit recorded-review interchange seam
+
+[ADR012](decisions/012-observed-review-interchange.md), proposed by [#136](https://github.com/brettbergin/flight-simulator/issues/136), defines exact bounded guest Save new review/Open semantics before consumers. Schema-qualified binary64 tags, canonical tick strings, strict UTF8/JSON and an exact payload digest preserve historical observations. The scene owns verified pause and isolated imported review; new-file local NTFS creation never overwrites an existing target. ADR004 automatic storage and public wire contracts remain unchanged. Consumers wait for the checked contract and their own delivery gates; profiles, resume, aircraft/pilot and phase acceptance remain separate.
