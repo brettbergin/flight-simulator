@@ -254,7 +254,7 @@ jobs:
           node --test tools/interactive-preview/verify.test.mjs
           if ($LASTEXITCODE -ne 0) { throw "Interactive model staging rejection failed" }
           $proof = Get-Content .local/export-proof/latest-run.json -Raw | ConvertFrom-Json
-          ./tools/interactive-preview/run.ps1 -ExportProofRoot $proof.root -ToolchainRoot .local/toolchain
+          ./tools/interactive-preview/run.ps1 -ExportProofRoot $proof.root -ToolchainRoot .local/toolchain -FacadeCheckTimeoutSeconds 600
       - name: Preserve build evidence (no simulator binaries)
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

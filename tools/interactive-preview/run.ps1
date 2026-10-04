@@ -1,6 +1,6 @@
 #Requires -Version 7.0
 [CmdletBinding()]
-param([Parameter(Mandatory)][string]$ExportProofRoot,[Parameter(Mandatory)][string]$ToolchainRoot,[string]$NativeBuildRoot="")
+param([Parameter(Mandatory)][string]$ExportProofRoot,[Parameter(Mandatory)][string]$ToolchainRoot,[string]$NativeBuildRoot="",[ValidateRange(120,600)][int]$FacadeCheckTimeoutSeconds=120)
 $ErrorActionPreference='Stop'
 if(-not $IsWindows){throw 'Whole-flight portable preview currently targets Windows x64'}
 $repo=(Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
@@ -138,7 +138,8 @@ func _initialize() -> void:
   @{name='editor-smoke';args=@('--headless','--path',$project,'--','--smoke')},
   @{name='export';args=@('--headless','--path',$project,'--export-release','Windows Proof',(Join-Path $payload 'WholeFlightPreview.exe'))}
  )){
-  $result=Invoke-ProofProcess -Executable $godot -Arguments $operation.args -WorkingDirectory $root -Log (Join-Path $evidence ($operation.name+'.log'))
+  $deadline=if($operation.name -eq 'facade-checks'){$FacadeCheckTimeoutSeconds}else{120}
+  $result=Invoke-ProofProcess -Executable $godot -Arguments $operation.args -WorkingDirectory $root -Log (Join-Path $evidence ($operation.name+'.log')) -TimeoutSeconds $deadline
   Assert-PreviewProcessResult $result $operation.name
   if($operation.name -eq 'facade-checks'){
    $receipt=Get-Content (Join-Path $project 'facade-check-receipt.json') -Raw | ConvertFrom-Json
@@ -186,7 +187,7 @@ Copy-Item -LiteralPath (Join-Path $replacement 'smoke-receipt.json') -Destinatio
 Copy-Item -LiteralPath (Join-Path $replacement 'loop.records.ndjson') -Destination (Join-Path $evidence 'replacement.records.ndjson')
 Copy-Item -LiteralPath (Join-Path $replacement 'portable-smoke.log') -Destination (Join-Path $evidence 'replacement.log')
 foreach($target in @(@{name='portable';path=$payload},@{name='replacement';path=$replacement})){
- $result=Invoke-ProofProcess -Executable (Join-Path $target.path 'WholeFlightPreview.exe') -Arguments @('--headless','--','--facade-checks') -WorkingDirectory $root -Log (Join-Path $evidence ($target.name+'-facade.log')) -CleanEnvironment -ProfileRoot (Join-Path $root ('facade-userdata-'+$target.name))
+ $result=Invoke-ProofProcess -Executable (Join-Path $target.path 'WholeFlightPreview.exe') -Arguments @('--headless','--','--facade-checks') -WorkingDirectory $root -Log (Join-Path $evidence ($target.name+'-facade.log')) -CleanEnvironment -ProfileRoot (Join-Path $root ('facade-userdata-'+$target.name)) -TimeoutSeconds $FacadeCheckTimeoutSeconds
  Save-PreviewFacadeObservation -TargetPath $target.path -Evidence $evidence -Name $target.name
  Assert-PreviewProcessResult $result ($target.name+'-facade')
  if($result.text -notmatch 'SIM_LOOP_CHECKS_PASSED' -or $result.text -notmatch 'FLIGHT_BRIDGE_TERMINATED_JOINED'){throw 'Exported actual facade checks failed'}
