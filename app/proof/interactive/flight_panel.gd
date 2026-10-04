@@ -403,7 +403,7 @@ func _ground_label() -> String:
 	if not _info.get("ground_valid", false):
 		return "GROUND UNAVAILABLE"
 	var count := int(_readings.get("ground_contacts", 0))
-	return "AIRBORNE" if count == 0 else "CONTACT  %d / 3" % count
+	return "GEAR CLEAR · 0/3" if count == 0 else "CONTACT  %d / 3" % count
 
 func _draw_engine(rect: Rect2) -> void:
 	_text(rect.position + Vector2(0, 0), "POWER & FUEL", 13, MUTED)
@@ -503,11 +503,12 @@ func _draw_help() -> void:
 	var rows := ["↑ / ↓  Pitch    ← / →  Roll    A / D  Yaw & steering",
 		"W / S or Page Up / Down  Throttle    [ / ]  Trim",
 		"B  Brake hold    Space  Both brakes    Q / E  Left / right",
-		"1  Cockpit    2  Chase    3  External    C  Cycle views",
+		"1  Cockpit    2  Chase    3  External    4  Panel    C  Cycle views",
 		"Hold right mouse  Look    Scroll  Zoom    Home  Reset look",
 		"P / Escape  Pause menu    R  Fresh start    G / F  Ground / air",
-		"V  Overlay    F11  Fullscreen    M  Audio    J  Select controller"]
-	var row_height := minf(30, (height - 170) / 7)
+		"V  Overlay    F11  Fullscreen    M  Audio    J  Select controller",
+		"Tab  Map    + / −  Map zoom"]
+	var row_height := minf(30, (height - 170) / rows.size())
 	for index in range(rows.size()):
 		_text(rect.position + Vector2(24, 73 + index * row_height), rows[index], 14)
 	var footer := height - 106
