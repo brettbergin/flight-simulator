@@ -74,15 +74,19 @@ class FlightInteractiveSession final:public godot::RefCounted {
  }
  godot::Dictionary read_state(){try{if(!worker_)throw std::runtime_error("Interactive session closed");return encode(worker_->call([surface=surface_](auto& s){return interactive_sample(s,*surface);}));}catch(const std::exception& error){return failure(error);}}
  godot::Dictionary submit(godot::Dictionary value){try{
-  if(!worker_)throw std::runtime_error("Interactive session closed");auto command=decode_command(value);
+  if(!worker_) {throw std::runtime_error("Interactive session closed");}
+  auto command=decode_command(value);
   return encode(worker_->call([command=std::move(command),surface=surface_](auto& s)mutable{const auto reject=s.submit(std::move(command));auto r=interactive_sample(s,*surface);r.rejection=static_cast<int>(reject);r.queued=reject==interactive::c::CommandRejection::none;return r;}));
  }catch(const std::exception& error){return failure(error);}}
  godot::Dictionary session_control(godot::Dictionary value){try{
-  if(!worker_)throw std::runtime_error("Interactive session closed");const auto control=decode_session_control(value);
+  if(!worker_) {throw std::runtime_error("Interactive session closed");}
+  const auto control=decode_session_control(value);
   return encode(worker_->call([control,surface=surface_](auto& s){const auto reject=s.apply(control);auto r=interactive_sample(s,*surface);r.rejection=static_cast<int>(reject);return r;}));
  }catch(const std::exception& error){return failure(error);}}
  godot::Dictionary step_fixed(int64_t count){try{
-  if(!worker_)throw std::runtime_error("Interactive session closed");if(count<1||count>32)throw std::invalid_argument("Interactive batch must be1..32");const auto cursor=delivered_;
+  if(!worker_) {throw std::runtime_error("Interactive session closed");}
+  if(count<1||count>32) {throw std::invalid_argument("Interactive batch must be1..32");}
+  const auto cursor=delivered_;
   auto r=worker_->call([count,cursor,surface=surface_](auto& s){InteractiveReply out;interactive::Status status=interactive::Status::completed;int completed=0;
    for(int64_t i=0;i<count;++i){auto step=s.step_fixed();status=step.status;if(status!=interactive::Status::completed)break;++completed;for(const auto& cmd:step.applied)out.commands.push_back(interactive::command_json(cmd));}
    auto current=interactive_sample(s,*surface);current.completed=completed;current.status=status;current.commands=std::move(out.commands);
