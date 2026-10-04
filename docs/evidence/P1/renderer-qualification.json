@@ -1,0 +1,310 @@
+{
+  "kind": "p1-renderer-qualification-receipt",
+  "prepared_utc": "2026-10-04T05:20:54.982Z",
+  "baseline_git_head": "0ce6d6f469df23c6c3f7e0f60e2d3d91624a183c",
+  "renderer_source_sha256": "f86759f666d9de3baa412f53a144380aeea3ba1cf7e1c69d3d1b96e5a4183bff",
+  "recipe_sha256": "96d5ea37c2b64b723d55f0766e2e28c118d250eca9d008529711519e0c1bd08d",
+  "scope": "Original isolated visual-load fixtures; offscreen Forward+/Vulkan rendering, not gameplay, OS-present pacing, C172 calibration or pilot acceptance.",
+  "concurrent_context": "Per-capture contexts below: clear preserved reported-paused owner windows; dusk/overcast prelaunch inventories found no owner preview or benchmark processes. Other OS activity remains unmeasured; fixture has no authoritative aircraft worker.",
+  "decision": "Retain Godot Forward+ for production integration; all frozen proxy engineering checks passed. Current interactive Compatibility renderer remains separately scoped.",
+  "unmeasured_targets": [
+    "whole main-thread CPU p95",
+    "Windows displayed frame pacing and end-to-end input latency",
+    "concurrent authoritative flight worker scheduling",
+    "final cockpit readability and real-region VRAM residency",
+    "production streaming, temporal weather and world-space particles",
+    "pilot evaluation"
+  ],
+  "captures": [
+    {
+      "fixture": "clear",
+      "measured_wall_s": 600.0093189999833,
+      "frames": 72004,
+      "average_fps": 120.00480279207464,
+      "engine_callback_interval_ms": {
+        "p95": 8.385,
+        "p99": 8.413,
+        "maximum": 9.022
+      },
+      "gpu_render_ms": {
+        "p95": 0.736,
+        "p99": 0.742,
+        "unique_frames": 72004,
+        "available_fraction": 1
+      },
+      "render_cpu_ms": {
+        "p95": 0.398,
+        "scope": "render operations and frame setup only; not whole main-thread cost"
+      },
+      "peak_working_set_bytes": 623087616,
+      "peak_engine_video_allocation_bytes": 336898240,
+      "independent_image_pair": {
+        "width": 2560,
+        "height": 1440,
+        "pixels": 3686400,
+        "changed_pixels": 14284,
+        "changed_fraction": 0.003874782986111111,
+        "maximum_channel_delta": 62,
+        "channel_delta_threshold": 8
+      },
+      "engineering_checks": {
+        "target_configuration": true,
+        "continuous_ten_minutes": true,
+        "average_fps": true,
+        "callback_p95": true,
+        "callback_p99": true,
+        "gpu_render_p95": true,
+        "gpu_timestamp_availability": true,
+        "working_set": true,
+        "engine_video_allocation": true,
+        "rebase_projection": true,
+        "rebase_audio_geometry": true,
+        "rebase_gpu_pair": true
+      },
+      "artifacts": {
+        "manifest.json": "cb5482b0ec7b6ad3be0847be346021f448e0a6191acbd639ffb61f5a39a68df3",
+        "recipe.json": "96d5ea37c2b64b723d55f0766e2e28c118d250eca9d008529711519e0c1bd08d",
+        "hardware.json": "b7a198ab8e6625fbe422b97fb93a3f7a06940d9b1824e99ca009f8eab40464cf",
+        "frames.csv": "0b51354288050f39a8f81e9f68758bab3cdedf45f7bfeb77f3fac31903826d93",
+        "report.json": "64ceeed96c230c748e92dc1528014c2679884f29b11d74e62ca004d2de897f89",
+        "cleanup.json": "4a3d5784de0427a86774f0eb00ec0e5968b2eec695a4b01f716299a411153855",
+        "working-set.csv": "856ac40fe912bb584bc499bdc6ee22a16bbaeb20dc9dfed5b403a0dc3ee6aa4a",
+        "runtime.log": "79c758bcdc306cd9d7ce36aaefb95f52460b4e6a1ad11c10f7663144a34f2895",
+        "origin-before.png": "49b67fcb6c65b5962551cd60870c3b8b3d52c5b44ead7cf19855f64a26f9521a",
+        "origin-after.png": "19b1adff247a8716572976253ce586c9be5050db00b015b296ba8c76e056656f",
+        "view.png": "202307807fe61441ce29891e50a0691356838449b90a92f0dc1733e75f04bf55"
+      },
+      "exported_pck_sha256": "e79cea0786570606d1f7c21b41d49bcd8bc22d371e810f772d2524e2d132e296",
+      "verified_sha256": "85d70feb268f23c77ccb4babb4f27f4602e64d805559893626c513c2d8dd9caa",
+      "render_tile_attachment": {
+        "replacements": 122,
+        "interval_s": 5,
+        "steady_tile_count": 64,
+        "maximum_deferred_old_nodes": 1,
+        "p95_submit_cpu_ms": 0.201,
+        "maximum_submit_cpu_ms": 0.223,
+        "next_scheduled_s": 615,
+        "scope": "Verified event cadence and node bounds; CPU submission only, not GPU resource retirement or storage/GIS/contact streaming"
+      },
+      "postmeasurement_cleanup": {
+        "completed_us": 612103409,
+        "elapsed_ms": 17.93,
+        "initial_observed": {
+          "audio_playback": true,
+          "audio_stream": true
+        },
+        "passed": true,
+        "retirement": {
+          "active_terrain_nodes": 64,
+          "audio_playback_retired": true,
+          "audio_stream_retired": true,
+          "queued_terrain_nodes": 0
+        },
+        "schema_version": 1,
+        "scope": "Postmeasurement resource retirement only; excluded from capture intervals and GPU timing",
+        "started_us": 612085479,
+        "timeout_s": 2,
+        "waited_process_frames": 4
+      },
+      "origin_version": 23,
+      "concurrent_context": "Owner game PIDs12640/32652 were active; coordinator reported paused; untouched; concurrent rendering interference possible",
+      "independent_review": "approved: exact reducer summary and source/tools/payload/raw data/images/cleanup inspected by separate read-only reviewer"
+    },
+    {
+      "fixture": "dusk",
+      "measured_wall_s": 600.0093269999874,
+      "frames": 72004,
+      "average_fps": 120.00480119203466,
+      "engine_callback_interval_ms": {
+        "p95": 8.379,
+        "p99": 8.427,
+        "maximum": 9.257
+      },
+      "gpu_render_ms": {
+        "p95": 2.547,
+        "p99": 2.895,
+        "unique_frames": 72004,
+        "available_fraction": 1
+      },
+      "render_cpu_ms": {
+        "p95": 0.401,
+        "scope": "render operations and frame setup only; not whole main-thread cost"
+      },
+      "peak_working_set_bytes": 622940160,
+      "peak_engine_video_allocation_bytes": 336902848,
+      "independent_image_pair": {
+        "width": 2560,
+        "height": 1440,
+        "pixels": 3686400,
+        "changed_pixels": 14779,
+        "changed_fraction": 0.004009060329861111,
+        "maximum_channel_delta": 62,
+        "channel_delta_threshold": 8
+      },
+      "engineering_checks": {
+        "target_configuration": true,
+        "continuous_ten_minutes": true,
+        "average_fps": true,
+        "callback_p95": true,
+        "callback_p99": true,
+        "gpu_render_p95": true,
+        "gpu_timestamp_availability": true,
+        "working_set": true,
+        "engine_video_allocation": true,
+        "rebase_projection": true,
+        "rebase_audio_geometry": true,
+        "rebase_gpu_pair": true
+      },
+      "artifacts": {
+        "manifest.json": "d9a3e6de54688461a775fa41d8078649eff13daede4044a3b405dea32aa948f1",
+        "recipe.json": "96d5ea37c2b64b723d55f0766e2e28c118d250eca9d008529711519e0c1bd08d",
+        "hardware.json": "b7a198ab8e6625fbe422b97fb93a3f7a06940d9b1824e99ca009f8eab40464cf",
+        "frames.csv": "ab5a7d692a440dfe44b495a26e37eaaf9e8d80bb2f7397aef70310dfa9779d96",
+        "report.json": "ed16513ebdf6b990c29e5519f2222128d3124f068feb3bef9c55e9823266aecb",
+        "cleanup.json": "e829d9d632f202b7325fef9644f8705cad8d9ff149a61a842dbdc2243dbded91",
+        "working-set.csv": "0291fc9fb6813e37a28581118eed856c0a8bcf7bd6a1a6ea2339cbb14d95356b",
+        "runtime.log": "b5d78c93d9099e390c871f55238ef29e20b6c3a260ccc5b97ad7272d5c095dd3",
+        "origin-before.png": "44eea9c838b2df3d42c8ef1d7e120bb2b8c362e0d6fb475ef09682eb3692035a",
+        "origin-after.png": "192626bd0dc79899f9dfea916c1fa9573c0de568de88eeb03c70cd7afd442730",
+        "view.png": "df0dd031d2a3bf635f0f63d9a7f7ea8a8f3a3760722c559657d7998e438ffb1a"
+      },
+      "exported_pck_sha256": "8cf57214cb2686128a20b5b02a8884481f14d388ab6633b56216293ee7157816",
+      "verified_sha256": "3e8e4b972a1cc0261a6e417081edcf8ec67ac84bd6f84d3788af11fba5e84f8e",
+      "render_tile_attachment": {
+        "replacements": 122,
+        "interval_s": 5,
+        "steady_tile_count": 64,
+        "maximum_deferred_old_nodes": 1,
+        "p95_submit_cpu_ms": 0.212,
+        "maximum_submit_cpu_ms": 0.28,
+        "next_scheduled_s": 615,
+        "scope": "Verified event cadence and node bounds; CPU submission only, not GPU resource retirement or storage/GIS/contact streaming"
+      },
+      "postmeasurement_cleanup": {
+        "completed_us": 612112618,
+        "elapsed_ms": 9.564,
+        "initial_observed": {
+          "audio_playback": true,
+          "audio_stream": true
+        },
+        "passed": true,
+        "retirement": {
+          "active_terrain_nodes": 64,
+          "audio_playback_retired": true,
+          "audio_stream_retired": true,
+          "queued_terrain_nodes": 0
+        },
+        "schema_version": 1,
+        "scope": "Postmeasurement resource retirement only; excluded from capture intervals and GPU timing",
+        "started_us": 612103054,
+        "timeout_s": 2,
+        "waited_process_frames": 3
+      },
+      "origin_version": 23,
+      "concurrent_context": "No WholeFlightPreview or benchmark process found in prelaunch inventory; coordinator reserved GPU; no exclusive entire-OS guarantee",
+      "independent_review": "approved: exact reducer summary and source/tools/payload/raw data/images/cleanup inspected by separate read-only reviewer"
+    },
+    {
+      "fixture": "overcast",
+      "measured_wall_s": 600.0093360000056,
+      "frames": 72004,
+      "average_fps": 120.00479939198699,
+      "engine_callback_interval_ms": {
+        "p95": 8.376,
+        "p99": 8.404,
+        "maximum": 9.052
+      },
+      "gpu_render_ms": {
+        "p95": 2.516,
+        "p99": 2.872,
+        "unique_frames": 72004,
+        "available_fraction": 1
+      },
+      "render_cpu_ms": {
+        "p95": 0.382,
+        "scope": "render operations and frame setup only; not whole main-thread cost"
+      },
+      "peak_working_set_bytes": 622837760,
+      "peak_engine_video_allocation_bytes": 336902848,
+      "independent_image_pair": {
+        "width": 2560,
+        "height": 1440,
+        "pixels": 3686400,
+        "changed_pixels": 15411,
+        "changed_fraction": 0.004180501302083334,
+        "maximum_channel_delta": 62,
+        "channel_delta_threshold": 8
+      },
+      "engineering_checks": {
+        "target_configuration": true,
+        "continuous_ten_minutes": true,
+        "average_fps": true,
+        "callback_p95": true,
+        "callback_p99": true,
+        "gpu_render_p95": true,
+        "gpu_timestamp_availability": true,
+        "working_set": true,
+        "engine_video_allocation": true,
+        "rebase_projection": true,
+        "rebase_audio_geometry": true,
+        "rebase_gpu_pair": true
+      },
+      "artifacts": {
+        "manifest.json": "e058f79f9713827c6b53b8bdc9002041ba6cba95b8e2b93dae49dc24a17a6914",
+        "recipe.json": "96d5ea37c2b64b723d55f0766e2e28c118d250eca9d008529711519e0c1bd08d",
+        "hardware.json": "b7a198ab8e6625fbe422b97fb93a3f7a06940d9b1824e99ca009f8eab40464cf",
+        "frames.csv": "bd36d216b39fc2d7ae3bf88f1bd6914f64816e9939e06630baa1905784820ddc",
+        "report.json": "e153730bd45a7992e6897f9213c630789093b2ddbfd9c364b15f9aa834e60d36",
+        "cleanup.json": "aa6816864e511428faa168649350f17da99965a5ece8514e9dedacb66793808f",
+        "working-set.csv": "c9aac85bce6692d917c4fdd0d5a5112dd9a9971de93ca41de3497beb487bfb10",
+        "runtime.log": "50aa9593cb3596e46221d82fa60211a6bb4259dc8c5a0f76a3579ea9ef38f48f",
+        "origin-before.png": "012b1a4446f4495cea11ffb06106f7340f7f9234eca9221fd452c4b885665d71",
+        "origin-after.png": "25299c68299b24f7e97ad2c2f4b8d93c0da4b29ab6c9af90f9022c225f41d74a",
+        "view.png": "97de94b6f025170b0cf29e34ab5adf5cab1d3825c9e6fea8c030d7820496e3fa"
+      },
+      "exported_pck_sha256": "16d6877085b4a83c730bbf12b32a5948cc865b7bda5a5e5c1bdcc7f02bfe0f67",
+      "verified_sha256": "7276da171750a5fa98c90f606433ac6c1f7cfffdc382e816c6a9a0673331a929",
+      "render_tile_attachment": {
+        "replacements": 122,
+        "interval_s": 5,
+        "steady_tile_count": 64,
+        "maximum_deferred_old_nodes": 1,
+        "p95_submit_cpu_ms": 0.185,
+        "maximum_submit_cpu_ms": 0.262,
+        "next_scheduled_s": 615,
+        "scope": "Verified event cadence and node bounds; CPU submission only, not GPU resource retirement or storage/GIS/contact streaming"
+      },
+      "postmeasurement_cleanup": {
+        "completed_us": 612118351,
+        "elapsed_ms": 17.773,
+        "initial_observed": {
+          "audio_playback": true,
+          "audio_stream": true
+        },
+        "passed": true,
+        "retirement": {
+          "active_terrain_nodes": 64,
+          "audio_playback_retired": true,
+          "audio_stream_retired": true,
+          "queued_terrain_nodes": 0
+        },
+        "schema_version": 1,
+        "scope": "Postmeasurement resource retirement only; excluded from capture intervals and GPU timing",
+        "started_us": 612100578,
+        "timeout_s": 2,
+        "waited_process_frames": 4
+      },
+      "origin_version": 23,
+      "concurrent_context": "No WholeFlightPreview or benchmark process found in prelaunch inventory; coordinator reserved GPU; no exclusive entire-OS guarantee",
+      "independent_review": "approved: exact reducer summary and source/tools/payload/raw data/images/cleanup inspected by separate read-only reviewer"
+    }
+  ],
+  "runtime_identities": {
+    "engine_version": "4.7.2.stable.official.ed1daf0bf",
+    "engine_sha256": "ab1824f85bfd8e0e4128182c000c4003a3e042245b2967848d089b2a04b22424",
+    "engine_launcher_sha256": "c8f0a6bc45a19b33541501e57f6f7cd972ab18453743266339d495cbbe846643",
+    "template_sha256": "d34d36f3be1a6c49c56525ae86469b92e4f417ddf0b43cf00dd80c385c4b0562",
+    "bridge_sha256": "1db6bfc94e88be003b24b17c7fa9cf18dfc0c8f9e2739200ce24dd285d10f852",
+    "jsbsim_sha256": "7963d908c74a039e0e8d0664090fad33b777c60e38e9e6e9bb5d85d5da6f7948"
+  }
+}

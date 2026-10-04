@@ -6,12 +6,12 @@ not establish a working cockpit, regional scenery, aircraft fidelity or pilot
 acceptance. Reproduce with [the benchmark runner](../../../tools/benchmark/README.md).
 
 PR [#93](https://github.com/brettbergin/flight-simulator/pull/93) merged the
-implementation after independent review and four required CI checks. Final
-three-profile 600-second qualification remains pending. On 2026-10-03 the owner
-asked us to prioritize usable flights within the remaining subscription budget;
-long captures are deferred while bounded previews are delivered. Earlier
-leaking or incomplete captures remain invalid. Issue #18 and the P1 gate stay
-open; this partial merge does not accept the renderer performance gate.
+implementation after independent review and four required CI checks. The final
+clear/dusk/overcast 600-second captures now pass every frozen engineering check
+and independent read-only packet review. Earlier leaking or interrupted captures
+remain invalid. This completes the bounded renderer feasibility evidence for
+#18; the coordinator retains issue acceptance and the separate P1 owner gate.
+The playable preview and its Compatibility renderer have separate evidence.
 
 ## Workload and effective settings
 
@@ -48,8 +48,49 @@ Disk/GIS coverage and physics contact streaming are absent.
 
 ## Measured results
 
-Final clear/dusk/overcast capture results are pending completion and independent
-review. No final renderer decision is recorded by this draft.
+All three fresh exported captures use the same accepted source at
+`0ce6d6f469df23c6c3f7e0f60e2d3d91624a183c`, exact frozen recipe and Godot
+`4.7.2.stable.official.ed1daf0bf`. Each retains 72,004 distinct positive GPU
+observations and passes all twelve engineering checks without filtering slow
+frames. The [compact qualification receipt](renderer-qualification.json) binds
+verified summaries, raw artifacts, staged source manifests and exported PCKs.
+
+| Fixture | Measured seconds | Frames | Average FPS | Callback p95 / p99 ms | GPU p95 ms | Peak working set bytes | Peak engine allocation bytes |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Clear | 600.009319 | 72,004 | 120.0048 | 8.385 / 8.413 | 0.736 | 623,087,616 | 336,898,240 |
+| Dusk | 600.009327 | 72,004 | 120.0048 | 8.379 / 8.427 | 2.547 | 622,940,160 | 336,902,848 |
+| Overcast | 600.009336 | 72,004 | 120.0048 | 8.376 / 8.404 | 2.516 | 622,837,760 | 336,902,848 |
+
+The frozen limits are average FPS at least 60, callback p95/p99 at most
+20/33 ms, GPU render p95 at most 14 ms, at least 95% unique GPU timestamp
+coverage and each sampled working-set/engine-allocation peak at most 12 GiB.
+The 120 FPS cap limits interpretation of average FPS; these results do not
+measure an uncapped maximum. Engine allocation is not driver-reported VRAM.
+
+Each capture verifies 122 terrain attachments including warmup, 23 origin
+rebases, 64 steady terrain nodes and at most one queued predecessor during
+attachment. The actual WAV stream/playback retire after measurement in
+17.930/9.564/17.773 ms and 4/3/4 process opportunities for clear/dusk/overcast,
+respectively, with 64 active and zero queued nodes. Each exits zero, reports the
+joined bridge, and contains no error or resource-leak rejection. Changed pixels
+in the paired origin images are 0.38748%/0.40091%/0.41805%, below the frozen 1%
+budget; projection and relative-emitter checks also pass.
+
+Clear preserved two existing owner preview windows, reported paused by the
+coordinator; their rendering activity was unmeasured and may have influenced
+timings. Dusk and overcast prelaunch inventories found no owner preview or
+benchmark process, and the coordinator reserved the GPU for these sequential
+runs. This is not an exclusive whole-OS workload claim. One earlier dusk attempt
+exited before its report/cleanup; another was stopped on the coordinator's hold
+for owner defect debugging. Neither contributes samples or qualifies.
+
+The engineering decision is to retain Godot Forward+ for production integration
+within this measured proxy scope. The current interactive preview uses
+Compatibility, so these measurements do not establish its gameplay performance.
+Independent review recomputed each exact summary and checked source/tool/payload
+hashes, raw timings/memory, attachment cadence, actual image pixels and cleanup.
+The native-resolution synthetic panel labels were inspected as readable; this
+is not final instrument or pilot acceptance.
 
 The earlier static overcast baseline completed 600.009323 seconds/72,004 frames,
 120.0048 average FPS, callback p95/p99 8.374/8.397 ms and GPU p95 2.635 ms. Its
@@ -167,7 +208,8 @@ Actual isolated ownership controls passed: ordinary and queued-node cleanup
 exited cleanly, while a retained WAV reference and an extra active terrain node
 each exhausted the deadline and exited with failure. A revised short exported
 capture observed both resources retire after four process opportunities. Its
-20-second measurements remain diagnostic; final long captures are pending.
+20-second measurements remain diagnostic; the three canonical captures above
+now demonstrate the same bounded cleanup after their full measurements.
 
 ## Artifact identities and remaining gates
 
@@ -180,8 +222,8 @@ Panel source:
 Exact staged project/export/native/tool hashes, source settings, raw CSV,
 sampled process memory, runtime reports and native-resolution PNGs stay in
 ignored `.local/benchmark/` run directories. Raw local paths are not committed.
-A compact final receipt will identify reviewed captures and their artifact
-hashes. Large local capture packets are retained for review and reproduction;
+The compact qualification receipt identifies reviewed captures and their
+artifact hashes. Large local packets are retained for review and reproduction;
 this PR does not publish a simulator release or promise public raw artifacts.
 
 Whole-main-thread CPU cost, Windows present pacing, end-to-end input latency,

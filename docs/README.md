@@ -18,7 +18,7 @@ This is a serious Windows desktop flight simulator for realistic Cessna flying, 
 | Distribution | GitHub Releases; documentation prereleases now, Windows simulator packages after proof gates |
 | Realism proof | Reference comparisons, repeatable telemetry, pilot evaluations, and explicitly visible limits |
 
-Complete aircraft configuration, airport source dates, assist settings, and training rubric versions travel with each recorded session. Accepted P1 work includes original synthetic dynamics, external ground-contact experiments, exact same-build flight reconstruction, and a portable native Windows export. The [whole-flight preview](../tools/interactive-preview/README.md) combines ground steering, takeoff, flight, touchdown and braking in one native simulation; [its evidence](evidence/P1/interactive-preview.md) distinguishes automated operation from pilot evaluation. The earlier airborne preview remains reproducible. The [renderer proof](evidence/P1/render-proof.md) records its separate visual-load experiment; final long captures are deferred to prioritize usable flying within the owner's remaining subscription budget. The P1 phase gate remains open.
+Complete aircraft configuration, airport source dates, assist settings, and training rubric versions travel with each recorded session. Accepted P1 work includes original synthetic dynamics, external ground-contact experiments, exact same-build flight reconstruction, and a portable native Windows export. The [whole-flight preview](../tools/interactive-preview/README.md) combines ground steering, takeoff, flight, touchdown and braking in one native simulation; [its evidence](evidence/P1/interactive-preview.md) distinguishes automated operation from pilot evaluation. The earlier airborne preview remains reproducible. The [renderer proof](evidence/P1/render-proof.md) records its separate visual-load experiment; the three final ten-minute load captures passed their frozen proxy checks and independent review. The P1 phase gate remains open.
 
 The latest [rural scenery and runway locator iteration](evidence/P1/airfield-landmarks.md) adds original farms, woodland, roads, water and six named references. The optional map selects either synthetic runway end and shows native-truth geometry; scenery remains cosmetic over the same flat native plane.
 
@@ -37,6 +37,8 @@ The [third-person motion correction](evidence/P1/third-person-stability.md) pres
 7. [Backlog guide](backlog.md), [GitHub issue index](issue-index.md), [requirement traceability](requirements.md), [risks](risks.md), and [source register](sources.md).
 
 ## Review focus
+
+The [P1 engineering gate report](evidence/P1/gate-review.md) collects accepted child/build evidence and the proposed next backlog handoff. Phase acceptance remains pending owner review; the report distinguishes bounded proof results from production saves, C172 systems and pilot qualification.
 
 Review the aircraft target, desktop/offline priorities, regional scope, phase gates, and what first meaningful flying will include. Budget defaults avoid paid tools and services. Technical unknowns have early proof tasks and fallback decisions. Phase targets are not promised dates. [The owner-review issue](https://github.com/brettbergin/flight-simulator/issues/10) must close before implementation starts.
 
