@@ -90,6 +90,8 @@ Published snapshots/events are immutable owned values. Headers depend only on C+
 
 Core owns clock/units/version lock; aviation identity/config/limits/provenance; world datum/data; persistence migration/replay; product/training rubrics. Consumers jointly review their fixtures. Boundary changes need a contract PR and reviewed compatibility/migration/conformance updates before consumer merges. #14 adds live FDM property/sign/clock tests; #15 bridge/export/codec; #16 ground; #17 save proof; #19 independent aircraft reference validation; #21 calibrated device safety; #39 full geodesy; #44 weather. Passing a schema does not satisfy those gates.
 
+The proposed [simulation facade and render-origin adoption contract](decisions/007-sim-loop-facade.md) specifies synchronous app methods, exact rational wall pacing, pilot-intent admission, copied native readback and separate canonical/render poses for #20. It adds no wire fields or native model/API changes. A merged contract alone does not authorize its consumer or accept P1/P2, terrain streaming, aircraft fidelity or human qualification.
+
 ## Content, session and save policy
 
 All initial fixtures are **original synthetic prototype** examples: no bundled JSBSim C172 model, copied POH, real airport, validated aircraft envelope, current nav data or accepted restore proof. A future fuel-injected analog C172S requires exact serial/configuration/POH provenance; it cannot inherit identity/fidelity from the supplied carbureted C172P model. Sources, evidence status and report references are declarations requiring specialist review.
