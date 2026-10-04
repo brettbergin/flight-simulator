@@ -20,6 +20,8 @@ This is a serious Windows desktop flight simulator for realistic Cessna flying, 
 
 Complete aircraft configuration, airport source dates, assist settings, and training rubric versions travel with each recorded session. Accepted P1 work includes original synthetic dynamics, external ground-contact experiments, exact same-build flight reconstruction, and a portable native Windows export. The [whole-flight preview](../tools/interactive-preview/README.md) combines ground steering, takeoff, flight, touchdown and braking in one native simulation; [its evidence](evidence/P1/interactive-preview.md) distinguishes automated operation from pilot evaluation. The earlier airborne preview remains reproducible. The [renderer proof](evidence/P1/render-proof.md) records its separate visual-load experiment; final long captures are deferred to prioritize usable flying within the owner's remaining subscription budget. The P1 phase gate remains open.
 
+The latest [rural scenery and runway locator iteration](evidence/P1/airfield-landmarks.md) adds original farms, woodland, roads, water and six named references. The optional map selects either synthetic runway end and shows native-truth geometry; scenery remains cosmetic over the same flat native plane.
+
 ## Read in this order
 
 1. [Product scope and requirements](product.md): expected pilot experience and initial boundaries.

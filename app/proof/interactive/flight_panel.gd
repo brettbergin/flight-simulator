@@ -507,7 +507,7 @@ func _draw_help() -> void:
 		"Hold right mouse  Look    Scroll  Zoom    Home  Reset look",
 		"P / Escape  Pause menu    R  Fresh start    G / F  Ground / air",
 		"V  Overlay    F11  Fullscreen    M  Audio    J  Select controller",
-		"Tab  Map    + / −  Map zoom"]
+		"Tab  Map    + / −  Zoom    T  Runway 36 / 18"]
 	var row_height := minf(30, (height - 170) / rows.size())
 	for index in range(rows.size()):
 		_text(rect.position + Vector2(24, 73 + index * row_height), rows[index], 14)

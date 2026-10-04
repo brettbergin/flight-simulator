@@ -35,6 +35,7 @@ Generated from [roadmap](../roadmap.md) and [backlog](../backlog.json). Consult 
 | [FLIGHT-UX](https://github.com/brettbergin/flight-simulator/issues/100) — Replace debug presentation with a usable visual flight experience | ui | WHOLE-FLIGHT-PREVIEW | `app/proof/interactive/`, `tools/interactive-preview/`, `docs/evidence/P1/flight-ux.md` |
 | [COCKPIT-UX](https://github.com/brettbergin/flight-simulator/issues/102) — Add a physical prototype cockpit, focused panel view and local flight map | ui | FLIGHT-UX | `app/proof/interactive/`, `tools/interactive-preview/`, `docs/evidence/P1/cockpit-ux.md` |
 | [ENVIRONMENT-STABILITY](https://github.com/brettbergin/flight-simulator/issues/104) — Eliminate terrain and airfield surface flicker in the playable preview | ui | COCKPIT-UX | `app/proof/interactive/flight_world.gd`, `app/proof/interactive/preview.gd`, `app/proof/interactive/project-settings.cfg`, `tools/interactive-preview/README.md`, `docs/evidence/P1/environment-stability.md` |
+| [AIRFIELD-LANDMARKS](https://github.com/brettbergin/flight-simulator/issues/106) — Enrich the rural airfield scenery and add a selectable runway-end locator | world | ENVIRONMENT-STABILITY | `app/proof/interactive/flight_world.gd`, `app/proof/interactive/flight_map.gd`, `app/proof/interactive/preview.gd`, `app/proof/interactive/flight_panel.gd`, `tools/interactive-preview/README.md`, `docs/evidence/P1/airfield-landmarks.md` |
 
 ## Agent handoff
 
