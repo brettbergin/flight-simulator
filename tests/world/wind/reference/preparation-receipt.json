@@ -1,0 +1,36 @@
+{
+  "status": "private-preconsumer-reference-preparation-complete-unratified",
+  "proposed_contract": {
+    "commit": "ec9bcc5b513f83bb7cf383e7520408fbdd7e4535",
+    "path": "docs/decisions/013-steady-wind-starts.md",
+    "git_lf_sha256": "64548f1c876f77d635bd116710fcd5ca44d27e436b8b6b105d0c66406ea20e8f"
+  },
+  "consumer_or_native_output_used": false,
+  "case_count": 22,
+  "runway_expectation_count": 8,
+  "readonly_regeneration_exact": true,
+  "decimal90_vs110_binary64_targets_exact": true,
+  "checked_binary64_targets": 374,
+  "pure_budgets_unchanged_from_design": {
+    "direct_si_roundtrip_abs_mps": "2e-14",
+    "direct_ftps_abs": "2e-13",
+    "ordinary_speed_components_abs_mps": "1e-12",
+    "circular_angle_abs_rad": "1e-12",
+    "air_relative_component_norm_abs_mps": "2e-12",
+    "tiny_diagonal_max_ulp": 4,
+    "tiny_cardinal_speed": "exact-bits-and-positive",
+    "tiny_calm_classification": "exact-no-absolute-tolerance"
+  },
+  "separate_new_native_engineering_criterion": {
+    "abs_per_ned_component_mps": "1e-6",
+    "scope": "NEW proposed engineering accuracy at actual RunIC/posttrim/every admitted completed state; not direct-unit/pure math tolerance or libm theorem; no native output observed; requires coordinator ratification/contract merge/dispatch"
+  },
+  "expected_sha256": "7d71cbb4f8d9ad12fe91501d5e020f14bbf02516d363512e69b6fa41320856c3",
+  "manifest_sha256": "a0391a9b0535c6910a9acdfb5d0b2082d5ef9db8e46676e98967b79c772e03b2",
+  "generator_sha256": "6a66257c468846caab502e1b7681c16ad00a09e5380d95266c082ab0ff5c263c",
+  "limits": [
+    "Arithmetic-only private preparation; no accepted contract/public promotion/consumer/backend/handling/pilot/training claim.",
+    "Prior designs/reviews and unresolved formal-bound notes preserved.",
+    "Coordinator must independently review/ratify exact packet after contract merge before dispatch."
+  ]
+}

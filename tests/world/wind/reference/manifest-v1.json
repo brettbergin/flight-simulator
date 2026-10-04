@@ -1,0 +1,50 @@
+{
+  "status": "private-proposed-preconsumer-unratified",
+  "version": 1,
+  "proposed_contract": {
+    "commit": "ec9bcc5b513f83bb7cf383e7520408fbdd7e4535",
+    "path": "docs/decisions/013-steady-wind-starts.md",
+    "git_lf_sha256": "64548f1c876f77d635bd116710fcd5ca44d27e436b8b6b105d0c66406ea20e8f"
+  },
+  "prior_designs": [
+    {
+      "name": "ground-reference-design-v1.md",
+      "sha256": "16e02ab8276160dff4c6d22c7fc73e463096e5de95c0471e79fb456c5f20d043"
+    },
+    {
+      "name": "ground-reference-design-v2.md",
+      "sha256": "d9a3f4bc9fa71e0bca763905d2566d6c9dfbe67faf53a9eb3e125491549793de"
+    }
+  ],
+  "case_count": 22,
+  "runway_expectation_count": 8,
+  "arithmetic_provenance": "Independently derived from exact definitions and declared original recipes; no implementation or backend observation",
+  "consumer_observed": false,
+  "backend_observed": false,
+  "files": [
+    {
+      "path": "generate.py",
+      "bytes": 9621,
+      "sha256": "6a66257c468846caab502e1b7681c16ad00a09e5380d95266c082ab0ff5c263c",
+      "git_lf_sha256": "6a66257c468846caab502e1b7681c16ad00a09e5380d95266c082ab0ff5c263c"
+    },
+    {
+      "path": "expected-v1.json",
+      "bytes": 71446,
+      "sha256": "7d71cbb4f8d9ad12fe91501d5e020f14bbf02516d363512e69b6fa41320856c3",
+      "git_lf_sha256": "7d71cbb4f8d9ad12fe91501d5e020f14bbf02516d363512e69b6fa41320856c3"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2650,
+      "sha256": "815b2dcbacaa6ef886bfacef593b90e41a4087a04d86277914b797d84b32b048",
+      "git_lf_sha256": "815b2dcbacaa6ef886bfacef593b90e41a4087a04d86277914b797d84b32b048"
+    },
+    {
+      "path": "NOTICE-MIT.txt",
+      "bytes": 1092,
+      "sha256": "2cc02afe02dd0ffa0ca25e51b8a1fb2fe4a9f0adb95bf768031abd24c8da9c16",
+      "git_lf_sha256": "2cc02afe02dd0ffa0ca25e51b8a1fb2fe4a9f0adb95bf768031abd24c8da9c16"
+    }
+  ]
+}

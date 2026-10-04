@@ -1,0 +1,2508 @@
+{
+  "format": "PrivateSteadyWindReference",
+  "version": 1,
+  "status": "proposed-preconsumer-unratified-contract-unmerged",
+  "license": "MIT-original-test-material",
+  "proposed_contract": {
+    "commit": "ec9bcc5b513f83bb7cf383e7520408fbdd7e4535",
+    "path": "docs/decisions/013-steady-wind-starts.md",
+    "git_lf_sha256": "64548f1c876f77d635bd116710fcd5ca44d27e436b8b6b105d0c66406ea20e8f"
+  },
+  "prior_designs": [
+    {
+      "name": "ground-reference-design-v1.md",
+      "sha256": "16e02ab8276160dff4c6d22c7fc73e463096e5de95c0471e79fb456c5f20d043"
+    },
+    {
+      "name": "ground-reference-design-v2.md",
+      "sha256": "d9a3f4bc9fa71e0bca763905d2566d6c9dfbe67faf53a9eb3e125491549793de"
+    }
+  ],
+  "arithmetic": "Fraction exact rationals; Decimal110 sqrt and Machin rational atan series; struct little-endian binary64 targets. No consumer/native import/output.",
+  "unit_definitions": {
+    "foot_m": "381/1250",
+    "knots_per_mps": "900/463"
+  },
+  "pure_budgets": {
+    "direct_si_roundtrip_abs_mps": "2e-14",
+    "direct_ftps_abs": "2e-13",
+    "ordinary_speed_components_abs_mps": "1e-12",
+    "circular_angle_abs_rad": "1e-12",
+    "air_relative_component_norm_abs_mps": "2e-12",
+    "tiny_diagonal_max_ulp": 4,
+    "tiny_cardinal_speed": "exact-bits-and-positive",
+    "tiny_calm_classification": "exact-no-absolute-tolerance"
+  },
+  "native_nominal_engineering_criterion": {
+    "abs_per_ned_component_mps": "1e-6",
+    "scope": "NEW proposed engineering accuracy at actual RunIC/posttrim/every admitted completed state; not direct-unit/pure math tolerance or libm theorem; no native output observed; requires coordinator ratification/contract merge/dispatch"
+  },
+  "case_count": 22,
+  "runway_expectation_count": 8,
+  "cases": [
+    {
+      "id": "profile.calm",
+      "kind": "profile",
+      "profile": "calm",
+      "input_wind_toward_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "expected_ftps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "expected_speed_mps": {
+        "squared_fraction": "0",
+        "decimal": "0",
+        "binary64_le": "0000000000000000"
+      },
+      "expected_from_true_rad": null,
+      "expected_toward_anchor_eus_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "expected_speed_kt": {
+        "fraction": "0",
+        "decimal": "0",
+        "binary64_le": "0000000000000000"
+      },
+      "calm": true
+    },
+    {
+      "id": "profile.from-north",
+      "kind": "profile",
+      "profile": "from-north",
+      "input_wind_toward_ned_mps": [
+        {
+          "fraction": "-5",
+          "decimal": "-5",
+          "binary64_le": "00000000000014c0"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "expected_ftps": [
+        {
+          "fraction": "-6250/381",
+          "decimal": "-16.404199475065616797900262467191601049868766404199475065616797900262467191601049868766404199475065616797900262",
+          "binary64_le": "9a77e69d796730c0"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "expected_speed_mps": {
+        "squared_fraction": "25",
+        "decimal": "5",
+        "binary64_le": "0000000000001440"
+      },
+      "expected_from_true_rad": {
+        "pi_fraction": "0",
+        "radians_decimal": "0E-109",
+        "binary64_le": "0000000000000000"
+      },
+      "expected_toward_anchor_eus_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "5",
+          "decimal": "5",
+          "binary64_le": "0000000000001440"
+        }
+      ],
+      "expected_speed_kt": {
+        "fraction": "4500/463",
+        "decimal": "9.7192224622030237580993520518358531317494600431965442764578833693304535637149028077753779697624190064794816415",
+        "binary64_le": "d26b33ed3d702340"
+      },
+      "calm": false
+    },
+    {
+      "id": "profile.from-west",
+      "kind": "profile",
+      "profile": "from-west",
+      "input_wind_toward_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "5",
+          "decimal": "5",
+          "binary64_le": "0000000000001440"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "expected_ftps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "6250/381",
+          "decimal": "16.404199475065616797900262467191601049868766404199475065616797900262467191601049868766404199475065616797900262",
+          "binary64_le": "9a77e69d79673040"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "expected_speed_mps": {
+        "squared_fraction": "25",
+        "decimal": "5",
+        "binary64_le": "0000000000001440"
+      },
+      "expected_from_true_rad": {
+        "pi_fraction": "3/2",
+        "radians_decimal": "4.7123889803846898576939650749192543262957540990626587314624168884617246094293134979420522380131756019732221288",
+        "binary64_le": "d221337f7cd91240"
+      },
+      "expected_toward_anchor_eus_mps": [
+        {
+          "fraction": "5",
+          "decimal": "5",
+          "binary64_le": "0000000000001440"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "expected_speed_kt": {
+        "fraction": "4500/463",
+        "decimal": "9.7192224622030237580993520518358531317494600431965442764578833693304535637149028077753779697624190064794816415",
+        "binary64_le": "d26b33ed3d702340"
+      },
+      "calm": false
+    },
+    {
+      "id": "profile.from-east",
+      "kind": "profile",
+      "profile": "from-east",
+      "input_wind_toward_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "-5",
+          "decimal": "-5",
+          "binary64_le": "00000000000014c0"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "expected_ftps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "-6250/381",
+          "decimal": "-16.404199475065616797900262467191601049868766404199475065616797900262467191601049868766404199475065616797900262",
+          "binary64_le": "9a77e69d796730c0"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "expected_speed_mps": {
+        "squared_fraction": "25",
+        "decimal": "5",
+        "binary64_le": "0000000000001440"
+      },
+      "expected_from_true_rad": {
+        "pi_fraction": "1/2",
+        "radians_decimal": "1.5707963267948966192313216916397514420985846996875529104874722961539082031431044993140174126710585339910740430",
+        "binary64_le": "182d4454fb21f93f"
+      },
+      "expected_toward_anchor_eus_mps": [
+        {
+          "fraction": "-5",
+          "decimal": "-5",
+          "binary64_le": "00000000000014c0"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "expected_speed_kt": {
+        "fraction": "4500/463",
+        "decimal": "9.7192224622030237580993520518358531317494600431965442764578833693304535637149028077753779697624190064794816415",
+        "binary64_le": "d26b33ed3d702340"
+      },
+      "calm": false
+    },
+    {
+      "id": "direction.signed-zero",
+      "kind": "zero-or-tiny",
+      "input_wind_toward_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "-0",
+          "binary64_le": "0000000000000080"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "expected_speed_mps": {
+        "squared_fraction": "0",
+        "decimal": "0",
+        "binary64_le": "0000000000000000"
+      },
+      "expected_from_true_rad": null,
+      "expected_toward_anchor_eus_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "calm": true,
+      "speed_comparison": "exact-bits",
+      "input_zero_sign_copied": true,
+      "expected_projection_zero_sign": "either-zero-sign"
+    },
+    {
+      "id": "direction.tiny-south",
+      "kind": "zero-or-tiny",
+      "input_wind_toward_ned_mps": [
+        {
+          "fraction": "1/4149515568880992958512407863691161151012446232242436899995657329690652811412908146399707048947103794288197886611300789182395151075411775307886874834113963687061181803401509523685376",
+          "decimal": "2.4099198651028841177407500347125089364310049545098979718302999771588038528602610374756815976954150789041343723E-181",
+          "binary64_le": "000000000000701a"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "expected_speed_mps": {
+        "squared_fraction": "1/17218479456385750618067377696052635483579924745448689921733236816400740691241745619397484537236046173286370919031961587788584927290816661024991609882728717344659503471655990880884679896520055123906467064419056526231345685268240569209892573766037966584735183775739433978714578587782701380797240772477647874555986712746271362892227516205318914435913511141036261376",
+        "decimal": "2.4099198651028841177407500347125089364310049545098979718302999771588038528602610374756815976954150789041343723E-181",
+        "binary64_le": "000000000000701a"
+      },
+      "expected_from_true_rad": {
+        "pi_fraction": "1",
+        "radians_decimal": "3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480859",
+        "binary64_le": "182d4454fb210940"
+      },
+      "expected_toward_anchor_eus_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "-1/4149515568880992958512407863691161151012446232242436899995657329690652811412908146399707048947103794288197886611300789182395151075411775307886874834113963687061181803401509523685376",
+          "decimal": "-2.4099198651028841177407500347125089364310049545098979718302999771588038528602610374756815976954150789041343723E-181",
+          "binary64_le": "000000000000709a"
+        }
+      ],
+      "calm": false,
+      "speed_comparison": "exact-bits",
+      "input_zero_sign_copied": false,
+      "expected_projection_zero_sign": "either-zero-sign"
+    },
+    {
+      "id": "direction.tiny-north",
+      "kind": "zero-or-tiny",
+      "input_wind_toward_ned_mps": [
+        {
+          "fraction": "-1/4149515568880992958512407863691161151012446232242436899995657329690652811412908146399707048947103794288197886611300789182395151075411775307886874834113963687061181803401509523685376",
+          "decimal": "-2.4099198651028841177407500347125089364310049545098979718302999771588038528602610374756815976954150789041343723E-181",
+          "binary64_le": "000000000000709a"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "expected_speed_mps": {
+        "squared_fraction": "1/17218479456385750618067377696052635483579924745448689921733236816400740691241745619397484537236046173286370919031961587788584927290816661024991609882728717344659503471655990880884679896520055123906467064419056526231345685268240569209892573766037966584735183775739433978714578587782701380797240772477647874555986712746271362892227516205318914435913511141036261376",
+        "decimal": "2.4099198651028841177407500347125089364310049545098979718302999771588038528602610374756815976954150789041343723E-181",
+        "binary64_le": "000000000000701a"
+      },
+      "expected_from_true_rad": {
+        "pi_fraction": "0",
+        "radians_decimal": "0E-109",
+        "binary64_le": "0000000000000000"
+      },
+      "expected_toward_anchor_eus_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "1/4149515568880992958512407863691161151012446232242436899995657329690652811412908146399707048947103794288197886611300789182395151075411775307886874834113963687061181803401509523685376",
+          "decimal": "2.4099198651028841177407500347125089364310049545098979718302999771588038528602610374756815976954150789041343723E-181",
+          "binary64_le": "000000000000701a"
+        }
+      ],
+      "calm": false,
+      "speed_comparison": "exact-bits",
+      "input_zero_sign_copied": false,
+      "expected_projection_zero_sign": "either-zero-sign"
+    },
+    {
+      "id": "direction.tiny-west",
+      "kind": "zero-or-tiny",
+      "input_wind_toward_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "1/4149515568880992958512407863691161151012446232242436899995657329690652811412908146399707048947103794288197886611300789182395151075411775307886874834113963687061181803401509523685376",
+          "decimal": "2.4099198651028841177407500347125089364310049545098979718302999771588038528602610374756815976954150789041343723E-181",
+          "binary64_le": "000000000000701a"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "expected_speed_mps": {
+        "squared_fraction": "1/17218479456385750618067377696052635483579924745448689921733236816400740691241745619397484537236046173286370919031961587788584927290816661024991609882728717344659503471655990880884679896520055123906467064419056526231345685268240569209892573766037966584735183775739433978714578587782701380797240772477647874555986712746271362892227516205318914435913511141036261376",
+        "decimal": "2.4099198651028841177407500347125089364310049545098979718302999771588038528602610374756815976954150789041343723E-181",
+        "binary64_le": "000000000000701a"
+      },
+      "expected_from_true_rad": {
+        "pi_fraction": "3/2",
+        "radians_decimal": "4.7123889803846898576939650749192543262957540990626587314624168884617246094293134979420522380131756019732221288",
+        "binary64_le": "d221337f7cd91240"
+      },
+      "expected_toward_anchor_eus_mps": [
+        {
+          "fraction": "1/4149515568880992958512407863691161151012446232242436899995657329690652811412908146399707048947103794288197886611300789182395151075411775307886874834113963687061181803401509523685376",
+          "decimal": "2.4099198651028841177407500347125089364310049545098979718302999771588038528602610374756815976954150789041343723E-181",
+          "binary64_le": "000000000000701a"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "calm": false,
+      "speed_comparison": "exact-bits",
+      "input_zero_sign_copied": false,
+      "expected_projection_zero_sign": "either-zero-sign"
+    },
+    {
+      "id": "direction.tiny-diagonal",
+      "kind": "zero-or-tiny",
+      "input_wind_toward_ned_mps": [
+        {
+          "fraction": "1/4149515568880992958512407863691161151012446232242436899995657329690652811412908146399707048947103794288197886611300789182395151075411775307886874834113963687061181803401509523685376",
+          "decimal": "2.4099198651028841177407500347125089364310049545098979718302999771588038528602610374756815976954150789041343723E-181",
+          "binary64_le": "000000000000701a"
+        },
+        {
+          "fraction": "1/4149515568880992958512407863691161151012446232242436899995657329690652811412908146399707048947103794288197886611300789182395151075411775307886874834113963687061181803401509523685376",
+          "decimal": "2.4099198651028841177407500347125089364310049545098979718302999771588038528602610374756815976954150789041343723E-181",
+          "binary64_le": "000000000000701a"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "expected_speed_mps": {
+        "squared_fraction": "1/8609239728192875309033688848026317741789962372724344960866618408200370345620872809698742268618023086643185459515980793894292463645408330512495804941364358672329751735827995440442339948260027561953233532209528263115672842634120284604946286883018983292367591887869716989357289293891350690398620386238823937277993356373135681446113758102659457217956755570518130688",
+        "decimal": "3.4081413574608384143020931560912625569943935707351552107552582344982329388641501901725590918774526707798721066E-181",
+        "binary64_le": "cd3b7f669ea0761a"
+      },
+      "expected_from_true_rad": {
+        "pi_fraction": "5/4",
+        "radians_decimal": "3.9269908169872415480783042290993786052464617492188822762186807403847705078577612482850435316776463349776851074",
+        "binary64_le": "5e3855297a6a0f40"
+      },
+      "expected_toward_anchor_eus_mps": [
+        {
+          "fraction": "1/4149515568880992958512407863691161151012446232242436899995657329690652811412908146399707048947103794288197886611300789182395151075411775307886874834113963687061181803401509523685376",
+          "decimal": "2.4099198651028841177407500347125089364310049545098979718302999771588038528602610374756815976954150789041343723E-181",
+          "binary64_le": "000000000000701a"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "-1/4149515568880992958512407863691161151012446232242436899995657329690652811412908146399707048947103794288197886611300789182395151075411775307886874834113963687061181803401509523685376",
+          "decimal": "-2.4099198651028841177407500347125089364310049545098979718302999771588038528602610374756815976954150789041343723E-181",
+          "binary64_le": "000000000000709a"
+        }
+      ],
+      "calm": false,
+      "speed_comparison": "within4ulp-positive",
+      "input_zero_sign_copied": false,
+      "expected_projection_zero_sign": "either-zero-sign"
+    },
+    {
+      "id": "direction.min-subnormal-south",
+      "kind": "zero-or-tiny",
+      "input_wind_toward_ned_mps": [
+        {
+          "fraction": "1/202402253307310618352495346718917307049556649764142118356901358027430339567995346891960383701437124495187077864316811911389808737385793476867013399940738509921517424276566361364466907742093216341239767678472745068562007483424692698618103355649159556340810056512358769552333414615230502532186327508646006263307707741093494784",
+          "decimal": "4.9406564584124654417656879286822137236505980261432476442558568250067550727020875186529983636163599237979656470E-324",
+          "binary64_le": "0100000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "expected_speed_mps": {
+        "squared_fraction": "1/40966672143876732145176228848043091143928566425868314369800638377010779053124493714260960149070292229477000187962034707314131344279013990700557084216067703100110397626915930050017669416781158249744236172365003101763600273594402063864722325201532144604115521818460662623935143647469165084514879475815880467163982182410113805509643338164835839186040845030529294117697218294439255325218264815180040054295920900280527835303063728875285777248462704511695944824230554347848626506942611938335291999257755662113691788246053880398723321865319809478918081631431889557552749507834196358292243660837246218506196446294893757162080795972525602568587162635206656",
+        "decimal": "4.9406564584124654417656879286822137236505980261432476442558568250067550727020875186529983636163599237979656469E-324",
+        "binary64_le": "0100000000000000"
+      },
+      "expected_from_true_rad": {
+        "pi_fraction": "1",
+        "radians_decimal": "3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480859",
+        "binary64_le": "182d4454fb210940"
+      },
+      "expected_toward_anchor_eus_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "-1/202402253307310618352495346718917307049556649764142118356901358027430339567995346891960383701437124495187077864316811911389808737385793476867013399940738509921517424276566361364466907742093216341239767678472745068562007483424692698618103355649159556340810056512358769552333414615230502532186327508646006263307707741093494784",
+          "decimal": "-4.9406564584124654417656879286822137236505980261432476442558568250067550727020875186529983636163599237979656470E-324",
+          "binary64_le": "0100000000000080"
+        }
+      ],
+      "calm": false,
+      "speed_comparison": "exact-bits",
+      "input_zero_sign_copied": false,
+      "expected_projection_zero_sign": "either-zero-sign"
+    },
+    {
+      "id": "air-relative.identity.calm",
+      "kind": "air-relative",
+      "profile": "calm",
+      "input_body_to_ned_wxyz": [
+        {
+          "fraction": "1",
+          "decimal": "1",
+          "binary64_le": "000000000000f03f"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "input_ground_body_mps": [
+        {
+          "fraction": "40",
+          "decimal": "40",
+          "binary64_le": "0000000000004440"
+        },
+        {
+          "fraction": "3",
+          "decimal": "3",
+          "binary64_le": "0000000000000840"
+        },
+        {
+          "fraction": "-2",
+          "decimal": "-2",
+          "binary64_le": "00000000000000c0"
+        }
+      ],
+      "input_wind_toward_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "input_turbulence_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "exact_rotation_rows": [
+        [
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "1"
+        ]
+      ],
+      "expected_ground_ned_mps": [
+        {
+          "fraction": "40",
+          "decimal": "40",
+          "binary64_le": "0000000000004440"
+        },
+        {
+          "fraction": "3",
+          "decimal": "3",
+          "binary64_le": "0000000000000840"
+        },
+        {
+          "fraction": "-2",
+          "decimal": "-2",
+          "binary64_le": "00000000000000c0"
+        }
+      ],
+      "expected_air_ned_mps": [
+        {
+          "fraction": "40",
+          "decimal": "40",
+          "binary64_le": "0000000000004440"
+        },
+        {
+          "fraction": "3",
+          "decimal": "3",
+          "binary64_le": "0000000000000840"
+        },
+        {
+          "fraction": "-2",
+          "decimal": "-2",
+          "binary64_le": "00000000000000c0"
+        }
+      ],
+      "expected_tas_mps": {
+        "squared_fraction": "1613",
+        "decimal": "40.162171256046404145336651799063973082734196518707414788540617753723513237433826503629059082521489222760817735",
+        "binary64_le": "08891807c2144440"
+      },
+      "expected_ground_speed_mps": {
+        "squared_fraction": "1609",
+        "decimal": "40.112342240263158185498303972505760613952942297948446779968447707738416571122603577872862522830132027560423674",
+        "binary64_le": "e0f1033b610e4440"
+      },
+      "expected_vertical_speed_up_mps": {
+        "fraction": "2",
+        "decimal": "2",
+        "binary64_le": "0000000000000040"
+      }
+    },
+    {
+      "id": "air-relative.identity.from-north",
+      "kind": "air-relative",
+      "profile": "from-north",
+      "input_body_to_ned_wxyz": [
+        {
+          "fraction": "1",
+          "decimal": "1",
+          "binary64_le": "000000000000f03f"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "input_ground_body_mps": [
+        {
+          "fraction": "40",
+          "decimal": "40",
+          "binary64_le": "0000000000004440"
+        },
+        {
+          "fraction": "3",
+          "decimal": "3",
+          "binary64_le": "0000000000000840"
+        },
+        {
+          "fraction": "-2",
+          "decimal": "-2",
+          "binary64_le": "00000000000000c0"
+        }
+      ],
+      "input_wind_toward_ned_mps": [
+        {
+          "fraction": "-5",
+          "decimal": "-5",
+          "binary64_le": "00000000000014c0"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "input_turbulence_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "exact_rotation_rows": [
+        [
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "1"
+        ]
+      ],
+      "expected_ground_ned_mps": [
+        {
+          "fraction": "40",
+          "decimal": "40",
+          "binary64_le": "0000000000004440"
+        },
+        {
+          "fraction": "3",
+          "decimal": "3",
+          "binary64_le": "0000000000000840"
+        },
+        {
+          "fraction": "-2",
+          "decimal": "-2",
+          "binary64_le": "00000000000000c0"
+        }
+      ],
+      "expected_air_ned_mps": [
+        {
+          "fraction": "45",
+          "decimal": "45",
+          "binary64_le": "0000000000804640"
+        },
+        {
+          "fraction": "3",
+          "decimal": "3",
+          "binary64_le": "0000000000000840"
+        },
+        {
+          "fraction": "-2",
+          "decimal": "-2",
+          "binary64_le": "00000000000000c0"
+        }
+      ],
+      "expected_tas_mps": {
+        "squared_fraction": "2038",
+        "decimal": "45.144213361182848281649633665724356182568493972752123783271999929941752457901755972785999867269177609423848920",
+        "binary64_le": "9af65a9575924640"
+      },
+      "expected_ground_speed_mps": {
+        "squared_fraction": "1609",
+        "decimal": "40.112342240263158185498303972505760613952942297948446779968447707738416571122603577872862522830132027560423674",
+        "binary64_le": "e0f1033b610e4440"
+      },
+      "expected_vertical_speed_up_mps": {
+        "fraction": "2",
+        "decimal": "2",
+        "binary64_le": "0000000000000040"
+      }
+    },
+    {
+      "id": "air-relative.identity.from-west",
+      "kind": "air-relative",
+      "profile": "from-west",
+      "input_body_to_ned_wxyz": [
+        {
+          "fraction": "1",
+          "decimal": "1",
+          "binary64_le": "000000000000f03f"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "input_ground_body_mps": [
+        {
+          "fraction": "40",
+          "decimal": "40",
+          "binary64_le": "0000000000004440"
+        },
+        {
+          "fraction": "3",
+          "decimal": "3",
+          "binary64_le": "0000000000000840"
+        },
+        {
+          "fraction": "-2",
+          "decimal": "-2",
+          "binary64_le": "00000000000000c0"
+        }
+      ],
+      "input_wind_toward_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "5",
+          "decimal": "5",
+          "binary64_le": "0000000000001440"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "input_turbulence_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "exact_rotation_rows": [
+        [
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "1"
+        ]
+      ],
+      "expected_ground_ned_mps": [
+        {
+          "fraction": "40",
+          "decimal": "40",
+          "binary64_le": "0000000000004440"
+        },
+        {
+          "fraction": "3",
+          "decimal": "3",
+          "binary64_le": "0000000000000840"
+        },
+        {
+          "fraction": "-2",
+          "decimal": "-2",
+          "binary64_le": "00000000000000c0"
+        }
+      ],
+      "expected_air_ned_mps": [
+        {
+          "fraction": "40",
+          "decimal": "40",
+          "binary64_le": "0000000000004440"
+        },
+        {
+          "fraction": "-2",
+          "decimal": "-2",
+          "binary64_le": "00000000000000c0"
+        },
+        {
+          "fraction": "-2",
+          "decimal": "-2",
+          "binary64_le": "00000000000000c0"
+        }
+      ],
+      "expected_tas_mps": {
+        "squared_fraction": "1608",
+        "decimal": "40.099875311526842701517477004903220640750024445100362535039831512264241902643532947902433952640247372552266424",
+        "binary64_le": "c257d6b6c80c4440"
+      },
+      "expected_ground_speed_mps": {
+        "squared_fraction": "1609",
+        "decimal": "40.112342240263158185498303972505760613952942297948446779968447707738416571122603577872862522830132027560423674",
+        "binary64_le": "e0f1033b610e4440"
+      },
+      "expected_vertical_speed_up_mps": {
+        "fraction": "2",
+        "decimal": "2",
+        "binary64_le": "0000000000000040"
+      }
+    },
+    {
+      "id": "air-relative.identity.from-east",
+      "kind": "air-relative",
+      "profile": "from-east",
+      "input_body_to_ned_wxyz": [
+        {
+          "fraction": "1",
+          "decimal": "1",
+          "binary64_le": "000000000000f03f"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "input_ground_body_mps": [
+        {
+          "fraction": "40",
+          "decimal": "40",
+          "binary64_le": "0000000000004440"
+        },
+        {
+          "fraction": "3",
+          "decimal": "3",
+          "binary64_le": "0000000000000840"
+        },
+        {
+          "fraction": "-2",
+          "decimal": "-2",
+          "binary64_le": "00000000000000c0"
+        }
+      ],
+      "input_wind_toward_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "-5",
+          "decimal": "-5",
+          "binary64_le": "00000000000014c0"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "input_turbulence_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "exact_rotation_rows": [
+        [
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "1"
+        ]
+      ],
+      "expected_ground_ned_mps": [
+        {
+          "fraction": "40",
+          "decimal": "40",
+          "binary64_le": "0000000000004440"
+        },
+        {
+          "fraction": "3",
+          "decimal": "3",
+          "binary64_le": "0000000000000840"
+        },
+        {
+          "fraction": "-2",
+          "decimal": "-2",
+          "binary64_le": "00000000000000c0"
+        }
+      ],
+      "expected_air_ned_mps": [
+        {
+          "fraction": "40",
+          "decimal": "40",
+          "binary64_le": "0000000000004440"
+        },
+        {
+          "fraction": "8",
+          "decimal": "8",
+          "binary64_le": "0000000000002040"
+        },
+        {
+          "fraction": "-2",
+          "decimal": "-2",
+          "binary64_le": "00000000000000c0"
+        }
+      ],
+      "expected_tas_mps": {
+        "squared_fraction": "1668",
+        "decimal": "40.841155713324274144162670187748851373845062941712646655243564290368994353965632394421734667622338441481573174",
+        "binary64_le": "21c98bfdaa6b4440"
+      },
+      "expected_ground_speed_mps": {
+        "squared_fraction": "1609",
+        "decimal": "40.112342240263158185498303972505760613952942297948446779968447707738416571122603577872862522830132027560423674",
+        "binary64_le": "e0f1033b610e4440"
+      },
+      "expected_vertical_speed_up_mps": {
+        "fraction": "2",
+        "decimal": "2",
+        "binary64_le": "0000000000000040"
+      }
+    },
+    {
+      "id": "air-relative.mixed.calm",
+      "kind": "air-relative",
+      "profile": "calm",
+      "input_body_to_ned_wxyz": [
+        {
+          "fraction": "1/3",
+          "decimal": "0.33333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333",
+          "binary64_le": "555555555555d53f"
+        },
+        {
+          "fraction": "2/3",
+          "decimal": "0.66666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666667",
+          "binary64_le": "555555555555e53f"
+        },
+        {
+          "fraction": "2/3",
+          "decimal": "0.66666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666667",
+          "binary64_le": "555555555555e53f"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "input_ground_body_mps": [
+        {
+          "fraction": "27",
+          "decimal": "27",
+          "binary64_le": "0000000000003b40"
+        },
+        {
+          "fraction": "-9",
+          "decimal": "-9",
+          "binary64_le": "00000000000022c0"
+        },
+        {
+          "fraction": "18",
+          "decimal": "18",
+          "binary64_le": "0000000000003240"
+        }
+      ],
+      "input_wind_toward_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "input_turbulence_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "exact_rotation_rows": [
+        [
+          "1/9",
+          "8/9",
+          "4/9"
+        ],
+        [
+          "8/9",
+          "1/9",
+          "-4/9"
+        ],
+        [
+          "-4/9",
+          "4/9",
+          "-7/9"
+        ]
+      ],
+      "expected_ground_ned_mps": [
+        {
+          "fraction": "3",
+          "decimal": "3",
+          "binary64_le": "0000000000000840"
+        },
+        {
+          "fraction": "15",
+          "decimal": "15",
+          "binary64_le": "0000000000002e40"
+        },
+        {
+          "fraction": "-30",
+          "decimal": "-30",
+          "binary64_le": "0000000000003ec0"
+        }
+      ],
+      "expected_air_ned_mps": [
+        {
+          "fraction": "3",
+          "decimal": "3",
+          "binary64_le": "0000000000000840"
+        },
+        {
+          "fraction": "15",
+          "decimal": "15",
+          "binary64_le": "0000000000002e40"
+        },
+        {
+          "fraction": "-30",
+          "decimal": "-30",
+          "binary64_le": "0000000000003ec0"
+        }
+      ],
+      "expected_tas_mps": {
+        "squared_fraction": "1134",
+        "decimal": "33.674916480965472470253738590848943715804178270008542516733709205880316406762451251791289056749416143508919799",
+        "binary64_le": "99a3caa963d64040"
+      },
+      "expected_ground_speed_mps": {
+        "squared_fraction": "234",
+        "decimal": "15.297058540778354490084672327068345968691312838298789222754912413277800896186672586765046553281796025083570775",
+        "binary64_le": "f2479b0e18982e40"
+      },
+      "expected_vertical_speed_up_mps": {
+        "fraction": "30",
+        "decimal": "30",
+        "binary64_le": "0000000000003e40"
+      }
+    },
+    {
+      "id": "air-relative.mixed.from-north",
+      "kind": "air-relative",
+      "profile": "from-north",
+      "input_body_to_ned_wxyz": [
+        {
+          "fraction": "1/3",
+          "decimal": "0.33333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333",
+          "binary64_le": "555555555555d53f"
+        },
+        {
+          "fraction": "2/3",
+          "decimal": "0.66666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666667",
+          "binary64_le": "555555555555e53f"
+        },
+        {
+          "fraction": "2/3",
+          "decimal": "0.66666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666667",
+          "binary64_le": "555555555555e53f"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "input_ground_body_mps": [
+        {
+          "fraction": "27",
+          "decimal": "27",
+          "binary64_le": "0000000000003b40"
+        },
+        {
+          "fraction": "-9",
+          "decimal": "-9",
+          "binary64_le": "00000000000022c0"
+        },
+        {
+          "fraction": "18",
+          "decimal": "18",
+          "binary64_le": "0000000000003240"
+        }
+      ],
+      "input_wind_toward_ned_mps": [
+        {
+          "fraction": "-5",
+          "decimal": "-5",
+          "binary64_le": "00000000000014c0"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "input_turbulence_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "exact_rotation_rows": [
+        [
+          "1/9",
+          "8/9",
+          "4/9"
+        ],
+        [
+          "8/9",
+          "1/9",
+          "-4/9"
+        ],
+        [
+          "-4/9",
+          "4/9",
+          "-7/9"
+        ]
+      ],
+      "expected_ground_ned_mps": [
+        {
+          "fraction": "3",
+          "decimal": "3",
+          "binary64_le": "0000000000000840"
+        },
+        {
+          "fraction": "15",
+          "decimal": "15",
+          "binary64_le": "0000000000002e40"
+        },
+        {
+          "fraction": "-30",
+          "decimal": "-30",
+          "binary64_le": "0000000000003ec0"
+        }
+      ],
+      "expected_air_ned_mps": [
+        {
+          "fraction": "8",
+          "decimal": "8",
+          "binary64_le": "0000000000002040"
+        },
+        {
+          "fraction": "15",
+          "decimal": "15",
+          "binary64_le": "0000000000002e40"
+        },
+        {
+          "fraction": "-30",
+          "decimal": "-30",
+          "binary64_le": "0000000000003ec0"
+        }
+      ],
+      "expected_tas_mps": {
+        "squared_fraction": "1189",
+        "decimal": "34.481879299133334794766375906635073689696015405139771824326159271735129051282327853577889510545009490320588153",
+        "binary64_le": "d3328b38ae3d4140"
+      },
+      "expected_ground_speed_mps": {
+        "squared_fraction": "234",
+        "decimal": "15.297058540778354490084672327068345968691312838298789222754912413277800896186672586765046553281796025083570775",
+        "binary64_le": "f2479b0e18982e40"
+      },
+      "expected_vertical_speed_up_mps": {
+        "fraction": "30",
+        "decimal": "30",
+        "binary64_le": "0000000000003e40"
+      }
+    },
+    {
+      "id": "air-relative.mixed.from-west",
+      "kind": "air-relative",
+      "profile": "from-west",
+      "input_body_to_ned_wxyz": [
+        {
+          "fraction": "1/3",
+          "decimal": "0.33333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333",
+          "binary64_le": "555555555555d53f"
+        },
+        {
+          "fraction": "2/3",
+          "decimal": "0.66666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666667",
+          "binary64_le": "555555555555e53f"
+        },
+        {
+          "fraction": "2/3",
+          "decimal": "0.66666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666667",
+          "binary64_le": "555555555555e53f"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "input_ground_body_mps": [
+        {
+          "fraction": "27",
+          "decimal": "27",
+          "binary64_le": "0000000000003b40"
+        },
+        {
+          "fraction": "-9",
+          "decimal": "-9",
+          "binary64_le": "00000000000022c0"
+        },
+        {
+          "fraction": "18",
+          "decimal": "18",
+          "binary64_le": "0000000000003240"
+        }
+      ],
+      "input_wind_toward_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "5",
+          "decimal": "5",
+          "binary64_le": "0000000000001440"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "input_turbulence_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "exact_rotation_rows": [
+        [
+          "1/9",
+          "8/9",
+          "4/9"
+        ],
+        [
+          "8/9",
+          "1/9",
+          "-4/9"
+        ],
+        [
+          "-4/9",
+          "4/9",
+          "-7/9"
+        ]
+      ],
+      "expected_ground_ned_mps": [
+        {
+          "fraction": "3",
+          "decimal": "3",
+          "binary64_le": "0000000000000840"
+        },
+        {
+          "fraction": "15",
+          "decimal": "15",
+          "binary64_le": "0000000000002e40"
+        },
+        {
+          "fraction": "-30",
+          "decimal": "-30",
+          "binary64_le": "0000000000003ec0"
+        }
+      ],
+      "expected_air_ned_mps": [
+        {
+          "fraction": "3",
+          "decimal": "3",
+          "binary64_le": "0000000000000840"
+        },
+        {
+          "fraction": "10",
+          "decimal": "10",
+          "binary64_le": "0000000000002440"
+        },
+        {
+          "fraction": "-30",
+          "decimal": "-30",
+          "binary64_le": "0000000000003ec0"
+        }
+      ],
+      "expected_tas_mps": {
+        "squared_fraction": "1009",
+        "decimal": "31.764760348537182061533484285816445220649196447923773379966487919773650369592640787352176787744557591556069986",
+        "binary64_le": "a83e8e55c7c33f40"
+      },
+      "expected_ground_speed_mps": {
+        "squared_fraction": "234",
+        "decimal": "15.297058540778354490084672327068345968691312838298789222754912413277800896186672586765046553281796025083570775",
+        "binary64_le": "f2479b0e18982e40"
+      },
+      "expected_vertical_speed_up_mps": {
+        "fraction": "30",
+        "decimal": "30",
+        "binary64_le": "0000000000003e40"
+      }
+    },
+    {
+      "id": "air-relative.mixed.from-east",
+      "kind": "air-relative",
+      "profile": "from-east",
+      "input_body_to_ned_wxyz": [
+        {
+          "fraction": "1/3",
+          "decimal": "0.33333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333",
+          "binary64_le": "555555555555d53f"
+        },
+        {
+          "fraction": "2/3",
+          "decimal": "0.66666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666667",
+          "binary64_le": "555555555555e53f"
+        },
+        {
+          "fraction": "2/3",
+          "decimal": "0.66666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666667",
+          "binary64_le": "555555555555e53f"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "input_ground_body_mps": [
+        {
+          "fraction": "27",
+          "decimal": "27",
+          "binary64_le": "0000000000003b40"
+        },
+        {
+          "fraction": "-9",
+          "decimal": "-9",
+          "binary64_le": "00000000000022c0"
+        },
+        {
+          "fraction": "18",
+          "decimal": "18",
+          "binary64_le": "0000000000003240"
+        }
+      ],
+      "input_wind_toward_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "-5",
+          "decimal": "-5",
+          "binary64_le": "00000000000014c0"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "input_turbulence_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "exact_rotation_rows": [
+        [
+          "1/9",
+          "8/9",
+          "4/9"
+        ],
+        [
+          "8/9",
+          "1/9",
+          "-4/9"
+        ],
+        [
+          "-4/9",
+          "4/9",
+          "-7/9"
+        ]
+      ],
+      "expected_ground_ned_mps": [
+        {
+          "fraction": "3",
+          "decimal": "3",
+          "binary64_le": "0000000000000840"
+        },
+        {
+          "fraction": "15",
+          "decimal": "15",
+          "binary64_le": "0000000000002e40"
+        },
+        {
+          "fraction": "-30",
+          "decimal": "-30",
+          "binary64_le": "0000000000003ec0"
+        }
+      ],
+      "expected_air_ned_mps": [
+        {
+          "fraction": "3",
+          "decimal": "3",
+          "binary64_le": "0000000000000840"
+        },
+        {
+          "fraction": "20",
+          "decimal": "20",
+          "binary64_le": "0000000000003440"
+        },
+        {
+          "fraction": "-30",
+          "decimal": "-30",
+          "binary64_le": "0000000000003ec0"
+        }
+      ],
+      "expected_tas_mps": {
+        "squared_fraction": "1309",
+        "decimal": "36.180105030251086876128078439973454148278792595632949171164613470114391948589180387624356547892794710650043656",
+        "binary64_le": "02637fae0d174240"
+      },
+      "expected_ground_speed_mps": {
+        "squared_fraction": "234",
+        "decimal": "15.297058540778354490084672327068345968691312838298789222754912413277800896186672586765046553281796025083570775",
+        "binary64_le": "f2479b0e18982e40"
+      },
+      "expected_vertical_speed_up_mps": {
+        "fraction": "30",
+        "decimal": "30",
+        "binary64_le": "0000000000003e40"
+      }
+    },
+    {
+      "id": "air-relative.yaw.calm",
+      "kind": "air-relative",
+      "profile": "calm",
+      "input_body_to_ned_wxyz": [
+        {
+          "fraction": "3/5",
+          "decimal": "0.6",
+          "binary64_le": "333333333333e33f"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "4/5",
+          "decimal": "0.8",
+          "binary64_le": "9a9999999999e93f"
+        }
+      ],
+      "input_ground_body_mps": [
+        {
+          "fraction": "25",
+          "decimal": "25",
+          "binary64_le": "0000000000003940"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "5",
+          "decimal": "5",
+          "binary64_le": "0000000000001440"
+        }
+      ],
+      "input_wind_toward_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "input_turbulence_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "exact_rotation_rows": [
+        [
+          "-7/25",
+          "-24/25",
+          "0"
+        ],
+        [
+          "24/25",
+          "-7/25",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "1"
+        ]
+      ],
+      "expected_ground_ned_mps": [
+        {
+          "fraction": "-7",
+          "decimal": "-7",
+          "binary64_le": "0000000000001cc0"
+        },
+        {
+          "fraction": "24",
+          "decimal": "24",
+          "binary64_le": "0000000000003840"
+        },
+        {
+          "fraction": "5",
+          "decimal": "5",
+          "binary64_le": "0000000000001440"
+        }
+      ],
+      "expected_air_ned_mps": [
+        {
+          "fraction": "-7",
+          "decimal": "-7",
+          "binary64_le": "0000000000001cc0"
+        },
+        {
+          "fraction": "24",
+          "decimal": "24",
+          "binary64_le": "0000000000003840"
+        },
+        {
+          "fraction": "5",
+          "decimal": "5",
+          "binary64_le": "0000000000001440"
+        }
+      ],
+      "expected_tas_mps": {
+        "squared_fraction": "650",
+        "decimal": "25.495097567963924150141120545113909947818854730497982037924854022129668160311120977941744255469660041805951291",
+        "binary64_le": "f4bbd6b6be7e3940"
+      },
+      "expected_ground_speed_mps": {
+        "squared_fraction": "625",
+        "decimal": "25",
+        "binary64_le": "0000000000003940"
+      },
+      "expected_vertical_speed_up_mps": {
+        "fraction": "-5",
+        "decimal": "-5",
+        "binary64_le": "00000000000014c0"
+      }
+    },
+    {
+      "id": "air-relative.yaw.from-north",
+      "kind": "air-relative",
+      "profile": "from-north",
+      "input_body_to_ned_wxyz": [
+        {
+          "fraction": "3/5",
+          "decimal": "0.6",
+          "binary64_le": "333333333333e33f"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "4/5",
+          "decimal": "0.8",
+          "binary64_le": "9a9999999999e93f"
+        }
+      ],
+      "input_ground_body_mps": [
+        {
+          "fraction": "25",
+          "decimal": "25",
+          "binary64_le": "0000000000003940"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "5",
+          "decimal": "5",
+          "binary64_le": "0000000000001440"
+        }
+      ],
+      "input_wind_toward_ned_mps": [
+        {
+          "fraction": "-5",
+          "decimal": "-5",
+          "binary64_le": "00000000000014c0"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "input_turbulence_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "exact_rotation_rows": [
+        [
+          "-7/25",
+          "-24/25",
+          "0"
+        ],
+        [
+          "24/25",
+          "-7/25",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "1"
+        ]
+      ],
+      "expected_ground_ned_mps": [
+        {
+          "fraction": "-7",
+          "decimal": "-7",
+          "binary64_le": "0000000000001cc0"
+        },
+        {
+          "fraction": "24",
+          "decimal": "24",
+          "binary64_le": "0000000000003840"
+        },
+        {
+          "fraction": "5",
+          "decimal": "5",
+          "binary64_le": "0000000000001440"
+        }
+      ],
+      "expected_air_ned_mps": [
+        {
+          "fraction": "-2",
+          "decimal": "-2",
+          "binary64_le": "00000000000000c0"
+        },
+        {
+          "fraction": "24",
+          "decimal": "24",
+          "binary64_le": "0000000000003840"
+        },
+        {
+          "fraction": "5",
+          "decimal": "5",
+          "binary64_le": "0000000000001440"
+        }
+      ],
+      "expected_tas_mps": {
+        "squared_fraction": "605",
+        "decimal": "24.596747752497686660500910356044038589846801955726782966979869699515730182015853893558558492166605024664589938",
+        "binary64_le": "67f0f075c4983840"
+      },
+      "expected_ground_speed_mps": {
+        "squared_fraction": "625",
+        "decimal": "25",
+        "binary64_le": "0000000000003940"
+      },
+      "expected_vertical_speed_up_mps": {
+        "fraction": "-5",
+        "decimal": "-5",
+        "binary64_le": "00000000000014c0"
+      }
+    },
+    {
+      "id": "air-relative.yaw.from-west",
+      "kind": "air-relative",
+      "profile": "from-west",
+      "input_body_to_ned_wxyz": [
+        {
+          "fraction": "3/5",
+          "decimal": "0.6",
+          "binary64_le": "333333333333e33f"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "4/5",
+          "decimal": "0.8",
+          "binary64_le": "9a9999999999e93f"
+        }
+      ],
+      "input_ground_body_mps": [
+        {
+          "fraction": "25",
+          "decimal": "25",
+          "binary64_le": "0000000000003940"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "5",
+          "decimal": "5",
+          "binary64_le": "0000000000001440"
+        }
+      ],
+      "input_wind_toward_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "5",
+          "decimal": "5",
+          "binary64_le": "0000000000001440"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "input_turbulence_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "exact_rotation_rows": [
+        [
+          "-7/25",
+          "-24/25",
+          "0"
+        ],
+        [
+          "24/25",
+          "-7/25",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "1"
+        ]
+      ],
+      "expected_ground_ned_mps": [
+        {
+          "fraction": "-7",
+          "decimal": "-7",
+          "binary64_le": "0000000000001cc0"
+        },
+        {
+          "fraction": "24",
+          "decimal": "24",
+          "binary64_le": "0000000000003840"
+        },
+        {
+          "fraction": "5",
+          "decimal": "5",
+          "binary64_le": "0000000000001440"
+        }
+      ],
+      "expected_air_ned_mps": [
+        {
+          "fraction": "-7",
+          "decimal": "-7",
+          "binary64_le": "0000000000001cc0"
+        },
+        {
+          "fraction": "19",
+          "decimal": "19",
+          "binary64_le": "0000000000003340"
+        },
+        {
+          "fraction": "5",
+          "decimal": "5",
+          "binary64_le": "0000000000001440"
+        }
+      ],
+      "expected_tas_mps": {
+        "squared_fraction": "435",
+        "decimal": "20.856653614614210205476703608630211044277132766887440023418078344140662037659669860068654708477075067846274129",
+        "binary64_le": "aac4baa64ddb3440"
+      },
+      "expected_ground_speed_mps": {
+        "squared_fraction": "625",
+        "decimal": "25",
+        "binary64_le": "0000000000003940"
+      },
+      "expected_vertical_speed_up_mps": {
+        "fraction": "-5",
+        "decimal": "-5",
+        "binary64_le": "00000000000014c0"
+      }
+    },
+    {
+      "id": "air-relative.yaw.from-east",
+      "kind": "air-relative",
+      "profile": "from-east",
+      "input_body_to_ned_wxyz": [
+        {
+          "fraction": "3/5",
+          "decimal": "0.6",
+          "binary64_le": "333333333333e33f"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "4/5",
+          "decimal": "0.8",
+          "binary64_le": "9a9999999999e93f"
+        }
+      ],
+      "input_ground_body_mps": [
+        {
+          "fraction": "25",
+          "decimal": "25",
+          "binary64_le": "0000000000003940"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "5",
+          "decimal": "5",
+          "binary64_le": "0000000000001440"
+        }
+      ],
+      "input_wind_toward_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "-5",
+          "decimal": "-5",
+          "binary64_le": "00000000000014c0"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "input_turbulence_ned_mps": [
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        },
+        {
+          "fraction": "0",
+          "decimal": "0",
+          "binary64_le": "0000000000000000"
+        }
+      ],
+      "exact_rotation_rows": [
+        [
+          "-7/25",
+          "-24/25",
+          "0"
+        ],
+        [
+          "24/25",
+          "-7/25",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "1"
+        ]
+      ],
+      "expected_ground_ned_mps": [
+        {
+          "fraction": "-7",
+          "decimal": "-7",
+          "binary64_le": "0000000000001cc0"
+        },
+        {
+          "fraction": "24",
+          "decimal": "24",
+          "binary64_le": "0000000000003840"
+        },
+        {
+          "fraction": "5",
+          "decimal": "5",
+          "binary64_le": "0000000000001440"
+        }
+      ],
+      "expected_air_ned_mps": [
+        {
+          "fraction": "-7",
+          "decimal": "-7",
+          "binary64_le": "0000000000001cc0"
+        },
+        {
+          "fraction": "29",
+          "decimal": "29",
+          "binary64_le": "0000000000003d40"
+        },
+        {
+          "fraction": "5",
+          "decimal": "5",
+          "binary64_le": "0000000000001440"
+        }
+      ],
+      "expected_tas_mps": {
+        "squared_fraction": "915",
+        "decimal": "30.248966924508347579291061654946271212096022430453947900894470627136393378460192496560778950226968582670984835",
+        "binary64_le": "8f8cde4bbc3f3e40"
+      },
+      "expected_ground_speed_mps": {
+        "squared_fraction": "625",
+        "decimal": "25",
+        "binary64_le": "0000000000003940"
+      },
+      "expected_vertical_speed_up_mps": {
+        "fraction": "-5",
+        "decimal": "-5",
+        "binary64_le": "00000000000014c0"
+      }
+    }
+  ],
+  "runway_expectations": [
+    {
+      "id": "runway.36.calm",
+      "profile": "calm",
+      "runway": 36,
+      "expected_headwind_mps": {
+        "fraction": "0",
+        "decimal": "0",
+        "binary64_le": "0000000000000000"
+      },
+      "expected_wind_from_right_mps": {
+        "fraction": "0",
+        "decimal": "0",
+        "binary64_le": "0000000000000000"
+      },
+      "expected_label": "calm",
+      "source_wind_unchanged": true
+    },
+    {
+      "id": "runway.18.calm",
+      "profile": "calm",
+      "runway": 18,
+      "expected_headwind_mps": {
+        "fraction": "0",
+        "decimal": "0",
+        "binary64_le": "0000000000000000"
+      },
+      "expected_wind_from_right_mps": {
+        "fraction": "0",
+        "decimal": "0",
+        "binary64_le": "0000000000000000"
+      },
+      "expected_label": "calm",
+      "source_wind_unchanged": true
+    },
+    {
+      "id": "runway.36.from-north",
+      "profile": "from-north",
+      "runway": 36,
+      "expected_headwind_mps": {
+        "fraction": "5",
+        "decimal": "5",
+        "binary64_le": "0000000000001440"
+      },
+      "expected_wind_from_right_mps": {
+        "fraction": "0",
+        "decimal": "0",
+        "binary64_le": "0000000000000000"
+      },
+      "expected_label": "headwind",
+      "source_wind_unchanged": true
+    },
+    {
+      "id": "runway.18.from-north",
+      "profile": "from-north",
+      "runway": 18,
+      "expected_headwind_mps": {
+        "fraction": "-5",
+        "decimal": "-5",
+        "binary64_le": "00000000000014c0"
+      },
+      "expected_wind_from_right_mps": {
+        "fraction": "0",
+        "decimal": "0",
+        "binary64_le": "0000000000000000"
+      },
+      "expected_label": "tailwind",
+      "source_wind_unchanged": true
+    },
+    {
+      "id": "runway.36.from-west",
+      "profile": "from-west",
+      "runway": 36,
+      "expected_headwind_mps": {
+        "fraction": "0",
+        "decimal": "0",
+        "binary64_le": "0000000000000000"
+      },
+      "expected_wind_from_right_mps": {
+        "fraction": "-5",
+        "decimal": "-5",
+        "binary64_le": "00000000000014c0"
+      },
+      "expected_label": "from left",
+      "source_wind_unchanged": true
+    },
+    {
+      "id": "runway.18.from-west",
+      "profile": "from-west",
+      "runway": 18,
+      "expected_headwind_mps": {
+        "fraction": "0",
+        "decimal": "0",
+        "binary64_le": "0000000000000000"
+      },
+      "expected_wind_from_right_mps": {
+        "fraction": "5",
+        "decimal": "5",
+        "binary64_le": "0000000000001440"
+      },
+      "expected_label": "from right",
+      "source_wind_unchanged": true
+    },
+    {
+      "id": "runway.36.from-east",
+      "profile": "from-east",
+      "runway": 36,
+      "expected_headwind_mps": {
+        "fraction": "0",
+        "decimal": "0",
+        "binary64_le": "0000000000000000"
+      },
+      "expected_wind_from_right_mps": {
+        "fraction": "5",
+        "decimal": "5",
+        "binary64_le": "0000000000001440"
+      },
+      "expected_label": "from right",
+      "source_wind_unchanged": true
+    },
+    {
+      "id": "runway.18.from-east",
+      "profile": "from-east",
+      "runway": 18,
+      "expected_headwind_mps": {
+        "fraction": "0",
+        "decimal": "0",
+        "binary64_le": "0000000000000000"
+      },
+      "expected_wind_from_right_mps": {
+        "fraction": "-5",
+        "decimal": "-5",
+        "binary64_le": "00000000000014c0"
+      },
+      "expected_label": "from left",
+      "source_wind_unchanged": true
+    }
+  ],
+  "limits": [
+    "No full Readback or authenticated native fingerprint fabricated.",
+    "Tiny inputs are pure arithmetic research only, not additional admitted weather selections.",
+    "No backend/trim/aerodynamic/handling/pilot/training/source acceptance.",
+    "No existing model, contact, startup, trim or convergence expectation/budget changed."
+  ]
+}
