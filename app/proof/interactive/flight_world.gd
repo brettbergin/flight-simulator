@@ -52,23 +52,50 @@ func polygon(parent: Node3D, points: Array[Vector3], paint: Material) -> MeshIns
 	surface.generate_normals()
 	return mesh_node(parent, surface.commit(), Vector3.ZERO, paint)
 
-func fuselage(parent: Node3D, paint: Material) -> void:
-	# Elliptical loft with a cabin shoulder and tapering tail, rounded normals.
+func cabin_glass(z: float, angle: float) -> bool:
+	# Glazing replaces shell triangles: no second face or white body behind it.
+	var windshield: bool = z > -1.60 and z < -0.85 and angle > 0.74 and angle < PI-0.74 and absf(angle-PI*0.5) > 0.065
+	var side_band: bool = (angle > 0.20 and angle < 1.02) or (angle > PI-1.02 and angle < PI-0.20)
+	var side_window: bool = (z > -0.76 and z < 0.15) or (z > 0.26 and z < 0.82)
+	return windshield or (side_band and side_window)
+
+func fuselage(parent: Node3D, paint: Material, glass: Material) -> MeshInstance3D:
+	# One elliptical shell partitioned into body and opaque glazing surfaces.
+	# Identical analytic normals at material seams preserve continuous lighting.
 	var stations: Array[Vector4] = [Vector4(-3.02,0.00,0.25,0.29),Vector4(-2.65,0.02,0.45,0.44),Vector4(-1.72,0.04,0.59,0.56),Vector4(-0.80,0.10,0.68,0.67),Vector4(0.65,0.08,0.63,0.62),Vector4(1.30,0.05,0.44,0.44),Vector4(2.42,0.12,0.23,0.24),Vector4(3.55,0.18,0.07,0.12)]
-	var surface := SurfaceTool.new()
-	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-	surface.set_smooth_group(0)
+	var surfaces: Array[SurfaceTool] = [SurfaceTool.new(),SurfaceTool.new()]
+	for surface in surfaces:
+		surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	for row in range(stations.size()-1):
-		for segment in range(40):
-			var corners: Array[Vector3] = []
-			for index in [row,row+1]:
-				var station: Vector4 = stations[index]
-				for angle in [TAU*segment/40.0,TAU*(segment+1)/40.0]:
-					corners.append(Vector3(cos(angle)*station.z,station.y+sin(angle)*station.w,station.x))
-			for index in [0,1,2,1,3,2]:
-				surface.add_vertex(corners[index])
-	surface.generate_normals()
-	mesh_node(parent,surface.commit(),Vector3.ZERO,paint)
+		var a: Vector4 = stations[row]
+		var b: Vector4 = stations[row+1]
+		var slope: Vector4 = (b-a)/(b.x-a.x)
+		for span in range(16):
+			var start: Vector4 = a.lerp(b,span/16.0)
+			var end: Vector4 = a.lerp(b,(span+1)/16.0)
+			for segment in range(64):
+				var angle: float = TAU*(segment+0.5)/64.0
+				var surface: SurfaceTool = surfaces[1 if cabin_glass((start.x+end.x)*0.5,angle) else 0]
+				var corners: Array[Vector3] = []
+				var normals: Array[Vector3] = []
+				for station in [start,end]:
+					for theta in [TAU*segment/64.0,TAU*(segment+1)/64.0]:
+						corners.append(Vector3(cos(theta)*station.z,station.y+sin(theta)*station.w,station.x))
+						var tangent: Vector3 = Vector3(-sin(theta)*station.z,cos(theta)*station.w,0)
+						var along: Vector3 = Vector3(cos(theta)*slope.z,slope.y+sin(theta)*slope.w,1)
+						normals.append(tangent.cross(along).normalized())
+				for index in [0,1,2,1,3,2]:
+					surface.set_normal(normals[index])
+					surface.add_vertex(corners[index])
+	var mesh := ArrayMesh.new()
+	for index in range(surfaces.size()):
+		surfaces[index].commit(mesh)
+		mesh.surface_set_material(index,paint if index==0 else glass)
+	var node := MeshInstance3D.new()
+	node.name="ContinuousCabinShell"
+	node.mesh=mesh
+	parent.add_child(node)
+	return node
 
 func wing(parent: Node3D, span: float, chord: float, height: float, aft: float, paint: Material) -> void:
 	# Cambered original airfoil surface; purely visual, not aerodynamic input.
@@ -102,16 +129,11 @@ func aircraft(parent: Node3D) -> Dictionary:
 	navy.cull_mode=BaseMaterial3D.CULL_DISABLED
 	var metal: Material = material(Color(0.48,0.55,0.58),0.32,0.72)
 	var tire: Material = material(Color(0.018,0.021,0.025),0.96)
-	fuselage(airplane,ivory)
+	fuselage(airplane,ivory,glass)
 	wing(airplane,9.0,1.55,0.89,-0.30,ivory)
 	wing(airplane,3.20,0.88,0.28,2.92,ivory)
-	# Cabin glazing has solid, opaque depth and distinct frames in both views.
-	polygon(airplane,[Vector3(-0.50,0.42,-1.66),Vector3(0.50,0.42,-1.66),Vector3(0.55,0.72,-0.88),Vector3(-0.55,0.72,-0.88)],glass)
-	rod(airplane,Vector3(0,0.43,-1.67),Vector3(0,0.73,-0.89),0.019,ivory)
+	# Frames are the unglazed regions of the continuous cabin shell.
 	for side in [-1.0,1.0]:
-		polygon(airplane,[Vector3(side*0.62,0.20,-0.94),Vector3(side*0.60,0.22,0.12),Vector3(side*0.47,0.64,0.14),Vector3(side*0.54,0.65,-0.85)],glass)
-		polygon(airplane,[Vector3(side*0.60,0.22,0.22),Vector3(side*0.45,0.21,0.90),Vector3(side*0.35,0.49,0.80),Vector3(side*0.47,0.63,0.23)],glass)
-		rod(airplane,Vector3(side*0.60,0.22,0.17),Vector3(side*0.47,0.66,0.17),0.025,ivory)
 		rod(airplane,Vector3(side*0.51,-0.28,0.33),Vector3(side*2.65,0.92,0.04),0.032,ivory)
 		# Painted beltline, wingtip caps and trailing-edge seams.
 		rod(airplane,Vector3(side*0.575,-0.035,-1.65),Vector3(side*0.57,-0.035,0.80),0.045,teal)

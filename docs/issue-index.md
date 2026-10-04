@@ -38,6 +38,8 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 
 | AIRFIELD-LANDMARKS | [#106 Enrich the rural airfield scenery and add a selectable runway-end locator](https://github.com/brettbergin/flight-simulator/issues/106) | ENVIRONMENT-STABILITY |
 
+| AIRCRAFT-GROUND-UX | [#108 Fix intersecting cabin glazing and clarify rollout controls](https://github.com/brettbergin/flight-simulator/issues/108) | AIRFIELD-LANDMARKS |
+
 ## P2 — First cockpit and synthetic airfield
 
 | Key | Issue | Dependencies |

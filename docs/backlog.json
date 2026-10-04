@@ -4062,6 +4062,55 @@
       "evidence": [
         "This bounded presentation spike leaves P1/#18, production P2/P4, sourced C172 systems/handling, durable flight records, pilot evaluation and training qualification gates open."
       ]
+    },
+    {
+      "key": "AIRCRAFT-GROUND-UX",
+      "title": "Fix intersecting cabin glazing and clarify rollout controls",
+      "kind": "bug",
+      "phase": "P1",
+      "parent": "EPIC-P1",
+      "summary": "Correct intersecting original aircraft glazing and make rollout throttle/brake input and actual held state clear after the owner reported visual glitches and excessive stopping distance.",
+      "depends_on": [
+        "AIRFIELD-LANDMARKS"
+      ],
+      "labels": [
+        "type:bug",
+        "phase:P1",
+        "area:cockpit",
+        "priority:P0",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "app/proof/interactive/flight_world.gd",
+        "app/proof/interactive/flight_aircraft_checks.gd",
+        "app/proof/interactive/preview.gd",
+        "app/proof/interactive/flight_panel.gd",
+        "tools/interactive-preview/README.md",
+        "docs/evidence/P1/aircraft-ground-ux.md"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/decisions/006-interactive-prototype.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [
+        "UX-001",
+        "UX-002",
+        "UX-009",
+        "UX-010",
+        "PRD-015",
+        "PRD-016",
+        "PRD-017"
+      ],
+      "acceptance": [
+        "Body and opaque glazing form disjoint portions of one shell, without intersecting overlay window planes. Close nose/left/right/aft GPU views and duplicate-face checks verify the correction.",
+        "X explicitly commands throttle idle through the existing pilot boundary. Held native throttle, both brakes and ground speed stay legible with the instrument overlay hidden; brake hold versus momentary input is clear. Menu/fault/paused states are honest.",
+        "Retain bounded unchanged-model braking diagnosis with declared initial speed/input/contact conditions. No unsupported C172 stopping-distance claim or hidden physics/automatic braking change.",
+        "Targeted input/native-invariance checks, whole-flight editor/export/rebuilt-DLL proofs and GPU compact/fault/aircraft views pass. Independently review frozen source/package, all protected checks before merge, and preserve older owner builds."
+      ],
+      "evidence": [
+        "Bounded presentation/control feedback only; actual owner flight history unknown. P1 renderer/owner acceptance, production input/cockpit, C172 calibration and pilot review remain open."
+      ]
     }
   ]
 }

@@ -22,6 +22,8 @@ Complete aircraft configuration, airport source dates, assist settings, and trai
 
 The latest [rural scenery and runway locator iteration](evidence/P1/airfield-landmarks.md) adds original farms, woodland, roads, water and six named references. The optional map selects either synthetic runway end and shows native-truth geometry; scenery remains cosmetic over the same flat native plane.
 
+The [aircraft and rollout-control correction](evidence/P1/aircraft-ground-ux.md) replaces intersecting glazing and adds an explicit idle shortcut with persistent native-held brake/throttle feedback. Its unchanged-model diagnosis is bounded engineering evidence; C172 and phase review remain open.
+
 ## Read in this order
 
 1. [Product scope and requirements](product.md): expected pilot experience and initial boundaries.
