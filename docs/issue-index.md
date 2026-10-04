@@ -81,6 +81,8 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | BASIC-DEBRIEF | [#75 Implement first circuit event review, basic map and recorded playback](https://github.com/brettbergin/flight-simulator/issues/75) | EPIC-P2, PROFILE-SESSION-UI, REPLAY-RESUME |
 | BASELINE-PERFORMANCE | [#76 Validate normal C172S performance before scored maneuver curriculum](https://github.com/brettbergin/flight-simulator/issues/76) | EPIC-P2, AIRCRAFT-EVIDENCE, VALIDATION-CORPUS, ENGINE-FUEL, CONTROLS-GROUND |
 
+| ORIGINAL-PISTON-MODEL | [#125 Publish original piston model and independent reference source](https://github.com/brettbergin/flight-simulator/issues/125) | ORIGINAL-PISTON-CONTRACT, CORE-CONTRACTS, INTERACTIVE-CONTRACT, LICENSE-REGISTER |
+
 ## P4 — Regional navigation and environment
 
 | Key | Issue | Dependencies |

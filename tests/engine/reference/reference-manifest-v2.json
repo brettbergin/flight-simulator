@@ -1,0 +1,177 @@
+{
+  "format": "OriginalPistonReferenceManifest/v2",
+  "status": "pre-solver-publication-bound-private-prepared; Root final binding review required before promotion",
+  "head": "9673ca03ebd86e6c1cbdb59f527b023da5ade3c8",
+  "model_or_solver_output_observed": false,
+  "original_authorship": "MIT project-original equations/references; no manufacturer data or model calibration",
+  "model_binding": [
+    {
+      "path": "aircraft/original-piston-prop/original-piston-prop.xml",
+      "bytes": 6784,
+      "sha256": "b9a41861fcbca1917978312d73a192cbe2c2ea0e6ef0e13512c76148a6c9d4c5"
+    },
+    {
+      "path": "engine/original-piston.xml",
+      "bytes": 1882,
+      "sha256": "0d1b3eb87f1af2131a495c26ae7a3fb2fdd2a38d3d4309c67a77daaff2cf069e"
+    },
+    {
+      "path": "engine/original-fixed-prop.xml",
+      "bytes": 826,
+      "sha256": "b4f3f376f062d869a338bb2757466c9ba23d6320d895d3fc5921e351748bb0af"
+    },
+    {
+      "path": "parameter-ledger.json",
+      "bytes": 23206,
+      "sha256": "b59fff1d35dbd702392d12cfa4ac9477d9fafa8927454a067e60d06aaaaed24a"
+    },
+    {
+      "path": "inventory.json",
+      "bytes": 3307,
+      "sha256": "f8ef5011243ef8cf16e13924a5cdc902c2055ba4789a4bfd0cba209533594b7a"
+    }
+  ],
+  "generated_files": [
+    {
+      "path": ".local/engine-model/reference/generate.py",
+      "bytes": 11951,
+      "sha256": "0170263922c9805743b492f0246fe964a74321d368886ce5b3f277a87013a096",
+      "normalized_lf_sha256": "0170263922c9805743b492f0246fe964a74321d368886ce5b3f277a87013a096"
+    },
+    {
+      "path": ".local/engine-model/reference/expected-v2.json",
+      "bytes": 37399,
+      "sha256": "bd2ec9562308dbb950b684018ff924c4f820278400c7a2664f1342f11f049777",
+      "normalized_lf_sha256": "bd2ec9562308dbb950b684018ff924c4f820278400c7a2664f1342f11f049777"
+    },
+    {
+      "path": ".local/engine-model/reference/README-v2.md",
+      "bytes": 9104,
+      "sha256": "e42d0f2ebf39605fe86588a99ae73f54e1120f382ea66b6d964a2a31b53520cb",
+      "normalized_lf_sha256": "e42d0f2ebf39605fe86588a99ae73f54e1120f382ea66b6d964a2a31b53520cb"
+    }
+  ],
+  "case_count": 55,
+  "numeric_budgets": {
+    "coefficient": {
+      "abs": "2e-12",
+      "rel": "2e-12"
+    },
+    "scalar": {
+      "abs": "1e-9",
+      "rel": "1e-10"
+    },
+    "force_n": {
+      "abs": "1e-7",
+      "rel": "1e-10"
+    },
+    "power_w": {
+      "abs": "1e-6",
+      "rel": "1e-10"
+    },
+    "angular_radps": {
+      "abs": "1e-9",
+      "rel": "1e-10"
+    },
+    "bool_identity_order": "exact"
+  },
+  "source_commit": "3b25f25e49b42d0489c04ac805674fc1450ca579",
+  "source_bindings": [
+    {
+      "path": "src/models/propulsion/FGPiston.cpp",
+      "sha256": "1f69e3caa742cbf24e5467245e1520293460975f003c7b8de8577262329ba836",
+      "normalized_lf_sha256": "1f69e3caa742cbf24e5467245e1520293460975f003c7b8de8577262329ba836"
+    },
+    {
+      "path": "src/models/propulsion/FGPropeller.cpp",
+      "sha256": "61c207fec6a80a48a142e3b29f2ef0a3210158e4ab4a0d2929835b72c99fe4d7",
+      "normalized_lf_sha256": "61c207fec6a80a48a142e3b29f2ef0a3210158e4ab4a0d2929835b72c99fe4d7"
+    },
+    {
+      "path": "src/models/propulsion/FGTank.cpp",
+      "sha256": "59d11bc314a2e97197cf6dd776befb5d8297a4069d54037084d3eccd98465857",
+      "normalized_lf_sha256": "59d11bc314a2e97197cf6dd776befb5d8297a4069d54037084d3eccd98465857"
+    },
+    {
+      "path": "src/models/FGPropulsion.cpp",
+      "sha256": "c2d99de2972b3bfc8a6e9210db83cd231bad41f7c5bccc18672579f7c609c071",
+      "normalized_lf_sha256": "c2d99de2972b3bfc8a6e9210db83cd231bad41f7c5bccc18672579f7c609c071"
+    },
+    {
+      "path": "src/math/FGTable.cpp",
+      "sha256": "19833dbc259699a5e99d567dda3b56d10b3b06429924b5d6a5914422f3ff3c44",
+      "normalized_lf_sha256": "19833dbc259699a5e99d567dda3b56d10b3b06429924b5d6a5914422f3ff3c44"
+    },
+    {
+      "path": "src/FGFDMExec.cpp",
+      "sha256": "aec366841a4fe95fa4eaa6da43db05a944a283ade98d01a64a9a7085cca48237",
+      "normalized_lf_sha256": "aec366841a4fe95fa4eaa6da43db05a944a283ade98d01a64a9a7085cca48237"
+    },
+    {
+      "path": "src/FGFDMExec.h",
+      "sha256": "5d58efb5f94c56e138b0820ebca1f129a21c12d05d3c57ec18bfee8b11da5adc",
+      "normalized_lf_sha256": "5d58efb5f94c56e138b0820ebca1f129a21c12d05d3c57ec18bfee8b11da5adc"
+    },
+    {
+      "path": "src/FGJSBBase.h",
+      "sha256": "f9d2478597ec4cf358900e9d33c0428f531c88f83f58ea0b4803a82deb652d9b",
+      "normalized_lf_sha256": "f9d2478597ec4cf358900e9d33c0428f531c88f83f58ea0b4803a82deb652d9b"
+    },
+    {
+      "path": "src/input_output/FGXMLElement.cpp",
+      "sha256": "ed6d4bd0148463ccef4a92fbe3c2ea30c7523219ad7dbeaaf99b8f53e4b5d140",
+      "normalized_lf_sha256": "ed6d4bd0148463ccef4a92fbe3c2ea30c7523219ad7dbeaaf99b8f53e4b5d140"
+    }
+  ],
+  "static_checks": {
+    "xml_parse": 3,
+    "inherited_subtrees_equal": [
+      "metrics",
+      "mass_balance",
+      "ground_reactions",
+      "flight_control",
+      "aerodynamics"
+    ],
+    "direct_fixed_prop": true,
+    "single_feed_index0": true,
+    "unique_case_ids": true
+  },
+  "reproduction": "python tests/engine/reference/generate.py --check",
+  "stages_and_limits": "README.md declares conditional feed-off K+1/depletion K+2/recovery earliest K+2, partial draw<=request, no cold success/latency or continuum energy/conservation claim",
+  "self_approval": false,
+  "preserved_v1": [
+    {
+      "path": ".local/engine-model/reference/generate-v1-preserved.py",
+      "bytes": 11899,
+      "sha256": "b15215de424cf42afce39b688c7021eebf650a333d885c973f391bd68d07eeae",
+      "normalized_lf_sha256": "b15215de424cf42afce39b688c7021eebf650a333d885c973f391bd68d07eeae"
+    },
+    {
+      "path": ".local/engine-model/reference/expected-v1.json",
+      "bytes": 37399,
+      "sha256": "57a0b8f4ed8fecf9d9ba9a7a8666ec6c80395d90680a4048d5a57e14abd170c9",
+      "normalized_lf_sha256": "57a0b8f4ed8fecf9d9ba9a7a8666ec6c80395d90680a4048d5a57e14abd170c9"
+    },
+    {
+      "path": ".local/engine-model/reference/reference-manifest.json",
+      "bytes": 4877,
+      "sha256": "1a940cc7fe872fe39529bf916332e9f998505a995d9214cba282298546c6dd48",
+      "normalized_lf_sha256": "1a940cc7fe872fe39529bf916332e9f998505a995d9214cba282298546c6dd48"
+    }
+  ],
+  "preserved_pre_correction_v2": {
+    "path": ".local/engine-model/reference/expected-v2-pre-metadata-fix.json",
+    "bytes": 37399,
+    "sha256": "bc420001663516d256e646278147bbf4eb9926ed75f2edef613d9a0396d3b072",
+    "normalized_lf_sha256": "bc420001663516d256e646278147bbf4eb9926ed75f2edef613d9a0396d3b072"
+  },
+  "numeric_payload_equal_v1": true,
+  "binding_changed_paths": [
+    "parameter-ledger.json",
+    "inventory.json"
+  ],
+  "ledger_changed_paths": [
+    "status",
+    "retained_backend_defaults.tank_area"
+  ]
+}

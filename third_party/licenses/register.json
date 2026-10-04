@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reviewed_on": "2026-10-03",
+  "reviewed_on": "2026-10-04",
   "required_classes": [
     "runtime",
     "binding",
@@ -768,6 +768,78 @@
         ],
         "immutable_vendor_models_allowed": false,
         "audit_note": "Generic register audit validates notice integrity, not this content_policy. New consumer and export tests must enforce these exact hashes before parsing/staging. Historical flight/cart inventories remain unchanged."
+      }
+    },
+    {
+      "id": "original-piston-prop-v1",
+      "class": "aircraft-model",
+      "name": "Original piston and fixed-pitch engineering prototype",
+      "version": "0.1.0-prototype",
+      "owner": "simulation-maintainer",
+      "scope": "Exact original XML, source README, parameter ledger, MIT notice and hashed inventory at native/fdm_jsbsim/models/original-piston-prop; unvalidated original engineering content with no backend trial or runtime/phase acceptance.",
+      "decision": "Project-original scalar/table engine/prop installation and explicitly attributed unchanged project-MIT airframe/gear source, under MIT. No vendor model/manual content. Source rights do not establish aircraft fidelity, lifecycle operation, packaging or phase acceptance.",
+      "license": "MIT",
+      "redistribution": "permitted",
+      "evidence": "synthetic",
+      "source": {
+        "url": "https://github.com/brettbergin/flight-simulator/tree/main/native/fdm_jsbsim/models/original-piston-prop",
+        "revision": "sha256:f8ef5011243ef8cf16e13924a5cdc902c2055ba4789a4bfd0cba209533594b7a",
+        "rights_url": "https://github.com/brettbergin/flight-simulator/blob/95f1ed41cea762b33e78d0466ce66c56380631c4/LICENSE",
+        "applicability": "original-piston-prop-v1 0.1.0-prototype exact LF inventory and metadata hashes. Main URL is a future publication locator, not present availability or integrity authority; XML2.0/prop convention1.1 are separate format/convention versions."
+      },
+      "obligations": [
+        "retain-notices",
+        "retain-source-attribution"
+      ],
+      "notice_files": [
+        {
+          "path": "third_party/licenses/notices/FirstParty-Piston-MIT.txt",
+          "sha256": "ca8c1205d820d40917b54d548b97dde200bc24bc6c3166358e8bc6cc27eb0e9e",
+          "source_url": "https://github.com/brettbergin/flight-simulator/blob/95f1ed41cea762b33e78d0466ce66c56380631c4/LICENSE"
+        }
+      ],
+      "evidence_file": "third_party/licenses/evidence/original-piston-prop.md",
+      "content_policy": {
+        "model_id": "original-piston-prop-v1",
+        "root": "native/fdm_jsbsim/models/original-piston-prop",
+        "inventory_path": "native/fdm_jsbsim/models/original-piston-prop/inventory.json",
+        "inventory_sha256": "f8ef5011243ef8cf16e13924a5cdc902c2055ba4789a4bfd0cba209533594b7a",
+        "files": [
+          {
+            "path": "aircraft/original-piston-prop/original-piston-prop.xml",
+            "bytes": 6784,
+            "sha256": "b9a41861fcbca1917978312d73a192cbe2c2ea0e6ef0e13512c76148a6c9d4c5"
+          },
+          {
+            "path": "engine/original-piston.xml",
+            "bytes": 1882,
+            "sha256": "0d1b3eb87f1af2131a495c26ae7a3fb2fdd2a38d3d4309c67a77daaff2cf069e"
+          },
+          {
+            "path": "engine/original-fixed-prop.xml",
+            "bytes": 826,
+            "sha256": "b4f3f376f062d869a338bb2757466c9ba23d6320d895d3fc5921e351748bb0af"
+          }
+        ],
+        "metadata": [
+          {
+            "path": "parameter-ledger.json",
+            "bytes": 23206,
+            "sha256": "b59fff1d35dbd702392d12cfa4ac9477d9fafa8927454a067e60d06aaaaed24a"
+          },
+          {
+            "path": "NOTICE-MIT.txt",
+            "bytes": 1069,
+            "sha256": "ca8c1205d820d40917b54d548b97dde200bc24bc6c3166358e8bc6cc27eb0e9e"
+          },
+          {
+            "path": "README.md",
+            "bytes": 2637,
+            "sha256": "5b5db85e1df978659a7c82620639393eefd527072400d002b09437c219ade559"
+          }
+        ],
+        "immutable_vendor_models_allowed": false,
+        "audit_note": "Generic register audit validates notice integrity, not this exact content_policy. Source checker validates original XML/ledger/hash/unit/table/topology/inheritance only; native and export admission must enforce exact accepted identities/hashes after separately checked consumer/source proof. No runtime pin header or engine behavior proof is provided by this source leaf."
       }
     }
   ]
