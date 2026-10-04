@@ -34,6 +34,10 @@ func run(host: Node) -> Dictionary:
 	scene.open_observed_review()
 	_check(scene.review_open and scene.facade.readback().tick=="120","actual_recorded_review_at_120")
 	var baseline: Dictionary=_capture(scene)
+	for flag in [FileDialog.CUSTOMIZATION_OVERWRITE_WARNING,FileDialog.CUSTOMIZATION_DELETE,FileDialog.CUSTOMIZATION_CREATE_FOLDER,FileDialog.CUSTOMIZATION_FAVORITES,FileDialog.CUSTOMIZATION_RECENT]:
+		_check(not scene.archive_dialog.is_customization_flag_enabled(flag),"bounded_chooser_flag_"+str(flag))
+	var recent_before: PackedStringArray=FileDialog.get_recent_list()
+	_check(not scene.archive_dialog.is_processing_shortcut_input(),"chooser_file_management_shortcuts_disabled")
 	scene.observed_panel.select_sample(0)
 	var selected: Dictionary=scene.observed_panel.selection()
 	_check(scene.begin_archive_operation("open",false),"open_gate")
@@ -71,6 +75,15 @@ func run(host: Node) -> Dictionary:
 		_check(scene.begin_archive_operation("save",false),"collision_gate")
 		var collision: Dictionary=scene.finish_archive_operation(target)
 		_check(not collision.ok and FileAccess.get_file_as_bytes(target)==encoded and _capture(scene)==baseline,"collision_keeps_existing_bytes_and_current_state")
+		# Exercise the chooser's actual confirmation handler, including its default
+		# overwrite/recent logic, rather than only calling the file owner directly.
+		scene.archive_dialog.current_dir=work
+		_check(scene.begin_archive_operation("save"),"actual_existing_choice_gate")
+		await host.get_tree().process_frame
+		scene.archive_dialog.current_file=target.get_file()
+		scene.archive_dialog.confirmed.emit()
+		_check(scene.archive_operation.is_empty() and not scene.archive_dialog.visible and scene.archive_message.begins_with("Review not saved:") and FileAccess.get_file_as_bytes(target)==encoded,"actual_chooser_refuses_without_overwrite_confirmation")
+		_check(FileDialog.get_recent_list()==recent_before and _capture(scene)==baseline,"actual_chooser_restores_recent_and_complete_flight")
 		# Explicit metadata-bearing historical fixture; it never enters the recorder.
 		var history: Dictionary=baseline.record.duplicate(true)
 		history.metadata.session_id="archive.historical.reference"

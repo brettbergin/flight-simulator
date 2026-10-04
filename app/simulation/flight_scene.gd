@@ -416,10 +416,17 @@ func make_menu(canvas: CanvasLayer) -> void:
 	archive_dialog.access=FileDialog.ACCESS_FILESYSTEM
 	archive_dialog.filters=PackedStringArray(["*.fsreview.json ; Recorded flight review"])
 	archive_dialog.use_native_dialog=false
-	archive_dialog.current_dir=OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS)
+	for flag in [FileDialog.CUSTOMIZATION_OVERWRITE_WARNING,FileDialog.CUSTOMIZATION_DELETE,FileDialog.CUSTOMIZATION_CREATE_FOLDER,FileDialog.CUSTOMIZATION_FAVORITES,FileDialog.CUSTOMIZATION_RECENT]:
+		archive_dialog.set_customization_flag_enabled(flag,false)
+	# Selected-file guest interchange starts beside the executable; no automatic
+	# profile location or Known Folder lookup is introduced by this feature.
+	archive_dialog.current_dir=OS.get_executable_path().get_base_dir()
 	archive_dialog.file_selected.connect(finish_archive_operation)
 	archive_dialog.canceled.connect(cancel_archive_operation)
 	observed_panel.add_child(archive_dialog)
+	# The pinned dialog checks DELETE customization only for its context menu,
+	# not its delete shortcut. Keep file management outside this guest chooser.
+	archive_dialog.set_process_shortcut_input(false)
 	make_discard_confirmation(canvas)
 	menu.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	menu.custom_minimum_size=Vector2(560,490)
@@ -1219,7 +1226,7 @@ func begin_archive_operation(action: String, show_dialog: bool=true) -> bool:
 			archive_feedback("Review not saved: "+encoded.error)
 			return false
 		bytes=encoded.value.duplicate()
-	archive_operation={"action":action,"session_id":observed_status.get("session_id"),"bytes":bytes,"prior_message":archive_message}
+	archive_operation={"action":action,"session_id":observed_status.get("session_id"),"bytes":bytes,"prior_message":archive_message,"prior_recent":FileDialog.get_recent_list()}
 	observed_panel.set_file_context(archive_imported,"Choose a new file." if action=="save" else "Choose a historical review file.",true)
 	if show_dialog:
 		archive_dialog.file_mode=FileDialog.FILE_MODE_SAVE_FILE if action=="save" else FileDialog.FILE_MODE_OPEN_FILE
@@ -1233,6 +1240,7 @@ func begin_archive_operation(action: String, show_dialog: bool=true) -> bool:
 func cancel_archive_operation() -> void:
 	if archive_operation.is_empty(): return
 	archive_message=archive_operation.prior_message
+	FileDialog.set_recent_list(archive_operation.prior_recent)
 	archive_operation.clear()
 	if archive_dialog!=null: archive_dialog.hide()
 	observed_panel.set_file_context(archive_imported,archive_message)
@@ -1253,6 +1261,9 @@ func finish_archive_operation(path: String) -> Dictionary:
 		else:
 			result=rejected.duplicate(true)
 			result.error="Historical candidate could not be qualified; previous view retained"
+	# The pinned chooser adds an in-memory global recent before its selected signal,
+	# even when the list is hidden. Restore unrelated chooser state immediately.
+	FileDialog.set_recent_list(archive_operation.prior_recent)
 	archive_operation.clear()
 	if archive_dialog!=null: archive_dialog.hide()
 	if result.ok:
