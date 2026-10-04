@@ -180,10 +180,10 @@ Copy-WindSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $windGrou
 Copy-Item -LiteralPath (Join-Path $project 'wire_fixtures'),(Join-Path $project 'sim_loop_checks.gd'),(Join-Path $project 'sim_loop_checks.tscn') -Destination $source -Recurse
 & (Join-Path $payload 'launch.ps1') -HeadlessSmoke
 Copy-Item -LiteralPath (Join-Path $payload 'smoke-receipt.json'),(Join-Path $payload 'portable-smoke.log'),(Join-Path $payload 'loop.records.ndjson') -Destination $evidence
-$replacement=Join-Path $root 'Replacement space â€” Î”é£›è¡Œ'
+$replacement=Join-Path $root 'Replacement space — Δ飛行'
 Copy-Item -LiteralPath $payload -Destination $replacement -Recurse
 $oldReplacement=Get-Content (Join-Path $proof 'evidence/replacement-evidence.json') -Raw | ConvertFrom-Json
-$rebuilt=Join-Path $proof 'Replaced DLL â€” Î”é£›è¡Œ/bin/JSBSim.dll'
+$rebuilt=Join-Path $proof 'Replaced DLL — Δ飛行/bin/JSBSim.dll'
 if((Get-FileHash $rebuilt).Hash.ToLowerInvariant() -ne $oldReplacement.replaced_library_sha256){throw 'Source rebuilt JSBSim identity changed'}
 foreach($relative in @('JSBSim.dll','bin/JSBSim.dll')){Copy-Item -LiteralPath $rebuilt -Destination (Join-Path $replacement $relative) -Force}
 & (Join-Path $replacement 'launch.ps1') -HeadlessSmoke

@@ -28,7 +28,7 @@ function compare(a,b,label,exact=false){
  assert.equal(a,b,label);
 }
 function audit(root,proof,build){
- const payload=path.join(root,'payload'),evidence=path.join(root,'evidence'),replacement=path.join(root,'Replacement space â€” Î”é£›è¡Œ');
+ const payload=path.join(root,'payload'),evidence=path.join(root,'evidence'),replacement=path.join(root,'Replacement space — Δ飛行');
  const baseline=json(path.join(evidence,'smoke-receipt.json')),changed=json(path.join(evidence,'replacement-smoke-receipt.json'));
  for(const receipt of [baseline,changed]){
   assert.equal(receipt.passed,true);assert.deepEqual(receipt.failures,[]);
