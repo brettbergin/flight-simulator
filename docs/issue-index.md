@@ -63,6 +63,7 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 
 | Key | Issue | Dependencies |
 |---|---|---|
+| ORIGINAL-PISTON-CONTRACT | [#122 Ratify an opt-in original piston and fixed-pitch profile](https://github.com/brettbergin/flight-simulator/issues/122) | CORE-CONTRACTS, INTERACTIVE-CONTRACT, SIM-LOOP-CONTRACT, INPUT-CONTROLS-CONTRACT, COCKPIT-READINGS-CONTRACT |
 | EPIC-P3 | [#4 Complete circuit and durable progress](https://github.com/brettbergin/flight-simulator/issues/4) | EPIC-P2 |
 | AIRCRAFT-EVIDENCE | [#28 Freeze exact analog C172S configuration and source applicability](https://github.com/brettbergin/flight-simulator/issues/28) | EPIC-P2, LICENSE-REGISTER, VALIDATION-CORPUS |
 | ENGINE-FUEL | [#29 Implement sourced fuel-injected engine and fuel-system lifecycle](https://github.com/brettbergin/flight-simulator/issues/29) | EPIC-P2, AIRCRAFT-EVIDENCE |

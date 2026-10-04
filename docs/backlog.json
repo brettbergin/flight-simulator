@@ -4315,6 +4315,61 @@
       "evidence": [
         "Reviewed exact contract, canonical dependency/requirement mapping and check results; no consumer, aircraft/sensor fidelity or owner phase acceptance inferred."
       ]
+    },
+    {
+      "key": "ORIGINAL-PISTON-CONTRACT",
+      "title": "Ratify an opt-in original piston and fixed-pitch profile",
+      "kind": "task",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Define a separate original cold-engine profile, typed native controls/readbacks and explicit input migration before causal startup consumers; C172S source and phase acceptance remain separate.",
+      "depends_on": [
+        "CORE-CONTRACTS",
+        "INTERACTIVE-CONTRACT",
+        "SIM-LOOP-CONTRACT",
+        "INPUT-CONTROLS-CONTRACT",
+        "COCKPIT-READINGS-CONTRACT"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P3",
+        "area:aircraft",
+        "priority:P0",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "docs/decisions/010-original-piston-profile.md",
+        "docs/contracts.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p3-complete-circuit.md"
+      ],
+      "docs": [
+        "docs/contracts.md",
+        "docs/decisions/006-interactive-prototype.md",
+        "docs/decisions/007-sim-loop-facade.md",
+        "docs/decisions/008-input-presets.md",
+        "docs/decisions/009-cockpit-readings.md",
+        "docs/decisions/010-original-piston-profile.md",
+        "docs/realism-and-validation.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [
+        "REAL-013",
+        "REAL-014",
+        "PRD-004",
+        "PRD-010"
+      ],
+      "acceptance": [
+        "Define a separate original piston/fixed-pitch profile and cold recipe, byte-pinned parameter/reference package prerequisites, untouched legacy identity/default/fixtures and explicit source/fidelity boundaries.",
+        "Specify four boolean native system controls, axes-only mixture, tick/sequence/authority/admission/order, SI observations, fuel/solver chronology and fail-stop behavior without redefining wire v1.",
+        "Publish exact profile-qualified InputPreset/v2/mapper/facade/engine-status values, deliberate migration, starter release before resumed Run, unavailable/retained source truth and native-driven prop/audio.",
+        "Independent reference authorship and frozen budgets precede consumers; review exact contract and document/schema checks before merging. C172S, power/sensor, hardware/pilot and phase gates remain open."
+      ],
+      "evidence": [
+        "Reviewed exact contract and canonical requirement/dependency mapping; no model/consumer implementation or aircraft acceptance inferred from contract closure."
+      ]
     }
   ]
 }
