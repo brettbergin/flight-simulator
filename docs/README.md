@@ -26,6 +26,8 @@ The [aircraft and rollout-control correction](evidence/P1/aircraft-ground-ux.md)
 
 The [third-person motion correction](evidence/P1/third-person-stability.md) presents adjacent native ticks and follows their translation in the same render frame. Its nominal8.333ms visual delay does not change physics, instrument readings or map state; frozen delivery and visual review remain separate gates.
 
+The [reusable flight-loop integration](evidence/P2/sim-loop.md) prepares the accepted facade/origin contract for ordinary interactive flight, with five explicit speeds, copied native truth and coordinated scene origins. Its exported verification and phase review remain separate from development checks and prototype handling.
+
 ## Read in this order
 
 1. [Product scope and requirements](product.md): expected pilot experience and initial boundaries.

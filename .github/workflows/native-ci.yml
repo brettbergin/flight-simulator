@@ -103,6 +103,51 @@ jobs:
           } else {
             ./tools/export/proof.ps1 -EditorOnly -Python python
           }
+      - name: Check actual native simulation facade and scene resource compilation
+        run: |
+          ./tools/interactive-preview/simulation-staging.test.ps1
+          . ./tools/export/common.ps1
+          . ./tools/interactive-preview/simulation-staging.ps1
+          $proof=Get-Content .local/export-proof/latest-run.json -Raw | ConvertFrom-Json
+          $environment=Get-Content .local/toolchain/environment.json -Raw | ConvertFrom-Json
+          $root=Join-Path $PWD ('.local/sim-loop-ci/run-'+[Guid]::NewGuid().ToString('N'))
+          $project=Join-Path $root 'project'
+          $evidence=Join-Path $root 'evidence'
+          New-Item -ItemType Directory -Force $project,$evidence | Out-Null
+          Copy-Item -LiteralPath (Join-Path $proof.project 'bin') -Destination $project -Recurse
+          Copy-Item app/proof/flight.gdextension -Destination $project
+          Copy-Item app/proof/interactive/project-settings.cfg -Destination (Join-Path $project 'project.godot')
+          Copy-Item app/proof/interactive -Destination (Join-Path $project 'interactive') -Recurse
+          Set-SimulationMainScene -ProjectFile (Join-Path $project 'project.godot')
+          $entries=@('session_facade.gd','render_origin.gd','origin_participant.gd','wire_validation.gd','flight_scene.gd','flight_scene.tscn')
+          $snapshot=@(Get-SimulationSourceSnapshot app/simulation -RequiredEntries $entries)
+          Copy-SimulationSourceSnapshot app/simulation (Join-Path $project 'simulation') $snapshot -RequiredEntries $entries
+          $tests=@(Get-SimulationSourceSnapshot tests/integration/sim_loop -RequiredEntries @('facade_checks.gd','independent-reference.json','scene_checks.gd'))
+          Copy-SimulationSourceSnapshot tests/integration/sim_loop (Join-Path $project 'sim_loop_tests') $tests -RequiredEntries @('facade_checks.gd','independent-reference.json','scene_checks.gd')
+          node tools/interactive-preview/package.mjs models native/fdm_jsbsim/models/original-interactive (Join-Path $project 'models')
+          if ($LASTEXITCODE -ne 0) { throw 'Facade model pin staging failed' }
+          Write-SimulationCheckHarness -ProjectRoot $project -RepoRoot $PWD
+          $env:FLIGHT_PREVIEW_PROFILE_ROOT=Join-Path $root 'userdata'
+          foreach($name in @('APPDATA','LOCALAPPDATA','TEMP','TMP','XDG_DATA_HOME','XDG_CONFIG_HOME')){
+            $directory=Join-Path $root ('userdata/'+$name)
+            New-Item -ItemType Directory -Force $directory | Out-Null
+            [Environment]::SetEnvironmentVariable($name,$directory,'Process')
+          }
+          foreach($operation in @(
+            @{name='import';args=@('--headless','--path',$project,'--editor','--quit-after','120','--frame-delay','100')},
+            @{name='checks';args=@('--headless','--path',$project,'res://sim_loop_checks.tscn')}
+          )) {
+            $result=Invoke-ProofProcess $environment.tools.godot $operation.args $root (Join-Path $evidence ($operation.name+'.log'))
+            if($result.exit_code -ne 0 -or $result.text -match 'ERROR:|SCRIPT ERROR:|FATAL|ObjectDB instances? (?:(?:was|were) )?leaked|RID allocations leaked|resources still in use|Assertion failed') { throw 'Headless simulation facade resource/check run failed' }
+          }
+          $receipt=Get-Content (Join-Path $project 'facade-check-receipt.json') -Raw | ConvertFrom-Json
+          if($result.text -notmatch 'SIM_LOOP_CHECKS_PASSED' -or $result.text -notmatch 'FLIGHT_BRIDGE_TERMINATED_JOINED' -or $receipt.passed -ne $true -or $receipt.checks -le 0 -or $receipt.failures.Count -ne 0) { throw 'Active simulation facade checks failed' }
+          Copy-Item (Join-Path $project 'facade-check-receipt.json') -Destination $evidence
+          Assert-SimulationSourceSnapshot app/simulation $snapshot -RequiredEntries $entries
+          Assert-SimulationSourceSnapshot (Join-Path $project 'simulation') $snapshot -RequiredEntries $entries -AllowGeneratedUIDs
+          Assert-SimulationSourceSnapshot tests/integration/sim_loop $tests -RequiredEntries @('facade_checks.gd','independent-reference.json','scene_checks.gd')
+          Assert-SimulationSourceSnapshot (Join-Path $project 'sim_loop_tests') $tests -RequiredEntries @('facade_checks.gd','independent-reference.json','scene_checks.gd') -AllowGeneratedUIDs
+          @{source=$snapshot;tests=$tests;generated_uid_metadata=@(Get-ChildItem (Join-Path $project 'simulation'),(Join-Path $project 'sim_loop_tests') -Recurse -File -Filter '*.gd.uid'|ForEach-Object {@{path=[IO.Path]::GetRelativePath($project,$_.FullName).Replace([char]92,[char]47);sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}});godot_sha256=(Get-FileHash $environment.tools.godot).Hash.ToLowerInvariant();project_sha256=(Get-FileHash (Join-Path $project 'project.godot')).Hash.ToLowerInvariant();harness_sha256=(Get-FileHash (Join-Path $project 'sim_loop_checks.gd')).Hash.ToLowerInvariant();modules=@(Get-ChildItem (Join-Path $project 'bin') -File | ForEach-Object {@{name=$_.Name;sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}})} | ConvertTo-Json -Depth 12 | Set-Content (Join-Path $evidence 'source-binding.json')
       - name: Prove Windows corresponding source and actual DLL replacement
         if: runner.os == 'Windows'
         run: |
@@ -147,6 +192,8 @@ jobs:
             .local/validation/observed-report.json
             .local/ground-proof/**
             .local/interactive-proof/**
+            .local/sim-loop-ci/run-*/evidence/*.json
+            .local/sim-loop-ci/run-*/evidence/*.log
             .local/pipeline-proof/ci/**
             .local/render-geodesy/ci/**
             .local/render-headless/ci/**
