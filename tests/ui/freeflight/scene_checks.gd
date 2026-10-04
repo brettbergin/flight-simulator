@@ -77,6 +77,7 @@ func run(host: Node) -> Dictionary:
 	scene.facade._bridge=_observed
 	scene.show_state(0.0)
 	_check(scene.facade.readback().host_mode=="paused","actual_initial_native_paused")
+	_check(scene.flight_map._valid and scene.flight_map._paused and not scene.flight_map._retained and not scene.flight_map._runway_metrics().is_empty(),"actual_paused_map_current_not_stopped_with_runway_geometry")
 	_check(scene.landmark_board._landmarks==scene.flight_map._landmarks and scene.landmark_board._landmarks.size()==6,"exact_rendered_six_landmark_metadata")
 	var baseline: Dictionary=_capture(scene)
 	scene.open_landmark_route()
@@ -85,6 +86,7 @@ func run(host: Node) -> Dictionary:
 	scene.choose_landmark_route([0,1,5])
 	_check(not scene.route_open and scene.menu.visible and scene.route_view.target_label=="East Farm","choose_returns_paused_menu_with_first_leg")
 	_unchanged(scene,baseline,"paused_choose")
+	_check(scene.flight_map._valid and scene.flight_map._paused and not scene.flight_map._retained and not scene.flight_map._route.is_empty() and scene.flight_map._route.label=="East Farm" and scene.flight_map._route.target==Vector2(850,-650) and not scene.flight_map._runway_metrics().is_empty(),"actual_paused_route_map_target_and_runway_guidance_visible")
 	for index in 2:
 		scene.open_landmark_route()
 		scene.next_landmark_leg()
@@ -164,6 +166,23 @@ func run(host: Node) -> Dictionary:
 	_check(scene.facade.readback().session_id!=old_session and scene.facade.readback().tick=="0" and scene.route_view.route_labels.is_empty() and not scene.route_view.active,"fresh_native_session_clears_route")
 	scene.open_landmark_route()
 	scene.choose_landmark_route([0])
+	# Explicit map-only replay of a retained paused source. No facade/native
+	# reply is changed: the actual worker remains paused and is checked below.
+	var paused_truth: Dictionary=scene.facade.readback()
+	var paused_calls: Dictionary=_observed.writes()
+	var terminal_paused: Dictionary=paused_truth.duplicate(true)
+	terminal_paused.host_mode="stalled"
+	terminal_paused.historical=true
+	terminal_paused.error="SYNTHETIC retained paused presentation fixture"
+	var terminal_info: Dictionary={"outcome":terminal_paused.native_outcome,"historical":true,"paused":true,"blocked":false,"stalled":false,"ground_valid":true,"clearance_m":scene.plane_clearance}
+	scene.publish_landmark_route(terminal_paused,terminal_info)
+	var raw: Array=paused_truth.canonical.anchor_eus_position_m
+	scene.flight_map.set_state(terminal_paused.aircraft,Vector3(raw[0],raw[1],raw[2]),scene.airplane.basis,terminal_info)
+	_check(terminal_paused.native_outcome=="paused" and scene.route_view.historical and scene.flight_map._valid and scene.flight_map._paused and scene.flight_map._retained,"retained_paused_outcome_is_history_not_current_paused_guidance")
+	_check(scene.flight_map._route.is_empty() and scene.flight_map._runway_metrics().is_empty() and not scene.flight_map._clearance_valid and scene.route_view.planar_range_m==null and scene.route_view.bearing_deg==null,"historical_flag_alone_suppresses_map_route_runway_and_height_guidance")
+	_check(scene.facade.readback()==paused_truth and _observed.writes()==paused_calls,"synthetic_terminal_presentation_preserves_actual_paused_worker")
+	scene.show_state(0.0)
+	_check(scene.flight_map._valid and scene.flight_map._paused and not scene.flight_map._retained and not scene.flight_map._route.is_empty() and not scene.flight_map._runway_metrics().is_empty(),"actual_current_paused_publication_restores_guidance_after_history_fixture")
 	var closed: Dictionary=scene.facade.close()
 	_check(closed.ok and _observed.joined,"actual_close_before_historical_fixture")
 	scene.publish_landmark_route(closed.readback,{"blocked":true,"stalled":false})

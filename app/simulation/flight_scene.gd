@@ -693,7 +693,7 @@ func show_state(seconds: float=0.0) -> void:
 		world_root.hide()
 		light_root.hide()
 		status="PRESENTATION PAUSED | "+rendered.error+" | R resets"
-		var fault_info: Dictionary={"status":status,"outcome":native_outcome,"blocked":true,"stalled":stalled,"paused":true,"input_name":active_preset.get("name","Controls"),"clearance_m":plane_clearance,"ground_valid":ground_valid}
+		var fault_info: Dictionary={"status":status,"outcome":native_outcome,"historical":current.historical,"blocked":true,"stalled":stalled,"paused":true,"input_name":active_preset.get("name","Controls"),"clearance_m":plane_clearance,"ground_valid":ground_valid}
 		publish_readings(current,fault_info)
 		flight_map.call("set_state",snapshot,native_position,native_basis,fault_info)
 		return
@@ -750,7 +750,7 @@ func show_state(seconds: float=0.0) -> void:
 		input_name+=" / match "+", ".join(takeover_targets)
 	if not input_problem.is_empty():
 		input_name+=" / "+input_problem
-	var display_info: Dictionary={"status":status,"outcome":native_outcome,"blocked":blocked,"stalled":stalled,"paused":paused,"brake_hold":brake_hold,"view_name":view_names[camera_mode],"clearance_m":plane_clearance,"ground_valid":ground_valid,"input_name":input_name,"input_label":"CONTROLS","audio_enabled":audio_enabled}
+	var display_info: Dictionary={"status":status,"outcome":native_outcome,"historical":current.historical,"blocked":blocked,"stalled":stalled,"paused":paused,"brake_hold":brake_hold,"view_name":view_names[camera_mode],"clearance_m":plane_clearance,"ground_valid":ground_valid,"input_name":input_name,"input_label":"CONTROLS","audio_enabled":audio_enabled}
 	publish_readings(current,display_info)
 	flight_map.call("set_state",snapshot,native_position,native_basis,display_info)
 	update_canonical_scene_sources()
@@ -1043,6 +1043,7 @@ func run_landmark_visual() -> void:
 		map_visible=true;flight_map.show()
 		await save_view(prefix+"-target")
 		check(route_view.active and route_view.available and not flight_map.get("_route").is_empty(),"landmark_visual_current_target_"+str(index))
+		check(flight_map.get("_valid") and not flight_map.get("_retained") and not flight_map.call("_runway_metrics").is_empty(),"landmark_visual_paused_locator_current_"+str(index))
 		set_route_aids_visible(false)
 		await save_view(prefix+"-hidden")
 		check(not landmark_board.get("_card").visible and flight_map.get("_route").is_empty() and not route_view.aid_visible,"landmark_visual_aids_hidden_"+str(index))

@@ -71,7 +71,7 @@ func toggle_runway() -> void:
 
 func set_state(state: Dictionary, local_position: Vector3, aircraft_basis: Basis, info: Dictionary={}) -> void:
 	_paused=bool(info.get("paused",false))
-	_retained=bool(info.get("blocked",false)) or bool(info.get("stalled",false)) or str(info.get("outcome","completed"))!="completed"
+	_retained=bool(info.get("historical",false)) or bool(info.get("blocked",false)) or bool(info.get("stalled",false)) or str(info.get("outcome","completed")) not in ["completed","paused"]
 	_valid = not state.is_empty() and state.get("validity", "") == "valid" and local_position.is_finite()
 	_clearance_valid=_valid and not _retained and bool(info.get("ground_valid",false)) and is_finite(float(info.get("clearance_m",NAN)))
 	_clearance_m=float(info.get("clearance_m",0.0)) if _clearance_valid else 0.0
