@@ -172,6 +172,8 @@ func _instrument_available(index: int) -> bool:
 	return _display_available.get(INSTRUMENTS[index],false)
 
 func _draw_gauge(index: int, cell: Rect2) -> void:
+	# Reserve the inherited two-line caption within each unchanged scan hitbox.
+	var dial_cell: Rect2 = Rect2(cell.position,Vector2(cell.size.x,cell.size.y-18.0))
 	var all_valid: bool = _readings.get("valid",false)
 	_readings.valid=all_valid and _instrument_available(index)
 	# Reuse only the original dial artwork; unavailable channels never enter it.
@@ -179,9 +181,9 @@ func _draw_gauge(index: int, cell: Rect2) -> void:
 	var large_value: bool = _readings.valid and absf(float(_readings.get(display_keys[index],0.0)))>999999.0
 	if large_value:
 		_readings.valid=false # Avoid integer formatter overflow; show exact numeric scope.
-	super._draw_instrument(index,cell)
-	var radius: float = minf(cell.size.x*0.43,(cell.size.y-26.0)*0.5)
-	var center: Vector2 = Vector2(cell.get_center().x,cell.position.y+radius+4)
+	super._draw_instrument(index,dial_cell)
+	var radius: float = minf(dial_cell.size.x*0.43,(dial_cell.size.y-26.0)*0.5)
+	var center: Vector2 = Vector2(dial_cell.get_center().x,dial_cell.position.y+radius+4)
 	if large_value:
 		draw_circle(center,radius-2,FACE,true,-1,true)
 		var numeric_pixels: int = maxi(10,roundi(radius*0.17))
@@ -193,10 +195,8 @@ func _draw_gauge(index: int, cell: Rect2) -> void:
 	_readings.valid=all_valid
 
 func _fit(value: String, width: float, pixels: int) -> String:
-	var result: String = value
-	while result.length()>0 and _font.get_string_size(result,HORIZONTAL_ALIGNMENT_LEFT,-1,pixels).x>width:
-		result=result.substr(0,result.length()-1)
-	return result if result==value else result+"…"
+	# The shared helper measures the ellipsis inside the available width.
+	return _bounded_text(value,width,pixels)
 
 func _draw() -> void:
 	if not visible or size.x<640.0 or size.y<400.0:
@@ -206,7 +206,7 @@ func _draw() -> void:
 		return
 	var layout: Dictionary = _scan_layout()
 	var panel: Rect2 = layout.panel
-	_box(panel,Color(0.04,0.07,0.11,0.98),LINE,14)
+	_box(panel,Color(0.04,0.07,0.11,1.0),LINE,14)
 	_text(panel.position+Vector2(16,25),"NATIVE TRUTH / PROTOTYPE",12,CYAN)
 	var state: String = str(_reading_set.get("state","invalid"))
 	var label: String = "RETAINED" if state=="historical" else "PAUSED · VIEW ONLY" if state=="paused" else "LIVE · VIEW ONLY" if state=="live" else "UNAVAILABLE"
