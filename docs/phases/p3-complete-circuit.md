@@ -33,6 +33,7 @@ Generated from [roadmap](../roadmap.md) and [backlog](../backlog.json). Consult 
 | [PROFILE-SESSION-UI](https://github.com/brettbergin/flight-simulator/issues/74) — Implement profile selection, local practice log and retention/export controls | ui | EPIC-P2, LOCAL-PERSISTENCE, ASSIST-PROFILES | `app/ui/profiles/`, `app/ui/history/`, `tests/ui/profiles/` |
 | [BASIC-DEBRIEF](https://github.com/brettbergin/flight-simulator/issues/75) — Implement first circuit event review, basic map and recorded playback | ui | EPIC-P2, PROFILE-SESSION-UI, REPLAY-RESUME | `app/ui/debrief/basic/`, `app/replay/playback/`, `tests/debrief/basic/` |
 | [BASELINE-PERFORMANCE](https://github.com/brettbergin/flight-simulator/issues/76) — Validate normal C172S performance before scored maneuver curriculum | validation | EPIC-P2, AIRCRAFT-EVIDENCE, VALIDATION-CORPUS, ENGINE-FUEL, CONTROLS-GROUND | `tests/reference/c172s/normal/`, `content/aircraft/c172s/fdm/`, `docs/evidence/P3/performance/` |
+| [ORIGINAL-PISTON-CONTRACT](https://github.com/brettbergin/flight-simulator/issues/122) — Ratify an opt-in original piston and fixed-pitch profile | aircraft | CORE-CONTRACTS, INTERACTIVE-CONTRACT, SIM-LOOP-CONTRACT, INPUT-CONTROLS-CONTRACT, COCKPIT-READINGS-CONTRACT | `docs/decisions/010-original-piston-profile.md`, `docs/contracts.md`, `docs/backlog.json`, `docs/issue-index.md`, `docs/requirements.md`, `docs/phases/p3-complete-circuit.md` |
 
 ## Agent handoff
 
