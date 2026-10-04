@@ -39,8 +39,9 @@ $simulationSnapshot=@(Get-SimulationSourceSnapshot -SourceRoot $simulationRoot -
 $facadeTestRoot=Join-Path $repo 'tests/integration/sim_loop'
 $facadeTestEntries=@('facade_checks.gd','independent-reference.json','scene_checks.gd')
 $facadeTestSnapshot=@(Get-SimulationSourceSnapshot -SourceRoot $facadeTestRoot -RequiredEntries $facadeTestEntries)
+$inputGroups=@(Get-InputSourceGroups -RepoRoot $repo)
 $inputs=@()
-foreach($directory in @('app/proof/interactive','app/simulation','tests/integration/sim_loop','tools/interactive-preview','native/godot_bridge','native/fdm_jsbsim/interactive','native/fdm_jsbsim/models/original-interactive')){
+foreach($directory in @('app/proof/interactive','app/simulation','app/input','app/ui/controls','tests/input','tests/integration/sim_loop','tools/interactive-preview','native/godot_bridge','native/fdm_jsbsim/interactive','native/fdm_jsbsim/models/original-interactive')){
  foreach($file in Get-ChildItem -LiteralPath (Join-Path $repo $directory) -Recurse -File){
   $inputs+=@{path=[IO.Path]::GetRelativePath($repo,$file.FullName).Replace('\','/');sha256=(Get-FileHash $file.FullName).Hash.ToLowerInvariant();bytes=$file.Length}
  }
@@ -52,6 +53,7 @@ foreach($kind in @('AircraftSnapshot','AtmosphereSample','ControlCommand','Opera
 Copy-Item -LiteralPath (Join-Path $repo 'app/proof/interactive') -Destination (Join-Path $project 'interactive') -Recurse
 Copy-SimulationSourceSnapshot -SourceRoot $simulationRoot -DestinationRoot (Join-Path $project 'simulation') -Snapshot $simulationSnapshot -RequiredEntries $simulationEntries
 Copy-SimulationSourceSnapshot -SourceRoot $facadeTestRoot -DestinationRoot (Join-Path $project 'sim_loop_tests') -Snapshot $facadeTestSnapshot -RequiredEntries $facadeTestEntries
+Copy-InputSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $inputGroups
 Copy-Item -LiteralPath (Join-Path $repo 'app/proof/interactive/project-settings.cfg') -Destination (Join-Path $project 'project.godot')
 Set-SimulationMainScene -ProjectFile (Join-Path $project 'project.godot')
 Write-SimulationCheckHarness -ProjectRoot $project -RepoRoot $repo
@@ -66,7 +68,7 @@ $model=Join-Path $repo 'native/fdm_jsbsim/models/original-interactive'
 if($LASTEXITCODE -ne 0){throw 'Combined model pin gate failed'}
 
 $preset=Get-Content (Join-Path $project 'export_presets.cfg') -Raw
-$preset=$preset.Replace('custom_template/release=""','custom_template/release="'+$template.Replace('\','/')+'"').Replace('exclude_filter=""','exclude_filter="smoke-receipt.json,loop.records.ndjson,compile-all.gd,facade-check-receipt.json"')
+$preset=$preset.Replace('custom_template/release=""','custom_template/release="'+$template.Replace('\','/')+'"').Replace('exclude_filter=""','exclude_filter="smoke-receipt.json,loop.records.ndjson,compile-all.gd,facade-check-receipt.json,controls*-receipt.json,controls*-preset.json,controls*.png"')
 $preset | Set-Content -Encoding utf8 (Join-Path $project 'export_presets.cfg')
 # Keep engine/profile/cache writes within this fresh run even during authoring.
 $prior=@{}
@@ -83,7 +85,7 @@ try {
 func _initialize() -> void:
  var script=load("res://interactive/preview.gd") as Script
  var scene=load("res://interactive/preview.tscn") as PackedScene
- for path in ["res://simulation/session_facade.gd","res://simulation/render_origin.gd","res://simulation/origin_participant.gd","res://simulation/wire_validation.gd","res://simulation/flight_scene.gd","res://sim_loop_tests/facade_checks.gd","res://sim_loop_checks.gd"]:
+ for path in ["res://simulation/session_facade.gd","res://simulation/render_origin.gd","res://simulation/origin_participant.gd","res://simulation/wire_validation.gd","res://simulation/flight_scene.gd","res://sim_loop_tests/facade_checks.gd","res://sim_loop_checks.gd","res://input/input_mapper.gd","res://input/input_preset.gd","res://ui/controls/controls_panel.gd","res://input_tests/input_checks.gd","res://input_tests/scene_checks.gd"]:
   var dependency=load(path) as Script
   if dependency==null or not dependency.can_instantiate():
    push_error("Simulation resource compile rejected: "+path)
@@ -132,6 +134,7 @@ New-Item -ItemType Directory -Force $source | Out-Null
 Copy-Item -LiteralPath (Join-Path $repo 'app/proof/interactive'),$PSScriptRoot,(Join-Path $repo 'native'),(Join-Path $repo 'LICENSE'),(Join-Path $repo 'CMakeLists.txt'),(Join-Path $repo 'CMakePresets.json') -Destination $source -Recurse
 Copy-SimulationSourceSnapshot -SourceRoot $simulationRoot -DestinationRoot (Join-Path $source 'simulation') -Snapshot $simulationSnapshot -RequiredEntries $simulationEntries
 Copy-SimulationSourceSnapshot -SourceRoot $facadeTestRoot -DestinationRoot (Join-Path $source 'sim_loop_tests') -Snapshot $facadeTestSnapshot -RequiredEntries $facadeTestEntries
+Copy-InputSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $inputGroups
 Copy-Item -LiteralPath (Join-Path $project 'wire_fixtures'),(Join-Path $project 'sim_loop_checks.gd'),(Join-Path $project 'sim_loop_checks.tscn') -Destination $source -Recurse
 & (Join-Path $payload 'launch.ps1') -HeadlessSmoke
 Copy-Item -LiteralPath (Join-Path $payload 'smoke-receipt.json'),(Join-Path $payload 'portable-smoke.log'),(Join-Path $payload 'loop.records.ndjson') -Destination $evidence
@@ -163,13 +166,16 @@ Assert-SimulationSourceSnapshot -SourceRoot (Join-Path $source 'simulation') -Sn
 Assert-SimulationSourceSnapshot -SourceRoot $facadeTestRoot -Snapshot $facadeTestSnapshot -RequiredEntries $facadeTestEntries
 Assert-SimulationSourceSnapshot -SourceRoot (Join-Path $project 'sim_loop_tests') -Snapshot $facadeTestSnapshot -RequiredEntries $facadeTestEntries -AllowGeneratedUIDs
 Assert-SimulationSourceSnapshot -SourceRoot (Join-Path $source 'sim_loop_tests') -Snapshot $facadeTestSnapshot -RequiredEntries $facadeTestEntries
+Assert-InputSourceGroups -DestinationRoot $repo -Groups $inputGroups -Authoring
+Assert-InputSourceGroups -DestinationRoot $project -Groups $inputGroups -AllowGeneratedUIDs
+Assert-InputSourceGroups -DestinationRoot $source -Groups $inputGroups
 if((Get-FileHash $bridge).Hash -ne $initialBridgeHash){throw 'Native bridge changed during proof'}
 foreach($input in $inputs){if((Get-FileHash (Join-Path $repo $input.path)).Hash.ToLowerInvariant() -ne $input.sha256){throw 'Authoring source changed during proof'}}
 & $environment.python_executable (Join-Path $PSScriptRoot 'verify-pins.py') --toolchain $toolchain --output (Join-Path $evidence 'tool-pins-final.json')
 if($LASTEXITCODE -ne 0){throw 'Toolchain drift detected'}
 if((Get-FileHash (Join-Path $evidence 'tool-pins.json')).Hash -ne (Get-FileHash (Join-Path $evidence 'tool-pins-final.json')).Hash){throw 'Selected tool identities changed during proof'}
 $inventory=@(Get-ChildItem -LiteralPath $payload -Recurse -File | ForEach-Object {@{path=[IO.Path]::GetRelativePath($payload,$_.FullName).Replace('\','/');bytes=$_.Length;sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}} | Sort-Object {$_.path})
-$manifest=@{schema_version=1;kind='original-whole-flight-preview';passed=$true;scope='Windows original model, actual functional headless proof; GPU/human acceptance separate';git_head=(& git -c "safe.directory=$repo" -C $repo rev-parse HEAD);powershell=$PSVersionTable.PSVersion.ToString();authoring_sources=$inputs;staged_compile_sha256=(Get-FileHash (Join-Path $project 'compile-all.gd')).Hash.ToLowerInvariant();staged_generated_uid_metadata=@(Get-ChildItem (Join-Path $project 'simulation'),(Join-Path $project 'sim_loop_tests') -Recurse -File -Filter '*.gd.uid'|ForEach-Object {@{path=[IO.Path]::GetRelativePath($project,$_.FullName).Replace([char]92,[char]47);sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}});staged_facade_harness_sha256=(Get-FileHash (Join-Path $project 'sim_loop_checks.gd')).Hash.ToLowerInvariant();staged_project_sha256=(Get-FileHash (Join-Path $project 'project.godot')).Hash.ToLowerInvariant();tool_pins=$pins;godot_version=$version.text.Trim();accepted_native_export_root=$proof;accepted_package_inventory_sha256=(Get-FileHash (Join-Path $proof 'evidence/package-inventory.json')).Hash.ToLowerInvariant();files=$inventory}
+$manifest=@{schema_version=1;kind='original-whole-flight-preview';passed=$true;scope='Windows original model, actual functional headless proof; GPU/human acceptance separate';git_head=(& git -c "safe.directory=$repo" -C $repo rev-parse HEAD);powershell=$PSVersionTable.PSVersion.ToString();authoring_sources=$inputs;staged_compile_sha256=(Get-FileHash (Join-Path $project 'compile-all.gd')).Hash.ToLowerInvariant();staged_generated_uid_metadata=@(Get-ChildItem (Join-Path $project 'simulation'),(Join-Path $project 'sim_loop_tests'),(Join-Path $project 'input'),(Join-Path $project 'ui/controls'),(Join-Path $project 'input_tests') -Recurse -File -Filter '*.gd.uid'|ForEach-Object {@{path=[IO.Path]::GetRelativePath($project,$_.FullName).Replace([char]92,[char]47);sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}});staged_facade_harness_sha256=(Get-FileHash (Join-Path $project 'sim_loop_checks.gd')).Hash.ToLowerInvariant();staged_project_sha256=(Get-FileHash (Join-Path $project 'project.godot')).Hash.ToLowerInvariant();tool_pins=$pins;godot_version=$version.text.Trim();accepted_native_export_root=$proof;accepted_package_inventory_sha256=(Get-FileHash (Join-Path $proof 'evidence/package-inventory.json')).Hash.ToLowerInvariant();files=$inventory}
 $manifest | ConvertTo-Json -Depth 10 | Set-Content -Encoding utf8 (Join-Path $evidence 'manifest.json')
 @{root=$root;project=$project;payload=$payload;evidence=$evidence;passed=$true} | ConvertTo-Json | Set-Content -Encoding utf8 (Join-Path $repo '.local/interactive-preview/latest-run.json')
 Write-Output $root

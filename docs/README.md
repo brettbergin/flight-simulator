@@ -28,6 +28,8 @@ The [third-person motion correction](evidence/P1/third-person-stability.md) pres
 
 The [reusable flight-loop integration](evidence/P2/sim-loop.md) prepares the accepted facade/origin contract for ordinary interactive flight, with five explicit speeds, copied native truth and coordinated scene origins. Its exported verification and phase review remain separate from development checks and prototype handling.
 
+The [paused Controls and preset iteration](evidence/P2/input-controls.md) prepares explicit remapping, observed-device calibration and safe takeover over the same native flight loop. Presets remain guest interchange files; manual hardware and phase qualification remain separate.
+
 ## Read in this order
 
 1. [Product scope and requirements](product.md): expected pilot experience and initial boundaries.
