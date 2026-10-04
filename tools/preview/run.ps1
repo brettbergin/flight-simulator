@@ -5,6 +5,7 @@ $ErrorActionPreference='Stop'
 if(-not $IsWindows){throw 'Airborne portable preview currently targets Windows x64'}
 $repo=(Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 . (Join-Path $repo 'tools/export/common.ps1')
+& (Join-Path $PSScriptRoot 'check-guards.ps1')
 $proof=(Resolve-Path -LiteralPath $ExportProofRoot).Path
 $toolchain=(Resolve-Path -LiteralPath $ToolchainRoot).Path
 $root=Join-Path $repo ('.local/preview/run-'+[Guid]::NewGuid().ToString('N'))
@@ -58,7 +59,7 @@ try {
   @{name='export';args=@('--headless','--path',$project,'--export-release','Windows Proof',(Join-Path $payload 'AirbornePreview.exe'))}
  )){
   $result=Invoke-ProofProcess -Executable $godot -Arguments $operation.args -WorkingDirectory $root -Log (Join-Path $evidence ($operation.name+'.log'))
-  if($result.exit_code -ne 0 -or $result.text -match 'ERROR:|SCRIPT ERROR:|FATAL|ObjectDB instance[s]? leaked|RID allocations leaked|resources still in use|Assertion failed'){throw "Preview $($operation.name) failed; raw evidence retained"}
+  if($result.exit_code -ne 0 -or $result.text -match 'ERROR:|SCRIPT ERROR:|FATAL|ObjectDB instances? (?:(?:was|were) )?leaked|RID allocations leaked|resources still in use|Assertion failed'){throw "Preview $($operation.name) failed; raw evidence retained"}
   if($operation.name -eq 'editor-smoke'){
    $receipt=Get-Content (Join-Path $project 'smoke-receipt.json') -Raw | ConvertFrom-Json
    if($result.text -notmatch 'AIRBORNE_PREVIEW_SMOKE' -or $receipt.passed -ne $true -or $receipt.failures.Count -ne 0){throw 'Actual editor smoke assertions failed'}

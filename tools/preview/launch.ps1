@@ -38,7 +38,7 @@ $output | Set-Content -Encoding utf8 (Join-Path $PSScriptRoot $log)
 $exit=$process.ExitCode
 $process.Dispose()
 Write-Output $output
-if($exit -ne 0 -or $output -match 'ERROR:|SCRIPT ERROR:|FATAL|ObjectDB instance[s]? leaked|RID allocations leaked|resources still in use|Assertion failed') {throw "Preview exited witherrors ($exit); inspect $log"}
+if($exit -ne 0 -or $output -match 'ERROR:|SCRIPT ERROR:|FATAL|ObjectDB instances? (?:(?:was|were) )?leaked|RID allocations leaked|resources still in use|Assertion failed') {throw "Preview exited witherrors ($exit); inspect $log"}
 if($HeadlessSmoke -or $VisualSmoke) {
  $marker=if($VisualSmoke){'AIRBORNE_PREVIEW_VISUAL'}else{'AIRBORNE_PREVIEW_SMOKE'}
  $receiptName=if($VisualSmoke){'visual-receipt.json'}else{'smoke-receipt.json'}
