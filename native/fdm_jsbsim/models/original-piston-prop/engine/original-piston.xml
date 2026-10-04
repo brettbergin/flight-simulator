@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!-- Original project MIT engineering parameters; no manufacturer model or calibration. -->
+<piston_engine name="Original piston engineering prototype">
+  <minmp unit="INHG">8</minmp>
+  <maxmp unit="INHG">28</maxmp>
+  <man-press-lag>0.5</man-press-lag>
+  <displacement unit="IN3">286.277630558369908854908378301344700322467061518056517936342</displacement>
+  <maxhp unit="HP">150</maxhp>
+  <static-friction unit="HP">1</static-friction>
+  <sparkfaildrop>0.1</sparkfaildrop>
+  <cycles>4</cycles>
+  <idlerpm>600</idlerpm>
+  <maxrpm>2400</maxrpm>
+  <maxthrottle>1</maxthrottle>
+  <minthrottle>0</minthrottle>
+  <bsfc unit="LBS/HP*HR">0.4</bsfc>
+  <volumetric-efficiency>0.8</volumetric-efficiency>
+  <compression-ratio>8</compression-ratio>
+  <bore unit="IN">4.5</bore>
+  <stroke unit="IN">4.5</stroke>
+  <cylinders>4</cylinders>
+  <cylinder-head-mass unit="KG">3</cylinder-head-mass>
+  <air-intake-impedance-factor>0.2</air-intake-impedance-factor>
+  <ram-air-factor>1</ram-air-factor>
+  <cooling-factor>0.5</cooling-factor>
+  <starter-rpm>1200</starter-rpm>
+  <starter-torque>60</starter-torque>
+  <dynamic-fmep unit="PA">18000</dynamic-fmep>
+  <static-fmep unit="PA">45000</static-fmep>
+  <peak-piston-speed>100</peak-piston-speed>
+  <numboostspeeds>0</numboostspeeds>
+  <oil-pressure-relief-valve-psi unit="PSI">60</oil-pressure-relief-valve-psi>
+  <design-oil-temp-degK unit="DEGK">350</design-oil-temp-degK>
+  <oil-pressure-rpm-max>1800</oil-pressure-rpm-max>
+  <oil-viscosity-index>0.25</oil-viscosity-index>
+  <table name="COMBUSTION" type="internal">
+    <tableData>
+      0 0
+      0.5 0.8
+      1 0.95
+      1.5 0.75
+      2 0.5
+    </tableData>
+  </table>
+  <table name="MIXTURE" type="internal">
+    <tableData>
+      0 0
+      0.04 0
+      0.06 0.75
+      0.08 1
+      0.10 1
+      0.12 0.5
+      0.16 0
+    </tableData>
+  </table>
+</piston_engine>

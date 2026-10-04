@@ -4420,6 +4420,64 @@
         "Reviewed exact classifier/workflow/README/mapping sources and adversarial real-Git guard results.",
         "Hosted Linux/Windows protected full-adoption checks, then source-bound documentation-only scope receipts/artifacts and productive mixed/code full-runtime receipts. Use Refs #124 while these rollout observations remain outstanding."
       ]
+    },
+    {
+      "key": "ORIGINAL-PISTON-MODEL",
+      "title": "Publish original piston model and independent reference source",
+      "kind": "task",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Supply exact original piston/fixed-pitch source, parameter/rights ledgers and independently reviewed pre-solver references before native profile consumers; no runtime or aircraft qualification is inferred.",
+      "depends_on": [
+        "ORIGINAL-PISTON-CONTRACT",
+        "CORE-CONTRACTS",
+        "INTERACTIVE-CONTRACT",
+        "LICENSE-REGISTER"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P3",
+        "area:aircraft",
+        "priority:P0",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "native/fdm_jsbsim/models/original-piston-prop/",
+        "tests/engine/",
+        "third_party/licenses/register.json",
+        "third_party/licenses/evidence/original-piston-prop.md",
+        "third_party/licenses/notices/FirstParty-Piston-MIT.txt",
+        ".gitattributes",
+        ".github/workflows/foundation-ci.yml",
+        "docs/evidence/P3/original-piston-source.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p3-complete-circuit.md"
+      ],
+      "docs": [
+        "docs/contracts.md",
+        "docs/decisions/010-original-piston-profile.md",
+        "docs/realism-and-validation.md",
+        "docs/agent-operations.md",
+        "tests/engine/reference/README.md"
+      ],
+      "requirements": [
+        "REAL-013",
+        "REAL-014",
+        "PRD-004",
+        "PRD-010"
+      ],
+      "acceptance": [
+        "Publish three separately identified original MIT XML files and exact metadata inventory; attribute retained original airframe subtrees and each numerical/default/backend approximation. Preserve old model bytes.",
+        "Freeze every effective unit, table domain/interpolation, direct fixed-pitch installation, conversion and fuel/starter limitation without manufacturer calibration or runtime claims.",
+        "Independently author and review pre-solver branch/unit/discrete references and budgets before observation; publication metadata rebinding preserves all 55 cases and budgets. No fitted goldens.",
+        "Run strict offline static closure, ledger, unit, table, inheritance, rights and corruption guards plus read-only reference regeneration on both CI platforms; preserve exact LF bytes in fresh Windows checkout.",
+        "Independent final source review and all protected checks precede merge. Native/UI consumers, integrated engine/flight, C172S, hardware/pilot and phase gates remain separate."
+      ],
+      "evidence": [
+        "Exact source/inventory/ledger/reference hashes and independent source/numerical review; static 11-case guards, read-only 55-case regeneration, reference binding, license audit and protected hosted checks. No JSBSim trial or runtime proof."
+      ]
     }
   ]
 }

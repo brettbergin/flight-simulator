@@ -32,7 +32,9 @@ The [paused Controls and preset iteration](evidence/P2/input-controls.md) prepar
 
 The [shared native-truth cockpit and instrument scan](evidence/P2/cockpit-readability.md) adds a paused readability view and one reading source for the physical dashboard, overlay and focused dial. Sensed instruments and aircraft qualification remain separate requirements.
 
-The proposed [original piston profile contract](decisions/010-original-piston-profile.md) defines the next opt-in cold-engine engineering slice, including native ignition/starter/feed/mixture controls and versioned input migration. Its model/reference and runtime consumers have separate evidence gates; the selected C172S configuration remains source-dependent.
+The accepted [original piston profile contract](decisions/010-original-piston-profile.md) defines the next opt-in cold-engine engineering slice, including native ignition/starter/feed/mixture controls and versioned input migration. Its model/reference and runtime consumers have separate evidence gates; the selected C172S configuration remains source-dependent.
+
+The [original piston source and independent references](evidence/P3/original-piston-source.md) supply the next cold-engine prerequisite. Native controls and coupled engine behavior remain separate implementation work.
 
 ## Read in this order
 

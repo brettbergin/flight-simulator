@@ -8,6 +8,8 @@
 *.yml text eol=lf
 *.yaml text eol=lf
 *.xml text eol=lf
+native/fdm_jsbsim/models/original-piston-prop/** text eol=lf
+tests/engine/** text eol=lf
 third_party/licenses/notices/OriginalSynthetic-MIT.txt text eol=lf
 
 tools/export/** text eol=lf
