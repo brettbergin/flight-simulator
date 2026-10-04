@@ -87,6 +87,9 @@ if($receipt.schema_version -ne 1 -or $receipt.passed -ne $true -or @($receipt.ob
 for($i=0;$i -lt 4;$i++){
  $row=$receipt.observations[$i]
  if($row.treatment -cne $receipt.order[$i] -or $row.passed -ne $true -or $row.joined -ne $true -or $row.environment_restored -ne $true -or $row.readers_joined -ne $true -or $row.output_bound_exceeded -ne $false -or $row.timeout -ne $false -or $row.exit_code -ne 0 -or $null -eq $row.launch_to_entry_ms -or $null -eq $row.launch_to_exit_ms){throw "Diagnostic observation invalid; inspect $root"}
+ foreach($metric in @($row.create_return_ms,$row.launch_to_entry_ms,$row.launch_to_exit_ms,$row.metadata.inner_ms)){
+  if(($metric -isnot [int] -and $metric -isnot [long]) -or $metric -lt 0 -or $metric -gt 120000){throw "Diagnostic timing invalid; inspect $root"}
+ }
  Write-Output "PSSTARTUP treatment=$($row.treatment) create_ms=$($row.create_return_ms) entry_ms=$($row.launch_to_entry_ms) exit_ms=$($row.launch_to_exit_ms) inner_ms=$($row.metadata.inner_ms) joined=$($row.joined) readers_joined=$($row.readers_joined)"
 }
 if((Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash.ToLowerInvariant() -ne $initialHash -or (Get-FileHash -LiteralPath (Join-Path $project 'probe.gd') -Algorithm SHA256).Hash.ToLowerInvariant() -ne $initialHash){throw 'Diagnostic source changed during capture'}
