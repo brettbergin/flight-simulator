@@ -32,6 +32,8 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 
 | FLIGHT-UX | [#100 Replace debug presentation with a usable visual flight experience](https://github.com/brettbergin/flight-simulator/issues/100) | WHOLE-FLIGHT-PREVIEW |
 
+| COCKPIT-UX | [#102 Add a physical prototype cockpit, focused panel view and local flight map](https://github.com/brettbergin/flight-simulator/issues/102) | FLIGHT-UX |
+
 ## P2 — First cockpit and synthetic airfield
 
 | Key | Issue | Dependencies |

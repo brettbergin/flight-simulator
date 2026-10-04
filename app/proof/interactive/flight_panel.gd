@@ -416,7 +416,7 @@ func _draw_engine(rect: Rect2) -> void:
 	_text(rect.position + Vector2(100, 105), "kg FUEL", 12, MUTED)
 	if is_finite(fuel):
 		_bar(rect.position + Vector2(0, 120), rect.size.x, fuel / 100.0, GREEN)
-	_text(rect.position + Vector2(0, 155), "RUNNING ENGINE · SYNTHETIC", 10, MUTED)
+	_text(rect.position + Vector2(0, 155), "ORIGINAL SYNTHETIC ENGINE", 10, MUTED)
 	_line(rect.position + Vector2(0, 171), rect.position + Vector2(rect.size.x, 171), LINE)
 	_text(rect.position + Vector2(0, 196), _ground_label(), 15, GREEN if int(_readings.get("ground_contacts", 0)) > 0 else CYAN)
 	var clearance := float(_info.get("clearance_m", 0.0))
@@ -466,7 +466,7 @@ func _draw_cockpit_surface() -> void:
 	_text(Vector2(x + 125, 138), "%.1f kg" % fuel if is_finite(fuel) else "— kg", 19)
 	if is_finite(fuel):
 		_bar(Vector2(x, 151), width, fuel / 100.0, GREEN)
-	_text(Vector2(x, 181), "RUNNING ENGINE · SYNTHETIC", 11, MUTED)
+	_text(Vector2(x, 181), "ORIGINAL SYNTHETIC ENGINE", 11, MUTED)
 	_line(Vector2(x, 199), Vector2(x + width, 199), LINE)
 	for index in range(2):
 		var y := 229 + index * 52
@@ -486,10 +486,10 @@ func _draw_cockpit_surface() -> void:
 	_text(Vector2(x, 430), _ground_label(), 15, GREEN if int(_readings.get("ground_contacts", 0)) > 0 else CYAN)
 	var clearance := float(_info.get("clearance_m", 0.0))
 	_text(Vector2(x, 456), "CG clearance %.1f m" % clearance if _info.get("ground_valid", false) else "CG clearance —", 13, MUTED)
-	if _info.get("paused", false):
-		_text(Vector2(x, 484), "PAUSED", 14, AMBER)
-	elif _info.get("blocked", false) or str(_info.get("outcome", "")) == "discarded":
+	if _info.get("blocked", false) or _info.get("stalled", false) or str(_info.get("outcome", "")) in ["discarded","error","coverage_blocked"]:
 		_text(Vector2(x, 484), "RETAINED STATE · STOPPED", 12, RED)
+	elif _info.get("paused", false):
+		_text(Vector2(x, 484), "PAUSED", 14, AMBER)
 	else:
 		_text(Vector2(x, 484), "ORIGINAL ENGINEERING MODEL", 10, MUTED)
 
