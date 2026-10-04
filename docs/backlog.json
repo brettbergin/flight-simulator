@@ -4478,6 +4478,78 @@
       "evidence": [
         "Exact source/inventory/ledger/reference hashes and independent source/numerical review; static 11-case guards, read-only 55-case regeneration, reference binding, license audit and protected hosted checks. No JSBSim trial or runtime proof."
       ]
+    },
+    {
+      "key": "ORIGINAL-PISTON-FLIGHT",
+      "title": "Build deliberate engine startup, taxi and shutdown interaction",
+      "kind": "task",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Implement accepted ADR010 end to end as an explicitly selected original piston engineering interaction, preserving the direct-thrust default. Native engine truth, qualified input, deliberate lifecycle, presentation and portable-source proof form one cohesive feature.",
+      "depends_on": [
+        "ORIGINAL-PISTON-CONTRACT",
+        "ORIGINAL-PISTON-MODEL",
+        "SIM-LOOP-CONTRACT",
+        "INPUT-CONTROLS-CONTRACT",
+        "COCKPIT-READINGS-CONTRACT"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P3",
+        "area:aircraft",
+        "priority:P0",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "native/fdm_jsbsim/interactive/",
+        "native/godot_bridge/src/",
+        "tests/engine/",
+        "tests/interactive/",
+        "app/input/",
+        "app/ui/controls/",
+        "app/simulation/",
+        "app/cockpit/instruments/",
+        "app/proof/interactive/flight_panel.gd",
+        "app/proof/interactive/flight_sound.gd",
+        "tests/input/",
+        "tools/interactive-preview/",
+        "docs/evidence/P3/",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p3-complete-circuit.md"
+      ],
+      "docs": [
+        "docs/contracts.md",
+        "docs/decisions/010-original-piston-profile.md",
+        "docs/evidence/P3/original-piston-source.md",
+        "tests/engine/reference/README.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [
+        "REAL-013",
+        "REAL-014",
+        "REAL-019",
+        "PRD-004",
+        "PRD-010",
+        "PRD-015",
+        "UX-009",
+        "UX-011"
+      ],
+      "acceptance": [
+        "Strict closed profile selection and exact new inventory/hash/type/root/start admission. Verify cold tick0 with 100 kg fuel, stopped shaft/combustion, explicit switch/mixture state and no hidden positive tick, trim, RPM injection or InitRunning. Legacy starts, default, model bytes and fixtures preserve behavior.",
+        "Four real boolean system controls and axes mixture as ADR010: pilot/unassisted identity, checked immediate next-tick system admission, mixed order/final fold, actual applied records, sequence rejection without consumption, no arbitrary properties. Commit only completed native truth; fault destroys the executive and retains last completed publication.",
+        "Actual post-propeller shaft rate, engine Running/switch/starter/starvation and actual tank mass using unchanged v1 units/Readback shape. Declare and verify requested/supplied fuel and solver-stage chronology with separate labeled mechanism evidence; no chemical-energy or calibrated performance claim.",
+        "Strict InputPreset/v2 codec/mapper and explicit v1 migration draft; exact profile/capability identity, observed devices and conflicts, analog mixture takeover, actual held switches, release/rearm and recorded starter false before resumed Run. No partial-admission atomicity claim, silent profile migration or unsupported airborne reset destroying the session.",
+        "Full copied EngineStatus/native-reading identity validation and unavailable/retained behavior. Paused explicit profile selection, visible prototype/idealized-starter labels, live native RPM/fuel/engine-control feedback, usable bindings and honest prop/audio driven by native state. Rendering and UI never change physics directly.",
+        "Meaningful cold/crank/start/run-up/taxi/brake/shutdown and no-spark/no-feed/mixture-zero/ignition/feed recovery cases with predeclared limits; deterministic admitted commands, pause/fault/rejection cases and 60/120/240 Hz research convergence distinct from runtime120. Preserve failed trials and references instead of fitting goldens.",
+        "Exact Windows editor/export/source-replacement package proof, declared source/fingerprint/model identity, bounded actual exported view review, unchanged old-default comparisons, no disturbed owner game. Independent source/numeric/module review and all protected checks precede merge. C172S, sensed electrical/indications, hardware/pilot and phase gates stay open."
+      ],
+      "evidence": [
+        "Exact model/source/profile/fingerprint and module review; frozen pretrial limits before actual bounded runtime; preserved failures and all 55 independent reference budgets.",
+        "Actual cold startup, sustained taxi/braking/shutdown, negative controls, solver-stage fuel, deterministic repeat/refinement and fail-stop records; synthetic consumer tests labeled separately.",
+        "Windows editor, portable export, corresponding-source replacement and actual exported views; all protected checks and SHA-guarded reviewed merge. Broad aircraft, hardware, pilot and phase gates remain open."
+      ]
     }
   ]
 }

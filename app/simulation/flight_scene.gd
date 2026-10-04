@@ -10,6 +10,12 @@ const Preset = preload("res://input/input_preset.gd")
 const ControlsPanel = preload("res://ui/controls/controls_panel.gd")
 const NativeReadings = preload("res://cockpit/instruments/native_readings.gd")
 const ScanPanel = preload("res://cockpit/instruments/scan_panel.gd")
+const EngineStatus = preload("res://cockpit/instruments/engine_status.gd")
+var selected_profile: String="original-interactive-prototype"
+var engine_status: Dictionary={}
+var held_systems: Dictionary={}
+var pending_systems: Dictionary={}
+var profile_button: Button
 var shared_readings: Dictionary={}
 var scan_panel: Control
 var scan_open: bool=false
@@ -98,8 +104,9 @@ func restart() -> bool:
 	# The inherited view checks a nonnull host reference; it never owns or calls
 	# a native executive. Ordinary lifecycle/input overrides use the facade.
 	bridge=facade
-	var model_root: String=ProjectSettings.globalize_path("res://models") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("models")
-	var result: Dictionary=facade.start(model_root,named_start)
+	var model_folder: String="piston-models" if piston_mode() else "models"
+	var model_root: String=ProjectSettings.globalize_path("res://"+model_folder) if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join(model_folder)
+	var result: Dictionary=facade.start(model_root,named_start,selected_profile)
 	if not result.ok:
 		return fail(result.error)
 	adopt_result(result)
@@ -147,8 +154,8 @@ func restart() -> bool:
 		return fail("Controls initialization could not pause native flight")
 	mapper=Mapper.new()
 	if active_preset.is_empty():
-		active_preset=Mapper.default_preset()
-	var configured: Dictionary=mapper.configure(active_preset,held_controls,initial.solved_controls,collect_input_raw())
+		active_preset=Mapper.default_preset_v2() if piston_mode() else Mapper.default_preset()
+	var configured: Dictionary=configure_mapper(active_preset)
 	input_blocked=not configured.ok
 	input_problem="" if configured.ok else configured.error
 	takeover_targets=[]
@@ -160,6 +167,42 @@ func restart() -> bool:
 	status="PAUSED | %s | fresh attempt %d | confirm controls"%[named_start,attempt]
 	last_wall_us=Time.get_ticks_usec()
 	return true
+
+func piston_mode() -> bool:
+	return selected_profile==Facade.PISTON_PROFILE.id
+
+func configure_mapper(preset: Dictionary) -> Dictionary:
+	if not piston_mode():
+		return mapper.configure(preset,held_controls,initial.solved_controls,collect_input_raw(preset))
+	var source: Dictionary=facade.readback()
+	var systems: Dictionary=EngineStatus.held_systems_from_readback(source)
+	if not systems.ok:
+		return {"ok":false,"error":systems.error}
+	return mapper.configure_v2(preset,held_controls,initial.solved_controls,collect_input_raw(preset),source.model_identity,systems.value)
+
+func suspend_mapper(reason: String) -> void:
+	if mapper==null:
+		return
+	if not piston_mode():
+		mapper.suspend(reason,held_controls)
+		return
+	var feedback: Dictionary=EngineStatus.held_systems_from_readback(facade.readback())
+	var result: Dictionary=mapper.suspend_v2(reason,held_controls,feedback.value if feedback.ok else {})
+	if not result.ok:
+		input_blocked=true
+		input_problem=result.error
+
+func choose_profile() -> void:
+	# An explicit paused menu choice starts a fresh session; selection never
+	# mutates a running executive or silently upgrades an imported preset.
+	if not paused or facade==null or facade.readback().host_mode!="paused":
+		return
+	selected_profile=Facade.LEGACY_PROFILE.id if piston_mode() else Facade.PISTON_PROFILE.id
+	named_start="piston-cold-ground" if piston_mode() else "ground-ready"
+	active_preset={}
+	held_systems={};pending_systems={};engine_status={}
+	if restart():
+		open_menu("Cold piston · confirm controls" if piston_mode() else "Ready to fly · confirm controls")
 
 func adopt_result(result: Dictionary) -> void:
 	var was_paused: bool=paused
@@ -173,9 +216,13 @@ func adopt_result(result: Dictionary) -> void:
 		var ground: Dictionary=facade.call("_ground_display")
 		ground_valid=ground.ground_query_valid
 		plane_clearance=ground.plane_clearance_m
+	if piston_mode():
+		engine_status=EngineStatus.from_readback(state)
+		var feedback: Dictionary=EngineStatus.held_systems_from_readback(state)
+		held_systems=feedback.value.duplicate(true) if feedback.ok else {}
 	paused=state.paused or state.host_mode!="live"
 	if paused and mapper!=null and (not was_paused or not result.ok):
-		mapper.suspend("Native flight paused or rejected",held_controls)
+		suspend_mapper("Native flight paused or rejected")
 	stalled=state.host_mode=="stalled"
 	blocked=state.host_mode in ["coverage_blocked","discarded"]
 	native_outcome=state.native_outcome if state.native_outcome!=null else "error"
@@ -209,12 +256,12 @@ func pause_session(value: bool) -> bool:
 	adopt_result(result)
 	last_wall_us=Time.get_ticks_usec()
 	if value and mapper!=null:
-		mapper.suspend("Native flight paused",held_controls)
+		suspend_mapper("Native flight paused")
 	if not result.ok:
 		input_blocked=true
 		input_problem="Native pause/resume rejected; start a fresh attempt"
 		if mapper!=null:
-			mapper.suspend(input_problem,held_controls)
+			suspend_mapper(input_problem)
 		# A failed requested pause cannot leave a worker advancing unnoticed.
 		if value:
 			adopt_result(facade.close())
@@ -248,7 +295,10 @@ func _process(delta: float) -> void:
 	process_input_interval(elapsed)
 	show_state(clampf(float(elapsed)/1000000.0,0.0,0.25))
 	if sound!=null and not snapshot.is_empty():
-		sound.call("update_audio",float(held_controls.get("throttle",0)),flight_speed(),paused,any_wow())
+		if piston_mode():
+			sound.call("update_engine_audio",engine_status,flight_speed(),paused,any_wow())
+		else:
+			sound.call("update_audio",float(held_controls.get("throttle",0)),flight_speed(),paused,any_wow())
 
 func process_input_interval(elapsed: int) -> void:
 	if facade==null or mapper==null:
@@ -258,7 +308,7 @@ func process_input_interval(elapsed: int) -> void:
 		# Preserve overload semantics before touching input filters; never clamp time.
 		if elapsed<0 or elapsed>250000:
 			adopt_result(facade.advance_wall_us(elapsed))
-			mapper.suspend("Host timing requires recovery",held_controls)
+			suspend_mapper("Host timing requires recovery")
 			input_blocked=true
 			input_problem="Host timing requires a fresh attempt"
 			return
@@ -278,8 +328,15 @@ func process_input_interval(elapsed: int) -> void:
 			if facade!=sampled_facade or paused or menu_open or input_blocked:
 				return
 		Input.mouse_mode=Input.MOUSE_MODE_CAPTURED if Mapper.action_pressed(active_preset,raw,"look_hold") else Input.MOUSE_MODE_VISIBLE
-		if submit_axes(controls):
-			advance_wall_us(elapsed)
+		if piston_mode():
+			pending_systems=sample.systems.duplicate(true)
+			var intent: Dictionary=facade.set_pilot_intent(controls,pending_systems)
+			adopt_result(intent)
+			if intent.ok:
+				advance_wall_us(elapsed)
+		else:
+			if submit_axes(controls):
+				advance_wall_us(elapsed)
 	else:
 		wheel_pulses.clear()
 		var diagnostic: Dictionary=mapper.sample(raw,0)
@@ -303,6 +360,8 @@ func make_menu(canvas: CanvasLayer) -> void:
 			box.remove_child(child)
 			child.queue_free()
 	var controls_button: Button=add_menu_button(box,"Controls and calibration  (F7)",open_controls)
+	profile_button=add_menu_button(box,"Aircraft: ready-to-fly prototype",choose_profile)
+	profile_button.add_theme_font_size_override("font_size",15)
 	var scan_button: Button=add_menu_button(box,"Instrument scan",open_instrument_scan)
 	var cockpit_row:=HBoxContainer.new()
 	cockpit_row.add_theme_constant_override("separation",8)
@@ -502,7 +561,7 @@ func pause_for_input(reason: String) -> void:
 	input_blocked=true
 	input_problem=reason
 	if mapper!=null:
-		mapper.suspend(reason,held_controls)
+		suspend_mapper(reason)
 	wheel_pulses.clear()
 	open_menu("Controls paused")
 	status="CONTROLS PAUSED | "+reason
@@ -515,6 +574,10 @@ func collect_input_raw(preset: Dictionary={}) -> Dictionary:
 			for code in binding.negative+binding.positive: key_codes[code]=true
 	for action in selected.get("actions",[]):
 		for source in action.sources:
+			if source.kind=="physical_keys":
+				for code in source.keys: key_codes[code]=true
+	for binding in selected.get("systems",[]):
+		for source in binding.sources:
 			if source.kind=="physical_keys":
 				for code in source.keys: key_codes[code]=true
 	key_codes[KEY_ESCAPE]=true
@@ -547,7 +610,12 @@ func controls_diagnostics() -> Dictionary:
 	var connected: Array=[]
 	for device in Input.get_connected_joypads():
 		connected.append({"id":device,"name":Input.get_joy_name(device),"guid":Input.get_joy_guid(device)})
-	return {"error":input_problem,"takeover":takeover_targets.duplicate(),"brake_hold":brake_hold,"connected_devices":connected,"transient":true}
+	var info: Dictionary={"error":input_problem,"takeover":takeover_targets.duplicate(),"brake_hold":brake_hold,"connected_devices":connected,"transient":true}
+	if piston_mode():
+		info.profile=Facade.PISTON_PROFILE.duplicate(true)
+		info.held_systems=held_systems.duplicate(true)
+		info.pending_systems=pending_systems.duplicate(true)
+	return info
 
 func select_input_device(slot: String, device: int) -> void:
 	if not paused or facade==null or facade.readback().host_mode!="paused":
@@ -569,13 +637,16 @@ func open_controls() -> void:
 	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
 	wheel_pulses.clear()
 	controls_selection_backup=selected_slots.duplicate(true)
-	controls_panel.open(active_preset,collect_input_raw(),held_controls,initial.solved_controls)
+	if piston_mode():
+		controls_panel.open_v2(active_preset,collect_input_raw(),held_controls,initial.solved_controls,Facade.PISTON_PROFILE,held_systems)
+	else:
+		controls_panel.open(active_preset,collect_input_raw(),held_controls,initial.solved_controls)
 	controls_panel.update_diagnostics(collect_input_raw(),held_controls,held_controls,controls_diagnostics())
 
 func apply_controls(preset: Dictionary) -> void:
 	if facade==null or mapper==null or facade.readback().host_mode!="paused":
 		return
-	var applied: Dictionary=mapper.configure(preset,held_controls,initial.solved_controls,collect_input_raw(preset))
+	var applied: Dictionary=configure_mapper(preset)
 	if not applied.ok:
 		input_problem=applied.error
 		controls_panel.update_diagnostics(collect_input_raw(),held_controls,held_controls,controls_diagnostics())
@@ -602,6 +673,11 @@ func start_flight(start: String) -> void:
 	if legacy_proof:
 		super.start_flight(start)
 		return
+	if piston_mode():
+		if start=="airborne-prepared":
+			status="This piston prototype supports a cold ground start; the current session is retained"
+			return
+		start="piston-cold-ground"
 	named_start=start
 	if restart():
 		if controls_panel!=null: controls_panel.hide()
@@ -638,6 +714,8 @@ func show_state(seconds: float=0.0) -> void:
 		return
 	layout_flight_menu()
 	var map_top: float=124.0 if snapshot.is_empty() or blocked or stalled or native_outcome in ["discarded","error","coverage_blocked"] else 92.0
+	if piston_mode():
+		map_top+=40.0
 	flight_map.size=Vector2(minf(420,get_viewport().get_visible_rect().size.x*0.42),minf(500,get_viewport().get_visible_rect().size.y-map_top-14))
 	flight_map.position=Vector2(get_viewport().get_visible_rect().size.x-flight_map.size.x-14,map_top)
 	var current: Dictionary=facade.readback()
@@ -712,7 +790,12 @@ func show_state(seconds: float=0.0) -> void:
 	camera_ready=true
 	camera.look_at(look_target,up)
 	if propeller!=null and not paused:
-		propeller.rotate_z(clampf(seconds,0.0,0.25)*(25+float(held_controls.throttle)*65))
+		if piston_mode():
+			var shaft: Dictionary=engine_status.get("readings",{}).get("propeller.angular_speed",{})
+			if engine_status.get("state")=="live" and shaft.get("valid")==true:
+				propeller.rotate_z(clampf(seconds,0.0,0.25)*float(shaft.value))
+		else:
+			propeller.rotate_z(clampf(seconds,0.0,0.25)*(25+float(held_controls.throttle)*65))
 	var view_names: Array[String]=["COCKPIT","CHASE","ORBIT","PANEL"]
 	var input_name: String=active_preset.get("name","Controls")+" / guest"
 	if not takeover_targets.is_empty():
@@ -842,6 +925,9 @@ func run_input_visual() -> void:
 # Original MIT view-only instrument routing over accepted native readback.
 func publish_readings(readback: Dictionary, info: Dictionary) -> void:
 	shared_readings=NativeReadings.from_readback(readback)
+	if piston_mode():
+		engine_status=EngineStatus.from_readback(readback)
+		info.engine_status=engine_status.duplicate(true)
 	var source: Dictionary=readback.aircraft if readback.get("aircraft") is Dictionary else {}
 	var held: Dictionary=readback.held_axes if readback.get("held_axes") is Dictionary else {}
 	panel.call("set_native_readings",shared_readings,source,held,info)
@@ -885,6 +971,10 @@ func open_menu(title: String="Flight paused") -> void:
 	if not legacy_proof:
 		scan_open=false
 	super.open_menu(title)
+	if not legacy_proof and profile_button!=null:
+		profile_button.text="Aircraft: cold piston prototype  ·  switch" if piston_mode() else "Aircraft: ready-to-fly prototype  ·  switch"
+		if piston_mode():
+			menu_message.text="Original piston prototype · idealized starter supply\nStart: brakes held, mixture rich, ignition both, hold starter.\nUse your engine bindings in Controls (F7). Release starter after firing.\nNative shaft RPM / combustion / switches are shown below.\nThis is an engineering interaction; no C172 procedure is claimed."
 
 func close_menu() -> void:
 	if not legacy_proof and scan_open:

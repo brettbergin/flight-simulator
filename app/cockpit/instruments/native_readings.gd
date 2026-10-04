@@ -5,6 +5,8 @@ const Wire = preload("res://simulation/wire_validation.gd")
 const U64 = preload("res://simulation/uint64.gd")
 const Frames = preload("res://simulation/canonical_frames.gd")
 const WORLD: String = "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5"
+const LEGACY_PROFILE: Dictionary = {"id":"original-interactive-prototype","version":"0.1.0-prototype","backend_model":"original-interactive"}
+const PISTON_PROFILE: Dictionary = {"id":"original-piston-prop-v1","version":"0.1.0-prototype","backend_model":"original-piston-prop"}
 const UNITS: Dictionary = {"tas":"m/s","ground_speed":"m/s","pitch":"rad","bank":"rad","heading_true":"rad","ellipsoid_height":"m","vertical_speed":"m/s","body_yaw_rate":"rad/s","fuel_total":"kg"}
 const KEYS: Array = ["host_mode","error","historical","session_id","tick","aircraft","atmosphere","held_axes","native_outcome","native_live","paused","time_scale","debt_quanta","native_fault","named_start","model_identity","native_source_fingerprint","prepared_world_sha256","world_anchor","canonical"]
 const NULLABLE: Array = ["session_id","tick","aircraft","atmosphere","held_axes","native_outcome","named_start","model_identity","native_source_fingerprint","prepared_world_sha256","world_anchor","canonical"]
@@ -33,7 +35,7 @@ static func _hex(value: Variant) -> bool:
 			return false
 	return true
 
-static func _axes(value: Variant) -> bool:
+static func _axes(value: Variant, piston: bool=false) -> bool:
 	if not _keys(value,["kind","roll","pitch","yaw","throttle","mixture","left_brake","right_brake","trim"]) or not value.kind is String or value.kind!="axes":
 		return false
 	for key in ["roll","pitch","yaw","trim"]:
@@ -42,7 +44,7 @@ static func _axes(value: Variant) -> bool:
 	for key in ["throttle","mixture","left_brake","right_brake"]:
 		if not _number(value[key]) or value[key]<0.0 or value[key]>1.0:
 			return false
-	return value.mixture==1.0
+	return piston or value.mixture==1.0
 
 static func _validate(value: Variant) -> String:
 	if not _keys(value,KEYS):
@@ -85,19 +87,20 @@ static func _validate(value: Variant) -> String:
 		return "Source publication must be valid runtime120Hz"
 	if not value.session_id is String or not U64.valid(value.tick) or aircraft.session_id!=value.session_id or weather.session_id!=value.session_id or aircraft.tick!=value.tick or weather.tick!=value.tick or aircraft.position!=weather.position:
 		return "Source pair/session/tick/position mismatch"
-	if not _axes(value.held_axes):
-		return "Invalid or missing native-held axes"
-	if not value.native_outcome is String or not ["completed","paused","coverage_blocked","discarded"].has(value.native_outcome):
-		return "Missing or unknown native outcome"
-	if not value.named_start is String or not ["ground-ready","airborne-prepared"].has(value.named_start):
-		return "Unknown named start"
 	if not _keys(value.model_identity,["id","version","backend_model"]):
 		return "Malformed model identity"
 	for key in ["id","version","backend_model"]:
 		if not value.model_identity[key] is String:
 			return "Model identity values must be Strings"
-	if value.model_identity!={"id":"original-interactive-prototype","version":"0.1.0-prototype","backend_model":"original-interactive"}:
+	if value.model_identity!=LEGACY_PROFILE and value.model_identity!=PISTON_PROFILE:
 		return "Unexpected model identity"
+	var piston: bool = value.model_identity==PISTON_PROFILE
+	if not _axes(value.held_axes,piston):
+		return "Invalid or missing native-held axes"
+	if not value.native_outcome is String or not ["completed","paused","coverage_blocked","discarded"].has(value.native_outcome):
+		return "Missing or unknown native outcome"
+	if not value.named_start is String or (value.named_start!="piston-cold-ground" if piston else not ["ground-ready","airborne-prepared"].has(value.named_start)):
+		return "Unknown named start"
 	# Fingerprint structure is checked here; the leaf cannot prove binary authority.
 	if not _hex(value.native_source_fingerprint) or not _hex(value.prepared_world_sha256) or value.prepared_world_sha256!=WORLD:
 		return "Invalid source fingerprint or prepared world identity"

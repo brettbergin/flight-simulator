@@ -9,6 +9,11 @@ const MAX_INT: int = 9223372036854775807
 const WORLD: String = "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5"
 const NATIVE: String = "35cf7b603d99b9accb123405f7569a901ed9e28d32110acbc296b376facd6416"
 const INVENTORY: String = "98b30b5641ce86cc6f0af6298424606aa96a1e4a35ef3e9fcaf377bebb3f00cd"
+const PISTON_INVENTORY: String = "f8ef5011243ef8cf16e13924a5cdc902c2055ba4789a4bfd0cba209533594b7a"
+const LEGACY_PROFILE: Dictionary = {"id":"original-interactive-prototype","version":"0.1.0-prototype","backend_model":"original-interactive"}
+const PISTON_PROFILE: Dictionary = {"id":"original-piston-prop-v1","version":"0.1.0-prototype","backend_model":"original-piston-prop"}
+const SYSTEM_IDS: Array = ["engine.ignition_left","engine.ignition_right","engine.starter","fuel.feed"]
+const COLD_SYSTEMS: Dictionary = {"engine.ignition_left":false,"engine.ignition_right":false,"engine.starter":false,"fuel.feed":true}
 
 var render_origin: RefCounted
 var _factory: Callable
@@ -18,6 +23,9 @@ var _command_sequence: String = "0"
 var _lifecycle_sequence: String = "0"
 var _pending: Variant = null
 var _admitted: Variant = null
+var _profile: String = "original-interactive-prototype"
+var _pending_systems: Variant = null
+var _admitted_systems: Dictionary = {}
 var _prepared: Dictionary = {}
 var _previous: Variant = null
 var _current: Variant = null
@@ -154,7 +162,9 @@ static func _decode(encoded: String) -> Variant:
 	var parser:=JSON.new()
 	return parser.data if parser.parse(encoded)==OK else null
 
-static func valid_axes(value: Variant) -> bool:
+static func valid_axes(value: Variant, profile_id: String="original-interactive-prototype") -> bool:
+	if profile_id not in ["original-interactive-prototype","original-piston-prop-v1"]:
+		return false
 	if not value is Dictionary or not _keys(value,["kind","roll","pitch","yaw","throttle","mixture","left_brake","right_brake","trim"]) or value.kind!="axes":
 		return false
 	for key in ["roll","pitch","yaw","throttle","mixture","left_brake","right_brake","trim"]:
@@ -164,7 +174,44 @@ static func valid_axes(value: Variant) -> bool:
 		var low: float=-1.0 if key in ["roll","pitch","yaw","trim"] else 0.0
 		if float(item)<low or float(item)>1.0:
 			return false
-	return float(value.mixture)==1.0
+	return profile_id=="original-piston-prop-v1" or float(value.mixture)==1.0
+
+static func valid_systems(value: Variant) -> bool:
+	if not value is Dictionary or not _keys(value,SYSTEM_IDS):
+		return false
+	for id in SYSTEM_IDS:
+		if typeof(value[id])!=TYPE_BOOL:
+			return false
+	return true
+
+static func _recipe(profile_id: String, named_start: String) -> bool:
+	if profile_id=="original-piston-prop-v1":
+		return named_start=="piston-cold-ground"
+	return profile_id=="original-interactive-prototype" and named_start in ["ground-ready","airborne-prepared"]
+
+static func _snapshot_systems(aircraft: Dictionary) -> Dictionary:
+	var selected: Dictionary = {}
+	for system in aircraft.systems:
+		if SYSTEM_IDS.has(system.id):
+			if system.quantity!="bool" or system.validity!="valid" or typeof(system.value)!=TYPE_BOOL:
+				return {}
+			selected[system.id]=system.value
+	return selected if valid_systems(selected) else {}
+
+static func _piston_publication(aircraft: Dictionary, axes: Dictionary) -> bool:
+	var units: Dictionary = {"fuel.total":"kg","engine.throttle":"fraction","engine.mixture":"fraction","propeller.angular_speed":"radps","engine.running":"bool","engine.ignition_left":"bool","engine.ignition_right":"bool","engine.starter":"bool","fuel.feed":"bool","engine.starved":"bool"}
+	if aircraft.systems.size()!=units.size():
+		return false
+	for system in aircraft.systems:
+		if not units.has(system.id) or system.quantity!=units[system.id] or system.validity!="valid":
+			return false
+		if system.id in ["fuel.total","propeller.angular_speed"] and float(system.value)<0.0:
+			return false
+		if system.id=="engine.throttle" and not _same(system.value,axes.throttle,true):
+			return false
+		if system.id=="engine.mixture" and not _same(system.value,axes.mixture,true):
+			return false
+	return valid_systems(_snapshot_systems(aircraft))
 
 func _call(method: String, arguments: Array=[]) -> Variant:
 	if _bridge==null or not is_instance_valid(_bridge) or not _bridge.has_method(method) or OS.get_thread_caller_id()!=_owner_thread:
@@ -197,17 +244,18 @@ func _halt(message: String, mode: String="discarded", incomplete: bool=true) -> 
 	if not _closed_join():
 		_truth.error+="; native close/join unconfirmed"
 
-func start(model_root: String, named_start: String) -> Dictionary:
+func start(model_root: String, named_start: String, profile_id: String="original-interactive-prototype") -> Dictionary:
 	var entry_error: String=_entry_error()
 	if not entry_error.is_empty():
 		return _entry_rejection(entry_error)
 	_begin()
 	if _bridge!=null or _truth.host_mode!="closed":
 		return _result(false,"Close before starting a fresh session")
-	if OS.get_thread_caller_id()!=_owner_thread or named_start not in ["ground-ready","airborne-prepared"]:
+	if OS.get_thread_caller_id()!=_owner_thread or not _recipe(profile_id,named_start):
 		return _result(false,"Invalid owner thread or named start")
 	# Native validates the entire authored inventory; host binds its reviewed ID.
-	if FileAccess.get_sha256(model_root.path_join("inventory.json"))!=INVENTORY:
+	var inventory: String = PISTON_INVENTORY if profile_id==PISTON_PROFILE.id else INVENTORY
+	if FileAccess.get_sha256(model_root.path_join("inventory.json"))!=inventory:
 		return _result(false,"Reviewed model inventory identity mismatch")
 	if _factory.is_valid():
 		_bridge=_factory.call() as RefCounted
@@ -215,7 +263,10 @@ func start(model_root: String, named_start: String) -> Dictionary:
 		_bridge=ClassDB.instantiate("FlightInteractiveSession") as RefCounted
 	if _bridge==null:
 		return _result(false,"Native interactive session unavailable")
-	var reply: Variant=_call("open_session",[model_root,named_start])
+	_profile=profile_id
+	# Preserve the exact default two-argument adapter call for legacy callers.
+	var arguments: Array=[model_root,named_start] if profile_id==LEGACY_PROFILE.id else [model_root,named_start,profile_id]
+	var reply: Variant=_call("open_session",arguments)
 	if not reply is Dictionary or reply.get("ok")!=true or reply.get("named_start")!=named_start or reply.get("prepared_world_sha256")!=WORLD or reply.get("native_source_fingerprint")!=NATIVE:
 		_closed_join()
 		return _result(false,"Native initialization or pinned identity validation failed")
@@ -237,7 +288,7 @@ func start(model_root: String, named_start: String) -> Dictionary:
 	_truth.world_anchor=anchor_value.duplicate(true)
 	_root=model_root
 	_truth.named_start=named_start
-	_truth.model_identity={"id":"original-interactive-prototype","version":"0.1.0-prototype","backend_model":"original-interactive"}
+	_truth.model_identity=(PISTON_PROFILE if profile_id==PISTON_PROFILE.id else LEGACY_PROFILE).duplicate(true)
 	_truth.native_source_fingerprint=NATIVE
 	_truth.prepared_world_sha256=WORLD
 	_truth.debt_quanta=0
@@ -252,16 +303,18 @@ func start(model_root: String, named_start: String) -> Dictionary:
 	_delivered_command="0"
 	_delivered_event="0"
 	_pending=null
+	_pending_systems=null
 	_origin_blocked=false
 	_blocked_origin_version=null
 	_admitted=_truth.held_axes.duplicate(true)
+	_admitted_systems=_snapshot_systems(_truth.aircraft) if profile_id==PISTON_PROFILE.id else {}
 	render_origin=Origin.new(_truth.session_id,_prepared.ecef,_prepared.rotation)
 	return _result(true)
 
 func _accept(reply: Dictionary, requested: int, initial: bool=false, step_reply: bool=false) -> bool:
 	if reply.get("ok")!=true or reply.get("schema_version")!=1 or not reply.get("completed") is int or reply.completed<0 or reply.completed>requested:
 		return false
-	if not reply.get("aircraft_json") is String or not reply.get("atmosphere_json") is String or not valid_axes(reply.get("held_axes")):
+	if not reply.get("aircraft_json") is String or not reply.get("atmosphere_json") is String or not valid_axes(reply.get("held_axes"),_profile):
 		return false
 	if not reply.get("live") is bool or not reply.get("paused") is bool or not reply.get("historical") is bool or not reply.get("fault") is String or not (reply.get("time_scale") is float or reply.get("time_scale") is int):
 		return false
@@ -292,6 +345,8 @@ func _accept(reply: Dictionary, requested: int, initial: bool=false, step_reply:
 			return false
 	if not Wire.aircraft(aircraft) or not Wire.atmosphere(weather) or not U64.valid(weather.seed) or aircraft.configuration.flap_fraction!=0 or aircraft.configuration.gear_fraction!=1:
 		return false
+	if _profile==PISTON_PROFILE.id and not _piston_publication(aircraft,reply.held_axes):
+		return false
 	if reply.outcome=="completed" and (not reply.live or reply.paused):
 		return false
 	if reply.outcome=="paused" and (not reply.live or not reply.paused):
@@ -310,12 +365,18 @@ func _accept(reply: Dictionary, requested: int, initial: bool=false, step_reply:
 	var command_cursor: String=_delivered_command
 	var event_cursor: String=_delivered_event
 	var expected_axes: Variant=null if initial else _truth.held_axes
+	var expected_systems: Dictionary = COLD_SYSTEMS.duplicate(true) if initial else (_snapshot_systems(_truth.aircraft) if _profile==PISTON_PROFILE.id else {})
 	for record in commands:
 		var next: Dictionary=U64.increment(command_cursor)
 		if not Wire.command(record) or not next.ok or record.sequence!=next.value or not _pending_commands.has(record.sequence) or not _same(record,_pending_commands[record.sequence],true):
 			return false
 		command_cursor=record.sequence
-		expected_axes=record.payload
+		if record.payload.kind=="axes":
+			expected_axes=record.payload
+		elif _profile==PISTON_PROFILE.id and record.payload.kind=="system" and SYSTEM_IDS.has(record.payload.control_id) and typeof(record.payload.value)==TYPE_BOOL:
+			expected_systems[record.payload.control_id]=record.payload.value
+		else:
+			return false
 	for record in events:
 		var next: Dictionary=U64.increment(event_cursor)
 		if not Wire.event(record) or not next.ok or record.sequence!=next.value or not _pending_events.has(record.sequence):
@@ -341,6 +402,8 @@ func _accept(reply: Dictionary, requested: int, initial: bool=false, step_reply:
 	elif not commands.is_empty() or not events.is_empty():
 		return false
 	if expected_axes!=null and not _same(reply.held_axes,expected_axes,true):
+		return false
+	if _profile==PISTON_PROFILE.id and not _same(_snapshot_systems(aircraft),expected_systems):
 		return false
 	if not _same(aircraft.configuration.trim_fraction,reply.held_axes.trim,true):
 		return false
@@ -393,13 +456,27 @@ func set_axes(axes: Dictionary) -> Dictionary:
 	if not entry_error.is_empty():
 		return _entry_rejection(entry_error)
 	_begin()
-	if _truth.host_mode!="live" or not valid_axes(axes):
+	if _truth.host_mode!="live" or _profile!=LEGACY_PROFILE.id or not valid_axes(axes):
 		return _result(false,"Complete normalized unassisted axes require a live unpaused session")
 	_pending=axes.duplicate(true)
 	_admission="intent_stored"
 	return _result(true)
 
+func set_pilot_intent(axes: Dictionary, systems: Dictionary) -> Dictionary:
+	var entry_error: String=_entry_error()
+	if not entry_error.is_empty():
+		return _entry_rejection(entry_error)
+	_begin()
+	if _truth.host_mode!="live" or _profile!=PISTON_PROFILE.id or not valid_axes(axes,_profile) or not valid_systems(systems):
+		return _result(false,"Complete piston axes and bool systems require a live unpaused session")
+	_pending=axes.duplicate(true)
+	_pending_systems=systems.duplicate(true)
+	_admission="intent_stored"
+	return _result(true)
+
 func _queue_pending() -> bool:
+	if _profile==PISTON_PROFILE.id:
+		return _queue_piston_pending()
 	if _pending==null or _same(_pending,_admitted):
 		_pending=null
 		return true
@@ -422,6 +499,50 @@ func _queue_pending() -> bool:
 	_command_sequence=next_sequence.value
 	_admitted=_pending.duplicate(true)
 	_pending=null
+	_admission="queued"
+	return true
+
+func _queue_piston_pending() -> bool:
+	var payloads: Array=[]
+	if _pending!=null and not _same(_pending,_admitted):
+		payloads.append(_pending.duplicate(true))
+	if _pending_systems!=null:
+		for id in SYSTEM_IDS:
+			if _pending_systems[id]!=_admitted_systems[id]:
+				payloads.append({"kind":"system","control_id":id,"value":_pending_systems[id]})
+	if payloads.is_empty():
+		_pending=null
+		_pending_systems=null
+		return true
+	var tick: Dictionary=U64.increment(_truth.tick)
+	var sequence: String=_command_sequence
+	var commands: Array=[]
+	# Reserve the entire shared lane BEFORE the first individually admitted call.
+	for payload in payloads:
+		var next: Dictionary=U64.increment(sequence)
+		if not tick.ok or not next.ok:
+			_halt("Pilot tick or sequence exhausted","discarded",false)
+			return false
+		sequence=next.value
+		commands.append({"type":"ControlCommand","schema_version":1,"tick":tick.value,"session_id":_truth.session_id,"sequence":sequence,"source_id":"pilot.controls","authority":"pilot","assistance":{"profile_id":"unassisted","active":[]},"payload":payload})
+	for command in commands:
+		var reply: Variant=_call("submit",[command])
+		if not reply is Dictionary or not reply.get("rejection") is int:
+			_halt("Unverified native piston admission reply")
+			return false
+		_rejection=reply.rejection
+		if reply.get("ok")!=true or reply.get("queued")!=true or reply.rejection!=0 or not _accept(reply,0):
+			_admission="rejected"
+			_halt("Piston command rejected or acknowledgement inconsistent; no solver advance")
+			return false
+		_pending_commands[command.sequence]=command.duplicate(true)
+		_command_sequence=command.sequence
+		if command.payload.kind=="axes":
+			_admitted=command.payload.duplicate(true)
+		else:
+			_admitted_systems[command.payload.control_id]=command.payload.value
+	_pending=null
+	_pending_systems=null
 	_admission="queued"
 	return true
 
@@ -476,6 +597,15 @@ func set_paused(value: bool) -> Dictionary:
 		_truth.error=""
 	if _truth.paused==value:
 		return _result(true)
+	if _profile==PISTON_PROFILE.id:
+		# Remove all unadmitted local intent on recovery; keep native feedback true.
+		_pending=null
+		_pending_systems=null
+		if not value and _admitted_systems.get("engine.starter",false):
+			_pending_systems=_admitted_systems.duplicate(true)
+			_pending_systems["engine.starter"]=false
+			if not _queue_piston_pending():
+				return _result(false,_truth.error)
 	if not _lifecycle({"kind":"pause","paused":value}):
 		return _result(false,_truth.error)
 	if _truth.paused!=value:
@@ -637,7 +767,7 @@ func reset(named_start: String) -> Dictionary:
 	if not entry_error.is_empty():
 		return _entry_rejection(entry_error)
 	_begin()
-	if named_start not in ["ground-ready","airborne-prepared"] or _root.is_empty():
+	if not _recipe(_profile,named_start) or _root.is_empty():
 		return _result(false,"Verified model root and supported named start required")
 	var previous_events: Array=[]
 	if not _close_current():
@@ -649,7 +779,7 @@ func reset(named_start: String) -> Dictionary:
 	previous_events=_events.duplicate(true)
 	var complete: bool=_complete
 	_truth.host_mode="closed"
-	var result: Dictionary=start(_root,named_start)
+	var result: Dictionary=start(_root,named_start,_profile)
 	result.events=previous_events+result.events
 	result.observation_complete=result.observation_complete and complete
 	return result

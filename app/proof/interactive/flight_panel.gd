@@ -101,6 +101,8 @@ func _draw() -> void:
 		return
 	_draw_topbar()
 	_draw_control_strip()
+	if _info.has("engine_status"):
+		_draw_piston_strip()
 	if _panel_visible:
 		_draw_panel()
 	if _help_visible:
@@ -196,6 +198,47 @@ func _draw_panel() -> void:
 		_draw_compact_panel(top, panel_height)
 	else:
 		_draw_classic_panel(top, panel_height)
+
+func _engine_channel(id: String) -> Variant:
+	var source: Variant=_info.get("engine_status")
+	if not source is Dictionary or source.get("native_truth")!=true or source.get("state") not in ["live","paused","historical"]:
+		return null
+	var channels: Variant=source.get("readings")
+	if not channels is Dictionary:
+		return null
+	var channel: Variant=channels.get(id)
+	if not channel is Dictionary or channel.get("valid")!=true or channel.get("error")!="":
+		return null
+	var value: Variant=channel.get("value")
+	if channel.get("unit")=="bool":
+		return value if typeof(value)==TYPE_BOOL else null
+	return value if typeof(value)==TYPE_FLOAT and is_finite(value) else null
+
+func _engine_number(id: String, factor: float=1.0, decimals: int=0) -> String:
+	var value: Variant=_engine_channel(id)
+	return _native_number(float(value)*factor,decimals) if typeof(value)==TYPE_FLOAT else "—"
+
+func _engine_switch(id: String) -> String:
+	var value: Variant=_engine_channel(id)
+	return ("ON" if value else "OFF") if typeof(value)==TYPE_BOOL else "—"
+
+func _engine_phase() -> String:
+	var running: Variant=_engine_channel("engine.running")
+	var starter: Variant=_engine_channel("engine.starter")
+	var shaft: Variant=_engine_channel("propeller.angular_speed")
+	if typeof(running)!=TYPE_BOOL or typeof(starter)!=TYPE_BOOL or typeof(shaft)!=TYPE_FLOAT:
+		return "UNAVAILABLE"
+	if running: return "RUNNING"
+	if starter: return "CRANKING"
+	return "COASTING" if shaft>0.2 else "STOPPED"
+
+func _draw_piston_strip() -> void:
+	var retained: bool=_info.get("retained",false) or _info.get("blocked",false) or _info.get("stalled",false)
+	var top: float=123.0 if retained else 90.0
+	_box(Rect2(10,top,size.x-20,34),Color("14222d"),Color("425162"),6)
+	var scope: String="RETAINED" if retained else "ENGINE"
+	var text: String="%s %s · %s RPM     MIX %s%%     IGN L %s / R %s     START %s     FEED %s" % [scope,_engine_phase(),_engine_number("propeller.angular_speed",60.0/TAU),_engine_number("engine.mixture",100.0),_engine_switch("engine.ignition_left"),_engine_switch("engine.ignition_right"),_engine_switch("engine.starter"),_engine_switch("fuel.feed")]
+	_text(Vector2(23,top+23),_bounded_text(text,size.x-46,14),14,AMBER if retained else CYAN)
 
 func _draw_classic_panel(top: float, height: float) -> void:
 	var slot := (height - 44.0) * 0.5
@@ -439,6 +482,19 @@ func _ground_label() -> String:
 	return "GEAR CLEAR · 0/3" if count == 0 else "CONTACT  %d / 3" % count
 
 func _draw_engine(rect: Rect2) -> void:
+	if _info.has("engine_status"):
+		_text(rect.position,"PISTON & FIXED PROP",13,MUTED)
+		_text(rect.position+Vector2(0,44),_engine_number("propeller.angular_speed",60.0/TAU),35,CYAN)
+		_text(rect.position+Vector2(115,43),"RPM",12,MUTED)
+		_text(rect.position+Vector2(0,76),_engine_phase(),14,GREEN if _engine_channel("engine.running")==true else AMBER)
+		_text(rect.position+Vector2(0,107),"MIXTURE  "+_engine_number("engine.mixture",100.0)+"%",14)
+		_text(rect.position+Vector2(0,138),"FUEL  "+_engine_number("fuel.total",1.0,1)+" kg",14)
+		_text(rect.position+Vector2(0,172),"IGN L "+_engine_switch("engine.ignition_left")+" / R "+_engine_switch("engine.ignition_right"),12)
+		_text(rect.position+Vector2(0,200),"STARTER  "+_engine_switch("engine.starter"),12,AMBER)
+		_text(rect.position+Vector2(0,228),"FEED  "+_engine_switch("fuel.feed"),12)
+		_text(rect.position+Vector2(0,254),"IDEALIZED STARTER SUPPLY",10,MUTED)
+		_text(rect.position+Vector2(0,278),"NATIVE TRUTH · NOT SENSORS",10,MUTED)
+		return
 	_text(rect.position + Vector2(0, 0), "POWER & FUEL", 13, MUTED)
 	var throttle := float(_held.get("throttle", 0.0))
 	_text(rect.position + Vector2(0, 44), "%03d" % roundi(throttle * 100), 35, CYAN)
@@ -500,6 +556,10 @@ func _draw_cockpit_surface() -> void:
 	if is_finite(fuel):
 		_bar(Vector2(x, 151), width, fuel / 100.0, GREEN)
 	_text(Vector2(x, 181), "ORIGINAL SYNTHETIC ENGINE", 11, MUTED)
+	if _info.has("engine_status"):
+		# Native RPM and mixture share the existing engine-area footprint.
+		draw_rect(Rect2(x,162,width,30),Color("1b2532"))
+		_text(Vector2(x,181),"%s RPM · MIX %s%%" % [_engine_number("propeller.angular_speed",60.0/TAU),_engine_number("engine.mixture",100.0)],15,CYAN)
 	_line(Vector2(x, 199), Vector2(x + width, 199), LINE)
 	for index in range(2):
 		var y := 229 + index * 52
