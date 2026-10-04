@@ -14,7 +14,7 @@ var legacy_proof: bool="--smoke" in OS.get_cmdline_user_args() or "--visual-smok
 var facade_visual: bool="--facade-visual-smoke" in OS.get_cmdline_user_args()
 
 func _ready() -> void:
-	if "--facade-checks" in OS.get_cmdline_user_args():
+	if "--facade-checks" in OS.get_cmdline_user_args() and get_parent()==get_tree().root:
 		set_process(false)
 		var harness: Script=load("res://sim_loop_checks.gd")
 		if harness==null or not harness.can_instantiate():
