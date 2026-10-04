@@ -244,6 +244,8 @@ func check(ok: bool, label: String) -> void:
  if not ok: failures.append(label)
 func _ready() -> void:
  call_deferred("execute")
+func stage(boundary: String, name: String) -> void:
+ print("PROOF_STAGE "+boundary+" "+name+" ms="+str(Time.get_ticks_msec()))
 func execute() -> void:
  for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests"]:
   for name in DirAccess.get_files_at(folder):
@@ -257,51 +259,77 @@ func execute() -> void:
   get_tree().quit(1)
   return
  var facade_script=load("res://sim_loop_tests/facade_checks.gd") as Script
+ stage("begin","facade")
  var facade: Dictionary=facade_script.run(ProjectSettings.globalize_path("res://models"))
+ stage("end","facade")
  check(facade.get("checks",0)>0 and facade.get("failures",["missing"]).is_empty(),"actual_native_facade_checks")
+ stage("begin","origin")
  var origin: Dictionary=load("res://simulation/render_origin_checks.gd").new().run(self)
+ stage("end","origin")
+ stage("begin","participants")
  var participants: Dictionary=load("res://simulation/origin_participant_checks.gd").new().run(self)
+ stage("end","participants")
  var fixtures: Dictionary={}
  for kind in ["AircraftSnapshot","AtmosphereSample","ControlCommand","OperationalEvent"]:
   fixtures[kind]=JSON.parse_string(FileAccess.get_file_as_string("res://wire_fixtures/"+kind+".json"))
+ stage("begin","wire")
  var wire: Dictionary=load("res://simulation/wire_validation_checks.gd").run(fixtures)
+ stage("end","wire")
  check(wire.get("passed",false) and wire.get("checks",0)>0,"full_v1_wire_checks")
+ stage("begin","input")
  var input: Dictionary=load("res://input_tests/input_checks.gd").run()
+ stage("end","input")
  check(input.get("passed",false) and input.get("checks",0)>0 and input.get("failures",["missing"]).is_empty(),"actual_input_mapper_codec_checks")
  var input_scene_failures: int=failures.size()
+ stage("begin","input.scene")
  var input_scene: Dictionary=await load("res://input_tests/scene_checks.gd").new().run(self)
+ stage("end","input.scene")
  check(failures.size()==input_scene_failures and input_scene.has("initial_tick"),"actual_input_scene_checks")
+ stage("begin","instruments")
  var instruments: Dictionary=load("res://instrument_tests/instrument_checks.gd").run()
+ stage("end","instruments")
  check(instruments.get("passed",false) and instruments.get("checks",0)>0 and instruments.get("failures",["missing"]).is_empty(),"native_truth_reading_checks")
  var cockpit_checks: Dictionary={}
  for name in ["adapter","scan","scene"]:
   var prior_failures: int=failures.size()
+  stage("begin","cockpit."+name)
   var result: Dictionary=await load("res://instrument_tests/"+name+"_checks.gd").new().run(self)
+  stage("end","cockpit."+name)
   check(failures.size()==prior_failures and result.get("passed",false) and result.get("checks",0)>0 and result.get("failures",["missing"]).is_empty(),"actual_cockpit_"+name+"_checks")
   cockpit_checks[name]=result
  var freeflight_checks: Dictionary={}
  for item in [{"name":"geometry","script":"landmark_checks.gd"},{"name":"scene","script":"scene_checks.gd"}]:
   var before: int=failures.size()
+  stage("begin","freeflight."+item.name)
   var result: Dictionary=await load("res://freeflight_tests/"+item.script).new().run(self)
+  stage("end","freeflight."+item.name)
   check(failures.size()==before and result.get("passed",false) and result.get("checks",0)>0 and result.get("failures",["missing"]).is_empty(),"actual_freeflight_"+item.name+"_checks")
   freeflight_checks[item.name]=result
  var observed_checks: Dictionary={}
  var observed_before: int=failures.size()
+ stage("begin","observed.recorder")
  var recorded: Dictionary=load("res://observed_tests/recorder_checks.gd").new().run(self)
+ stage("end","observed.recorder")
  check(failures.size()==observed_before and recorded.get("passed",false) and recorded.get("checks",0)>0 and recorded.get("failures",["missing"]).is_empty(),"actual_observed_recorder_checks")
  observed_checks["recorder"]=recorded
  observed_before=failures.size()
+ stage("begin","observed.scene")
  var observed_scene: Dictionary=await load("res://observed_tests/scene_checks.gd").new().run(self)
+ stage("end","observed.scene")
  check(failures.size()==observed_before and observed_scene.get("passed",false) and observed_scene.get("checks",0)>0 and observed_scene.get("failures",["missing"]).is_empty(),"actual_observed_scene_checks")
  observed_checks["scene"]=observed_scene
  var archive_checks: Dictionary={}
  for name in ["codec","files","scene"]:
   var before_archive: int=failures.size()
   var driver: Script=load("res://observed_archive_tests/"+("archive" if name=="codec" else "file" if name=="files" else "scene")+"_checks.gd")
+  stage("begin","archive."+name)
   var archive_result: Dictionary=driver.run() if name=="codec" else driver.new().run() if name=="files" else await driver.new().run(self)
+  stage("end","archive."+name)
   check(failures.size()==before_archive and archive_result.get("passed",false) and archive_result.get("checks",0)>0 and archive_result.get("failures",["missing"]).is_empty(),"actual_archive_"+name+"_checks")
   archive_checks[name]=archive_result
+ stage("begin","simulation.scene")
  var scene: Dictionary=await load("res://sim_loop_tests/scene_checks.gd").new().run(self)
+ stage("end","simulation.scene")
  var report: Dictionary={"schema_version":1,"scope":"Headless actual-native facade and synthetic wire/render fixtures; GPU and pilot qualification separate","passed":failures.is_empty(),"checks":checks,"failures":failures.duplicate(),"facade":facade,"origin":origin,"participants":participants,"wire":wire,"scene":scene,"input":input,"input_scene":input_scene,"instruments":instruments,"cockpit":cockpit_checks,"freeflight":freeflight_checks,"observed":observed_checks,"observed_archive":archive_checks}
  var output: String=ProjectSettings.globalize_path("res://facade-check-receipt.json") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("facade-check-receipt.json")
  for argument in OS.get_cmdline_user_args():

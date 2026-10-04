@@ -39,7 +39,24 @@ static func _retired(r: Dictionary, leaf: RefCounted, label: String) -> void:
 func _race(target: String, _temporary: String) -> void:
 	_write(target, _race_bytes)
 
+static func _stage(boundary: String, label: String) -> void:
+	# Fixed test labels only; no selected path, recording or aircraft state.
+	print("PROOF_STAGE " + boundary + " archive.files." + label + " ms=" + str(Time.get_ticks_msec()))
+
+static func _open(leaf: RefCounted, path: Variant, label: String) -> Dictionary:
+	_stage("begin",label)
+	var result: Dictionary = leaf.open(path)
+	_stage("end",label)
+	return result
+
+static func _save(leaf: RefCounted, path: Variant, bytes: Variant, label: String) -> Dictionary:
+	_stage("begin",label)
+	var result: Dictionary = leaf.save_new(path,bytes)
+	_stage("end",label)
+	return result
+
 func _fixture(mode: String, asynchronous: bool = false) -> Dictionary:
+	_stage("begin","fixture."+mode)
 	var executable: String = OS.get_environment("SystemRoot").path_join("System32/WindowsPowerShell/v1.0/powershell.exe")
 	var source: String = FileAccess.get_file_as_string("res://observed_archive_tests/windows_fixture.ps1")
 	var data: String = Marshalls.raw_to_base64(JSON.stringify({"root":_root,"mode":mode}).to_utf8_buffer())
@@ -47,9 +64,12 @@ func _fixture(mode: String, asynchronous: bool = false) -> Dictionary:
 	var command: String = "$env:FS_ARCHIVE_TEST_DATA='" + data + "'\n" + source
 	var args := PackedStringArray(["-NoProfile","-NonInteractive","-EncodedCommand",Marshalls.raw_to_base64(command.to_utf16_buffer())])
 	if asynchronous:
-		return {"pid":OS.create_process(executable,args,false)}
+		var pid: int = OS.create_process(executable,args,false)
+		_stage("end","fixture."+mode)
+		return {"pid":pid}
 	var output: Array = []
 	var exit_code: int = OS.execute(executable,args,output,true,false)
+	_stage("end","fixture."+mode)
 	return {"exit":exit_code,"output":"".join(output)}
 
 static func _wait_marker(path: String, milliseconds: int = 5000) -> bool:
@@ -83,37 +103,37 @@ func run() -> Dictionary:
 	if not DirAccess.dir_exists_absolute(_root):
 		return r
 	var target: String = _root.path_join("review space \u03a9.json")
-	var saved: Dictionary = leaf.save_new(target, bytes)
+	var saved: Dictionary = _save(leaf,target,bytes,"save-target")
 	_receipt(r, saved, true, "saved", "actual-new-file")
 	_retired(r, leaf, "actual-new-file")
 	_check(r, FileAccess.get_file_as_bytes(target) == bytes and saved.value == null, "new-file-exact-bytes")
-	var opened: Dictionary = leaf.open(target)
+	var opened: Dictionary = _open(leaf,target,"open-target")
 	_receipt(r, opened, true, "opened", "actual-open")
 	_retired(r, leaf, "actual-open")
 	if opened.ok:
 		var outer: Dictionary = JSON.parse_string(bytes.get_string_from_utf8())
 		ArchiveChecks._compare(r, opened.value, ArchiveChecks._restore_reference(JSON.parse_string(outer.payload_json)), "actual-open-exact-types-bits")
 		opened.value.samples[0].held_axes.roll = 0.8
-		var again: Dictionary = leaf.open(target)
+		var again: Dictionary = _open(leaf,target,"open-target")
 		_check(r, again.ok and again.value.samples[0].held_axes.roll == 0.0, "actual-open-owned-copies")
-	var collision: Dictionary = leaf.save_new(target, bytes)
+	var collision: Dictionary = _save(leaf,target,bytes,"save-target")
 	_receipt(r, collision, false, "rejected", "existing-target")
 	_retired(r, leaf, "existing-target")
 	_check(r, FileAccess.get_file_as_bytes(target) == bytes, "existing-target-unchanged")
 	var malformed: String = _root.path_join("malformed.json")
 	_check(r, _write(malformed, "{}".to_utf8_buffer()), "malformed-fixture-write")
-	_receipt(r, leaf.open(malformed), false, "rejected", "malformed-open")
+	_receipt(r, _open(leaf,malformed,"malformed"), false, "rejected", "malformed-open")
 	_retired(r, leaf, "malformed-open")
 	_check(r, FileAccess.get_file_as_bytes(malformed) == "{}".to_utf8_buffer(), "malformed-unchanged")
-	_receipt(r, leaf.open(_root.path_join("missing.json")), false, "rejected", "missing-open")
+	_receipt(r, _open(leaf,_root.path_join("missing.json"),"missing"), false, "rejected", "missing-open")
 	_retired(r, leaf, "missing-open")
-	_receipt(r, leaf.save_new(_root, bytes), false, "rejected", "directory-target")
+	_receipt(r, _save(leaf,_root,bytes,"directory"), false, "rejected", "directory-target")
 	_retired(r, leaf, "directory-target")
-	_receipt(r, leaf.save_new(_root.path_join("review.json:stream"), bytes), false, "rejected", "alternate-stream")
+	_receipt(r, _save(leaf,_root.path_join("review.json:stream"),bytes,"ads"), false, "rejected", "alternate-stream")
 	_retired(r, leaf, "alternate-stream")
 	var invalid_leaf := ArchiveFiles.new()
 	var invalid_target: String = _root.path_join("never-written.json")
-	_receipt(r, invalid_leaf.save_new(invalid_target, "{}".to_utf8_buffer()), false, "rejected", "invalid-bytes-before-files")
+	_receipt(r, _save(invalid_leaf,invalid_target,"{}".to_utf8_buffer(),"invalid-bytes"), false, "rejected", "invalid-bytes-before-files")
 	_check(r, invalid_leaf._last_pid == 0 and not FileAccess.file_exists(invalid_target), "invalid-bytes-no-child-no-create")
 	var thread := Thread.new()
 	var thread_leaf := ArchiveFiles.new()
@@ -131,7 +151,7 @@ func run() -> Dictionary:
 	var lock_pid: int = locker.pid
 	_check(r, lock_pid > 0 and _wait_marker(_root.path_join("lock-ready")), "actual-share-lock-acquired")
 	if lock_pid > 0 and FileAccess.file_exists(_root.path_join("lock-ready")):
-		_receipt(r, leaf.open(locked_path),false,"rejected","actual-share-locked-open")
+		_receipt(r, _open(leaf,locked_path,"share-locked"),false,"rejected","actual-share-locked-open")
 		_retired(r,leaf,"actual-share-locked-open")
 	_check(r, _write(_root.path_join("lock-release"),"RELEASE".to_utf8_buffer()), "actual-share-lock-release-request")
 	_check(r, _wait_marker(_root.path_join("lock-closed")), "actual-share-lock-disposed-marker")
@@ -148,7 +168,7 @@ func run() -> Dictionary:
 	_check(r, junction.exit == 0 and junction.output.contains("JUNCTION_READY"), "actual-junction-created")
 	if junction.exit == 0:
 		var junction_path: String = _root.path_join("junction-link/refused.json")
-		_receipt(r,leaf.save_new(junction_path,bytes),false,"rejected","actual-reparse-parent-refused")
+		_receipt(r,_save(leaf,junction_path,bytes,"reparse"),false,"rejected","actual-reparse-parent-refused")
 		_retired(r,leaf,"actual-reparse-parent-refused")
 		_check(r, not FileAccess.file_exists(_root.path_join("junction-real/refused.json")), "actual-reparse-no-write")
 		var removed: Dictionary = _fixture("junction-remove")
@@ -160,13 +180,13 @@ func run() -> Dictionary:
 	var temp_collision: String = _root.path_join(temp_leaf._temporary_name)
 	_check(r, _write(temp_collision, _race_bytes), "temp-collision-fixture")
 	var temp_target: String = _root.path_join("temporary-collision.json")
-	_receipt(r, temp_leaf.save_new(temp_target, bytes), false, "rejected", "exclusive-temp-collision")
+	_receipt(r, _save(temp_leaf,temp_target,bytes,"temporary-collision"), false, "rejected", "exclusive-temp-collision")
 	_retired(r, temp_leaf, "exclusive-temp-collision")
 	_check(r, FileAccess.get_file_as_bytes(temp_collision) == _race_bytes and not FileAccess.file_exists(temp_target), "temp-collision-not-truncated")
 	var race_leaf := ArchiveFiles.new()
 	race_leaf._before_commit = _race
 	var race_target: String = _root.path_join("racing-target.json")
-	var raced: Dictionary = race_leaf.save_new(race_target, bytes)
+	var raced: Dictionary = _save(race_leaf,race_target,bytes,"target-race")
 	_receipt(r, raced, false, "not_saved", "target-creation-race")
 	_retired(r, race_leaf, "target-creation-race")
 	_check(r, FileAccess.get_file_as_bytes(race_target) == _race_bytes, "racing-target-preserved")
@@ -175,7 +195,7 @@ func run() -> Dictionary:
 		var fault_leaf := ArchiveFiles.new()
 		fault_leaf._fault = phase
 		var fault_target: String = _root.path_join("fault-" + phase + ".json")
-		var result: Dictionary = fault_leaf.save_new(fault_target, bytes)
+		var result: Dictionary = _save(fault_leaf,fault_target,bytes,"fault."+phase)
 		var installed: bool = phase in ["receipt","post_verify"]
 		_receipt(r, result, false, "recovery_required" if installed else "not_saved", "fault-" + phase)
 		_retired(r, fault_leaf, "fault-" + phase)
@@ -185,15 +205,17 @@ func run() -> Dictionary:
 			_check(r, not FileAccess.file_exists(fault_target) and typeof(result.temp_path) == TYPE_STRING and FileAccess.file_exists(result.temp_path), "pre-install-temp-retained-" + phase)
 	var dense_bytes := FileAccess.get_file_as_bytes(REF + "dense-2401.fsreview.json")
 	var dense_target: String = _root.path_join("dense2401.json")
-	_receipt(r, leaf.save_new(dense_target, dense_bytes), true, "saved", "dense-file-save")
+	_receipt(r, _save(leaf,dense_target,dense_bytes,"dense-save"), true, "saved", "dense-file-save")
 	_retired(r, leaf, "dense-file-save")
-	var dense_open: Dictionary = leaf.open(dense_target)
+	var dense_open: Dictionary = _open(leaf,dense_target,"dense-open")
 	_receipt(r, dense_open, true, "opened", "dense-file-open")
 	_retired(r, leaf, "dense-file-open")
 	if dense_open.ok:
 		var outer: Dictionary = JSON.parse_string(dense_bytes.get_string_from_utf8())
 		ArchiveChecks._compare(r, dense_open.value, ArchiveChecks._restore_reference(JSON.parse_string(outer.payload_json)), "dense-actual-file-all2401-types-bits")
+	_stage("begin","cleanup")
 	_cleanup(r)
+	_stage("end","cleanup")
 	r.passed = r.failures.is_empty()
 	return r
 
