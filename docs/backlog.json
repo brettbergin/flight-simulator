@@ -3717,6 +3717,52 @@
       "evidence": [
         "Normal-envelope reference matrix and P3 performance review."
       ]
+    },
+    {
+      "key": "AIRBORNE-PREVIEW",
+      "title": "Deliver a human-controllable Windows airborne engineering preview",
+      "kind": "spike",
+      "phase": "P1",
+      "parent": "EPIC-P1",
+      "summary": "Give the owner an immediately flyable engineering preview using the accepted native flight-only API while the combined ground-to-flight prototype is developed.",
+      "depends_on": [
+        "EPIC-P0",
+        "CORE-CONTRACTS",
+        "FDM-HARNESS",
+        "NATIVE-EXPORT"
+      ],
+      "labels": [
+        "type:spike",
+        "phase:P1",
+        "area:cockpit",
+        "priority:P0",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "app/proof/airborne/",
+        "tools/preview/"
+      ],
+      "docs": [
+        "docs/contracts.md",
+        "docs/delivery.md",
+        "docs/roadmap.md"
+      ],
+      "requirements": [
+        "PRD-001",
+        "PRD-015",
+        "PRD-034",
+        "UX-009",
+        "UX-010"
+      ],
+      "acceptance": [
+        "A Windows preview starts airborne and lets a human control roll, pitch, yaw, throttle and trim through the accepted authoritative native bridge.",
+        "Readable state-derived indications, a flight view, pause/resume and fresh restart work; prototype, datum and unavailable ground-contact limits remain visible.",
+        "Fixed120Hz stepping preserves fractional wall debt with bounded batches; stalls and native failures stop visibly rather than silently changing physics.",
+        "Headless functional and actual reference-PC graphics checks verify controls, state, pause, restart and joined shutdown; source/native/model/package identities and reproduction instructions are recorded."
+      ],
+      "evidence": [
+        "Original-model functional receipt, actual GPU screenshots, portable launch instructions and exact source/package hashes; no C172S, takeoff/landing or training-credit acceptance."
+      ]
     }
   ]
 }

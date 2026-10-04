@@ -5,6 +5,14 @@ This record measures original visual-load fixtures on the reference PC. It does
 not establish a working cockpit, regional scenery, aircraft fidelity or pilot
 acceptance. Reproduce with [the benchmark runner](../../../tools/benchmark/README.md).
 
+PR [#93](https://github.com/brettbergin/flight-simulator/pull/93) merged the
+implementation after independent review and four required CI checks. Final
+three-profile 600-second qualification remains pending. On 2026-10-03 the owner
+asked us to prioritize usable flights within the remaining subscription budget;
+long captures are deferred while bounded previews are delivered. Earlier
+leaking or incomplete captures remain invalid. Issue #18 and the P1 gate stay
+open; this partial merge does not accept the renderer performance gate.
+
 ## Workload and effective settings
 
 The exported Godot 4.7.2 standard-precision release uses Forward+ Vulkan on the

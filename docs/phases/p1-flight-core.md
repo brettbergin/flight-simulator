@@ -29,6 +29,7 @@ Generated from [roadmap](../roadmap.md) and [backlog](../backlog.json). Consult 
 | [SAVE-PROOF](https://github.com/brettbergin/flight-simulator/issues/17) — Prove full-state restore or deterministic reconstruction strategy | persistence | EPIC-P0, CORE-CONTRACTS, FDM-HARNESS | `native/persistence/proof/`, `tests/replay/`, `docs/decisions/004-persistence-and-replay.md` |
 | [RENDER-PROOF](https://github.com/brettbergin/flight-simulator/issues/18) — Benchmark representative cockpit readability and regional rendering | cockpit | EPIC-P0, TOOLCHAIN, NATIVE-EXPORT | `app/proof/`, `assets_source/proof/`, `tools/benchmark/` |
 | [VALIDATION-CORPUS](https://github.com/brettbergin/flight-simulator/issues/19) — Create versioned aircraft reference matrix and regression corpus | validation | EPIC-P0, LICENSE-REGISTER, CORE-CONTRACTS, FDM-HARNESS | `tests/reference/`, `tools/validation/`, `docs/evidence/P1/` |
+| [AIRBORNE-PREVIEW](https://github.com/brettbergin/flight-simulator/issues/94) — Deliver a human-controllable Windows airborne engineering preview | cockpit | EPIC-P0, CORE-CONTRACTS, FDM-HARNESS, NATIVE-EXPORT | `app/proof/airborne/`, `tools/preview/` |
 
 ## Agent handoff
 

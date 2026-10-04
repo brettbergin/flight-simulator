@@ -113,6 +113,11 @@ jobs:
           ./tools/export/replacement.ps1 -SourceArchive .local/export-ci-source/jsbsim-1.3.1-library-source.zip -SourceSHA256 $expected -Python python
           node tools/export/package.mjs .local/export-ci-source
           if ($LASTEXITCODE -ne 0) { throw "Package selected-runtime/rights audit failed; unknown hosted CRT identities require review" }
+      - name: Prove human-controlled Windows preview in editor and portable export
+        if: runner.os == 'Windows'
+        run: |
+          $proof = Get-Content .local/export-proof/latest-run.json -Raw | ConvertFrom-Json
+          ./tools/preview/run.ps1 -ExportProofRoot $proof.root -ToolchainRoot .local/toolchain
       - name: Preserve build evidence (no simulator binaries)
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -133,3 +138,5 @@ jobs:
             .local/pipeline-proof/ci/**
             .local/render-geodesy/ci/**
             .local/render-headless/ci/**
+            .local/preview/run-*/evidence/*.json
+            .local/preview/run-*/evidence/*.log
