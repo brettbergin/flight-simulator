@@ -231,14 +231,50 @@ func trees(parent: Node3D) -> void:
 			instances[layer].multimesh.set_instance_transform(i,Transform3D(Basis.from_scale(size),at))
 			instances[layer].multimesh.set_instance_color(i,Color(random.randf_range(0.18,0.30),random.randf_range(0.30,0.43),random.randf_range(0.11,0.21)))
 
+func distant_ridges(parent: Node3D) -> void:
+	# Irregular ridge contours beyond the resident physics RECTANGLE. This is
+	# decorative background only; coverage stops before any of these slopes.
+	var random := RandomNumberGenerator.new()
+	random.seed=73105
+	var points: Array[Vector3]=[]
+	var heights: Array[float]=[]
+	for i in range(97):
+		var angle: float=TAU*(i%96)/96.0
+		var boundary: float=20000.0/maxf(absf(cos(angle)),absf(sin(angle)))
+		var height: float=1100+520*sin(angle*3+0.4)+340*sin(angle*7)+random.randf_range(-150,260)
+		points.append(Vector3(cos(angle)*(boundary+1200),0,sin(angle)*(boundary+1200)))
+		heights.append(height)
+	heights[96]=heights[0]
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for i in range(96):
+		var a: Vector3=points[i]
+		var b: Vector3=points[i+1]
+		var direction_a: Vector3=a.normalized()
+		var direction_b: Vector3=b.normalized()
+		var c: Vector3=a+direction_a*4200+Vector3.UP*heights[i]
+		var d: Vector3=b+direction_b*4200+Vector3.UP*heights[i+1]
+		var e: Vector3=a+direction_a*10000
+		var f: Vector3=b+direction_b*10000
+		for triangle in [[a,c,b],[b,c,d],[c,e,d],[d,e,f]]:
+			var normal: Vector3=(triangle[1]-triangle[0]).cross(triangle[2]-triangle[0]).normalized()
+			if normal.y<0:
+				triangle.reverse()
+				normal=-normal
+			for vertex in triangle:
+				surface.set_normal(normal)
+				surface.add_vertex(vertex)
+	var ridge := mesh_node(parent,surface.commit(),Vector3.ZERO,material(Color(0.12,0.21,0.18),0.98))
+	ridge.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
 func build(parent: Node3D) -> Dictionary:
 	var environment := WorldEnvironment.new()
 	var config := Environment.new()
 	var sky := Sky.new()
 	var atmosphere := ProceduralSkyMaterial.new()
-	atmosphere.sky_top_color=Color(0.11,0.33,0.58)
-	atmosphere.sky_horizon_color=Color(0.67,0.79,0.86)
-	atmosphere.ground_horizon_color=Color(0.67,0.79,0.86)
+	atmosphere.sky_top_color=Color(0.065,0.25,0.50)
+	atmosphere.sky_horizon_color=Color(0.47,0.66,0.80)
+	atmosphere.ground_horizon_color=Color(0.47,0.66,0.80)
 	atmosphere.ground_bottom_color=Color(0.21,0.27,0.18)
 	atmosphere.sun_angle_max=12
 	atmosphere.sun_curve=0.10
@@ -246,24 +282,25 @@ func build(parent: Node3D) -> Dictionary:
 	config.background_mode=Environment.BG_SKY
 	config.sky=sky
 	config.ambient_light_source=Environment.AMBIENT_SOURCE_SKY
-	config.ambient_light_energy=0.58
+	config.ambient_light_energy=0.42
 	config.tonemap_mode=Environment.TONE_MAPPER_FILMIC
 	config.fog_enabled=true
-	config.fog_light_color=Color(0.67,0.77,0.83)
-	config.fog_light_energy=0.75
-	config.fog_density=0.000035
+	config.fog_light_color=Color(0.48,0.64,0.75)
+	config.fog_light_energy=0.42
+	config.fog_density=0.000009
+	config.fog_sky_affect=0.12
 	environment.environment=config
 	parent.add_child(environment)
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees=Vector3(-34,-32,0)
 	sun.light_color=Color(1.0,0.91,0.78)
-	sun.light_energy=1.35
+	sun.light_energy=1.0
 	sun.shadow_enabled=true
 	sun.directional_shadow_mode=DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
 	sun.directional_shadow_max_distance=1800
 	parent.add_child(sun)
 	# Exact same prepared plane: all scenery is decorative and has no collider.
-	var grass: Material=material(Color(0.28,0.38,0.18))
+	var grass: Material=material(Color(0.16,0.25,0.10))
 	var asphalt: Material=material(Color(0.105,0.13,0.15),0.94)
 	var white: Material=material(Color(0.91,0.92,0.83))
 	var yellow: Material=material(Color(0.95,0.68,0.17))
@@ -275,7 +312,7 @@ func build(parent: Node3D) -> Dictionary:
 		var z: float=patches.randf_range(-8000,8000)
 		if absf(x)<400 and z>-2300 and z<600:
 			continue
-		var patch := box(parent,Vector3(patches.randf_range(300,1200),0.002,patches.randf_range(250,950)),Vector3(x,0.001,z),material(Color(patches.randf_range(0.25,0.36),patches.randf_range(0.34,0.44),patches.randf_range(0.15,0.23))))
+		var patch := box(parent,Vector3(patches.randf_range(300,1200),0.002,patches.randf_range(250,950)),Vector3(x,0.001,z),material(Color(patches.randf_range(0.14,0.20),patches.randf_range(0.22,0.29),patches.randf_range(0.08,0.13))))
 		patch.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	box(parent,Vector3(40,0.004,1800),Vector3(0,0.002,-800),asphalt)
 	for x in [-18.0,18.0]:
@@ -322,11 +359,7 @@ func build(parent: Node3D) -> Dictionary:
 	windsock.rotation_degrees.z=8
 	# Decorative drooping windsock, not a native wind sensor (prepared wind zero).
 	trees(parent)
-	# Hills sit beyond the +/-20km resident physics rectangle, never fake terrain.
-	for i in range(16):
-		var angle: float=TAU*i/16.0
-		var hill := ball(parent,Vector3(10000,3200+(i%3)*900,7000),Vector3(cos(angle)*28500,-900,sin(angle)*28500),material(Color(0.23,0.31,0.29)))
-		hill.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	distant_ridges(parent)
 	var result: Dictionary=aircraft(parent)
 	var camera := Camera3D.new()
 	camera.fov=65
