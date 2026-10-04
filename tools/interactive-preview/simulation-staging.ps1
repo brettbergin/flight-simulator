@@ -77,6 +77,29 @@ function Assert-InputSourceGroups {
   Assert-SimulationSourceSnapshot (Join-Path $DestinationRoot $path) $group.snapshot -RequiredEntries $group.required -AllowGeneratedUIDs:$AllowGeneratedUIDs
  }
 }
+# Cockpit leaves, original fixtures and prototype provenance share exact snapshots.
+function Get-CockpitSourceGroups {
+ param([Parameter(Mandatory)][string]$RepoRoot)
+ @(
+  @{source='app/cockpit';destination='cockpit';required=@('instruments/native_readings.gd','instruments/scan_panel.gd')},
+  @{source='tests/instruments';destination='instrument_tests';required=@('instrument_checks.gd','adapter_checks.gd','scan_checks.gd','scene_checks.gd','reference.json','preparation-manifest.json')},
+  @{source='content/aircraft/prototype';destination='content/aircraft/prototype';required=@('cockpit-presentation.json')}
+ )|ForEach-Object {
+  $_.snapshot=@(Get-SimulationSourceSnapshot (Join-Path $RepoRoot $_.source) -RequiredEntries $_.required)
+  $_
+ }
+}
+function Copy-CockpitSourceGroups {
+ param([Parameter(Mandatory)][string]$RepoRoot,[Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Groups)
+ foreach($group in $Groups){Copy-SimulationSourceSnapshot (Join-Path $RepoRoot $group.source) (Join-Path $DestinationRoot $group.destination) $group.snapshot -RequiredEntries $group.required}
+}
+function Assert-CockpitSourceGroups {
+ param([Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Groups,[switch]$Authoring,[switch]$AllowGeneratedUIDs)
+ foreach($group in $Groups){
+  $path=if($Authoring){$group.source}else{$group.destination}
+  Assert-SimulationSourceSnapshot (Join-Path $DestinationRoot $path) $group.snapshot -RequiredEntries $group.required -AllowGeneratedUIDs:$AllowGeneratedUIDs
+ }
+}
 function Write-SimulationCheckHarness {
  param([Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)][string]$RepoRoot)
  $fixtures=Join-Path $ProjectRoot 'wire_fixtures'
@@ -95,7 +118,7 @@ func check(ok: bool, label: String) -> void:
 func _ready() -> void:
  call_deferred("execute")
 func execute() -> void:
- for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests"]:
+ for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests"]:
   for name in DirAccess.get_files_at(folder):
    if name.ends_with(".gd"):
     var script=load(folder.path_join(name)) as Script
@@ -121,8 +144,16 @@ func execute() -> void:
  var input_scene_failures: int=failures.size()
  var input_scene: Dictionary=await load("res://input_tests/scene_checks.gd").new().run(self)
  check(failures.size()==input_scene_failures and input_scene.has("initial_tick"),"actual_input_scene_checks")
+ var instruments: Dictionary=load("res://instrument_tests/instrument_checks.gd").run()
+ check(instruments.get("passed",false) and instruments.get("checks",0)>0 and instruments.get("failures",["missing"]).is_empty(),"native_truth_reading_checks")
+ var cockpit_checks: Dictionary={}
+ for name in ["adapter","scan","scene"]:
+  var prior_failures: int=failures.size()
+  var result: Dictionary=await load("res://instrument_tests/"+name+"_checks.gd").new().run(self)
+  check(failures.size()==prior_failures and result.get("passed",false) and result.get("checks",0)>0 and result.get("failures",["missing"]).is_empty(),"actual_cockpit_"+name+"_checks")
+  cockpit_checks[name]=result
  var scene: Dictionary=await load("res://sim_loop_tests/scene_checks.gd").new().run(self)
- var report: Dictionary={"schema_version":1,"scope":"Headless actual-native facade and synthetic wire/render fixtures; GPU and pilot qualification separate","passed":failures.is_empty(),"checks":checks,"failures":failures.duplicate(),"facade":facade,"origin":origin,"participants":participants,"wire":wire,"scene":scene,"input":input,"input_scene":input_scene}
+ var report: Dictionary={"schema_version":1,"scope":"Headless actual-native facade and synthetic wire/render fixtures; GPU and pilot qualification separate","passed":failures.is_empty(),"checks":checks,"failures":failures.duplicate(),"facade":facade,"origin":origin,"participants":participants,"wire":wire,"scene":scene,"input":input,"input_scene":input_scene,"instruments":instruments,"cockpit":cockpit_checks}
  var output: String=ProjectSettings.globalize_path("res://facade-check-receipt.json") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("facade-check-receipt.json")
  for argument in OS.get_cmdline_user_args():
   if argument.begins_with("--facade-receipt="): output=argument.trim_prefix("--facade-receipt=")

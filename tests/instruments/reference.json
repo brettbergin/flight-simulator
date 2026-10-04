@@ -1,0 +1,5849 @@
+{
+  "schema_version": 1,
+  "scope": "Original pre-consumer ADR009 references; not native flight, source-specific aircraft or sensor calibration",
+  "contract_sha256": "892c7a767d1d459cb7704cb8de5534375da4b291f07279a7a08d6514a0d0d28e",
+  "reference_method": "Fraction rational rotation/squared norms; Python libm only sqrt/atan2/asin and WGS84 placement. No NativeReadings import, source observation or golden output.",
+  "budgets": {
+    "scalar_abs": 2e-12,
+    "angle_abs_rad": 2e-12,
+    "display_abs": 2e-09,
+    "relative": 4e-15,
+    "singularity_dimensionless": 1e-06
+  },
+  "units": {
+    "tas": "m/s",
+    "ground_speed": "m/s",
+    "pitch": "rad",
+    "bank": "rad",
+    "heading_true": "rad",
+    "ellipsoid_height": "m",
+    "vertical_speed": "m/s",
+    "body_yaw_rate": "rad/s",
+    "fuel_total": "kg"
+  },
+  "cases": [
+    {
+      "id": "identity-zero",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.0,
+            1.0,
+            0.0,
+            -0.0,
+            -0.0,
+            -1.0,
+            -1.0,
+            -0.0,
+            -0.0
+          ]
+        }
+      },
+      "expected_state": "live",
+      "expected_values": {
+        "tas": 0.0,
+        "ground_speed": 0.0,
+        "pitch": 0.0,
+        "bank": 0.0,
+        "heading_true": 0.0,
+        "ellipsoid_height": 1000.0,
+        "vertical_speed": -0.0,
+        "body_yaw_rate": 0.125,
+        "fuel_total": 100.0
+      },
+      "expect_null_identity": false,
+      "expected_invalid_reason": null,
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "1",
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "1",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ],
+        "ned_velocity": [
+          "0",
+          "0",
+          "0"
+        ],
+        "air_velocity": [
+          "0",
+          "0",
+          "0"
+        ],
+        "tas_squared": "0",
+        "ground_speed_squared": "0"
+      },
+      "display_expected": {
+        "tas_kt": 0.0,
+        "height_ft": 3280.8398950131236,
+        "vsi_fpm": -0.0
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "identity-3-4-12",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.0,
+            1.0,
+            0.0,
+            -0.0,
+            -0.0,
+            -1.0,
+            -1.0,
+            -0.0,
+            -0.0
+          ]
+        }
+      },
+      "expected_state": "live",
+      "expected_values": {
+        "tas": 13.0,
+        "ground_speed": 5.0,
+        "pitch": 0.0,
+        "bank": 0.0,
+        "heading_true": 0.0,
+        "ellipsoid_height": 1000.0,
+        "vertical_speed": -12.0,
+        "body_yaw_rate": 0.125,
+        "fuel_total": 100.0
+      },
+      "expect_null_identity": false,
+      "expected_invalid_reason": null,
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "1",
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "1",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ],
+        "ned_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "air_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "tas_squared": "169",
+        "ground_speed_squared": "25"
+      },
+      "display_expected": {
+        "tas_kt": 25.26997840172786,
+        "height_ft": 3280.8398950131236,
+        "vsi_fpm": -2362.2047244094488
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "mixed-rational-no-wind",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 0.3333333333333333,
+            "x": 0.6666666666666666,
+            "y": 0.6666666666666666,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.8888888888888888,
+            0.11111111111111116,
+            -0.4444444444444444,
+            0.4444444444444444,
+            -0.4444444444444444,
+            0.7777777777777777,
+            -0.11111111111111116,
+            -0.8888888888888888,
+            -0.4444444444444444
+          ]
+        }
+      },
+      "expected_state": "live",
+      "expected_values": {
+        "tas": 13.0,
+        "ground_speed": 9.486182283773998,
+        "pitch": 0.4605539916813224,
+        "bank": 2.62244653934327,
+        "heading_true": 1.446441332248135,
+        "ellipsoid_height": 1000.0,
+        "vertical_speed": 8.88888888888889,
+        "body_yaw_rate": 0.125,
+        "fuel_total": 100.0
+      },
+      "expect_null_identity": false,
+      "expected_invalid_reason": null,
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "1/9",
+            "8/9",
+            "4/9"
+          ],
+          [
+            "8/9",
+            "1/9",
+            "-4/9"
+          ],
+          [
+            "-4/9",
+            "4/9",
+            "-7/9"
+          ]
+        ],
+        "ned_velocity": [
+          "83/9",
+          "-20/9",
+          "-80/9"
+        ],
+        "air_velocity": [
+          "83/9",
+          "-20/9",
+          "-80/9"
+        ],
+        "tas_squared": "169",
+        "ground_speed_squared": "7289/81"
+      },
+      "display_expected": {
+        "tas_kt": 25.26997840172786,
+        "height_ft": 3280.8398950131236,
+        "vsi_fpm": 1749.7812773403325
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "mixed-rational-toward-wind-turbulence",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 0.3333333333333333,
+            "x": 0.6666666666666666,
+            "y": 0.6666666666666666,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 1.0,
+            "y": -2.0,
+            "z": 0.5
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.5,
+            "z": -0.5
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.8888888888888888,
+            0.11111111111111116,
+            -0.4444444444444444,
+            0.4444444444444444,
+            -0.4444444444444444,
+            0.7777777777777777,
+            -0.11111111111111116,
+            -0.8888888888888888,
+            -0.4444444444444444
+          ]
+        }
+      },
+      "expected_state": "live",
+      "expected_values": {
+        "tas": 12.130081981952507,
+        "ground_speed": 9.486182283773998,
+        "pitch": 0.4605539916813224,
+        "bank": 2.62244653934327,
+        "heading_true": 1.446441332248135,
+        "ellipsoid_height": 1000.0,
+        "vertical_speed": 8.88888888888889,
+        "body_yaw_rate": 0.125,
+        "fuel_total": 100.0
+      },
+      "expect_null_identity": false,
+      "expected_invalid_reason": null,
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "1/9",
+            "8/9",
+            "4/9"
+          ],
+          [
+            "8/9",
+            "1/9",
+            "-4/9"
+          ],
+          [
+            "-4/9",
+            "4/9",
+            "-7/9"
+          ]
+        ],
+        "ned_velocity": [
+          "83/9",
+          "-20/9",
+          "-80/9"
+        ],
+        "air_velocity": [
+          "74/9",
+          "-13/18",
+          "-80/9"
+        ],
+        "tas_squared": "5297/36",
+        "ground_speed_squared": "7289/81"
+      },
+      "display_expected": {
+        "tas_kt": 23.578993053471397,
+        "height_ft": 3280.8398950131236,
+        "vsi_fpm": 1749.7812773403325
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "east-heading",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 0.7071067811865476,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.7071067811865476
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            1.0000000000000002,
+            -2.220446049250313e-16,
+            0.0,
+            -0.0,
+            -0.0,
+            -1.0,
+            2.220446049250313e-16,
+            1.0000000000000002,
+            -0.0
+          ]
+        }
+      },
+      "expected_state": "live",
+      "expected_values": {
+        "tas": 13.0,
+        "ground_speed": 5.000000000000002,
+        "pitch": 0.0,
+        "bank": 0.0,
+        "heading_true": 1.5707963267948968,
+        "ellipsoid_height": 1000.0,
+        "vertical_speed": -12.0,
+        "body_yaw_rate": 0.125,
+        "fuel_total": 100.0
+      },
+      "expect_null_identity": false,
+      "expected_invalid_reason": null,
+      "exact_arithmetic": null,
+      "display_expected": {
+        "tas_kt": 25.26997840172786,
+        "height_ft": 3280.8398950131236,
+        "vsi_fpm": -2362.2047244094488
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "south-heading",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 0.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 1.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.0,
+            -1.0,
+            0.0,
+            -0.0,
+            -0.0,
+            -1.0,
+            1.0,
+            -0.0,
+            -0.0
+          ]
+        }
+      },
+      "expected_state": "live",
+      "expected_values": {
+        "tas": 13.0,
+        "ground_speed": 5.0,
+        "pitch": 0.0,
+        "bank": 0.0,
+        "heading_true": 3.141592653589793,
+        "ellipsoid_height": 1000.0,
+        "vertical_speed": -12.0,
+        "body_yaw_rate": 0.125,
+        "fuel_total": 100.0
+      },
+      "expect_null_identity": false,
+      "expected_invalid_reason": null,
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "-1",
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "-1",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ],
+        "ned_velocity": [
+          "-3",
+          "-4",
+          "12"
+        ],
+        "air_velocity": [
+          "-3",
+          "-4",
+          "12"
+        ],
+        "tas_squared": "169",
+        "ground_speed_squared": "25"
+      },
+      "display_expected": {
+        "tas_kt": 25.26997840172786,
+        "height_ft": 3280.8398950131236,
+        "vsi_fpm": -2362.2047244094488
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "west-heading",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 0.7071067811865476,
+            "x": 0.0,
+            "y": 0.0,
+            "z": -0.7071067811865476
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            -1.0000000000000002,
+            -2.220446049250313e-16,
+            -0.0,
+            0.0,
+            -0.0,
+            -1.0,
+            2.220446049250313e-16,
+            -1.0000000000000002,
+            -0.0
+          ]
+        }
+      },
+      "expected_state": "live",
+      "expected_values": {
+        "tas": 13.0,
+        "ground_speed": 5.000000000000001,
+        "pitch": 0.0,
+        "bank": 0.0,
+        "heading_true": 4.71238898038469,
+        "ellipsoid_height": 1000.0,
+        "vertical_speed": -12.0,
+        "body_yaw_rate": 0.125,
+        "fuel_total": 100.0
+      },
+      "expect_null_identity": false,
+      "expected_invalid_reason": null,
+      "exact_arithmetic": null,
+      "display_expected": {
+        "tas_kt": 25.26997840172786,
+        "height_ft": 3280.8398950131236,
+        "vsi_fpm": -2362.2047244094488
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "quadrant-positive-rational",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 0.6,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.8
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.96,
+            -0.28000000000000025,
+            0.0,
+            -0.0,
+            -0.0,
+            -1.0,
+            0.28000000000000025,
+            0.96,
+            -0.0
+          ]
+        }
+      },
+      "expected_state": "live",
+      "expected_values": {
+        "tas": 13.0,
+        "ground_speed": 5.0,
+        "pitch": 0.0,
+        "bank": 0.0,
+        "heading_true": 1.8545904360032246,
+        "ellipsoid_height": 1000.0,
+        "vertical_speed": -12.0,
+        "body_yaw_rate": 0.125,
+        "fuel_total": 100.0
+      },
+      "expect_null_identity": false,
+      "expected_invalid_reason": null,
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "-7/25",
+            "-24/25",
+            "0"
+          ],
+          [
+            "24/25",
+            "-7/25",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ],
+        "ned_velocity": [
+          "-117/25",
+          "44/25",
+          "12"
+        ],
+        "air_velocity": [
+          "-117/25",
+          "44/25",
+          "12"
+        ],
+        "tas_squared": "169",
+        "ground_speed_squared": "25"
+      },
+      "display_expected": {
+        "tas_kt": 25.26997840172786,
+        "height_ft": 3280.8398950131236,
+        "vsi_fpm": -2362.2047244094488
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "quadrant-negative-rational",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 0.6,
+            "x": 0.0,
+            "y": 0.0,
+            "z": -0.8
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            -0.96,
+            -0.28000000000000025,
+            -0.0,
+            0.0,
+            -0.0,
+            -1.0,
+            0.28000000000000025,
+            -0.96,
+            -0.0
+          ]
+        }
+      },
+      "expected_state": "live",
+      "expected_values": {
+        "tas": 13.0,
+        "ground_speed": 5.0,
+        "pitch": 0.0,
+        "bank": 0.0,
+        "heading_true": 4.428594871176362,
+        "ellipsoid_height": 1000.0,
+        "vertical_speed": -12.0,
+        "body_yaw_rate": 0.125,
+        "fuel_total": 100.0
+      },
+      "expect_null_identity": false,
+      "expected_invalid_reason": null,
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "-7/25",
+            "24/25",
+            "0"
+          ],
+          [
+            "-24/25",
+            "-7/25",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ],
+        "ned_velocity": [
+          "3",
+          "-4",
+          "12"
+        ],
+        "air_velocity": [
+          "3",
+          "-4",
+          "12"
+        ],
+        "tas_squared": "169",
+        "ground_speed_squared": "25"
+      },
+      "display_expected": {
+        "tas_kt": 25.26997840172786,
+        "height_ft": 3280.8398950131236,
+        "vsi_fpm": -2362.2047244094488
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "roll-quarter-turn",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 0.7071067811865476,
+            "x": 0.7071067811865476,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.0,
+            -2.220446049250313e-16,
+            -1.0000000000000002,
+            -0.0,
+            -1.0000000000000002,
+            2.220446049250313e-16,
+            -1.0,
+            -0.0,
+            -0.0
+          ]
+        }
+      },
+      "expected_state": "live",
+      "expected_values": {
+        "tas": 13.000000000000002,
+        "ground_speed": 12.369316876852984,
+        "pitch": 0.0,
+        "bank": 1.5707963267948968,
+        "heading_true": 0.0,
+        "ellipsoid_height": 1000.0,
+        "vertical_speed": -3.9999999999999982,
+        "body_yaw_rate": 0.125,
+        "fuel_total": 100.0
+      },
+      "expect_null_identity": false,
+      "expected_invalid_reason": null,
+      "exact_arithmetic": null,
+      "display_expected": {
+        "tas_kt": 25.269978401727865,
+        "height_ft": 3280.8398950131236,
+        "vsi_fpm": -787.4015748031493
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "pitch-positive-singular",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 0.7071067811865476,
+            "x": 0.0,
+            "y": 0.7071067811865476,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.0,
+            1.0,
+            0.0,
+            1.0000000000000002,
+            -0.0,
+            2.220446049250313e-16,
+            2.220446049250313e-16,
+            -0.0,
+            -1.0000000000000002
+          ]
+        }
+      },
+      "expected_state": "live",
+      "expected_values": {
+        "tas": 13.000000000000004,
+        "ground_speed": 12.64911064067352,
+        "pitch": 1.5707963267948966,
+        "bank": null,
+        "heading_true": null,
+        "ellipsoid_height": 1000.0,
+        "vertical_speed": 3.0000000000000036,
+        "body_yaw_rate": 0.125,
+        "fuel_total": 100.0
+      },
+      "expect_null_identity": false,
+      "expected_invalid_reason": null,
+      "exact_arithmetic": null,
+      "display_expected": {
+        "tas_kt": 25.26997840172787,
+        "height_ft": 3280.8398950131236,
+        "vsi_fpm": 590.5511811023629
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "pitch-negative-singular",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 0.7071067811865476,
+            "x": 0.0,
+            "y": -0.7071067811865476,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.0,
+            1.0,
+            -0.0,
+            -1.0000000000000002,
+            -0.0,
+            2.220446049250313e-16,
+            2.220446049250313e-16,
+            0.0,
+            1.0000000000000002
+          ]
+        }
+      },
+      "expected_state": "live",
+      "expected_values": {
+        "tas": 13.000000000000004,
+        "ground_speed": 12.64911064067352,
+        "pitch": -1.5707963267948966,
+        "bank": null,
+        "heading_true": null,
+        "ellipsoid_height": 1000.0,
+        "vertical_speed": -2.9999999999999982,
+        "body_yaw_rate": 0.125,
+        "fuel_total": 100.0
+      },
+      "expect_null_identity": false,
+      "expected_invalid_reason": null,
+      "exact_arithmetic": null,
+      "display_expected": {
+        "tas_kt": 25.26997840172787,
+        "height_ft": 3280.8398950131236,
+        "vsi_fpm": -590.5511811023619
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "fuel-missing",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.0,
+            1.0,
+            0.0,
+            -0.0,
+            -0.0,
+            -1.0,
+            -1.0,
+            -0.0,
+            -0.0
+          ]
+        }
+      },
+      "expected_state": "live",
+      "expected_values": {
+        "tas": 13.0,
+        "ground_speed": 5.0,
+        "pitch": 0.0,
+        "bank": 0.0,
+        "heading_true": 0.0,
+        "ellipsoid_height": 1000.0,
+        "vertical_speed": -12.0,
+        "body_yaw_rate": 0.125,
+        "fuel_total": null
+      },
+      "expect_null_identity": false,
+      "expected_invalid_reason": null,
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "1",
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "1",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ],
+        "ned_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "air_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "tas_squared": "169",
+        "ground_speed_squared": "25"
+      },
+      "display_expected": {
+        "tas_kt": 25.26997840172786,
+        "height_ft": 3280.8398950131236,
+        "vsi_fpm": -2362.2047244094488
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "fuel-unavailable",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "unavailable"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.0,
+            1.0,
+            0.0,
+            -0.0,
+            -0.0,
+            -1.0,
+            -1.0,
+            -0.0,
+            -0.0
+          ]
+        }
+      },
+      "expected_state": "live",
+      "expected_values": {
+        "tas": 13.0,
+        "ground_speed": 5.0,
+        "pitch": 0.0,
+        "bank": 0.0,
+        "heading_true": 0.0,
+        "ellipsoid_height": 1000.0,
+        "vertical_speed": -12.0,
+        "body_yaw_rate": 0.125,
+        "fuel_total": null
+      },
+      "expect_null_identity": false,
+      "expected_invalid_reason": null,
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "1",
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "1",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ],
+        "ned_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "air_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "tas_squared": "169",
+        "ground_speed_squared": "25"
+      },
+      "display_expected": {
+        "tas_kt": 25.26997840172786,
+        "height_ft": 3280.8398950131236,
+        "vsi_fpm": -2362.2047244094488
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "fuel-wrong-quantity",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "radps",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.0,
+            1.0,
+            0.0,
+            -0.0,
+            -0.0,
+            -1.0,
+            -1.0,
+            -0.0,
+            -0.0
+          ]
+        }
+      },
+      "expected_state": "live",
+      "expected_values": {
+        "tas": 13.0,
+        "ground_speed": 5.0,
+        "pitch": 0.0,
+        "bank": 0.0,
+        "heading_true": 0.0,
+        "ellipsoid_height": 1000.0,
+        "vertical_speed": -12.0,
+        "body_yaw_rate": 0.125,
+        "fuel_total": null
+      },
+      "expect_null_identity": false,
+      "expected_invalid_reason": null,
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "1",
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "1",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ],
+        "ned_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "air_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "tas_squared": "169",
+        "ground_speed_squared": "25"
+      },
+      "display_expected": {
+        "tas_kt": 25.26997840172786,
+        "height_ft": 3280.8398950131236,
+        "vsi_fpm": -2362.2047244094488
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "paused-current",
+      "input": {
+        "host_mode": "paused",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "paused",
+        "native_live": true,
+        "paused": true,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.0,
+            1.0,
+            0.0,
+            -0.0,
+            -0.0,
+            -1.0,
+            -1.0,
+            -0.0,
+            -0.0
+          ]
+        }
+      },
+      "expected_state": "paused",
+      "expected_values": {
+        "tas": 13.0,
+        "ground_speed": 5.0,
+        "pitch": 0.0,
+        "bank": 0.0,
+        "heading_true": 0.0,
+        "ellipsoid_height": 1000.0,
+        "vertical_speed": -12.0,
+        "body_yaw_rate": 0.125,
+        "fuel_total": 100.0
+      },
+      "expect_null_identity": false,
+      "expected_invalid_reason": null,
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "1",
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "1",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ],
+        "ned_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "air_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "tas_squared": "169",
+        "ground_speed_squared": "25"
+      },
+      "display_expected": {
+        "tas_kt": 25.26997840172786,
+        "height_ft": 3280.8398950131236,
+        "vsi_fpm": -2362.2047244094488
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "closed-historical",
+      "input": {
+        "host_mode": "closed",
+        "error": "",
+        "historical": true,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": false,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": null
+      },
+      "expected_state": "historical",
+      "expected_values": {
+        "tas": 13.0,
+        "ground_speed": 5.0,
+        "pitch": 0.0,
+        "bank": 0.0,
+        "heading_true": 0.0,
+        "ellipsoid_height": 1000.0,
+        "vertical_speed": -12.0,
+        "body_yaw_rate": 0.125,
+        "fuel_total": 100.0
+      },
+      "expect_null_identity": false,
+      "expected_invalid_reason": null,
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "1",
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "1",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ],
+        "ned_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "air_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "tas_squared": "169",
+        "ground_speed_squared": "25"
+      },
+      "display_expected": {
+        "tas_kt": 25.26997840172786,
+        "height_ft": 3280.8398950131236,
+        "vsi_fpm": -2362.2047244094488
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "empty-closed",
+      "input": {
+        "host_mode": "closed",
+        "error": "",
+        "historical": true,
+        "session_id": null,
+        "tick": null,
+        "aircraft": null,
+        "atmosphere": null,
+        "held_axes": null,
+        "native_outcome": null,
+        "native_live": false,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": null,
+        "model_identity": null,
+        "native_source_fingerprint": null,
+        "prepared_world_sha256": null,
+        "world_anchor": null,
+        "canonical": null
+      },
+      "expected_state": "empty",
+      "expected_values": {
+        "tas": null,
+        "ground_speed": null,
+        "pitch": null,
+        "bank": null,
+        "heading_true": null,
+        "ellipsoid_height": null,
+        "vertical_speed": null,
+        "body_yaw_rate": null,
+        "fuel_total": null
+      },
+      "expect_null_identity": true,
+      "expected_invalid_reason": null,
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "1",
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "1",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ],
+        "ned_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "air_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "tas_squared": "169",
+        "ground_speed_squared": "25"
+      },
+      "display_expected": {
+        "tas_kt": null,
+        "height_ft": null,
+        "vsi_fpm": null
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "full-uint64-max",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "18446744073709551615",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "18446744073709551615",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 1.5372286728091293e+17,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "18446744073709551615",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.0,
+            1.0,
+            0.0,
+            -0.0,
+            -0.0,
+            -1.0,
+            -1.0,
+            -0.0,
+            -0.0
+          ]
+        }
+      },
+      "expected_state": "live",
+      "expected_values": {
+        "tas": 13.0,
+        "ground_speed": 5.0,
+        "pitch": 0.0,
+        "bank": 0.0,
+        "heading_true": 0.0,
+        "ellipsoid_height": 1000.0,
+        "vertical_speed": -12.0,
+        "body_yaw_rate": 0.125,
+        "fuel_total": 100.0
+      },
+      "expect_null_identity": false,
+      "expected_invalid_reason": null,
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "1",
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "1",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ],
+        "ned_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "air_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "tas_squared": "169",
+        "ground_speed_squared": "25"
+      },
+      "display_expected": {
+        "tas_kt": 25.26997840172786,
+        "height_ft": 3280.8398950131236,
+        "vsi_fpm": -2362.2047244094488
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "unknown-readback-key",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.0,
+            1.0,
+            0.0,
+            -0.0,
+            -0.0,
+            -1.0,
+            -1.0,
+            -0.0,
+            -0.0
+          ]
+        },
+        "extra": true
+      },
+      "expected_state": "invalid",
+      "expected_values": {
+        "tas": null,
+        "ground_speed": null,
+        "pitch": null,
+        "bank": null,
+        "heading_true": null,
+        "ellipsoid_height": null,
+        "vertical_speed": null,
+        "body_yaw_rate": null,
+        "fuel_total": null
+      },
+      "expect_null_identity": true,
+      "expected_invalid_reason": "closed Readback shape",
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "1",
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "1",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ],
+        "ned_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "air_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "tas_squared": "169",
+        "ground_speed_squared": "25"
+      },
+      "display_expected": {
+        "tas_kt": null,
+        "height_ft": null,
+        "vsi_fpm": null
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "weather-tick-mismatch",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "1",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.0,
+            1.0,
+            0.0,
+            -0.0,
+            -0.0,
+            -1.0,
+            -1.0,
+            -0.0,
+            -0.0
+          ]
+        }
+      },
+      "expected_state": "invalid",
+      "expected_values": {
+        "tas": null,
+        "ground_speed": null,
+        "pitch": null,
+        "bank": null,
+        "heading_true": null,
+        "ellipsoid_height": null,
+        "vertical_speed": null,
+        "body_yaw_rate": null,
+        "fuel_total": null
+      },
+      "expect_null_identity": true,
+      "expected_invalid_reason": "pair identity",
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "1",
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "1",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ],
+        "ned_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "air_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "tas_squared": "169",
+        "ground_speed_squared": "25"
+      },
+      "display_expected": {
+        "tas_kt": null,
+        "height_ft": null,
+        "vsi_fpm": null
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "weather-position-mismatch",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.01
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.0,
+            1.0,
+            0.0,
+            -0.0,
+            -0.0,
+            -1.0,
+            -1.0,
+            -0.0,
+            -0.0
+          ]
+        }
+      },
+      "expected_state": "invalid",
+      "expected_values": {
+        "tas": null,
+        "ground_speed": null,
+        "pitch": null,
+        "bank": null,
+        "heading_true": null,
+        "ellipsoid_height": null,
+        "vertical_speed": null,
+        "body_yaw_rate": null,
+        "fuel_total": null
+      },
+      "expect_null_identity": true,
+      "expected_invalid_reason": "pair position",
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "1",
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "1",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ],
+        "ned_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "air_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "tas_squared": "169",
+        "ground_speed_squared": "25"
+      },
+      "display_expected": {
+        "tas_kt": null,
+        "height_ft": null,
+        "vsi_fpm": null
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "ecef-position-mismatch",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2886649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.0,
+            1.0,
+            0.0,
+            -0.0,
+            -0.0,
+            -1.0,
+            -1.0,
+            -0.0,
+            -0.0
+          ]
+        }
+      },
+      "expected_state": "invalid",
+      "expected_values": {
+        "tas": null,
+        "ground_speed": null,
+        "pitch": null,
+        "bank": null,
+        "heading_true": null,
+        "ellipsoid_height": null,
+        "vertical_speed": null,
+        "body_yaw_rate": null,
+        "fuel_total": null
+      },
+      "expect_null_identity": true,
+      "expected_invalid_reason": "v1 coordinate semantics",
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "1",
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "1",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ],
+        "ned_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "air_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "tas_squared": "169",
+        "ground_speed_squared": "25"
+      },
+      "display_expected": {
+        "tas_kt": null,
+        "height_ft": null,
+        "vsi_fpm": null
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "duplicate-fuel-source",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            },
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.0,
+            1.0,
+            0.0,
+            -0.0,
+            -0.0,
+            -1.0,
+            -1.0,
+            -0.0,
+            -0.0
+          ]
+        }
+      },
+      "expected_state": "invalid",
+      "expected_values": {
+        "tas": null,
+        "ground_speed": null,
+        "pitch": null,
+        "bank": null,
+        "heading_true": null,
+        "ellipsoid_height": null,
+        "vertical_speed": null,
+        "body_yaw_rate": null,
+        "fuel_total": null
+      },
+      "expect_null_identity": true,
+      "expected_invalid_reason": "duplicate v1 IDs",
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "1",
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "1",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ],
+        "ned_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "air_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "tas_squared": "169",
+        "ground_speed_squared": "25"
+      },
+      "display_expected": {
+        "tas_kt": null,
+        "height_ft": null,
+        "vsi_fpm": null
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "wrong-prepared-identity",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.0,
+            1.0,
+            0.0,
+            -0.0,
+            -0.0,
+            -1.0,
+            -1.0,
+            -0.0,
+            -0.0
+          ]
+        }
+      },
+      "expected_state": "invalid",
+      "expected_values": {
+        "tas": null,
+        "ground_speed": null,
+        "pitch": null,
+        "bank": null,
+        "heading_true": null,
+        "ellipsoid_height": null,
+        "vertical_speed": null,
+        "body_yaw_rate": null,
+        "fuel_total": null
+      },
+      "expect_null_identity": true,
+      "expected_invalid_reason": "prepared identity",
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "1",
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "1",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ],
+        "ned_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "air_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "tas_squared": "169",
+        "ground_speed_squared": "25"
+      },
+      "display_expected": {
+        "tas_kt": null,
+        "height_ft": null,
+        "vsi_fpm": null
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "wrong-model-identity",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "different-model",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.0,
+            1.0,
+            0.0,
+            -0.0,
+            -0.0,
+            -1.0,
+            -1.0,
+            -0.0,
+            -0.0
+          ]
+        }
+      },
+      "expected_state": "invalid",
+      "expected_values": {
+        "tas": null,
+        "ground_speed": null,
+        "pitch": null,
+        "bank": null,
+        "heading_true": null,
+        "ellipsoid_height": null,
+        "vertical_speed": null,
+        "body_yaw_rate": null,
+        "fuel_total": null
+      },
+      "expect_null_identity": true,
+      "expected_invalid_reason": "model identity",
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "1",
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "1",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ],
+        "ned_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "air_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "tas_squared": "169",
+        "ground_speed_squared": "25"
+      },
+      "display_expected": {
+        "tas_kt": null,
+        "height_ft": null,
+        "vsi_fpm": null
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "unavailable-held-pair",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": null,
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.0,
+            1.0,
+            0.0,
+            -0.0,
+            -0.0,
+            -1.0,
+            -1.0,
+            -0.0,
+            -0.0
+          ]
+        }
+      },
+      "expected_state": "invalid",
+      "expected_values": {
+        "tas": null,
+        "ground_speed": null,
+        "pitch": null,
+        "bank": null,
+        "heading_true": null,
+        "ellipsoid_height": null,
+        "vertical_speed": null,
+        "body_yaw_rate": null,
+        "fuel_total": null
+      },
+      "expect_null_identity": true,
+      "expected_invalid_reason": "Readback null relationships",
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "1",
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "1",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ],
+        "ned_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "air_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "tas_squared": "169",
+        "ground_speed_squared": "25"
+      },
+      "display_expected": {
+        "tas_kt": null,
+        "height_ft": null,
+        "vsi_fpm": null
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "unknown-canonical-key",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.0,
+            1.0,
+            0.0,
+            -0.0,
+            -0.0,
+            -1.0,
+            -1.0,
+            -0.0,
+            -0.0
+          ],
+          "origin": "float-view"
+        }
+      },
+      "expected_state": "invalid",
+      "expected_values": {
+        "tas": null,
+        "ground_speed": null,
+        "pitch": null,
+        "bank": null,
+        "heading_true": null,
+        "ellipsoid_height": null,
+        "vertical_speed": null,
+        "body_yaw_rate": null,
+        "fuel_total": null
+      },
+      "expect_null_identity": true,
+      "expected_invalid_reason": "closed canonical metadata",
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "1",
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "1",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ],
+        "ned_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "air_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "tas_squared": "169",
+        "ground_speed_squared": "25"
+      },
+      "display_expected": {
+        "tas_kt": null,
+        "height_ft": null,
+        "vsi_fpm": null
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "finite-wire-squared-norm-overflow",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 1e+308,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": false,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.0,
+            1.0,
+            0.0,
+            -0.0,
+            -0.0,
+            -1.0,
+            -1.0,
+            -0.0,
+            -0.0
+          ]
+        }
+      },
+      "expected_state": "invalid",
+      "expected_values": {
+        "tas": null,
+        "ground_speed": null,
+        "pitch": null,
+        "bank": null,
+        "heading_true": null,
+        "ellipsoid_height": null,
+        "vertical_speed": null,
+        "body_yaw_rate": null,
+        "fuel_total": null
+      },
+      "expect_null_identity": true,
+      "expected_invalid_reason": "finite wire components overflow binary64 squared norm",
+      "exact_arithmetic": {
+        "velocity_magnitude_mathematical": "1e308",
+        "squared_norm_mathematical": "1e616",
+        "binary64_squared_norm_finite": false
+      },
+      "display_expected": {
+        "tas_kt": null,
+        "height_ft": null,
+        "vsi_fpm": null
+      },
+      "finite_only_json": true
+    },
+    {
+      "id": "contradictory-live-paused",
+      "input": {
+        "host_mode": "live",
+        "error": "",
+        "historical": false,
+        "session_id": "synthetic-reading-reference",
+        "tick": "0",
+        "aircraft": {
+          "type": "AircraftSnapshot",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "clock": {
+            "tick_rate_hz": 120,
+            "purpose": "runtime"
+          },
+          "elapsed_s": 0.0,
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "ecef_position_m": {
+            "x": -1852711.2986649142,
+            "y": -4048248.0426978553,
+            "z": 4553331.821989356
+          },
+          "orientation_body_to_ned": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "velocity_body_mps": {
+            "x": 3.0,
+            "y": 4.0,
+            "z": 12.0
+          },
+          "angular_rate_body_radps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.125
+          },
+          "acceleration_body_mps2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "mass_kg": 1000,
+          "center_of_gravity_body_m": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "configuration": {
+            "flap_fraction": 0,
+            "gear_fraction": 1,
+            "trim_fraction": 0
+          },
+          "systems": [
+            {
+              "id": "fuel.total",
+              "quantity": "kg",
+              "value": 100.0,
+              "validity": "valid"
+            }
+          ],
+          "contacts": [],
+          "validity": "valid"
+        },
+        "atmosphere": {
+          "type": "AtmosphereSample",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "synthetic-reading-reference",
+          "position": {
+            "latitude_rad": 0.8,
+            "longitude_rad": -2.0,
+            "ellipsoid_height_m": 1000.0
+          },
+          "pressure_pa": 101325,
+          "temperature_k": 288.15,
+          "density_kgpm3": 1.225,
+          "relative_humidity": 0,
+          "wind_toward_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "turbulence_ned_mps": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "seed": "42",
+          "model_id": "synthetic-still-air"
+        },
+        "held_axes": {
+          "kind": "axes",
+          "roll": 0.0,
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "throttle": 0.0,
+          "mixture": 1.0,
+          "left_brake": 0.0,
+          "right_brake": 0.0,
+          "trim": 0.0
+        },
+        "native_outcome": "completed",
+        "native_live": true,
+        "paused": true,
+        "time_scale": 1.0,
+        "debt_quanta": 0,
+        "native_fault": "",
+        "named_start": "airborne-prepared",
+        "model_identity": {
+          "id": "original-interactive-prototype",
+          "version": "0.1.0-prototype",
+          "backend_model": "original-interactive"
+        },
+        "native_source_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+        "world_anchor": {
+          "latitude_rad": 0.8,
+          "longitude_rad": -2.0,
+          "ellipsoid_height_m": 0.0
+        },
+        "canonical": {
+          "ecef_position_m": [
+            -1852711.2986649142,
+            -4048248.0426978553,
+            4553331.821989356
+          ],
+          "anchor_eus_position_m": [
+            1.8815171642927453e-11,
+            999.9999999998295,
+            -2.2443202851718524e-10
+          ],
+          "body_to_anchor_eus": [
+            0.0,
+            1.0,
+            0.0,
+            -0.0,
+            -0.0,
+            -1.0,
+            -1.0,
+            -0.0,
+            -0.0
+          ]
+        }
+      },
+      "expected_state": "invalid",
+      "expected_values": {
+        "tas": null,
+        "ground_speed": null,
+        "pitch": null,
+        "bank": null,
+        "heading_true": null,
+        "ellipsoid_height": null,
+        "vertical_speed": null,
+        "body_yaw_rate": null,
+        "fuel_total": null
+      },
+      "expect_null_identity": true,
+      "expected_invalid_reason": "live and paused flags contradict",
+      "exact_arithmetic": {
+        "rotation": [
+          [
+            "1",
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "1",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ],
+        "ned_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "air_velocity": [
+          "3",
+          "4",
+          "12"
+        ],
+        "tas_squared": "169",
+        "ground_speed_squared": "25"
+      },
+      "display_expected": {
+        "tas_kt": null,
+        "height_ft": null,
+        "vsi_fpm": null
+      },
+      "finite_only_json": true
+    }
+  ],
+  "non_json_cases": [
+    {
+      "id": "nan-required-vector",
+      "mutation": "aircraft.velocity_body_mps.x=NAN",
+      "expected_state": "invalid"
+    },
+    {
+      "id": "infinite-system-value",
+      "mutation": "aircraft.systems[0].value=INF",
+      "expected_state": "invalid"
+    },
+    {
+      "id": "wrong-readback-object",
+      "mutation": "input=Node3D.new()",
+      "expected_state": "invalid"
+    },
+    {
+      "id": "malformed-fingerprint",
+      "mutation": "input.native_source_fingerprint='g'*64",
+      "expected_state": "invalid"
+    },
+    {
+      "id": "float-debt-counter",
+      "mutation": "input.debt_quanta=0.0 (TYPE_FLOAT)",
+      "expected_state": "invalid"
+    }
+  ],
+  "provenance": {
+    "version": "v2",
+    "parent_reference_sha256": "440e7949c209c7a52d1d5498c9fe9b9bd6e9e49df47e45581d062a36cda44c35",
+    "parent_manifest_sha256": "42336c6efd3f5f4086f17e7dd2b89c219f882fb1f044d5a1f85abb052629e6bc",
+    "reason": "Pre-consumer review requested finite arithmetic overflow and direct metadata invalidity references",
+    "consumer_source_observed": false,
+    "consumer_output_observed": false,
+    "tolerances_changed": false,
+    "json_counter_driver_rule": "Restore only the known input.debt_quanta integer fixture path after Godot JSON parsing; direct float-debt-counter recipe must explicitly reintroduce TYPE_FLOAT. Never convert decimal tick/session identity.",
+    "research_fingerprint": "f repeated 64 times is structural research metadata, not native binary authority."
+  }
+}

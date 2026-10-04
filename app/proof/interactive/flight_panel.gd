@@ -10,9 +10,9 @@ const GREEN := Color("8be0ac")
 const RED := Color("ff8e91")
 const FACE := Color("111822")
 const LINE := Color("334153")
-const MPS_TO_KT := 1.9438444924406
-const M_TO_FT := 3.2808398950131
-const MPS_TO_FPM := 196.85039370079
+const MPS_TO_KT := 3600.0 / 1852.0
+const M_TO_FT := 1.0 / 0.3048
+const MPS_TO_FPM := 60.0 / 0.3048
 
 var _snapshot: Dictionary = {}
 var _atmosphere: Dictionary = {}
@@ -133,7 +133,7 @@ func _draw_topbar() -> void:
 	_line(Vector2(0, 45), Vector2(width, 45), LINE)
 	draw_circle(Vector2(23, 23), 5, CYAN, true, -1, true)
 	_text(Vector2(38, 28), "FLIGHT SIM", 17)
-	_text(Vector2(151, 28), "LAB", 13, MUTED)
+	_text(Vector2(151, 28), "NATIVE", 11, MUTED)
 	_box(Rect2(202, 12, 90, 23), Color("253022"), Color("4c5740"), 5)
 	_text(Vector2(247, 28), "PROTOTYPE", 10, AMBER, true)
 	var status := "PAUSED" if _info.get("paused", false) else "LIVE"
@@ -144,6 +144,9 @@ func _draw_topbar() -> void:
 		status_color = RED
 	if _info.get("blocked",false) or _info.get("stalled",false):
 		status="RESTART REQUIRED"
+		status_color=RED
+	if _info.get("retained",false):
+		status="RETAINED"
 		status_color=RED
 	if _readings.get("valid", false) == false and not _info.get("blocked",false) and not _info.get("stalled",false):
 		status = "WAITING FOR STATE"
@@ -161,7 +164,8 @@ func _draw_topbar() -> void:
 
 func _control_strip_values() -> Dictionary:
 	return {"valid":_readings.get("valid",false) and not _held.is_empty(),
-		"ground_kt":float(_readings.get("ground_kt",0.0)),
+		"ground_valid":_readings.get("valid",false) and _readings.get("channel_valid",{}).get("ground_speed",true),
+		"ground_kt":float(_readings.get("ground_kt",NAN)),
 		"throttle_percent":roundi(float(_held.get("throttle",0.0))*100),
 		"left_percent":roundi(float(_held.get("left_brake",0.0))*100),
 		"right_percent":roundi(float(_held.get("right_brake",0.0))*100)}
@@ -169,13 +173,13 @@ func _control_strip_values() -> Dictionary:
 func _draw_control_strip() -> void:
 	# Remains visible when the full overlay is hidden in cockpit/panel view.
 	# Numbers are native-held controls/current copied motion, never pending intent.
-	var retained: bool=_info.get("blocked",false) or _info.get("stalled",false) or str(_info.get("outcome","")) in ["discarded","error","coverage_blocked"]
+	var retained: bool=_info.get("retained",false) or _info.get("blocked",false) or _info.get("stalled",false) or str(_info.get("outcome","")) in ["discarded","error","coverage_blocked"]
 	var top: float=84.0 if retained else 51.0
 	var values:=_control_strip_values()
 	_box(Rect2(10,top,size.x-20,34),Color(0.035,0.064,0.095,0.95),Color("425162"),6)
 	var baseline:=top+23.0
 	var valid: bool=values.valid
-	_text(Vector2(23,baseline),"GS %05.1f kt" % float(values.ground_kt) if valid else "GS — kt",16,INK)
+	_text(Vector2(23,baseline),"GS "+_native_number(float(values.ground_kt),1)+" kt" if values.ground_valid and is_finite(values.ground_kt) else "GS — kt",16,INK)
 	_text(Vector2(174,baseline),"THR %03d%%" % int(values.throttle_percent) if valid else "THR —",16,CYAN)
 	_text(Vector2(319,baseline),"BRAKES L %03d%%  R %03d%%" % [int(values.left_percent),int(values.right_percent)] if valid else "BRAKES L —  R —",15,AMBER)
 	var scope: String="RETAINED" if retained else "PAUSED" if _info.get("paused",false) else "NATIVE HELD"
@@ -220,7 +224,7 @@ func _draw_compact_panel(top: float, height: float) -> void:
 	_text(Vector2(usable * 0.17, baseline), "BRAKES L %03d  R %03d" % [roundi(float(_held.get("left_brake", 0.0)) * 100), roundi(float(_held.get("right_brake", 0.0)) * 100)], 12, AMBER)
 	_text(Vector2(usable * 0.43, baseline), "TRIM %+0.2f" % float(_held.get("trim", 0.0)), 12, INK)
 	var fuel := float(_readings.get("fuel_kg", NAN))
-	_text(Vector2(usable * 0.59, baseline), "FUEL %.1f kg" % fuel if is_finite(fuel) else "FUEL —", 12, INK)
+	_text(Vector2(usable * 0.59, baseline), "FUEL "+_native_number(fuel,1)+" kg" if is_finite(fuel) else "FUEL —", 12, INK)
 	_text(Vector2(usable * 0.78, baseline), _ground_label(), 12, GREEN if int(_readings.get("ground_contacts", 0)) > 0 else MUTED)
 
 func _draw_instrument(index: int, cell: Rect2) -> void:
@@ -231,8 +235,13 @@ func _draw_instrument(index: int, cell: Rect2) -> void:
 	draw_circle(center, radius + 1, Color("080d14"), true, -1, true)
 	draw_circle(center, radius - 2, FACE, true, -1, true)
 	draw_arc(center, radius + 2, PI * 1.10, PI * 1.90, 36, Color("657488"), 1, true)
-	if not _readings.get("valid", false):
+	if not _instrument_available(index):
 		_text(center + Vector2(0, 6), "—", radius * 0.3, MUTED, true)
+	elif absf(float(_readings.get(["tas_kt","pitch_deg","altitude_ft","heading_deg","yaw_rate_deg_s","vsi_fpm"][index],0.0)))>999999.0:
+		# Keep the verified value visible without overflowing integer formatters.
+		var numeric: String=_native_number(float(_readings[["tas_kt","pitch_deg","altitude_ft","heading_deg","yaw_rate_deg_s","vsi_fpm"][index]]),0)
+		_text(center+Vector2(0,7),_bounded_text(numeric,radius*1.6,maxi(10,roundi(radius*0.17))),radius*0.17,INK,true)
+		_text(center+Vector2(0,radius*0.42),"NUMERIC VIEW",radius*0.11,MUTED,true)
 	else:
 		match index:
 			0: _airspeed(center, radius)
@@ -424,7 +433,7 @@ func _bar(at: Vector2, width: float, value: float, color: Color) -> void:
 	draw_rect(Rect2(at + Vector2(1, 1), Vector2((width - 2) * clampf(value, 0, 1), 5)), color)
 
 func _ground_label() -> String:
-	if not _info.get("ground_valid", false):
+	if not _info.get("ground_valid", false) or not _readings.get("contacts_valid",true):
 		return "GROUND UNAVAILABLE"
 	var count := int(_readings.get("ground_contacts", 0))
 	return "GEAR CLEAR · 0/3" if count == 0 else "CONTACT  %d / 3" % count
@@ -436,7 +445,7 @@ func _draw_engine(rect: Rect2) -> void:
 	_text(rect.position + Vector2(80, 43), "% THROTTLE", 12, MUTED)
 	_bar(rect.position + Vector2(0, 61), rect.size.x, throttle, CYAN)
 	var fuel := float(_readings.get("fuel_kg", NAN))
-	_text(rect.position + Vector2(0, 106), "%.1f" % fuel if is_finite(fuel) else "—", 28)
+	_text(rect.position + Vector2(0, 106), _bounded_text(_native_number(fuel,1),92.0,28) if is_finite(fuel) else "—", 28)
 	_text(rect.position + Vector2(100, 105), "kg FUEL", 12, MUTED)
 	if is_finite(fuel):
 		_bar(rect.position + Vector2(0, 120), rect.size.x, fuel / 100.0, GREEN)
@@ -445,7 +454,7 @@ func _draw_engine(rect: Rect2) -> void:
 	_text(rect.position + Vector2(0, 196), _ground_label(), 15, GREEN if int(_readings.get("ground_contacts", 0)) > 0 else CYAN)
 	var clearance := float(_info.get("clearance_m", 0.0))
 	_text(rect.position + Vector2(0, 222), "CG CLEARANCE  %.1f m" % clearance if _info.get("ground_valid", false) else "CG CLEARANCE  —", 12, MUTED)
-	_text(rect.position + Vector2(0, 253), "GS  %.0f kt" % float(_readings.get("ground_kt", 0.0)), 12, INK)
+	_text(rect.position + Vector2(0, 253), "GS "+_native_number(float(_readings.ground_kt),0)+" kt" if _readings.get("channel_valid",{}).get("ground_speed",true) and is_finite(float(_readings.get("ground_kt",NAN))) else "GS — kt", 12, INK)
 	_text(rect.position + Vector2(0, 278), "NATIVE TRUTH · NOT SENSORS", 10, MUTED)
 
 func _draw_controls(rect: Rect2) -> void:
@@ -487,7 +496,7 @@ func _draw_cockpit_surface() -> void:
 	_bar(Vector2(x, 95), width, float(_held.get("throttle", 0.0)), CYAN)
 	var fuel := float(_readings.get("fuel_kg", NAN))
 	_text(Vector2(x, 137), "FUEL", 13, MUTED)
-	_text(Vector2(x + 125, 138), "%.1f kg" % fuel if is_finite(fuel) else "— kg", 19)
+	_text(Vector2(x + 125, 138), _bounded_text(_native_number(fuel,1)+" kg",119.0,19) if is_finite(fuel) else "— kg", 19)
 	if is_finite(fuel):
 		_bar(Vector2(x, 151), width, fuel / 100.0, GREEN)
 	_text(Vector2(x, 181), "ORIGINAL SYNTHETIC ENGINE", 11, MUTED)
@@ -510,7 +519,7 @@ func _draw_cockpit_surface() -> void:
 	_text(Vector2(x, 430), _ground_label(), 15, GREEN if int(_readings.get("ground_contacts", 0)) > 0 else CYAN)
 	var clearance := float(_info.get("clearance_m", 0.0))
 	_text(Vector2(x, 456), "CG clearance %.1f m" % clearance if _info.get("ground_valid", false) else "CG clearance —", 13, MUTED)
-	if _info.get("blocked", false) or _info.get("stalled", false) or str(_info.get("outcome", "")) in ["discarded","error","coverage_blocked"]:
+	if _info.get("retained",false) or _info.get("blocked", false) or _info.get("stalled", false) or str(_info.get("outcome", "")) in ["discarded","error","coverage_blocked"]:
 		_text(Vector2(x, 484), "RETAINED STATE · STOPPED", 12, RED)
 	elif _info.get("paused", false):
 		_text(Vector2(x, 484), "PAUSED", 14, AMBER)
@@ -541,3 +550,124 @@ func _draw_help() -> void:
 	_text(rect.position + Vector2(24, footer + 51), "Derived TAS · WGS84 ellipsoid feet · true heading · body yaw rate", 12, MUTED)
 	_text(rect.position + Vector2(24, footer + 74), "Native truth, not IAS / magnetic / turn-slip sensors or Cessna calibration.", 12, MUTED)
 	_text(rect.position + Vector2(24, footer + 96), "Display scales are not operating limits. The panel cannot modify physics.", 12, MUTED)
+
+func _native_number(value: float, decimals: int) -> String:
+	if not is_finite(value):
+		return "—"
+	if absf(value)>999999.0:
+		var exponent: int=int(floor(log(absf(value))/log(10.0)))
+		var mantissa: float=value/pow(10.0,exponent)
+		return "%.2fe%d" % [mantissa,exponent]
+	return ("%.1f" if decimals==1 else "%.0f") % value
+
+func _bounded_text(value: String, width: float, pixels: int) -> String:
+	if _font.get_string_size(value,HORIZONTAL_ALIGNMENT_LEFT,-1,pixels).x<=width:
+		return value
+	var fitted: String=value
+	while not fitted.is_empty() and _font.get_string_size(fitted+"…",HORIZONTAL_ALIGNMENT_LEFT,-1,pixels).x>width:
+		fitted=fitted.left(fitted.length()-1)
+	return fitted+"…"
+
+# Draft original MIT fragment for the shared drawing boundary; activate only
+# after checked PR118. NativeReadings remains the authoritative SI producer.
+static func _reading_keys(value: Variant, keys: Array) -> bool:
+	if not value is Dictionary or value.size()!=keys.size():
+		return false
+	for key in value:
+		if not key is String or not keys.has(key):
+			return false
+	return true
+
+static func _reading_identity(value: Dictionary) -> bool:
+	var session: Variant=value.session_id
+	var tick: Variant=value.tick
+	if not session is String or session.is_empty() or session.length()>128 or not session[0]>="a" or not session[0]<="z":
+		return false
+	var separator: bool=false
+	for index in session.length():
+		var code: int=session.unicode_at(index)
+		if (code>=97 and code<=122) or (code>=48 and code<=57):
+			separator=false
+		elif code in [46,45,95] and not separator:
+			separator=true
+		else:
+			return false
+	if separator or not tick is String or tick.is_empty() or tick.length()>20 or (tick.length()>1 and tick[0]=="0"):
+		return false
+	for index in tick.length():
+		if tick.unicode_at(index)<48 or tick.unicode_at(index)>57:
+			return false
+	return tick.length()<20 or tick<="18446744073709551615"
+
+static func display_readings(value: Dictionary) -> Dictionary:
+	var unavailable: Dictionary={"valid":false,"tas_valid":false,"channel_valid":{}}
+	if not _reading_keys(value,["session_id","tick","state","native_truth","readings","error"]) or typeof(value.native_truth)!=TYPE_BOOL or not value.native_truth or not value.state is String or not value.state in ["live","paused","historical"] or not value.error is String or not value.error.is_empty() or not _reading_identity(value):
+		return unavailable
+	var units: Dictionary={"tas":"m/s","ground_speed":"m/s","pitch":"rad","bank":"rad","heading_true":"rad","ellipsoid_height":"m","vertical_speed":"m/s","body_yaw_rate":"rad/s","fuel_total":"kg"}
+	var fields: Dictionary={"tas":"tas_kt","ground_speed":"ground_kt","pitch":"pitch_deg","bank":"roll_deg","heading_true":"heading_deg","ellipsoid_height":"altitude_ft","vertical_speed":"vsi_fpm","body_yaw_rate":"yaw_rate_deg_s","fuel_total":"fuel_kg"}
+	if not _reading_keys(value.readings,units.keys()):
+		return unavailable
+	var result: Dictionary={"valid":true,"tas_valid":false,"channel_valid":{}}
+	for id in units:
+		var channel: Variant=value.readings.get(id)
+		if not _reading_keys(channel,["value","unit","valid","error"]) or typeof(channel.valid)!=TYPE_BOOL or not channel.unit is String or channel.unit!=units[id] or not channel.error is String or channel.error.length()>1024:
+			return unavailable
+		result.channel_valid[id]=false
+		if not channel.valid:
+			if channel.get("value")!=null or channel.error.is_empty():
+				return unavailable
+			continue
+		if typeof(channel.get("value"))!=TYPE_FLOAT or not is_finite(channel.value) or not channel.error.is_empty():
+			return unavailable
+		var converted: float=channel.value
+		if id in ["tas","ground_speed"]:
+			converted*=MPS_TO_KT
+		elif id=="ellipsoid_height":
+			converted*=M_TO_FT
+		elif id=="vertical_speed":
+			converted*=MPS_TO_FPM
+		elif id in ["pitch","bank","heading_true","body_yaw_rate"]:
+			converted=rad_to_deg(converted)
+		if is_finite(converted):
+			result[fields[id]]=converted
+			result.channel_valid[id]=true
+	result.tas_valid=result.channel_valid.tas
+	return result
+
+func set_native_readings(value: Dictionary, state: Dictionary, held: Dictionary, info: Dictionary) -> void:
+	_snapshot=state.duplicate(true)
+	_atmosphere={}
+	_held=held.duplicate(true)
+	_info=info.duplicate(true)
+	_readings=display_readings(value)
+	if _readings.valid and (state.get("session_id")!=value.session_id or state.get("tick")!=value.tick):
+		_readings={"valid":false,"tas_valid":false,"channel_valid":{}}
+		_info.status="Reading publication and contact state disagree"
+	_info.retained=value.get("state")=="historical"
+	if value.get("state") in ["live","paused"]:
+		_info.paused=value.state=="paused"
+	var contacts: int=0
+	var contacts_valid: bool=_readings.valid and state.get("contacts") is Array
+	if contacts_valid:
+		for contact in _snapshot.contacts:
+			if not contact is Dictionary or typeof(contact.get("on_ground"))!=TYPE_BOOL:
+				contacts_valid=false
+			elif contact.on_ground:
+				contacts+=1
+	_readings.ground_contacts=contacts
+	_readings.contacts_valid=contacts_valid
+	if not contacts_valid:
+		_info.ground_valid=false
+	queue_redraw()
+
+func _instrument_available(index: int) -> bool:
+	if not _readings.get("valid",false):
+		return false
+	# Historical proof keeps its original derivation. Ordinary flight always
+	# supplies the shared validated channel map instead of missing-value zeros.
+	if not _readings.has("channel_valid"):
+		return true
+	var channels: Dictionary=_readings.channel_valid
+	if index==1:
+		return channels.get("pitch",false) and channels.get("bank",false)
+	return channels.get(["tas","","ellipsoid_height","heading_true","body_yaw_rate","vertical_speed"][index],false)
