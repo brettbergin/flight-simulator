@@ -64,5 +64,15 @@ func close() -> void:
 	playback=null
 	generator=null
 
+func shutdown() -> bool:
+	# Godot's audio mixer can hold a stopped playback briefly. Explicit quits
+	# await actual retirement; no timeout means "passed" and no leak suppression.
+	var retiring: WeakRef=weakref(playback) if playback!=null else null
+	close()
+	var deadline: int=Time.get_ticks_usec()+2000000
+	while retiring!=null and retiring.get_ref()!=null and Time.get_ticks_usec()<deadline:
+		await get_tree().create_timer(0.025).timeout
+	return retiring==null or retiring.get_ref()==null
+
 func _exit_tree() -> void:
 	close()
