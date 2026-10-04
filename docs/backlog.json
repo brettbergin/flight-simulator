@@ -4543,6 +4543,61 @@
         "Minimum-size UI bounds, exact source/package identities and bounded exported GPU captures with preserved original native physics.",
         "All protected checks and exact-source review before guarded merge; broader production planner, pilot/device and phase gates remain open."
       ]
+    },
+    {
+      "key": "OBSERVED-REVIEW-CONTRACT",
+      "title": "Ratify bounded recorded flight observations and read-only review",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Define a bounded memory-only observed flight review seam, qualified native observations, exact tick/gap semantics and scene-owned paused lifecycle before consumers implement it.",
+      "depends_on": [
+        "SIM-LOOP-CONTRACT",
+        "INPUT-CONTROLS-CONTRACT",
+        "COCKPIT-READINGS-CONTRACT"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:core",
+        "priority:P1",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "docs/decisions/011-observed-flight-review.md",
+        "docs/contracts.md",
+        "docs/README.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md"
+      ],
+      "docs": [
+        "docs/decisions/007-sim-loop-facade.md",
+        "docs/decisions/008-input-presets.md",
+        "docs/decisions/009-cockpit-readings.md",
+        "docs/evidence/P1/save-proof.md",
+        "docs/experience-and-progress.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [
+        "PRD-025",
+        "UX-017",
+        "UX-021"
+      ],
+      "acceptance": [
+        "Closed version1 private app values and callable surfaces define copied metadata, bounded status, qualified observed samples, retained recording and historical selection. Seed comes from actual AtmosphereSample/v1; sample time from AircraftSnapshot/v1. Existing public schemas remain unchanged.",
+        "One memory-only current-session recording targets two observations per simulated second, retains at most2401 samples/144000 relative ticks, and distinguishes actual sample ticks, lateness, skipped targets and qualified terminal endpoints. No fabricated earlier states, full command/event history, exact grid-sampling or physics replay claim.",
+        "Absolute ticks remain canonical uint64 strings; efficient checked private arithmetic handles full range and bounded relative differences without changing the shared uint64 helper's accepted contract.",
+        "Mutation/status calls return bounded values instead of copying full history each frame. Full history is copied only for an explicit paused/stopped review. UI scrubbing, graphs and sampled chords cannot modify native/debt/held controls/mapper/origin or move the real ownship/camera.",
+        "Explicit discard/restart/quit admission is scene-owned, Cancel preserves the paused baseline, and failed close/join or new initialization preserves the prior review. Unexpected process loss discards memory; no durability guarantee.",
+        "Qualified current/historical/empty/invalid/identity-change behavior, same-tick consistency, honest channel availability and metadata provenance have precise outcomes and future independent/native/viewport verification requirements.",
+        "Source review, canonical mapping, docs checks, schema consistency checks and all exact-head protected checks pass before merge. Consumer implementation waits for this accepted contract and a separate bounded issue."
+      ],
+      "evidence": [
+        "Exact source/record-shape review, independently frozen tick/target/gap/reference expectations, unchanged public schema checks and canonical documentation consistency.",
+        "All protected checks and exact-final contract review before guarded merge; consumer/native/viewport delivery and durable replay, debrief, aircraft/pilot and phase gates stay separate."
+      ]
     }
   ]
 }

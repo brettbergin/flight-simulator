@@ -61,6 +61,7 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | FIRST-FLIGHT | [#27 Validate first pilot-operable takeoff, circuit and landing prototype](https://github.com/brettbergin/flight-simulator/issues/27) | EPIC-P1, SYNTHETIC-AIRFIELD, HUD-CAMERA, FLIGHT-AUDIO |
 | COCKPIT-READINGS-CONTRACT | [#119 Ratify native-truth cockpit readings and view-only scan focus](https://github.com/brettbergin/flight-simulator/issues/119) | CORE-CONTRACTS, SIM-LOOP-CONTRACT, INPUT-CONTROLS-CONTRACT |
 | LANDMARK-FREE-FLIGHT | [#130 Add a synthetic landmark itinerary and optional target card](https://github.com/brettbergin/flight-simulator/issues/130) | AIRFIELD-LANDMARKS, SIM-LOOP, INPUT-CONTROLS-CONTRACT, COCKPIT-READINGS-CONTRACT |
+| OBSERVED-REVIEW-CONTRACT | [#132 Ratify bounded recorded flight observations and read-only review](https://github.com/brettbergin/flight-simulator/issues/132) | SIM-LOOP-CONTRACT, INPUT-CONTROLS-CONTRACT, COCKPIT-READINGS-CONTRACT |
 
 ## P3 — Complete circuit and durable progress
 
