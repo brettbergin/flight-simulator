@@ -64,10 +64,17 @@ Both functional receipts passed 24 named checks with no failures. Public
 `preview.gd` SHA-256 is
 `8771eed3099a2acd0e984cb6062ff193adacb0918e590f05404254036ef46c09`;
 the reviewed launcher is
-`8001fae4e8e9c9e11795856089b3e74f87ca2a4f1070a2fa93f64f1c8ef8e791`.
+`1e0900ff7be4ca3f3a50b67d3d17607403ccf56364388cc8becfa7cf904f132d`.
 Changes from the private precursor are reproducible resource paths, profile
 isolation, application naming and recording joined closure before visual
 success. Control, flight-view and pacing behavior are unchanged.
+
+Independent review caught a log guard that missed Godot's actual plural
+`ObjectDB instances were leaked at exit` warning. Both helpers now reject known
+singular/plural forms. Negative controls exercise these observed warnings and
+other runtime failure markers; the runner executes them before staging. The
+final author source was re-exported and passed editor/portable checks after
+this correction. No leak occurred in the successful preview runs.
 
 The private GPU diagnostic above predates the public path/packaging changes;
 it must not be presented as an exact public-package GPU run. A fresh public
