@@ -4747,6 +4747,7 @@
         "tests/debrief/observed_archive/",
         "tools/interactive-preview/",
         "tools/export/common.ps1",
+        "tools/diagnostics/powershell-startup/",
         ".github/workflows/native-ci.yml",
         "docs/evidence/P2/observed-review-interchange.md",
         "docs/README.md",

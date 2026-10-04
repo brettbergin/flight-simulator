@@ -108,6 +108,9 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Pinned input preflight bootstrap failed" }
           python tools/input-controls/check.py
           if ($LASTEXITCODE -ne 0) { throw "Windows input editor/export preflight failed" }
+      - name: Measure isolated exported PowerShell startup before native compilation
+        if: steps.scope.outputs.docs_only != 'true' && (runner.os == 'Windows')
+        run: ./tools/diagnostics/powershell-startup/check.ps1 -ToolchainRoot .local/toolchain
       - name: Compile real shared dependencies, bindings and C++20 smoke
         if: steps.scope.outputs.docs_only != 'true'
         run: ./tools/bootstrap/build.ps1 -Python python -WithGodot -WithExportTemplates:($IsWindows)
@@ -268,6 +271,8 @@ jobs:
             .local/toolchain/environment.json
             .local/input-preflight/*/*.json
             .local/input-preflight/*/*.log
+            .local/powershell-startup/run-*/evidence/*.json
+            .local/powershell-startup/run-*/evidence/*.log
             .local/build/native-release/dynamic-dependencies.txt
             .local/build/native-release/godot-binding-load.txt
             .local/fdm-proof/**
