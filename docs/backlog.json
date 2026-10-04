@@ -1154,7 +1154,8 @@
       "depends_on": [
         "EPIC-P1",
         "LICENSE-REGISTER",
-        "RENDER-PROOF"
+        "RENDER-PROOF",
+        "COCKPIT-READINGS-CONTRACT"
       ],
       "labels": [
         "type:task",
@@ -1200,7 +1201,8 @@
       "depends_on": [
         "EPIC-P1",
         "COCKPIT-ASSET",
-        "SIM-LOOP"
+        "SIM-LOOP",
+        "COCKPIT-READINGS-CONTRACT"
       ],
       "labels": [
         "type:task",
@@ -4260,6 +4262,58 @@
       ],
       "evidence": [
         "Reviewed exact contract and canonical requirement/issue mapping; no consumer, hardware, aircraft, persistence-profile or phase acceptance inferred."
+      ]
+    },
+    {
+      "key": "COCKPIT-READINGS-CONTRACT",
+      "title": "Ratify native-truth cockpit readings and view-only scan focus",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Define exact copied native-truth readings, source/invalid/historical semantics and a view-only enlarged scan seam before cockpit consumers; sensed-system and phase evidence stay separate.",
+      "depends_on": [
+        "CORE-CONTRACTS",
+        "SIM-LOOP-CONTRACT",
+        "INPUT-CONTROLS-CONTRACT"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:cockpit",
+        "priority:P0",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "docs/decisions/009-cockpit-readings.md",
+        "docs/contracts.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md"
+      ],
+      "docs": [
+        "docs/contracts.md",
+        "docs/decisions/007-sim-loop-facade.md",
+        "docs/decisions/008-input-presets.md",
+        "docs/experience-and-progress.md",
+        "docs/realism-and-validation.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [
+        "REAL-019",
+        "PRD-015",
+        "UX-009",
+        "UX-010",
+        "UX-011"
+      ],
+      "acceptance": [
+        "Publish exact copied ReadingSet/channel values, full bounded v1 and Readback validation, binary64 SI formulas, canonical string identities and missing/nonfinite/singular/mismatched/historical behavior; no hidden zero or sensor substitution.",
+        "Define view-only scan focus/dismiss and original eye/FOV/provenance handoff with shared raw-native values for physical panel, overlay and enlarged scan; preserve controls, clock, map and render-origin authority.",
+        "Specify independent arithmetic/negative/copy fixtures and short actual exported readability/native-state invariance evidence; cockpit consumers wait checked controls PR118 and this contract.",
+        "Independent exact-source review, documentation/schema checks and protected CI precede contract merge; #23 GLB/source-specific cockpit, #24 sensed power/failure/lag, hardware/pilot and phase gates remain open."
+      ],
+      "evidence": [
+        "Reviewed exact contract, canonical dependency/requirement mapping and check results; no consumer, aircraft/sensor fidelity or owner phase acceptance inferred."
       ]
     }
   ]
