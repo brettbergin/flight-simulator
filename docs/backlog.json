@@ -4010,6 +4010,58 @@
       "evidence": [
         "Exact reviewed source/package bindings, local Windows handoff, exported GPU captures and independent review. This resolves presentation defects in the accepted prototype; it does not accept production terrain or aircraft fidelity."
       ]
+    },
+    {
+      "key": "AIRFIELD-LANDMARKS",
+      "title": "Enrich the rural airfield scenery and add a selectable runway-end locator",
+      "kind": "spike",
+      "phase": "P1",
+      "parent": "EPIC-P1",
+      "summary": "Add original bounded rural scenery and named visual landmarks, plus a copied-state runway36/18 locator that helps the pilot find and align with the synthetic airfield.",
+      "depends_on": [
+        "ENVIRONMENT-STABILITY"
+      ],
+      "labels": [
+        "type:spike",
+        "phase:P1",
+        "area:world",
+        "priority:P0",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "app/proof/interactive/flight_world.gd",
+        "app/proof/interactive/flight_map.gd",
+        "app/proof/interactive/preview.gd",
+        "app/proof/interactive/flight_panel.gd",
+        "tools/interactive-preview/README.md",
+        "docs/evidence/P1/airfield-landmarks.md"
+      ],
+      "docs": [
+        "docs/world-and-data.md",
+        "docs/experience-and-progress.md",
+        "docs/decisions/006-interactive-prototype.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [
+        "UX-001",
+        "UX-002",
+        "UX-009",
+        "UX-010",
+        "PRD-015",
+        "PRD-016",
+        "PRD-017",
+        "PRD-033",
+        "PRD-034"
+      ],
+      "acceptance": [
+        "Deterministic original rural fields/roads/water, varied woodland, farm/village/bridge/tank landmarks and improved hangars visibly enrich the existing airfield while preserving its exact pavement bounds and clear approach corridors. Single ground surface/filtering remains; scenery has no native/collision authority or external asset/source dependency.",
+        "Optional locator plots the exact named rendered landmarks and lets the user select36/18. It shows planar range/true bearing to the chosen physical runway end, signed along/cross-axis position and native reference-plane height, with declared geometric/synthetic provenance. Zero range has no invented bearing; reciprocals reverse cross-axis signs. No performance targets, autopilot, new sensors or real-airport claims.",
+        "Unavailable/faulted native state suppresses current numeric guidance or labels retained history. Paused state is explicit. End selection/map/zoom/landmarks preserve actual native state, held pilot commands and bounded session trail. Hidden-map/menu keys do not affect flight.",
+        "Actual whole-flight editor/export/rebuilt-DLL checks and targeted geometry/native-invariance tests pass. Final reference-PC GPU inspection covers richer scenery/landmarks, both runway selections, compact/normal windows and faults. Freeze and independently review exact source/package; all four protected checks pass before merge and a separate owner build preserves old games."
+      ],
+      "evidence": [
+        "This bounded presentation spike leaves P1/#18, production P2/P4, sourced C172 systems/handling, durable flight records, pilot evaluation and training qualification gates open."
+      ]
     }
   ]
 }

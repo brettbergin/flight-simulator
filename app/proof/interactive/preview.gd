@@ -350,6 +350,9 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		KEY_TAB:
 			map_visible=not map_visible
 			flight_map.visible=map_visible
+		KEY_T:
+			if map_visible:
+				flight_map.call("toggle_runway")
 		KEY_EQUAL,KEY_KP_ADD:
 			if map_visible:
 				flight_map.call("zoom",0.5)
@@ -537,6 +540,7 @@ func make_world() -> void:
 	cockpit=cockpit_builder.call("build",self,panel_viewport.get_texture())
 	flight_map=load("res://interactive/flight_map.gd").new()
 	canvas.add_child(flight_map)
+	flight_map.call("set_landmarks",scene.get("landmarks",[]))
 	flight_map.hide()
 	make_menu(canvas)
 	if ResourceLoader.exists("res://interactive/flight_sound.gd"):
@@ -550,7 +554,7 @@ func show_state() -> void:
 			var fault_info: Dictionary={"status":status,"outcome":"error","blocked":blocked,"stalled":stalled,"paused":paused,"input_name":"Keyboard"}
 			panel.call("set_state",{}, {},held_controls,fault_info)
 			cockpit_panel.call("set_state",{}, {},held_controls,fault_info)
-			flight_map.call("set_state",{},Vector3.ZERO,Basis.IDENTITY)
+			flight_map.call("set_state",{},Vector3.ZERO,Basis.IDENTITY,fault_info)
 		return
 	var q: Quaternion = body_quaternion()
 	var basis: Basis = visual_basis(q)
@@ -593,9 +597,9 @@ func show_state() -> void:
 	var display_info: Dictionary={"status":status,"outcome":native_outcome,"blocked":blocked,"stalled":stalled,"paused":paused,"brake_hold":brake_hold,"view_name":view_names[camera_mode],"clearance_m":plane_clearance,"ground_valid":ground_valid,"input_name":input_name,"audio_enabled":audio_enabled}
 	panel.call("set_state",snapshot,atmosphere,held_controls,display_info)
 	cockpit_panel.call("set_state",snapshot,atmosphere,held_controls,display_info)
-	flight_map.size=Vector2(minf(310,get_viewport().get_visible_rect().size.x*0.32),minf(350,get_viewport().get_visible_rect().size.y-90))
+	flight_map.size=Vector2(minf(420,get_viewport().get_visible_rect().size.x*0.42),minf(500,get_viewport().get_visible_rect().size.y-90))
 	flight_map.position=Vector2(get_viewport().get_visible_rect().size.x-flight_map.size.x-14,64)
-	flight_map.call("set_state",snapshot,airplane.position,basis)
+	flight_map.call("set_state",snapshot,airplane.position,basis,display_info)
 
 func check(condition: bool, description: String) -> void:
 	if not condition:
@@ -714,6 +718,7 @@ func run_ux_checks() -> void:
 	show_state()
 	check(cockpit.root.visible and not airplane.visible and not panel_visible,"ux_panel_view_has_interior_without_external_shell_or_overlay")
 	var map_state: Dictionary=snapshot.duplicate(true)
+	flight_map.set("extent_m",4000.0)
 	map_state.session_id="map-readonly-fixture"
 	map_state.tick="0"
 	flight_map.call("set_state",map_state,Vector3(150,3,-400),Basis.IDENTITY)
@@ -734,12 +739,87 @@ func run_ux_checks() -> void:
 	check(flight_map.get("extent_m")==1000.0,"ux_map_zoom_lower_bound")
 	flight_map.call("zoom",100000.0)
 	check(flight_map.get("extent_m")==32000.0,"ux_map_zoom_upper_bound")
-	flight_map.set("extent_m",4000.0)
+	flight_map.set("extent_m",8000.0)
 	flight_map.call("set_state",snapshot,airplane.position,airplane.basis)
 	check(flight_map.get("_trail").size()==1 and flight_map.get("_session")==snapshot.session_id,"ux_map_new_native_session_clears_history")
 	check(last_aircraft_json==saved and held_controls==saved_controls,"ux_map_dashboard_and_panel_view_do_not_mutate_native_state")
+	run_locator_checks()
 	set_camera_mode(0)
 	evidence["ux_scope"]="Actual menu/native state and camera checks; synthetic keyboard/gamepad mapping, not hardware acceptance"
+
+func run_locator_checks() -> void:
+	check(pause_session(true),"locator_native_paused")
+	var native_before: Dictionary=bridge.call("read_state").duplicate(true)
+	var inputs_before: Dictionary=controls.duplicate(true)
+	var count_before: int=submitted_count
+	var sequence_before: int=command_sequence
+	var fixture: Dictionary=snapshot.duplicate(true)
+	fixture.session_id="locator-geometry-fixture"
+	fixture.tick="0"
+	flight_map.call("select_runway",36)
+	flight_map.call("set_state",fixture,Vector3(100,999,1100),Basis.IDENTITY,{"ground_valid":true,"clearance_m":80.0,"paused":true})
+	var south: Dictionary=flight_map.call("_runway_metrics")
+	check(absf(south.range_m-sqrt(1010000.0))<0.0001 and absf(south.bearing_deg-354.2894068625)<0.0001,"locator_south_end_range_and_true_bearing")
+	check(south.along_m== -1000.0 and south.cross_m==100.0,"locator_36_before_end_and_right_axis")
+	check(south.clearance_valid and south.clearance_m==80.0,"locator_height_uses_native_plane_reference_not_render_altitude")
+	var trail_count: int=flight_map.get("_trail").size()
+	flight_map.call("set_state",fixture,Vector3(100,999,1100),Basis.IDENTITY,{"paused":true})
+	check(flight_map.get("_trail").size()==trail_count,"locator_paused_repeat_does_not_duplicate_trail")
+	flight_map.call("select_runway",18)
+	flight_map.call("set_state",fixture,Vector3(100,80,-2700),Basis.IDENTITY)
+	var north: Dictionary=flight_map.call("_runway_metrics")
+	check(north.along_m== -1000.0 and north.cross_m== -100.0 and absf(north.bearing_deg-185.7105931375)<0.0001,"locator_18_reciprocal_axis_and_bearing")
+	flight_map.call("select_runway",36)
+	flight_map.call("set_state",fixture,Vector3(-100,10,-200),Basis(Vector3.RIGHT,PI*0.5))
+	var past: Dictionary=flight_map.call("_runway_metrics")
+	check(past.along_m==300.0 and past.cross_m== -100.0 and not flight_map.get("_heading_valid"),"locator_past_end_signed_geometry_survives_vertical_nose")
+	flight_map.call("set_state",fixture,Vector3(0,10,100),Basis.IDENTITY)
+	var zero: Dictionary=flight_map.call("_runway_metrics")
+	check(zero.range_m==0.0 and not zero.bearing_valid,"locator_exact_end_has_no_invented_bearing")
+	flight_map.call("set_state",fixture,Vector3(100,80,1100),Basis.IDENTITY,{"blocked":true,"outcome":"error","ground_valid":true,"clearance_m":80.0})
+	check(flight_map.call("_runway_metrics").is_empty() and flight_map.get("_retained"),"locator_terminal_fault_suppresses_live_guidance")
+	flight_map.call("set_state",{},Vector3.ZERO,Basis.IDENTITY)
+	check(flight_map.call("_runway_metrics").is_empty() and not flight_map.get("_heading_valid"),"locator_missing_state_has_no_stale_numbers")
+	var key:=InputEventKey.new()
+	key.physical_keycode=KEY_T
+	key.pressed=true
+	map_visible=false
+	_unhandled_key_input(key)
+	check(flight_map.get("_runway")==36,"locator_hidden_map_ignores_runway_key")
+	map_visible=true
+	_unhandled_key_input(key)
+	check(flight_map.get("_runway")==18,"locator_visible_map_selects_reciprocal")
+	open_menu("Locator focus test")
+	_unhandled_key_input(key)
+	check(flight_map.get("_runway")==18,"locator_menu_owns_key_focus")
+	menu_open=false
+	menu.hide()
+	map_visible=false
+	flight_map.hide()
+	flight_map.call("select_runway",36)
+	flight_map.call("set_state",snapshot,airplane.position,airplane.basis,{"paused":true,"ground_valid":ground_valid,"clearance_m":plane_clearance})
+	check(flight_map.get("_trail").size()==1,"locator_returns_to_fresh_native_session_trail")
+	var landmarks: Array=flight_map.get("_landmarks")
+	check(landmarks.size()==6,"locator_six_original_scene_references")
+	var expected: Dictionary={"East Farm":Vector3(850,0,-650),"North Water Tank":Vector3(600,0,-2500),"West Pond":Vector3(-1050,0,-900),"South Village":Vector3(950,0,1250),"North Orchard":Vector3(-650,0,-2800)}
+	var matching: bool=true
+	var seen: Dictionary={}
+	for landmark in landmarks:
+		seen[landmark.label]=true
+		if expected.has(landmark.label):
+			matching=matching and landmark.position_eus_m==expected[landmark.label]
+		elif landmark.label=="River Bridge":
+			matching=matching and absf(landmark.position_eus_m.x-(-2400+260*sin(-2600.0/900.0)+130*sin(-2600.0/390.0)))<0.001 and landmark.position_eus_m.z== -2600.0
+		else:
+			matching=false
+	check(matching and seen.size()==6,"locator_landmarks_match_original_scene_anchor_positions")
+	var original_label: String=landmarks[0].label
+	var copied_landmarks: Array=landmarks.duplicate(true)
+	flight_map.call("set_landmarks",copied_landmarks)
+	copied_landmarks[0].label="mutated diagnostic copy"
+	check(flight_map.get("_landmarks")[0].label==original_label,"locator_landmark_input_is_copied")
+	check(bridge.call("read_state")==native_before and controls==inputs_before and submitted_count==count_before and command_sequence==sequence_before,"locator_selection_and_landmarks_preserve_actual_native_state_and_commands")
+	check(pause_session(false),"locator_native_resumed")
 
 func any_wow() -> bool:
 	for contact in snapshot.contacts:
@@ -902,6 +982,9 @@ func run_environment_visual_checks() -> void:
 		["view-environment-boundary",Vector3(19500,900,0),Vector3(22500,0,0)],
 		["view-environment-corner",Vector3(19500,1200,-19500),Vector3(22500,0,-22500)]
 	]
+	for landmark in flight_map.get("_landmarks"):
+		var position: Vector3=landmark.position_eus_m
+		configurations.append(["view-landmark-"+str(landmark.label).to_lower().replace(" ","-"),position+Vector3(220,110,260),position+Vector3.UP*8])
 	for configuration in configurations:
 		await save_environment_view(configuration[0],configuration[1],configuration[2])
 	var first: Image
@@ -925,7 +1008,7 @@ func run_environment_visual_checks() -> void:
 	check(fraction<0.001,"environment_paused_return_view_stable")
 	var after: Dictionary=bridge.call("read_state")
 	check(after==before and controls==saved_controls and submitted_count==saved_submitted and command_sequence==saved_sequence,"environment_observer_sweep_preserves_authoritative_state_and_commands")
-	evidence["environment_scope"]="14 actual GPU captures: both runway ends, approach, apron, overhead, fields, coverage boundary/corner and five-step camera-only sweep/return; native aircraft paused and unchanged. Observer positions are diagnostics, not flight or pilot handling evidence."
+	evidence["environment_scope"]="20 actual GPU captures: both runway ends, approach, apron, overhead, fields, coverage boundary/corner, six named visual references and five-step camera-only sweep/return; native aircraft paused and unchanged. Observer positions are diagnostics, not flight or pilot handling evidence."
 	set_camera_mode(saved_camera_mode)
 	camera.fov=saved_fov
 	show_state()
@@ -949,7 +1032,11 @@ func run_visual_smoke() -> void:
 	look_angles=Vector2.ZERO
 	map_visible=true
 	flight_map.show()
+	flight_map.set("extent_m",8000.0)
 	await save_view("view-flight-map")
+	flight_map.call("select_runway",18)
+	await save_view("view-flight-map-18")
+	flight_map.call("select_runway",36)
 	map_visible=false
 	flight_map.hide()
 	set_camera_mode(1)
@@ -978,6 +1065,11 @@ func run_visual_smoke() -> void:
 	panel.call("set_help_visible",false)
 	get_window().size=Vector2i(960,540)
 	await save_view("view-small-window")
+	map_visible=true
+	flight_map.show()
+	await save_view("view-small-locator")
+	map_visible=false
+	flight_map.hide()
 	set_camera_mode(2)
 	await save_view("view-small-overlay")
 	set_camera_mode(3)
@@ -990,6 +1082,11 @@ func run_visual_smoke() -> void:
 	snapshot={}
 	blocked=true
 	status="Initialization unavailable; R starts a fresh attempt"
+	map_visible=true
+	flight_map.show()
+	await save_view("view-locator-fault")
+	map_visible=false
+	flight_map.hide()
 	await save_view("view-cockpit-fault")
 	snapshot=saved_snapshot
 	blocked=false

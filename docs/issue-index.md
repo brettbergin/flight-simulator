@@ -36,6 +36,8 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 
 | ENVIRONMENT-STABILITY | [#104 Eliminate terrain and airfield surface flicker in the playable preview](https://github.com/brettbergin/flight-simulator/issues/104) | COCKPIT-UX |
 
+| AIRFIELD-LANDMARKS | [#106 Enrich the rural airfield scenery and add a selectable runway-end locator](https://github.com/brettbergin/flight-simulator/issues/106) | ENVIRONMENT-STABILITY |
+
 ## P2 — First cockpit and synthetic airfield
 
 | Key | Issue | Dependencies |
