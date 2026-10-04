@@ -3809,6 +3809,62 @@
       "evidence": [
         "Small reviewed ADR/model/rights PR, frozen native trial fingerprints and separate consumer handoff."
       ]
+    },
+    {
+      "key": "WHOLE-FLIGHT-PREVIEW",
+      "title": "Deliver a Windows taxi-to-landing engineering preview",
+      "kind": "spike",
+      "phase": "P1",
+      "parent": "EPIC-P1",
+      "summary": "Connect the ratified original combined aircraft to human controls and a congruent synthetic airfield view, enabling taxi, takeoff, flight, touchdown and braking in one Windows session.",
+      "depends_on": [
+        "EPIC-P0",
+        "CORE-CONTRACTS",
+        "FDM-HARNESS",
+        "GROUND-PROOF",
+        "NATIVE-EXPORT",
+        "INTERACTIVE-CONTRACT"
+      ],
+      "labels": [
+        "type:spike",
+        "phase:P1",
+        "area:physics",
+        "priority:P0",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "native/fdm_jsbsim/interactive/",
+        "native/godot_bridge/src/interactive*",
+        "app/proof/interactive/",
+        "tools/interactive-preview/",
+        "tests/interactive/",
+        "CMakeLists.txt"
+      ],
+      "docs": [
+        "docs/decisions/006-interactive-prototype.md",
+        "docs/contracts.md",
+        "docs/agent-operations.md",
+        "docs/evidence/P1/ground-proof.md"
+      ],
+      "requirements": [
+        "PRD-001",
+        "PRD-004",
+        "PRD-006",
+        "PRD-015",
+        "PRD-034",
+        "UX-009",
+        "UX-010"
+      ],
+      "acceptance": [
+        "Implement ADR006 exactly: immutable pinned original model/plane, two named starts, owner-thread copied v1 publications, sole JSBSim authority, fixed120Hz, controls/lifecycle and fail-closed coverage/disposal; preserve historical proof APIs/models.",
+        "Expose keyboard roll/pitch/yaw/steering/throttle/trim and visible common/differential wheel brakes. Ground settling, taxi, takeoff, flight and actual solved touchdown/contact remain one session with readable state/contact indications and explicit pause/fresh reset.",
+        "Render the original synthetic runway and plane from the same ECEF anchor/source used by physics; views/maps/overlays cannot modify aircraft state. Keep prototype, already-running-engine and unsupported systems/fidelity limits visible.",
+        "Pass headless single-executive takeoff/touchdown/all-WOW stop, exact same-build repeat, strict-v1 outputs and meaningful order/authority/coverage/thread/ownership negatives; distinguish scripted inputs from human handling evidence.",
+        "Verify actual editor/exported Windows controls, pause/reset/join, package model/native/source/notice/runtime integrity and reference-PC graphics. Prepare a local runnable package and record manual evaluation limits without claiming C172S or training qualification."
+      ],
+      "evidence": [
+        "Exact-source native and portable receipts, actual graphics captures, local launcher and scoped engineering evaluation; later P2 cockpit/runtime and calibrated C172 gates remain open."
+      ]
     }
   ]
 }
