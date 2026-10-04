@@ -21,6 +21,7 @@ var _info: Dictionary = {}
 var _readings: Dictionary = {}
 var _help_visible := false
 var _panel_visible := true
+var _cockpit_surface := false
 var _font: Font = ThemeDB.fallback_font
 
 func _ready() -> void:
@@ -43,6 +44,10 @@ func set_help_visible(value: bool) -> void:
 
 func set_panel_visible(value: bool) -> void:
 	_panel_visible = value
+	queue_redraw()
+
+func set_cockpit_surface(value: bool) -> void:
+	_cockpit_surface = value
 	queue_redraw()
 
 func _vector(value: Dictionary) -> Vector3:
@@ -85,6 +90,13 @@ func _derive_readings(state: Dictionary, weather: Dictionary) -> Dictionary:
 		"fuel_kg": fuel, "ground_contacts": gear_on}
 
 func _draw() -> void:
+	if _cockpit_surface:
+		# A separate instance fills the physical dashboard's 1024×512 texture.
+		# No overlay bar, outside-view gap or interactive help belongs in it.
+		draw_set_transform(Vector2.ZERO, 0, Vector2(size.x / 1024.0, size.y / 512.0))
+		_draw_cockpit_surface()
+		draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
+		return
 	if size.x < 640.0 or size.y < 400.0:
 		return
 	_draw_topbar()
@@ -180,12 +192,12 @@ func _draw_compact_panel(top: float, height: float) -> void:
 	for index in range(6):
 		_draw_instrument(index, Rect2(28 + index * slot_width, top + 10, slot_width, dial_height))
 	var baseline := size.y - 23.0
-	_text(Vector2(34, baseline), "THR %03d%%" % roundi(float(_held.get("throttle", 0.0)) * 100), 12, CYAN)
-	_text(Vector2(160, baseline), "BRAKES  L %03d  R %03d" % [roundi(float(_held.get("left_brake", 0.0)) * 100), roundi(float(_held.get("right_brake", 0.0)) * 100)], 12, AMBER)
-	_text(Vector2(385, baseline), "TRIM %+0.2f" % float(_held.get("trim", 0.0)), 12, INK)
+	_text(Vector2(usable * 0.02, baseline), "THR %03d%%" % roundi(float(_held.get("throttle", 0.0)) * 100), 12, CYAN)
+	_text(Vector2(usable * 0.17, baseline), "BRAKES L %03d  R %03d" % [roundi(float(_held.get("left_brake", 0.0)) * 100), roundi(float(_held.get("right_brake", 0.0)) * 100)], 12, AMBER)
+	_text(Vector2(usable * 0.43, baseline), "TRIM %+0.2f" % float(_held.get("trim", 0.0)), 12, INK)
 	var fuel := float(_readings.get("fuel_kg", NAN))
-	_text(Vector2(530, baseline), "FUEL %.1f kg" % fuel if is_finite(fuel) else "FUEL —", 12, INK)
-	_text(Vector2(size.x - 220, baseline), _ground_label(), 12, GREEN if int(_readings.get("ground_contacts", 0)) > 0 else MUTED)
+	_text(Vector2(usable * 0.59, baseline), "FUEL %.1f kg" % fuel if is_finite(fuel) else "FUEL —", 12, INK)
+	_text(Vector2(usable * 0.78, baseline), _ground_label(), 12, GREEN if int(_readings.get("ground_contacts", 0)) > 0 else MUTED)
 
 func _draw_instrument(index: int, cell: Rect2) -> void:
 	var radius := minf(cell.size.x * 0.43, (cell.size.y - 26.0) * 0.5)
@@ -202,11 +214,22 @@ func _draw_instrument(index: int, cell: Rect2) -> void:
 			0: _airspeed(center, radius)
 			1: _attitude(center, radius)
 			2: _altimeter(center, radius)
-			3: _turn_rate(center, radius)
-			4: _heading(center, radius)
+			3: _heading(center, radius)
+			4: _turn_rate(center, radius)
 			5: _vertical_speed(center, radius)
-	var names := ["TRUE AIRSPEED · kt", "ATTITUDE · TRUTH", "ALTITUDE · ELLIPSOID ft", "BODY YAW RATE · °/s", "HEADING · TRUE", "VERTICAL SPEED · ft/min"]
-	_text(Vector2(cell.get_center().x, cell.position.y + radius * 2 + 24), names[index], clampf(radius * 0.12, 10, 13), MUTED, true)
+	var titles := ["TRUE AIRSPEED", "ATTITUDE", "ELLIPSOID ALT", "TRUE HEADING", "BODY YAW RATE", "VERTICAL SPEED"]
+	var units := ["kt · derived", "native truth", "ft · WGS84", "degrees", "°/s · body r", "ft/min · kinematic"]
+	var label_y := cell.position.y + radius * 2 + 20
+	_text(Vector2(cell.get_center().x, label_y), titles[index], clampf(radius * 0.14, 10, 15), INK, true)
+	_text(Vector2(cell.get_center().x, label_y + 13), units[index], clampf(radius * 0.115, 10, 12), MUTED, true)
+
+func _dial_label(center: Vector2, radius: float, at: Vector2, value: String, pixels: float, color: Color = INK) -> void:
+	# Reserve the readout's footprint, including text ascenders and margins.
+	# Keep every graduation; only omit labels obscured by the digital window.
+	var relative := at - center
+	if relative.y > radius * 0.20 and relative.y < radius * 0.76 and absf(relative.x) < radius * 0.68:
+		return
+	_text(at, value, pixels, color, true)
 
 func _scale(center: Vector2, radius: float, limit: float, step: float, major: float) -> void:
 	var value := 0.0
@@ -215,7 +238,7 @@ func _scale(center: Vector2, radius: float, limit: float, step: float, major: fl
 		var big := absf(fposmod(value, major)) < 0.01
 		_line(_polar(center, radius * (0.76 if big else 0.84), angle), _polar(center, radius * 0.91, angle), INK if big else MUTED, 1.3 if big else 1.0)
 		if big:
-			_text(_polar(center, radius * 0.61, angle) + Vector2(0, radius * 0.055), str(roundi(value)), radius * 0.13, INK, true)
+			_dial_label(center, radius, _polar(center, radius * 0.61, angle) + Vector2(0, radius * 0.055), str(roundi(value)), radius * 0.13)
 		value += step
 
 func _needle(center: Vector2, radius: float, angle: float, color: Color = AMBER, length: float = 0.75) -> void:
@@ -226,11 +249,12 @@ func _needle(center: Vector2, radius: float, angle: float, color: Color = AMBER,
 	draw_circle(center, maxf(1.5, radius * 0.025), FACE, true, -1, true)
 
 func _digital(center: Vector2, radius: float, value: String, subtitle: String = "") -> void:
-	var rect := Rect2(center.x - radius * 0.42, center.y + radius * 0.30, radius * 0.84, radius * 0.27)
+	var rect := Rect2(center.x - radius * 0.49, center.y + radius * 0.29, radius * 0.98, radius * 0.30)
 	_box(rect, Color("080e17"), LINE, 3)
-	_text(Vector2(center.x, rect.position.y + radius * 0.20), value, radius * 0.19, INK, true)
+	_text(Vector2(center.x, rect.position.y + radius * 0.23), value, maxf(13, radius * 0.23), INK, true)
 	if not subtitle.is_empty():
-		_text(center + Vector2(0, radius * 0.73), subtitle, radius * 0.11, MUTED, true)
+		if radius >= 82:
+			_text(center + Vector2(0, radius * 0.75), subtitle, radius * 0.105, MUTED, true)
 
 func _airspeed(center: Vector2, radius: float) -> void:
 	_scale(center, radius, 160, 10, 40)
@@ -240,7 +264,7 @@ func _airspeed(center: Vector2, radius: float) -> void:
 		return
 	var speed := float(_readings.tas_kt)
 	_needle(center, radius, deg_to_rad(135.0 + clampf(speed / 160.0, 0, 1) * 270.0))
-	_digital(center, radius, "%03d" % roundi(speed), "DERIVED")
+	_digital(center, radius, "%03d" % roundi(speed))
 
 func _attitude_point(center: Vector2, offset: Vector2, bank: float, pitch_shift: float) -> Vector2:
 	return center + Vector2(offset.x, offset.y + pitch_shift).rotated(bank)
@@ -298,7 +322,6 @@ func _attitude(center: Vector2, radius: float) -> void:
 	_line(center + Vector2(-radius * 0.15, 0), center + Vector2(-radius * 0.15, radius * 0.08), AMBER, 3)
 	_line(center + Vector2(radius * 0.15, 0), center + Vector2(radius * 0.15, radius * 0.08), AMBER, 3)
 	draw_circle(center, 2, AMBER, true, -1, true)
-	_text(center + Vector2(0, radius * 0.66), "P %+04.1f°   B %+04.1f°" % [pitch, float(_readings.roll_deg)], radius * 0.105, INK, true)
 
 func _clip_disk(center: Vector2, radius: float, bank: float, shift: float, sky: bool) -> PackedVector2Array:
 	var points := PackedVector2Array()
@@ -321,7 +344,7 @@ func _altimeter(center: Vector2, radius: float) -> void:
 	for digit in range(10):
 		var angle := -PI * 0.5 + digit * TAU / 10.0
 		_line(_polar(center, radius * 0.79, angle), _polar(center, radius * 0.91, angle), INK, 1.4)
-		_text(_polar(center, radius * 0.65, angle) + Vector2(0, radius * 0.055), str(digit), radius * 0.15, INK, true)
+		_dial_label(center, radius, _polar(center, radius * 0.65, angle) + Vector2(0, radius * 0.055), str(digit), radius * 0.15)
 		for minor in range(1, 5):
 			var tick_angle := angle + minor * TAU / 50.0
 			_line(_polar(center, radius * 0.87, tick_angle), _polar(center, radius * 0.91, tick_angle), MUTED)
@@ -341,7 +364,7 @@ func _heading(center: Vector2, radius: float) -> void:
 			var label := str(degrees / 10)
 			if degrees % 90 == 0:
 				label = ["N", "E", "S", "W"][degrees / 90]
-			_text(_polar(center, radius * 0.63, angle) + Vector2(0, radius * 0.06), label, radius * 0.16, CYAN if degrees == 0 else INK, true)
+			_dial_label(center, radius, _polar(center, radius * 0.63, angle) + Vector2(0, radius * 0.06), label, radius * 0.16, CYAN if degrees == 0 else INK)
 	draw_colored_polygon(PackedVector2Array([center + Vector2(0, -radius * 0.74), center + Vector2(-4, -radius * 0.98), center + Vector2(4, -radius * 0.98)]), AMBER)
 	_line(center + Vector2(-radius * 0.18, 0), center + Vector2(radius * 0.18, 0), AMBER, 2)
 	_line(center + Vector2(0, -radius * 0.22), center + Vector2(0, radius * 0.13), AMBER, 2)
@@ -351,13 +374,14 @@ func _vertical_speed(center: Vector2, radius: float) -> void:
 	for step in range(-4, 5):
 		var angle := PI + float(step) / 4.0 * PI * 0.78
 		_line(_polar(center, radius * 0.80, angle), _polar(center, radius * 0.91, angle), INK, 1.3)
-		_text(_polar(center, radius * 0.62, angle) + Vector2(0, radius * 0.055), str(absi(step) * 5), radius * 0.13, INK, true)
+		_dial_label(center, radius, _polar(center, radius * 0.62, angle) + Vector2(0, radius * 0.055), str(absi(step) * 5), radius * 0.13)
 	var rate := float(_readings.vsi_fpm)
 	_needle(center, radius, PI + clampf(rate / 2000.0, -1, 1) * PI * 0.78)
-	_text(center + Vector2(radius * 0.24, -radius * 0.15), "UP", radius * 0.12, MUTED, true)
-	_text(center + Vector2(radius * 0.24, radius * 0.17), "DN", radius * 0.12, MUTED, true)
-	_text(center + Vector2(0, -radius * 0.38), "×100 ft/min", radius * 0.10, MUTED, true)
-	_digital(center, radius, "%+05d" % roundi(rate), "KINEMATIC")
+	_text(center + Vector2(radius * 0.25, -radius * 0.12), "+", radius * 0.15, MUTED, true)
+	_text(center + Vector2(radius * 0.25, radius * 0.18), "−", radius * 0.15, MUTED, true)
+	if radius >= 82:
+		_text(center + Vector2(0, -radius * 0.30), "×100", radius * 0.11, MUTED, true)
+	_digital(center, radius, "%+05d" % roundi(rate))
 
 func _turn_rate(center: Vector2, radius: float) -> void:
 	var rate := float(_readings.yaw_rate_deg_s)
@@ -368,7 +392,7 @@ func _turn_rate(center: Vector2, radius: float) -> void:
 		_line(center + Vector2(xx, -radius * 0.13), center + Vector2(xx, radius * 0.05), MUTED, 1.3)
 	var indicated := clampf(rate / 6.0, -1, 1) * radius * 0.57
 	draw_colored_polygon(PackedVector2Array([center + Vector2(indicated, -radius * 0.23), center + Vector2(indicated - 4, -radius * 0.40), center + Vector2(indicated + 4, -radius * 0.40)]), AMBER)
-	_text(center + Vector2(0, radius * 0.23), "BODY r", radius * 0.14, MUTED, true)
+	_text(center + Vector2(0, radius * 0.14), "BODY r", radius * 0.14, MUTED, true)
 	_digital(center, radius, "%+04.1f" % rate)
 
 func _bar(at: Vector2, width: float, value: float, color: Color) -> void:
@@ -422,18 +446,73 @@ func _draw_controls(rect: Rect2) -> void:
 	_text(rect.position + Vector2(0, 254), str(_info.get("input_name", "KEYBOARD")).to_upper(), 11, MUTED)
 	_text(rect.position + Vector2(0, 279), "H  CONTROLS & DISPLAY GUIDE", 10, MUTED)
 
+func _draw_cockpit_surface() -> void:
+	draw_rect(Rect2(0, 0, 1024, 512), Color("161c24"))
+	_box(Rect2(7, 7, 1010, 498), Color("1b2532"), Color("495361"), 14)
+	_text(Vector2(27, 31), "FLIGHT INSTRUMENTS", 15, MUTED)
+	_text(Vector2(705, 31), "NATIVE TRUTH · PROTOTYPE", 12, AMBER)
+	_line(Vector2(26, 43), Vector2(994, 43), LINE)
+	# Classic scan: TAS / attitude / altitude, heading / body yaw / VSI.
+	for index in range(6):
+		_draw_instrument(index, Rect2(24 + (index % 3) * 221, 50 + (index / 3) * 219, 213, 219))
+	_line(Vector2(709, 61), Vector2(709, 480), LINE)
+	var x := 738.0
+	var width := 244.0
+	_text(Vector2(x, 81), "THROTTLE", 13, MUTED)
+	_text(Vector2(x + 163, 82), "%03d%%" % roundi(float(_held.get("throttle", 0.0)) * 100), 19, CYAN)
+	_bar(Vector2(x, 95), width, float(_held.get("throttle", 0.0)), CYAN)
+	var fuel := float(_readings.get("fuel_kg", NAN))
+	_text(Vector2(x, 137), "FUEL", 13, MUTED)
+	_text(Vector2(x + 125, 138), "%.1f kg" % fuel if is_finite(fuel) else "— kg", 19)
+	if is_finite(fuel):
+		_bar(Vector2(x, 151), width, fuel / 100.0, GREEN)
+	_text(Vector2(x, 181), "RUNNING ENGINE · SYNTHETIC", 11, MUTED)
+	_line(Vector2(x, 199), Vector2(x + width, 199), LINE)
+	for index in range(2):
+		var y := 229 + index * 52
+		var name := "LEFT BRAKE" if index == 0 else "RIGHT BRAKE"
+		var value := float(_held.get("left_brake" if index == 0 else "right_brake", 0.0))
+		_text(Vector2(x, y), name, 13, MUTED)
+		_text(Vector2(x + 164, y), "%03d%%" % roundi(value * 100), 16, AMBER)
+		_bar(Vector2(x, y + 12), width, value, AMBER)
+	var trim := float(_held.get("trim", 0.0))
+	_text(Vector2(x, 341), "TRIM", 13, MUTED)
+	_text(Vector2(x + 169, 341), "%+0.2f" % trim, 18)
+	_line(Vector2(x, 359), Vector2(x + width, 359), LINE, 3)
+	draw_circle(Vector2(x + (clampf(trim, -1, 1) + 1) * width * 0.5, 359), 5, CYAN, true, -1, true)
+	_text(Vector2(x, 381), "NOSE DOWN", 10, MUTED)
+	_text(Vector2(x + width - 61, 381), "NOSE UP", 10, MUTED)
+	_line(Vector2(x, 400), Vector2(x + width, 400), LINE)
+	_text(Vector2(x, 430), _ground_label(), 15, GREEN if int(_readings.get("ground_contacts", 0)) > 0 else CYAN)
+	var clearance := float(_info.get("clearance_m", 0.0))
+	_text(Vector2(x, 456), "CG clearance %.1f m" % clearance if _info.get("ground_valid", false) else "CG clearance —", 13, MUTED)
+	if _info.get("paused", false):
+		_text(Vector2(x, 484), "PAUSED", 14, AMBER)
+	elif _info.get("blocked", false) or str(_info.get("outcome", "")) == "discarded":
+		_text(Vector2(x, 484), "RETAINED STATE · STOPPED", 12, RED)
+	else:
+		_text(Vector2(x, 484), "ORIGINAL ENGINEERING MODEL", 10, MUTED)
+
 func _draw_help() -> void:
-	var width := minf(650, size.x - 80)
-	var height := 335.0
-	var rect := Rect2((size.x - width) * 0.5, maxf(62, (size.y - height) * 0.35), width, height)
+	var width := minf(760, size.x - 60)
+	var height := minf(458, size.y - 105)
+	var rect := Rect2((size.x - width) * 0.5, maxf(64, (size.y - height) * 0.30), width, height)
 	_box(rect, Color("101c2c"), Color("526e86"), 12)
 	_text(rect.position + Vector2(24, 34), "FLIGHT CONTROLS", 21)
 	_text(rect.position + Vector2(width - 110, 32), "H  CLOSE", 12, CYAN)
-	var rows := ["↑ / ↓   Pitch        ← / →   Roll", "A / D   Yaw & nose steering", "Page Up / Down   Throttle       [ / ]   Trim", "B / Space   Hold / wheel brakes       Q / E   Left / right", "P   Pause / resume       R   Fresh start       C   View"]
+	var rows := ["↑ / ↓  Pitch    ← / →  Roll    A / D  Yaw & steering",
+		"W / S or Page Up / Down  Throttle    [ / ]  Trim",
+		"B  Brake hold    Space  Both brakes    Q / E  Left / right",
+		"1  Cockpit    2  Chase    3  External    C  Cycle views",
+		"Hold right mouse  Look    Scroll  Zoom    Home  Reset look",
+		"P / Escape  Pause menu    R  Fresh start    G / F  Ground / air",
+		"V  Overlay    F11  Fullscreen    M  Audio    J  Select controller"]
+	var row_height := minf(30, (height - 170) / 7)
 	for index in range(rows.size()):
-		_text(rect.position + Vector2(24, 73 + index * 28), rows[index], 15)
-	_line(rect.position + Vector2(24, 215), rect.position + Vector2(width - 24, 215), LINE)
-	_text(rect.position + Vector2(24, 241), "Original engineering aircraft · engine already running", 13, AMBER)
-	_text(rect.position + Vector2(24, 268), "TAS is derived air-relative speed. Altitude uses the WGS84 ellipsoid.", 12, MUTED)
-	_text(rect.position + Vector2(24, 291), "Native truth display: no IAS, magnetic compass, turn/slip sensor or Cessna calibration.", 12, MUTED)
-	_text(rect.position + Vector2(24, 314), "Display ranges are scales, not operating limits. This overlay cannot modify physics.", 12, MUTED)
+		_text(rect.position + Vector2(24, 73 + index * row_height), rows[index], 14)
+	var footer := height - 106
+	_line(rect.position + Vector2(24, footer), rect.position + Vector2(width - 24, footer), LINE)
+	_text(rect.position + Vector2(24, footer + 26), "Original engineering aircraft · engine already running", 13, AMBER)
+	_text(rect.position + Vector2(24, footer + 51), "Derived TAS · WGS84 ellipsoid feet · true heading · body yaw rate", 12, MUTED)
+	_text(rect.position + Vector2(24, footer + 74), "Native truth, not IAS / magnetic / turn-slip sensors or Cessna calibration.", 12, MUTED)
+	_text(rect.position + Vector2(24, footer + 96), "Display scales are not operating limits. The panel cannot modify physics.", 12, MUTED)
