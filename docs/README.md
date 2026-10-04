@@ -24,6 +24,8 @@ The latest [rural scenery and runway locator iteration](evidence/P1/airfield-lan
 
 The [aircraft and rollout-control correction](evidence/P1/aircraft-ground-ux.md) replaces intersecting glazing and adds an explicit idle shortcut with persistent native-held brake/throttle feedback. Its unchanged-model diagnosis is bounded engineering evidence; C172 and phase review remain open.
 
+The [third-person motion correction](evidence/P1/third-person-stability.md) presents adjacent native ticks and follows their translation in the same render frame. Its nominal8.333ms visual delay does not change physics, instrument readings or map state; frozen delivery and visual review remain separate gates.
+
 ## Read in this order
 
 1. [Product scope and requirements](product.md): expected pilot experience and initial boundaries.
