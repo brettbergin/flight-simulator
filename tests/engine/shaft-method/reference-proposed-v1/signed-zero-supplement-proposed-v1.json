@@ -1,0 +1,45 @@
+{
+  "status": "PROPOSED-private-preconsumer-not-ratified",
+  "no_backend_output_observed": true,
+  "source": "Exact IEEE754 struct encodings and independently reviewed no-op/stop semantics, pending normative amendment",
+  "cases": [
+    {
+      "id": "negative_zero_power_hold",
+      "omega": "000000000000e03f",
+      "power": "0000000000000080",
+      "I": "0000000000000040",
+      "h": "111111111111813f",
+      "expected_omega_bits": "000000000000e03f",
+      "original_RPM_no_write": true
+    },
+    {
+      "id": "negative_zero_duration_hold",
+      "omega": "000000000000e03f",
+      "power": "000000000000f03f",
+      "I": "0000000000000040",
+      "h": "0000000000000080",
+      "expected_omega_bits": "000000000000e03f",
+      "original_RPM_no_write": true
+    },
+    {
+      "id": "negative_zero_omega_zero_power_hold",
+      "omega": "0000000000000080",
+      "power": "0000000000000000",
+      "I": "0000000000000040",
+      "h": "111111111111813f",
+      "expected_omega_bits": "0000000000000080",
+      "original_RPM_no_write": true
+    },
+    {
+      "id": "negative_zero_omega_real_stop",
+      "omega": "0000000000000080",
+      "power": "000000000000f0bf",
+      "I": "0000000000000040",
+      "h": "111111111111813f",
+      "expected_omega_bits": "0000000000000000",
+      "original_RPM_no_write": false
+    }
+  ],
+  "positive_power_negative_zero": "Use cold_low_60/120/240Hz expected numerical values; input negative-zero is mathematically zero.",
+  "changes_to_frozen45": false
+}

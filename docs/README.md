@@ -38,6 +38,8 @@ The accepted [original piston profile contract](decisions/010-original-piston-pr
 
 The [original piston source and independent references](evidence/P3/original-piston-source.md) supply the next cold-engine prerequisite. Native controls and coupled engine behavior remain separate implementation work.
 
+The proposed [event-aware shaft amendment](decisions/014-event-aware-shaft.md) addresses measured cold-start convergence failures while preserving the current aircraft and frozen limits. It reconciles profile selection with the deployed wind selector, prepares independent arithmetic references and requires a reviewed reproducible library patch before trials. Existing [issue127](https://github.com/brettbergin/flight-simulator/issues/127) remains open.
+
 The accepted [observed flight review contract](decisions/011-observed-flight-review.md) defines a bounded paused review of sampled flight path, instruments and held controls. The [player implementation evidence](evidence/P2/observed-flight-review.md) tracks its source, lifecycle and exported verification separately; this iteration establishes neither durable saves nor physics replay.
 
 The accepted [recorded-review interchange contract](decisions/012-observed-review-interchange.md) defines explicit new-file Save/Open of historical path and instrument observations. [Issue138 implementation evidence](evidence/P2/observed-review-interchange.md) tracks its codec, file creation and paused UI consumers; automatic profiles, physics continuation and pilot/phase acceptance remain separate.

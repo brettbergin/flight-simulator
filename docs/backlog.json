@@ -4909,6 +4909,88 @@
         "Actual facade/menu/mapper/origin/recorder invariance, explicit default-Cancel replacement, retained/unavailable labels and source-qualified FROM/TO/sock presentation.",
         "Separate reviewed native closure, editor/portable/source-rebuilt replacement and exact final package/source/rights closure, all four protected checks and fresh independently inspected three-size GPU views."
       ]
+    },
+    {
+      "key": "ORIGINAL-PISTON-FLIGHT",
+      "title": "Build deliberate engine startup, taxi and shutdown interaction",
+      "kind": "task",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Implement existing issue127: deliberate original piston startup, taxi, braking and shutdown through ADR010 and the separately checked ADR014 numerical amendment; preserve legacy defaults and truthful engineering limits. Root coordinates shared build/lock/license/CI paths; module agents receive disjoint assignments before editing.",
+      "depends_on": [
+        "ORIGINAL-PISTON-CONTRACT",
+        "ORIGINAL-PISTON-MODEL",
+        "STEADY-WIND-FLIGHT"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P3",
+        "area:aircraft",
+        "priority:P0",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "native/fdm_jsbsim/interactive/",
+        "native/godot_bridge/src/interactive_*",
+        "tests/interactive/",
+        "tests/engine/shaft-method/",
+        "third_party/patches/jsbsim/",
+        "tools/bootstrap/",
+        "tools/export/",
+        "tools/interactive-preview/",
+        "app/simulation/",
+        "app/input/",
+        "app/ui/",
+        "docs/decisions/014-event-aware-shaft.md",
+        "docs/evidence/P3/",
+        "third_party/licenses/register.json",
+        "CMakeLists.txt",
+        "native/fdm_jsbsim/CMakeLists.txt",
+        "tests/engine/native.cpp",
+        "tests/engine/native-mechanism.cpp",
+        "tests/engine/native-validate.py",
+        "tests/export/",
+        "third_party/dependencies.lock.json",
+        "third_party/licenses/evidence/",
+        "third_party/licenses/notices/",
+        "tools/license-audit/",
+        ".github/workflows/native-ci.yml"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/decisions/010-original-piston-profile.md",
+        "docs/decisions/013-steady-wind-starts.md",
+        "docs/decisions/014-event-aware-shaft.md",
+        "docs/evidence/P3/original-piston-source.md",
+        "docs/contracts.md",
+        "docs/agent-operations.md",
+        "tests/engine/shaft-method/README.md"
+      ],
+      "requirements": [
+        "REAL-013",
+        "REAL-014",
+        "REAL-019",
+        "PRD-004",
+        "PRD-010",
+        "PRD-015",
+        "UX-009",
+        "UX-011"
+      ],
+      "acceptance": [
+        "Strict closed profile selection and exact new inventory/hash/type/root/start admission. Verify cold tick0 with 100 kg fuel, stopped shaft/combustion, explicit switch/mixture state and no hidden positive tick, trim, RPM injection or InitRunning. Legacy starts, default, model bytes and fixtures preserve behavior.",
+        "Four real boolean system controls and axes mixture as ADR010: pilot/unassisted identity, checked immediate next-tick system admission, mixed order/final fold, actual applied records, sequence rejection without consumption, no arbitrary properties. Commit only completed native truth; fault destroys the executive and retains last completed publication.",
+        "Actual post-propeller shaft rate, engine Running/switch/starter/starvation and actual tank mass using unchanged v1 units/Readback shape. Declare and verify requested/supplied fuel and solver-stage chronology with separate labeled mechanism evidence; no chemical-energy or calibrated performance claim.",
+        "Strict InputPreset/v2 codec/mapper and explicit v1 migration draft; exact profile/capability identity, observed devices and conflicts, analog mixture takeover, actual held switches, release/rearm and recorded starter false before resumed Run. No partial-admission atomicity claim, silent profile migration or unsupported airborne reset destroying the session.",
+        "Full copied EngineStatus/native-reading identity validation and unavailable/retained behavior. Paused explicit profile selection, visible prototype/idealized-starter labels, live native RPM/fuel/engine-control feedback, usable bindings and honest prop/audio driven by native state. Rendering and UI never change physics directly.",
+        "Meaningful cold/crank/start/run-up/taxi/brake/shutdown and no-spark/no-feed/mixture-zero/ignition/feed recovery cases with predeclared limits; deterministic admitted commands, pause/fault/rejection cases and 60/120/240 Hz research convergence distinct from runtime120. Preserve failed trials and references instead of fitting goldens.",
+        "Exact Windows editor/export/source-replacement package proof, declared source/fingerprint/model identity, bounded actual exported view review, unchanged old-default comparisons, no disturbed owner game. Independent source/numeric/module review and all protected checks precede merge. C172S, sensed electrical/indications, hardware/pilot and phase gates stay open.",
+        "Before new method output, checked ADR014 merge and distinct Root ratification bind exact independently reviewed patch/materializer, stable arithmetic source/domain, independent packet, composed-step comparison criteria and unchanged physical schedule/budgets. Preserve every failed trial and the original 55 references; do not fit model/commands/goldens or widen limits."
+      ],
+      "evidence": [
+        "Exact source/profile/method and model identities; independent numerical/rights/source reviews and pretrial chronology; unchanged legacy regressions and genuine 60/120/240 Hz lifecycle/convergence trials.",
+        "Native/input/status/scene rejection and retained-state checks; all three Windows runtime contexts, complete patched corresponding source and actual DLL replacement, independently reviewed exported views and all protected CI checks. Human C172/pilot/phase gates remain open."
+      ]
     }
   ]
 }

@@ -1,0 +1,2235 @@
+{
+  "backend_output_observed": false,
+  "comparison_proposal": {
+    "formula": "abs(error)<=64*2^-53*max(abs(omega0),a,abs(P)*h/I,sqrt(2*abs(P)*h/I))",
+    "rationale": "At most two events; target allows two gamma32 forward-roundoff envelopes at branch-local scale for an independently reviewed stable bounded operation chain. No fitted output and no certified universal cancellation theorem.",
+    "requirements": "All exact stopped results +0; h==0 identity; malformed/overflow explicit rejection. Near-event binary-input decisions distinct from ideal rational events.",
+    "status": "PROPOSED-needs-source-algorithm-review-before-output"
+  },
+  "constant_power_partitions": [
+    {
+      "expected_ideal_events": [
+        "up_threshold"
+      ],
+      "expected_ideal_final_squared": {
+        "denominator": "10000",
+        "numerator": "301"
+      },
+      "id": "up_event_60hz",
+      "inertia": {
+        "denominator": "1",
+        "numerator": "2"
+      },
+      "omega0": {
+        "denominator": "1",
+        "numerator": "0"
+      },
+      "power": {
+        "denominator": "1",
+        "numerator": "1"
+      },
+      "scope": "Mathematical held-P event equation only; no coupled-engine convergence claim",
+      "tick_dt": {
+        "denominator": "60",
+        "numerator": "1"
+      },
+      "ticks": 3,
+      "total_dt": {
+        "denominator": "20",
+        "numerator": "1"
+      }
+    },
+    {
+      "expected_ideal_events": [
+        "up_threshold"
+      ],
+      "expected_ideal_final_squared": {
+        "denominator": "10000",
+        "numerator": "301"
+      },
+      "id": "up_event_120hz",
+      "inertia": {
+        "denominator": "1",
+        "numerator": "2"
+      },
+      "omega0": {
+        "denominator": "1",
+        "numerator": "0"
+      },
+      "power": {
+        "denominator": "1",
+        "numerator": "1"
+      },
+      "scope": "Mathematical held-P event equation only; no coupled-engine convergence claim",
+      "tick_dt": {
+        "denominator": "120",
+        "numerator": "1"
+      },
+      "ticks": 6,
+      "total_dt": {
+        "denominator": "20",
+        "numerator": "1"
+      }
+    },
+    {
+      "expected_ideal_events": [
+        "up_threshold"
+      ],
+      "expected_ideal_final_squared": {
+        "denominator": "10000",
+        "numerator": "301"
+      },
+      "id": "up_event_240hz",
+      "inertia": {
+        "denominator": "1",
+        "numerator": "2"
+      },
+      "omega0": {
+        "denominator": "1",
+        "numerator": "0"
+      },
+      "power": {
+        "denominator": "1",
+        "numerator": "1"
+      },
+      "scope": "Mathematical held-P event equation only; no coupled-engine convergence claim",
+      "tick_dt": {
+        "denominator": "240",
+        "numerator": "1"
+      },
+      "ticks": 12,
+      "total_dt": {
+        "denominator": "20",
+        "numerator": "1"
+      }
+    },
+    {
+      "expected_ideal_events": [
+        "down_threshold",
+        "stop"
+      ],
+      "expected_ideal_final_squared": {
+        "denominator": "1",
+        "numerator": "0"
+      },
+      "id": "down_and_stop_60hz",
+      "inertia": {
+        "denominator": "1",
+        "numerator": "2"
+      },
+      "omega0": {
+        "denominator": "10",
+        "numerator": "1"
+      },
+      "power": {
+        "denominator": "1",
+        "numerator": "-1"
+      },
+      "scope": "Mathematical held-P event equation only; no coupled-engine convergence claim",
+      "tick_dt": {
+        "denominator": "60",
+        "numerator": "1"
+      },
+      "ticks": 3,
+      "total_dt": {
+        "denominator": "20",
+        "numerator": "1"
+      }
+    },
+    {
+      "expected_ideal_events": [
+        "down_threshold",
+        "stop"
+      ],
+      "expected_ideal_final_squared": {
+        "denominator": "1",
+        "numerator": "0"
+      },
+      "id": "down_and_stop_120hz",
+      "inertia": {
+        "denominator": "1",
+        "numerator": "2"
+      },
+      "omega0": {
+        "denominator": "10",
+        "numerator": "1"
+      },
+      "power": {
+        "denominator": "1",
+        "numerator": "-1"
+      },
+      "scope": "Mathematical held-P event equation only; no coupled-engine convergence claim",
+      "tick_dt": {
+        "denominator": "120",
+        "numerator": "1"
+      },
+      "ticks": 6,
+      "total_dt": {
+        "denominator": "20",
+        "numerator": "1"
+      }
+    },
+    {
+      "expected_ideal_events": [
+        "down_threshold",
+        "stop"
+      ],
+      "expected_ideal_final_squared": {
+        "denominator": "1",
+        "numerator": "0"
+      },
+      "id": "down_and_stop_240hz",
+      "inertia": {
+        "denominator": "1",
+        "numerator": "2"
+      },
+      "omega0": {
+        "denominator": "10",
+        "numerator": "1"
+      },
+      "power": {
+        "denominator": "1",
+        "numerator": "-1"
+      },
+      "scope": "Mathematical held-P event equation only; no coupled-engine convergence claim",
+      "tick_dt": {
+        "denominator": "240",
+        "numerator": "1"
+      },
+      "ticks": 12,
+      "total_dt": {
+        "denominator": "20",
+        "numerator": "1"
+      }
+    },
+    {
+      "expected_ideal_events": [],
+      "expected_ideal_final_squared": {
+        "denominator": "20",
+        "numerator": "83"
+      },
+      "id": "high_positive_60hz",
+      "inertia": {
+        "denominator": "1",
+        "numerator": "2"
+      },
+      "omega0": {
+        "denominator": "1",
+        "numerator": "2"
+      },
+      "power": {
+        "denominator": "1",
+        "numerator": "3"
+      },
+      "scope": "Mathematical held-P event equation only; no coupled-engine convergence claim",
+      "tick_dt": {
+        "denominator": "60",
+        "numerator": "1"
+      },
+      "ticks": 3,
+      "total_dt": {
+        "denominator": "20",
+        "numerator": "1"
+      }
+    },
+    {
+      "expected_ideal_events": [],
+      "expected_ideal_final_squared": {
+        "denominator": "20",
+        "numerator": "83"
+      },
+      "id": "high_positive_120hz",
+      "inertia": {
+        "denominator": "1",
+        "numerator": "2"
+      },
+      "omega0": {
+        "denominator": "1",
+        "numerator": "2"
+      },
+      "power": {
+        "denominator": "1",
+        "numerator": "3"
+      },
+      "scope": "Mathematical held-P event equation only; no coupled-engine convergence claim",
+      "tick_dt": {
+        "denominator": "120",
+        "numerator": "1"
+      },
+      "ticks": 6,
+      "total_dt": {
+        "denominator": "20",
+        "numerator": "1"
+      }
+    },
+    {
+      "expected_ideal_events": [],
+      "expected_ideal_final_squared": {
+        "denominator": "20",
+        "numerator": "83"
+      },
+      "id": "high_positive_240hz",
+      "inertia": {
+        "denominator": "1",
+        "numerator": "2"
+      },
+      "omega0": {
+        "denominator": "1",
+        "numerator": "2"
+      },
+      "power": {
+        "denominator": "1",
+        "numerator": "3"
+      },
+      "scope": "Mathematical held-P event equation only; no coupled-engine convergence claim",
+      "tick_dt": {
+        "denominator": "240",
+        "numerator": "1"
+      },
+      "ticks": 12,
+      "total_dt": {
+        "denominator": "20",
+        "numerator": "1"
+      }
+    }
+  ],
+  "invalid_case_count": 18,
+  "invalid_cases": [
+    {
+      "expected": "reject-before-shaft-assignment",
+      "field": "omega_rad_s",
+      "id": "omega_rad_s_nan",
+      "special": "nan"
+    },
+    {
+      "expected": "reject-before-shaft-assignment",
+      "field": "omega_rad_s",
+      "id": "omega_rad_s_positive_infinity",
+      "special": "positive_infinity"
+    },
+    {
+      "expected": "reject-before-shaft-assignment",
+      "field": "omega_rad_s",
+      "id": "omega_rad_s_negative_infinity",
+      "special": "negative_infinity"
+    },
+    {
+      "expected": "reject-before-shaft-assignment",
+      "field": "net_power_ft_lbf_s",
+      "id": "net_power_ft_lbf_s_nan",
+      "special": "nan"
+    },
+    {
+      "expected": "reject-before-shaft-assignment",
+      "field": "net_power_ft_lbf_s",
+      "id": "net_power_ft_lbf_s_positive_infinity",
+      "special": "positive_infinity"
+    },
+    {
+      "expected": "reject-before-shaft-assignment",
+      "field": "net_power_ft_lbf_s",
+      "id": "net_power_ft_lbf_s_negative_infinity",
+      "special": "negative_infinity"
+    },
+    {
+      "expected": "reject-before-shaft-assignment",
+      "field": "inertia_slug_ft2",
+      "id": "inertia_slug_ft2_nan",
+      "special": "nan"
+    },
+    {
+      "expected": "reject-before-shaft-assignment",
+      "field": "inertia_slug_ft2",
+      "id": "inertia_slug_ft2_positive_infinity",
+      "special": "positive_infinity"
+    },
+    {
+      "expected": "reject-before-shaft-assignment",
+      "field": "inertia_slug_ft2",
+      "id": "inertia_slug_ft2_negative_infinity",
+      "special": "negative_infinity"
+    },
+    {
+      "expected": "reject-before-shaft-assignment",
+      "field": "dt_s",
+      "id": "dt_s_nan",
+      "special": "nan"
+    },
+    {
+      "expected": "reject-before-shaft-assignment",
+      "field": "dt_s",
+      "id": "dt_s_positive_infinity",
+      "special": "positive_infinity"
+    },
+    {
+      "expected": "reject-before-shaft-assignment",
+      "field": "dt_s",
+      "id": "dt_s_negative_infinity",
+      "special": "negative_infinity"
+    },
+    {
+      "expected": "reject-before-shaft-assignment",
+      "field": "omega_rad_s",
+      "id": "negative_omega",
+      "value": -1
+    },
+    {
+      "expected": "reject-before-shaft-assignment",
+      "field": "dt_s",
+      "id": "negative_dt",
+      "value": -1
+    },
+    {
+      "expected": "reject-before-shaft-assignment",
+      "field": "inertia_slug_ft2",
+      "id": "zero_inertia",
+      "value": 0
+    },
+    {
+      "expected": "reject-before-shaft-assignment",
+      "field": "inertia_slug_ft2",
+      "id": "negative_inertia",
+      "value": -1
+    },
+    {
+      "expected": "reject-before-shaft-assignment",
+      "id": "unknown_method",
+      "method": "unknown"
+    },
+    {
+      "expected": "reject-before-shaft-assignment",
+      "id": "mathematical_candidate_overflow",
+      "inputs": {
+        "dt_s": {
+          "denominator": "1",
+          "numerator": "179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "202402253307310618352495346718917307049556649764142118356901358027430339567995346891960383701437124495187077864316811911389808737385793476867013399940738509921517424276566361364466907742093216341239767678472745068562007483424692698618103355649159556340810056512358769552333414615230502532186327508646006263307707741093494784",
+          "numerator": "1"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368"
+        },
+        "omega_rad_s": {
+          "denominator": "1",
+          "numerator": "179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368"
+        }
+      }
+    }
+  ],
+  "method": "event_aware_constant_power_v1",
+  "oracle": "Exact Fraction branch decisions; Decimal150/220 square-root agreement; Python struct binary64 encodings",
+  "partition_case_count": 9,
+  "status": "PROPOSED-private-preconsumer-not-ratified",
+  "threshold_binary64_le": "7b14ae47e17a843f",
+  "threshold_ideal": {
+    "denominator": "100",
+    "numerator": "1"
+  },
+  "unfrozen_seams": [
+    "omega=-0 normalization/hold policy",
+    "Specific finite intermediate overflow/underflow expectations depend on the reviewed stable algorithm; not frozen as mathematically universal failures",
+    "RPM conversion no-op and overflow must use actual starting-RPM semantics before helper/backend tests"
+  ],
+  "valid_case_count": 45,
+  "valid_cases": [
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.699999999999999991276819092230912930361202101512112303645436411219444979262099549968173065192094529579371610181964613474500377335645067165447396239758",
+      "expected_binary_input_omega_nearest_binary64_le": "666666666666e63f",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "100",
+        "numerator": "49"
+      },
+      "id": "rational_positive_exact_root",
+      "inputs_binary64_le": {
+        "dt_s": "333333333333c33f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "0000000000000840",
+        "omega_rad_s": "9a9999999999c93f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "20",
+          "numerator": "3"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "3"
+        },
+        "omega_rad_s": {
+          "denominator": "5",
+          "numerator": "1"
+        }
+      },
+      "proposed_abs_error_rad_s": "4.76646557423476406619102856426918727383366495274115910067463984532791989759910689199192195751288959804040058986842351118568638384913886421413179774154E-15",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.299999999999999905631042906861682508411641888861520141626619102991360656701629740297188098526001810774130297562415981304663555339295832479156966329726",
+      "expected_binary_input_omega_nearest_binary64_le": "313333333333d33f",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "100",
+        "numerator": "9"
+      },
+      "id": "rational_negative_exact_root",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111c13f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "00000000000008c0",
+        "omega_rad_s": "666666666666e63f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "15",
+          "numerator": "2"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-3"
+        },
+        "omega_rad_s": {
+          "denominator": "10",
+          "numerator": "7"
+        }
+      },
+      "proposed_abs_error_rad_s": "4.973799150320700985553507784642152835308573886885508130717425956390798091888427734375000000E-15",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.5",
+      "expected_binary_input_omega_nearest_binary64_le": "000000000000e03f",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "4",
+        "numerator": "1"
+      },
+      "id": "zero_power_hold",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111813f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "0000000000000000",
+        "omega_rad_s": "000000000000e03f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "120",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "0"
+        },
+        "omega_rad_s": {
+          "denominator": "2",
+          "numerator": "1"
+        }
+      },
+      "proposed_abs_error_rad_s": "3.552713678800500929355621337890625000000E-15",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.428571428571428547638078043746645562350749969482421875",
+      "expected_binary_input_omega_nearest_binary64_le": "dbb66ddbb66ddb3f",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "49",
+        "numerator": "9"
+      },
+      "id": "zero_duration_identity_positive",
+      "inputs_binary64_le": {
+        "dt_s": "0000000000000000",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "0000000000000840",
+        "omega_rad_s": "dbb66ddbb66ddb3f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "1",
+          "numerator": "0"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "3"
+        },
+        "omega_rad_s": {
+          "denominator": "7",
+          "numerator": "3"
+        }
+      },
+      "proposed_abs_error_rad_s": "3.04518315325757205612033859940372026891530743940295078431290676235221326351165771484375000000E-15",
+      "zero_duration_identity_required": true
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.428571428571428547638078043746645562350749969482421875",
+      "expected_binary_input_omega_nearest_binary64_le": "dbb66ddbb66ddb3f",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "49",
+        "numerator": "9"
+      },
+      "id": "zero_duration_identity_negative",
+      "inputs_binary64_le": {
+        "dt_s": "0000000000000000",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "00000000000008c0",
+        "omega_rad_s": "dbb66ddbb66ddb3f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "1",
+          "numerator": "0"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-3"
+        },
+        "omega_rad_s": {
+          "denominator": "7",
+          "numerator": "3"
+        }
+      },
+      "proposed_abs_error_rad_s": "3.04518315325757205612033859940372026891530743940295078431290676235221326351165771484375000000E-15",
+      "zero_duration_identity_required": true
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [
+        "stop"
+      ],
+      "exact_zero_required": true,
+      "expected_binary_input_omega_decimal": "0",
+      "expected_binary_input_omega_nearest_binary64_le": "0000000000000000",
+      "expected_ideal_events": [
+        "stop"
+      ],
+      "expected_ideal_omega_squared": {
+        "denominator": "1",
+        "numerator": "0"
+      },
+      "id": "stopped_negative_power",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111913f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f0bf",
+        "omega_rad_s": "0000000000000000"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "60",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-1"
+        },
+        "omega_rad_s": {
+          "denominator": "1",
+          "numerator": "0"
+        }
+      },
+      "proposed_abs_error_rad_s": "9.17306727455841737704400142862353562096273229151271431705993096207096601830303080198974440529477873296325029767089842135897161844324502249480492024020E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": true,
+      "expected_binary_input_omega_decimal": "0",
+      "expected_binary_input_omega_nearest_binary64_le": "0000000000000000",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "1",
+        "numerator": "0"
+      },
+      "id": "stopped_zero_power",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111913f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "0000000000000000",
+        "omega_rad_s": "0000000000000000"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "60",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "0"
+        },
+        "omega_rad_s": {
+          "denominator": "1",
+          "numerator": "0"
+        }
+      },
+      "proposed_abs_error_rad_s": "7.10542735760100200662266240472096351469910599052241806372620658294181339442729949951171875000000E-17",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.0075000000000000001561251128379126384970732033252716064453125",
+      "expected_binary_input_omega_nearest_binary64_le": "b81e85eb51b87e3f",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "160000",
+        "numerator": "9"
+      },
+      "id": "upward_before",
+      "inputs_binary64_le": {
+        "dt_s": "7b14ae47e17a743f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f03f",
+        "omega_rad_s": "7b14ae47e17a743f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "200",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "1"
+        },
+        "omega_rad_s": {
+          "denominator": "200",
+          "numerator": "1"
+        }
+      },
+      "proposed_abs_error_rad_s": "5.02429586778808024235340754291488417414952447853989953862753665038695130873813605509421442176804820341846808587402178208390128614537983317252833574937E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.0025000000000000000520417042793042128323577344417572021484375",
+      "expected_binary_input_omega_nearest_binary64_le": "7b14ae47e17a643f",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "160000",
+        "numerator": "1"
+      },
+      "id": "low_stop_before",
+      "inputs_binary64_le": {
+        "dt_s": "7b14ae47e17a743f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f0bf",
+        "omega_rad_s": "7b14ae47e17a743f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "200",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-1"
+        },
+        "omega_rad_s": {
+          "denominator": "200",
+          "numerator": "1"
+        }
+      },
+      "proposed_abs_error_rad_s": "5.02429586778808024235340754291488417414952447853989953862753665038695130873813605509421442176804820341846808587402178208390128614537983317252833574937E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [
+        "up_threshold"
+      ],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.01000000000000000020816681711721685132943093776702880859375",
+      "expected_binary_input_omega_nearest_binary64_le": "7b14ae47e17a843f",
+      "expected_ideal_events": [
+        "up_threshold"
+      ],
+      "expected_ideal_omega_squared": {
+        "denominator": "10000",
+        "numerator": "1"
+      },
+      "id": "upward_at",
+      "inputs_binary64_le": {
+        "dt_s": "7b14ae47e17a843f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f03f",
+        "omega_rad_s": "7b14ae47e17a743f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "100",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "1"
+        },
+        "omega_rad_s": {
+          "denominator": "200",
+          "numerator": "1"
+        }
+      },
+      "proposed_abs_error_rad_s": "7.10542735760100193266695254025110637247143474198503999356849476407256061907878812228748461010417889182325668217026141164089193666984259174946424636538E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [
+        "stop"
+      ],
+      "exact_zero_required": true,
+      "expected_binary_input_omega_decimal": "0",
+      "expected_binary_input_omega_nearest_binary64_le": "0000000000000000",
+      "expected_ideal_events": [
+        "stop"
+      ],
+      "expected_ideal_omega_squared": {
+        "denominator": "1",
+        "numerator": "0"
+      },
+      "id": "low_stop_at",
+      "inputs_binary64_le": {
+        "dt_s": "7b14ae47e17a843f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f0bf",
+        "omega_rad_s": "7b14ae47e17a743f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "100",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-1"
+        },
+        "omega_rad_s": {
+          "denominator": "200",
+          "numerator": "1"
+        }
+      },
+      "proposed_abs_error_rad_s": "7.10542735760100193266695254025110637247143474198503999356849476407256061907878812228748461010417889182325668217026141164089193666984259174946424636538E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [
+        "up_threshold"
+      ],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.0714142842854284946651259665765841268238804530329584423962377811089457690171717004142099231525204956261997373101418626890484187233807423788504352721679",
+      "expected_binary_input_omega_nearest_binary64_le": "272179df3448b23f",
+      "expected_ideal_events": [
+        "up_threshold"
+      ],
+      "expected_ideal_omega_squared": {
+        "denominator": "10000",
+        "numerator": "51"
+      },
+      "id": "upward_after",
+      "inputs_binary64_le": {
+        "dt_s": "b81e85eb51b88e3f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f03f",
+        "omega_rad_s": "7b14ae47e17a743f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "200",
+          "numerator": "3"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "1"
+        },
+        "omega_rad_s": {
+          "denominator": "200",
+          "numerator": "1"
+        }
+      },
+      "proposed_abs_error_rad_s": "8.70233571526731727229495622218971820209370590486123570466063791087155883129798276405024141259107078738389550733563225669919983723909572427175941619723E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [
+        "stop"
+      ],
+      "exact_zero_required": true,
+      "expected_binary_input_omega_decimal": "0",
+      "expected_binary_input_omega_nearest_binary64_le": "0000000000000000",
+      "expected_ideal_events": [
+        "stop"
+      ],
+      "expected_ideal_omega_squared": {
+        "denominator": "1",
+        "numerator": "0"
+      },
+      "id": "low_stop_after",
+      "inputs_binary64_le": {
+        "dt_s": "b81e85eb51b88e3f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f0bf",
+        "omega_rad_s": "7b14ae47e17a743f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "200",
+          "numerator": "3"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-1"
+        },
+        "omega_rad_s": {
+          "denominator": "200",
+          "numerator": "1"
+        }
+      },
+      "proposed_abs_error_rad_s": "8.70233571526731727229495622218971820209370590486123570466063791087155883129798276405024141259107078738389550733563225669919983723909572427175941619723E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.0158113883008418976021595430784891935006137635991511817420849978305388578797327331263395345211835163468536553837488947580639220491959058081201254228489",
+      "expected_binary_input_omega_nearest_binary64_le": "733aa04edc30903f",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "4000",
+        "numerator": "1"
+      },
+      "id": "downward_before",
+      "inputs_binary64_le": {
+        "dt_s": "613255302aa9233f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f0bf",
+        "omega_rad_s": "7b14ae47e17a943f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "20000",
+          "numerator": "3"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-1"
+        },
+        "omega_rad_s": {
+          "denominator": "50",
+          "numerator": "1"
+        }
+      },
+      "proposed_abs_error_rad_s": "1.42108547152020040132453248094419270293982119810448361274524131658836267888545989990234375000000E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.0100000000000000021467203015212985575810386472802962196640266316095664230639856028717573946663352423700393992504127561192799505301700290675472977604721",
+      "expected_binary_input_omega_nearest_binary64_le": "7c14ae47e17a843f",
+      "expected_ideal_events": [
+        "down_threshold"
+      ],
+      "expected_ideal_omega_squared": {
+        "denominator": "10000",
+        "numerator": "1"
+      },
+      "id": "downward_at",
+      "inputs_binary64_le": {
+        "dt_s": "613255302aa9333f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f0bf",
+        "omega_rad_s": "7b14ae47e17a943f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "10000",
+          "numerator": "3"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-1"
+        },
+        "omega_rad_s": {
+          "denominator": "50",
+          "numerator": "1"
+        }
+      },
+      "proposed_abs_error_rad_s": "1.42108547152020040132453248094419270293982119810448361274524131658836267888545989990234375000000E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [
+        "down_threshold"
+      ],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.00500000000000000015057399771478685585995518060788671492345175556224129700066093062726935158934793435037136077880859375000000000000000000000000000000000",
+      "expected_binary_input_omega_nearest_binary64_le": "7b14ae47e17a743f",
+      "expected_ideal_events": [
+        "down_threshold"
+      ],
+      "expected_ideal_omega_squared": {
+        "denominator": "40000",
+        "numerator": "1"
+      },
+      "id": "downward_low_remainder",
+      "inputs_binary64_le": {
+        "dt_s": "0ebe30992a18853f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f0bf",
+        "omega_rad_s": "7b14ae47e17a943f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "10000",
+          "numerator": "103"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-1"
+        },
+        "omega_rad_s": {
+          "denominator": "50",
+          "numerator": "1"
+        }
+      },
+      "proposed_abs_error_rad_s": "7.21122117759323055818029294358573374221490864922158048140561484603471233278131071620402828714408185678305841365410235161463827203940179465603811196409E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [
+        "down_threshold"
+      ],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "9.13852327144581977401201952420325679767201755562241297000660930627269351589347934350371360778808593750000000000000000000000000000000000000000000000000E-19",
+      "expected_binary_input_omega_nearest_binary64_le": "b30c71ac8bdb303c",
+      "expected_ideal_events": [
+        "down_threshold",
+        "stop"
+      ],
+      "expected_ideal_omega_squared": {
+        "denominator": "1",
+        "numerator": "0"
+      },
+      "id": "downward_stop_at",
+      "inputs_binary64_le": {
+        "dt_s": "44696ff085c9943f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f0bf",
+        "omega_rad_s": "7b14ae47e17a943f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "10000",
+          "numerator": "203"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-1"
+        },
+        "omega_rad_s": {
+          "denominator": "50",
+          "numerator": "1"
+        }
+      },
+      "proposed_abs_error_rad_s": "1.01236756569100852786012675369997453596837545964710046902020093152560161828224609307240983161986876937693049340612651219215549861536576428177680292310E-15",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [
+        "down_threshold",
+        "stop"
+      ],
+      "exact_zero_required": true,
+      "expected_binary_input_omega_decimal": "0",
+      "expected_binary_input_omega_nearest_binary64_le": "0000000000000000",
+      "expected_ideal_events": [
+        "down_threshold",
+        "stop"
+      ],
+      "expected_ideal_omega_squared": {
+        "denominator": "1",
+        "numerator": "0"
+      },
+      "id": "downward_past_stop",
+      "inputs_binary64_le": {
+        "dt_s": "44696ff085c9a43f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f0bf",
+        "omega_rad_s": "7b14ae47e17a943f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "5000",
+          "numerator": "203"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-1"
+        },
+        "omega_rad_s": {
+          "denominator": "50",
+          "numerator": "1"
+        }
+      },
+      "proposed_abs_error_rad_s": "1.43170394150685948788417973616202333458387358278067738546508865709533351841915617634073083577625448357743772986784073417814144640683223049624740492019E-15",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.00833333333333333321768510160154619370587170124053955078125",
+      "expected_binary_input_omega_nearest_binary64_le": "111111111111813f",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "14400",
+        "numerator": "1"
+      },
+      "id": "cold_low_60hz",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111913f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f03f",
+        "omega_rad_s": "0000000000000000"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "60",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "1"
+        },
+        "omega_rad_s": {
+          "denominator": "1",
+          "numerator": "0"
+        }
+      },
+      "proposed_abs_error_rad_s": "9.17306727455841737704400142862353562096273229151271431705993096207096601830303080198974440529477873296325029767089842135897161844324502249480492024020E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [
+        "up_threshold_tau_zero"
+      ],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.129486163997033545759857167807820235889222976255285981317287018442211354071580184391740858129166140658026071702594481352218681215941137084207087141214",
+      "expected_binary_input_omega_nearest_binary64_le": "9a6cd3ab0093c03f",
+      "expected_ideal_events": [
+        "up_threshold_tau_zero"
+      ],
+      "expected_ideal_omega_squared": {
+        "denominator": "30000",
+        "numerator": "503"
+      },
+      "id": "threshold_up_60hz",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111913f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f03f",
+        "omega_rad_s": "7b14ae47e17a843f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "60",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "1"
+        },
+        "omega_rad_s": {
+          "denominator": "100",
+          "numerator": "1"
+        }
+      },
+      "proposed_abs_error_rad_s": "9.17306727455841737704400142862353562096273229151271431705993096207096601830303080198974440529477873296325029767089842135897161844324502249480492024020E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.0016666666666666669904817155156706576235592365264892578125",
+      "expected_binary_input_omega_nearest_binary64_le": "501be8b4814e5b3f",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "360000",
+        "numerator": "1"
+      },
+      "id": "threshold_down_60hz",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111913f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f0bf",
+        "omega_rad_s": "7b14ae47e17a843f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "60",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-1"
+        },
+        "omega_rad_s": {
+          "denominator": "100",
+          "numerator": "1"
+        }
+      },
+      "proposed_abs_error_rad_s": "9.17306727455841737704400142862353562096273229151271431705993096207096601830303080198974440529477873296325029767089842135897161844324502249480492024020E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [
+        "up_threshold"
+      ],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.121518174223721221375189176441952861075461842078608570022831288858900269467626438003013320635403586382139176277842063793273692469383538535668633304940",
+      "expected_binary_input_omega_nearest_binary64_le": "5e1729a8d01bbf3f",
+      "expected_ideal_events": [
+        "up_threshold"
+      ],
+      "expected_ideal_omega_squared": {
+        "denominator": "30000",
+        "numerator": "443"
+      },
+      "id": "low_cross_60hz",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111913f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f03f",
+        "omega_rad_s": "3bdf4f8d976e823f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "60",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "1"
+        },
+        "omega_rad_s": {
+          "denominator": "1000",
+          "numerator": "9"
+        }
+      },
+      "proposed_abs_error_rad_s": "9.17306727455841737704400142862353562096273229151271431705993096207096601830303080198974440529477873296325029767089842135897161844324502249480492024020E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [
+        "stop"
+      ],
+      "exact_zero_required": true,
+      "expected_binary_input_omega_decimal": "0",
+      "expected_binary_input_omega_nearest_binary64_le": "0000000000000000",
+      "expected_ideal_events": [
+        "stop"
+      ],
+      "expected_ideal_omega_squared": {
+        "denominator": "1",
+        "numerator": "0"
+      },
+      "id": "low_stop_60hz",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111913f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f0bf",
+        "omega_rad_s": "7b14ae47e17a743f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "60",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-1"
+        },
+        "omega_rad_s": {
+          "denominator": "200",
+          "numerator": "1"
+        }
+      },
+      "proposed_abs_error_rad_s": "9.17306727455841737704400142862353562096273229151271431705993096207096601830303080198974440529477873296325029767089842135897161844324502249480492024020E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "2.01246117974981072659585809677153243153658403035188726541408971592581865226584399437911065064456418649800506088788560239495717155167370192182506913887",
+      "expected_binary_input_omega_nearest_binary64_le": "caf53b3f85190040",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "20",
+        "numerator": "81"
+      },
+      "id": "above_positive_60hz",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111913f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "0000000000000840",
+        "omega_rad_s": "0000000000000040"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "60",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "3"
+        },
+        "omega_rad_s": {
+          "denominator": "1",
+          "numerator": "2"
+        }
+      },
+      "proposed_abs_error_rad_s": "1.421085471520200371742248535156250000000E-14",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "1.98746069143517905217892648698815800019321268611451570943446373122716854093043250511746169281946658630508128611833029060421688274598909301339241049319",
+      "expected_binary_input_omega_nearest_binary64_le": "55cbfc94a3ccff3f",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "20",
+        "numerator": "79"
+      },
+      "id": "above_negative_60hz",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111913f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "00000000000008c0",
+        "omega_rad_s": "0000000000000040"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "60",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-3"
+        },
+        "omega_rad_s": {
+          "denominator": "1",
+          "numerator": "2"
+        }
+      },
+      "proposed_abs_error_rad_s": "1.421085471520200371742248535156250000000E-14",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.004166666666666666608842550800773096852935850620269775390625",
+      "expected_binary_input_omega_nearest_binary64_le": "111111111111713f",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "57600",
+        "numerator": "1"
+      },
+      "id": "cold_low_120hz",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111813f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f03f",
+        "omega_rad_s": "0000000000000000"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "120",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "1"
+        },
+        "omega_rad_s": {
+          "denominator": "1",
+          "numerator": "0"
+        }
+      },
+      "proposed_abs_error_rad_s": "6.48633807412065869916732040081475737560351167838866486047933465594425899143109349730871045999945360697861123141203316177679220092895217640617513333211E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [
+        "up_threshold_tau_zero"
+      ],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.0918331820930394049353103493308871677093428627425549599014326930090875441585552885041343204143380676722790110117491177667017238404658233774234532095022",
+      "expected_binary_input_omega_nearest_binary64_le": "b3f7c6216182b73f",
+      "expected_ideal_events": [
+        "up_threshold_tau_zero"
+      ],
+      "expected_ideal_omega_squared": {
+        "denominator": "30000",
+        "numerator": "253"
+      },
+      "id": "threshold_up_120hz",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111813f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f03f",
+        "omega_rad_s": "7b14ae47e17a843f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "120",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "1"
+        },
+        "omega_rad_s": {
+          "denominator": "100",
+          "numerator": "1"
+        }
+      },
+      "proposed_abs_error_rad_s": "6.48633807412065869916732040081475737560351167838866486047933465594425899143109349730871045999945360697861123141203316177679220092895217640617513333211E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.005833333333333333599324266316443754476495087146759033203125",
+      "expected_binary_input_omega_nearest_binary64_le": "e5174b7eb1e4773f",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "1440000",
+        "numerator": "49"
+      },
+      "id": "threshold_down_120hz",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111813f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f0bf",
+        "omega_rad_s": "7b14ae47e17a843f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "120",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-1"
+        },
+        "omega_rad_s": {
+          "denominator": "100",
+          "numerator": "1"
+        }
+      },
+      "proposed_abs_error_rad_s": "6.48633807412065869916732040081475737560351167838866486047933465594425899143109349730871045999945360697861123141203316177679220092895217640617513333211E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [
+        "up_threshold"
+      ],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.0802080627701064193050051595116688062407294000847194181363506519408332755951391765010746972470452813211332001597019577015319596264556449244273514562046",
+      "expected_binary_input_omega_nearest_binary64_le": "8a1e79fe8388b43f",
+      "expected_ideal_events": [
+        "up_threshold"
+      ],
+      "expected_ideal_omega_squared": {
+        "denominator": "30000",
+        "numerator": "193"
+      },
+      "id": "low_cross_120hz",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111813f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f03f",
+        "omega_rad_s": "3bdf4f8d976e823f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "120",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "1"
+        },
+        "omega_rad_s": {
+          "denominator": "1000",
+          "numerator": "9"
+        }
+      },
+      "proposed_abs_error_rad_s": "6.48633807412065869916732040081475737560351167838866486047933465594425899143109349730871045999945360697861123141203316177679220092895217640617513333211E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.00083333333333333349524085775783532881177961826324462890625",
+      "expected_binary_input_omega_nearest_binary64_le": "501be8b4814e4b3f",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "1440000",
+        "numerator": "1"
+      },
+      "id": "low_stop_120hz",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111813f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f0bf",
+        "omega_rad_s": "7b14ae47e17a743f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "120",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-1"
+        },
+        "omega_rad_s": {
+          "denominator": "200",
+          "numerator": "1"
+        }
+      },
+      "proposed_abs_error_rad_s": "6.48633807412065869916732040081475737560351167838866486047933465594425899143109349730871045999945360697861123141203316177679220092895217640617513333211E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "2.00624026477388794322746000778394561644300488565876424771994964071112249943950616676267773373295044934883351307071588195798824586497059759174044443258",
+      "expected_binary_input_omega_nearest_binary64_le": "53fa28b2c70c0040",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "40",
+        "numerator": "161"
+      },
+      "id": "above_positive_120hz",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111813f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "0000000000000840",
+        "omega_rad_s": "0000000000000040"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "120",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "3"
+        },
+        "omega_rad_s": {
+          "denominator": "1",
+          "numerator": "2"
+        }
+      },
+      "proposed_abs_error_rad_s": "1.421085471520200371742248535156250000000E-14",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "1.99374020373768858810607036802914734493895589009211747106825276782623822691183970043586316706302176860042284856967857925881411162062572687651071612541",
+      "expected_binary_input_omega_nearest_binary64_le": "4761bc205ce6ff3f",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "40",
+        "numerator": "159"
+      },
+      "id": "above_negative_120hz",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111813f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "00000000000008c0",
+        "omega_rad_s": "0000000000000040"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "120",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-3"
+        },
+        "omega_rad_s": {
+          "denominator": "1",
+          "numerator": "2"
+        }
+      },
+      "proposed_abs_error_rad_s": "1.421085471520200371742248535156250000000E-14",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.0020833333333333333044212754003865484264679253101348876953125",
+      "expected_binary_input_omega_nearest_binary64_le": "111111111111613f",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "230400",
+        "numerator": "1"
+      },
+      "id": "cold_low_240hz",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111713f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f03f",
+        "omega_rad_s": "0000000000000000"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "240",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "1"
+        },
+        "omega_rad_s": {
+          "denominator": "1",
+          "numerator": "0"
+        }
+      },
+      "proposed_abs_error_rad_s": "4.58653363727920868852200071431176781048136614575635715852996548103548300915151540099487220264738936648162514883544921067948580922162251124740246012011E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [
+        "up_threshold_tau_zero"
+      ],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.0653197264742180822078394637650213515787466894514352433800893509086523552662665300104131135364320855923056016709409237608021474972657938664341437761083",
+      "expected_binary_input_omega_nearest_binary64_le": "f48cfd28cbb8b03f",
+      "expected_ideal_events": [
+        "up_threshold_tau_zero"
+      ],
+      "expected_ideal_omega_squared": {
+        "denominator": "1875",
+        "numerator": "8"
+      },
+      "id": "threshold_up_240hz",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111713f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f03f",
+        "omega_rad_s": "7b14ae47e17a843f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "240",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "1"
+        },
+        "omega_rad_s": {
+          "denominator": "100",
+          "numerator": "1"
+        }
+      },
+      "proposed_abs_error_rad_s": "4.58653363727920868852200071431176781048136614575635715852996548103548300915151540099487220264738936648162514883544921067948580922162251124740246012011E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.0079166666666666669037455417168303029029630124568939208984375",
+      "expected_binary_input_omega_nearest_binary64_le": "37d069039d36803f",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "5760000",
+        "numerator": "361"
+      },
+      "id": "threshold_down_240hz",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111713f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f0bf",
+        "omega_rad_s": "7b14ae47e17a843f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "240",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-1"
+        },
+        "omega_rad_s": {
+          "denominator": "100",
+          "numerator": "1"
+        }
+      },
+      "proposed_abs_error_rad_s": "4.58653363727920868852200071431176781048136614575635715852996548103548300915151540099487220264738936648162514883544921067948580922162251124740246012011E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [
+        "up_threshold"
+      ],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.0476095228569523141009668097472695770250758774850681016606847466817503357053630616583335684956115495498401474243837051798016088524677027465165491634579",
+      "expected_binary_input_omega_nearest_binary64_le": "322c4c7f4660a83f",
+      "expected_ideal_events": [
+        "up_threshold"
+      ],
+      "expected_ideal_omega_squared": {
+        "denominator": "7500",
+        "numerator": "17"
+      },
+      "id": "low_cross_240hz",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111713f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f03f",
+        "omega_rad_s": "3bdf4f8d976e823f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "240",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "1"
+        },
+        "omega_rad_s": {
+          "denominator": "1000",
+          "numerator": "9"
+        }
+      },
+      "proposed_abs_error_rad_s": "4.58653363727920868852200071431176781048136614575635715852996548103548300915151540099487220264738936648162514883544921067948580922162251124740246012011E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.0029166666666666667996621331582218772382475435733795166015625",
+      "expected_binary_input_omega_nearest_binary64_le": "e5174b7eb1e4673f",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "5760000",
+        "numerator": "49"
+      },
+      "id": "low_stop_240hz",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111713f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f0bf",
+        "omega_rad_s": "7b14ae47e17a743f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "240",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-1"
+        },
+        "omega_rad_s": {
+          "denominator": "200",
+          "numerator": "1"
+        }
+      },
+      "proposed_abs_error_rad_s": "4.58653363727920868852200071431176781048136614575635715852996548103548300915151540099487220264738936648162514883544921067948580922162251124740246012011E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "2.00312256240101294502460810241850042381849849042780675082700619207171415201681415556477088491341054263627444719736393891185921060946698780167103486858",
+      "expected_binary_input_omega_nearest_binary64_le": "f6223b1f65060040",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "80",
+        "numerator": "321"
+      },
+      "id": "above_positive_240hz",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111713f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "0000000000000840",
+        "omega_rad_s": "0000000000000040"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "240",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "3"
+        },
+        "omega_rad_s": {
+          "denominator": "1",
+          "numerator": "2"
+        }
+      },
+      "proposed_abs_error_rad_s": "1.421085471520200371742248535156250000000E-14",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "1.99687255477158581738364852953206739604832801837614159371483201875763945713098066849611477061065315768942337263824541554649883987956118790922971120161",
+      "expected_binary_input_omega_nearest_binary64_le": "0462d0a230f3ff3f",
+      "expected_ideal_events": [],
+      "expected_ideal_omega_squared": {
+        "denominator": "80",
+        "numerator": "319"
+      },
+      "id": "above_negative_240hz",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111713f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "00000000000008c0",
+        "omega_rad_s": "0000000000000040"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "240",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-3"
+        },
+        "omega_rad_s": {
+          "denominator": "1",
+          "numerator": "2"
+        }
+      },
+      "proposed_abs_error_rad_s": "1.421085471520200371742248535156250000000E-14",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.005833333333333331864600790339636660064570605754852294921875",
+      "expected_binary_input_omega_nearest_binary64_le": "e3174b7eb1e4773f",
+      "id": "binary_threshold_below_-1",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111813f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f0bf",
+        "omega_rad_s": "7a14ae47e17a843f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "120",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-1"
+        },
+        "omega_rad_s": {
+          "denominator": "288230376151711744",
+          "numerator": "2882303761517117"
+        }
+      },
+      "proposed_abs_error_rad_s": "6.48633807412065869916732040081475737560351167838866486047933465594425899143109349730871045999945360697861123141203316177679220092895217640617513333211E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [
+        "up_threshold"
+      ],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.0918331820930393860453684303053837563370780951729097431700641956788835824249012559534094196728592450727045409031315744858368607813132929090566031913539",
+      "expected_binary_input_omega_nearest_binary64_le": "b1f7c6216182b73f",
+      "id": "binary_threshold_below_+1",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111813f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f03f",
+        "omega_rad_s": "7a14ae47e17a843f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "120",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "1"
+        },
+        "omega_rad_s": {
+          "denominator": "288230376151711744",
+          "numerator": "2882303761517117"
+        }
+      },
+      "proposed_abs_error_rad_s": "6.48633807412065869916732040081475737560351167838866486047933465594425899143109349730871045999945360697861123141203316177679220092895217640617513333211E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.005833333333333333599324266316443754476495087146759033203125",
+      "expected_binary_input_omega_nearest_binary64_le": "e5174b7eb1e4773f",
+      "id": "binary_threshold_equal_-1",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111813f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f0bf",
+        "omega_rad_s": "7b14ae47e17a843f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "120",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-1"
+        },
+        "omega_rad_s": {
+          "denominator": "576460752303423488",
+          "numerator": "5764607523034235"
+        }
+      },
+      "proposed_abs_error_rad_s": "6.48633807412065869916732040081475737560351167838866486047933465594425899143109349730871045999945360697861123141203316177679220092895217640617513333211E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [
+        "up_threshold_tau_zero"
+      ],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.0918331820930394049353103493308871677093428627425549599014326930090875441585552885041343204143380676722790110117491177667017238404658233774234532095022",
+      "expected_binary_input_omega_nearest_binary64_le": "b3f7c6216182b73f",
+      "id": "binary_threshold_equal_+1",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111813f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f03f",
+        "omega_rad_s": "7b14ae47e17a843f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "120",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "1"
+        },
+        "omega_rad_s": {
+          "denominator": "576460752303423488",
+          "numerator": "5764607523034235"
+        }
+      },
+      "proposed_abs_error_rad_s": "6.48633807412065869916732040081475737560351167838866486047933465594425899143109349730871045999945360697861123141203316177679220092895217640617513333211E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [
+        "down_threshold"
+      ],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.00583333333333333361667150107621182728635896558581283323391613187914833983378597170865731413869070820510387420654296875000000000000000000000000000000000",
+      "expected_binary_input_omega_nearest_binary64_le": "e5174b7eb1e4773f",
+      "id": "binary_threshold_above_-1",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111813f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f0bf",
+        "omega_rad_s": "7c14ae47e17a843f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "120",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "-1"
+        },
+        "omega_rad_s": {
+          "denominator": "144115188075855872",
+          "numerator": "1441151880758559"
+        }
+      },
+      "proposed_abs_error_rad_s": "6.48633807412065869916732040081475737560351167838866486047933465594425899143109349730871045999945360697861123141203316177679220092895217640617513333211E-16",
+      "zero_duration_identity_required": false
+    },
+    {
+      "binary64_threshold_le": "7b14ae47e17a843f",
+      "binary_input_events": [],
+      "exact_zero_required": false,
+      "expected_binary_input_omega_decimal": "0.0918331820930394051242097685211422025172983396210039081835366898182553061656578720840083288295610516408172352527235992210187492622927776199875087442530",
+      "expected_binary_input_omega_nearest_binary64_le": "b3f7c6216182b73f",
+      "id": "binary_threshold_above_+1",
+      "inputs_binary64_le": {
+        "dt_s": "111111111111813f",
+        "inertia_slug_ft2": "0000000000000040",
+        "net_power_ft_lbf_s": "000000000000f03f",
+        "omega_rad_s": "7c14ae47e17a843f"
+      },
+      "inputs_ideal_fraction": {
+        "dt_s": {
+          "denominator": "120",
+          "numerator": "1"
+        },
+        "inertia_slug_ft2": {
+          "denominator": "1",
+          "numerator": "2"
+        },
+        "net_power_ft_lbf_s": {
+          "denominator": "1",
+          "numerator": "1"
+        },
+        "omega_rad_s": {
+          "denominator": "144115188075855872",
+          "numerator": "1441151880758559"
+        }
+      },
+      "proposed_abs_error_rad_s": "6.48633807412065869916732040081475737560351167838866486047933465594425899143109349730871045999945360697861123141203316177679220092895217640617513333211E-16",
+      "zero_duration_identity_required": false
+    }
+  ]
+}

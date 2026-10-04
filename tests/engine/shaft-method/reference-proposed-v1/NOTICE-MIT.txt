@@ -1,0 +1,1 @@
+Original independent reference generator/packet and review: Copyright (c) 2026 Flight Simulator contributors. Licensed under the repository MIT license. No vendor aircraft/model outputs or calibration measurements are included.
