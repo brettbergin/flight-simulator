@@ -1059,7 +1059,8 @@
       "summary": "Make first flights accessible while preserving a shared pilot-command interface for hardware.",
       "depends_on": [
         "EPIC-P1",
-        "CORE-CONTRACTS"
+        "CORE-CONTRACTS",
+        "INPUT-CONTROLS-CONTRACT"
       ],
       "labels": [
         "type:task",
@@ -4207,6 +4208,58 @@
       ],
       "evidence": [
         "Exact reviewed contract/source references and check results; no consumer, aircraft fidelity or human phase acceptance is inferred."
+      ]
+    },
+    {
+      "key": "INPUT-CONTROLS-CONTRACT",
+      "title": "Ratify pilot input presets and paused calibration",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Ratify the small copied input mapper, paused calibration/remapping and explicit preset interchange seam before #21 consumers, preserving existing pilot authority and SQLite ownership.",
+      "depends_on": [
+        "CORE-CONTRACTS",
+        "SIM-LOOP-CONTRACT",
+        "INTERACTIVE-CONTRACT"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:input",
+        "priority:P0",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "docs/decisions/008-input-presets.md",
+        "docs/contracts.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/contracts.md",
+        "docs/decisions/004-persistence-and-replay.md",
+        "docs/decisions/006-interactive-prototype.md",
+        "docs/decisions/007-sim-loop-facade.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [
+        "REAL-021",
+        "PRD-017",
+        "PRD-020",
+        "UX-012",
+        "UX-013"
+      ],
+      "acceptance": [
+        "Publish exact copied preset/raw/mapper values, one primary source per axis, bounded calibration/shaping, actual input feedback, preserved defaults and explicit brake/idle overrides.",
+        "Define paused draft/apply/learn behavior, connection generations, no stale device-index rebinding, pause before solver advance and explicit neutral/release/soft takeover recovery.",
+        "Preserve SQLite settings ownership; define bounded explicit user-selected preset import/export with intact failed writes/imports, no serials/uploads/autoload and visibly unavailable mixture capability.",
+        "Independent review, documentation/schema checks and all protected CI precede merge; link #21 handoff and keep phase, actual hardware and pilot evaluation separate."
+      ],
+      "evidence": [
+        "Reviewed exact contract and canonical requirement/issue mapping; no consumer, hardware, aircraft, persistence-profile or phase acceptance inferred."
       ]
     }
   ]
