@@ -28,6 +28,8 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 
 | INTERACTIVE-CONTRACT | [#95 Ratify the bounded original ground-to-flight prototype contract and model](https://github.com/brettbergin/flight-simulator/issues/95) | EPIC-P0, CORE-CONTRACTS, FDM-HARNESS, GROUND-PROOF, LICENSE-REGISTER |
 
+| WHOLE-FLIGHT-PREVIEW | [#98 Deliver a Windows taxi-to-landing engineering preview](https://github.com/brettbergin/flight-simulator/issues/98) | EPIC-P0, CORE-CONTRACTS, FDM-HARNESS, GROUND-PROOF, NATIVE-EXPORT, INTERACTIVE-CONTRACT |
+
 ## P2 — First cockpit and synthetic airfield
 
 | Key | Issue | Dependencies |
