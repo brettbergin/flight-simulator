@@ -77,7 +77,7 @@ func _derive_readings(state: Dictionary, weather: Dictionary) -> Dictionary:
 		if gear.get("on_ground", false):
 			gear_on += 1
 	return {"valid": true, "tas_valid": air_valid, "tas_kt": air_ned.length() * MPS_TO_KT,
-		"ground_kt": velocity_ned.length() * MPS_TO_KT, "roll_deg": rad_to_deg(roll_rad),
+		"ground_kt": Vector2(velocity_ned.x,velocity_ned.y).length() * MPS_TO_KT, "roll_deg": rad_to_deg(roll_rad),
 		"pitch_deg": rad_to_deg(pitch_rad), "heading_deg": fposmod(rad_to_deg(heading_rad), 360.0),
 		"altitude_ft": float(state.get("position", {}).get("ellipsoid_height_m", 0.0)) * M_TO_FT,
 		"vsi_fpm": -velocity_ned.z * MPS_TO_FPM,
@@ -132,7 +132,7 @@ func _draw_topbar() -> void:
 	if _info.get("blocked",false) or _info.get("stalled",false):
 		status="RESTART REQUIRED"
 		status_color=RED
-	if _readings.get("valid", false) == false:
+	if _readings.get("valid", false) == false and not _info.get("blocked",false) and not _info.get("stalled",false):
 		status = "WAITING FOR STATE"
 		status_color = MUTED
 	draw_circle(Vector2(318, 23), 3, status_color, true, -1, true)
@@ -140,6 +140,8 @@ func _draw_topbar() -> void:
 	var view_name := str(_info.get("view_name", "FLIGHT VIEW")).to_upper()
 	_text(Vector2(width * 0.61, 28), view_name, 12, MUTED, true)
 	_text(Vector2(width - 225, 28), "P  PAUSE     R  RESET     H  HELP", 11, MUTED)
+	if not _info.get("blocked",false) and not _info.get("stalled",false):
+		_text(Vector2(width*0.43,28),"PAD" if str(_info.get("input_name","")).begins_with("Gamepad") else "KEYBOARD",10,MUTED,true)
 	if _info.get("blocked",false) or _info.get("stalled",false):
 		draw_rect(Rect2(0,46,width,32),Color("492a20"))
 		_text(Vector2(18,68),str(_info.get("status","Flight stopped; R starts a fresh attempt")).left(int((width-36)/7.5)),13,AMBER)

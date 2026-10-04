@@ -506,6 +506,8 @@ func make_world() -> void:
 
 func show_state() -> void:
 	if snapshot.is_empty():
+		if panel != null:
+			panel.call("set_state",{}, {},held_controls,{"status":status,"outcome":"error","blocked":blocked,"stalled":stalled,"paused":paused,"input_name":"Keyboard"})
 		return
 	var q: Quaternion = body_quaternion()
 	var basis: Basis = visual_basis(q)
@@ -528,6 +530,7 @@ func show_state() -> void:
 		look_target=airplane.position+basis*Vector3(0,0.5,-4)
 	else:
 		target_position=airplane.position+Vector3(sin(look_angles.x)*camera_distance,(0.25+sin(look_angles.y))*camera_distance,cos(look_angles.x)*camera_distance)
+		target_position.y=maxf(target_position.y,0.35)
 		look_target=airplane.position+Vector3.UP*0.4
 	if camera_mode==0 or not camera_ready or paused:
 		camera.position=target_position
@@ -538,7 +541,7 @@ func show_state() -> void:
 	if propeller!=null and not paused:
 		propeller.rotate_z(get_process_delta_time()*(25+float(held_controls.throttle)*65))
 	var view_names: Array[String]=["COCKPIT","CHASE","ORBIT"]
-	var input_name: String = "Smooth keyboard" if joy_device<0 else "Gamepad · "+Input.get_joy_name(joy_device)
+	var input_name: String = "Keyboard %.1fx · smooth" % input_sensitivity if joy_device<0 else "Gamepad %.1fx · " % input_sensitivity+Input.get_joy_name(joy_device)
 	panel.call("set_state",snapshot,atmosphere,held_controls,{"status":status,"outcome":native_outcome,"blocked":blocked,"stalled":stalled,"paused":paused,"brake_hold":brake_hold,"view_name":view_names[camera_mode],"clearance_m":plane_clearance,"ground_valid":ground_valid,"input_name":input_name,"audio_enabled":audio_enabled})
 
 func check(condition: bool, description: String) -> void:
@@ -635,6 +638,21 @@ func run_ux_checks() -> void:
 	check(absf(float(controls.roll)-0.26)<0.00001,"ux_keyboard_release_ramps_to_neutral")
 	read_keyboard(0.4)
 	check(absf(float(controls.roll))<0.00001,"ux_keyboard_neutral_preserves_trim_baseline")
+	var saved_snapshot: Dictionary = snapshot.duplicate(true)
+	var saved_status: String = status
+	snapshot={}
+	blocked=true
+	status="Initialization unavailable; R starts a fresh attempt"
+	show_state()
+	check(panel.get("_info").blocked and panel.get("_info").status==status,"ux_missing_initial_state_fault_reaches_panel")
+	snapshot=saved_snapshot
+	blocked=false
+	status=saved_status
+	var climb: Dictionary=snapshot.duplicate(true)
+	climb.orientation_body_to_ned={"w":1.0,"x":0.0,"y":0.0,"z":0.0}
+	climb.velocity_body_mps={"x":30.0,"y":40.0,"z":12.0}
+	var readings: Dictionary=panel.call("_derive_readings",climb,atmosphere)
+	check(absf(float(readings.ground_kt)-50.0*1.9438444924406)<0.000001,"ux_groundspeed_excludes_vertical_component")
 	evidence["ux_scope"]="Actual menu/native state and camera checks; synthetic keyboard/gamepad mapping, not hardware acceptance"
 
 func any_wow() -> bool:
