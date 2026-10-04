@@ -30,6 +30,8 @@ The [reusable flight-loop integration](evidence/P2/sim-loop.md) prepares the acc
 
 The [paused Controls and preset iteration](evidence/P2/input-controls.md) prepares explicit remapping, observed-device calibration and safe takeover over the same native flight loop. Presets remain guest interchange files; manual hardware and phase qualification remain separate.
 
+The [shared native-truth cockpit and instrument scan](evidence/P2/cockpit-readability.md) adds a paused readability view and one reading source for the physical dashboard, overlay and focused dial. Sensed instruments and aircraft qualification remain separate requirements.
+
 ## Read in this order
 
 1. [Product scope and requirements](product.md): expected pilot experience and initial boundaries.

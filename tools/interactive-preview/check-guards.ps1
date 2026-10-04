@@ -44,3 +44,28 @@ $rejected=$false
 try{Get-SimulationSourceSnapshot (Join-Path $stage 'input_tests') -RequiredEntries @('input_checks.gd','scene_checks.gd','reference.json')|Out-Null}catch{$rejected=$true}
 if(-not $rejected){throw 'Input staging accepted missing analytic reference'}
 Write-Output 'Input/UI/tests exact recursive staging and changed/missing source negatives passed.'
+
+# Bound cockpit views, independent reading references and original provenance.
+$cockpitGroups=@(Get-CockpitSourceGroups $repo)
+$cockpitStage=Join-Path $repo ('.local/cockpit-staging-test/'+[Guid]::NewGuid().ToString('N'))
+Copy-CockpitSourceGroups $repo $cockpitStage $cockpitGroups
+Assert-CockpitSourceGroups $cockpitStage $cockpitGroups
+$scan=Join-Path $cockpitStage 'cockpit/instruments/scan_panel.gd'
+$scanBytes=[IO.File]::ReadAllBytes($scan)
+[IO.File]::WriteAllText($scan,'extends Control # mutated cockpit stage')
+$rejected=$false
+try{Assert-CockpitSourceGroups $cockpitStage $cockpitGroups}catch{$rejected=$true}
+if(-not $rejected){throw 'Cockpit staging accepted changed scan panel bytes'}
+[IO.File]::WriteAllBytes($scan,$scanBytes)
+$reference=Join-Path $cockpitStage 'instrument_tests/reference.json'
+Move-Item -LiteralPath $reference -Destination ($reference+'.unbound')
+$rejected=$false
+try{Assert-CockpitSourceGroups $cockpitStage $cockpitGroups}catch{$rejected=$true}
+if(-not $rejected){throw 'Cockpit staging accepted missing frozen reading reference'}
+Move-Item -LiteralPath ($reference+'.unbound') -Destination $reference
+$provenance=Join-Path $cockpitStage 'content/aircraft/prototype/cockpit-presentation.json'
+[IO.File]::WriteAllText($provenance,'{}')
+$rejected=$false
+try{Assert-CockpitSourceGroups $cockpitStage $cockpitGroups}catch{$rejected=$true}
+if(-not $rejected){throw 'Cockpit staging accepted changed original provenance'}
+Write-Output 'Cockpit/readings/provenance exact recursive staging and changed/missing source negatives passed.'

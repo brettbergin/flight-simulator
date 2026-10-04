@@ -8,6 +8,11 @@ const Participant = preload("res://simulation/origin_participant.gd")
 const Mapper = preload("res://input/input_mapper.gd")
 const Preset = preload("res://input/input_preset.gd")
 const ControlsPanel = preload("res://ui/controls/controls_panel.gd")
+const NativeReadings = preload("res://cockpit/instruments/native_readings.gd")
+const ScanPanel = preload("res://cockpit/instruments/scan_panel.gd")
+var shared_readings: Dictionary={}
+var scan_panel: Control
+var scan_open: bool=false
 var mapper: RefCounted
 var active_preset: Dictionary={}
 var controls_panel: Control
@@ -43,6 +48,10 @@ func _ready() -> void:
 		for device in Input.get_connected_joypads():
 			observe_connection(device,true)
 	super._ready()
+	if not legacy_proof and "--instrument-visual-smoke" in OS.get_cmdline_user_args():
+		set_process(false)
+		call_deferred("run_instrument_visual")
+		return
 	if not legacy_proof and facade_visual:
 		set_process(false)
 		call_deferred("run_facade_visual")
@@ -294,7 +303,21 @@ func make_menu(canvas: CanvasLayer) -> void:
 			box.remove_child(child)
 			child.queue_free()
 	var controls_button: Button=add_menu_button(box,"Controls and calibration  (F7)",open_controls)
-	box.move_child(controls_button,5)
+	var scan_button: Button=add_menu_button(box,"Instrument scan",open_instrument_scan)
+	var cockpit_row:=HBoxContainer.new()
+	cockpit_row.add_theme_constant_override("separation",8)
+	box.add_child(cockpit_row)
+	box.move_child(cockpit_row,5)
+	for button in [controls_button,scan_button]:
+		button.reparent(cockpit_row)
+		button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+		button.add_theme_font_size_override("font_size",15)
+	scan_panel=ScanPanel.new()
+	canvas.add_child(scan_panel)
+	scan_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	scan_panel.hide()
+	scan_panel.focus_selected.connect(on_instrument_selected)
+	scan_panel.dismissed.connect(dismiss_instrument_scan)
 	speed_button=add_menu_button(box,"Flight speed: 1x  (F5 / F6)",cycle_flight_scale)
 	box.move_child(speed_button,6)
 	controls_panel=ControlsPanel.new()
@@ -624,11 +647,10 @@ func show_state(seconds: float=0.0) -> void:
 			var fault_info: Dictionary={"status":status,"outcome":"error","blocked":blocked,"stalled":stalled,"paused":paused,"input_name":active_preset.get("name","Controls")}
 			fault_info.blocked=true
 			fault_info.paused=true
-			panel.call("set_state",snapshot,atmosphere,held_controls,fault_info)
-			cockpit_panel.call("set_state",snapshot,atmosphere,held_controls,fault_info)
+			publish_readings(current,fault_info)
 			flight_map.call("set_state",snapshot,Vector3.ZERO,Basis.IDENTITY,fault_info)
 		return
-	var truth: Dictionary=facade.readback()
+	var truth: Dictionary=current
 	var canonical: Dictionary=truth.canonical
 	var native_basis: Basis=Frames.transform([0.0,0.0,0.0],canonical.body_to_anchor_eus).basis
 	var raw: Array=canonical.anchor_eus_position_m
@@ -641,8 +663,7 @@ func show_state(seconds: float=0.0) -> void:
 		light_root.hide()
 		status="PRESENTATION PAUSED | "+rendered.error+" | R resets"
 		var fault_info: Dictionary={"status":status,"outcome":native_outcome,"blocked":true,"stalled":stalled,"paused":true,"input_name":active_preset.get("name","Controls"),"clearance_m":plane_clearance,"ground_valid":ground_valid}
-		panel.call("set_state",snapshot,atmosphere,held_controls,fault_info)
-		cockpit_panel.call("set_state",snapshot,atmosphere,held_controls,fault_info)
+		publish_readings(current,fault_info)
 		flight_map.call("set_state",snapshot,native_position,native_basis,fault_info)
 		return
 	world_root.show()
@@ -699,8 +720,7 @@ func show_state(seconds: float=0.0) -> void:
 	if not input_problem.is_empty():
 		input_name+=" / "+input_problem
 	var display_info: Dictionary={"status":status,"outcome":native_outcome,"blocked":blocked,"stalled":stalled,"paused":paused,"brake_hold":brake_hold,"view_name":view_names[camera_mode],"clearance_m":plane_clearance,"ground_valid":ground_valid,"input_name":input_name,"input_label":"CONTROLS","audio_enabled":audio_enabled}
-	panel.call("set_state",snapshot,atmosphere,held_controls,display_info)
-	cockpit_panel.call("set_state",snapshot,atmosphere,held_controls,display_info)
+	publish_readings(current,display_info)
 	flight_map.call("set_state",snapshot,native_position,native_basis,display_info)
 	update_canonical_scene_sources()
 
@@ -818,3 +838,124 @@ func run_input_visual() -> void:
 	receipt.close()
 	print("CONTROLS_VISUAL_SMOKE ",JSON.stringify(report))
 	get_tree().quit(0 if failures.is_empty() else 1)
+
+# Original MIT view-only instrument routing over accepted native readback.
+func publish_readings(readback: Dictionary, info: Dictionary) -> void:
+	shared_readings=NativeReadings.from_readback(readback)
+	var source: Dictionary=readback.aircraft if readback.get("aircraft") is Dictionary else {}
+	var held: Dictionary=readback.held_axes if readback.get("held_axes") is Dictionary else {}
+	panel.call("set_native_readings",shared_readings,source,held,info)
+	cockpit_panel.call("set_native_readings",shared_readings,source,held,info)
+	if scan_panel!=null:
+		var scan_info: Dictionary={"view_name":str(info.get("view_name",["COCKPIT","CHASE","ORBIT","PANEL"][camera_mode])).left(128),"paused":shared_readings.state=="paused","historical":shared_readings.state=="historical","status":str(info.get("status",status)).left(1024)}
+		scan_panel.call("set_readings",shared_readings,scan_info)
+		scan_panel.visible=scan_open or scan_panel.call("focused")!=null
+		# Full-rect scan UI captures clicks only when its paused selection screen
+		# is open. The ordinary menu and Resume remain accessible otherwise.
+		scan_panel.mouse_filter=Control.MOUSE_FILTER_PASS if scan_open and shared_readings.state=="paused" else Control.MOUSE_FILTER_IGNORE
+		scan_panel.z_index=-1 if menu_open and not scan_open else 1
+
+func open_instrument_scan() -> void:
+	# Selection belongs to an already paused menu. Never pauses native flight,
+	# primes mapper edges, suppresses mouse bindings or changes the prior camera.
+	if legacy_proof or facade==null or not paused or facade.readback().host_mode!="paused":
+		return
+	if controls_panel!=null and controls_panel.visible:
+		return
+	scan_open=true
+	menu_open=true
+	menu.hide()
+	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
+	show_state(0)
+
+func dismiss_instrument_scan() -> void:
+	if legacy_proof or not paused:
+		return
+	scan_open=false
+	menu.show()
+	resume_button.grab_focus()
+	show_state(0)
+
+func on_instrument_selected(_instrument: String) -> void:
+	# The selected dial remains alongside flight after explicit Resume through
+	# the existing released-control/native-acceptance gate.
+	dismiss_instrument_scan()
+
+func open_menu(title: String="Flight paused") -> void:
+	if not legacy_proof:
+		scan_open=false
+	super.open_menu(title)
+
+func close_menu() -> void:
+	if not legacy_proof and scan_open:
+		# Escape/P returns to the menu first. Only the ordinary Resume action
+		# performs the existing native/mapper lifecycle operation.
+		dismiss_instrument_scan()
+		return
+	super.close_menu()
+
+func run_instrument_visual() -> void:
+	# Bounded GPU evidence over the actual original native model. Synthetic bad
+	# publications below are view fixtures after a confirmed worker join only.
+	failures=[]
+	evidence={"scope":"Original prototype native-truth cockpit presentation; no sensor, C172, hardware or phase qualification","views":[]}
+	var dimensions: Array=[Vector2i(960,540),Vector2i(1920,1080),Vector2i(2560,1440)]
+	for index in dimensions.size():
+		if index>0:
+			check(restart(),"instrument_visual_fresh_worker_"+str(index))
+		DisplayServer.window_set_size(dimensions[index])
+		await get_tree().process_frame
+		await get_tree().process_frame
+		var prefix: String="instrument-"+str(dimensions[index].x)
+		var native: Dictionary=facade.readback()
+		check(native.host_mode=="paused" and native.tick=="0","instrument_visual_actual_paused_tick0_"+str(index))
+		menu_open=false;menu.hide();scan_open=false
+		set_camera_mode(1)
+		await save_view(prefix+"-outside")
+		check(facade.readback()==native,"instrument_visual_outside_native_unchanged_"+str(index))
+		set_camera_mode(0)
+		await save_view(prefix+"-cockpit")
+		set_camera_mode(3)
+		await save_view(prefix+"-dashboard")
+		set_camera_mode(1)
+		open_instrument_scan()
+		await save_view(prefix+"-scan")
+		for instrument in ["tas","attitude","ellipsoid_height","heading_true","body_yaw_rate","vertical_speed"]:
+			open_instrument_scan()
+			check(scan_panel.call("focus",instrument),"instrument_visual_paused_focus_"+str(index)+"_"+instrument)
+			menu_open=false;menu.hide();scan_open=false
+			await save_view(prefix+"-"+instrument)
+			check(facade.readback()==native,"instrument_visual_focus_native_unchanged_"+str(index)+"_"+instrument)
+		var closed: Dictionary=facade.close()
+		check(closed.ok and not closed.readback.native_live,"instrument_visual_confirmed_join_"+str(index))
+		adopt_result(closed)
+		await save_view(prefix+"-retained")
+		check(shared_readings.state=="historical" and panel.get("_info").retained and cockpit_panel.get("_info").retained,"instrument_visual_retained_all_views_"+str(index))
+		var invalid: Dictionary=closed.readback.duplicate(true)
+		invalid.tick=0.0
+		publish_readings(invalid,{"status":"SYNTHETIC INVALID VIEW FIXTURE","paused":true,"view_name":"UNAVAILABLE"})
+		scan_open=true;scan_panel.show()
+		# save_view republishes actual truth; capture this explicitly labeled bad
+		# view after it has drawn without republishing or advancing the facade.
+		await RenderingServer.frame_post_draw
+		await RenderingServer.frame_post_draw
+		var output: String=OS.get_executable_path().get_base_dir() if not OS.has_feature("editor") else ProjectSettings.globalize_path("res://")
+		var image: Image=get_viewport().get_texture().get_image()
+		check(image.save_png(output.path_join(prefix+"-invalid.png"))==OK,"instrument_visual_invalid_png_"+str(index))
+		check(image.get_width()==dimensions[index].x and image.get_height()==dimensions[index].y,"instrument_visual_actual_invalid_dimensions_"+str(index))
+		check(shared_readings.state=="invalid" and not panel.get("_readings").valid and not cockpit_panel.get("_readings").valid,"instrument_visual_invalid_all_views_"+str(index))
+		check(facade.readback()==closed.readback,"instrument_visual_closed_native_unchanged_"+str(index))
+		for name in ["outside","cockpit","dashboard","scan","tas","attitude","ellipsoid_height","heading_true","body_yaw_rate","vertical_speed","retained"]:
+			var actual_size: Dictionary=evidence.get(prefix+"-"+name+"_size",{})
+			check(actual_size.get("width")==dimensions[index].x and actual_size.get("height")==dimensions[index].y,"instrument_visual_actual_dimensions_"+str(index)+"_"+name)
+		evidence.views.append({"width":image.get_width(),"height":image.get_height(),"native_tick":native.tick,"session_id":native.session_id,"default_eye":[cockpit.eye.x,cockpit.eye.y,cockpit.eye.z],"default_panel_focus":[cockpit.panel_focus.x,cockpit.panel_focus.y,cockpit.panel_focus.z]})
+	var joined: bool=close_session()
+	if sound!=null:
+		joined=bool(await sound.call("shutdown")) and joined
+	check(joined,"instrument_visual_final_worker_and_audio_joined")
+	var output: String=OS.get_executable_path().get_base_dir() if not OS.has_feature("editor") else ProjectSettings.globalize_path("res://")
+	var receipt: Dictionary={"passed":failures.is_empty(),"failures":failures,"evidence":evidence,"scope":"Actual exported GPU observer with paused native model; view fixtures explicitly labeled. No input hardware, sensed instruments, aircraft or phase acceptance."}
+	var file=FileAccess.open(output.path_join("instrument-visual-receipt.json"),FileAccess.WRITE)
+	file.store_string(JSON.stringify(receipt,"  "));file.close()
+	print("INSTRUMENT_VISUAL_PASSED" if receipt.passed else "INSTRUMENT_VISUAL_FAILED")
+	get_tree().quit(0 if receipt.passed else 1)

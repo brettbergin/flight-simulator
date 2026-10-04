@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "id": "original-conventional-cockpit-presentation",
+  "version": "0.1.0-prototype",
+  "kind": "original-presentation-provenance",
+  "status": "generic procedural engineering cockpit; no manufacturer dimensions or sight-picture qualification",
+  "author": "Flight Simulator contributors",
+  "license": "MIT",
+  "license_source": "LICENSE",
+  "usage": "Traceability for original presentation choices; not a runtime aircraft loader or sensed-instrument definition.",
+  "units": {
+    "geometry": "m",
+    "fov": "deg",
+    "texture": "px"
+  },
+  "local_axes": {
+    "x": "right",
+    "y": "up",
+    "z": "aft"
+  },
+  "sources": [
+    "app/proof/interactive/flight_cockpit.gd",
+    "app/proof/interactive/flight_panel.gd",
+    "app/proof/interactive/preview.gd",
+    "app/simulation/flight_scene.gd"
+  ],
+  "geometry": {
+    "roof_size_m": [
+      1.4,
+      0.08,
+      2.06
+    ],
+    "floor_size_m": [
+      1.32,
+      0.08,
+      1.96
+    ],
+    "panel_surface_size_m": [
+      1.115,
+      0.5575
+    ],
+    "panel_surface_center_m": [
+      0.0,
+      0.255,
+      -1.535
+    ],
+    "yoke_home_m": [
+      -0.27,
+      0.075,
+      -1.265
+    ],
+    "throttle_home_m": [
+      0.22,
+      -0.07,
+      -1.305
+    ],
+    "pilot_eye_m": [
+      -0.27,
+      0.67,
+      -0.92
+    ],
+    "panel_focus_m": [
+      -0.08,
+      0.255,
+      -1.535
+    ]
+  },
+  "views": {
+    "forward_fov_deg": 72,
+    "whole_panel_fov_deg": 58,
+    "adjustable_fov_deg": [
+      35,
+      90
+    ],
+    "forward_direction_local": [
+      0.0,
+      -0.268,
+      -1.0
+    ],
+    "forward_direction_normalized_at_runtime": true,
+    "default_outside_view": "third-person follow; eye and target share the adopted presentation pose",
+    "instrument_focus": "view-only; selection and dismissal while paused; no mapped input suppression"
+  },
+  "panel_texture_px": [
+    1024,
+    512
+  ],
+  "readings_status": "Native truth / prototype; TAS, WGS84 ellipsoid height, true heading, kinematic VSI and body yaw are distinct from sensed instruments.",
+  "limitations": [
+    "No source-specific cockpit geometry, GLB export or manufacturer asset is represented.",
+    "No IAS, MSL/barometric altitude, magnetic compass, powered instrument, sensor failure or lag is established by this manifest.",
+    "Geometry has no aircraft collider or flight-authority role; animated controls copy native-held fractions.",
+    "Physical controller walkthrough, pilot review and phase acceptance remain separate."
+  ]
+}

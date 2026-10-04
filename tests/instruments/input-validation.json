@@ -1,0 +1,6 @@
+{
+  "passed": true,
+  "checked_v1_records": 58,
+  "failures": [],
+  "scope": "Accepted schema+semantic validation of independent input records only; no NativeReadings consumer import or observation"
+}
