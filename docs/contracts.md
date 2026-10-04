@@ -125,3 +125,7 @@ The schema suite checks all14 boundaries/hash fixtures, incompatible/unknown pay
 ## Pilot input preset and calibration seam
 
 [ADR008](decisions/008-input-presets.md) defines the proposed copied preset/raw/mapper interface before [#21](https://github.com/brettbergin/flight-simulator/issues/21) consumers; it becomes normative after [#116](https://github.com/brettbergin/flight-simulator/issues/116)'s contract PR merges. Input mapping owns pilot intent only, with one selected source per axis, paused calibration and generation-safe takeover. The flight facade retains native clock/admission/pause authority. Explicit user-selected preset interchange preserves ADR004 SQLite settings ownership; it adds no automatic profile store or native/wire schema. Current mixture capability remains1, and actual hardware/phase acceptance stays separate.
+
+## Native-truth cockpit reading and scan seam
+
+[ADR009](decisions/009-cockpit-readings.md), proposed by [#119](https://github.com/brettbergin/flight-simulator/issues/119), defines copied binary64 SI readings from the verified facade Readback and view-only scan focus before cockpit consumers. It reuses full v1 validation, preserves canonical tick identities and explicitly marks unavailable/singular/historical data. This original prototype seam does not supply InstrumentSnapshot sensors, C172 geometry, power/failure/lag, native or input authority, or phase acceptance. Consumers wait its checked contract merge and checked [PR118](https://github.com/brettbergin/flight-simulator/pull/118) controls delivery.
