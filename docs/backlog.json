@@ -3914,6 +3914,54 @@
       "evidence": [
         "Exact package/source identities, scoped actual functional and graphical evidence, local runnable handoff, independent review and protected CI. P1/#18 and production P2/C172 gates remain open."
       ]
+    },
+    {
+      "key": "COCKPIT-UX",
+      "title": "Add a physical prototype cockpit, focused panel view and local flight map",
+      "kind": "spike",
+      "phase": "P1",
+      "parent": "EPIC-P1",
+      "summary": "Extend the accepted original flight preview with a procedural cockpit interior, live physical dashboard, readable compact instruments, dedicated panel view and copied-state synthetic-airfield map.",
+      "depends_on": [
+        "FLIGHT-UX"
+      ],
+      "labels": [
+        "type:spike",
+        "phase:P1",
+        "area:ui",
+        "priority:P0",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "app/proof/interactive/",
+        "tools/interactive-preview/",
+        "docs/evidence/P1/cockpit-ux.md"
+      ],
+      "docs": [
+        "docs/experience-and-progress.md",
+        "docs/decisions/006-interactive-prototype.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [
+        "UX-001",
+        "UX-002",
+        "UX-009",
+        "UX-010",
+        "UX-011",
+        "UX-012",
+        "PRD-015",
+        "PRD-016",
+        "PRD-034"
+      ],
+      "acceptance": [
+        "Original procedural cockpit interior provides clear windshield/side-window/dashboard/yoke cues without external assets, colliders, fabricated systems or C172 dimensional/fidelity claims. Cockpit pose and animation consume copied native state/held controls only.",
+        "Live native-truth instruments appear on a physical dashboard with a focused panel view; compact overlay readouts avoid the previously observed internal label overlap. Sources and prototype limits remain visible, including faults when the overlay is hidden.",
+        "An optional bounded north-up synthetic-airfield map displays aircraft position/heading and a session-scoped sampled trail in the same accepted tangent frame as scenery; zoom/camera/map actions preserve aircraft state. Reset clears prior-session history.",
+        "Existing actual whole-flight editor/export/replacement checks and targeted cockpit/map/pause/restart tests pass; exported reference-PC graphics verify the cockpit, panel, look-around, map and resized views. Freeze and independently review exact source/package bindings."
+      ],
+      "evidence": [
+        "Local runnable handoff with checked artifact identities, actual exported GPU viewport captures, independent source/package review and four protected CI checks. P1/#18, production P2, C172 calibration/sensors, real-airport/navigation and training qualification gates remain open."
+      ]
     }
   ]
 }

@@ -24,6 +24,12 @@ var airplane: Node3D
 var camera: Camera3D
 var label: Label
 var panel: Control
+var cockpit_panel: Control
+var panel_viewport: SubViewport
+var cockpit_builder: RefCounted
+var cockpit: Dictionary = {}
+var flight_map: Control
+var map_visible: bool = false
 var menu: PanelContainer
 var menu_title: Label
 var menu_message: Label
@@ -63,6 +69,7 @@ var event_count: int = 0
 
 func _ready() -> void:
 	get_tree().auto_accept_quit=false
+	get_window().min_size=Vector2i(960,540)
 	smoke = "--smoke" in OS.get_cmdline_user_args()
 	visual_smoke = "--visual-smoke" in OS.get_cmdline_user_args()
 	if "--airborne" in OS.get_cmdline_user_args():
@@ -296,8 +303,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if event.pressed else Input.MOUSE_MODE_VISIBLE
 		elif event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN]:
 			var direction: float = -1.0 if event.button_index==MOUSE_BUTTON_WHEEL_UP else 1.0
-			if camera_mode==0:
-				camera.fov=clampf(camera.fov+direction*3,45,90)
+			if camera_mode in [0,3]:
+				camera.fov=clampf(camera.fov+direction*3,35,90)
 			else:
 				camera_distance=clampf(camera_distance+direction,6,40)
 	elif event is InputEventMouseMotion and Input.mouse_mode==Input.MOUSE_MODE_CAPTURED:
@@ -331,13 +338,24 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		KEY_B:
 			brake_hold=not brake_hold
 		KEY_C:
-			set_camera_mode((camera_mode+1)%3)
+			set_camera_mode((camera_mode+1)%4)
 		KEY_1:
 			set_camera_mode(0)
 		KEY_2:
 			set_camera_mode(1)
 		KEY_3:
 			set_camera_mode(2)
+		KEY_4:
+			set_camera_mode(3)
+		KEY_TAB:
+			map_visible=not map_visible
+			flight_map.visible=map_visible
+		KEY_EQUAL,KEY_KP_ADD:
+			if map_visible:
+				flight_map.call("zoom",0.5)
+		KEY_MINUS,KEY_KP_SUBTRACT:
+			if map_visible:
+				flight_map.call("zoom",2.0)
 		KEY_HOME:
 			look_angles=Vector2.ZERO
 		KEY_H:
@@ -357,11 +375,18 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 
 func set_camera_mode(value: int) -> void:
-	camera_mode=value
-	forward_view=camera_mode==0
+	camera_mode=clampi(value,0,3)
+	forward_view=camera_mode in [0,3]
 	look_angles=Vector2.ZERO
 	camera_ready=false
-	camera.fov=72
+	camera.fov=58 if camera_mode==3 else 72
+	# Preserve depth precision for millimetre-height runway markings. Cabin
+	# surfaces are farther than this plane; a tiny near plane erases the runway.
+	camera.near=0.1
+	panel_visible=not forward_view
+	panel.call("set_panel_visible",panel_visible)
+	if panel_viewport!=null:
+		panel_viewport.render_target_update_mode=SubViewport.UPDATE_ALWAYS if forward_view else SubViewport.UPDATE_DISABLED
 
 func start_flight(start: String) -> void:
 	named_start=start
@@ -379,7 +404,8 @@ func open_menu(title: String="Flight paused") -> void:
 	menu_message.text="Original light-aircraft prototype · synthetic airfield
 Engine already running. Instrument panel shows derived native truth.
 Arrows fly · W/S throttle · A/D yaw · B brake hold · H help
-Right mouse look · 1/2/3 cameras · scroll zoom · Home recenter"
+1 cockpit · 2 chase · 3 orbit · 4 panel · Tab flight map
+Right mouse look · scroll zoom · Home recenter · V overlay"
 	resume_button.disabled=blocked or stalled
 	menu.show()
 	resume_button.grab_focus()
@@ -393,8 +419,8 @@ func close_menu() -> void:
 func make_menu(canvas: CanvasLayer) -> void:
 	menu=PanelContainer.new()
 	menu.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	menu.position=Vector2(-270,-240)
-	menu.custom_minimum_size=Vector2(540,480)
+	menu.position=Vector2(-280,-245)
+	menu.custom_minimum_size=Vector2(560,490)
 	var style:=StyleBoxFlat.new()
 	style.bg_color=Color(0.025,0.045,0.065,0.97)
 	style.border_color=Color(0.24,0.58,0.72)
@@ -498,6 +524,20 @@ func make_world() -> void:
 	panel=load("res://interactive/flight_panel.gd").new()
 	canvas.add_child(panel)
 	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	panel_viewport=SubViewport.new()
+	panel_viewport.size=Vector2i(1024,512)
+	panel_viewport.disable_3d=true
+	panel_viewport.render_target_update_mode=SubViewport.UPDATE_ALWAYS
+	add_child(panel_viewport)
+	cockpit_panel=load("res://interactive/flight_panel.gd").new()
+	panel_viewport.add_child(cockpit_panel)
+	cockpit_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	cockpit_panel.call("set_cockpit_surface",true)
+	cockpit_builder=load("res://interactive/flight_cockpit.gd").new()
+	cockpit=cockpit_builder.call("build",self,panel_viewport.get_texture())
+	flight_map=load("res://interactive/flight_map.gd").new()
+	canvas.add_child(flight_map)
+	flight_map.hide()
 	make_menu(canvas)
 	if ResourceLoader.exists("res://interactive/flight_sound.gd"):
 		sound=load("res://interactive/flight_sound.gd").new()
@@ -507,23 +547,31 @@ func make_world() -> void:
 func show_state() -> void:
 	if snapshot.is_empty():
 		if panel != null:
-			panel.call("set_state",{}, {},held_controls,{"status":status,"outcome":"error","blocked":blocked,"stalled":stalled,"paused":paused,"input_name":"Keyboard"})
+			var fault_info: Dictionary={"status":status,"outcome":"error","blocked":blocked,"stalled":stalled,"paused":paused,"input_name":"Keyboard"}
+			panel.call("set_state",{}, {},held_controls,fault_info)
+			cockpit_panel.call("set_state",{}, {},held_controls,fault_info)
+			flight_map.call("set_state",{},Vector3.ZERO,Basis.IDENTITY)
 		return
 	var q: Quaternion = body_quaternion()
 	var basis: Basis = visual_basis(q)
 	airplane.transform=Transform3D(basis,visual_position())
+	cockpit.root.transform=airplane.transform
+	cockpit.root.visible=camera_mode in [0,3]
+	cockpit_builder.call("update_controls",held_controls)
 	for contact in snapshot.contacts:
 		if gears.has(contact.id):
 			var point: Dictionary = contact.point_body_m
 			gears[contact.id].position=Vector3(float(point.y),-float(point.z),-float(point.x))
-	airplane.visible=camera_mode!=0
+	airplane.visible=camera_mode not in [0,3]
 	var target_position: Vector3
 	var look_target: Vector3
 	var up: Vector3 = Vector3.UP
-	if camera_mode==0:
-		target_position=airplane.position+basis*Vector3(0,0.65,-1.1)
-		var direction:=Vector3(sin(look_angles.x)*cos(look_angles.y),sin(look_angles.y),-cos(look_angles.x)*cos(look_angles.y))
-		look_target=target_position+basis*direction*60
+	if camera_mode in [0,3]:
+		var eye: Vector3=cockpit.eye
+		target_position=airplane.position+basis*eye
+		var base_direction: Vector3=(cockpit.panel_focus-eye).normalized() if camera_mode==3 else Vector3(0,-0.268,-1).normalized()
+		var gaze: Basis=Basis(Vector3.UP,-look_angles.x)*Basis(Vector3.RIGHT,look_angles.y)
+		look_target=target_position+basis*(gaze*base_direction)*60
 		up=basis.y
 	elif camera_mode==1:
 		target_position=airplane.position+basis*Vector3(sin(look_angles.x)*camera_distance,3.5+look_angles.y*5,cos(look_angles.x)*camera_distance)
@@ -532,7 +580,7 @@ func show_state() -> void:
 		target_position=airplane.position+Vector3(sin(look_angles.x)*camera_distance,(0.25+sin(look_angles.y))*camera_distance,cos(look_angles.x)*camera_distance)
 		target_position.y=maxf(target_position.y,0.35)
 		look_target=airplane.position+Vector3.UP*0.4
-	if camera_mode==0 or not camera_ready or paused:
+	if camera_mode in [0,3] or not camera_ready or paused:
 		camera.position=target_position
 	else:
 		camera.position=camera.position.lerp(target_position,1.0-exp(-9.0*get_process_delta_time()))
@@ -540,9 +588,14 @@ func show_state() -> void:
 	camera.look_at(look_target,up)
 	if propeller!=null and not paused:
 		propeller.rotate_z(get_process_delta_time()*(25+float(held_controls.throttle)*65))
-	var view_names: Array[String]=["COCKPIT","CHASE","ORBIT"]
+	var view_names: Array[String]=["COCKPIT","CHASE","ORBIT","PANEL"]
 	var input_name: String = "Keyboard %.1fx · smooth" % input_sensitivity if joy_device<0 else "Gamepad %.1fx · " % input_sensitivity+Input.get_joy_name(joy_device)
-	panel.call("set_state",snapshot,atmosphere,held_controls,{"status":status,"outcome":native_outcome,"blocked":blocked,"stalled":stalled,"paused":paused,"brake_hold":brake_hold,"view_name":view_names[camera_mode],"clearance_m":plane_clearance,"ground_valid":ground_valid,"input_name":input_name,"audio_enabled":audio_enabled})
+	var display_info: Dictionary={"status":status,"outcome":native_outcome,"blocked":blocked,"stalled":stalled,"paused":paused,"brake_hold":brake_hold,"view_name":view_names[camera_mode],"clearance_m":plane_clearance,"ground_valid":ground_valid,"input_name":input_name,"audio_enabled":audio_enabled}
+	panel.call("set_state",snapshot,atmosphere,held_controls,display_info)
+	cockpit_panel.call("set_state",snapshot,atmosphere,held_controls,display_info)
+	flight_map.size=Vector2(minf(310,get_viewport().get_visible_rect().size.x*0.32),minf(350,get_viewport().get_visible_rect().size.y-90))
+	flight_map.position=Vector2(get_viewport().get_visible_rect().size.x-flight_map.size.x-14,64)
+	flight_map.call("set_state",snapshot,airplane.position,basis)
 
 func check(condition: bool, description: String) -> void:
 	if not condition:
@@ -607,7 +660,7 @@ func run_ux_checks() -> void:
 	key.pressed=true
 	_unhandled_key_input(key)
 	check(named_start=="ground-ready" and last_aircraft_json==saved,"ux_menu_consumes_flight_shortcuts")
-	for view in range(3):
+	for view in range(4):
 		set_camera_mode(view)
 		show_state()
 		check(last_aircraft_json==saved and held_controls==saved_controls,"ux_camera_%d_does_not_mutate_flight" % view)
@@ -645,6 +698,7 @@ func run_ux_checks() -> void:
 	status="Initialization unavailable; R starts a fresh attempt"
 	show_state()
 	check(panel.get("_info").blocked and panel.get("_info").status==status,"ux_missing_initial_state_fault_reaches_panel")
+	check(cockpit_panel.get("_info").blocked and not panel.get("_panel_visible"),"ux_fault_visible_with_cockpit_overlay_hidden")
 	snapshot=saved_snapshot
 	blocked=false
 	status=saved_status
@@ -653,6 +707,38 @@ func run_ux_checks() -> void:
 	climb.velocity_body_mps={"x":30.0,"y":40.0,"z":12.0}
 	var readings: Dictionary=panel.call("_derive_readings",climb,atmosphere)
 	check(absf(float(readings.ground_kt)-50.0*1.9438444924406)<0.000001,"ux_groundspeed_excludes_vertical_component")
+	show_state()
+	check(cockpit_panel.get("_readings")==panel.get("_readings"),"ux_live_dashboard_and_overlay_same_native_truth")
+	check(cockpit.root.transform.is_equal_approx(airplane.transform),"ux_cockpit_uses_authoritative_aircraft_pose")
+	set_camera_mode(3)
+	show_state()
+	check(cockpit.root.visible and not airplane.visible and not panel_visible,"ux_panel_view_has_interior_without_external_shell_or_overlay")
+	var map_state: Dictionary=snapshot.duplicate(true)
+	map_state.session_id="map-readonly-fixture"
+	map_state.tick="0"
+	flight_map.call("set_state",map_state,Vector3(150,3,-400),Basis.IDENTITY)
+	var chart:=Rect2(10,10,300,300)
+	var runway_point: Vector2=flight_map.call("_point",Vector2(0,-800),chart)
+	check(runway_point.distance_to(Vector2(148.75,130))<0.0001,"ux_map_same_tangent_frame_runway_projection")
+	flight_map.call("set_state",map_state,Vector3(150,3,-400),Basis.IDENTITY)
+	check(flight_map.get("_trail").size()==1 and flight_map.get("_direction")==Vector2.UP,"ux_map_pause_no_duplicate_trail_and_north_heading")
+	flight_map.call("set_state",map_state,Vector3(150,3,-400),Basis(Vector3.UP,-PI*0.5))
+	check(flight_map.get("_heading_valid") and flight_map.get("_direction").distance_to(Vector2.RIGHT)<0.00001,"ux_map_actual_east_nose_heading")
+	flight_map.call("set_state",map_state,Vector3(150,3,-400),Basis(Vector3.RIGHT,PI*0.5))
+	check(not flight_map.get("_heading_valid"),"ux_map_vertical_nose_has_no_fabricated_heading")
+	for tick in range(1,650):
+		map_state.tick=str(tick*120)
+		flight_map.call("set_state",map_state,Vector3(tick,3,-400),Basis.IDENTITY)
+	check(flight_map.get("_trail").size()==600,"ux_map_history_bounded")
+	flight_map.call("zoom",0.00001)
+	check(flight_map.get("extent_m")==1000.0,"ux_map_zoom_lower_bound")
+	flight_map.call("zoom",100000.0)
+	check(flight_map.get("extent_m")==32000.0,"ux_map_zoom_upper_bound")
+	flight_map.set("extent_m",4000.0)
+	flight_map.call("set_state",snapshot,airplane.position,airplane.basis)
+	check(flight_map.get("_trail").size()==1 and flight_map.get("_session")==snapshot.session_id,"ux_map_new_native_session_clears_history")
+	check(last_aircraft_json==saved and held_controls==saved_controls,"ux_map_dashboard_and_panel_view_do_not_mutate_native_state")
+	set_camera_mode(0)
 	evidence["ux_scope"]="Actual menu/native state and camera checks; synthetic keyboard/gamepad mapping, not hardware acceptance"
 
 func any_wow() -> bool:
@@ -789,6 +875,17 @@ func run_visual_smoke() -> void:
 	named_start="airborne-prepared"
 	check(restart(),"visual_airborne_named_start")
 	await save_view("view-airborne-initial")
+	set_camera_mode(3)
+	await save_view("view-panel-focus")
+	set_camera_mode(0)
+	look_angles=Vector2(-1.1,0.05)
+	await save_view("view-side-window")
+	look_angles=Vector2.ZERO
+	map_visible=true
+	flight_map.show()
+	await save_view("view-flight-map")
+	map_visible=false
+	flight_map.hide()
 	set_camera_mode(1)
 	await save_view("view-chase")
 	set_camera_mode(2)
@@ -815,8 +912,23 @@ func run_visual_smoke() -> void:
 	panel.call("set_help_visible",false)
 	get_window().size=Vector2i(960,540)
 	await save_view("view-small-window")
+	set_camera_mode(2)
+	await save_view("view-small-overlay")
+	set_camera_mode(3)
+	await save_view("view-small-panel")
+	set_camera_mode(0)
 	get_window().size=Vector2i(1920,1080)
 	await save_view("view-full-hd")
+	var saved_snapshot: Dictionary=snapshot.duplicate(true)
+	var saved_status: String=status
+	snapshot={}
+	blocked=true
+	status="Initialization unavailable; R starts a fresh attempt"
+	await save_view("view-cockpit-fault")
+	snapshot=saved_snapshot
+	blocked=false
+	status=saved_status
+	show_state()
 	check(close_session(), "visual_final_joined")
 	if sound != null:
 		check(bool(await sound.call("shutdown")),"visual_audio_resources_retired")
