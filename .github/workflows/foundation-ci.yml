@@ -29,6 +29,9 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '22'
+      - name: Check recursive simulation staging and drift rejection
+        shell: pwsh
+        run: ./tools/interactive-preview/simulation-staging.test.ps1
       - name: Install locked contract validators
         run: npm ci --ignore-scripts --prefix schemas
       - name: Check reconstruction declaration rejection cases
