@@ -38,6 +38,8 @@ The accepted [original piston profile contract](decisions/010-original-piston-pr
 
 The [original piston source and independent references](evidence/P3/original-piston-source.md) supply the next cold-engine prerequisite. Native controls and coupled engine behavior remain separate implementation work.
 
+The proposed [observed flight review contract](decisions/011-observed-flight-review.md) prepares a bounded paused review of sampled flight path, instruments and held controls. Its implementation, exported verification and lifecycle review remain separate; it establishes neither durable saves nor physics replay.
+
 ## Read in this order
 
 1. [Product scope and requirements](product.md): expected pilot experience and initial boundaries.
