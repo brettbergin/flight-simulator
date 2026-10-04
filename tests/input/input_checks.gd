@@ -427,7 +427,10 @@ func _locked_replacement(target: String, prior_preset: Dictionary) -> Dictionary
 	var ready_ps := ready.replace("'","''")
 	var release_ps := release.replace("'","''")
 	var done_ps := done.replace("'","''")
-	var script := "$ErrorActionPreference='Stop'; $heldFile=[IO.File]::Open('%s',[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::Read); try { [IO.File]::WriteAllText('%s','LOCKED'); $timer=[Diagnostics.Stopwatch]::StartNew(); while(-not [IO.File]::Exists('%s') -and $timer.Elapsed.TotalSeconds -lt 15){ Start-Sleep -Milliseconds 20 } } finally { $heldFile.Dispose(); [IO.File]::WriteAllText('%s','CLOSED') }" % [target_ps,ready_ps,release_ps,done_ps]
+	var script := "$ErrorActionPreference='Stop'; $heldFile=[IO.File]::Open('%s',[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::Read); try { [IO.File]::WriteAllText('%s','LOCKED'); $timer=[Diagnostics.Stopwatch]::StartNew(); while(-not [IO.File]::Exists('%s') -and $timer.Elapsed.TotalSeconds -lt 15){ Start-Sleep -Milliseconds 20 } } finally { $heldFile.Dispose(); [IO.File]::WriteAllText('%s','CLOSED') }; [Environment]::Exit(0)" % [target_ps,ready_ps,release_ps,done_ps]
+	# End only this owned fixture process after finally closes the handle and marker.
+	# Environment.Exit is outside try/finally so cleanup always precedes exit:
+	# https://learn.microsoft.com/en-us/dotnet/api/system.environment.exit
 	var encoded := Marshalls.raw_to_base64(script.to_utf16_buffer())
 	var executable := OS.get_environment("SystemRoot").path_join("System32/WindowsPowerShell/v1.0/powershell.exe")
 	var pid := OS.create_process(executable,PackedStringArray(["-NoProfile","-NonInteractive","-WindowStyle","Hidden","-EncodedCommand",encoded]),false)
@@ -461,13 +464,16 @@ func _locked_replacement(target: String, prior_preset: Dictionary) -> Dictionary
 	if signal_file != null:
 		signal_file.store_string("RELEASE")
 		signal_file.close()
+	var release_written := FileAccess.file_exists(release) and FileAccess.get_file_as_string(release)=="RELEASE"
+	_check(release_written,"codec_lock_release_signal_written")
 	deadline = Time.get_ticks_msec()+5000
 	while OS.is_process_running(pid) and Time.get_ticks_msec()<deadline:
 		OS.delay_msec(20)
 	var joined := not OS.is_process_running(pid)
-	if not joined: OS.kill(pid) # Only the PID just created by this fixture.
-	_check(joined and FileAccess.get_file_as_string(done)=="CLOSED","codec_owned_lock_child_retired")
-	return {"tested":locked,"rejected":rejected,"old_bytes_preserved":preserved,"temporary_retained":retained,"fixture_child_retired":joined}
+	var close_marker := FileAccess.file_exists(done) and FileAccess.get_file_as_string(done)=="CLOSED"
+	if not joined: OS.kill(pid) # Only the PID just created by this fixture; timeout still fails.
+	_check(joined and close_marker,"codec_owned_lock_child_retired")
+	return {"tested":locked,"rejected":rejected,"old_bytes_preserved":preserved,"temporary_retained":retained,"release_signal_written":release_written,"close_marker_observed":close_marker,"fixture_child_retired":joined}
 
 func _run() -> Dictionary:
 	var decoded = JSON.parse_string(FileAccess.get_file_as_string("res://input_tests/reference.json"))
