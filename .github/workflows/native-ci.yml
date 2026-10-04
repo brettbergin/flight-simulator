@@ -88,6 +88,10 @@ jobs:
         run: |
           node --test tests/ground/proof/verify.test.mjs
           if ($LASTEXITCODE -ne 0) { throw "Ground contact authority proof failed" }
+      - name: Prove one-executive ground-to-flight loop and fail-closed boundaries
+        run: |
+          node --test tests/interactive/verify.test.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Interactive ground-to-flight repeat, v1 records or boundary checks failed" }
       - name: Prove actual typed native bridge in Godot editor
         run: |
           node tests/export/make-initializer.mjs --check
@@ -135,6 +139,7 @@ jobs:
             .local/build/native-release/replay-proof/**
             .local/validation/observed-report.json
             .local/ground-proof/**
+            .local/interactive-proof/**
             .local/pipeline-proof/ci/**
             .local/render-geodesy/ci/**
             .local/render-headless/ci/**
