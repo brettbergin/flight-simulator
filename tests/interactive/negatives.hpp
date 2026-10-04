@@ -20,6 +20,73 @@ class FaultSurface final:public p::AnalyticSurface {
   void arm(Mode next){mode=next;queries=0;}
 };
 inline c::ControlCommand command(const p::Session& s,std::uint64_t seq,c::PilotAxes axes){return {{c::Tick{s.latest().header.tick.value+1},s.latest().header.session_id},{seq},"pilot.controls",c::Authority::pilot,{"unassisted",{}},axes};}
+// ADR013 proof: independent equations, actual observation-only backend channels,
+// and complete identity-independent same-build repeat payloads. No model retune.
+inline unsigned run_wind(const std::filesystem::path& model,const std::filesystem::path& output_prefix){
+  unsigned checks=0;const auto check=[&](bool ok,const char* why){require(ok,why);++checks;};
+  auto surface=std::make_shared<FaultSurface>(p::SurfaceConfig{});p::Config invalid;invalid.model_root=model;invalid.surface=surface;invalid.wind_profile=static_cast<p::SteadyWindProfile>(99);
+  bool rejected=false;try{p::Session bad(invalid);}catch(const std::invalid_argument&){rejected=true;}
+  check(rejected&&surface->queries==0,"Unknown wind enum reached provider/solver");
+  std::ofstream evidence(output_prefix.string()+".wind.ndjson");evidence<<std::setprecision(17);
+  const auto vector=[](auto v){return std::array<double,3>{v.x,v.y,v.z};};
+  const auto same_axes=[](c::PilotAxes a,c::PilotAxes b){return a.roll==b.roll&&a.pitch==b.pitch&&a.yaw==b.yaw&&a.throttle==b.throttle&&a.mixture==b.mixture&&a.left_brake==b.left_brake&&a.right_brake==b.right_brake&&a.trim==b.trim;};
+  unsigned observed_profile=0,observed_repeat=0;std::uint64_t observed_tick=0;p::Start observed_start=p::Start::ground;
+  const auto prove=[&](const p::SteadyWindObservation& d,std::array<double,3> nominal){
+    const auto ground=vector(d.ground_body_mps),air=vector(d.air_body_mps),wind=vector(d.base_wind_mps),total=vector(d.total_wind_mps);
+    std::array<double,3> expected{};
+    for(unsigned k=0;k<3;++k){c::BodyVelocity axis{};if(k==0)axis.x=1;else if(k==1)axis.y=1;else axis.z=1;const auto ned=c::rotate_body_to_ned(d.orientation,axis);
+      expected[k]=ground[k]-(ned.x*wind[0]+ned.y*wind[1]+ned.z*wind[2]);
+      check(std::abs(air[k]-expected[k])<=1e-6,"Backend air velocity sign/axis mismatch");check(std::abs(wind[k]-nominal[k])<=1e-6&&total[k]==wind[k],"Base/total/nominal wind mismatch");}
+    const double v=std::hypot(expected[0],expected[1],expected[2]),uw2=expected[0]*expected[0]+expected[2]*expected[2];
+    const double alpha=(v>.001*.3048&&uw2>=1e-6*.3048*.3048)?std::atan2(expected[2],expected[0]):0;
+    const double beta=v>.001*.3048?std::atan2(expected[1],std::sqrt(uw2)):0;
+    check(std::abs(d.speed_mps-v)<=1e-6,"Actual aerodynamic speed disagrees with wind-subtracted motion");
+    check(std::abs(d.alpha_rad-alpha)<=1e-7&&std::abs(d.beta_rad-beta)<=1e-7,"Actual aerodynamic angle mismatch");
+    // Original independently frozen live SI polynomial budget remains unchanged.
+    const auto close=[&](double actual,double want,double magnitude){check(std::isfinite(actual)&&std::abs(actual-want)<=1e-6+1e-7*std::abs(magnitude),"Original signed aerodynamic algebra mismatch");};
+    close(d.qbar_pa,.5*d.density_kgpm3*v*v,.5*d.density_kgpm3*v*v);
+    const double qs=d.qbar_pa*17,den=std::max(.6096,2*d.speed_mps);
+    const auto a=d.applied_controls;const double raw_e=-a.pitch,raw_trim=-a.trim,raw_r=-a.yaw;
+    const double lift=qs*(.22+5*d.alpha_rad),drag=qs*(.03+.08*d.alpha_rad*d.alpha_rad),side=qs*(-.5*d.beta_rad+.15*raw_r);
+    const double ca=std::cos(d.alpha_rad),sa=std::sin(d.alpha_rad),cb=std::cos(d.beta_rad),sb=std::sin(d.beta_rad);
+    const std::array<double,3> force{-drag*ca*cb-side*ca*sb+lift*sa,-drag*sb+side*cb,-drag*sa*cb-side*sa*sb-lift*ca};
+    const std::array<double,3> moment{qs*10*(-.05*d.beta_rad-.6*d.aero_rate_radps.x*10/den+.08*a.roll),qs*1.7*(.02-d.alpha_rad-8*d.aero_rate_radps.y*1.7/den-.7*(raw_e+raw_trim)),qs*10*(.1*d.beta_rad-2*d.aero_rate_radps.z*10/den-.08*raw_r)};
+    const std::array<double,3> unsigned_moment{
+      qs*10*(std::abs(.05*d.beta_rad)+std::abs(.6*d.aero_rate_radps.x*10/den)+std::abs(.08*a.roll)),
+      qs*1.7*(.02+std::abs(d.alpha_rad)+std::abs(8*d.aero_rate_radps.y*1.7/den)+std::abs(.7*raw_e)+std::abs(.7*raw_trim)),
+      qs*10*(std::abs(.1*d.beta_rad)+std::abs(2*d.aero_rate_radps.z*10/den)+std::abs(.08*raw_r))};
+    const auto actual_force=vector(d.aero_force_n);
+    for(unsigned k=0;k<3;++k){close(actual_force[k],force[k],std::abs(drag)+std::abs(side)+std::abs(lift));close(d.aero_moment_nm[k],moment[k],unsigned_moment[k]);}
+    evidence<<"{\"profile\":"<<observed_profile<<",\"start\":\""<<(observed_start==p::Start::ground?"ground-ready":"airborne-prepared")<<"\",\"repeat\":"<<observed_repeat<<",\"tick\":\""<<observed_tick<<"\",\"stage\":\""<<d.stage<<"\",\"ground_body_mps\":["<<ground[0]<<','<<ground[1]<<','<<ground[2]<<"],\"air_body_mps\":["<<air[0]<<','<<air[1]<<','<<air[2]<<"],\"base_wind_mps\":["<<wind[0]<<','<<wind[1]<<','<<wind[2]<<"],\"total_wind_mps\":["<<total[0]<<','<<total[1]<<','<<total[2]<<"],\"alpha_rad\":"<<d.alpha_rad<<",\"orientation_body_to_ned\":["<<d.orientation.w<<','<<d.orientation.x<<','<<d.orientation.y<<','<<d.orientation.z<<"],\"aero_rate_radps\":["<<d.aero_rate_radps.x<<','<<d.aero_rate_radps.y<<','<<d.aero_rate_radps.z<<"],\"applied_pilot_axes\":["<<a.roll<<','<<a.pitch<<','<<a.yaw<<','<<a.throttle<<','<<a.mixture<<','<<a.left_brake<<','<<a.right_brake<<','<<a.trim<<"],\"speed_mps\":"<<d.speed_mps<<",\"beta_rad\":"<<d.beta_rad<<",\"qbar_pa\":"<<d.qbar_pa<<",\"density_kgpm3\":"<<d.density_kgpm3<<",\"force_body_n\":["<<actual_force[0]<<','<<actual_force[1]<<','<<actual_force[2]<<"],\"moment_body_nm\":["<<d.aero_moment_nm[0]<<','<<d.aero_moment_nm[1]<<','<<d.aero_moment_nm[2]<<"]}\n";
+  };
+  for(unsigned profile=0;profile<4;++profile){const std::array<double,3> nominal=profile==1?std::array<double,3>{-5,0,0}:profile==2?std::array<double,3>{0,5,0}:profile==3?std::array<double,3>{0,-5,0}:std::array<double,3>{0,0,0};
+    for(const auto start:{p::Start::ground,p::Start::airborne}){
+      observed_profile=profile;observed_start=start;
+      p::Config cfg;cfg.model_root=model;cfg.surface=surface;cfg.start=start;cfg.wind_profile=static_cast<p::SteadyWindProfile>(profile);
+      if(start==p::Start::airborne){cfg.requested_height_m=1000;cfg.forward_mps=55*std::cos(.02);cfg.down_mps=55*std::sin(.02);cfg.pitch_rad=.02;cfg.trim=true;}
+      std::vector<std::string> snapshots,weathers;std::vector<c::PilotAxes> controls;
+      for(unsigned repeat=0;repeat<2;++repeat){observed_repeat=repeat;observed_tick=0;cfg.session_id=repeat?"wind-repeat":"wind-first";p::Session session(cfg);
+        for(const auto& d:p::SessionTestAccess::initialization(session)){prove(d,nominal);}
+        const auto initial=p::SessionTestAccess::initialization(session)[0];check(std::abs(initial.ground_body_mps.x-cfg.forward_mps)<=1e-6&&std::abs(initial.ground_body_mps.y)<=1e-6&&std::abs(initial.ground_body_mps.z-cfg.down_mps)<=1e-6,"RunIC ground-body request changed");
+        if(profile==2){check(initial.beta_rad<0&&initial.aero_force_n.y>0,"West wind has wrong signed sideslip/side force");}if(profile==3){check(initial.beta_rad>0&&initial.aero_force_n.y<0,"East wind has wrong signed sideslip/side force");}
+        for(unsigned tick=0;tick<=240;++tick){observed_tick=tick;auto aircraft=session.latest();auto atmosphere=session.atmosphere();
+          check(aircraft.header.tick.value==tick&&atmosphere.header.tick==aircraft.header.tick&&atmosphere.header.session_id==aircraft.header.session_id,"Wind aircraft/weather tick identity mismatch");
+          check(atmosphere.seed==c::Seed{42}&&atmosphere.model_id=="jsbsim-dry-isa"&&atmosphere.position.latitude_rad==aircraft.position.latitude_rad&&atmosphere.position.longitude_rad==aircraft.position.longitude_rad&&atmosphere.position.ellipsoid_height_m==aircraft.position.ellipsoid_height_m,"Wind atmosphere source/seed/position changed");
+          prove(p::SessionTestAccess::current(session),nominal);
+          if(tick%60==0){evidence<<"{\"profile\":"<<profile<<",\"start\":\""<<(start==p::Start::ground?"ground-ready":"airborne-prepared")<<"\",\"repeat\":"<<repeat<<",\"aircraft\":"<<p::snapshot_json(aircraft)<<",\"atmosphere\":"<<flight::fdm::transport::json(atmosphere)<<"}\n";}
+          aircraft.header.session_id="comparison";atmosphere.header.session_id="comparison";const auto a=p::snapshot_json(aircraft),w=flight::fdm::transport::json(atmosphere);
+          if(repeat==0){snapshots.push_back(a);weathers.push_back(w);controls.push_back(session.held());}else check(a==snapshots[tick]&&w==weathers[tick]&&same_axes(session.held(),controls[tick]),"Fresh same-build wind repeat differs");
+          if(tick==120){const auto before=p::snapshot_json(session.latest()),weather_before=flight::fdm::transport::json(session.atmosphere());c::SessionControl pause{{session.latest().header.tick,cfg.session_id},{1},"session.owner",c::PauseControl{true}};
+            check(session.apply(pause)==c::SessionControlRejection::none&&session.step_fixed().status==p::Status::paused,"Wind pause rejected");check(p::snapshot_json(session.latest())==before&&flight::fdm::transport::json(session.atmosphere())==weather_before,"Paused wind mutated publication");
+            pause.sequence={2};pause.payload=c::TimeScaleControl{.5};check(session.apply(pause)==c::SessionControlRejection::none,"Wind time scale rejected");pause.sequence={3};pause.payload=c::PauseControl{false};check(session.apply(pause)==c::SessionControlRejection::none,"Wind resume rejected");}
+          if(tick!=240){auto command=interactive_checks::command(session,tick+1,session.held());check(session.submit(command)==c::CommandRejection::none,"Wind held command rejected");check(session.step_fixed().status==p::Status::completed,"Bounded nonzero wind trial failed");}
+        }
+        bool foreign_rejected=false;std::thread other([&]{try{(void)p::SessionTestAccess::current(session);}catch(const std::logic_error&){foreign_rejected=true;}});other.join();check(foreign_rejected,"Foreign test-access read accepted");session.close();check(!session.live(),"Wind solver close failed");
+      }
+    }
+  }
+  std::cout<<"steady-wind native checks "<<checks<<" PASS\n";return checks;
+}
 inline unsigned run(const std::filesystem::path& model,const std::filesystem::path& output_prefix){unsigned checks=0;const auto check=[&](bool x,const char* message){require(x,message);++checks;};
   for(const auto reason:{c::MissingGround::outside_coverage,c::MissingGround::not_loaded,c::MissingGround::datum_unresolved,c::MissingGround::invalid_data}){
     auto world=std::make_shared<FaultSurface>(p::SurfaceConfig{});p::Config cfg;cfg.model_root=model;cfg.surface=world;p::Session s(cfg);const auto before=p::snapshot_json(s.latest());const auto held=s.held();auto axes=held;axes.throttle=1;
@@ -110,6 +177,7 @@ inline unsigned run(const std::filesystem::path& model,const std::filesystem::pa
   for(std::uint64_t seq=1;seq<=4096;++seq){c::SessionControl operation{{{0},cfg.session_id},{seq},"session.owner",c::PauseControl{true}};check(event_bounded.apply(operation)==c::SessionControlRejection::none,"Lifecycle capacity admission failed");}
   c::SessionControl full_event{{{0},cfg.session_id},{4097},"session.owner",c::PauseControl{false}};
   check(event_bounded.apply(full_event)==c::SessionControlRejection::invalid&&event_bounded.paused()&&event_bounded.events().size()==4096,"Lifecycle capacity changed clock/events");
+  checks+=run_wind(model,output_prefix);
   std::cout<<"interactive negative/readback checks "<<checks<<" PASS\n";
   return checks;
 }

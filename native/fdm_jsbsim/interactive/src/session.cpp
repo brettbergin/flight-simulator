@@ -15,6 +15,8 @@
 #include <models/propulsion/FGTank.h>
 #include <models/atmosphere/FGWinds.h>
 #include <models/FGAtmosphere.h>
+#include <models/FGAuxiliary.h>
+#include <models/FGAerodynamics.h>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
@@ -24,6 +26,15 @@ namespace flight::interactive {
 namespace j=JSBSim;namespace f=flight::fdm;
 namespace {
 constexpr double slug_to_kg=14.5939029372064, speed_limit=150, rate_limit=3, gear_radius=2.5;
+c::NedVelocity steady_wind(SteadyWindProfile profile) {
+  switch(profile) {
+    case SteadyWindProfile::calm:return {0,0,0};
+    case SteadyWindProfile::from_north:return {-5,0,0};
+    case SteadyWindProfile::from_west:return {0,5,0};
+    case SteadyWindProfile::from_east:return {0,-5,0};
+  }
+  throw std::invalid_argument("Unknown steady-wind profile");
+}
 c::GeodeticPosition geodetic(const j::FGLocation& input) {
   auto p=input;p.SetEllipse(c::geodesy::semi_major_m/.3048,c::geodesy::semi_minor_m/.3048);
   return {p.GetGeodLatitudeRad(),p.GetLongitude(),p.GetGeodAltitude()*.3048};
@@ -62,6 +73,7 @@ class Session::Impl {
    private:Impl& owner_;
   };
   bool disposing{};
+  std::array<SteadyWindObservation,2> initialization_observations;
   struct Deleter{bool* disposing;void operator()(j::FGFDMExec* p)const noexcept{if(p){*disposing=true;delete p;}}};
   Config settings;c::FixedClock clock;c::CommandGate gate;c::SessionControlGate lifecycle;
   std::unique_ptr<v1::Boundary> boundary;
@@ -73,6 +85,7 @@ class Session::Impl {
   bool checking_sweep{};double sweep_radius{};
   void check_thread()const{if(owner!=std::this_thread::get_id()){throw std::logic_error("Caller-owned session used on another thread");}}
   explicit Impl(Config cfg):settings(std::move(cfg)),clock({settings.hz,settings.purpose}),gate(settings.session_id),lifecycle(settings.session_id,"session.owner",clock) {
+    (void)steady_wind(settings.wind_profile); // Reject before solver/provider allocation.
     if(!(settings.start==Start::ground||settings.start==Start::airborne)||(settings.start==Start::ground&&settings.trim)){throw std::invalid_argument("Unknown start or ground trim unsupported");}
     // First human prototype exposes only these two explicit named recipes.
     const auto near=[](double a,double b){return std::isfinite(a)&&std::abs(a-b)<=1e-12;};
@@ -110,18 +123,26 @@ class Session::Impl {
     // does not ground-snap or modify a completed state.
     double radial_asl_ft=cg.ellipsoid_height_m/.3048;
     for(int iteration=0;iteration<12;++iteration){ic->SetAltitudeASLFtIC(radial_asl_ft);const double error=cg.ellipsoid_height_m-geodetic(ic->GetPosition()).ellipsoid_height_m;if(std::abs(error)<1e-8){break;}radial_asl_ft+=error/.3048;}
-    ic->SetWindNEDFpsIC(0,0,0);
+    const auto requested_wind=steady_wind(settings.wind_profile);
+    ic->SetWindNEDFpsIC(requested_wind.x/.3048,requested_wind.y/.3048,requested_wind.z/.3048);
     ic->SetUBodyFpsIC(settings.forward_mps/.3048);ic->SetWBodyFpsIC(settings.down_mps/.3048);
-    exec->GetPropulsion()->SetFuelFreeze(true);if(!exec->RunIC()||boundary->failed()){throw std::runtime_error("Initial RunIC failed");}exec->GetPropulsion()->InitRunning(-1);
+    exec->GetPropulsion()->SetFuelFreeze(true);if(!exec->RunIC()||boundary->failed()){throw std::runtime_error("Initial RunIC failed");}
+    verify_wind("RunIC");
+    initialization_observations[0]=observe("RunIC");
+    const auto& initial_uvw=exec->GetPropagate()->GetUVW();
+    if(std::abs(initial_uvw(1)*.3048-settings.forward_mps)>1e-6||std::abs(initial_uvw(2)*.3048)>1e-6||std::abs(initial_uvw(3)*.3048-settings.down_mps)>1e-6){throw std::runtime_error("RunIC changed requested ground-body velocity");}
+    exec->GetPropulsion()->InitRunning(-1);
     controls={0,0,0,settings.start==Start::ground?0:.65,1,settings.start==Start::ground?1.:0,settings.start==Start::ground?1.:0,0};set_controls(controls);
     if(settings.trim) {
       j::FGTrim trim(exec.get(),j::tLongitudinal);trim.SetGammaFallback(false);trim.SetMaxCycles(60);trim.SetMaxCyclesPerAxis(100);trim.SetTolerance(.001);trim.ClearDebug();
       if(!trim.DoTrim()){throw std::runtime_error("Combined airborne trim failed");}
       controls.roll=exec->GetPropertyValue("fcs/aileron-cmd-norm");controls.pitch=-exec->GetPropertyValue("fcs/elevator-cmd-norm");controls.yaw=-exec->GetPropertyValue("fcs/rudder-cmd-norm");
       controls.trim=-exec->GetPropertyValue("fcs/pitch-trim-cmd-norm");controls.throttle=exec->GetPropertyValue("fcs/throttle-cmd-norm");
+      verify_wind("post-trim");
     }
     exec->Setdt(clock.integration_step_s());exec->GetPropagate()->InitializeDerivatives();exec->GetPropulsion()->SetFuelFreeze(false);
     publication=snapshot({0});weather=atmosphere({0});
+    initialization_observations[1]=observe(settings.trim?"post-trim":"prepared");
     if(!settings.trim&&std::abs(publication.position.ellipsoid_height_m-settings.requested_height_m)>1e-5){throw std::runtime_error("Requested CG height changed during initialization: requested="+std::to_string(settings.requested_height_m)+" observed="+std::to_string(publication.position.ellipsoid_height_m));}
   }
   void set_controls(c::PilotAxes a) {
@@ -141,7 +162,39 @@ class Session::Impl {
       s.contacts.push_back({i==0?"gear.nose":i==1?"gear.left":"gear.right",{arm(1)*.3048,arm(2)*.3048,arm(3)*.3048},{c::units::pounds_force_to_newtons(gear->GetBodyXForce()),c::units::pounds_force_to_newtons(gear->GetBodyYForce()),c::units::pounds_force_to_newtons(gear->GetBodyZForce())},wow});}
     if(!c::valid(s)||c::magnitude(s.velocity_body_mps)>speed_limit||c::magnitude(s.angular_rate_body_radps)>rate_limit){throw std::runtime_error("Nonfinite/out-of-domain prototype publication");}return s;
   }
+  SteadyWindObservation observe(const char* stage)const {
+    const auto p=exec->GetPropagate();const auto auxiliary=exec->GetAuxiliary();const auto aero=exec->GetAerodynamics();const auto winds=exec->GetWinds();
+    const auto& ground=p->GetUVW();const auto& air=auxiliary->GetAeroUVW();const auto& rate=auxiliary->GetAeroPQR();const auto& base=winds->GetWindNED();const auto& total=winds->GetTotalWindNED();
+    const auto& force=aero->GetForces();const auto& moment=aero->GetMoments();
+    std::array<double,9> matrix{};for(unsigned i=0;i<3;++i){for(unsigned k=0;k<3;++k){matrix[3*i+k]=p->GetTb2l()(i+1,k+1);}}
+    SteadyWindObservation out;out.stage=stage;out.ground_body_mps={ground(1)*.3048,ground(2)*.3048,ground(3)*.3048};out.air_body_mps={air(1)*.3048,air(2)*.3048,air(3)*.3048};
+    out.aero_rate_radps={rate(1),rate(2),rate(3)};out.base_wind_mps={base(1)*.3048,base(2)*.3048,base(3)*.3048};out.total_wind_mps={total(1)*.3048,total(2)*.3048,total(3)*.3048};out.orientation=f::body_to_ned_from_matrix(matrix);
+    out.aero_force_n={c::units::pounds_force_to_newtons(force(1)),c::units::pounds_force_to_newtons(force(2)),c::units::pounds_force_to_newtons(force(3))};
+    out.aero_moment_nm={moment(1)*1.3558179483314004,moment(2)*1.3558179483314004,moment(3)*1.3558179483314004};
+    out.alpha_rad=auxiliary->Getalpha();out.beta_rad=auxiliary->Getbeta();out.speed_mps=auxiliary->GetVt()*.3048;out.qbar_pa=auxiliary->Getqbar()*47.8802589803358;out.density_kgpm3=exec->GetAtmosphere()->GetDensity()*slug_to_kg/std::pow(.3048,3);
+    out.applied_controls={exec->GetPropertyValue("fcs/aileron-cmd-norm"),-exec->GetPropertyValue("fcs/elevator-cmd-norm"),-exec->GetPropertyValue("fcs/rudder-cmd-norm"),exec->GetPropertyValue("fcs/throttle-cmd-norm"),1,exec->GetFCS()->GetLBrake(),exec->GetFCS()->GetRBrake(),-exec->GetPropertyValue("fcs/pitch-trim-cmd-norm")};
+    return out;
+  }
+  void verify_wind(const char* stage)const {
+    // No-gust/ttNone closure is checked against the actual aerodynamic input,
+    // not inferred from a preset echo or a vendor direction getter.
+    const auto winds=exec->GetWinds();const auto& base=winds->GetWindNED();const auto& total=winds->GetTotalWindNED();
+    const auto requested=steady_wind(settings.wind_profile);
+    const std::array<double,3> nominal{requested.x,requested.y,requested.z};
+    const auto& ground=exec->GetPropagate()->GetUVW();
+    const auto expected_air=ground-exec->GetPropagate()->GetTl2b()*total;
+    const auto& actual_air=exec->GetAuxiliary()->GetAeroUVW();
+    for(int i=1;i<=3;++i) {
+      const auto value=base(i)*.3048;
+      if(!std::isfinite(value)||std::abs(value-nominal[i-1])>1e-6||!std::isfinite(total(i))||total(i)!=base(i)||winds->GetGustNED(i)!=0||winds->GetTurbNED(i)!=0||winds->GetTurbPQR(i)!=0||winds->GetTurbType()!=j::FGWinds::ttNone) {
+        std::ostringstream detail;detail<<std::setprecision(17)<<stage<<" steady-wind admission failed axis="<<i<<" requested_mps="<<nominal[i-1]<<" actual_mps="<<value<<" total_mps="<<total(i)*.3048;
+        throw std::runtime_error(detail.str());
+      }
+      if(!std::isfinite(actual_air(i))||std::abs((actual_air(i)-expected_air(i))*.3048)>1e-6){throw std::runtime_error(std::string(stage)+" ground-minus-toward-wind airflow mismatch");}
+    }
+  }
   c::AtmosphereSample atmosphere(c::Tick tick)const {
+    verify_wind("publication");
     const auto a=exec->GetAtmosphere();const auto& w=exec->GetWinds()->GetWindNED();c::AtmosphereSample out{{tick,settings.session_id},geodetic(exec->GetPropagate()->GetLocation()),a->GetPressure()*47.8802589803358,a->GetTemperature()*5/9,a->GetDensity()*slug_to_kg/std::pow(.3048,3),0,{w(1)*.3048,w(2)*.3048,w(3)*.3048},{},settings.seed,"jsbsim-dry-isa"};
     if(!c::valid(out)){throw std::runtime_error("Invalid actual atmosphere");}return out;
   }
@@ -181,6 +234,8 @@ class Session::Impl {
     catch(...){exec.reset();checking_sweep=false;failure="Unknown provider/solver fault";return {Status::discarded,{}};}
   }
 };
+std::array<SteadyWindObservation,2> SessionTestAccess::initialization(const Session& session){session.impl_->check_thread();return session.impl_->initialization_observations;}
+SteadyWindObservation SessionTestAccess::current(const Session& session){session.impl_->check_thread();if(!session.impl_->exec){throw std::logic_error("No live solver diagnostic");}return session.impl_->observe("completed");}
 Session::Session(Config cfg):impl_(std::make_unique<Impl>(std::move(cfg))){}
 Session::~Session(){if(impl_&&impl_->owner!=std::this_thread::get_id()){std::terminate();}}
 bool Session::register_host_source(std::string id,c::Authority authority){impl_->check_thread();if(!impl_->exec||static_cast<unsigned>(authority)>static_cast<unsigned>(c::Authority::instructor)){return false;}return impl_->gate.register_source(std::move(id),authority);}
