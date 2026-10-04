@@ -1,0 +1,11 @@
+# Selected recorded-review files
+
+Issue [#138](https://github.com/brettbergin/flight-simulator/issues/138), implementing the accepted [ADR012](../../decisions/012-observed-review-interchange.md) over [recorded flight review](observed-flight-review.md). Engineering acceptance is pending the integrated final source, actual runtime/package, independent visual review and protected CI checks.
+
+Save new review captures the current recording at a verified pause or joined stop into a new explicitly selected local Windows NTFS file. Open review qualifies a file completely before adopting a separate historical view. This flight returns to the current recording. These actions preserve the current airplane; saved observations cannot resume physics. Existing targets are refused. Failed saves report available temporary or uncertain target paths for manual recovery; no automatic retry or hardware power-loss guarantee is claimed.
+
+The preconsumer scalar manifest contains20 finite cases and6 nonfinite rejections, SHA256 `406b00475e444f71f6e1f57fd37100c52b86c076e0dccbf664bb5bfc05c028d8`. The text manifest contains8 positive and32 negative archives, SHA256 `961d8903f702f1d46374998db06b7517a1ca067333b3613bd2adbf3a8c06b15e`. Root ratification binds both to accepted main `203281125d696cc567eee8133f9cda74fa56b6df`, contract source `2409a543af654af763fc1b84fa47a61cb030d0e5`. The dense fixture has2,401 observations,3,990,531 payload bytes and4,643,883 file bytes. Exact types, uint64 tick strings and binary64 leaf bits are required; synthetic source fingerprints confer no authenticity.
+
+Integrated checks will cover bounded strict UTF8/JSON and closed schemas, actual no-overwrite file creation and recovery, foreign-thread refusal, and unchanged native/controller/recorder/camera/origin state across the modal operation lifecycle. Codec, file and scene receipts are mandatory in editor, portable and source-rebuilt JSBSim replacement contexts. Raw unsuccessful trials remain evidence; final acceptance will identify one exact source and package.
+
+Player/profile files are not inspected or uploaded by these checks. Isolated synthetic files and bounded simulator observers provide engineering evidence. Broad issues34/35/52/74/75, source fidelity, hardware, pilot and all later phase gates remain open.

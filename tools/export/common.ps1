@@ -1,6 +1,6 @@
 $ErrorActionPreference='Stop'
 function Invoke-ProofProcess {
-  param([string]$Executable,[string[]]$Arguments,[string]$WorkingDirectory,[string]$Log,[switch]$CleanEnvironment,[string]$ProfileRoot)
+  param([string]$Executable,[string[]]$Arguments,[string]$WorkingDirectory,[string]$Log,[switch]$CleanEnvironment,[string]$ProfileRoot,[ValidateRange(1,600)][int]$TimeoutSeconds=120)
   $start=[Diagnostics.ProcessStartInfo]::new()
   $start.FileName=$Executable; $start.WorkingDirectory=$WorkingDirectory
   $start.UseShellExecute=$false; $start.CreateNoWindow=$true
@@ -21,7 +21,19 @@ function Invoke-ProofProcess {
   $process=[Diagnostics.Process]::new(); $process.StartInfo=$start
   if(-not $process.Start()) { throw 'Proof process failed to start' }
   $stdout=$process.StandardOutput.ReadToEndAsync(); $stderr=$process.StandardError.ReadToEndAsync()
-  if(-not $process.WaitForExit(120000)) { $process.Kill($true); throw 'Proof process exceeded 120-second watchdog' }
+  $timedOut=-not $process.WaitForExit($TimeoutSeconds*1000)
+  if($timedOut) {
+    $terminationError=''
+    try { $process.Kill($true) } catch { $terminationError=$_.Exception.Message }
+    $joined=$process.WaitForExit(10000)
+    $drainError=''; $drained=$false
+    try { $drained=[Threading.Tasks.Task]::WaitAll([Threading.Tasks.Task[]]@($stdout,$stderr),10000) } catch { $drainError=$_.Exception.Message }
+    $text=if($stdout.IsCompletedSuccessfully) { $stdout.GetAwaiter().GetResult() } else { '[stdout did not finish draining]' }
+    $text+=if($stderr.IsCompletedSuccessfully) { $stderr.GetAwaiter().GetResult() } else { '[stderr did not finish draining]' }
+    $text+="`nProof watchdog: timeout_seconds=$TimeoutSeconds; joined=$joined; drained=$drained; termination_error=$terminationError; drain_error=$drainError"
+    try { $text | Set-Content -LiteralPath $Log -Encoding utf8 } finally { $process.Dispose() }
+    throw "Proof process exceeded $TimeoutSeconds-second watchdog; raw log retained; joined=$joined; drained=$drained"
+  }
   $text=$stdout.GetAwaiter().GetResult()+$stderr.GetAwaiter().GetResult()
   $text | Set-Content -LiteralPath $Log -Encoding utf8
   $exit=$process.ExitCode; $process.Dispose()

@@ -59,7 +59,7 @@ function audit(root,proof,build){
  const uiReceipts=['editor','portable','replacement'].map(name=>json(path.join(evidence,name+'-facade-receipt.json')));
  for(const receipt of uiReceipts){
   assert.equal(receipt.passed,true);assert.deepEqual(receipt.failures,[]);
-  assert.deepEqual(Object.keys(receipt).sort(),['schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed'].sort(),'Facade receipt closed shape');
+  assert.deepEqual(Object.keys(receipt).sort(),['schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive'].sort(),'Facade receipt closed shape');
   assert.equal(receipt.schema_version,1);assert(Number.isSafeInteger(receipt.checks)&&receipt.checks>0);assert.equal(typeof receipt.scope,'string');assert(receipt.scope.length>0&&receipt.scope.length<=1024);
   assert.deepEqual(Object.keys(receipt.freeflight).sort(),['geometry','scene']);
   for(const item of Object.values(receipt.freeflight)){assert.equal(item.passed,true);assert(item.checks>0);assert.deepEqual(item.failures,[]);}
@@ -68,6 +68,14 @@ function audit(root,proof,build){
    assert.deepEqual(Object.keys(item).sort(),(name==='recorder'?['passed','checks','failures','reference_cases','reference_sha256','scope']:['passed','checks','failures','scope']).sort(),'Observed receipt closed shape/'+name);
    assert.equal(item.passed,true);assert(Number.isSafeInteger(item.checks)&&item.checks>0);assert.deepEqual(item.failures,[]);assert.equal(typeof item.scope,'string');assert(item.scope.length>0&&item.scope.length<=1024);
   }
+  assert.deepEqual(Object.keys(receipt.observed_archive).sort(),['codec','files','scene']);
+  for(const [name,item] of Object.entries(receipt.observed_archive)){
+   const names=['passed','checks','failures','scope'];if(name==='codec')names.push('reference_cases','reference_sha256','binary64_cases','binary64_sha256');
+   assert.deepEqual(Object.keys(item).sort(),names.sort(),'Archive receipt exact shape/'+name);
+   assert.equal(item.passed,true);assert(Number.isSafeInteger(item.checks)&&item.checks>0);assert.deepEqual(item.failures,[]);assert.equal(typeof item.scope,'string');assert(item.scope.length>0&&item.scope.length<=1024);
+  }
+  assert.equal(receipt.observed_archive.codec.reference_cases,40);assert.equal(receipt.observed_archive.codec.reference_sha256,'961d8903f702f1d46374998db06b7517a1ca067333b3613bd2adbf3a8c06b15e');
+  assert.equal(receipt.observed_archive.codec.binary64_cases,26);assert.equal(receipt.observed_archive.codec.binary64_sha256,'406b00475e444f71f6e1f57fd37100c52b86c076e0dccbf664bb5bfc05c028d8');
   assert.equal(receipt.observed.recorder.reference_cases,42);
   assert.equal(receipt.observed.recorder.reference_sha256,'a4c3184c46f2eb76c85ff4ba43fc8aac49e772a447576eeec5663fff1ac78844');
  }
@@ -79,7 +87,7 @@ function audit(root,proof,build){
   assert.deepEqual(walk(staged).filter(x=>!x.endsWith('.gd.uid')).sort(),originals.filter(x=>!x.endsWith('.gd.uid')).sort());
   for(const file of originals)assert.equal(sha(fs.readFileSync(path.join(source,file))),sha(fs.readFileSync(path.join(staged,file))),'freeflight corresponding source/'+folder+'/'+file);
  }
- const observedGroups=[['app/replay/observed','replay/observed',['recorder.gd','review.gd','tick_math.gd','values.gd']],['app/ui/debrief/observed','ui/debrief/observed',['panel.gd']],['tests/debrief/observed','observed_tests',['recorder_checks.gd','scene_checks.gd','expected-v1.json','generate.py','preparation-binding-v2.json','root-ratification-v1.json','README.md','.gitattributes']]];
+ const observedGroups=[['app/replay/observed','replay/observed',['recorder.gd','review.gd','tick_math.gd','values.gd']],['app/ui/debrief/observed','ui/debrief/observed',['panel.gd']],['tests/debrief/observed','observed_tests',['recorder_checks.gd','scene_checks.gd','expected-v1.json','generate.py','preparation-binding-v2.json','root-ratification-v1.json','README.md','.gitattributes']],['app/replay/observed_archive','replay/observed_archive',['codec.gd','strict_json.gd','files.gd','windows_io.ps1']],['tests/debrief/observed_archive','observed_archive_tests',['archive_checks.gd','file_checks.gd','scene_checks.gd','visual_checks.gd','windows_fixture.ps1','generate.py','source-binding-v1.json','root-ratification-v1.json','README.md','.gitattributes','reference/expected-text-v1.json','reference/expected-binary64-v1.json']]];
  for(const [authored,folder,required] of observedGroups){
   const author=path.join(repo,authored),staged=path.join(root,'project',folder),source=path.join(payload,'source/whole-flight-preview',folder);
   const originals=walk(author).sort();
@@ -138,7 +146,7 @@ function audit(root,proof,build){
  assert.deepEqual(auditRelease(register,manifest,{repoRoot:repo,packageRoot:payload}),[]);
  assert.deepEqual(auditDependencyLock(register,json(path.join(repo,'third_party/dependencies.lock.json'))),[]);
  write(path.join(evidence,'package-inventory.json'),manifest);
- write(path.join(evidence,'package-audit.json'),{schema_version:1,rights_integrity_passed:true,actual_combined_replacement_passed:true,model_pins_verified:true,actual_seven_modules_inside_payload:true,exact_editor_portable_repeat:true,observed_editor_portable_replacement_checks_passed:true,observed_source_closure_verified:true,runtime_verification:runtime,trace_records_compared:traces[0].length});
+ write(path.join(evidence,'package-audit.json'),{schema_version:1,rights_integrity_passed:true,actual_combined_replacement_passed:true,model_pins_verified:true,actual_seven_modules_inside_payload:true,exact_editor_portable_repeat:true,observed_editor_portable_replacement_checks_passed:true,observed_source_closure_verified:true,observed_archive_checks_passed:true,runtime_verification:runtime,trace_records_compared:traces[0].length});
  console.log('PASS combined package model/source/notices/full PE+CRT closure and actual replacement loop');
 }
 const [mode,...args]=process.argv.slice(2);

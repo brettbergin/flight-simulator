@@ -41,47 +41,47 @@
     {
       "name": "phase:P0",
       "color": "1d76db",
-      "description": "P0 — Reviewable foundations"
+      "description": "P0 \u2014 Reviewable foundations"
     },
     {
       "name": "phase:P1",
       "color": "1d76db",
-      "description": "P1 — Flight core and delivery feasibility"
+      "description": "P1 \u2014 Flight core and delivery feasibility"
     },
     {
       "name": "phase:P2",
       "color": "1d76db",
-      "description": "P2 — First cockpit and synthetic airfield"
+      "description": "P2 \u2014 First cockpit and synthetic airfield"
     },
     {
       "name": "phase:P3",
       "color": "1d76db",
-      "description": "P3 — Complete circuit and durable progress"
+      "description": "P3 \u2014 Complete circuit and durable progress"
     },
     {
       "name": "phase:P4",
       "color": "1d76db",
-      "description": "P4 — Regional navigation and environment"
+      "description": "P4 \u2014 Regional navigation and environment"
     },
     {
       "name": "phase:P5",
       "color": "1d76db",
-      "description": "P5 — Lessons, ATC, and debrief"
+      "description": "P5 \u2014 Lessons, ATC, and debrief"
     },
     {
       "name": "phase:P6",
       "color": "1d76db",
-      "description": "P6 — Advanced realism and failures"
+      "description": "P6 \u2014 Advanced realism and failures"
     },
     {
       "name": "phase:P7",
       "color": "1d76db",
-      "description": "P7 — Windows release and pilot acceptance"
+      "description": "P7 \u2014 Windows release and pilot acceptance"
     },
     {
       "name": "phase:P8",
       "color": "1d76db",
-      "description": "P8 — Validated expansion"
+      "description": "P8 \u2014 Validated expansion"
     },
     {
       "name": "status:ready",
@@ -187,47 +187,47 @@
   "milestones": [
     {
       "key": "P0",
-      "title": "P0 — Reviewable foundations",
+      "title": "P0 \u2014 Reviewable foundations",
       "description": "Outcome gate P0; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
     },
     {
       "key": "P1",
-      "title": "P1 — Flight core and delivery feasibility",
+      "title": "P1 \u2014 Flight core and delivery feasibility",
       "description": "Outcome gate P1; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
     },
     {
       "key": "P2",
-      "title": "P2 — First cockpit and synthetic airfield",
+      "title": "P2 \u2014 First cockpit and synthetic airfield",
       "description": "Outcome gate P2; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
     },
     {
       "key": "P3",
-      "title": "P3 — Complete circuit and durable progress",
+      "title": "P3 \u2014 Complete circuit and durable progress",
       "description": "Outcome gate P3; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
     },
     {
       "key": "P4",
-      "title": "P4 — Regional navigation and environment",
+      "title": "P4 \u2014 Regional navigation and environment",
       "description": "Outcome gate P4; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
     },
     {
       "key": "P5",
-      "title": "P5 — Lessons, ATC, and debrief",
+      "title": "P5 \u2014 Lessons, ATC, and debrief",
       "description": "Outcome gate P5; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
     },
     {
       "key": "P6",
-      "title": "P6 — Advanced realism and failures",
+      "title": "P6 \u2014 Advanced realism and failures",
       "description": "Outcome gate P6; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
     },
     {
       "key": "P7",
-      "title": "P7 — Windows release and pilot acceptance",
+      "title": "P7 \u2014 Windows release and pilot acceptance",
       "description": "Outcome gate P7; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
     },
     {
       "key": "P8",
-      "title": "P8 — Validated expansion",
+      "title": "P8 \u2014 Validated expansion",
       "description": "Outcome gate P8; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
     }
   ],
@@ -587,7 +587,7 @@
       "acceptance": [
         "Owner reviews standalone Windows/offline/Godot/native choices, C172S evidence gate, synthetic-first regional scope, and deferred VR/expansion.",
         "Any changes are reconciled across ADRs, roadmap, contracts, and backlog before this issue closes.",
-        "Owner explicitly authorizes P1 implementation; no developer closes this on the owner’s behalf."
+        "Owner explicitly authorizes P1 implementation; no developer closes this on the owner\u2019s behalf."
       ],
       "evidence": [
         "Owner review comment and linked plan revision PRs, if any."
@@ -3086,7 +3086,7 @@
       "kind": "task",
       "phase": "P7",
       "parent": "EPIC-P7",
-      "summary": "Prove the actual Windows experience on the user’s i9/RTX3090/64GB PC.",
+      "summary": "Prove the actual Windows experience on the user\u2019s i9/RTX3090/64GB PC.",
       "depends_on": [
         "EPIC-P6",
         "WINDOWS-PACKAGING",
@@ -3313,7 +3313,7 @@
       "kind": "task",
       "phase": "P7",
       "parent": "EPIC-P7",
-      "summary": "Evaluate the candidate’s flying feel and instructional coverage through structured review.",
+      "summary": "Evaluate the candidate\u2019s flying feel and instructional coverage through structured review.",
       "depends_on": [
         "EPIC-P6",
         "SOAK-STABILITY",
@@ -3808,7 +3808,7 @@
       "acceptance": [
         "Publish exact original model bytes, lineage, identity, MIT notice and independently checked rights inventory; historical flight-only and ground-cart packages remain unchanged.",
         "Ratify named ground and airborne starts, SI/frame/datum and congruent prepared-plane identity, owner-thread/value-readback API, existing v1 command authority, fixed120Hz stepping, lifecycle and fail-closed coverage semantics before public consumers.",
-        "Record actual independently repeated single-executive ground→takeoff→touchdown→all-wheels stop and strict-v1 evidence as synthetic scripted proof, with no Cessna, human handling or phase-gate claim."
+        "Record actual independently repeated single-executive ground\u2192takeoff\u2192touchdown\u2192all-wheels stop and strict-v1 evidence as synthetic scripted proof, with no Cessna, human handling or phase-gate claim."
       ],
       "evidence": [
         "Small reviewed ADR/model/rights PR, frozen native trial fingerprints and separate consumer handoff."
@@ -4720,6 +4720,67 @@
         "Exact closed archive/bit/tick/type/integrity/strict grammar and paused snapshot/import/native ownership contract source review before consumers.",
         "Independent preconsumer representation/reference gates; selected local NTFS no-overwrite atomic creation and recovery semantics specified without claiming unmeasured IO/power-loss acceptance.",
         "Documentation/schema consistency, exact-head independent review and all protected checks before guarded contract merge; broad storage, profiles, replay, aircraft/hardware/pilot and phase gates remain open."
+      ]
+    },
+    {
+      "key": "OBSERVED-REVIEW-FILES",
+      "title": "Save and reopen exact paused flight reviews",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Explicit new selected files preserve current recorded observations; fully qualified opened files remain separate historical views over an unchanged paused airplane.",
+      "depends_on": [
+        "OBSERVED-ARCHIVE-CONTRACT",
+        "OBSERVED-FLIGHT-REVIEW"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:ui",
+        "priority:P1",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "app/replay/observed_archive/",
+        "app/ui/debrief/observed/panel.gd",
+        "app/simulation/flight_scene.gd",
+        "tests/debrief/observed_archive/",
+        "tools/interactive-preview/",
+        "tools/export/common.ps1",
+        "tools/diagnostics/powershell-startup/",
+        ".github/workflows/native-ci.yml",
+        "docs/evidence/P2/observed-review-interchange.md",
+        "docs/README.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md"
+      ],
+      "docs": [
+        "docs/decisions/012-observed-review-interchange.md",
+        "docs/decisions/011-observed-flight-review.md",
+        "docs/evidence/P2/observed-flight-review.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [
+        "PRD-025",
+        "UX-017",
+        "UX-018",
+        "UX-021",
+        "UX-022"
+      ],
+      "acceptance": [
+        "Implement exact closed ADR012 codec, bounded strict UTF8/JSON, canonical ticks and binary64 bit preservation over unchanged independently frozen references.",
+        "Save only the current verified paused/joined snapshot to a NEW explicitly chosen qualified local NTFS file with exclusive temporary, OS flush, complete verification and no-overwrite commit; preserve recoverable bytes and truthful failure receipts.",
+        "Fully qualify selected historical candidates before adoption. Save/Open/Cancel/error/scrub/dismiss preserve current native, mapper, recorder, camera and origin state, and retain prior historical selection on failure. Saved files do not bypass ordinary discard confirmation.",
+        "Prove all26 independent scalar cases and40 archive text cases, full2401sample bit/type/tick roundtrip, malformed/bounded/copy/thread rejection, actual NTFS Unicode/collision/race/lock/reparse and IO recovery checks.",
+        "Run nonempty mandatory codec/file/actual native scene checks in editor/portable/replacement packages, preserve exact source/resource/rights closure and independently review minimum-size and larger Save/Open/historical/error views.",
+        "All four exact-head protected checks and independent final evidence review precede guarded merge. Broad persistence, replay, profile, debrief, aircraft, hardware, pilot and phase gates remain open."
+      ],
+      "evidence": [
+        "Preconsumer exact manifests and root ratification, closed result shapes and independent actual IO failures/recovery evidence.",
+        "Actual unchanged native paused boundary, historical selection and discard lifecycle invariance plus isolated exported visual views.",
+        "Exact final source-bound portable/replacement package, rights/inventory review and protected checks; no physics resume, autosave or training-credit claim."
       ]
     }
   ]

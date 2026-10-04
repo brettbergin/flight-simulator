@@ -4,6 +4,9 @@ const Review = preload("res://replay/observed/review.gd")
 const TickMath = preload("res://replay/observed/tick_math.gd")
 const Display = preload("res://interactive/flight_panel.gd")
 signal dismissed()
+signal save_requested()
+signal open_requested()
+signal current_requested()
 const CYAN := Color("78dce9")
 const MUTED := Color("a0b5c4")
 const AMBER := Color("ffc875")
@@ -26,6 +29,14 @@ var _graph_choice: OptionButton
 var _body: Control
 var _painting: Control
 var _changing := false
+var _imported := false
+var _file_message: Label
+var _save_file: Button
+var _open_file: Button
+var _current_file: Button
+var _details_button: Button
+var _details: AcceptDialog
+var _details_text: TextEdit
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -48,8 +59,33 @@ func _ready() -> void:
 	_title=_label("Recorded flight review",21)
 	_title.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	header.add_child(_title)
+	_save_file=_button("Save new review",func():save_requested.emit())
+	_save_file.tooltip_text="Save the current paused flight as a new file. Existing files are never overwritten."
+	header.add_child(_save_file)
+	_open_file=_button("Open review",func():open_requested.emit())
+	_open_file.tooltip_text="Open a saved historical review without changing the current airplane."
+	header.add_child(_open_file)
+	_current_file=_button("This flight",func():current_requested.emit())
+	header.add_child(_current_file)
+	_details_button=_button("Details",func():_details.popup_centered(Vector2i(720,330)))
+	_details_button.hide()
+	header.add_child(_details_button)
 	_back=_button("Back to paused flight",func():dismissed.emit())
 	header.add_child(_back)
+	_file_message=_label("",12)
+	_file_message.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	_file_message.hide()
+	box.add_child(_file_message)
+	_details=AcceptDialog.new()
+	_details.title="Recorded review file details"
+	_details.exclusive=true
+	_details_text=TextEdit.new()
+	_details_text.editable=false
+	_details_text.wrap_mode=TextEdit.LINE_WRAPPING_BOUNDARY
+	_details_text.custom_minimum_size=Vector2(640,240)
+	_details_text.size_flags_vertical=Control.SIZE_EXPAND_FILL
+	_details.add_child(_details_text)
+	add_child(_details)
 	_summary=_label("RECORDED OBSERVATIONS / ORIGINAL PROTOTYPE",13)
 	_summary.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(_summary)
@@ -113,12 +149,38 @@ func _button(text: String, action: Callable) -> Button:
 	return button
 
 func set_recording(recording: Variant) -> bool:
-	var ok: bool=_review.set_recording(recording)
-	_record=recording.duplicate(true) if ok else {}
+	# Validate into a new candidate. A rejected file must preserve the previously
+	# selected historical view, including its cursor and owned sample.
+	var candidate: RefCounted=Review.new()
+	if not candidate.set_recording(recording): return false
+	if recording==_record and _index>=0: candidate.select(_index)
+	_review=candidate
+	_record=recording.duplicate(true)
 	_selection=_review.selection()
 	_index=_selection.sample_index if _selection.get("available",false) else 0
 	_update_text()
-	return ok
+	return true
+
+func set_file_context(imported: bool, message: String="", busy: bool=false) -> void:
+	_imported=imported
+	if _title==null: return
+	_title.text="Opened recorded review" if imported else "Recorded flight review"
+	_current_file.visible=imported
+	for button in [_save_file,_open_file,_current_file,_details_button,_back]: button.disabled=busy
+	# Recovery paths can be long. Keep the graph and controls inside the smallest
+	# viewport; full local details remain selectable/copyable in a scrollable view.
+	_file_message.text=message.substr(0,160).replace("\n"," · ")+(" … (Details)" if message.length()>160 else "")
+	_file_message.visible=not message.is_empty()
+	_file_message.tooltip_text="Open Details to select/copy the complete local message and recovery paths."
+	_details_button.visible=not message.is_empty()
+	_details_text.text=message
+	_summary.tooltip_text=("OPENED FILE / HISTORICAL. File authorship is unverified; the digest detects corruption only.\n" if imported else "")+_metadata_text()
+	_update_text()
+
+func _metadata_text() -> String:
+	if _record.get("metadata")==null: return ""
+	var metadata: Dictionary=_record.metadata
+	return "Recorded session: %s\nModel: %s / %s\nSource fingerprint: %s\nPrepared world: %s\nStart: %s / first tick %s"%[metadata.session_id,metadata.model_identity.id,metadata.model_identity.version,metadata.native_source_fingerprint,metadata.prepared_world_sha256,metadata.named_start,metadata.first_tick]
 
 func set_open(value: bool) -> void:
 	var newly_open: bool=value and not _open
@@ -161,6 +223,7 @@ func _value(sample: Dictionary, channel: String) -> Variant:
 func _update_text() -> void:
 	if _title==null: return
 	var samples: Array=_record.get("samples",[])
+	_current_file.visible=_imported
 	_changing=true
 	_cursor.max_value=maxi(0,samples.size()-1)
 	_cursor.value=_index
@@ -183,6 +246,7 @@ func _update_text() -> void:
 	var delta: Variant=null
 	if fuel_start!=null and fuel_end!=null and is_finite(fuel_end-fuel_start): delta=fuel_end-fuel_start
 	_summary.text="RECORDED OBSERVATIONS / ORIGINAL PROTOTYPE · 2 Hz target / observed states\n%d samples · %d late · %d skipped (%d tail) · %s · %s%s\nSampled planar track: %s m · Sampled fuel change: %s kg · Last sample tick %s / observed tick %s"%[samples.size(),_record.late_sample_count,_record.skipped_target_count,_record.uncaptured_tail_targets,span,_record.seal_reason if _record.seal_reason!=null else "recording",prefix,_number(_track_length()),_number(delta),last.tick,_record.last_observed_tick]
+	if _imported: _summary.text="OPENED FILE / HISTORICAL · "+_summary.text
 	var sample: Dictionary=_selection.sample
 	var reasons: Array[String]=[]
 	for channel in sample.readings.readings:

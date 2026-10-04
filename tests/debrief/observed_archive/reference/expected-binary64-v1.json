@@ -1,0 +1,378 @@
+{
+  "schema_version": 1,
+  "status": "independent-preconsumer-reference-proposed-awaiting-contract-review",
+  "scope": "Binary64 scalar representation only, not a recorded archive/schema/aircraft admission decision. All expected bits precede consumer observations. No size/depth/file/atomic limit ratification.",
+  "oracle": "Exact Fraction normalization and round-to-nearest-ties-even; independently cross-checked Python struct little-endian bytes and Fraction.from_float. No codec/simulator imports or outputs.",
+  "budgets": {
+    "bit_comparison": "exact64-bit equality",
+    "little_endian_hex_comparison": "exact16-lowercase-hex equality",
+    "tolerance": null
+  },
+  "case_count": 26,
+  "finite_cases": 20,
+  "nonfinite_rejections": 6,
+  "cases": [
+    {
+      "name": "positive-zero",
+      "input_rational": {
+        "numerator": "0",
+        "denominator": "1"
+      },
+      "negative_zero": false,
+      "binary64_bits_hex": "0000000000000000",
+      "binary64_le_hex": "0000000000000000",
+      "exact_stored_rational": {
+        "numerator": "0",
+        "denominator": "1"
+      },
+      "finite": true,
+      "expected_bit_roundtrip": true
+    },
+    {
+      "name": "negative-zero",
+      "input_rational": {
+        "numerator": "0",
+        "denominator": "1"
+      },
+      "negative_zero": true,
+      "binary64_bits_hex": "8000000000000000",
+      "binary64_le_hex": "0000000000000080",
+      "exact_stored_rational": {
+        "numerator": "0",
+        "denominator": "1"
+      },
+      "finite": true,
+      "expected_bit_roundtrip": true
+    },
+    {
+      "name": "positive-one",
+      "input_rational": {
+        "numerator": "1",
+        "denominator": "1"
+      },
+      "negative_zero": false,
+      "binary64_bits_hex": "3ff0000000000000",
+      "binary64_le_hex": "000000000000f03f",
+      "exact_stored_rational": {
+        "numerator": "1",
+        "denominator": "1"
+      },
+      "finite": true,
+      "expected_bit_roundtrip": true
+    },
+    {
+      "name": "negative-one",
+      "input_rational": {
+        "numerator": "-1",
+        "denominator": "1"
+      },
+      "negative_zero": false,
+      "binary64_bits_hex": "bff0000000000000",
+      "binary64_le_hex": "000000000000f0bf",
+      "exact_stored_rational": {
+        "numerator": "-1",
+        "denominator": "1"
+      },
+      "finite": true,
+      "expected_bit_roundtrip": true
+    },
+    {
+      "name": "one-half",
+      "input_rational": {
+        "numerator": "1",
+        "denominator": "2"
+      },
+      "negative_zero": false,
+      "binary64_bits_hex": "3fe0000000000000",
+      "binary64_le_hex": "000000000000e03f",
+      "exact_stored_rational": {
+        "numerator": "1",
+        "denominator": "2"
+      },
+      "finite": true,
+      "expected_bit_roundtrip": true
+    },
+    {
+      "name": "rounded-one-third",
+      "input_rational": {
+        "numerator": "1",
+        "denominator": "3"
+      },
+      "negative_zero": false,
+      "binary64_bits_hex": "3fd5555555555555",
+      "binary64_le_hex": "555555555555d53f",
+      "exact_stored_rational": {
+        "numerator": "6004799503160661",
+        "denominator": "18014398509481984"
+      },
+      "finite": true,
+      "expected_bit_roundtrip": true
+    },
+    {
+      "name": "rounded-one-tenth",
+      "input_rational": {
+        "numerator": "1",
+        "denominator": "10"
+      },
+      "negative_zero": false,
+      "binary64_bits_hex": "3fb999999999999a",
+      "binary64_le_hex": "9a9999999999b93f",
+      "exact_stored_rational": {
+        "numerator": "3602879701896397",
+        "denominator": "36028797018963968"
+      },
+      "finite": true,
+      "expected_bit_roundtrip": true
+    },
+    {
+      "name": "positive-minimum-subnormal",
+      "input_rational": {
+        "numerator": "1",
+        "denominator": "202402253307310618352495346718917307049556649764142118356901358027430339567995346891960383701437124495187077864316811911389808737385793476867013399940738509921517424276566361364466907742093216341239767678472745068562007483424692698618103355649159556340810056512358769552333414615230502532186327508646006263307707741093494784"
+      },
+      "negative_zero": false,
+      "binary64_bits_hex": "0000000000000001",
+      "binary64_le_hex": "0100000000000000",
+      "exact_stored_rational": {
+        "numerator": "1",
+        "denominator": "202402253307310618352495346718917307049556649764142118356901358027430339567995346891960383701437124495187077864316811911389808737385793476867013399940738509921517424276566361364466907742093216341239767678472745068562007483424692698618103355649159556340810056512358769552333414615230502532186327508646006263307707741093494784"
+      },
+      "finite": true,
+      "expected_bit_roundtrip": true
+    },
+    {
+      "name": "negative-minimum-subnormal",
+      "input_rational": {
+        "numerator": "-1",
+        "denominator": "202402253307310618352495346718917307049556649764142118356901358027430339567995346891960383701437124495187077864316811911389808737385793476867013399940738509921517424276566361364466907742093216341239767678472745068562007483424692698618103355649159556340810056512358769552333414615230502532186327508646006263307707741093494784"
+      },
+      "negative_zero": false,
+      "binary64_bits_hex": "8000000000000001",
+      "binary64_le_hex": "0100000000000080",
+      "exact_stored_rational": {
+        "numerator": "-1",
+        "denominator": "202402253307310618352495346718917307049556649764142118356901358027430339567995346891960383701437124495187077864316811911389808737385793476867013399940738509921517424276566361364466907742093216341239767678472745068562007483424692698618103355649159556340810056512358769552333414615230502532186327508646006263307707741093494784"
+      },
+      "finite": true,
+      "expected_bit_roundtrip": true
+    },
+    {
+      "name": "largest-subnormal",
+      "input_rational": {
+        "numerator": "4503599627370495",
+        "denominator": "202402253307310618352495346718917307049556649764142118356901358027430339567995346891960383701437124495187077864316811911389808737385793476867013399940738509921517424276566361364466907742093216341239767678472745068562007483424692698618103355649159556340810056512358769552333414615230502532186327508646006263307707741093494784"
+      },
+      "negative_zero": false,
+      "binary64_bits_hex": "000fffffffffffff",
+      "binary64_le_hex": "ffffffffffff0f00",
+      "exact_stored_rational": {
+        "numerator": "4503599627370495",
+        "denominator": "202402253307310618352495346718917307049556649764142118356901358027430339567995346891960383701437124495187077864316811911389808737385793476867013399940738509921517424276566361364466907742093216341239767678472745068562007483424692698618103355649159556340810056512358769552333414615230502532186327508646006263307707741093494784"
+      },
+      "finite": true,
+      "expected_bit_roundtrip": true
+    },
+    {
+      "name": "minimum-normal",
+      "input_rational": {
+        "numerator": "1",
+        "denominator": "44942328371557897693232629769725618340449424473557664318357520289433168951375240783177119330601884005280028469967848339414697442203604155623211857659868531094441973356216371319075554900311523529863270738021251442209537670585615720368478277635206809290837627671146574559986811484619929076208839082406056034304"
+      },
+      "negative_zero": false,
+      "binary64_bits_hex": "0010000000000000",
+      "binary64_le_hex": "0000000000001000",
+      "exact_stored_rational": {
+        "numerator": "1",
+        "denominator": "44942328371557897693232629769725618340449424473557664318357520289433168951375240783177119330601884005280028469967848339414697442203604155623211857659868531094441973356216371319075554900311523529863270738021251442209537670585615720368478277635206809290837627671146574559986811484619929076208839082406056034304"
+      },
+      "finite": true,
+      "expected_bit_roundtrip": true
+    },
+    {
+      "name": "positive-maximum-finite",
+      "input_rational": {
+        "numerator": "179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368",
+        "denominator": "1"
+      },
+      "negative_zero": false,
+      "binary64_bits_hex": "7fefffffffffffff",
+      "binary64_le_hex": "ffffffffffffef7f",
+      "exact_stored_rational": {
+        "numerator": "179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368",
+        "denominator": "1"
+      },
+      "finite": true,
+      "expected_bit_roundtrip": true
+    },
+    {
+      "name": "negative-maximum-finite",
+      "input_rational": {
+        "numerator": "-179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368",
+        "denominator": "1"
+      },
+      "negative_zero": false,
+      "binary64_bits_hex": "ffefffffffffffff",
+      "binary64_le_hex": "ffffffffffffefff",
+      "exact_stored_rational": {
+        "numerator": "-179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368",
+        "denominator": "1"
+      },
+      "finite": true,
+      "expected_bit_roundtrip": true
+    },
+    {
+      "name": "equator-ecef-representative",
+      "input_rational": {
+        "numerator": "6378137",
+        "denominator": "1"
+      },
+      "negative_zero": false,
+      "binary64_bits_hex": "415854a640000000",
+      "binary64_le_hex": "00000040a6545841",
+      "exact_stored_rational": {
+        "numerator": "6378137",
+        "denominator": "1"
+      },
+      "finite": true,
+      "expected_bit_roundtrip": true
+    },
+    {
+      "name": "polar-ecef-representative",
+      "input_rational": {
+        "numerator": "1271350462849",
+        "denominator": "200000"
+      },
+      "negative_zero": false,
+      "binary64_bits_hex": "41583fc4141c970f",
+      "binary64_le_hex": "0f971c14c43f5841",
+      "exact_stored_rational": {
+        "numerator": "6825510824613647",
+        "denominator": "1073741824"
+      },
+      "finite": true,
+      "expected_bit_roundtrip": true
+    },
+    {
+      "name": "landmark-east-representative",
+      "input_rational": {
+        "numerator": "850",
+        "denominator": "1"
+      },
+      "negative_zero": false,
+      "binary64_bits_hex": "408a900000000000",
+      "binary64_le_hex": "0000000000908a40",
+      "exact_stored_rational": {
+        "numerator": "850",
+        "denominator": "1"
+      },
+      "finite": true,
+      "expected_bit_roundtrip": true
+    },
+    {
+      "name": "runway-south-representative",
+      "input_rational": {
+        "numerator": "-1700",
+        "denominator": "1"
+      },
+      "negative_zero": false,
+      "binary64_bits_hex": "c09a900000000000",
+      "binary64_le_hex": "0000000000909ac0",
+      "exact_stored_rational": {
+        "numerator": "-1700",
+        "denominator": "1"
+      },
+      "finite": true,
+      "expected_bit_roundtrip": true
+    },
+    {
+      "name": "tick-duration-representative-not-tick-identity",
+      "input_rational": {
+        "numerator": "1",
+        "denominator": "120"
+      },
+      "negative_zero": false,
+      "binary64_bits_hex": "3f81111111111111",
+      "binary64_le_hex": "111111111111813f",
+      "exact_stored_rational": {
+        "numerator": "4803839602528529",
+        "denominator": "576460752303423488"
+      },
+      "finite": true,
+      "expected_bit_roundtrip": true
+    },
+    {
+      "name": "exact-two-to-53-scalar-not-tick",
+      "input_rational": {
+        "numerator": "9007199254740992",
+        "denominator": "1"
+      },
+      "negative_zero": false,
+      "binary64_bits_hex": "4340000000000000",
+      "binary64_le_hex": "0000000000004043",
+      "exact_stored_rational": {
+        "numerator": "9007199254740992",
+        "denominator": "1"
+      },
+      "finite": true,
+      "expected_bit_roundtrip": true
+    },
+    {
+      "name": "two-to-53-plus-one-rounded-scalar-not-tick",
+      "input_rational": {
+        "numerator": "9007199254740993",
+        "denominator": "1"
+      },
+      "negative_zero": false,
+      "binary64_bits_hex": "4340000000000000",
+      "binary64_le_hex": "0000000000004043",
+      "exact_stored_rational": {
+        "numerator": "9007199254740992",
+        "denominator": "1"
+      },
+      "finite": true,
+      "expected_bit_roundtrip": true
+    },
+    {
+      "name": "positive-infinity",
+      "binary64_bits_hex": "7ff0000000000000",
+      "binary64_le_hex": "000000000000f07f",
+      "finite": false,
+      "expected_finite_decoder_admission": false
+    },
+    {
+      "name": "negative-infinity",
+      "binary64_bits_hex": "fff0000000000000",
+      "binary64_le_hex": "000000000000f0ff",
+      "finite": false,
+      "expected_finite_decoder_admission": false
+    },
+    {
+      "name": "positive-quiet-nan",
+      "binary64_bits_hex": "7ff8000000000001",
+      "binary64_le_hex": "010000000000f87f",
+      "finite": false,
+      "expected_finite_decoder_admission": false
+    },
+    {
+      "name": "negative-quiet-nan",
+      "binary64_bits_hex": "fff8000000000001",
+      "binary64_le_hex": "010000000000f8ff",
+      "finite": false,
+      "expected_finite_decoder_admission": false
+    },
+    {
+      "name": "positive-signaling-nan",
+      "binary64_bits_hex": "7ff0000000000001",
+      "binary64_le_hex": "010000000000f07f",
+      "finite": false,
+      "expected_finite_decoder_admission": false
+    },
+    {
+      "name": "negative-signaling-nan",
+      "binary64_bits_hex": "fff0000000000001",
+      "binary64_le_hex": "010000000000f0ff",
+      "finite": false,
+      "expected_finite_decoder_admission": false
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 #Requires -Version 7.0
 [CmdletBinding()]
-param([Parameter(Mandatory)][string]$ExportProofRoot,[Parameter(Mandatory)][string]$ToolchainRoot,[string]$NativeBuildRoot="")
+param([Parameter(Mandatory)][string]$ExportProofRoot,[Parameter(Mandatory)][string]$ToolchainRoot,[string]$NativeBuildRoot="",[ValidateRange(120,600)][int]$FacadeCheckTimeoutSeconds=120)
 $ErrorActionPreference='Stop'
 if(-not $IsWindows){throw 'Whole-flight portable preview currently targets Windows x64'}
 $repo=(Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
@@ -19,7 +19,7 @@ function Save-PreviewFacadeObservation {
  catch{throw 'Exported facade receipt unreadable or malformed; copied raw evidence retained'}
  if($observed.passed -ne $true){
   $names=@()
-  foreach($group in @(@{name='host';value=$observed},@{name='facade';value=$observed.facade},@{name='input';value=$observed.input},@{name='instruments';value=$observed.instruments},@{name='cockpit_adapter';value=$observed.cockpit.adapter},@{name='cockpit_scan';value=$observed.cockpit.scan},@{name='cockpit_scene';value=$observed.cockpit.scene},@{name='freeflight_geometry';value=$observed.freeflight.geometry},@{name='freeflight_scene';value=$observed.freeflight.scene},@{name='observed_recorder';value=$observed.observed.recorder},@{name='observed_scene';value=$observed.observed.scene})){
+  foreach($group in @(@{name='host';value=$observed},@{name='facade';value=$observed.facade},@{name='input';value=$observed.input},@{name='instruments';value=$observed.instruments},@{name='cockpit_adapter';value=$observed.cockpit.adapter},@{name='cockpit_scan';value=$observed.cockpit.scan},@{name='cockpit_scene';value=$observed.cockpit.scene},@{name='freeflight_geometry';value=$observed.freeflight.geometry},@{name='freeflight_scene';value=$observed.freeflight.scene},@{name='observed_recorder';value=$observed.observed.recorder},@{name='observed_scene';value=$observed.observed.scene},@{name='archive_codec';value=$observed.observed_archive.codec},@{name='archive_files';value=$observed.observed_archive.files},@{name='archive_scene';value=$observed.observed_archive.scene})){
    foreach($failure in @($group.value.failures)){
     # Print only bounded fixture identifiers, never copied values or local paths.
     if($failure -is [string] -and $failure -cmatch '^[A-Za-z0-9_-]{1,96}$' -and $names.Count -lt 16){$names+=($group.name+':'+$failure)}
@@ -70,7 +70,7 @@ $nativeIdentity=Get-PreviewNativeBuildIdentity -RepoRoot $repo -NativeBuildRoot 
 $nativeIdentity | ConvertTo-Json -Depth 10 | Set-Content -Encoding utf8 (Join-Path $evidence 'native-build-identity.json')
 $build=$nativeIdentity.root
 $inputs=@()
-foreach($directory in @('app/proof/interactive','app/simulation','app/input','app/ui/controls','app/ui/freeflight','tests/ui/freeflight','app/replay/observed','app/ui/debrief/observed','tests/debrief/observed','tests/input','app/cockpit','tests/instruments','content/aircraft/prototype','tests/integration/sim_loop','tools/interactive-preview','native/godot_bridge','native/fdm_jsbsim/interactive','native/fdm_jsbsim/models/original-interactive')){
+foreach($directory in @('app/proof/interactive','app/simulation','app/input','app/ui/controls','app/ui/freeflight','tests/ui/freeflight','app/replay/observed','app/ui/debrief/observed','tests/debrief/observed','app/replay/observed_archive','tests/debrief/observed_archive','tests/input','app/cockpit','tests/instruments','content/aircraft/prototype','tests/integration/sim_loop','tools/interactive-preview','native/godot_bridge','native/fdm_jsbsim/interactive','native/fdm_jsbsim/models/original-interactive')){
  foreach($file in Get-ChildItem -LiteralPath (Join-Path $repo $directory) -Recurse -File){
   $inputs+=@{path=[IO.Path]::GetRelativePath($repo,$file.FullName).Replace('\','/');sha256=(Get-FileHash $file.FullName).Hash.ToLowerInvariant();bytes=$file.Length}
  }
@@ -99,6 +99,8 @@ $model=Join-Path $repo 'native/fdm_jsbsim/models/original-interactive'
 if($LASTEXITCODE -ne 0){throw 'Combined model pin gate failed'}
 
 $preset=Get-Content (Join-Path $project 'export_presets.cfg') -Raw
+if($preset -notmatch 'include_filter="\*\.bin"'){throw 'Unexpected raw resource inclusion before archive staging'}
+$preset=$preset.Replace('include_filter="*.bin"','include_filter="*.bin,*.ps1"')
 $preset=$preset.Replace('custom_template/release=""','custom_template/release="'+$template.Replace('\','/')+'"').Replace('exclude_filter=""','exclude_filter="smoke-receipt.json,loop.records.ndjson,compile-all.gd,facade-check-receipt.json,controls*-receipt.json,controls*-preset.json,controls*.png,landmark*.png,landmark*-receipt.json,observed*.png,observed*-receipt.json"')
 $preset | Set-Content -Encoding utf8 (Join-Path $project 'export_presets.cfg')
 # Keep engine/profile/cache writes within this fresh run even during authoring.
@@ -116,7 +118,7 @@ try {
 func _initialize() -> void:
  var script=load("res://interactive/preview.gd") as Script
  var scene=load("res://interactive/preview.tscn") as PackedScene
- for path in ["res://simulation/session_facade.gd","res://simulation/render_origin.gd","res://simulation/origin_participant.gd","res://simulation/wire_validation.gd","res://simulation/flight_scene.gd","res://sim_loop_tests/facade_checks.gd","res://sim_loop_checks.gd","res://input/input_mapper.gd","res://input/input_preset.gd","res://ui/controls/controls_panel.gd","res://input_tests/input_checks.gd","res://input_tests/scene_checks.gd","res://cockpit/instruments/native_readings.gd","res://cockpit/instruments/scan_panel.gd","res://instrument_tests/instrument_checks.gd","res://instrument_tests/adapter_checks.gd","res://instrument_tests/scan_checks.gd","res://instrument_tests/scene_checks.gd","res://ui/freeflight/landmark_board.gd","res://freeflight_tests/landmark_checks.gd","res://freeflight_tests/scene_checks.gd","res://replay/observed/recorder.gd","res://replay/observed/review.gd","res://replay/observed/tick_math.gd","res://replay/observed/values.gd","res://ui/debrief/observed/panel.gd","res://observed_tests/recorder_checks.gd","res://observed_tests/scene_checks.gd"]:
+ for path in ["res://simulation/session_facade.gd","res://simulation/render_origin.gd","res://simulation/origin_participant.gd","res://simulation/wire_validation.gd","res://simulation/flight_scene.gd","res://sim_loop_tests/facade_checks.gd","res://sim_loop_checks.gd","res://input/input_mapper.gd","res://input/input_preset.gd","res://ui/controls/controls_panel.gd","res://input_tests/input_checks.gd","res://input_tests/scene_checks.gd","res://cockpit/instruments/native_readings.gd","res://cockpit/instruments/scan_panel.gd","res://instrument_tests/instrument_checks.gd","res://instrument_tests/adapter_checks.gd","res://instrument_tests/scan_checks.gd","res://instrument_tests/scene_checks.gd","res://ui/freeflight/landmark_board.gd","res://freeflight_tests/landmark_checks.gd","res://freeflight_tests/scene_checks.gd","res://replay/observed/recorder.gd","res://replay/observed/review.gd","res://replay/observed/tick_math.gd","res://replay/observed/values.gd","res://ui/debrief/observed/panel.gd","res://observed_tests/recorder_checks.gd","res://observed_tests/scene_checks.gd","res://replay/observed_archive/strict_json.gd","res://replay/observed_archive/codec.gd","res://replay/observed_archive/files.gd","res://observed_archive_tests/archive_checks.gd","res://observed_archive_tests/file_checks.gd","res://observed_archive_tests/scene_checks.gd"]:
   var dependency=load(path) as Script
   if dependency==null or not dependency.can_instantiate():
    push_error("Simulation resource compile rejected: "+path)
@@ -136,7 +138,8 @@ func _initialize() -> void:
   @{name='editor-smoke';args=@('--headless','--path',$project,'--','--smoke')},
   @{name='export';args=@('--headless','--path',$project,'--export-release','Windows Proof',(Join-Path $payload 'WholeFlightPreview.exe'))}
  )){
-  $result=Invoke-ProofProcess -Executable $godot -Arguments $operation.args -WorkingDirectory $root -Log (Join-Path $evidence ($operation.name+'.log'))
+  $deadline=if($operation.name -eq 'facade-checks'){$FacadeCheckTimeoutSeconds}else{120}
+  $result=Invoke-ProofProcess -Executable $godot -Arguments $operation.args -WorkingDirectory $root -Log (Join-Path $evidence ($operation.name+'.log')) -TimeoutSeconds $deadline
   Assert-PreviewProcessResult $result $operation.name
   if($operation.name -eq 'facade-checks'){
    $receipt=Get-Content (Join-Path $project 'facade-check-receipt.json') -Raw | ConvertFrom-Json
@@ -184,7 +187,7 @@ Copy-Item -LiteralPath (Join-Path $replacement 'smoke-receipt.json') -Destinatio
 Copy-Item -LiteralPath (Join-Path $replacement 'loop.records.ndjson') -Destination (Join-Path $evidence 'replacement.records.ndjson')
 Copy-Item -LiteralPath (Join-Path $replacement 'portable-smoke.log') -Destination (Join-Path $evidence 'replacement.log')
 foreach($target in @(@{name='portable';path=$payload},@{name='replacement';path=$replacement})){
- $result=Invoke-ProofProcess -Executable (Join-Path $target.path 'WholeFlightPreview.exe') -Arguments @('--headless','--','--facade-checks') -WorkingDirectory $root -Log (Join-Path $evidence ($target.name+'-facade.log')) -CleanEnvironment -ProfileRoot (Join-Path $root ('facade-userdata-'+$target.name))
+ $result=Invoke-ProofProcess -Executable (Join-Path $target.path 'WholeFlightPreview.exe') -Arguments @('--headless','--','--facade-checks') -WorkingDirectory $root -Log (Join-Path $evidence ($target.name+'-facade.log')) -CleanEnvironment -ProfileRoot (Join-Path $root ('facade-userdata-'+$target.name)) -TimeoutSeconds $FacadeCheckTimeoutSeconds
  Save-PreviewFacadeObservation -TargetPath $target.path -Evidence $evidence -Name $target.name
  Assert-PreviewProcessResult $result ($target.name+'-facade')
  if($result.text -notmatch 'SIM_LOOP_CHECKS_PASSED' -or $result.text -notmatch 'FLIGHT_BRIDGE_TERMINATED_JOINED'){throw 'Exported actual facade checks failed'}
@@ -222,7 +225,7 @@ foreach($input in $inputs){if((Get-FileHash (Join-Path $repo $input.path)).Hash.
 if($LASTEXITCODE -ne 0){throw 'Toolchain drift detected'}
 if((Get-FileHash (Join-Path $evidence 'tool-pins.json')).Hash -ne (Get-FileHash (Join-Path $evidence 'tool-pins-final.json')).Hash){throw 'Selected tool identities changed during proof'}
 $inventory=@(Get-ChildItem -LiteralPath $payload -Recurse -File | ForEach-Object {@{path=[IO.Path]::GetRelativePath($payload,$_.FullName).Replace('\','/');bytes=$_.Length;sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}} | Sort-Object {$_.path})
-$manifest=@{schema_version=1;kind='original-whole-flight-preview';passed=$true;scope='Windows original model, actual functional headless proof; GPU/human acceptance separate';git_head=(& git -c "safe.directory=$repo" -C $repo rev-parse HEAD);powershell=$PSVersionTable.PSVersion.ToString();authoring_sources=$inputs;observed_sources=$observedGroups;native_build_identity=$nativeIdentity;staged_compile_sha256=(Get-FileHash (Join-Path $project 'compile-all.gd')).Hash.ToLowerInvariant();staged_generated_uid_metadata=@(Get-ChildItem (Join-Path $project 'simulation'),(Join-Path $project 'sim_loop_tests'),(Join-Path $project 'input'),(Join-Path $project 'ui/controls'),(Join-Path $project 'input_tests'),(Join-Path $project 'cockpit'),(Join-Path $project 'instrument_tests'),(Join-Path $project 'ui/freeflight'),(Join-Path $project 'freeflight_tests'),(Join-Path $project 'replay/observed'),(Join-Path $project 'ui/debrief/observed'),(Join-Path $project 'observed_tests') -Recurse -File -Filter '*.gd.uid'|ForEach-Object {@{path=[IO.Path]::GetRelativePath($project,$_.FullName).Replace([char]92,[char]47);sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}});staged_facade_harness_sha256=(Get-FileHash (Join-Path $project 'sim_loop_checks.gd')).Hash.ToLowerInvariant();staged_project_sha256=(Get-FileHash (Join-Path $project 'project.godot')).Hash.ToLowerInvariant();tool_pins=$pins;godot_version=$version.text.Trim();accepted_native_export_root=$proof;accepted_package_inventory_sha256=(Get-FileHash (Join-Path $proof 'evidence/package-inventory.json')).Hash.ToLowerInvariant();files=$inventory}
+$manifest=@{schema_version=1;kind='original-whole-flight-preview';passed=$true;scope='Windows original model, actual functional headless proof; GPU/human acceptance separate';git_head=(& git -c "safe.directory=$repo" -C $repo rev-parse HEAD);powershell=$PSVersionTable.PSVersion.ToString();authoring_sources=$inputs;observed_sources=$observedGroups;native_build_identity=$nativeIdentity;staged_compile_sha256=(Get-FileHash (Join-Path $project 'compile-all.gd')).Hash.ToLowerInvariant();staged_generated_uid_metadata=@(Get-ChildItem (Join-Path $project 'simulation'),(Join-Path $project 'sim_loop_tests'),(Join-Path $project 'input'),(Join-Path $project 'ui/controls'),(Join-Path $project 'input_tests'),(Join-Path $project 'cockpit'),(Join-Path $project 'instrument_tests'),(Join-Path $project 'ui/freeflight'),(Join-Path $project 'freeflight_tests'),(Join-Path $project 'replay/observed'),(Join-Path $project 'ui/debrief/observed'),(Join-Path $project 'observed_tests'),(Join-Path $project 'replay/observed_archive'),(Join-Path $project 'observed_archive_tests') -Recurse -File -Filter '*.gd.uid'|ForEach-Object {@{path=[IO.Path]::GetRelativePath($project,$_.FullName).Replace([char]92,[char]47);sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}});staged_facade_harness_sha256=(Get-FileHash (Join-Path $project 'sim_loop_checks.gd')).Hash.ToLowerInvariant();staged_project_sha256=(Get-FileHash (Join-Path $project 'project.godot')).Hash.ToLowerInvariant();tool_pins=$pins;godot_version=$version.text.Trim();accepted_native_export_root=$proof;accepted_package_inventory_sha256=(Get-FileHash (Join-Path $proof 'evidence/package-inventory.json')).Hash.ToLowerInvariant();files=$inventory}
 $manifest | ConvertTo-Json -Depth 10 | Set-Content -Encoding utf8 (Join-Path $evidence 'manifest.json')
 @{root=$root;project=$project;payload=$payload;evidence=$evidence;passed=$true} | ConvertTo-Json | Set-Content -Encoding utf8 (Join-Path $repo '.local/interactive-preview/latest-run.json')
 Write-Output $root

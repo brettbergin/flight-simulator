@@ -92,6 +92,8 @@ jobs:
         run: |
           . ./tools/interactive-preview/simulation-staging.ps1
           Assert-ObservedReviewReferences -RepoRoot $PWD -Python python
+          python tests/debrief/observed_archive/generate.py
+          if ($LASTEXITCODE -ne 0) { throw "Frozen archive reference drift" }
       - name: Validate dependency download integrity
         run: python tools/bootstrap/test_bootstrap.py
       - name: Pin headless Linux compiler family
@@ -106,6 +108,9 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Pinned input preflight bootstrap failed" }
           python tools/input-controls/check.py
           if ($LASTEXITCODE -ne 0) { throw "Windows input editor/export preflight failed" }
+      - name: Measure isolated exported PowerShell startup before native compilation
+        if: steps.scope.outputs.docs_only != 'true' && (runner.os == 'Windows')
+        run: ./tools/diagnostics/powershell-startup/check.ps1 -ToolchainRoot .local/toolchain
       - name: Compile real shared dependencies, bindings and C++20 smoke
         if: steps.scope.outputs.docs_only != 'true'
         run: ./tools/bootstrap/build.ps1 -Python python -WithGodot -WithExportTemplates:($IsWindows)
@@ -204,10 +209,10 @@ jobs:
             [Environment]::SetEnvironmentVariable($name,$directory,'Process')
           }
           foreach($operation in @(
-            @{name='import';args=@('--headless','--path',$project,'--editor','--quit-after','120','--frame-delay','100')},
-            @{name='checks';args=@('--headless','--path',$project,'res://sim_loop_checks.tscn')}
+            @{name='import';timeout=120;args=@('--headless','--path',$project,'--editor','--quit-after','120','--frame-delay','100')},
+            @{name='checks';timeout=600;args=@('--headless','--path',$project,'res://sim_loop_checks.tscn')}
           )) {
-            $result=Invoke-ProofProcess $environment.tools.godot $operation.args $root (Join-Path $evidence ($operation.name+'.log'))
+            $result=Invoke-ProofProcess $environment.tools.godot $operation.args $root (Join-Path $evidence ($operation.name+'.log')) -TimeoutSeconds $operation.timeout
             if($result.exit_code -ne 0 -or $result.text -match 'ERROR:|SCRIPT ERROR:|FATAL|ObjectDB instances? (?:(?:was|were) )?leaked|RID allocations leaked|resources still in use|Assertion failed') { throw 'Headless simulation facade resource/check run failed' }
           }
           $receipt=Get-Content (Join-Path $project 'facade-check-receipt.json') -Raw | ConvertFrom-Json
@@ -226,7 +231,7 @@ jobs:
           Assert-FreeflightSourceGroups -DestinationRoot $project -Groups $freeflightGroups -AllowGeneratedUIDs
           Assert-ObservedReviewSourceGroups -DestinationRoot $PWD -Groups $observedGroups -Authoring
           Assert-ObservedReviewSourceGroups -DestinationRoot $project -Groups $observedGroups -AllowGeneratedUIDs
-          @{source=$snapshot;tests=$tests;input_sources=$inputGroups;cockpit_sources=$cockpitGroups;freeflight_sources=$freeflightGroups;observed_sources=$observedGroups;generated_uid_metadata=@(Get-ChildItem (Join-Path $project 'simulation'),(Join-Path $project 'sim_loop_tests'),(Join-Path $project 'input'),(Join-Path $project 'ui/controls'),(Join-Path $project 'input_tests'),(Join-Path $project 'cockpit'),(Join-Path $project 'instrument_tests'),(Join-Path $project 'ui/freeflight'),(Join-Path $project 'freeflight_tests'),(Join-Path $project 'replay/observed'),(Join-Path $project 'ui/debrief/observed'),(Join-Path $project 'observed_tests') -Recurse -File -Filter '*.gd.uid'|ForEach-Object {@{path=[IO.Path]::GetRelativePath($project,$_.FullName).Replace([char]92,[char]47);sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}});godot_sha256=(Get-FileHash $environment.tools.godot).Hash.ToLowerInvariant();project_sha256=(Get-FileHash (Join-Path $project 'project.godot')).Hash.ToLowerInvariant();harness_sha256=(Get-FileHash (Join-Path $project 'sim_loop_checks.gd')).Hash.ToLowerInvariant();modules=@(Get-ChildItem (Join-Path $project 'bin') -File | ForEach-Object {@{name=$_.Name;sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}})} | ConvertTo-Json -Depth 12 | Set-Content (Join-Path $evidence 'source-binding.json')
+          @{source=$snapshot;tests=$tests;input_sources=$inputGroups;cockpit_sources=$cockpitGroups;freeflight_sources=$freeflightGroups;observed_sources=$observedGroups;generated_uid_metadata=@(Get-ChildItem (Join-Path $project 'simulation'),(Join-Path $project 'sim_loop_tests'),(Join-Path $project 'input'),(Join-Path $project 'ui/controls'),(Join-Path $project 'input_tests'),(Join-Path $project 'cockpit'),(Join-Path $project 'instrument_tests'),(Join-Path $project 'ui/freeflight'),(Join-Path $project 'freeflight_tests'),(Join-Path $project 'replay/observed'),(Join-Path $project 'ui/debrief/observed'),(Join-Path $project 'observed_tests'),(Join-Path $project 'replay/observed_archive'),(Join-Path $project 'observed_archive_tests') -Recurse -File -Filter '*.gd.uid'|ForEach-Object {@{path=[IO.Path]::GetRelativePath($project,$_.FullName).Replace([char]92,[char]47);sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}});godot_sha256=(Get-FileHash $environment.tools.godot).Hash.ToLowerInvariant();project_sha256=(Get-FileHash (Join-Path $project 'project.godot')).Hash.ToLowerInvariant();harness_sha256=(Get-FileHash (Join-Path $project 'sim_loop_checks.gd')).Hash.ToLowerInvariant();modules=@(Get-ChildItem (Join-Path $project 'bin') -File | ForEach-Object {@{name=$_.Name;sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}})} | ConvertTo-Json -Depth 12 | Set-Content (Join-Path $evidence 'source-binding.json')
       - name: Prove Windows corresponding source and actual DLL replacement
         if: steps.scope.outputs.docs_only != 'true' && (runner.os == 'Windows')
         run: |
@@ -252,7 +257,7 @@ jobs:
           node --test tools/interactive-preview/verify.test.mjs
           if ($LASTEXITCODE -ne 0) { throw "Interactive model staging rejection failed" }
           $proof = Get-Content .local/export-proof/latest-run.json -Raw | ConvertFrom-Json
-          ./tools/interactive-preview/run.ps1 -ExportProofRoot $proof.root -ToolchainRoot .local/toolchain
+          ./tools/interactive-preview/run.ps1 -ExportProofRoot $proof.root -ToolchainRoot .local/toolchain -FacadeCheckTimeoutSeconds 600
       - name: Preserve build evidence (no simulator binaries)
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -266,6 +271,8 @@ jobs:
             .local/toolchain/environment.json
             .local/input-preflight/*/*.json
             .local/input-preflight/*/*.log
+            .local/powershell-startup/run-*/evidence/*.json
+            .local/powershell-startup/run-*/evidence/*.log
             .local/build/native-release/dynamic-dependencies.txt
             .local/build/native-release/godot-binding-load.txt
             .local/fdm-proof/**
