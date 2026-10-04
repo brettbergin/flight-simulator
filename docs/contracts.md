@@ -141,3 +141,7 @@ The schema suite checks all14 boundaries/hash fixtures, incompatible/unknown pay
 ## Explicit recorded-review interchange seam
 
 [ADR012](decisions/012-observed-review-interchange.md), proposed by [#136](https://github.com/brettbergin/flight-simulator/issues/136), defines exact bounded guest Save new review/Open semantics before consumers. Schema-qualified binary64 tags, canonical tick strings, strict UTF8/JSON and an exact payload digest preserve historical observations. The scene owns verified pause and isolated imported review; new-file local NTFS creation never overwrites an existing target. ADR004 automatic storage and public wire contracts remain unchanged. Consumers wait for the checked contract and their own delivery gates; profiles, resume, aircraft/pilot and phase acceptance remain separate.
+
+## Synthetic steady-wind start seam
+
+[ADR013](decisions/013-steady-wind-starts.md), proposed by [#140](https://github.com/brettbergin/flight-simulator/issues/140), defines closed initialization-only Calm/from-north/from-west/from-east choices for the existing combined prototype. Checked native setup and published weather drive source-qualified wind cues; draft choices cannot alter a current flight. It preserves original model/world/seed/rate, public schemas and recorded-review versions. Native signs, trim, deterministic repeats, scene admission and new-build package/visual evidence remain separate consumer gates. Saved reviews do not retain wind setup or resume a flight; real weather, C172/hardware/pilot and phase acceptance remain open.

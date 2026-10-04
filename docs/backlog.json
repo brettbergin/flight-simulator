@@ -4782,6 +4782,64 @@
         "Actual unchanged native paused boundary, historical selection and discard lifecycle invariance plus isolated exported visual views.",
         "Exact final source-bound portable/replacement package, rights/inventory review and protected checks; no physics resume, autosave or training-credit claim."
       ]
+    },
+    {
+      "key": "STEADY-WIND-CONTRACT",
+      "title": "Define selectable steady-wind starts and native-truth cues",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Ratify closed initialization-only synthetic steady winds, actual native publication and truthful draft/current/windsock/map cues before consumers.",
+      "depends_on": [
+        "INTERACTIVE-CONTRACT",
+        "SIM-LOOP-CONTRACT",
+        "COCKPIT-READINGS-CONTRACT",
+        "OBSERVED-REVIEW-CONTRACT",
+        "OBSERVED-ARCHIVE-CONTRACT"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:core",
+        "priority:P1",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "docs/decisions/013-steady-wind-starts.md",
+        "docs/contracts.md",
+        "docs/README.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md"
+      ],
+      "docs": [
+        "docs/decisions/006-interactive-prototype.md",
+        "docs/decisions/007-sim-loop-facade.md",
+        "docs/decisions/009-cockpit-readings.md",
+        "docs/decisions/011-observed-flight-review.md",
+        "docs/decisions/012-observed-review-interchange.md",
+        "docs/evidence/P2/observed-review-interchange.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [
+        "PRD-007",
+        "PRD-008",
+        "REAL-011",
+        "SAFE-022"
+      ],
+      "acceptance": [
+        "Specify exactly Calm/from-north/from-west/from-east initialization-only original synthetic SI vectors and default calm compatibility; preserve both starts, original model/XML/world/seed42/120Hz, dry ISA and authoritative native state.",
+        "Define checked native Config/bridge/facade selection, actual requested-versus-accepted RunIC/trim/wind/air-relative semantics, no silent calm fallback or retuning, and preconsumer independent numerical/sign/reference gates.",
+        "Specify current/draft/reset/Resume/Cancel/discard/failed-start boundaries, qualified native-truth FROM/TO cues and reciprocal runway geometry, with source-qualified uniform-NED projection and unavailable/historical labels.",
+        "Preserve public wire/Result/Readback and ADR011/012 recording/archive versions and fixtures; visibly disclose that saved observations do not retain wind setup or resume a flight.",
+        "Allocate disjoint downstream native/reference/UI/delivery ownership and separate native build root, preserving accepted caches and running player; require complete native/scene/package/replacement/visual/CI evidence before consumer acceptance.",
+        "Contract merge does not close weather/airfield epics, original-piston convergence, aircraft/device/pilot or phase gates. No live weather, gusts, sensor emulation, C172 limits or training-credit claim."
+      ],
+      "evidence": [
+        "Reviewed closed ADR013 with exact vector/units/frames/lifecycle/source identity boundaries and independent source review.",
+        "Canonical issue/requirement/phase mapping and explicit future consumer proof gates; no runtime acceptance from the contract PR."
+      ]
     }
   ]
 }
