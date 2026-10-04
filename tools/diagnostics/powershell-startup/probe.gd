@@ -17,6 +17,33 @@ Metadata 'UTILITY_PATH' (Get-Command ConvertTo-Json).Module.Path
 [Console]::Out.Flush()
 [Environment]::Exit(0)
 """
+class PipeReader:
+	extends RefCounted
+	var mutex: Mutex = Mutex.new()
+	var entry_ms: int = -1
+
+	func read(pipe: FileAccess, started: int, observe_entry: bool) -> Dictionary:
+		var bytes: PackedByteArray = PackedByteArray()
+		var exceeded: bool = false
+		while true:
+			# Pinned Windows get_buffer returns0 at EOF without ERR_FAIL logging.
+			# Single-byte reads avoid assuming a full requested chunk is available.
+			var byte: PackedByteArray = pipe.get_buffer(1)
+			if byte.is_empty(): break
+			if bytes.size()<8192: bytes.append_array(byte)
+			else: exceeded=true
+			if observe_entry and bytes.size()==12 and bytes=="FSPS_ENTRY\r\n".to_ascii_buffer():
+				mutex.lock()
+				entry_ms=Time.get_ticks_msec()-started
+				mutex.unlock()
+		return {"bytes":bytes,"exceeded":exceeded}
+
+	func entry_time() -> int:
+		mutex.lock()
+		var value: int = entry_ms
+		mutex.unlock()
+		return value
+
 var observations: Array = []
 var failures: Array = []
 
@@ -40,7 +67,7 @@ func _run() -> void:
 	get_tree().quit(0 if passed else 1)
 
 func _write_receipt(passed: bool) -> void:
-	var receipt: Dictionary = {"schema_version":1,"passed":passed,"observations":observations,"failures":failures,"order":["A","B","B","A"],"limitations":["Entry time is host-observed with frame polling, not exact child emission time.","ABBA shares the same private environment/profile; cache warming and order effects remain.","No speed assertion or causal finding. Effective module paths may differ from requested paths.","Diagnostic does not replace complete portable and replacement production proofs."]}
+	var receipt: Dictionary = {"schema_version":1,"passed":passed,"observations":observations,"failures":failures,"order":["A","B","B","A"],"limitations":["Entry time is observed by a blocking reader Thread, not exact child emission time.","ABBA shares the same private environment/profile; cache warming and order effects remain.","No speed assertion or causal finding. Effective module paths may differ from requested paths.","Diagnostic does not replace complete portable and replacement production proofs."]}
 	var file: FileAccess = FileAccess.open(OS.get_executable_path().get_base_dir().path_join("startup-receipt.json"),FileAccess.WRITE)
 	if file == null:
 		push_error("Diagnostic receipt unavailable")
@@ -73,49 +100,48 @@ func _launch(treatment: String) -> Dictionary:
 	if process.is_empty():
 		result.error="launch_failed"
 		return result
-	var output: PackedByteArray = PackedByteArray()
-	var errors: PackedByteArray = PackedByteArray()
+	var stdout_reader: PipeReader = PipeReader.new()
+	var stderr_reader: PipeReader = PipeReader.new()
+	var stdout_thread: Thread = Thread.new()
+	var stderr_thread: Thread = Thread.new()
+	var stdout_started: bool = stdout_thread.start(stdout_reader.read.bind(process.stdio,started,true))==OK
+	var stderr_started: bool = stderr_thread.start(stderr_reader.read.bind(process.stderr,started,false))==OK
 	var killed: bool = false
-	var observed_exit: bool = false
-	while true:
-		for pair in [[process.stdio,output],[process.stderr,errors]]:
-			var pipe: FileAccess = pair[0]
-			var bytes: PackedByteArray = pair[1]
-			var available: int = pipe.get_length()
-			if available>0:
-				if bytes.size()+available>8192:
-					result.error="output_bound"
-					if not killed: OS.kill(process.pid); killed=true
-					# Never consume unbounded output or treat a kill request as join.
-				else:
-					bytes.append_array(pipe.get_buffer(available))
-				if pipe==process.stdio: output=bytes
-				else: errors=bytes
-		if result.launch_to_entry_ms==null and "FSPS_ENTRY\r\n" in output.get_string_from_utf8():
-			result.launch_to_entry_ms=Time.get_ticks_msec()-started
-		# Drain once more after the exit observation: DONE might have arrived
-		# between the previous PeekNamedPipe and GetExitCodeProcess checks.
-		if observed_exit: break
-		if not OS.is_process_running(process.pid):
-			result.exit_code=OS.get_process_exit_code(process.pid)
-			result.joined=result.exit_code>=0
-			result.launch_to_exit_ms=Time.get_ticks_msec()-started
-			observed_exit=true
-			continue
+	if not stdout_started or not stderr_started:
+		result.error="reader_start_failed"
+		OS.kill(process.pid)
+		killed=true
+	while OS.is_process_running(process.pid):
 		if Time.get_ticks_msec()-started>=60000 and not killed:
 			result.timeout=true
 			OS.kill(process.pid)
 			killed=true
-		# If termination is not observed, remain alive for the outer120s process-tree
-		# watchdog; never return an orphan or claim kill==join. Both streams drained.
+		# A kill request is not join. If exit is not observed, remain alive for the
+		# outer120s process-tree watchdog instead of returning an orphan.
 		await get_tree().process_frame
+	result.exit_code=OS.get_process_exit_code(process.pid)
+	result.joined=result.exit_code>=0
+	result.launch_to_exit_ms=Time.get_ticks_msec()-started
+	# Blocking readers see zero-byte EOF after the child closes its write handles.
+	# Do not close a FileAccess concurrently with its reader or Peek at EOF.
+	while stdout_thread.is_alive() or stderr_thread.is_alive():
+		await get_tree().process_frame
+	var out_capture: Dictionary = stdout_thread.wait_to_finish() if stdout_started else {"bytes":PackedByteArray(),"exceeded":false}
+	var err_capture: Dictionary = stderr_thread.wait_to_finish() if stderr_started else {"bytes":PackedByteArray(),"exceeded":false}
+	result.readers_joined=stdout_started and stderr_started
+	result.launch_to_entry_ms=stdout_reader.entry_time()
+	if result.launch_to_entry_ms<0: result.launch_to_entry_ms=null
 	process.stdio.close()
 	process.stderr.close()
-	result.stdout=output.get_string_from_utf8()
-	result.stderr=errors.get_string_from_utf8()
+	result.stdout=out_capture.bytes.get_string_from_utf8()
+	result.stderr=err_capture.bytes.get_string_from_utf8()
+	result.output_bound_exceeded=out_capture.exceeded or err_capture.exceeded
 	var parsed: Dictionary = _parse(result.stdout)
 	result.metadata=parsed
-	result.passed=result.environment_restored and result.joined and result.exit_code==0 and not result.timeout and not result.has("error") and errors.is_empty() and parsed.size()==6 and result.launch_to_entry_ms!=null
+	# Windows PowerShell can emit only its serialization preamble on stderr.
+	# Permit that exact bare header; preserve it and reject every other byte/record.
+	var stderr_allowed: bool = err_capture.bytes.is_empty() or err_capture.bytes=="#< CLIXML\r\n".to_ascii_buffer()
+	result.passed=result.environment_restored and result.joined and result.readers_joined and result.exit_code==0 and not result.timeout and not result.output_bound_exceeded and not result.has("error") and stderr_allowed and parsed.size()==6 and result.launch_to_entry_ms!=null
 	return result
 
 static func _parse(output: String) -> Dictionary:

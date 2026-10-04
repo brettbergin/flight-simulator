@@ -86,7 +86,7 @@ $receipt=Get-Content -LiteralPath $raw -Raw | ConvertFrom-Json
 if($receipt.schema_version -ne 1 -or $receipt.passed -ne $true -or @($receipt.observations).Count -ne 4 -or @($receipt.failures).Count -ne 0 -or ($receipt.order -join '') -cne 'ABBA' -or $result.text -notmatch 'POWERSHELL_STARTUP_DIAGNOSTIC_PASSED'){throw "Diagnostic incomplete; inspect $root"}
 for($i=0;$i -lt 4;$i++){
  $row=$receipt.observations[$i]
- if($row.treatment -cne $receipt.order[$i] -or $row.passed -ne $true -or $row.joined -ne $true -or $row.environment_restored -ne $true -or $row.timeout -ne $false -or $row.exit_code -ne 0 -or $null -eq $row.launch_to_entry_ms -or $null -eq $row.launch_to_exit_ms){throw "Diagnostic observation invalid; inspect $root"}
+ if($row.treatment -cne $receipt.order[$i] -or $row.passed -ne $true -or $row.joined -ne $true -or $row.environment_restored -ne $true -or $row.readers_joined -ne $true -or $row.output_bound_exceeded -ne $false -or $row.timeout -ne $false -or $row.exit_code -ne 0 -or $null -eq $row.launch_to_entry_ms -or $null -eq $row.launch_to_exit_ms){throw "Diagnostic observation invalid; inspect $root"}
 }
 if((Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash.ToLowerInvariant() -ne $initialHash -or (Get-FileHash -LiteralPath (Join-Path $project 'probe.gd') -Algorithm SHA256).Hash.ToLowerInvariant() -ne $initialHash){throw 'Diagnostic source changed during capture'}
 Write-Output "Standalone PowerShell ABBA startup observations retained: $root"
