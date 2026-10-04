@@ -154,3 +154,4 @@ jobs:
             .local/preview/run-*/evidence/*.log
             .local/interactive-preview/run-*/evidence/*.json
             .local/interactive-preview/run-*/evidence/*.log
+            .local/interactive-preview/run-*/evidence/*.ndjson
