@@ -5709,6 +5709,123 @@
         "Metadata-only source index and conditional assessment with exact primary source identities, dependency/host gaps and unverified applicability/performance cells.",
         "Documentation check and independent final source-claim/mapping review; no runtime build/launch or aircraft/phase acceptance."
       ]
+    },
+    {
+      "key": "C172P-APPLICABILITY-DOSSIER",
+      "title": "Establish one 160 hp land C172P applicability and normal-reference dossier",
+      "kind": "task",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Establish metadata-only certified applicability and normal-reference feasibility for one proposed conventional-panel 160 hp land C172P; unresolved source cells remain blocked, with no aircraft adoption or C172S substitution.",
+      "depends_on": [
+        "C172P-SOURCE-ASSESSMENT",
+        "LICENSE-REGISTER",
+        "VALIDATION-CORPUS"
+      ],
+      "labels": [
+        "type:task",
+        "priority:P1",
+        "phase:P3",
+        "status:ready",
+        "area:aircraft"
+      ],
+      "owned_paths": [
+        "docs/evidence/P3/c172p/applicability-dossier.md",
+        "docs/evidence/P3/c172p/applicability-source-index.json",
+        "docs/evidence/P3/c172p/normal-reference-feasibility.json"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/agent-operations.md",
+        "docs/roadmap.md",
+        "docs/phases/p3-complete-circuit.md",
+        "docs/sources.md",
+        "docs/realism-and-validation.md",
+        "docs/evidence/P3/c172p-candidate-assessment.md",
+        "docs/evidence/P3/c172p-candidate-source-index.json",
+        "third_party/licenses/README.md",
+        "tools/validation/README.md"
+      ],
+      "requirements": [
+        "REAL-001",
+        "REAL-002",
+        "REAL-003",
+        "PRD-003"
+      ],
+      "acceptance": [
+        "Record actual primary source URL, publisher, retrieved date/byte count/SHA256, publication revision/date, one-based PDF and printed-page locators, read scope and rights status for every acquired document. Distinguish discovery links, historical documents, actually retrieved current documents and unavailable sources.",
+        "Verify current FAA3A12 and applicable engine/propeller certificates/notes through the [FAA route](https://www.faa.gov/faq/how-can-i-locate-type-certificate-data-sheet-tcds-aircraft), or explicitly leave current applicability unverified with the attempted primary route and consequence. Do not silently call Rev80 current.",
+        "Give a traceable proposed year/serial interval, engine/approved propeller, land gear/tire, panel/electrical, fuel/oil, modifications/supplements and equipment/loading basis. Separate type-level approval from an individual representative installation. Do not invent a serial, equipment list or empty mass.",
+        "Verify lawful applicable POH/AFM edition/revisions/supplements, including D1212-13PH applicability, or leave an explicit blocking cell. Free lawful primary access only; no paid/account/outreach acquisition under this issue.",
+        "Provide a per-field provenance/status ledger for limitations/loading, datum/stations and retained installation facts. Each field states applicability, units/frame, source locator, known uncertainty or null/unverified, and permitted use. Isolated factual metadata is separate from permission to copy tables, prose or graphics. No restricted chart/checklist/manual reproduction.",
+        "Provide a normal-reference feasibility matrix explicitly covering trim/cruise TAS and power, fuel consumption in mass/time with power/mixture and declared conditions, climb IAS and climb rate, stall, takeoff and landing ground roll versus specified-obstacle distance, and IAS/CAS calibration where supported. State exact configuration and mass/CG/atmosphere, power/mixture/flaps, runway/wind/surface/slope where relevant, speed definitions, reference revision and rights. Distinguish engine-family fuel curves from fuel use in the applicable aircraft installation. Missing expected values/conditions/uncertainty stay null and unsupported. No new numerical tolerances, invented aerodynamic coefficients or calibration.",
+        "List unresolved contradictions, supplements and inaccessible inputs, and state a candid feasible/blocked conclusion. A completed research dossier may record a blocker but must not claim a source-qualified aircraft while it remains.",
+        "Preserve selected C172S #28/#76 and original profile identities; no runtime adoption, procedure/training qualification or phase closure.",
+        "Independent source/applicability review and node tools/check-docs.mjs pass. Retain metadata-only evidence and reviewer limitations."
+      ],
+      "evidence": [
+        "Independent reviewed applicability dossier, metadata source index and normal-reference feasibility matrix with explicit unknown/unsupported cells; no new numerical tolerances, restricted tables, runtime tests or source import.",
+        "Partial source preparation only. Preserve selected C172S #28/#76, original profiles and independent normal-reference/contract/pilot/phase gates. Both dossiers join before any separately authorized profile/interface/package decision."
+      ]
+    },
+    {
+      "key": "C172P-HOST-RIGHTS-CLOSURE",
+      "title": "Resolve recursive numerical/FlightGear-host provenance and rights",
+      "kind": "task",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Resolve the proposed 160 hp land C172P recursive numerical/FlightGear-host ownership and scoped rights graph; no source import, runtime contract, package clearance or adoption.",
+      "depends_on": [
+        "C172P-SOURCE-ASSESSMENT",
+        "LICENSE-REGISTER",
+        "VALIDATION-CORPUS"
+      ],
+      "labels": [
+        "type:task",
+        "priority:P1",
+        "phase:P3",
+        "status:ready",
+        "area:aircraft"
+      ],
+      "owned_paths": [
+        "docs/evidence/P3/c172p/host-closure.md",
+        "docs/evidence/P3/c172p/host-source-index.json",
+        "docs/evidence/P3/c172p/host-property-ownership.json",
+        "docs/evidence/P3/c172p/rights-obligations.md"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/agent-operations.md",
+        "docs/roadmap.md",
+        "docs/phases/p3-complete-circuit.md",
+        "docs/sources.md",
+        "docs/realism-and-validation.md",
+        "docs/evidence/P3/c172p-candidate-assessment.md",
+        "docs/evidence/P3/c172p-candidate-source-index.json",
+        "third_party/licenses/README.md",
+        "tools/validation/README.md"
+      ],
+      "requirements": [
+        "REAL-001",
+        "REAL-002",
+        "REAL-003",
+        "PRD-003"
+      ],
+      "acceptance": [
+        "Pin actual candidate and intended host repositories/commits, source-file blob and decoded-byte SHA256 identities, read scope and governing primary rights evidence. Tag objects/peeled commits and Git blobs/archive digests must not be conflated. Matching tag numbers alone do not prove intended compatibility.",
+        "Trace all 17 direct systems and recursively resolve every retained static include, engine/propeller/table, property-system XML, Nasal/native service and aliased/dynamic host dependency. For each edge give caller/locator, actual resolution rule/target, inspected identity and retain/transform/replace/exclude/block decision. Unresolved dynamic edges remain explicit; never call a direct roster complete.",
+        "Document actual Generic search-path resolution and decide whether hydrodynamics is required or explicitly removed for land scope. Do not equate c172p-hydrodynamics with the external file. Justify exclusion of optional float/amphibious/ski, 180 hp/172S-derived loading, walker/sound/presentation paths without silent branch activation.",
+        "Map each retained authoritative property/control/indication to readers, writers, units/frame, alias/default/init/reinit order, timing and active-engine selection. Cover starter/electrical supply, primer, feed/carburetor/mixture, oil/heat/icing, fuel/load, ground/contact and damage dependencies; assist helpers require actual activation/default evidence. This ownership analysis is a proposal, not an accepted interface.",
+        "Record candidate solver/source assumptions and differences from our pinned JSBSim and accepted event-aware/coupled shaft mechanism. Unknown coupling/default behavior is unresolved; no build/load/flight assertion.",
+        "Review retained numerical authorship/project GPL2+ scope and transitive exceptions/actual contrary terms. Distinguish aircraft implementation from manufacturer references and asset licenses. Do not invent a per-file-header requirement, assume every asset GPL, relabel GPL code MIT, or treat interpreted data as obligation-free.",
+        "Provide a concrete selected-source/derivative/notices/modification/corresponding-source distribution obligations proposal referencing GPLv2 sections1–3 and6, with unknown application/integration boundary explicit. No package rights clearance or wholesale application-license change. Future owner/integration review must choose the actual GPL/source-package approach before publication.",
+        "Every graph node and rights cell is resolved with evidence or marked blocked/uninspected; acceptance report distinguishes complete proposed retained closure from unfinished closure. Source feasibility may be blocked rather than fabricated.",
+        "Keep metadata only; no model/source/asset import, runtime/profile contract, tuning, build/launch, numerical tolerances, C172S substitution or gate closure. Independent source/rights review and node tools/check-docs.mjs pass."
+      ],
+      "evidence": [
+        "Independent reviewed recursive dependency graph, metadata source index, property-ownership matrix and scoped GPL/source-package obligations proposal, with unresolved dynamic/rights/compatibility cells explicit; no executable import or package clearance.",
+        "Partial source preparation only. Preserve selected C172S #28/#76, original profiles and independent normal-reference/contract/pilot/phase gates. Both dossiers join before any separately authorized profile/interface/package decision."
+      ]
     }
   ]
 }

@@ -88,6 +88,8 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | ORIGINAL-PISTON-FLIGHT | [#127 Build deliberate engine startup, taxi and shutdown interaction](https://github.com/brettbergin/flight-simulator/issues/127) | ORIGINAL-PISTON-CONTRACT, ORIGINAL-PISTON-MODEL, STEADY-WIND-FLIGHT, PISTON-COUPLING-ACCURACY |
 | PISTON-COUPLING-ACCURACY | [#149 Correct cold-start and shutdown convergence without changing frozen limits](https://github.com/brettbergin/flight-simulator/issues/149) | ORIGINAL-PISTON-CONTRACT, ORIGINAL-PISTON-MODEL, STEADY-WIND-FLIGHT |
 | C172P-SOURCE-ASSESSMENT | [#169 Assess a maintained C172P candidate before a standalone port](https://github.com/brettbergin/flight-simulator/issues/169) | LICENSE-REGISTER, VALIDATION-CORPUS |
+| C172P-APPLICABILITY-DOSSIER | [#171 Establish one 160 hp land C172P applicability and normal-reference dossier](https://github.com/brettbergin/flight-simulator/issues/171) | C172P-SOURCE-ASSESSMENT, LICENSE-REGISTER, VALIDATION-CORPUS |
+| C172P-HOST-RIGHTS-CLOSURE | [#172 Resolve recursive numerical/FlightGear-host provenance and rights](https://github.com/brettbergin/flight-simulator/issues/172) | C172P-SOURCE-ASSESSMENT, LICENSE-REGISTER, VALIDATION-CORPUS |
 
 ## P4 — Regional navigation and environment
 
