@@ -147,4 +147,13 @@ func run()->Dictionary:
  check(a.resume_confirmed(raw([], [device])).ok,"joy_starter_rearmed")
  var copied:Dictionary=a.sample(raw([], [device]),0);copied.systems["fuel.feed"]=false;copied.axes.mixture=1.0
  check(a._system_intents["fuel.feed"] and a._values.mixture!=1.0,"owned_return_copies")
+ var pointer=Mapper.new()
+ check(pointer.configure_v2(preset,axes(),axes(),raw(),Preset.PISTON_PROFILE,held).ok,"pointer_regression_configured")
+ check(pointer.bind_pointer_session("piston-pointer-regression").ok,"pointer_bound_qualified_session")
+ var pointer_before:Dictionary=pointer.pointer_view()
+ check(pointer.sample(raw([KEY_F12]),0).systems["engine.starter"] and pointer.pointer_view()==pointer_before,"pointer_suspended_diagnostic_no_intent_change")
+ check(pointer.resume_confirmed(raw()).ok and not pointer.sample(raw(),0).systems["engine.starter"],"pointer_first_resumed_false")
+ var exported:PackedByteArray=Preset.encode_v2(preset).value
+ pointer.invalidate_pointer("retired widget")
+ check(Preset.encode_v2(pointer._preset).value==exported and pointer.pointer_view().capture==null,"pointer_metadata_never_saved")
  return {"passed":_failures.is_empty(),"checks":_checks,"failures":_failures.duplicate()}

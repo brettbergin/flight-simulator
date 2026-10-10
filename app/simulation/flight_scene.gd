@@ -45,6 +45,12 @@ var route_open: bool=false
 var route_aids_visible: bool=true
 var route_view: Dictionary={}
 const EngineStatus = preload("res://cockpit/instruments/engine_status.gd")
+const EngineControls = preload("res://cockpit/engine_controls.gd")
+var engine_controls: Control
+var engine_controls_session: String=""
+var engine_pointer_terminal: Dictionary={}
+var engine_pointer_rearm: Array[int]=[]
+var engine_pointer_look_active: bool=false
 # These identify only the last fully adopted fresh flight, never a menu draft.
 var selected_profile: String="original-interactive-prototype"
 var adopted_session_id: String=""
@@ -78,6 +84,15 @@ var legacy_proof: bool="--smoke" in OS.get_cmdline_user_args() or "--visual-smok
 var facade_visual: bool="--facade-visual-smoke" in OS.get_cmdline_user_args()
 
 func _ready() -> void:
+	if ("--pointer-checks" in OS.get_cmdline_user_args() or "--pointer-visual-smoke" in OS.get_cmdline_user_args()) and get_parent()==get_tree().root:
+		set_process(false)
+		var harness: Script=load("res://pointer_checks.gd")
+		if harness==null or not harness.can_instantiate():
+			push_error("Pointer checks harness unavailable")
+			get_tree().quit(1)
+			return
+		add_child(harness.new())
+		return
 	if "--facade-checks" in OS.get_cmdline_user_args() and get_parent()==get_tree().root:
 		set_process(false)
 		var harness: Script=load("res://sim_loop_checks.gd")
@@ -154,6 +169,7 @@ func close_session() -> bool:
 	if legacy_proof:
 		return super.close_session()
 	if not archive_operation.is_empty(): return false
+	if facade!=null: invalidate_engine_pointer("Session closing")
 	render_pose.clear()
 	if facade==null:
 		bridge=null
@@ -305,10 +321,15 @@ func configure_mapper(preset: Dictionary) -> Dictionary:
 	var systems: Dictionary=EngineStatus.held_systems_from_readback(source)
 	if not systems.ok:
 		return {"ok":false,"error":systems.error}
-	return mapper.configure_v2(preset,held_controls,initial.solved_controls,collect_input_raw(preset),source.model_identity,systems.value)
+	var configured: Dictionary=mapper.configure_v2(preset,held_controls,initial.solved_controls,collect_input_raw(preset),source.model_identity,systems.value)
+	if not configured.ok: return configured
+	return mapper.bind_pointer_session(source.session_id)
 
 func suspend_mapper(reason: String) -> void:
 	if mapper==null: return
+	remember_pointer_rearm()
+	engine_pointer_terminal.clear()
+	engine_pointer_look_active=false
 	if not piston_mode():
 		mapper.suspend(reason,held_controls)
 		return
@@ -321,6 +342,7 @@ func suspend_mapper(reason: String) -> void:
 	else:
 		pending_systems=feedback.value.duplicate(true)
 		pending_systems["engine.starter"]=false
+	if engine_controls!=null: engine_controls.invalidate_local(reason)
 	# This clears only local intent. Facade owns release admission before resume.
 
 func choose_profile() -> void:
@@ -376,11 +398,20 @@ func pause_session(value: bool) -> bool:
 		if mapper==null:
 			status="CONTROLS PAUSED | "+input_problem
 			return false
-		var ready: Dictionary=mapper.resume_confirmed(collect_input_raw())
+		var resume_raw: Dictionary=collect_input_raw()
+		var checked_raw: Dictionary=Preset.validate_raw(resume_raw)
+		if checked_raw.ok:
+			for button in engine_pointer_rearm:
+				if button in checked_raw.value.mouse_buttons:
+					input_problem="Release engine pointer button before Resume: "+str(button)
+					status="CONTROLS PAUSED | "+input_problem
+					return false
+		var ready: Dictionary=mapper.resume_confirmed(resume_raw)
 		if not ready.ok:
 			input_problem=ready.error
 			status="CONTROLS PAUSED | "+input_problem
 			return false
+		observe_pointer_release(resume_raw)
 		if piston_mode() and not pending_systems.is_empty(): pending_systems["engine.starter"]=false
 	else:
 		input_blocked=true
@@ -445,6 +476,9 @@ func process_input_interval(elapsed: int) -> void:
 			input_blocked=true
 			input_problem="Host timing requires a fresh attempt"
 			return
+		# A lost GUI release is reconciled using complete validated Raw, through
+		# the same explicit terminal seam. Never rewrite physical button readings.
+		if not reconcile_pointer_release(raw): return
 		var sample: Dictionary=mapper.sample(raw,elapsed)
 		wheel_pulses.clear()
 		if not sample.ok:
@@ -454,13 +488,20 @@ func process_input_interval(elapsed: int) -> void:
 		brake_hold=sample.brake_hold
 		takeover_targets=sample.takeover.duplicate()
 		var sampled_facade: RefCounted=facade
+		var sampled_session: String=facade.readback().session_id
+		observe_pointer_release(raw)
+		update_engine_controls()
 		for action in sample.actions:
 			dispatching_input=true
 			dispatch_input_action(action)
 			dispatching_input=false
 			if facade!=sampled_facade or paused or menu_open or input_blocked:
 				return
-		Input.mouse_mode=Input.MOUSE_MODE_CAPTURED if Mapper.action_pressed(active_preset,raw,"look_hold") else Input.MOUSE_MODE_VISIBLE
+		if piston_mode() and (not pointer_session_live() or facade.readback().session_id!=sampled_session):
+			invalidate_engine_pointer("Flight input owner changed")
+			return
+		engine_pointer_look_active=Mapper.action_pressed(active_preset,raw,"look_hold")
+		Input.mouse_mode=Input.MOUSE_MODE_CAPTURED if engine_pointer_look_active else Input.MOUSE_MODE_VISIBLE
 		if piston_mode():
 			pending_systems=sample.systems.duplicate(true)
 			var intent: Dictionary=facade.set_pilot_intent(controls,pending_systems)
@@ -476,6 +517,7 @@ func process_input_interval(elapsed: int) -> void:
 		wheel_pulses.clear()
 		var diagnostic: Dictionary=mapper.sample(raw,0)
 		if diagnostic.ok:
+			observe_pointer_release(raw)
 			brake_hold=diagnostic.brake_hold
 			takeover_targets=diagnostic.takeover.duplicate()
 		elif not input_blocked:
@@ -488,6 +530,15 @@ func make_menu(canvas: CanvasLayer) -> void:
 	super.make_menu(canvas)
 	if legacy_proof:
 		return
+	engine_controls=EngineControls.new()
+	canvas.add_child(engine_controls)
+	engine_controls.z_index=2
+	engine_controls.set_expanded(false)
+	engine_controls.gesture_requested.connect(on_engine_gesture.bind(engine_controls))
+	engine_controls.capture_invalidated.connect(on_engine_retired.bind(engine_controls))
+	engine_controls.denied_press.connect(on_engine_denied.bind(engine_controls))
+	engine_controls.expansion_changed.connect(func(_expanded: bool): update_engine_controls())
+	engine_controls.hide()
 	var box: VBoxContainer=menu.get_child(0)
 	# Calibration replaces the old global sensitivity and implicit pad picker.
 	for child in box.get_children():
@@ -620,6 +671,16 @@ func cycle_flight_scale() -> void:
 func _input(event: InputEvent) -> void:
 	if legacy_proof:
 		return
+	# _input precedes GUI handling, while Input polling still sees that click.
+	# Disabled binding paint must not allow the mapped flight action to fire.
+	if event is InputEventMouseButton and event.pressed and event.button_index==MOUSE_BUTTON_LEFT:
+		update_engine_controls()
+		if pointer_ui_eligible() and engine_controls!=null and not engine_controls.hit_control(engine_controls.get_global_transform_with_canvas().affine_inverse()*event.position).is_empty():
+			var conflict: String=pointer_button_binding(int(event.button_index))
+			if not conflict.is_empty():
+				pause_for_input("Left button bound to "+conflict+"; release / remap in Controls")
+				get_viewport().set_input_as_handled()
+				return
 	if event is InputEventJoypadMotion or event is InputEventJoypadButton:
 		var device: int=event.device
 		if not device_connections.has(device):
@@ -642,7 +703,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if route_open or review_open or not pending_discard.is_empty():
 		return
-	if event is InputEventMouseMotion and not paused and not menu_open and Input.mouse_mode==Input.MOUSE_MODE_CAPTURED:
+	if event is InputEventMouseMotion and not paused and pointer_modal_free() and engine_pointer_look_active and Input.mouse_mode==Input.MOUSE_MODE_CAPTURED:
 		look_angles.x=clampf(look_angles.x-event.relative.x*0.004,-PI,PI)
 		look_angles.y=clampf(look_angles.y-event.relative.y*0.004,-1.2,1.2)
 	elif paused and event is InputEventJoypadButton and event.pressed:
@@ -858,6 +919,7 @@ func open_controls() -> void:
 		return
 	if facade.readback().host_mode!="paused":
 		return
+	if not controls_panel.visible: invalidate_engine_pointer("Controls opened")
 	menu_open=true
 	menu.hide()
 	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
@@ -875,6 +937,7 @@ func open_wind() -> void:
 	if not review_boundary():
 		status="Pause the flight before choosing a wind draft"
 		return
+	if not wind_panel.visible: invalidate_engine_pointer("Wind chooser opened")
 	menu_open=true
 	menu.hide()
 	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
@@ -1030,6 +1093,7 @@ func show_state(seconds: float=0.0) -> void:
 	flight_map.size=Vector2(minf(420,get_viewport().get_visible_rect().size.x*0.42),minf(500,get_viewport().get_visible_rect().size.y-map_top-14))
 	flight_map.position=Vector2(get_viewport().get_visible_rect().size.x-flight_map.size.x-14,map_top)
 	var current: Dictionary=facade.readback()
+	update_engine_controls()
 	update_wind_presentation(current)
 	if snapshot.is_empty() or current.aircraft==null or current.canonical==null:
 		suppress_geometry()
@@ -1259,6 +1323,7 @@ func open_landmark_route() -> void:
 	var source: Dictionary=facade.readback()
 	if source.host_mode!="paused":
 		return
+	if not route_open: invalidate_engine_pointer("Route chooser opened")
 	scan_open=false
 	menu_open=true
 	route_open=true
@@ -1346,6 +1411,7 @@ func open_instrument_scan() -> void:
 		return
 	if controls_panel!=null and controls_panel.visible:
 		return
+	if not scan_open: invalidate_engine_pointer("Instrument scan opened")
 	scan_open=true
 	menu_open=true
 	menu.hide()
@@ -1378,7 +1444,7 @@ func open_menu(title: String="Flight paused") -> void:
 	if not legacy_proof and profile_button!=null:
 		profile_button.text="Aircraft: cold piston prototype  ·  switch" if selected_profile==Facade.PISTON_PROFILE.id else "Aircraft: ready-to-fly prototype  ·  switch"
 		if piston_mode():
-			menu_message.text="Original piston prototype · idealized starter supply\nStart: brakes held, mixture rich, ignition both, hold starter.\nUse your engine bindings in Controls (F7). Release starter after firing.\nNative shaft RPM / combustion / switches are shown below.\nThis is an engineering interaction; no C172 procedure is claimed."
+			menu_message.text="Original piston prototype · idealized starter supply\nStart: brakes held, mixture rich, ignition both, hold starter.\nExpand ENGINE CONTROLS or use bindings in Controls (F7).\nRelease starter after firing; release mouse look to use the pointer.\nNative shaft RPM / combustion / switches are shown below.\nThis is an engineering interaction; no C172 procedure is claimed."
 
 func close_menu() -> void:
 	if not archive_operation.is_empty(): return
@@ -1449,6 +1515,7 @@ func open_observed_review() -> void:
 	if not observed_panel.set_recording(record):
 		status="Recorded flight cannot be qualified for review"
 		return
+	if not review_open: invalidate_engine_pointer("Flight review opened")
 	archive_imported=false
 	archive_message="Cold-engine flight recording is unavailable. Open may display a saved legacy flight; it never resumes or records this airplane." if selected_profile==Facade.PISTON_PROFILE.id else ""
 	observed_panel.set_file_context(false,archive_message)
@@ -1500,6 +1567,7 @@ func begin_archive_operation(action: String, show_dialog: bool=true) -> bool:
 			archive_feedback("Review not saved: "+encoded.error)
 			return false
 		bytes=encoded.value.duplicate()
+	invalidate_engine_pointer("Archive chooser opened")
 	archive_operation={"action":action,"session_id":adopted_session_id,"bytes":bytes,"prior_message":archive_message,"prior_recent":FileDialog.get_recent_list()}
 	observed_panel.set_file_context(archive_imported,"Choose a new file." if action=="save" else "Choose a historical review file.",true)
 	if show_dialog:
@@ -1620,6 +1688,7 @@ func request_discard(action: String, start: String="", selected_wind: Variant=nu
 	if not ensure_review_boundary():
 		status="Cannot discard until native flight is paused or its worker has joined"
 		return
+	invalidate_engine_pointer("Discard confirmation opened")
 	pending_discard={"action":action,"start":start,"session_id":adopted_session_id,"wind_profile":requested_wind,"profile_id":next_profile}
 	menu_open=true
 	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
@@ -1667,6 +1736,8 @@ func perform_quit() -> void:
 	await super.quit_flight()
 
 func _exit_tree() -> void:
+	quitting=true
+	invalidate_engine_pointer("Scene retired")
 	# Forced shutdown can lose an unsaved review, but native ownership must join.
 	archive_operation.clear()
 	super._exit_tree()
@@ -1884,3 +1955,118 @@ func run_cockpit_visual() -> void:
 		return
 	var runner: RefCounted=observer.new()
 	await runner.run(self)
+
+# ADR017 host routing. The panel is a copied display and gesture producer only.
+func pointer_session_live() -> bool:
+	if legacy_proof or facade==null or mapper==null or not piston_mode() or paused or input_blocked: return false
+	var source: Dictionary=facade.readback()
+	return source.get("host_mode")=="live" and source.get("native_live")==true and source.get("paused")==false and source.get("session_id")==adopted_session_id and mapper.pointer_view().session_id==adopted_session_id and pointer_modal_free()
+
+func pointer_modal_free() -> bool:
+	return not menu_open and not scan_open and not route_open and not review_open and archive_operation.is_empty() and pending_discard.is_empty() and (controls_panel==null or not controls_panel.visible) and (wind_panel==null or not wind_panel.visible)
+
+func pointer_ui_eligible() -> bool:
+	return pointer_session_live() and engine_pointer_rearm.is_empty() and not engine_pointer_look_active and Input.mouse_mode==Input.MOUSE_MODE_VISIBLE
+
+func remember_pointer_rearm() -> void:
+	if mapper==null: return
+	var view: Dictionary=mapper.pointer_view()
+	for button in view.rearm_buttons:
+		if not button in engine_pointer_rearm: engine_pointer_rearm.append(button)
+	if view.capture!=null and not view.capture.button in engine_pointer_rearm: engine_pointer_rearm.append(view.capture.button)
+	engine_pointer_rearm.sort()
+
+func observe_pointer_release(raw: Dictionary) -> void:
+	# Call only after successful full mapper validation, never from a GUI up.
+	for i in range(engine_pointer_rearm.size()-1,-1,-1):
+		if not engine_pointer_rearm[i] in raw.mouse_buttons: engine_pointer_rearm.remove_at(i)
+
+func invalidate_engine_pointer(reason: String) -> void:
+	remember_pointer_rearm()
+	engine_pointer_terminal.clear()
+	if mapper!=null: mapper.invalidate_pointer(reason)
+	if engine_controls!=null: engine_controls.invalidate_local(reason)
+
+func on_engine_retired(reason: String, widget: Control) -> void:
+	# An old widget/session must never retire a newer mapper capture.
+	if quitting or widget!=engine_controls or mapper==null: return
+	if engine_controls_session!=mapper.pointer_view().session_id: return
+	invalidate_engine_pointer(reason)
+
+func on_engine_denied(_control: String, reason: String, widget: Control) -> void:
+	if widget==engine_controls and pointer_ui_eligible(): pause_for_input(reason)
+
+func on_engine_gesture(gesture: Dictionary, widget: Control) -> void:
+	if widget!=engine_controls or mapper==null: return
+	# Old, fully valid terminal events are deliberately accepted inert by mapper.
+	# Nonterminal requests require the same live, visible, no-modal UI owner.
+	if gesture.get("phase") not in ["end","cancel"] and not pointer_ui_eligible():
+		pause_for_input("Engine pointer is unavailable; release before Resume")
+		return
+	var result: Dictionary=mapper.queue_pointer(gesture)
+	if not result.ok: pause_for_input(result.error)
+	elif gesture.get("phase") in ["end","cancel"]:
+		var view: Dictionary=mapper.pointer_view()
+		if view.session_id==gesture.session_id and view.generation==gesture.generation and view.capture!=null and view.capture.token==gesture.token:
+			engine_pointer_terminal=gesture.duplicate(true)
+	update_engine_controls()
+
+func pointer_button_binding(button: int) -> String:
+	for binding in active_preset.get("axes",[])+active_preset.get("actions",[])+active_preset.get("systems",[]):
+		for source in binding.get("sources",[binding]):
+			if source.get("kind")=="mouse_button" and source.get("button")==button:
+				return str(binding.get("id",binding.get("target","unknown")))
+	return ""
+
+func reconcile_pointer_release(raw: Dictionary) -> bool:
+	if not piston_mode(): return true
+	var checked: Dictionary=Preset.validate_raw(raw)
+	# The ordinary mapper still performs all Raw/device validation atomically.
+	if not checked.ok: return true
+	var view: Dictionary=mapper.pointer_view()
+	var capture: Variant=view.capture
+	if capture==null or capture.button in checked.value.mouse_buttons: return true
+	# A GUI terminal already queued must win; do not replace its final value.
+	if engine_pointer_terminal.get("session_id")==view.session_id and engine_pointer_terminal.get("generation")==view.generation and engine_pointer_terminal.get("token")==capture.token: return true
+	var terminal: Dictionary={"session_id":view.session_id,"generation":view.generation,"token":capture.token,"control":capture.control,"phase":"end" if capture.control=="engine.starter" else "cancel","button":capture.button,"value":false if capture.control=="engine.starter" else null}
+	var result: Dictionary=mapper.queue_pointer(terminal)
+	if not result.ok:
+		pause_for_input(result.error)
+		return false
+	engine_pointer_terminal=terminal.duplicate(true)
+	return true
+
+func update_engine_controls() -> void:
+	if engine_controls==null: return
+	var shown: bool=not legacy_proof and piston_mode() and facade!=null and pointer_modal_free()
+	engine_controls.visible=shown
+	if not shown: return
+	var view: Dictionary=mapper.pointer_view() if mapper!=null else {}
+	if view.get("capture")==null or view.get("session_id")!=engine_pointer_terminal.get("session_id") or view.get("generation")!=engine_pointer_terminal.get("generation"):
+		engine_pointer_terminal.clear()
+	engine_controls_session=str(view.get("session_id",""))
+	var reason: String=input_problem if input_blocked else str(view.get("error")) if not str(view.get("error","")).is_empty() else "Release left button before a fresh press" if not engine_pointer_rearm.is_empty() else "Release mouse look to use engine controls" if engine_pointer_look_active or Input.mouse_mode==Input.MOUSE_MODE_CAPTURED else "Paused / retained / unavailable · resume explicitly" if not pointer_ui_eligible() else ""
+	var hints: PackedStringArray=[]
+	for action in active_preset.get("actions",[]):
+		if action.id=="look_hold":
+			for source in action.sources: hints.append(pointer_source_hint(source))
+	engine_controls.set_state(view,engine_status,active_preset,pointer_ui_eligible(),reason,"Look: "+" / ".join(hints)+" · release to expose pointer; P pauses · F7 Controls")
+	var available: Vector2=get_viewport().get_visible_rect().size
+	# Sidebars leave the physical six-pack exposed in cockpit and PANEL views.
+	# Outside views use the clear band between engine feedback and the HUD;
+	# leave the wind card's upper-left rectangle unobscured at the minimum size.
+	var width: float=260.0 if camera_mode in [0,3] else minf(940.0,available.x-340.0)
+	engine_controls.size.x=width
+	var height: float=engine_controls.expanded_height()
+	engine_controls.size=Vector2(width,height)
+	engine_controls.position=Vector2(10.0 if camera_mode==0 else available.x-width-10.0,maxf(148.0,available.y-height-(60.0 if camera_mode==3 else 0.0)) if camera_mode in [0,3] else 148.0)
+
+func pointer_source_hint(source: Dictionary) -> String:
+	match source.get("kind"):
+		"physical_keys":
+			var names: PackedStringArray=[]
+			for key in source.get("keys",[]): names.append(OS.get_keycode_string(int(key)))
+			return "/".join(names)
+		"mouse_button": return "Mouse "+str(source.get("button"))
+		"joy_button": return "Button %s:%s"%[source.get("slot"),source.get("index")]
+	return "Unavailable binding"

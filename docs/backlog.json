@@ -5191,7 +5191,11 @@
         "docs/backlog.json",
         "docs/issue-index.md",
         "docs/requirements.md",
-        "docs/phases/p2-first-flight.md"
+        "docs/phases/p2-first-flight.md",
+        "tests/integration/input/pointer_flight_checks.gd",
+        "tests/integration/input/pointer_visual.gd",
+        "docs/decisions/017-frontend-pointer-engine-controls.md",
+        "tools/input-controls/check.py"
       ],
       "docs": [
         "docs/README.md",
