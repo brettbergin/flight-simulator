@@ -1,0 +1,83 @@
+{
+  "ratifier": "/root",
+  "status": "ratified-before-new-method-output",
+  "utc": "2026-10-10T03:26:08.237747+00:00",
+  "accepted_contract_merge": "34e1d3086b49e93dfdaf6487bf69ddaf3ee89dcf",
+  "scope": "Compile exact isolated extracted helper under inspected strict x64 commands; execute only after separate measured-artifact authorization. Actual native/default/coupled consumers require independent source/build review.",
+  "source_review_pins": {
+    "implementation-candidate-v2/FGPropeller.cpp": "eace014d528646486febaf5f92fe0971af8c81416de1caa6c38a0c9df991e696",
+    "implementation-candidate-v2/FGPropeller.h": "f45c6757ff5a624ce8634fdb900933577e60e5f9f810f1778695bb4b3137ac7f",
+    "ground-source-review-v2/review.json": "700a4a1b673b47bcf76f6e79a06baa9cc4bd64c491700bd5b28f9be0bb9ff788",
+    "ground-source-review-v2/harness-frozen-review-v1.json": "6097204a7da52fcc7fc7f9db2fd4112dcc3881584c14764abc73b8fb96827f82",
+    "helper-harness-candidate-v1/harness-source-binding-v1.json": "814350fcb20bbed7ec50006693a58e260cdd892f492328f08488a18ba9873c1e",
+    "source-closure-review-v2.json": "1005727059cd7aa6db06b26349159bfb277ee20535e37d1c412c11e4e5b71cfa",
+    "bound-source-inputs-review-v1.json": "592b0d73042b7c6adaf061fcc3f7f801c47ac3e3632c787f48ec15c90efa101f",
+    "bound-source-inputs-v1/input-binding.json": "fca7a4f508be28d44e859c323a27e26ebc2d93832029654da114efee107098b3",
+    "ground-partition-budget-proposed-v1/expected-proposed-v1.json": "496727516af48c483583e28723ea1dc405760c67b499fa0fb13332fb3082a358"
+  },
+  "references": {
+    "tests/engine/shaft-method/reference-proposed-v1/expected-proposed-v1.json": "b3b90b35bc9f3bd91e26020e608b32a0c1aa9672467d1dff0efaa5d226d99a85",
+    "tests/engine/shaft-method/reference-proposed-v1/generate.py": "771a0b926a486facfcca2968121779652a2db24cd16b3a7b1ccf8c569fae0a57",
+    "tests/engine/shaft-method/reference-proposed-v1/signed-zero-supplement-proposed-v1.json": "b179539ad556a89573c54297e4f17feb6f74f3205fa456952e6c097bc16e50ce",
+    "tests/engine/reference/expected-v2.json": "bd2ec9562308dbb950b684018ff924c4f820278400c7a2664f1342f11f049777",
+    "tests/engine/reference/generate.py": "c81596d5e4155463620687d987838294ef0fa39ce32157df15cbc91a7c51ebb7"
+  },
+  "original_coupled_schedule": {
+    "native-limits.json": {
+      "bytes": 13081,
+      "sha256": "9b667d4b61e47e94af1eed20701119bd72d6de63e6eac28b8597ab44ae6d9feb",
+      "git_source": "c7a2886a9504034ef08e696567510330d2a0df51"
+    },
+    "native-validate.py": {
+      "bytes": 16566,
+      "sha256": "ff9170514fba523c532a82392ead1a92b494725c81101e26c65f2aba18feddbf",
+      "git_source": "c7a2886a9504034ef08e696567510330d2a0df51"
+    },
+    "native.cpp": {
+      "bytes": 10306,
+      "sha256": "f27f40f34167376b60b1b3dc9d87d7a791b9b41f760ec79b85097866cf88bd3d",
+      "git_source": "c7a2886a9504034ef08e696567510330d2a0df51"
+    },
+    "native-mechanism.cpp": {
+      "bytes": 8409,
+      "sha256": "3be58f42e49735dd0240334ce3a70519a45d52ac1e912fa7367886d0b7daa923",
+      "git_source": "c7a2886a9504034ef08e696567510330d2a0df51"
+    }
+  },
+  "source_evidence": {
+    "materialization_receipt_sha256": "7b0d1a6c5a1e8c0e34f283c42b26bd420ff14e47b9049b6bd06e7a6b66fc35bd",
+    "recipe_sha256": "71db638631bdb4a20aa5e72b4a7a45aa27c20dcc57709bdbbf85924c7058bcdd",
+    "repeat_matches": true,
+    "schema_version": 2,
+    "source_archive_bytes": 3826603,
+    "source_archive_sha256": "8053e5a34b45d791b6eba7fa67c1a77cacf9202794b73ea42845dea32a6aa3ec",
+    "source_variant": "jsbsim-1.3.1-event-aware-constant-power-v1",
+    "source_verification": {
+      "bundle_files": 291,
+      "materializer_sha256": "0ab21c536c8f94f59c5647384c20b48e8e26d78a856b666a2a1148c5851af1c2",
+      "modified_vendor_files": 2,
+      "provenance_reconstructed": true,
+      "recipe_sha256": "71db638631bdb4a20aa5e72b4a7a45aa27c20dcc57709bdbbf85924c7058bcdd",
+      "schema_version": 2,
+      "source_variant": "jsbsim-1.3.1-event-aware-constant-power-v1",
+      "unchanged_vendor_files": 277,
+      "vendor_files": 279,
+      "vendor_tree_sha256": "81a0233611154263bfa4ebeded8a1b34331a3e2f8ce97c52b70de82647ebad2e"
+    }
+  },
+  "source_evidence_sha256": "34b3fd9b766e6d13e8b0d1edae875351f807903e732aa930ddf92a16d0469905",
+  "source_materializer_review": "Approved exact-file replacements, complete279 pristine reconstruction/291source closure, preserved grants/date notices and editable source; release rights/replacement gates remain separate.",
+  "root_review": [
+    "Inspected exact source/order/domain, all three resolved admission/endpoint/control findings, independent Ground arithmetic review and exact extracted wrapper.",
+    "Ratified independently derived composed omega-kernel criteria conditionally on strict binary64 source, ordinary admitted neighborhoods and engineering libm accuracy; no universal error theorem claimed.",
+    "RPM conversion criterion is conditional matched-K gamma4; helper kernel test does not claim native RPM partition evidence.",
+    "Independently inspected corrected materializer safe-name delta, full source verifier/reconstruction/packer/extractor and passing ten synthetic groups; actual inputs independently reviewed.",
+    "No new method/helper/backend result has been produced before this receipt. Source-only schema2 archive production is not numerical evidence."
+  ],
+  "constraints": [
+    "No formulas, expected data, aircraft parameters, physical schedules or comparison budgets may be fitted to observations.",
+    "Retain every failed output; fresh isolated build/cache/output only. Verify actual compiler path/version/x64 target and /fp:strict before execution.",
+    "Legacy source expressions preserved does not prove compiled legacy equivalence; actual default guards and 55 unchanged references remain required.",
+    "No coupled trial, runtime consumer, DLL, package, C172, pilot, phase or issue127 acceptance is supplied by this receipt."
+  ]
+}

@@ -1,0 +1,1461 @@
+{
+  "status": "PASS",
+  "scope": "pure-helper-only",
+  "ratification_sha256": "7e7a76af1c31a00c1181e04f5a276d7c76c4694edab574188730c158cc64a017",
+  "extraction_binding_sha256": "5b1d4d3582fd006078ce2aa67c18468b9d522b67bc29a21772ee6d9242871976",
+  "executable_sha256": "e9c630b17aee06e0dda0b7a52c86e40c2baf20da926b69de6ea2cc4e2bea44d1",
+  "request_sha256": "ec58fd3eb2469a50229f50212fb11f64f8ae9ce0311684cf1d4c8c148980be66",
+  "requests": [
+    "step valid_rational_positive_exact_root 1 9a9999999999c93f 0000000000000840 0000000000000040 333333333333c33f",
+    "step valid_rational_negative_exact_root 1 666666666666e63f 00000000000008c0 0000000000000040 111111111111c13f",
+    "step valid_zero_power_hold 1 000000000000e03f 0000000000000000 0000000000000040 111111111111813f",
+    "step valid_zero_duration_identity_positive 1 dbb66ddbb66ddb3f 0000000000000840 0000000000000040 0000000000000000",
+    "step valid_zero_duration_identity_negative 1 dbb66ddbb66ddb3f 00000000000008c0 0000000000000040 0000000000000000",
+    "step valid_stopped_negative_power 1 0000000000000000 000000000000f0bf 0000000000000040 111111111111913f",
+    "step valid_stopped_zero_power 1 0000000000000000 0000000000000000 0000000000000040 111111111111913f",
+    "step valid_upward_before 1 7b14ae47e17a743f 000000000000f03f 0000000000000040 7b14ae47e17a743f",
+    "step valid_low_stop_before 1 7b14ae47e17a743f 000000000000f0bf 0000000000000040 7b14ae47e17a743f",
+    "step valid_upward_at 1 7b14ae47e17a743f 000000000000f03f 0000000000000040 7b14ae47e17a843f",
+    "step valid_low_stop_at 1 7b14ae47e17a743f 000000000000f0bf 0000000000000040 7b14ae47e17a843f",
+    "step valid_upward_after 1 7b14ae47e17a743f 000000000000f03f 0000000000000040 b81e85eb51b88e3f",
+    "step valid_low_stop_after 1 7b14ae47e17a743f 000000000000f0bf 0000000000000040 b81e85eb51b88e3f",
+    "step valid_downward_before 1 7b14ae47e17a943f 000000000000f0bf 0000000000000040 613255302aa9233f",
+    "step valid_downward_at 1 7b14ae47e17a943f 000000000000f0bf 0000000000000040 613255302aa9333f",
+    "step valid_downward_low_remainder 1 7b14ae47e17a943f 000000000000f0bf 0000000000000040 0ebe30992a18853f",
+    "step valid_downward_stop_at 1 7b14ae47e17a943f 000000000000f0bf 0000000000000040 44696ff085c9943f",
+    "step valid_downward_past_stop 1 7b14ae47e17a943f 000000000000f0bf 0000000000000040 44696ff085c9a43f",
+    "step valid_cold_low_60hz 1 0000000000000000 000000000000f03f 0000000000000040 111111111111913f",
+    "step valid_threshold_up_60hz 1 7b14ae47e17a843f 000000000000f03f 0000000000000040 111111111111913f",
+    "step valid_threshold_down_60hz 1 7b14ae47e17a843f 000000000000f0bf 0000000000000040 111111111111913f",
+    "step valid_low_cross_60hz 1 3bdf4f8d976e823f 000000000000f03f 0000000000000040 111111111111913f",
+    "step valid_low_stop_60hz 1 7b14ae47e17a743f 000000000000f0bf 0000000000000040 111111111111913f",
+    "step valid_above_positive_60hz 1 0000000000000040 0000000000000840 0000000000000040 111111111111913f",
+    "step valid_above_negative_60hz 1 0000000000000040 00000000000008c0 0000000000000040 111111111111913f",
+    "step valid_cold_low_120hz 1 0000000000000000 000000000000f03f 0000000000000040 111111111111813f",
+    "step valid_threshold_up_120hz 1 7b14ae47e17a843f 000000000000f03f 0000000000000040 111111111111813f",
+    "step valid_threshold_down_120hz 1 7b14ae47e17a843f 000000000000f0bf 0000000000000040 111111111111813f",
+    "step valid_low_cross_120hz 1 3bdf4f8d976e823f 000000000000f03f 0000000000000040 111111111111813f",
+    "step valid_low_stop_120hz 1 7b14ae47e17a743f 000000000000f0bf 0000000000000040 111111111111813f",
+    "step valid_above_positive_120hz 1 0000000000000040 0000000000000840 0000000000000040 111111111111813f",
+    "step valid_above_negative_120hz 1 0000000000000040 00000000000008c0 0000000000000040 111111111111813f",
+    "step valid_cold_low_240hz 1 0000000000000000 000000000000f03f 0000000000000040 111111111111713f",
+    "step valid_threshold_up_240hz 1 7b14ae47e17a843f 000000000000f03f 0000000000000040 111111111111713f",
+    "step valid_threshold_down_240hz 1 7b14ae47e17a843f 000000000000f0bf 0000000000000040 111111111111713f",
+    "step valid_low_cross_240hz 1 3bdf4f8d976e823f 000000000000f03f 0000000000000040 111111111111713f",
+    "step valid_low_stop_240hz 1 7b14ae47e17a743f 000000000000f0bf 0000000000000040 111111111111713f",
+    "step valid_above_positive_240hz 1 0000000000000040 0000000000000840 0000000000000040 111111111111713f",
+    "step valid_above_negative_240hz 1 0000000000000040 00000000000008c0 0000000000000040 111111111111713f",
+    "step valid_binary_threshold_below__2d1 1 7a14ae47e17a843f 000000000000f0bf 0000000000000040 111111111111813f",
+    "step valid_binary_threshold_below__2b1 1 7a14ae47e17a843f 000000000000f03f 0000000000000040 111111111111813f",
+    "step valid_binary_threshold_equal__2d1 1 7b14ae47e17a843f 000000000000f0bf 0000000000000040 111111111111813f",
+    "step valid_binary_threshold_equal__2b1 1 7b14ae47e17a843f 000000000000f03f 0000000000000040 111111111111813f",
+    "step valid_binary_threshold_above__2d1 1 7c14ae47e17a843f 000000000000f0bf 0000000000000040 111111111111813f",
+    "step valid_binary_threshold_above__2b1 1 7c14ae47e17a843f 000000000000f03f 0000000000000040 111111111111813f",
+    "step invalid_omega_rad_s_nan 1 000000000000f87f 000000000000f03f 0000000000000040 111111111111813f",
+    "step invalid_omega_rad_s_positive_infinity 1 000000000000f07f 000000000000f03f 0000000000000040 111111111111813f",
+    "step invalid_omega_rad_s_negative_infinity 1 000000000000f0ff 000000000000f03f 0000000000000040 111111111111813f",
+    "step invalid_net_power_ft_lbf_s_nan 1 000000000000e03f 000000000000f87f 0000000000000040 111111111111813f",
+    "step invalid_net_power_ft_lbf_s_positive_infinity 1 000000000000e03f 000000000000f07f 0000000000000040 111111111111813f",
+    "step invalid_net_power_ft_lbf_s_negative_infinity 1 000000000000e03f 000000000000f0ff 0000000000000040 111111111111813f",
+    "step invalid_inertia_slug_ft2_nan 1 000000000000e03f 000000000000f03f 000000000000f87f 111111111111813f",
+    "step invalid_inertia_slug_ft2_positive_infinity 1 000000000000e03f 000000000000f03f 000000000000f07f 111111111111813f",
+    "step invalid_inertia_slug_ft2_negative_infinity 1 000000000000e03f 000000000000f03f 000000000000f0ff 111111111111813f",
+    "step invalid_dt_s_nan 1 000000000000e03f 000000000000f03f 0000000000000040 000000000000f87f",
+    "step invalid_dt_s_positive_infinity 1 000000000000e03f 000000000000f03f 0000000000000040 000000000000f07f",
+    "step invalid_dt_s_negative_infinity 1 000000000000e03f 000000000000f03f 0000000000000040 000000000000f0ff",
+    "step invalid_negative_omega 1 000000000000f0bf 000000000000f03f 0000000000000040 111111111111813f",
+    "step invalid_negative_dt 1 000000000000e03f 000000000000f03f 0000000000000040 000000000000f0bf",
+    "step invalid_zero_inertia 1 000000000000e03f 000000000000f03f 0000000000000000 111111111111813f",
+    "step invalid_negative_inertia 1 000000000000e03f 000000000000f03f 000000000000f0bf 111111111111813f",
+    "step invalid_unknown_method 2 000000000000e03f 000000000000f03f 0000000000000040 111111111111813f",
+    "step invalid_mathematical_candidate_overflow 1 ffffffffffffef7f ffffffffffffef7f 0100000000000000 ffffffffffffef7f",
+    "step zero_kernel_negative_zero_power_hold 1 000000000000e03f 0000000000000080 0000000000000040 111111111111813f",
+    "wrapper zero_RPM_negative_zero_power_hold 1 000000000000e03f 0000000000000080 0000000000000040 111111111111813f",
+    "step zero_kernel_negative_zero_duration_hold 1 000000000000e03f 000000000000f03f 0000000000000040 0000000000000080",
+    "wrapper zero_RPM_negative_zero_duration_hold 1 000000000000e03f 000000000000f03f 0000000000000040 0000000000000080",
+    "step zero_kernel_negative_zero_omega_zero_power_hold 1 0000000000000080 0000000000000000 0000000000000040 111111111111813f",
+    "wrapper zero_RPM_negative_zero_omega_zero_power_hold 1 0000000000000080 0000000000000000 0000000000000040 111111111111813f",
+    "step zero_kernel_negative_zero_omega_real_stop 1 0000000000000080 000000000000f0bf 0000000000000040 111111111111813f",
+    "wrapper zero_RPM_negative_zero_omega_real_stop 1 0000000000000080 000000000000f0bf 0000000000000040 111111111111813f",
+    "wrapper domain_subnormal_RPM_power_hold 1 0100000000000000 0000000000000000 0000000000000040 111111111111813f",
+    "wrapper domain_subnormal_RPM_time_hold 1 0100000000000000 000000000000f03f 0000000000000040 0000000000000000",
+    "wrapper domain_subnormal_RPM_progress 1 0100000000000000 000000000000f03f 0000000000000040 111111111111813f",
+    "environment environment_ftz ftz 000000000000e03f 000000000000f03f 0000000000000040 111111111111813f",
+    "environment environment_daz daz 000000000000e03f 000000000000f03f 0000000000000040 111111111111813f",
+    "environment environment_downward downward 000000000000e03f 000000000000f03f 0000000000000040 111111111111813f",
+    "environment environment_sse_upward sse_upward 000000000000e03f 000000000000f03f 0000000000000040 111111111111813f",
+    "series partition_up_event_60hz 3 0000000000000000 000000000000f03f 0000000000000040 111111111111913f",
+    "series partition_up_event_120hz 6 0000000000000000 000000000000f03f 0000000000000040 111111111111813f",
+    "series partition_up_event_240hz 12 0000000000000000 000000000000f03f 0000000000000040 111111111111713f",
+    "series partition_down_and_stop_60hz 3 9a9999999999b93f 000000000000f0bf 0000000000000040 111111111111913f",
+    "series partition_down_and_stop_120hz 6 9a9999999999b93f 000000000000f0bf 0000000000000040 111111111111813f",
+    "series partition_down_and_stop_240hz 12 9a9999999999b93f 000000000000f0bf 0000000000000040 111111111111713f",
+    "series partition_high_positive_60hz 3 0000000000000040 0000000000000840 0000000000000040 111111111111913f",
+    "series partition_high_positive_120hz 6 0000000000000040 0000000000000840 0000000000000040 111111111111813f",
+    "series partition_high_positive_240hz 12 0000000000000040 0000000000000840 0000000000000040 111111111111713f"
+  ],
+  "reference_expected_sha256": "b3b90b35bc9f3bd91e26020e608b32a0c1aa9672467d1dff0efaa5d226d99a85",
+  "signed_zero_sha256": "b179539ad556a89573c54297e4f17feb6f74f3205fa456952e6c097bc16e50ce",
+  "partition_expected_sha256": "496727516af48c483583e28723ea1dc405760c67b499fa0fb13332fb3082a358",
+  "failures": [],
+  "actual_results": [
+    {
+      "id": "valid_rational_positive_exact_root",
+      "ok": true,
+      "hold": false,
+      "bits": "666666666666e63f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "9a9999999999c93f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_rational_negative_exact_root",
+      "ok": true,
+      "hold": false,
+      "bits": "313333333333d33f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "666666666666e63f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_zero_power_hold",
+      "ok": true,
+      "hold": true,
+      "bits": "000000000000e03f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "000000000000e03f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_zero_duration_identity_positive",
+      "ok": true,
+      "hold": true,
+      "bits": "dbb66ddbb66ddb3f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "dbb66ddbb66ddb3f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_zero_duration_identity_negative",
+      "ok": true,
+      "hold": true,
+      "bits": "dbb66ddbb66ddb3f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "dbb66ddbb66ddb3f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_stopped_negative_power",
+      "ok": true,
+      "hold": false,
+      "bits": "0000000000000000",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "0000000000000000",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_stopped_zero_power",
+      "ok": true,
+      "hold": true,
+      "bits": "0000000000000000",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "0000000000000000",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_upward_before",
+      "ok": true,
+      "hold": false,
+      "bits": "b81e85eb51b87e3f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7b14ae47e17a743f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_low_stop_before",
+      "ok": true,
+      "hold": false,
+      "bits": "7b14ae47e17a643f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7b14ae47e17a743f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_upward_at",
+      "ok": true,
+      "hold": false,
+      "bits": "7b14ae47e17a843f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7b14ae47e17a743f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_low_stop_at",
+      "ok": true,
+      "hold": false,
+      "bits": "0000000000000000",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7b14ae47e17a743f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_upward_after",
+      "ok": true,
+      "hold": false,
+      "bits": "282179df3448b23f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7b14ae47e17a743f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_low_stop_after",
+      "ok": true,
+      "hold": false,
+      "bits": "0000000000000000",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7b14ae47e17a743f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_downward_before",
+      "ok": true,
+      "hold": false,
+      "bits": "723aa04edc30903f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7b14ae47e17a943f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_downward_at",
+      "ok": true,
+      "hold": false,
+      "bits": "7c14ae47e17a843f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7b14ae47e17a943f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_downward_low_remainder",
+      "ok": true,
+      "hold": false,
+      "bits": "7b14ae47e17a743f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7b14ae47e17a943f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_downward_stop_at",
+      "ok": true,
+      "hold": false,
+      "bits": "b30c71ac8bdb303c",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7b14ae47e17a943f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_downward_past_stop",
+      "ok": true,
+      "hold": false,
+      "bits": "0000000000000000",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7b14ae47e17a943f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_cold_low_60hz",
+      "ok": true,
+      "hold": false,
+      "bits": "111111111111813f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "0000000000000000",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_threshold_up_60hz",
+      "ok": true,
+      "hold": false,
+      "bits": "996cd3ab0093c03f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7b14ae47e17a843f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_threshold_down_60hz",
+      "ok": true,
+      "hold": false,
+      "bits": "501be8b4814e5b3f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7b14ae47e17a843f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_low_cross_60hz",
+      "ok": true,
+      "hold": false,
+      "bits": "5e1729a8d01bbf3f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "3bdf4f8d976e823f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_low_stop_60hz",
+      "ok": true,
+      "hold": false,
+      "bits": "0000000000000000",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7b14ae47e17a743f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_above_positive_60hz",
+      "ok": true,
+      "hold": false,
+      "bits": "caf53b3f85190040",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "0000000000000040",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_above_negative_60hz",
+      "ok": true,
+      "hold": false,
+      "bits": "55cbfc94a3ccff3f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "0000000000000040",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_cold_low_120hz",
+      "ok": true,
+      "hold": false,
+      "bits": "111111111111713f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "0000000000000000",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_threshold_up_120hz",
+      "ok": true,
+      "hold": false,
+      "bits": "b2f7c6216182b73f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7b14ae47e17a843f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_threshold_down_120hz",
+      "ok": true,
+      "hold": false,
+      "bits": "e5174b7eb1e4773f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7b14ae47e17a843f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_low_cross_120hz",
+      "ok": true,
+      "hold": false,
+      "bits": "8a1e79fe8388b43f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "3bdf4f8d976e823f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_low_stop_120hz",
+      "ok": true,
+      "hold": false,
+      "bits": "501be8b4814e4b3f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7b14ae47e17a743f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_above_positive_120hz",
+      "ok": true,
+      "hold": false,
+      "bits": "54fa28b2c70c0040",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "0000000000000040",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_above_negative_120hz",
+      "ok": true,
+      "hold": false,
+      "bits": "4761bc205ce6ff3f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "0000000000000040",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_cold_low_240hz",
+      "ok": true,
+      "hold": false,
+      "bits": "111111111111613f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "0000000000000000",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_threshold_up_240hz",
+      "ok": true,
+      "hold": false,
+      "bits": "f48cfd28cbb8b03f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7b14ae47e17a843f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_threshold_down_240hz",
+      "ok": true,
+      "hold": false,
+      "bits": "37d069039d36803f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7b14ae47e17a843f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_low_cross_240hz",
+      "ok": true,
+      "hold": false,
+      "bits": "312c4c7f4660a83f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "3bdf4f8d976e823f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_low_stop_240hz",
+      "ok": true,
+      "hold": false,
+      "bits": "e5174b7eb1e4673f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7b14ae47e17a743f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_above_positive_240hz",
+      "ok": true,
+      "hold": false,
+      "bits": "f6223b1f65060040",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "0000000000000040",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_above_negative_240hz",
+      "ok": true,
+      "hold": false,
+      "bits": "0462d0a230f3ff3f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "0000000000000040",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_binary_threshold_below__2d1",
+      "ok": true,
+      "hold": false,
+      "bits": "e3174b7eb1e4773f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7a14ae47e17a843f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_binary_threshold_below__2b1",
+      "ok": true,
+      "hold": false,
+      "bits": "b1f7c6216182b73f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7a14ae47e17a843f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_binary_threshold_equal__2d1",
+      "ok": true,
+      "hold": false,
+      "bits": "e5174b7eb1e4773f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7b14ae47e17a843f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_binary_threshold_equal__2b1",
+      "ok": true,
+      "hold": false,
+      "bits": "b2f7c6216182b73f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7b14ae47e17a843f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_binary_threshold_above__2d1",
+      "ok": true,
+      "hold": false,
+      "bits": "e5174b7eb1e4773f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7c14ae47e17a843f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "valid_binary_threshold_above__2b1",
+      "ok": true,
+      "hold": false,
+      "bits": "b2f7c6216182b73f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "7c14ae47e17a843f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "invalid_omega_rad_s_nan",
+      "ok": false,
+      "category": "rejected",
+      "error": "event-aware shaft: invalid inputs or rounding mode",
+      "bits": "000000000000f87f",
+      "input_bits": "000000000000f87f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "invalid_omega_rad_s_positive_infinity",
+      "ok": false,
+      "category": "rejected",
+      "error": "event-aware shaft: invalid inputs or rounding mode",
+      "bits": "000000000000f07f",
+      "input_bits": "000000000000f07f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "invalid_omega_rad_s_negative_infinity",
+      "ok": false,
+      "category": "rejected",
+      "error": "event-aware shaft: invalid inputs or rounding mode",
+      "bits": "000000000000f0ff",
+      "input_bits": "000000000000f0ff",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "invalid_net_power_ft_lbf_s_nan",
+      "ok": false,
+      "category": "rejected",
+      "error": "event-aware shaft: invalid inputs or rounding mode",
+      "bits": "000000000000e03f",
+      "input_bits": "000000000000e03f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "invalid_net_power_ft_lbf_s_positive_infinity",
+      "ok": false,
+      "category": "rejected",
+      "error": "event-aware shaft: invalid inputs or rounding mode",
+      "bits": "000000000000e03f",
+      "input_bits": "000000000000e03f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "invalid_net_power_ft_lbf_s_negative_infinity",
+      "ok": false,
+      "category": "rejected",
+      "error": "event-aware shaft: invalid inputs or rounding mode",
+      "bits": "000000000000e03f",
+      "input_bits": "000000000000e03f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "invalid_inertia_slug_ft2_nan",
+      "ok": false,
+      "category": "rejected",
+      "error": "event-aware shaft: invalid inputs or rounding mode",
+      "bits": "000000000000e03f",
+      "input_bits": "000000000000e03f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "invalid_inertia_slug_ft2_positive_infinity",
+      "ok": false,
+      "category": "rejected",
+      "error": "event-aware shaft: invalid inputs or rounding mode",
+      "bits": "000000000000e03f",
+      "input_bits": "000000000000e03f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "invalid_inertia_slug_ft2_negative_infinity",
+      "ok": false,
+      "category": "rejected",
+      "error": "event-aware shaft: invalid inputs or rounding mode",
+      "bits": "000000000000e03f",
+      "input_bits": "000000000000e03f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "invalid_dt_s_nan",
+      "ok": false,
+      "category": "rejected",
+      "error": "event-aware shaft: invalid inputs or rounding mode",
+      "bits": "000000000000e03f",
+      "input_bits": "000000000000e03f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "invalid_dt_s_positive_infinity",
+      "ok": false,
+      "category": "rejected",
+      "error": "event-aware shaft: invalid inputs or rounding mode",
+      "bits": "000000000000e03f",
+      "input_bits": "000000000000e03f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "invalid_dt_s_negative_infinity",
+      "ok": false,
+      "category": "rejected",
+      "error": "event-aware shaft: invalid inputs or rounding mode",
+      "bits": "000000000000e03f",
+      "input_bits": "000000000000e03f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "invalid_negative_omega",
+      "ok": false,
+      "category": "rejected",
+      "error": "event-aware shaft: invalid inputs or rounding mode",
+      "bits": "000000000000f0bf",
+      "input_bits": "000000000000f0bf",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "invalid_negative_dt",
+      "ok": false,
+      "category": "rejected",
+      "error": "event-aware shaft: invalid inputs or rounding mode",
+      "bits": "000000000000e03f",
+      "input_bits": "000000000000e03f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "invalid_zero_inertia",
+      "ok": false,
+      "category": "rejected",
+      "error": "event-aware shaft: invalid inputs or rounding mode",
+      "bits": "000000000000e03f",
+      "input_bits": "000000000000e03f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "invalid_negative_inertia",
+      "ok": false,
+      "category": "rejected",
+      "error": "event-aware shaft: invalid inputs or rounding mode",
+      "bits": "000000000000e03f",
+      "input_bits": "000000000000e03f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "invalid_unknown_method",
+      "ok": false,
+      "category": "rejected",
+      "error": "unknown method rejected",
+      "bits": "000000000000e03f",
+      "input_bits": "000000000000e03f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "invalid_mathematical_candidate_overflow",
+      "ok": false,
+      "category": "rejected",
+      "error": "event-aware shaft: unsupported source exponent",
+      "bits": "ffffffffffffef7f",
+      "input_bits": "ffffffffffffef7f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "zero_kernel_negative_zero_power_hold",
+      "ok": true,
+      "hold": true,
+      "bits": "000000000000e03f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "000000000000e03f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "zero_RPM_negative_zero_power_hold",
+      "ok": true,
+      "hold": true,
+      "bits": "000000000000e03f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "000000000000e03f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "zero_kernel_negative_zero_duration_hold",
+      "ok": true,
+      "hold": true,
+      "bits": "000000000000e03f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "000000000000e03f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "zero_RPM_negative_zero_duration_hold",
+      "ok": true,
+      "hold": true,
+      "bits": "000000000000e03f",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "000000000000e03f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "zero_kernel_negative_zero_omega_zero_power_hold",
+      "ok": true,
+      "hold": true,
+      "bits": "0000000000000080",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "0000000000000080",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "zero_RPM_negative_zero_omega_zero_power_hold",
+      "ok": true,
+      "hold": true,
+      "bits": "0000000000000080",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "0000000000000080",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "zero_kernel_negative_zero_omega_real_stop",
+      "ok": true,
+      "hold": false,
+      "bits": "0000000000000000",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "0000000000000080",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "zero_RPM_negative_zero_omega_real_stop",
+      "ok": true,
+      "hold": false,
+      "bits": "0000000000000000",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "0000000000000080",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "domain_subnormal_RPM_power_hold",
+      "ok": true,
+      "hold": true,
+      "bits": "0100000000000000",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "0100000000000000",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "domain_subnormal_RPM_time_hold",
+      "ok": true,
+      "hold": true,
+      "bits": "0100000000000000",
+      "default_legacy": true,
+      "trace": [],
+      "input_bits": "0100000000000000",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "domain_subnormal_RPM_progress",
+      "ok": false,
+      "category": "rejected",
+      "error": "event-aware shaft: nonfinite or unsupported subnormal arithmetic",
+      "bits": "0100000000000000",
+      "input_bits": "0100000000000000",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "environment_ftz",
+      "ok": false,
+      "category": "rejected",
+      "error": "event-aware shaft: FTZ/DAZ or SSE rounding unsupported",
+      "bits": "000000000000e03f",
+      "input_bits": "000000000000e03f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 40832
+      }
+    },
+    {
+      "id": "environment_daz",
+      "ok": false,
+      "category": "rejected",
+      "error": "event-aware shaft: FTZ/DAZ or SSE rounding unsupported",
+      "bits": "000000000000e03f",
+      "input_bits": "000000000000e03f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8128
+      }
+    },
+    {
+      "id": "environment_downward",
+      "ok": false,
+      "category": "rejected",
+      "error": "event-aware shaft: unsupported rounding mode",
+      "bits": "000000000000e03f",
+      "input_bits": "000000000000e03f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 256,
+        "probe_mxcsr": 16256
+      }
+    },
+    {
+      "id": "environment_sse_upward",
+      "ok": false,
+      "category": "rejected",
+      "error": "event-aware shaft: unsupported rounding mode",
+      "bits": "000000000000e03f",
+      "input_bits": "000000000000e03f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 512,
+        "probe_mxcsr": 24448
+      }
+    },
+    {
+      "id": "partition_up_event_60hz",
+      "ok": true,
+      "hold": false,
+      "bits": "7edf0f180935c63f",
+      "default_legacy": true,
+      "trace": [
+        "111111111111813f",
+        "ba383b36c5abbd3f",
+        "7edf0f180935c63f"
+      ],
+      "input_bits": "0000000000000000",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "partition_up_event_120hz",
+      "ok": true,
+      "hold": false,
+      "bits": "7edf0f180935c63f",
+      "default_legacy": true,
+      "trace": [
+        "111111111111713f",
+        "111111111111813f",
+        "282179df3448b23f",
+        "ba383b36c5abbd3f",
+        "0d003bda6fe2c23f",
+        "7edf0f180935c63f"
+      ],
+      "input_bits": "0000000000000000",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "partition_up_event_240hz",
+      "ok": true,
+      "hold": false,
+      "bits": "7edf0f180935c63f",
+      "default_legacy": true,
+      "trace": [
+        "111111111111613f",
+        "111111111111713f",
+        "9a9999999999793f",
+        "111111111111813f",
+        "adcd19a9a1489f3f",
+        "272179df3448b23f",
+        "fde311fdb9a4b83f",
+        "ba383b36c5abbd3f",
+        "6951279c2afbc03f",
+        "0d003bda6fe2c23f",
+        "4b860f27e79cc43f",
+        "7edf0f180935c63f"
+      ],
+      "input_bits": "0000000000000000",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "partition_down_and_stop_60hz",
+      "ok": true,
+      "hold": false,
+      "bits": "0000000000000000",
+      "default_legacy": true,
+      "trace": [
+        "c9e211ef131a7b3f",
+        "0000000000000000",
+        "0000000000000000"
+      ],
+      "input_bits": "9a9999999999b93f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "partition_down_and_stop_120hz",
+      "ok": true,
+      "hold": false,
+      "bits": "0000000000000000",
+      "default_legacy": true,
+      "trace": [
+        "34f03cf3fde6a43f",
+        "c9e211ef131a7b3f",
+        "70a301bc0512643f",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000"
+      ],
+      "input_bits": "9a9999999999b93f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "partition_down_and_stop_240hz",
+      "ok": true,
+      "hold": false,
+      "bits": "0000000000000000",
+      "default_legacy": true,
+      "trace": [
+        "8f20b009658db33f",
+        "35f03cf3fde6a43f",
+        "a935cd3b4ed1813f",
+        "cae211ef131a7b3f",
+        "425a89668b91723f",
+        "73a301bc0512643f",
+        "10938457a507383f",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000"
+      ],
+      "input_bits": "9a9999999999b93f",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "partition_high_positive_60hz",
+      "ok": true,
+      "hold": false,
+      "bits": "a1d168db174c0040",
+      "default_legacy": true,
+      "trace": [
+        "caf53b3f85190040",
+        "7161cc49e2320040",
+        "a1d168db174c0040"
+      ],
+      "input_bits": "0000000000000040",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "partition_high_positive_120hz",
+      "ok": true,
+      "hold": false,
+      "bits": "a3d168db174c0040",
+      "default_legacy": true,
+      "trace": [
+        "54fa28b2c70c0040",
+        "cbf53b3f85190040",
+        "19973bbf38260040",
+        "7261cc49e2320040",
+        "0cb836f6813f0040",
+        "a3d168db174c0040"
+      ],
+      "input_bits": "0000000000000040",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    },
+    {
+      "id": "partition_high_positive_240hz",
+      "ok": true,
+      "hold": false,
+      "bits": "a4d168db174c0040",
+      "default_legacy": true,
+      "trace": [
+        "f6223b1f65060040",
+        "54fa28b2c70c0040",
+        "b9d2d2bb27130040",
+        "cbf53b3f85190040",
+        "d1ba613fe01f0040",
+        "19973bbf38260040",
+        "1d2ebbc18e2c0040",
+        "7361cc49e2320040",
+        "8460555a33390040",
+        "0db836f6813f0040",
+        "69614b20ce450040",
+        "a4d168db174c0040"
+      ],
+      "input_bits": "0000000000000040",
+      "environment": {
+        "initial_rounding": 0,
+        "initial_mxcsr": 8064,
+        "probe_rounding": 0,
+        "probe_mxcsr": 8064
+      }
+    }
+  ],
+  "exit_code": 0,
+  "stdout_utf8": "{\"id\":\"valid_rational_positive_exact_root\",\"ok\":true,\"hold\":false,\"bits\":\"666666666666e63f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"9a9999999999c93f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_rational_negative_exact_root\",\"ok\":true,\"hold\":false,\"bits\":\"313333333333d33f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"666666666666e63f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_zero_power_hold\",\"ok\":true,\"hold\":true,\"bits\":\"000000000000e03f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"000000000000e03f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_zero_duration_identity_positive\",\"ok\":true,\"hold\":true,\"bits\":\"dbb66ddbb66ddb3f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"dbb66ddbb66ddb3f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_zero_duration_identity_negative\",\"ok\":true,\"hold\":true,\"bits\":\"dbb66ddbb66ddb3f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"dbb66ddbb66ddb3f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_stopped_negative_power\",\"ok\":true,\"hold\":false,\"bits\":\"0000000000000000\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"0000000000000000\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_stopped_zero_power\",\"ok\":true,\"hold\":true,\"bits\":\"0000000000000000\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"0000000000000000\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_upward_before\",\"ok\":true,\"hold\":false,\"bits\":\"b81e85eb51b87e3f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7b14ae47e17a743f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_low_stop_before\",\"ok\":true,\"hold\":false,\"bits\":\"7b14ae47e17a643f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7b14ae47e17a743f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_upward_at\",\"ok\":true,\"hold\":false,\"bits\":\"7b14ae47e17a843f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7b14ae47e17a743f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_low_stop_at\",\"ok\":true,\"hold\":false,\"bits\":\"0000000000000000\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7b14ae47e17a743f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_upward_after\",\"ok\":true,\"hold\":false,\"bits\":\"282179df3448b23f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7b14ae47e17a743f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_low_stop_after\",\"ok\":true,\"hold\":false,\"bits\":\"0000000000000000\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7b14ae47e17a743f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_downward_before\",\"ok\":true,\"hold\":false,\"bits\":\"723aa04edc30903f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7b14ae47e17a943f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_downward_at\",\"ok\":true,\"hold\":false,\"bits\":\"7c14ae47e17a843f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7b14ae47e17a943f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_downward_low_remainder\",\"ok\":true,\"hold\":false,\"bits\":\"7b14ae47e17a743f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7b14ae47e17a943f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_downward_stop_at\",\"ok\":true,\"hold\":false,\"bits\":\"b30c71ac8bdb303c\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7b14ae47e17a943f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_downward_past_stop\",\"ok\":true,\"hold\":false,\"bits\":\"0000000000000000\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7b14ae47e17a943f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_cold_low_60hz\",\"ok\":true,\"hold\":false,\"bits\":\"111111111111813f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"0000000000000000\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_threshold_up_60hz\",\"ok\":true,\"hold\":false,\"bits\":\"996cd3ab0093c03f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7b14ae47e17a843f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_threshold_down_60hz\",\"ok\":true,\"hold\":false,\"bits\":\"501be8b4814e5b3f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7b14ae47e17a843f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_low_cross_60hz\",\"ok\":true,\"hold\":false,\"bits\":\"5e1729a8d01bbf3f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"3bdf4f8d976e823f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_low_stop_60hz\",\"ok\":true,\"hold\":false,\"bits\":\"0000000000000000\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7b14ae47e17a743f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_above_positive_60hz\",\"ok\":true,\"hold\":false,\"bits\":\"caf53b3f85190040\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"0000000000000040\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_above_negative_60hz\",\"ok\":true,\"hold\":false,\"bits\":\"55cbfc94a3ccff3f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"0000000000000040\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_cold_low_120hz\",\"ok\":true,\"hold\":false,\"bits\":\"111111111111713f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"0000000000000000\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_threshold_up_120hz\",\"ok\":true,\"hold\":false,\"bits\":\"b2f7c6216182b73f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7b14ae47e17a843f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_threshold_down_120hz\",\"ok\":true,\"hold\":false,\"bits\":\"e5174b7eb1e4773f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7b14ae47e17a843f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_low_cross_120hz\",\"ok\":true,\"hold\":false,\"bits\":\"8a1e79fe8388b43f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"3bdf4f8d976e823f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_low_stop_120hz\",\"ok\":true,\"hold\":false,\"bits\":\"501be8b4814e4b3f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7b14ae47e17a743f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_above_positive_120hz\",\"ok\":true,\"hold\":false,\"bits\":\"54fa28b2c70c0040\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"0000000000000040\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_above_negative_120hz\",\"ok\":true,\"hold\":false,\"bits\":\"4761bc205ce6ff3f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"0000000000000040\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_cold_low_240hz\",\"ok\":true,\"hold\":false,\"bits\":\"111111111111613f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"0000000000000000\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_threshold_up_240hz\",\"ok\":true,\"hold\":false,\"bits\":\"f48cfd28cbb8b03f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7b14ae47e17a843f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_threshold_down_240hz\",\"ok\":true,\"hold\":false,\"bits\":\"37d069039d36803f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7b14ae47e17a843f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_low_cross_240hz\",\"ok\":true,\"hold\":false,\"bits\":\"312c4c7f4660a83f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"3bdf4f8d976e823f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_low_stop_240hz\",\"ok\":true,\"hold\":false,\"bits\":\"e5174b7eb1e4673f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7b14ae47e17a743f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_above_positive_240hz\",\"ok\":true,\"hold\":false,\"bits\":\"f6223b1f65060040\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"0000000000000040\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_above_negative_240hz\",\"ok\":true,\"hold\":false,\"bits\":\"0462d0a230f3ff3f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"0000000000000040\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_binary_threshold_below__2d1\",\"ok\":true,\"hold\":false,\"bits\":\"e3174b7eb1e4773f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7a14ae47e17a843f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_binary_threshold_below__2b1\",\"ok\":true,\"hold\":false,\"bits\":\"b1f7c6216182b73f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7a14ae47e17a843f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_binary_threshold_equal__2d1\",\"ok\":true,\"hold\":false,\"bits\":\"e5174b7eb1e4773f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7b14ae47e17a843f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_binary_threshold_equal__2b1\",\"ok\":true,\"hold\":false,\"bits\":\"b2f7c6216182b73f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7b14ae47e17a843f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_binary_threshold_above__2d1\",\"ok\":true,\"hold\":false,\"bits\":\"e5174b7eb1e4773f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7c14ae47e17a843f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"valid_binary_threshold_above__2b1\",\"ok\":true,\"hold\":false,\"bits\":\"b2f7c6216182b73f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"7c14ae47e17a843f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"invalid_omega_rad_s_nan\",\"ok\":false,\"category\":\"rejected\",\"error\":\"event-aware shaft: invalid inputs or rounding mode\",\"bits\":\"000000000000f87f\",\"input_bits\":\"000000000000f87f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"invalid_omega_rad_s_positive_infinity\",\"ok\":false,\"category\":\"rejected\",\"error\":\"event-aware shaft: invalid inputs or rounding mode\",\"bits\":\"000000000000f07f\",\"input_bits\":\"000000000000f07f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"invalid_omega_rad_s_negative_infinity\",\"ok\":false,\"category\":\"rejected\",\"error\":\"event-aware shaft: invalid inputs or rounding mode\",\"bits\":\"000000000000f0ff\",\"input_bits\":\"000000000000f0ff\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"invalid_net_power_ft_lbf_s_nan\",\"ok\":false,\"category\":\"rejected\",\"error\":\"event-aware shaft: invalid inputs or rounding mode\",\"bits\":\"000000000000e03f\",\"input_bits\":\"000000000000e03f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"invalid_net_power_ft_lbf_s_positive_infinity\",\"ok\":false,\"category\":\"rejected\",\"error\":\"event-aware shaft: invalid inputs or rounding mode\",\"bits\":\"000000000000e03f\",\"input_bits\":\"000000000000e03f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"invalid_net_power_ft_lbf_s_negative_infinity\",\"ok\":false,\"category\":\"rejected\",\"error\":\"event-aware shaft: invalid inputs or rounding mode\",\"bits\":\"000000000000e03f\",\"input_bits\":\"000000000000e03f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"invalid_inertia_slug_ft2_nan\",\"ok\":false,\"category\":\"rejected\",\"error\":\"event-aware shaft: invalid inputs or rounding mode\",\"bits\":\"000000000000e03f\",\"input_bits\":\"000000000000e03f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"invalid_inertia_slug_ft2_positive_infinity\",\"ok\":false,\"category\":\"rejected\",\"error\":\"event-aware shaft: invalid inputs or rounding mode\",\"bits\":\"000000000000e03f\",\"input_bits\":\"000000000000e03f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"invalid_inertia_slug_ft2_negative_infinity\",\"ok\":false,\"category\":\"rejected\",\"error\":\"event-aware shaft: invalid inputs or rounding mode\",\"bits\":\"000000000000e03f\",\"input_bits\":\"000000000000e03f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"invalid_dt_s_nan\",\"ok\":false,\"category\":\"rejected\",\"error\":\"event-aware shaft: invalid inputs or rounding mode\",\"bits\":\"000000000000e03f\",\"input_bits\":\"000000000000e03f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"invalid_dt_s_positive_infinity\",\"ok\":false,\"category\":\"rejected\",\"error\":\"event-aware shaft: invalid inputs or rounding mode\",\"bits\":\"000000000000e03f\",\"input_bits\":\"000000000000e03f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"invalid_dt_s_negative_infinity\",\"ok\":false,\"category\":\"rejected\",\"error\":\"event-aware shaft: invalid inputs or rounding mode\",\"bits\":\"000000000000e03f\",\"input_bits\":\"000000000000e03f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"invalid_negative_omega\",\"ok\":false,\"category\":\"rejected\",\"error\":\"event-aware shaft: invalid inputs or rounding mode\",\"bits\":\"000000000000f0bf\",\"input_bits\":\"000000000000f0bf\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"invalid_negative_dt\",\"ok\":false,\"category\":\"rejected\",\"error\":\"event-aware shaft: invalid inputs or rounding mode\",\"bits\":\"000000000000e03f\",\"input_bits\":\"000000000000e03f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"invalid_zero_inertia\",\"ok\":false,\"category\":\"rejected\",\"error\":\"event-aware shaft: invalid inputs or rounding mode\",\"bits\":\"000000000000e03f\",\"input_bits\":\"000000000000e03f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"invalid_negative_inertia\",\"ok\":false,\"category\":\"rejected\",\"error\":\"event-aware shaft: invalid inputs or rounding mode\",\"bits\":\"000000000000e03f\",\"input_bits\":\"000000000000e03f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"invalid_unknown_method\",\"ok\":false,\"category\":\"rejected\",\"error\":\"unknown method rejected\",\"bits\":\"000000000000e03f\",\"input_bits\":\"000000000000e03f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"invalid_mathematical_candidate_overflow\",\"ok\":false,\"category\":\"rejected\",\"error\":\"event-aware shaft: unsupported source exponent\",\"bits\":\"ffffffffffffef7f\",\"input_bits\":\"ffffffffffffef7f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"zero_kernel_negative_zero_power_hold\",\"ok\":true,\"hold\":true,\"bits\":\"000000000000e03f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"000000000000e03f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"zero_RPM_negative_zero_power_hold\",\"ok\":true,\"hold\":true,\"bits\":\"000000000000e03f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"000000000000e03f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"zero_kernel_negative_zero_duration_hold\",\"ok\":true,\"hold\":true,\"bits\":\"000000000000e03f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"000000000000e03f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"zero_RPM_negative_zero_duration_hold\",\"ok\":true,\"hold\":true,\"bits\":\"000000000000e03f\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"000000000000e03f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"zero_kernel_negative_zero_omega_zero_power_hold\",\"ok\":true,\"hold\":true,\"bits\":\"0000000000000080\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"0000000000000080\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"zero_RPM_negative_zero_omega_zero_power_hold\",\"ok\":true,\"hold\":true,\"bits\":\"0000000000000080\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"0000000000000080\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"zero_kernel_negative_zero_omega_real_stop\",\"ok\":true,\"hold\":false,\"bits\":\"0000000000000000\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"0000000000000080\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"zero_RPM_negative_zero_omega_real_stop\",\"ok\":true,\"hold\":false,\"bits\":\"0000000000000000\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"0000000000000080\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"domain_subnormal_RPM_power_hold\",\"ok\":true,\"hold\":true,\"bits\":\"0100000000000000\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"0100000000000000\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"domain_subnormal_RPM_time_hold\",\"ok\":true,\"hold\":true,\"bits\":\"0100000000000000\",\"default_legacy\":true,\"trace\":[],\"input_bits\":\"0100000000000000\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"domain_subnormal_RPM_progress\",\"ok\":false,\"category\":\"rejected\",\"error\":\"event-aware shaft: nonfinite or unsupported subnormal arithmetic\",\"bits\":\"0100000000000000\",\"input_bits\":\"0100000000000000\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"environment_ftz\",\"ok\":false,\"category\":\"rejected\",\"error\":\"event-aware shaft: FTZ/DAZ or SSE rounding unsupported\",\"bits\":\"000000000000e03f\",\"input_bits\":\"000000000000e03f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":40832}}\r\n{\"id\":\"environment_daz\",\"ok\":false,\"category\":\"rejected\",\"error\":\"event-aware shaft: FTZ/DAZ or SSE rounding unsupported\",\"bits\":\"000000000000e03f\",\"input_bits\":\"000000000000e03f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8128}}\r\n{\"id\":\"environment_downward\",\"ok\":false,\"category\":\"rejected\",\"error\":\"event-aware shaft: unsupported rounding mode\",\"bits\":\"000000000000e03f\",\"input_bits\":\"000000000000e03f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":256,\"probe_mxcsr\":16256}}\r\n{\"id\":\"environment_sse_upward\",\"ok\":false,\"category\":\"rejected\",\"error\":\"event-aware shaft: unsupported rounding mode\",\"bits\":\"000000000000e03f\",\"input_bits\":\"000000000000e03f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":512,\"probe_mxcsr\":24448}}\r\n{\"id\":\"partition_up_event_60hz\",\"ok\":true,\"hold\":false,\"bits\":\"7edf0f180935c63f\",\"default_legacy\":true,\"trace\":[\"111111111111813f\",\"ba383b36c5abbd3f\",\"7edf0f180935c63f\"],\"input_bits\":\"0000000000000000\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"partition_up_event_120hz\",\"ok\":true,\"hold\":false,\"bits\":\"7edf0f180935c63f\",\"default_legacy\":true,\"trace\":[\"111111111111713f\",\"111111111111813f\",\"282179df3448b23f\",\"ba383b36c5abbd3f\",\"0d003bda6fe2c23f\",\"7edf0f180935c63f\"],\"input_bits\":\"0000000000000000\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"partition_up_event_240hz\",\"ok\":true,\"hold\":false,\"bits\":\"7edf0f180935c63f\",\"default_legacy\":true,\"trace\":[\"111111111111613f\",\"111111111111713f\",\"9a9999999999793f\",\"111111111111813f\",\"adcd19a9a1489f3f\",\"272179df3448b23f\",\"fde311fdb9a4b83f\",\"ba383b36c5abbd3f\",\"6951279c2afbc03f\",\"0d003bda6fe2c23f\",\"4b860f27e79cc43f\",\"7edf0f180935c63f\"],\"input_bits\":\"0000000000000000\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"partition_down_and_stop_60hz\",\"ok\":true,\"hold\":false,\"bits\":\"0000000000000000\",\"default_legacy\":true,\"trace\":[\"c9e211ef131a7b3f\",\"0000000000000000\",\"0000000000000000\"],\"input_bits\":\"9a9999999999b93f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"partition_down_and_stop_120hz\",\"ok\":true,\"hold\":false,\"bits\":\"0000000000000000\",\"default_legacy\":true,\"trace\":[\"34f03cf3fde6a43f\",\"c9e211ef131a7b3f\",\"70a301bc0512643f\",\"0000000000000000\",\"0000000000000000\",\"0000000000000000\"],\"input_bits\":\"9a9999999999b93f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"partition_down_and_stop_240hz\",\"ok\":true,\"hold\":false,\"bits\":\"0000000000000000\",\"default_legacy\":true,\"trace\":[\"8f20b009658db33f\",\"35f03cf3fde6a43f\",\"a935cd3b4ed1813f\",\"cae211ef131a7b3f\",\"425a89668b91723f\",\"73a301bc0512643f\",\"10938457a507383f\",\"0000000000000000\",\"0000000000000000\",\"0000000000000000\",\"0000000000000000\",\"0000000000000000\"],\"input_bits\":\"9a9999999999b93f\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"partition_high_positive_60hz\",\"ok\":true,\"hold\":false,\"bits\":\"a1d168db174c0040\",\"default_legacy\":true,\"trace\":[\"caf53b3f85190040\",\"7161cc49e2320040\",\"a1d168db174c0040\"],\"input_bits\":\"0000000000000040\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"partition_high_positive_120hz\",\"ok\":true,\"hold\":false,\"bits\":\"a3d168db174c0040\",\"default_legacy\":true,\"trace\":[\"54fa28b2c70c0040\",\"cbf53b3f85190040\",\"19973bbf38260040\",\"7261cc49e2320040\",\"0cb836f6813f0040\",\"a3d168db174c0040\"],\"input_bits\":\"0000000000000040\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n{\"id\":\"partition_high_positive_240hz\",\"ok\":true,\"hold\":false,\"bits\":\"a4d168db174c0040\",\"default_legacy\":true,\"trace\":[\"f6223b1f65060040\",\"54fa28b2c70c0040\",\"b9d2d2bb27130040\",\"cbf53b3f85190040\",\"d1ba613fe01f0040\",\"19973bbf38260040\",\"1d2ebbc18e2c0040\",\"7361cc49e2320040\",\"8460555a33390040\",\"0db836f6813f0040\",\"69614b20ce450040\",\"a4d168db174c0040\"],\"input_bits\":\"0000000000000040\",\"environment\":{\"initial_rounding\":0,\"initial_mxcsr\":8064,\"probe_rounding\":0,\"probe_mxcsr\":8064}}\r\n",
+  "stderr_utf8": "",
+  "terminal_exit_observed": true
+}

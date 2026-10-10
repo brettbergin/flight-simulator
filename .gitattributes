@@ -14,6 +14,9 @@ tests/world/wind/** text eol=lf
 third_party/licenses/notices/OriginalSynthetic-MIT.txt text eol=lf
 
 tools/export/** text eol=lf
+third_party/patches/jsbsim/** -text
+third_party/patches/jsbsim/**/FGPropeller* -whitespace
+tests/export/*.py text eol=lf
 native/godot_bridge/** text eol=lf
 app/proof/** text eol=lf
 third_party/licenses/notices/*.txt text eol=lf
