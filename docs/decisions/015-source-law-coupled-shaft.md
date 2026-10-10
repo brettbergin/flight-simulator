@@ -4,6 +4,8 @@ Status: Proposed contract for issue149; implementation begins only after indepen
 
 The preserved [native trial evidence](../evidence/P3/event-aware-shaft.md) failed three unchanged convergence checks. [Issue149](https://github.com/brettbergin/flight-simulator/issues/149) owns this correction and blocks [issue127](https://github.com/brettbergin/flight-simulator/issues/127). This contract extends [ADR010](010-original-piston-profile.md) and preserves [ADR014](014-event-aware-shaft.md). The [independent reference design](../evidence/P3/coupled-midpoint-reference-design.md) specifies the finite prospective test roster. Contract acceptance authorizes implementation work; numerical, runtime, aircraft and phase acceptance remain separate.
 
+[ADR016](016-generated-native-build-identity.md) defines the subsequent generated expected native identity resource and versioned package evidence for issue149/127 integration. It changes no coupled law, arithmetic/physical criteria or profile default; runtime adoption still requires its separate gates.
+
 ## Decision and scope
 
 Introduce closed method ID `event_aware_coupled_midpoint_v1` for the exact original piston/direct-drive/fixed-pitch engineering profile. Retain default native construction as `legacy_euler`, and retain `event_aware_constant_power_v1` exactly for historical reproduction and its immutable references. Do not change XML numbers, controls, public clocks, schedule, physical budgets, samples or exclusions. Do not switch the production profile default until the new contract, source, strict build, independent references and original coupled gates pass.

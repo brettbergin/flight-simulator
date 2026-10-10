@@ -2,6 +2,8 @@
 
 Status: proposed contract; normative after its contract PR merges. It authorizes no consumer, closes no phase gate, and does not accept [#20 SIM-LOOP](https://github.com/brettbergin/flight-simulator/issues/20). Owner/P1 renderer and human qualification remain separate. Contract issue [#112](https://github.com/brettbergin/flight-simulator/issues/112). Supports PRD-002, PRD-007 and SAFE-030. Basis: accepted [v1 contracts](../contracts.md), [ADR 006](006-interactive-prototype.md), [ADR 003](003-geodesy-and-render-origin.md), and accepted #110 / PR111 motion work at main `af705ee` (frozen source `37467e8`).
 
+[ADR016](016-generated-native-build-identity.md) defines the subsequent per-build expected native identity resource and exact staging evidence. It retains this facade's actual metadata mismatch rejection and copied Readback contract; its consumer changes wait for the protected contract merge.
+
 ## Decision and ownership
 
 Introduce `app/simulation/session_facade.gd` and `render_origin.gd` over the existing synchronous `FlightInteractiveSession`. One facade on the Godot main thread owns one joined worker and one native executive; construction, calls, close and destruction of the native Session stay on that worker. There is no autonomous runner, new mailbox protocol, shared native resource, new wire record or second solver. Every facade call, origin transaction and returned Godot value belongs to the main thread; readback/intent/result dictionaries and arrays are deep owned copies.

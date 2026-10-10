@@ -2,6 +2,8 @@
 
 Status: proposed contract; normative after the checked contract PR for [#122](https://github.com/brettbergin/flight-simulator/issues/122) merges. Consumers also require a checked, byte-pinned original model/parameter/reference package before implementation. This is a bounded engineering fallback allowed by [P3](../phases/p3-complete-circuit.md), not acceptance of the C172S configuration, [#28](https://github.com/brettbergin/flight-simulator/issues/28), [#29](https://github.com/brettbergin/flight-simulator/issues/29), or a phase gate. Supports REAL-013, REAL-014, PRD-004 and PRD-010. Basis: [v1 contracts](../contracts.md), [ADR006](006-interactive-prototype.md), [ADR007](007-sim-loop-facade.md), [ADR008](008-input-presets.md) and [ADR009](009-cockpit-readings.md).
 
+[ADR016](016-generated-native-build-identity.md) defines generated per-build expected source identity for subsequent package/facade adoption. It does not loosen profile/inventory/method admission, qualify piston wind cues or change this profile's runtime acceptance gates.
+
 ## Outcome and identity
 
 Provide a selectable **Original piston prototype — cold engine** with deliberate fuel, mixture, ignition and starter controls, native shaft readings and causal shutdown. The starter has an idealized external supply. This is not a cold-and-dark electrical simulation, manufacturer checklist, C172S engine or sensed instrument. Hot/flooded starts, oil indications, battery/master/alternator, pumps/vents, source-specific magneto-drop limits, failures and calibrated performance remain separate work.
