@@ -70,6 +70,8 @@ The [selectable steady-wind implementation](evidence/P2/steady-wind-flight.md) a
 
 The [maintained C172P source assessment](evidence/P3/c172p-candidate-assessment.md), [issue #169](https://github.com/brettbergin/flight-simulator/issues/169), identifies a conditional separately named 160 hp landplane candidate and its license, host-dependency and reference gaps. It authorizes no port and preserves the original prototype, selected C172S objective and aircraft/pilot/phase gates.
 
+The accepted assessment now has two parallel source-only prerequisites: [C172P applicability and normal-reference dossier #171](https://github.com/brettbergin/flight-simulator/issues/171) and [recursive host/rights closure #172](https://github.com/brettbergin/flight-simulator/issues/172). Both depend on accepted #169/#13/#19 and join before any separately reviewed candidate profile/interface/package decision. They publish metadata and explicit unresolved cells; they import no aircraft source and preserve selected C172S #28/#76, original profiles and pilot/phase gates.
+
 ## Read in this order
 
 1. [Product scope and requirements](product.md): expected pilot experience and initial boundaries.
