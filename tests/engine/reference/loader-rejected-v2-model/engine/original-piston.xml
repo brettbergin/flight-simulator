@@ -30,7 +30,7 @@
   <peak-piston-speed>100</peak-piston-speed>
   <numboostspeeds>0</numboostspeeds>
   <oil-pressure-relief-valve-psi unit="PSI">60</oil-pressure-relief-valve-psi>
-  <design-oil-temp-degK>350</design-oil-temp-degK>
+  <design-oil-temp-degK unit="DEGK">350</design-oil-temp-degK>
   <oil-pressure-rpm-max>1800</oil-pressure-rpm-max>
   <oil-viscosity-index>0.25</oil-viscosity-index>
   <table name="COMBUSTION" type="internal">

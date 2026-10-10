@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!-- Original project MIT fixed-pitch coefficients; explicit dissipative CP, no windmill fidelity claim. -->
+<propeller name="Original two-blade fixed-pitch prototype" version="1.1">
+  <ixx unit="SLUG*FT2">2</ixx>
+  <diameter unit="FT">6</diameter>
+  <numblades>2</numblades>
+  <gearratio>1</gearratio>
+  <minpitch>20</minpitch>
+  <maxpitch>20</maxpitch>
+  <minrpm>0</minrpm>
+  <maxrpm>2400</maxrpm>
+  <constspeed>0</constspeed>
+  <reversepitch>0</reversepitch>
+  <ct_factor>1</ct_factor>
+  <cp_factor>1</cp_factor>
+  <table name="C_THRUST" type="internal">
+    <tableData>
+      -1 0.12
+      0 0.12
+      1 0
+      2 -0.06
+    </tableData>
+  </table>
+  <table name="C_POWER" type="internal">
+    <tableData>
+      -1 0.06
+      0 0.06
+      1 0.04
+      2 0.02
+    </tableData>
+  </table>
+</propeller>

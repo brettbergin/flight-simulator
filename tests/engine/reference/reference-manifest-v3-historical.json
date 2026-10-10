@@ -1,0 +1,60 @@
+{
+  "format": "OriginalPistonReferenceManifest/v3",
+  "status": "loader-correction-source-rebinding-awaiting-independent-review",
+  "original_authorship": "Project-original equations; no numerical fitting to backend observations",
+  "model_binding": [
+    {
+      "path": "aircraft/original-piston-prop/original-piston-prop.xml",
+      "bytes": 6784,
+      "sha256": "b9a41861fcbca1917978312d73a192cbe2c2ea0e6ef0e13512c76148a6c9d4c5"
+    },
+    {
+      "path": "engine/original-piston.xml",
+      "bytes": 1870,
+      "sha256": "4212b398118be77cdff44f6e41abfded7e4fd8fcfece422dba27fd64ad30b638"
+    },
+    {
+      "path": "engine/original-fixed-prop.xml",
+      "bytes": 826,
+      "sha256": "b4f3f376f062d869a338bb2757466c9ba23d6320d895d3fc5921e351748bb0af"
+    },
+    {
+      "path": "parameter-ledger.json",
+      "bytes": 23421,
+      "sha256": "eb471b5590351bee000c346acfa091a2c84ae526540794afe0e23833ca02106c"
+    },
+    {
+      "path": "inventory.json",
+      "bytes": 3307,
+      "sha256": "f7766fda173d8ee83d4c4a8c02f6333124175a1f7064d3f4d8e78df3d17da12a"
+    }
+  ],
+  "generated_files": [
+    {
+      "path": "tests/engine/reference/generate.py",
+      "bytes": 11950,
+      "sha256": "cfe6e02e11a24f9debdcd86b3aa50e185ae6d6b92ff93952917192dac926bc91"
+    },
+    {
+      "path": "tests/engine/reference/expected-v3.json",
+      "bytes": 37399,
+      "sha256": "36aac20d85e841743d7eb9a357be8a0d40d8f103c1cbc60e084dde9ef23db63b"
+    },
+    {
+      "path": "tests/engine/reference/README.md",
+      "bytes": 6178,
+      "sha256": "17a688d0c65d1dff6b6212b098c20afc74d89d6a4b9d2571131d301d2e08ccc3"
+    }
+  ],
+  "preserved_reference": {
+    "path": "tests/engine/reference/expected-v2.json",
+    "bytes": 37399,
+    "sha256": "bd2ec9562308dbb950b684018ff924c4f820278400c7a2664f1342f11f049777"
+  },
+  "case_count": 55,
+  "numeric_payload_equal_v2": true,
+  "budgets_equal_v2": true,
+  "correction": "omit unsupported explicit DEG K/DEGK unit attribute; scalar350 retained; no other XML change",
+  "first_trial": "failed model loader before any coupled tick; receipt60bed0b6b503a8564a7e59323363437600f2a8c328a200b362eac823062e4289",
+  "self_approval": false
+}

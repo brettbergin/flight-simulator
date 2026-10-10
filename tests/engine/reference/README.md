@@ -5,14 +5,23 @@ This source-only corpus supports [ADR010](../../../docs/decisions/010-original-p
 From the repository root:
 
 ```sh
-python tests/engine/reference/generate.py --check
-python tests/engine/check_model.py --model-root native/fdm_jsbsim/models/original-piston-prop --reference-packet tests/engine/reference/expected-v2.json
+python tests/engine/reference/generate.py --check --model-pack tests/engine/reference/loader-rejected-v2-model
+python tests/engine/reference/generate_loader_v1.py --check
+python tests/engine/check_model.py --model-root native/fdm_jsbsim/models/original-piston-prop --reference-packet tests/engine/reference/expected-v3.json
 python -m unittest discover -s tests/engine -p test_check_model.py
 ```
 
-`generate.py` uses only Python's standard library and 80-digit Decimal arithmetic. Numeric expectations are decimal strings. The read-only check regenerates all 55 cases and compares exact serialized bytes. Generation refuses to overwrite an existing packet. Boolean values, branches, identities and ordering compare exactly. Future comparison code must parse numeric strings explicitly and retain tick/sequence integer identity.
+Both generators use only Python's standard library and 80-digit Decimal arithmetic. Numeric expectations are decimal strings. Each read-only check regenerates all 55 cases and compares exact serialized bytes. Generation refuses to overwrite an existing packet. Boolean values, branches, identities and ordering compare exactly. Future comparison code must parse numeric strings explicitly and retain tick/sequence integer identity.
 
-The binding revision `expected-v2.json` preserves all cases and budgets from the original pre-solver v1 packet, SHA256 `57a0b8f4ed8fecf9d9ba9a7a8666ec6c80395d90680a4048d5a57e14abd170c9`. Only the source inventory and ledger metadata bindings changed. The three XML files and numerical parameters are unchanged. The historic preparation manifest is retained as `reference-manifest-v2.json`; its private preparation paths describe provenance, not required checkout files. Current publication hashes and independent review appear in [source evidence](../../../docs/evidence/P3/original-piston-source.md).
+The binding revision `expected-v2.json` preserves all cases and budgets from the original pre-solver v1 packet, SHA256 `57a0b8f4ed8fecf9d9ba9a7a8666ec6c80395d90680a4048d5a57e14abd170c9`. That historical revision changed only the source inventory and ledger metadata bindings; its three XML files and numerical parameters were unchanged. Its SHA256 remains `bd2ec9562308dbb950b684018ff924c4f820278400c7a2664f1342f11f049777`. The historic preparation manifest remains byte-for-byte as `reference-manifest-v2.json`; its private preparation paths describe provenance, not required checkout files. Current publication hashes and independent review appear in [source evidence](../../../docs/evidence/P3/original-piston-source.md).
+
+## Separate loader-format binding
+
+The accepted [ADR014](../../../docs/decisions/014-event-aware-shaft.md) identifies a separate loader prerequisite: the original engine XML supplied unsupported `unit="DEGK"`. The active corrected source omits exactly that 12-byte attribute, retaining the raw value 350. All seven rejected-v2 model files remain byte-for-byte in `loader-rejected-v2-model/`. The first command above deliberately supplies that archive to the unchanged `generate.py` (SHA256 `c81596d5e4155463620687d987838294ef0fa39ce32157df15cbc91a7c51ebb7`); its default active-source invocation is no longer applicable. Reproducing historical reference equations does not mean the rejected XML can initialize JSBSim.
+
+`generate_loader_v1.py` is an exact byte import of `tests/engine/reference/generate.py` from preserved commit `c7a2886a9504034ef08e696567510330d2a0df51`, under a separate filename. Relative to the historical generator, only the frozen engine XML hash and default output filename differ. It reproduces the preserved `expected-v3.json`, SHA256 `36aac20d85e841743d7eb9a357be8a0d40d8f103c1cbc60e084dde9ef23db63b`, against the corrected active source. Every non-`model_binding` field, all 55 cases and all budgets equal v2 exactly. Neither generator imports a solver or observes new runtime output.
+
+The active `reference-manifest-v3.json` binds the actual additive generator filename/hash and current reproduction commands. `reference-manifest-v3-historical.json` retains the exact earlier c7a manifest, including its original `generate.py`/README paths and hashes, as historical provenance; those entries are not assertions about current checkout files. The source-only loader correction does not resolve the preserved coupled startup convergence failures, authorize a new shaft implementation/trial, or establish aircraft/pilot/phase acceptance.
 
 ## Coverage and budgets
 

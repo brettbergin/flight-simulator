@@ -1,6 +1,6 @@
 # ADR 014: Opt-in event-aware propeller integration
 
-Status: proposed numerical and interface amendment for existing [issue127](https://github.com/brettbergin/flight-simulator/issues/127). Normative only after its independently reviewed contract PR passes protected CI and merges. This contract does not close issue127, authorize consumer observations before the pretrial gates below, or establish aircraft/pilot/phase acceptance. It follows accepted [ADR010](010-original-piston-profile.md) and [ADR013](013-steady-wind-starts.md).
+Status: accepted numerical and interface contract for existing [issue127](https://github.com/brettbergin/flight-simulator/issues/127), through independently reviewed [PR146](https://github.com/brettbergin/flight-simulator/pull/146), merge `34e1d3086b49e93dfdaf6487bf69ddaf3ee89dcf`. All four protected checks passed. This contract does not close issue127, authorize consumer observations before the pretrial gates below, or establish aircraft/pilot/phase acceptance. It follows accepted [ADR010](010-original-piston-profile.md) and [ADR013](013-steady-wind-starts.md).
 
 ## Problem and source evidence
 
@@ -18,7 +18,7 @@ Preserved failed-suite receipt SHA256 is `87ad6b630c872ed102e694bbbb93c3d9a9ee24
 
 ### Separate model-loader source prerequisite
 
-Those coupled observations used a corrected-loader candidate, not the original model bytes currently accepted on main. The original piston XML SHA256 `0d1b3eb87f1af2131a495c26ae7a3fb2fdd2a38d3d4309c67a77daaff2cf069e` supplies `unit="DEGK"` on `design-oil-temp-degK`. Pinned FGPiston.cpp line 242 requests DEGK, but FGXMLElement.cpp lines 493–497 reject that nonempty supplied unit before reading its number because the conversion map lacks it. The original v2 source therefore has no successful cold-runtime initialization evidence.
+Those coupled observations used a corrected-loader candidate, not the original model bytes accepted by the earlier source PR. The original piston XML SHA256 `0d1b3eb87f1af2131a495c26ae7a3fb2fdd2a38d3d4309c67a77daaff2cf069e` supplies `unit="DEGK"` on `design-oil-temp-degK`. Pinned FGPiston.cpp line 242 requests DEGK, but FGXMLElement.cpp lines 493–497 reject that nonempty supplied unit before reading its number because the conversion map lacks it. The original v2 source therefore has no successful cold-runtime initialization evidence. The separately reviewed [loader source amendment](../evidence/P3/original-piston-loader-source.md) records preservation, corrected bindings and its distinct admission gate.
 
 Preserved commit `fdd9c0d319591db69261fb6d440721498c499590` removes exactly that 12-byte attribute, retaining the raw value 350 in the constructor's Kelvin units. Corrected XML SHA256 is `4212b398118be77cdff44f6e41abfded7e4fd8fcfece422dba27fd64ad30b638`; inventory SHA256 is `f7766fda173d8ee83d4c4a8c02f6333124175a1f7064d3f4d8e78df3d17da12a`. Its v3 reference SHA256 `36aac20d85e841743d7eb9a357be8a0d40d8f103c1cbc60e084dde9ef23db63b` differs from v2 only in model binding; all 55 numerical cases and budgets match. The historical one-suite corrected-loader authorization SHA256 is `f3a5a4e349b13bc8341e3f8af37e66fc1d627221642116c9401e8beec0cceb97`. That private review/trial authorization is not a checked source merge or feature acceptance.
 

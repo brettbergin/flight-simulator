@@ -1,0 +1,1051 @@
+{
+  "format": "original-piston-pre-solver-reference-v1",
+  "status": "candidate; root independent review required before solver consumption",
+  "method": "80-digit Decimal analytic equations and clamped piecewise-linear rational tables; no model output, solver import or numerical fitting",
+  "model_binding": [
+    {
+      "path": "aircraft/original-piston-prop/original-piston-prop.xml",
+      "bytes": 6784,
+      "sha256": "b9a41861fcbca1917978312d73a192cbe2c2ea0e6ef0e13512c76148a6c9d4c5"
+    },
+    {
+      "path": "engine/original-piston.xml",
+      "bytes": 1870,
+      "sha256": "4212b398118be77cdff44f6e41abfded7e4fd8fcfece422dba27fd64ad30b638"
+    },
+    {
+      "path": "engine/original-fixed-prop.xml",
+      "bytes": 826,
+      "sha256": "b4f3f376f062d869a338bb2757466c9ba23d6320d895d3fc5921e351748bb0af"
+    },
+    {
+      "path": "parameter-ledger.json",
+      "bytes": 23421,
+      "sha256": "eb471b5590351bee000c346acfa091a2c84ae526540794afe0e23833ca02106c"
+    },
+    {
+      "path": "inventory.json",
+      "bytes": 3307,
+      "sha256": "f7766fda173d8ee83d4c4a8c02f6333124175a1f7064d3f4d8e78df3d17da12a"
+    }
+  ],
+  "decimal_precision": 80,
+  "pi": "3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628",
+  "case_count": 55,
+  "cases": [
+    {
+      "id": "ctcp_-2",
+      "kind": "table",
+      "input": {
+        "key": "-2"
+      },
+      "expected": {
+        "ct": "0.12",
+        "cp": "0.06"
+      }
+    },
+    {
+      "id": "ctcp_-1",
+      "kind": "table",
+      "input": {
+        "key": "-1"
+      },
+      "expected": {
+        "ct": "0.12",
+        "cp": "0.06"
+      }
+    },
+    {
+      "id": "ctcp_-.5",
+      "kind": "table",
+      "input": {
+        "key": "-0.5"
+      },
+      "expected": {
+        "ct": "0.120",
+        "cp": "0.060"
+      }
+    },
+    {
+      "id": "ctcp_0",
+      "kind": "table",
+      "input": {
+        "key": "0"
+      },
+      "expected": {
+        "ct": "0.12",
+        "cp": "0.06"
+      }
+    },
+    {
+      "id": "ctcp_.5",
+      "kind": "table",
+      "input": {
+        "key": "0.5"
+      },
+      "expected": {
+        "ct": "0.060",
+        "cp": "0.050"
+      }
+    },
+    {
+      "id": "ctcp_1",
+      "kind": "table",
+      "input": {
+        "key": "1"
+      },
+      "expected": {
+        "ct": "0.00",
+        "cp": "0.04"
+      }
+    },
+    {
+      "id": "ctcp_1.5",
+      "kind": "table",
+      "input": {
+        "key": "1.5"
+      },
+      "expected": {
+        "ct": "-0.030",
+        "cp": "0.030"
+      }
+    },
+    {
+      "id": "ctcp_2",
+      "kind": "table",
+      "input": {
+        "key": "2"
+      },
+      "expected": {
+        "ct": "-0.06",
+        "cp": "0.02"
+      }
+    },
+    {
+      "id": "ctcp_3",
+      "kind": "table",
+      "input": {
+        "key": "3"
+      },
+      "expected": {
+        "ct": "-0.06",
+        "cp": "0.02"
+      }
+    },
+    {
+      "id": "comb_-.1",
+      "kind": "combustion-table",
+      "input": {
+        "phi": "-0.1"
+      },
+      "expected": {
+        "efficiency": "0"
+      }
+    },
+    {
+      "id": "comb_0",
+      "kind": "combustion-table",
+      "input": {
+        "phi": "0"
+      },
+      "expected": {
+        "efficiency": "0"
+      }
+    },
+    {
+      "id": "comb_.25",
+      "kind": "combustion-table",
+      "input": {
+        "phi": "0.25"
+      },
+      "expected": {
+        "efficiency": "0.40"
+      }
+    },
+    {
+      "id": "comb_.75",
+      "kind": "combustion-table",
+      "input": {
+        "phi": "0.75"
+      },
+      "expected": {
+        "efficiency": "0.875"
+      }
+    },
+    {
+      "id": "comb_1.25",
+      "kind": "combustion-table",
+      "input": {
+        "phi": "1.25"
+      },
+      "expected": {
+        "efficiency": "0.850"
+      }
+    },
+    {
+      "id": "comb_1.75",
+      "kind": "combustion-table",
+      "input": {
+        "phi": "1.75"
+      },
+      "expected": {
+        "efficiency": "0.625"
+      }
+    },
+    {
+      "id": "comb_3",
+      "kind": "combustion-table",
+      "input": {
+        "phi": "3"
+      },
+      "expected": {
+        "efficiency": "0.5"
+      }
+    },
+    {
+      "id": "mix_-.01",
+      "kind": "mixture-table",
+      "input": {
+        "fuel_air_mass_ratio": "-0.01"
+      },
+      "expected": {
+        "efficiency": "0"
+      }
+    },
+    {
+      "id": "mix_0",
+      "kind": "mixture-table",
+      "input": {
+        "fuel_air_mass_ratio": "0"
+      },
+      "expected": {
+        "efficiency": "0"
+      }
+    },
+    {
+      "id": "mix_.05",
+      "kind": "mixture-table",
+      "input": {
+        "fuel_air_mass_ratio": "0.05"
+      },
+      "expected": {
+        "efficiency": "0.375"
+      }
+    },
+    {
+      "id": "mix_.07",
+      "kind": "mixture-table",
+      "input": {
+        "fuel_air_mass_ratio": "0.07"
+      },
+      "expected": {
+        "efficiency": "0.875"
+      }
+    },
+    {
+      "id": "mix_.1",
+      "kind": "mixture-table",
+      "input": {
+        "fuel_air_mass_ratio": "0.1"
+      },
+      "expected": {
+        "efficiency": "1"
+      }
+    },
+    {
+      "id": "mix_.14",
+      "kind": "mixture-table",
+      "input": {
+        "fuel_air_mass_ratio": "0.14"
+      },
+      "expected": {
+        "efficiency": "0.25"
+      }
+    },
+    {
+      "id": "mix_.2",
+      "kind": "mixture-table",
+      "input": {
+        "fuel_air_mass_ratio": "0.2"
+      },
+      "expected": {
+        "efficiency": "0"
+      }
+    },
+    {
+      "id": "static40",
+      "kind": "prop-discrete",
+      "input": {
+        "rps": "40",
+        "axial_velocity_fps": "0",
+        "engine_power_ftlbf_per_s": "82500",
+        "density_slug_per_ft3": "0.0025",
+        "hz": 120,
+        "pitch_rate_radps": "0",
+        "yaw_rate_radps": "0"
+      },
+      "expected": {
+        "advance_ratio": "0",
+        "ct": "0.12",
+        "cp": "0.06",
+        "thrust_lbf": "622.080000",
+        "thrust_n": "2767.1497024212518400000",
+        "load_power_ftlbf_per_s": "74649.600000",
+        "load_power_w": "101211.26751575970729984000000",
+        "pre_omega_radps": "251.32741228718345907701147066236023073577355195000846567799556738462531250289672",
+        "excess_torque_ftlbf": "31.235749131215378598001127399489668692883050073021982631217192944999085503693300",
+        "post_omega_radps": "251.45756124189685648783647535985810435532723132531272393895897235522947535916211",
+        "post_rpm": "2401.2428309688528256889734864655963216507105908198234442297774517874719010450031",
+        "body_torque_x_ftlbf": "-328.25707012703413002332276195581087169607301933969142554206389712147464512059223",
+        "gyro_moment_y_ftlbf": "-0E-77",
+        "gyro_moment_z_ftlbf": "-0E-77",
+        "unclamped_angular_impulse_residual": "2.50E-78",
+        "discrete_kinetic_energy_delta_ftlbf": "65.436938750412989970119301142620689867164476427381843691981675186653419117993",
+        "rpm_clamp_active": false,
+        "near_zero_advance_branch": false
+      }
+    },
+    {
+      "id": "j_half",
+      "kind": "prop-discrete",
+      "input": {
+        "rps": "40",
+        "axial_velocity_fps": "120",
+        "engine_power_ftlbf_per_s": "82500",
+        "density_slug_per_ft3": "0.0025",
+        "hz": 120,
+        "pitch_rate_radps": "0",
+        "yaw_rate_radps": "0"
+      },
+      "expected": {
+        "advance_ratio": "0.5",
+        "ct": "0.060",
+        "cp": "0.050",
+        "thrust_lbf": "311.0400000",
+        "thrust_n": "1383.57485121062592000000",
+        "load_power_ftlbf_per_s": "62208.0000000",
+        "load_power_w": "84342.722929799756083200000000",
+        "pre_omega_radps": "251.32741228718345907701147066236023073577355195000846567799556738462531250289672",
+        "excess_torque_ftlbf": "80.739302630518503835554733158876535860081378284133556449691643641078345439843121",
+        "post_omega_radps": "251.66382604814395284299294871718888296852389102619235549653594923312980560889607",
+        "post_rpm": "2403.2125147788598719658425032303934269510113253994519171393360913674946265165089",
+        "body_torque_x_ftlbf": "-328.25707012703413002332276195581087169607301933969142554206389712147464512059223",
+        "gyro_moment_y_ftlbf": "-0E-77",
+        "gyro_moment_z_ftlbf": "-0E-77",
+        "unclamped_angular_impulse_residual": "7.33E-78",
+        "discrete_kinetic_energy_delta_ftlbf": "169.213174218563584239463326520054068436961669817718191497554527718800696113323",
+        "rpm_clamp_active": false,
+        "near_zero_advance_branch": false
+      }
+    },
+    {
+      "id": "j_one",
+      "kind": "prop-discrete",
+      "input": {
+        "rps": "40",
+        "axial_velocity_fps": "240",
+        "engine_power_ftlbf_per_s": "0",
+        "density_slug_per_ft3": "0.0025",
+        "hz": 120,
+        "pitch_rate_radps": "0",
+        "yaw_rate_radps": "0"
+      },
+      "expected": {
+        "advance_ratio": "1",
+        "ct": "0.00",
+        "cp": "0.04",
+        "thrust_lbf": "0.000000",
+        "thrust_n": "0E-19",
+        "load_power_ftlbf_per_s": "49766.400000",
+        "load_power_w": "67474.17834383980486656000000",
+        "pre_omega_radps": "251.32741228718345907701147066236023073577355195000846567799556738462531250289672",
+        "excess_torque_ftlbf": "-198.01421399721250095021442303754746866879331284444629527389780278431703974459929",
+        "post_omega_radps": "250.50235306219507365638557723303711628298691314648993944768765987302399150396089",
+        "post_rpm": "2392.1212647599718148925239329408115787987970616814861083617654416799090981139765",
+        "body_torque_x_ftlbf": "0E+77",
+        "gyro_moment_y_ftlbf": "-0E-77",
+        "gyro_moment_z_ftlbf": "-0E-77",
+        "unclamped_angular_impulse_residual": "7E-79",
+        "discrete_kinetic_energy_delta_ftlbf": "-414.039277275261564806714067806086120408216066129280399762456534161144146077048",
+        "rpm_clamp_active": false,
+        "near_zero_advance_branch": false
+      }
+    },
+    {
+      "id": "reverse_flow",
+      "kind": "prop-discrete",
+      "input": {
+        "rps": "40",
+        "axial_velocity_fps": "-240",
+        "engine_power_ftlbf_per_s": "82500",
+        "density_slug_per_ft3": "0.0025",
+        "hz": 120,
+        "pitch_rate_radps": "0",
+        "yaw_rate_radps": "0"
+      },
+      "expected": {
+        "advance_ratio": "-1",
+        "ct": "0.12",
+        "cp": "0.06",
+        "thrust_lbf": "622.080000",
+        "thrust_n": "2767.1497024212518400000",
+        "load_power_ftlbf_per_s": "74649.600000",
+        "load_power_w": "101211.26751575970729984000000",
+        "pre_omega_radps": "251.32741228718345907701147066236023073577355195000846567799556738462531250289672",
+        "excess_torque_ftlbf": "31.235749131215378598001127399489668692883050073021982631217192944999085503693300",
+        "post_omega_radps": "251.45756124189685648783647535985810435532723132531272393895897235522947535916211",
+        "post_rpm": "2401.2428309688528256889734864655963216507105908198234442297774517874719010450031",
+        "body_torque_x_ftlbf": "-328.25707012703413002332276195581087169607301933969142554206389712147464512059223",
+        "gyro_moment_y_ftlbf": "-0E-77",
+        "gyro_moment_z_ftlbf": "-0E-77",
+        "unclamped_angular_impulse_residual": "2.50E-78",
+        "discrete_kinetic_energy_delta_ftlbf": "65.436938750412989970119301142620689867164476427381843691981675186653419117993",
+        "rpm_clamp_active": false,
+        "near_zero_advance_branch": false
+      }
+    },
+    {
+      "id": "j_end_clamp",
+      "kind": "prop-discrete",
+      "input": {
+        "rps": "40",
+        "axial_velocity_fps": "960",
+        "engine_power_ftlbf_per_s": "0",
+        "density_slug_per_ft3": "0.0025",
+        "hz": 120,
+        "pitch_rate_radps": "0",
+        "yaw_rate_radps": "0"
+      },
+      "expected": {
+        "advance_ratio": "4",
+        "ct": "-0.06",
+        "cp": "0.02",
+        "thrust_lbf": "-311.040000",
+        "thrust_n": "-1383.5748512106259200000",
+        "load_power_ftlbf_per_s": "24883.200000",
+        "load_power_w": "33737.08917191990243328000000",
+        "pre_omega_radps": "251.32741228718345907701147066236023073577355195000846567799556738462531250289672",
+        "excess_torque_ftlbf": "-99.007106998606250475107211518773734334396656422223147636948901392158519872299643",
+        "post_omega_radps": "250.91488267468926636669852394769867350938023254824920256284161362882465200342880",
+        "post_rpm": "2396.0606323799859074462619664704057893993985308407430541808827208399545490569882",
+        "body_torque_x_ftlbf": "0E+77",
+        "gyro_moment_y_ftlbf": "-0E-77",
+        "gyro_moment_z_ftlbf": "-0E-77",
+        "unclamped_angular_impulse_residual": "-9.64E-78",
+        "discrete_kinetic_energy_delta_ftlbf": "-207.189819318815391201678516951521530102054016532320099940614133540286036519265",
+        "rpm_clamp_active": false,
+        "near_zero_advance_branch": false
+      }
+    },
+    {
+      "id": "stopped",
+      "kind": "prop-discrete",
+      "input": {
+        "rps": "0",
+        "axial_velocity_fps": "0",
+        "engine_power_ftlbf_per_s": "0",
+        "density_slug_per_ft3": "0.0025",
+        "hz": 120,
+        "pitch_rate_radps": "0",
+        "yaw_rate_radps": "0"
+      },
+      "expected": {
+        "advance_ratio": "0",
+        "ct": "0.12",
+        "cp": "0.06",
+        "thrust_lbf": "0.000000",
+        "thrust_n": "0E-19",
+        "load_power_ftlbf_per_s": "0.000001166400",
+        "load_power_w": "0.00000158142605493374542656000",
+        "pre_omega_radps": "0E-79",
+        "excess_torque_ftlbf": "-0.000001166400",
+        "post_omega_radps": "0",
+        "post_rpm": "0E+79",
+        "body_torque_x_ftlbf": "0E+2",
+        "gyro_moment_y_ftlbf": "-0E-79",
+        "gyro_moment_z_ftlbf": "-0E-79",
+        "unclamped_angular_impulse_residual": "0E-88",
+        "discrete_kinetic_energy_delta_ftlbf": "0E-158",
+        "rpm_clamp_active": true,
+        "near_zero_advance_branch": true
+      }
+    },
+    {
+      "id": "low_omega_floor",
+      "kind": "prop-discrete",
+      "input": {
+        "rps": "0.001",
+        "axial_velocity_fps": "6",
+        "engine_power_ftlbf_per_s": "1",
+        "density_slug_per_ft3": "0.0025",
+        "hz": 120,
+        "pitch_rate_radps": "0",
+        "yaw_rate_radps": "0"
+      },
+      "expected": {
+        "advance_ratio": "1",
+        "ct": "0.00",
+        "cp": "0.04",
+        "thrust_lbf": "0E-12",
+        "thrust_n": "0E-25",
+        "load_power_ftlbf_per_s": "7.77600E-7",
+        "load_power_w": "0.00000105428403662249695104000",
+        "pre_omega_radps": "0.0062831853071795864769252867665590057683943387987502116419498891846156328125724180",
+        "excess_torque_ftlbf": "0.999999222400",
+        "post_omega_radps": "0.010449848733846253143591953433225672435061005465416878308616555851282299479239085",
+        "post_rpm": "0.099788704833252896877767667372124990891822931936158980242183199468192514359019177",
+        "body_torque_x_ftlbf": "-1E+2",
+        "gyro_moment_y_ftlbf": "-0E-81",
+        "gyro_moment_z_ftlbf": "-0E-81",
+        "unclamped_angular_impulse_residual": "7E-82",
+        "discrete_kinetic_energy_delta_ftlbf": "0.00006972092095591070549510146368991124521203988857204745889265541448095946823991398",
+        "rpm_clamp_active": false,
+        "near_zero_advance_branch": true
+      }
+    },
+    {
+      "id": "low_rps_floor",
+      "kind": "prop-discrete",
+      "input": {
+        "rps": "0.005",
+        "axial_velocity_fps": "6",
+        "engine_power_ftlbf_per_s": "1",
+        "density_slug_per_ft3": "0.0025",
+        "hz": 120,
+        "pitch_rate_radps": "0",
+        "yaw_rate_radps": "0"
+      },
+      "expected": {
+        "advance_ratio": "1",
+        "ct": "0.00",
+        "cp": "0.04",
+        "thrust_lbf": "0E-12",
+        "thrust_n": "0E-25",
+        "load_power_ftlbf_per_s": "7.77600E-7",
+        "load_power_w": "0.00000105428403662249695104000",
+        "pre_omega_radps": "0.031415926535897932384626433832795028841971693993751058209749445923078164062862090",
+        "excess_torque_ftlbf": "31.830963866602317502214133897699992713458345548927184193746559574554011487215339",
+        "post_omega_radps": "0.16404494264674092197718532507321166514804813378094765901702677748371987859292601",
+        "post_rpm": "1.5665138106873171395253548556132130877518345330357920463336581193573740006652073",
+        "body_torque_x_ftlbf": "-31.830988618379067153776752674502872406891929148091289749533468811779359526845307",
+        "gyro_moment_y_ftlbf": "-0E-81",
+        "gyro_moment_z_ftlbf": "-0E-81",
+        "unclamped_angular_impulse_residual": "2E-80",
+        "discrete_kinetic_energy_delta_ftlbf": "0.025923782767863582625938155009684407818296354127906377190302262365344727616266451",
+        "rpm_clamp_active": false,
+        "near_zero_advance_branch": true
+      }
+    },
+    {
+      "id": "rps_boundary",
+      "kind": "prop-discrete",
+      "input": {
+        "rps": "0.01",
+        "axial_velocity_fps": "6",
+        "engine_power_ftlbf_per_s": "1",
+        "density_slug_per_ft3": "0.0025",
+        "hz": 120,
+        "pitch_rate_radps": "0",
+        "yaw_rate_radps": "0"
+      },
+      "expected": {
+        "advance_ratio": "1",
+        "ct": "0.00",
+        "cp": "0.04",
+        "thrust_lbf": "0E-10",
+        "thrust_n": "0E-23",
+        "load_power_ftlbf_per_s": "7.77600E-7",
+        "load_power_w": "0.00000105428403662249695104000",
+        "pre_omega_radps": "0.062831853071795864769252867665590057683943387987502116419498891846156328125724180",
+        "excess_torque_ftlbf": "15.915481933301158751107066948849996356729172774463592096873279787277005743607669",
+        "post_omega_radps": "0.12914636112721735956553231328579837583698160788110041682313755762647718539075613",
+        "post_rpm": "1.2332569053436585697626774278066065438759172665178960231668290596786870003326036",
+        "body_torque_x_ftlbf": "-15.915494309189533576888376337251436203445964574045644874766734405889679763422654",
+        "gyro_moment_y_ftlbf": "-0E-80",
+        "gyro_moment_z_ftlbf": "-0E-80",
+        "unclamped_angular_impulse_residual": "-1E-80",
+        "discrete_kinetic_energy_delta_ftlbf": "0.012730940831965895656484538752421101954574088531976594297575565591336181904066611",
+        "rpm_clamp_active": false,
+        "near_zero_advance_branch": true
+      }
+    },
+    {
+      "id": "rps_above",
+      "kind": "prop-discrete",
+      "input": {
+        "rps": "0.0101",
+        "axial_velocity_fps": "6",
+        "engine_power_ftlbf_per_s": "1",
+        "density_slug_per_ft3": "0.0025",
+        "hz": 120,
+        "pitch_rate_radps": "0",
+        "yaw_rate_radps": "0"
+      },
+      "expected": {
+        "advance_ratio": "99.009900990099009900990099009900990099009900990099009900990099009900990099009901",
+        "ct": "-0.06",
+        "cp": "0.02",
+        "thrust_lbf": "-0.00001983074400",
+        "thrust_n": "-0.000088211544107497468812000",
+        "load_power_ftlbf_per_s": "4.00581028800E-7",
+        "load_power_w": "5.4311494860809761557673152000E-7",
+        "pre_omega_radps": "0.063460171602513823416945396342245958260782821867377137583693880764617891406981422",
+        "excess_torque_ftlbf": "15.757908845291534001187843480358158678900877148608960985354982487508961817601935",
+        "post_omega_radps": "0.12911812512456188175522807751040495275620314331991447502267297446257189898032282",
+        "post_rpm": "1.2329872713799120591737855267402896235143008327308402619412356935065269939502099",
+        "body_torque_x_ftlbf": "-15.757915157613399581077600333912313072718776805985787004719539015732356201408568",
+        "gyro_moment_y_ftlbf": "-0E-80",
+        "gyro_moment_z_ftlbf": "-0E-80",
+        "unclamped_angular_impulse_residual": "1E-80",
+        "discrete_kinetic_energy_delta_ftlbf": "0.012644296855861516362099953309810267679724787097136559226653809657761604412982310",
+        "rpm_clamp_active": false,
+        "near_zero_advance_branch": false
+      }
+    },
+    {
+      "id": "gyro_step_60",
+      "kind": "prop-discrete",
+      "input": {
+        "rps": "40",
+        "axial_velocity_fps": "120",
+        "engine_power_ftlbf_per_s": "82500",
+        "density_slug_per_ft3": "0.0025",
+        "hz": 60,
+        "pitch_rate_radps": "0.1",
+        "yaw_rate_radps": "0.2"
+      },
+      "expected": {
+        "advance_ratio": "0.5",
+        "ct": "0.060",
+        "cp": "0.050",
+        "thrust_lbf": "311.0400000",
+        "thrust_n": "1383.57485121062592000000",
+        "load_power_ftlbf_per_s": "62208.0000000",
+        "load_power_w": "84342.722929799756083200000000",
+        "pre_omega_radps": "251.32741228718345907701147066236023073577355195000846567799556738462531250289672",
+        "excess_torque_ftlbf": "80.739302630518503835554733158876535860081378284133556449691643641078345439843121",
+        "post_omega_radps": "252.00023980910444660897442677201753520127423010237624531507633108163429871489541",
+        "post_rpm": "2406.4250295577197439316850064607868539020226507989038342786721827349892530330178",
+        "body_torque_x_ftlbf": "-328.25707012703413002332276195581087169607301933969142554206389712147464512059223",
+        "gyro_moment_y_ftlbf": "-100.53096491487338363080458826494409229430942078000338627119822695385012500115869",
+        "gyro_moment_z_ftlbf": "50.265482457436691815402294132472046147154710390001693135599113476925062500579344",
+        "unclamped_angular_impulse_residual": "-5.4E-78",
+        "discrete_kinetic_energy_delta_ftlbf": "338.652696874254336957853306080216273747846679270872765990218110875202784453283",
+        "rpm_clamp_active": false,
+        "near_zero_advance_branch": false
+      }
+    },
+    {
+      "id": "gyro_step_120",
+      "kind": "prop-discrete",
+      "input": {
+        "rps": "40",
+        "axial_velocity_fps": "120",
+        "engine_power_ftlbf_per_s": "82500",
+        "density_slug_per_ft3": "0.0025",
+        "hz": 120,
+        "pitch_rate_radps": "0.1",
+        "yaw_rate_radps": "0.2"
+      },
+      "expected": {
+        "advance_ratio": "0.5",
+        "ct": "0.060",
+        "cp": "0.050",
+        "thrust_lbf": "311.0400000",
+        "thrust_n": "1383.57485121062592000000",
+        "load_power_ftlbf_per_s": "62208.0000000",
+        "load_power_w": "84342.722929799756083200000000",
+        "pre_omega_radps": "251.32741228718345907701147066236023073577355195000846567799556738462531250289672",
+        "excess_torque_ftlbf": "80.739302630518503835554733158876535860081378284133556449691643641078345439843121",
+        "post_omega_radps": "251.66382604814395284299294871718888296852389102619235549653594923312980560889607",
+        "post_rpm": "2403.2125147788598719658425032303934269510113253994519171393360913674946265165089",
+        "body_torque_x_ftlbf": "-328.25707012703413002332276195581087169607301933969142554206389712147464512059223",
+        "gyro_moment_y_ftlbf": "-100.53096491487338363080458826494409229430942078000338627119822695385012500115869",
+        "gyro_moment_z_ftlbf": "50.265482457436691815402294132472046147154710390001693135599113476925062500579344",
+        "unclamped_angular_impulse_residual": "7.33E-78",
+        "discrete_kinetic_energy_delta_ftlbf": "169.213174218563584239463326520054068436961669817718191497554527718800696113323",
+        "rpm_clamp_active": false,
+        "near_zero_advance_branch": false
+      }
+    },
+    {
+      "id": "gyro_step_240",
+      "kind": "prop-discrete",
+      "input": {
+        "rps": "40",
+        "axial_velocity_fps": "120",
+        "engine_power_ftlbf_per_s": "82500",
+        "density_slug_per_ft3": "0.0025",
+        "hz": 240,
+        "pitch_rate_radps": "0.1",
+        "yaw_rate_radps": "0.2"
+      },
+      "expected": {
+        "advance_ratio": "0.5",
+        "ct": "0.060",
+        "cp": "0.050",
+        "thrust_lbf": "311.0400000",
+        "thrust_n": "1383.57485121062592000000",
+        "load_power_ftlbf_per_s": "62208.0000000",
+        "load_power_w": "84342.722929799756083200000000",
+        "pre_omega_radps": "251.32741228718345907701147066236023073577355195000846567799556738462531250289672",
+        "excess_torque_ftlbf": "80.739302630518503835554733158876535860081378284133556449691643641078345439843121",
+        "post_omega_radps": "251.49561916766370596000220968977455685214872148810041058726575830887755905589639",
+        "post_rpm": "2401.6062573894299359829212516151967134755056626997259585696680456837473132582543",
+        "body_torque_x_ftlbf": "-328.25707012703413002332276195581087169607301933969142554206389712147464512059223",
+        "gyro_moment_y_ftlbf": "-100.53096491487338363080458826494409229430942078000338627119822695385012500115869",
+        "gyro_moment_z_ftlbf": "50.265482457436691815402294132472046147154710390001693135599113476925062500579344",
+        "unclamped_angular_impulse_residual": "-6.34E-78",
+        "discrete_kinetic_energy_delta_ftlbf": "84.578293554640896059865831630013517109240417454429547874388631929700174028328",
+        "rpm_clamp_active": false,
+        "near_zero_advance_branch": false
+      }
+    },
+    {
+      "id": "running_both",
+      "kind": "piston-equations-running-branch",
+      "input": {
+        "rpm": "1200",
+        "throttle": "0.5",
+        "mixture": "0.8",
+        "previous_map_pa": "70000",
+        "ambient_pa": "101325",
+        "temperature_k": "288",
+        "magnetos": 3,
+        "starved": false
+      },
+      "expected": {
+        "map_target_pa": "42351.018638718228489080812040053411106250506071598681927505247538775232505040999",
+        "map_post_pa": "69539.183643978637141484680200667556851770841767859978032125087458979587208417350",
+        "mean_piston_speed_fps": "15.0",
+        "airflow_kgps": "0.029957013447830777184000952841921377407078678086896832891090200592530443804906231",
+        "equivalence_ratio": "1.04",
+        "fuel_flow_backend_lbps": "0.0046724463347599483425198939224974056718987401264481406873037656105676408890332060",
+        "fuel_flow_public_kgps": "0.0021193860066815783497611704564541945575679919339697118164475439532218732761654789",
+        "mixture_efficiency": "0.88435374149659863945578231292517006802721088435374149659863945578231292517006802",
+        "pmep_pa": "-25428.653084817090286812255839465954518583326585712017574299930032816330233266120",
+        "friction_mean_effective_pressure_pa": "-127296.00000",
+        "indicated_hp": "36.188858582783262318015482240285473715112421414587242205070787512681223402509191",
+        "shaft_power_hp": "26.580845890750766356852658324248215484183431530991741522797417157563506734264993",
+        "shaft_power_w": "19821.333367280961550049711970172166328580627197580767353520875688190680749815314",
+        "indicated_cutoff_running_false": false
+      }
+    },
+    {
+      "id": "running_left",
+      "kind": "piston-equations-running-branch",
+      "input": {
+        "rpm": "1200",
+        "throttle": "0.5",
+        "mixture": "0.8",
+        "previous_map_pa": "70000",
+        "ambient_pa": "101325",
+        "temperature_k": "288",
+        "magnetos": 1,
+        "starved": false
+      },
+      "expected": {
+        "map_target_pa": "42351.018638718228489080812040053411106250506071598681927505247538775232505040999",
+        "map_post_pa": "69539.183643978637141484680200667556851770841767859978032125087458979587208417350",
+        "mean_piston_speed_fps": "15.0",
+        "airflow_kgps": "0.029957013447830777184000952841921377407078678086896832891090200592530443804906231",
+        "equivalence_ratio": "1.04",
+        "fuel_flow_backend_lbps": "0.0046724463347599483425198939224974056718987401264481406873037656105676408890332060",
+        "fuel_flow_public_kgps": "0.0021193860066815783497611704564541945575679919339697118164475439532218732761654789",
+        "mixture_efficiency": "0.88435374149659863945578231292517006802721088435374149659863945578231292517006802",
+        "pmep_pa": "-25428.653084817090286812255839465954518583326585712017574299930032816330233266120",
+        "friction_mean_effective_pressure_pa": "-127296.00000",
+        "indicated_hp": "32.469972724504936086213934016256926343601179273128517984563708761413101062258272",
+        "shaft_power_hp": "22.861960032472440125051110100219668112672189389533017302290338406295384394014074",
+        "shaft_power_w": "17048.160660333692910044771525690940972581593293354960256283729035989215578219771",
+        "indicated_cutoff_running_false": false
+      }
+    },
+    {
+      "id": "mixture_cutoff",
+      "kind": "piston-equations-running-branch",
+      "input": {
+        "rpm": "1200",
+        "throttle": "0.5",
+        "mixture": "0",
+        "previous_map_pa": "70000",
+        "ambient_pa": "101325",
+        "temperature_k": "288",
+        "magnetos": 3,
+        "starved": false
+      },
+      "expected": {
+        "map_target_pa": "42351.018638718228489080812040053411106250506071598681927505247538775232505040999",
+        "map_post_pa": "69539.183643978637141484680200667556851770841767859978032125087458979587208417350",
+        "mean_piston_speed_fps": "15.0",
+        "airflow_kgps": "0.029957013447830777184000952841921377407078678086896832891090200592530443804906231",
+        "equivalence_ratio": "0.0",
+        "fuel_flow_backend_lbps": "0E-85",
+        "fuel_flow_public_kgps": "0E-93",
+        "mixture_efficiency": "0",
+        "pmep_pa": "-25428.653084817090286812255839465954518583326585712017574299930032816330233266120",
+        "friction_mean_effective_pressure_pa": "-127296.00000",
+        "indicated_hp": "-1.0000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "shaft_power_hp": "-10.608012692032495961162823916037258230928989883595500682273370355117716668244198",
+        "shaft_power_w": "-7910.3937021917248499996924746400872314097118446773036188505908338239709661401193",
+        "indicated_cutoff_running_false": true
+      }
+    },
+    {
+      "id": "starved_flow",
+      "kind": "piston-equations-running-branch",
+      "input": {
+        "rpm": "1200",
+        "throttle": "0.5",
+        "mixture": "1",
+        "previous_map_pa": "70000",
+        "ambient_pa": "101325",
+        "temperature_k": "288",
+        "magnetos": 3,
+        "starved": true
+      },
+      "expected": {
+        "map_target_pa": "42351.018638718228489080812040053411106250506071598681927505247538775232505040999",
+        "map_post_pa": "69539.183643978637141484680200667556851770841767859978032125087458979587208417350",
+        "mean_piston_speed_fps": "15.0",
+        "airflow_kgps": "0.029957013447830777184000952841921377407078678086896832891090200592530443804906231",
+        "equivalence_ratio": "0",
+        "fuel_flow_backend_lbps": "0.0000",
+        "fuel_flow_public_kgps": "0E-12",
+        "mixture_efficiency": "0",
+        "pmep_pa": "-25428.653084817090286812255839465954518583326585712017574299930032816330233266120",
+        "friction_mean_effective_pressure_pa": "-127296.00000",
+        "indicated_hp": "-1.000",
+        "shaft_power_hp": "-10.608012692032495961162823916037258230928989883595500682273370355117716668244198",
+        "shaft_power_w": "-7910.3937021917248499996924746400872314097118446773036188505908338239709661401193",
+        "indicated_cutoff_running_false": true
+      }
+    },
+    {
+      "id": "starter_0",
+      "kind": "starter-cranking-only",
+      "input": {
+        "rpm": "0"
+      },
+      "expected": {
+        "starter_torque_ftlbf": "60",
+        "indicated_hp": "0.011424219345011424219345011424219345011424219345011424219345011424219345011424219",
+        "engine_power_ftlbf_per_s": "6.2833206397562833206397562833206397562833206397562833206397562833206397562833204"
+      }
+    },
+    {
+      "id": "starter_600",
+      "kind": "starter-cranking-only",
+      "input": {
+        "rpm": "600"
+      },
+      "expected": {
+        "starter_torque_ftlbf": "30.0",
+        "indicated_hp": "3.4272658035034272658035034272658035034272658035034272658035034272658035034272658",
+        "engine_power_ftlbf_per_s": "1884.9961919268849961919268849961919268849961919268849961919268849961919268849962"
+      }
+    },
+    {
+      "id": "starter_1200",
+      "kind": "starter-cranking-only",
+      "input": {
+        "rpm": "1200"
+      },
+      "expected": {
+        "starter_torque_ftlbf": "0",
+        "indicated_hp": "0",
+        "engine_power_ftlbf_per_s": "0"
+      }
+    },
+    {
+      "id": "starter_1500",
+      "kind": "starter-cranking-only",
+      "input": {
+        "rpm": "1500"
+      },
+      "expected": {
+        "starter_torque_ftlbf": "0",
+        "indicated_hp": "0",
+        "engine_power_ftlbf_per_s": "0"
+      }
+    },
+    {
+      "id": "startup_44",
+      "kind": "startup-before-current-flow",
+      "input": {
+        "was_running": false,
+        "rpm": 479,
+        "spark": true,
+        "previous_fuel_flow_positive": true
+      },
+      "expected": {
+        "after_startup_running": false
+      }
+    },
+    {
+      "id": "startup_45",
+      "kind": "startup-before-current-flow",
+      "input": {
+        "was_running": false,
+        "rpm": 480,
+        "spark": true,
+        "previous_fuel_flow_positive": true
+      },
+      "expected": {
+        "after_startup_running": false
+      }
+    },
+    {
+      "id": "startup_46",
+      "kind": "startup-before-current-flow",
+      "input": {
+        "was_running": false,
+        "rpm": 481,
+        "spark": true,
+        "previous_fuel_flow_positive": true
+      },
+      "expected": {
+        "after_startup_running": true
+      }
+    },
+    {
+      "id": "startup_47",
+      "kind": "startup-before-current-flow",
+      "input": {
+        "was_running": true,
+        "rpm": 480,
+        "spark": true,
+        "previous_fuel_flow_positive": true
+      },
+      "expected": {
+        "after_startup_running": true
+      }
+    },
+    {
+      "id": "startup_48",
+      "kind": "startup-before-current-flow",
+      "input": {
+        "was_running": true,
+        "rpm": 479,
+        "spark": true,
+        "previous_fuel_flow_positive": true
+      },
+      "expected": {
+        "after_startup_running": false
+      }
+    },
+    {
+      "id": "startup_49",
+      "kind": "startup-before-current-flow",
+      "input": {
+        "was_running": true,
+        "rpm": 1200,
+        "spark": false,
+        "previous_fuel_flow_positive": true
+      },
+      "expected": {
+        "after_startup_running": false
+      }
+    },
+    {
+      "id": "startup_50",
+      "kind": "startup-before-current-flow",
+      "input": {
+        "was_running": true,
+        "rpm": 1200,
+        "spark": true,
+        "previous_fuel_flow_positive": false
+      },
+      "expected": {
+        "after_startup_running": false
+      }
+    },
+    {
+      "id": "tank_51",
+      "kind": "single-tank-zero-unusable-drain",
+      "input": {
+        "contents_lbs": "10",
+        "requested_lbs": "0.001"
+      },
+      "expected": {
+        "post_contents_lbs": "9.999",
+        "actual_drained_lbs": "0.001",
+        "actual_drained_kg": "0.00045359237",
+        "requested_minus_supplied_lbs": "0.000",
+        "same_tick_massbalance_fuel_lbs": "10"
+      }
+    },
+    {
+      "id": "tank_52",
+      "kind": "single-tank-zero-unusable-drain",
+      "input": {
+        "contents_lbs": "0.0001",
+        "requested_lbs": "0.001"
+      },
+      "expected": {
+        "post_contents_lbs": "0.0000",
+        "actual_drained_lbs": "0.0001",
+        "actual_drained_kg": "0.000045359237",
+        "requested_minus_supplied_lbs": "0.0009",
+        "same_tick_massbalance_fuel_lbs": "0.0001"
+      }
+    },
+    {
+      "id": "tank_53",
+      "kind": "single-tank-zero-unusable-drain",
+      "input": {
+        "contents_lbs": "0",
+        "requested_lbs": "0.001"
+      },
+      "expected": {
+        "post_contents_lbs": "0",
+        "actual_drained_lbs": "0",
+        "actual_drained_kg": "0E-8",
+        "requested_minus_supplied_lbs": "0.001",
+        "same_tick_massbalance_fuel_lbs": "0"
+      }
+    },
+    {
+      "id": "explicit_units_geometry",
+      "kind": "units-and-geometry",
+      "expected": {
+        "bore4_5_stroke4_5_four_cylinder_displacement_in3": "286.27763055836990885490837830134470032246706151805651793634182597404977002283079",
+        "displacement_m3": "0.0046912498537283634320795503093603468902450883749883293150399814281136159205494096",
+        "diameter_m": "1.8288",
+        "physical_ixx_kgm2": "2.71163589666280080",
+        "xml_loader_ixx_kgm2_if_converted": "2.71188",
+        "engine150_hp_w": "111854.98073734053300000",
+        "loader_kg_to_lbs_100": "220.46226218487758072297380134502703385420702733601978357792923192248582135541654",
+        "piston_flow_kg_lbs_boundary_product": "0.999989738902",
+        "engine_psf_to_pa_coefficient": "47.88",
+        "publication_psf_to_pa_coefficient": "47.8802589803358",
+        "single_mag_spark_factor": "0.9",
+        "table_cp_no_negative_airdriven_branch": true
+      }
+    }
+  ],
+  "budgets_before_observation": {
+    "coefficient": {
+      "abs": "2e-12",
+      "rel": "2e-12"
+    },
+    "scalar": {
+      "abs": "1e-9",
+      "rel": "1e-10"
+    },
+    "force_n": {
+      "abs": "1e-7",
+      "rel": "1e-10"
+    },
+    "power_w": {
+      "abs": "1e-6",
+      "rel": "1e-10"
+    },
+    "angular_radps": {
+      "abs": "1e-9",
+      "rel": "1e-10"
+    },
+    "bool_identity_order": "exact"
+  },
+  "scope": "Generic authored branch equations, units and discrete stage checks. Not C172 calibration, model dynamics, cold-start success, continuum energy conservation or phase acceptance."
+}
