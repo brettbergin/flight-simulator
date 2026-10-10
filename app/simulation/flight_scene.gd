@@ -91,6 +91,15 @@ func _ready() -> void:
 		for device in Input.get_connected_joypads():
 			observe_connection(device,true)
 	super._ready()
+	if not legacy_proof and "--cockpit-visual-smoke" in OS.get_cmdline_user_args():
+		set_process(false)
+		set_physics_process(false)
+		set_process_input(false)
+		set_process_unhandled_input(false)
+		set_process_unhandled_key_input(false)
+		set_process_shortcut_input(false)
+		call_deferred("run_cockpit_visual")
+		return
 	if not legacy_proof and "--piston-visual-smoke" in OS.get_cmdline_user_args():
 		set_process(false)
 		set_process_input(false)
@@ -1853,3 +1862,15 @@ func run_instrument_visual() -> void:
 	file.store_string(JSON.stringify(receipt,"  "));file.close()
 	print("INSTRUMENT_VISUAL_PASSED" if receipt.passed else "INSTRUMENT_VISUAL_FAILED")
 	get_tree().quit(0 if receipt.passed else 1)
+
+func run_cockpit_visual() -> void:
+	# Opt-in view-only engineering observer; Root owns routing and staging.
+	var observer: Script=load("res://instrument_tests/cockpit_visual.gd")
+	if observer==null or not observer.can_instantiate():
+		var joined: bool=close_session()
+		if sound!=null: joined=bool(await sound.call("shutdown")) and joined
+		push_error("Cockpit visual observer unavailable; joined="+str(joined))
+		get_tree().quit(1)
+		return
+	var runner: RefCounted=observer.new()
+	await runner.run(self)
