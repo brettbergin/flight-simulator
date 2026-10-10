@@ -60,6 +60,14 @@ In Flight review, **Save new review** writes the current paused flight into a ne
 File feedback provides **Details** with selectable full paths when recovery is required. An unverified save can leave an available temporary or an uncertain target; preserve those files for inspection and choose a fresh name for another save. The feature does not automatically overwrite, retry, save a profile or upload anything. File hashes detect corruption; they do not verify the author or pilot/aircraft validation. See [selected review evidence](../../docs/evidence/P2/observed-review-interchange.md).
 
 
+## First-flight orientation and optional reference
+
+Pause and choose **First flight** for supported cold, ready-runway or airborne starts, current control assignments and manual software orientation steps. Fresh starts use the ordinary discard confirmation and open paused at tick0. Back keeps the flight paused; use the menu's explicit Resume when ready. These are prototype software instructions, not a real-aircraft checklist or licensing lesson.
+
+The optional **synthetic circuit reference** is available only for calm legacy ready-ground flights with runway36 selected. Its fixed schematic is separate from the clipped, ownship-centered map. Unsupported weather/profile/runway choices show unavailable without changing your selection. The existing map binding still closes the locator and restores the manual route card. Disable the aid in paused First flight to restore the previous presentation. Its choice resets for each fresh session and is not stored in saved flight reviews. See [integration and limits](../../docs/evidence/P2/first-flight-briefing.md).
+
+The packaged `sim_loop_checks.tscn` also accepts `--first-flight-visual-output=<fresh absolute external directory>` after the engine's `--` separator for an isolated39-view Windows Compatibility GPU observer. It uses disposable flights and synthetic released Raw input, writes source-bound PNG/full binary truth pairs and joins native/audio ownership. Run it only as a separate diagnostic process with a fresh profile and watchdog; it is not a physical-input, pilot, performance or flight-realism test. Ordinary headless/package qualification stays mandatory.
+
 ## Selectable original cold piston profile
 
 This opt-in profile is an original engineering model with an idealized starter supply. It does not implement a manufacturer checklist, C172S performance, a battery/electrical system or licensed flight-training credit. The default ready-to-fly profile remains available. The coupled-source build must pass its own native, editor, portable and rebuilt-DLL checks before its package is accepted.

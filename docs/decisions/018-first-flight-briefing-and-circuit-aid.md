@@ -1,6 +1,6 @@
 # ADR 018: Bounded first-flight briefing and synthetic circuit reference
 
-Status: **proposed**. Proposed by [#165](https://github.com/brettbergin/flight-simulator/issues/165); consumers are [briefing #166](https://github.com/brettbergin/flight-simulator/issues/166) and [circuit reference #167](https://github.com/brettbergin/flight-simulator/issues/167). Consumers wait for this checked contract PR, accepted issue158 delivery and coordinator dispatch. This is a bounded prototype contribution to #26/#27 and a small part of #22; it accepts no broad issue, owner/phase gate, aircraft, hardware, pilot or training credit.
+Status: **accepted contract**, merged in [PR168](https://github.com/brettbergin/flight-simulator/pull/168) as `64fe1e3c88688688e172c47fbcdde4cf7d02eb96`. Proposed by [#165](https://github.com/brettbergin/flight-simulator/issues/165); consumers are [briefing #166](https://github.com/brettbergin/flight-simulator/issues/166) and [circuit reference #167](https://github.com/brettbergin/flight-simulator/issues/167). Their grouped implementation has separate integration/delivery evidence gates. This is a bounded prototype contribution to #26/#27 and a small part of #22; it accepts no broad issue, owner/phase gate, aircraft, hardware, pilot or training credit.
 
 Basis: accepted ADR006/007/008/009/010/011/012/013/017. Preserve native/model/120Hz/wire/preset/archive bytes and their existing authority. No general scenario framework, evaluator, persistence schema, new InputPreset action, physics parameter or automatic pilot is introduced.
 
