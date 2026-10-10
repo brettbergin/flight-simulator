@@ -229,6 +229,7 @@ test('first-flight scene binds the selected backend and complete nonduplicated a
 test('facade closed shape makes first-flight mandatory without dropping previous groups',()=>{
  const keys=['schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive','wind'];
  const good=Object.fromEntries(keys.map(name=>[name,null]));good.first_flight=firstFlightReceipt();
+ good.cockpit={hud_caption:{passed:true,checks:1,failures:[],scope:'Synthetic receipt admission fixture'}};
  assert.equal(validateFirstFlightFacadeAdmission(good,true,savedFirstFlightSource),18);
  for(const mode of [true,false])for(const source of [savedFirstFlightSource,observedFirstFlightSource]){
   const coherent=structuredClone(good);coherent.first_flight=firstFlightReceipt(mode,source);
@@ -241,22 +242,33 @@ test('facade closed shape makes first-flight mandatory without dropping previous
  assert.throws(()=>validateFirstFlightFacadeAdmission(upstream,false,'b'.repeat(64)));
  for(const name of [...keys,'first_flight']){const bad=structuredClone(good);delete bad[name];assert.throws(()=>validateFirstFlightFacadeAdmission(bad,true,savedFirstFlightSource));}
  const extra=structuredClone(good);extra.runtime_skip=true;assert.throws(()=>validateFirstFlightFacadeAdmission(extra,true,savedFirstFlightSource));
+ for(const mutate of [
+  r=>{r.cockpit=null;},r=>{delete r.cockpit.hud_caption;},r=>{r.cockpit.hud_caption=null;},
+  r=>{r.cockpit.hud_caption.passed=false;},r=>{r.cockpit.hud_caption.passed='true';},
+  r=>{r.cockpit.hud_caption.checks=0;},r=>{r.cockpit.hud_caption.checks=-1;},
+  r=>{r.cockpit.hud_caption.checks=1.5;},r=>{r.cockpit.hud_caption.checks='1';},
+  r=>{r.cockpit.hud_caption.checks=Number.MAX_SAFE_INTEGER+1;},
+  r=>{r.cockpit.hud_caption.failures=['failed'];},r=>{r.cockpit.hud_caption.failures=null;},
+  r=>{r.cockpit.hud_caption.scope=' ';},r=>{r.cockpit.hud_caption.scope='x'.repeat(1025);},
+  r=>{delete r.cockpit.hud_caption.checks;},r=>{r.cockpit.hud_caption.skipped=true;},
+ ]){const bad=structuredClone(good);mutate(bad);assert.throws(()=>validateFirstFlightFacadeAdmission(bad,true,savedFirstFlightSource),'Mandatory active HUD-caption result');}
 });
 test('all eight first-flight source groups bind exact authoring staged and corresponding bytes',()=>{
  const temporary=fs.mkdtempSync(path.join(root,'first-flight-'));
  const authored=path.join(temporary,'repo'),project=path.join(temporary,'project'),source=path.join(temporary,'source');
  assert.equal(firstFlightSourceGroups.length,8);
  const mapping=firstFlightSourceGroups.flatMap(([a,b,names])=>names.map(name=>[a+'/'+name,b+'/'+name]));
- assert.equal(mapping.length,14);
+ assert.equal(mapping.length,15);
  for(const [name,mapped] of mapping){
   const raw=name==='content/world/synthetic/practice-circuit.json'?fs.readFileSync(path.join(repo,name)):Buffer.from('Original synthetic source-closure fixture: '+name+'\n');
   for(const [base,relative] of [[authored,name],[project,mapped],[source,mapped]]){const target=path.join(base,relative);fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,raw);}
  }
  const expected=validateFirstFlightSources(authored,project,source);
- assert.equal(Object.keys(expected.source_files).length,14);
+ assert.equal(Object.keys(expected.source_files).length,15);
  assert.equal(expected.source_files['content/world/synthetic/practice-circuit.json'].sha256,'2a4540d99d4500e326a1b1f0673583bd6f8ea99d430b991fcca1130befbbddcc');
  assert.equal(mapping.find(([name])=>name==='tests/integration/first_flight/visual_checks.gd')[1],'first_flight_scene_tests/visual_checks.gd');
  assert.equal(mapping.find(([name])=>name==='tests/integration/first_flight/layout_visual_checks.gd')[1],'first_flight_scene_tests/layout_visual_checks.gd');
+ assert.equal(mapping.find(([name])=>name==='tests/integration/first_flight/hud_caption_visual_checks.gd')[1],'first_flight_scene_tests/hud_caption_visual_checks.gd');
  for(const [name,mapped] of mapping)for(const [base,relative] of [[authored,name],[project,mapped],[source,mapped]]){
   const file=path.join(base,relative),raw=fs.readFileSync(file);
   fs.appendFileSync(file,'drift');assert.throws(()=>validateFirstFlightSources(authored,project,source));fs.writeFileSync(file,raw);

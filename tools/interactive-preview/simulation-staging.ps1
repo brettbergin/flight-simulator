@@ -82,7 +82,7 @@ function Get-CockpitSourceGroups {
  param([Parameter(Mandatory)][string]$RepoRoot)
  @(
   @{source='app/cockpit';destination='cockpit';required=@('instruments/native_readings.gd','instruments/scan_panel.gd','instruments/engine_status.gd','engine_controls.gd')},
-  @{source='tests/instruments';destination='instrument_tests';required=@('instrument_checks.gd','adapter_checks.gd','cockpit_geometry_checks.gd','cockpit_visual.gd','scan_checks.gd','scene_checks.gd','engine_status_checks.gd','reference.json','preparation-manifest.json')},
+  @{source='tests/instruments';destination='instrument_tests';required=@('instrument_checks.gd','adapter_checks.gd','cockpit_geometry_checks.gd','cockpit_visual.gd','scan_checks.gd','scene_checks.gd','hud_caption_checks.gd','engine_status_checks.gd','reference.json','preparation-manifest.json')},
   @{source='content/aircraft/prototype';destination='content/aircraft/prototype';required=@('cockpit-presentation.json')}
  )|ForEach-Object {
   $_.snapshot=@(Get-SimulationSourceSnapshot (Join-Path $RepoRoot $_.source) -RequiredEntries $_.required)
@@ -229,6 +229,9 @@ function Assert-PreviewFacadeReceipt {
  $keys=@('schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive','wind','first_flight')
  if((($Receipt.PSObject.Properties.Name|Sort-Object) -join "`n") -cne (($keys|Sort-Object) -join "`n")){throw 'Facade receipt exact shape rejected'}
  if(($Receipt.schema_version -isnot [long] -and $Receipt.schema_version -isnot [int]) -or $Receipt.schema_version -ne 1 -or $Receipt.scope -isnot [string] -or [string]::IsNullOrWhiteSpace($Receipt.scope) -or $Receipt.scope.Length -gt 1024 -or $Receipt.passed -isnot [bool] -or -not $Receipt.passed -or ($Receipt.checks -isnot [long] -and $Receipt.checks -isnot [int]) -or $Receipt.checks -le 0 -or $Receipt.failures -isnot [array] -or $Receipt.failures.Count -ne 0){throw 'Facade receipt must contain actual passing checks'}
+ $hud=$Receipt.cockpit.hud_caption
+ if($null -eq $hud -or (($hud.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "checks`nfailures`npassed`nscope"){throw 'Mandatory closed HUD-caption result required'}
+ if($hud.passed -isnot [bool] -or -not $hud.passed -or ($hud.checks -isnot [long] -and $hud.checks -isnot [int]) -or $hud.checks -le 0 -or $hud.checks -gt 9007199254740991 -or $hud.failures -isnot [array] -or $hud.failures.Count -ne 0 -or $hud.scope -isnot [string] -or [string]::IsNullOrWhiteSpace($hud.scope) -or $hud.scope.Length -gt 1024){throw 'Actual passing HUD-caption checks required'}
  if((($Receipt.first_flight.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "bindings`nbriefing`ncard`ngeometry`nmap`nscene"){throw 'All six first-flight test groups are mandatory'}
  # Match the package validator: selected-source groups and lifecycle evidence
  # are closed, typed and nonvacuous on upstream CI as well as the coupled route.
@@ -502,7 +505,7 @@ function Get-FirstFlightSourceGroups {
   @{source='tests/scenarios/first-flight';destination='scenario_tests/first-flight';required=@('briefing_checks.gd','circuit_checks.gd')},
   @{source='tests/ui/first_flight';destination='first_flight_ui_tests';required=@('briefing_checks.gd')},
   @{source='tests/world/synthetic';destination='world_tests/synthetic';required=@('circuit_checks.gd')},
-  @{source='tests/integration/first_flight';destination='first_flight_scene_tests';required=@('scene_checks.gd','map_checks.gd','visual_checks.gd','layout_visual_checks.gd')}
+  @{source='tests/integration/first_flight';destination='first_flight_scene_tests';required=@('scene_checks.gd','map_checks.gd','visual_checks.gd','layout_visual_checks.gd','hud_caption_visual_checks.gd')}
  )|ForEach-Object {$_.snapshot=@(Get-SimulationSourceSnapshot (Join-Path $RepoRoot $_.source) -RequiredEntries $_.required);$_}
 }
 function Copy-FirstFlightSourceGroups {
@@ -621,6 +624,13 @@ func observed_first_flight_baseline() -> Dictionary:
  return value if stopped.ok and not stopped.readback.native_live and admitted.available and value.get("tick")=="0" and value.get("debt_quanta")==0 else {}
 func execute() -> void:
  for argument in OS.get_cmdline_user_args():
+  if argument.begins_with("--hud-caption-visual-output="):
+   var output: String=argument.trim_prefix("--hud-caption-visual-output=")
+   var hud: Dictionary=await load("res://first_flight_scene_tests/hud_caption_visual_checks.gd").new().run_hud(self,output)
+   print("HUD_CAPTION_VISUAL ",JSON.stringify({"passed":hud.get("passed",false),"checks":hud.get("checks",0),"failures":hud.get("failures",[]),"views":hud.get("views",[]).size(),"native_joined":hud.get("native_joined",false),"audio_joined":hud.get("audio_joined",false)}))
+   var valid_hud: bool=typeof(hud.get("passed"))==TYPE_BOOL and hud.get("passed")==true and typeof(hud.get("checks"))==TYPE_INT and hud.get("checks",0)>0 and hud.checks<=9007199254740991 and hud.get("failures") is Array and hud.failures.is_empty() and hud.get("native_joined")==true and hud.get("audio_joined")==true and hud.get("views") is Array and hud.views.size()==12
+   get_tree().quit(0 if valid_hud else 1)
+   return
   if argument.begins_with("--ordinary-flight-layout-output="):
    var output: String=argument.trim_prefix("--ordinary-flight-layout-output=")
    var layout: Dictionary=await load("res://first_flight_scene_tests/layout_visual_checks.gd").new().run_layout(self,output)
@@ -707,7 +717,7 @@ func execute() -> void:
  stage("end","instruments")
  check(instruments.get("passed",false) and instruments.get("checks",0)>0 and instruments.get("failures",["missing"]).is_empty(),"native_truth_reading_checks")
  var cockpit_checks: Dictionary={}
- for name in ["adapter","scan","scene"]:
+ for name in ["adapter","scan","scene","hud_caption"]:
   var prior_failures: int=failures.size()
   stage("begin","cockpit."+name)
   var result: Dictionary=await load("res://instrument_tests/"+name+"_checks.gd").new().run(self)

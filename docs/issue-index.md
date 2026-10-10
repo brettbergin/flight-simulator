@@ -67,6 +67,7 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | ORDINARY-FLIGHT-LAYOUT-CONTRACT | [#177 Freeze a readable ordinary-flight overlay layout contract](https://github.com/brettbergin/flight-simulator/issues/177) | POINTER-ENGINE-CONTROLS, COCKPIT-PRESENTATION, FIRST-FLIGHT-FRONTEND-CONTRACT, FIRST-FLIGHT-BRIEFING, SYNTHETIC-CIRCUIT-REFERENCE |
 | ORDINARY-FLIGHT-LAYOUT | [#178 Keep ordinary flight overlays clear of instruments and each other](https://github.com/brettbergin/flight-simulator/issues/178) | ORDINARY-FLIGHT-LAYOUT-CONTRACT, POINTER-ENGINE-CONTROLS, COCKPIT-PRESENTATION, FIRST-FLIGHT-FRONTEND-CONTRACT, FIRST-FLIGHT-BRIEFING, SYNTHETIC-CIRCUIT-REFERENCE |
 | GAZE-OVERLAY-LAYOUT-DESIGN | [#179 Design overlay readability during deliberate gaze and zoom](https://github.com/brettbergin/flight-simulator/issues/179) | ORDINARY-FLIGHT-LAYOUT |
+| CHASE-HUD-CAPTION-SPACING | [#184 Keep CHASE HUD unit captions clear of the next instrument row](https://github.com/brettbergin/flight-simulator/issues/184) | ORDINARY-FLIGHT-LAYOUT |
 
 ## P3 — Complete circuit and durable progress
 

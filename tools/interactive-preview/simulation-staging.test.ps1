@@ -304,7 +304,33 @@ function New-FirstFlightReceiptFixture {
  $groups
 }
 $receipt|Add-Member -NotePropertyName first_flight -NotePropertyValue (New-FirstFlightReceiptFixture)
+$hudFixture=[pscustomobject]@{passed=$true;checks=1;failures=@();scope='Synthetic receipt admission fixture'}
+$receipt.cockpit=[pscustomobject]@{hud_caption=$hudFixture}
 Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'
+$hudMutations=@(
+ {param($v) $v.cockpit=$null},
+ {param($v) $v.cockpit.PSObject.Properties.Remove('hud_caption')},
+ {param($v) $v.cockpit.hud_caption=$null},
+ {param($v) $v.cockpit.hud_caption.passed=$false},
+ {param($v) $v.cockpit.hud_caption.passed='true'},
+ {param($v) $v.cockpit.hud_caption.checks=0},
+ {param($v) $v.cockpit.hud_caption.checks=-1},
+ {param($v) $v.cockpit.hud_caption.checks=[double]1.5},
+ {param($v) $v.cockpit.hud_caption.checks='1'},
+ {param($v) $v.cockpit.hud_caption.checks=[long]9007199254740992},
+ {param($v) $v.cockpit.hud_caption.failures=@('failed')},
+ {param($v) $v.cockpit.hud_caption.failures=$null},
+ {param($v) $v.cockpit.hud_caption.scope=' '},
+ {param($v) $v.cockpit.hud_caption.scope=('x'*1025)},
+ {param($v) $v.cockpit.hud_caption.PSObject.Properties.Remove('checks')},
+ {param($v) $v.cockpit.hud_caption|Add-Member -NotePropertyName skipped -NotePropertyValue $true}
+)
+foreach($mutate in $hudMutations){
+ $hudReceipt=$receipt|ConvertTo-Json -Depth 20|ConvertFrom-Json
+ & $mutate $hudReceipt
+ Must-Reject {Assert-PreviewFacadeReceipt $hudReceipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} 'missing skipped failed or malformed HUD-caption checks'
+}
+Write-Output ('PASS active HUD-caption admission and '+$hudMutations.Count+' nonvacuous negatives')
 foreach($name in @('briefing','bindings','geometry','card','map','scene')){
  foreach($wrong in @(0,-1,'1',[double]1)){
   $receipt.first_flight=New-FirstFlightReceiptFixture;$receipt.first_flight.$name.checks=$wrong
@@ -627,7 +653,7 @@ Write-Output 'PASS generated pointer harness source-pair shape and self-hash'
 
 # ADR018 resources must survive authoring/staged/corresponding source intact.
 $firstFlightGroups=@(Get-FirstFlightSourceGroups -RepoRoot $repo)
-if($firstFlightGroups.Count -ne 8 -or @($firstFlightGroups|ForEach-Object {$_.snapshot}).Count -ne 14){throw 'Complete first-flight resource roster required'}
+if($firstFlightGroups.Count -ne 8 -or @($firstFlightGroups|ForEach-Object {$_.snapshot}).Count -ne 15){throw 'Complete first-flight resource roster required'}
 $firstFlightStage=Join-Path $testRoot 'first-flight-stage'
 $firstFlightSource=Join-Path $testRoot 'first-flight-source'
 Copy-FirstFlightSourceGroups -RepoRoot $repo -DestinationRoot $firstFlightStage -Groups $firstFlightGroups
@@ -650,6 +676,11 @@ Must-Reject {Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -
 Remove-Item -LiteralPath $firstFlightUid
 $firstFlightVisual=Join-Path $firstFlightStage 'first_flight_scene_tests/visual_checks.gd'
 $firstFlightLayoutVisual=Join-Path $firstFlightStage 'first_flight_scene_tests/layout_visual_checks.gd'
+$firstFlightHudVisual=Join-Path $firstFlightStage 'first_flight_scene_tests/hud_caption_visual_checks.gd'
+$firstFlightHudBytes=[IO.File]::ReadAllBytes($firstFlightHudVisual)
+Remove-Item -LiteralPath $firstFlightHudVisual
+Must-Reject {Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -Groups $firstFlightGroups -AllowGeneratedUIDs} 'omitted HUD-caption visual driver'
+[IO.File]::WriteAllBytes($firstFlightHudVisual,$firstFlightHudBytes)
 $firstFlightLayoutBytes=[IO.File]::ReadAllBytes($firstFlightLayoutVisual)
 Remove-Item -LiteralPath $firstFlightLayoutVisual
 Must-Reject {Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -Groups $firstFlightGroups -AllowGeneratedUIDs} 'omitted ordinary-flight layout visual driver'

@@ -6034,6 +6034,68 @@
         "Source-pinned projection/font/hit measurements, original pixel review and negative collision fixtures.",
         "Independent feasibility review, explicit remaining limits and downstream contract proposal; no runtime or phase acceptance."
       ]
+    },
+    {
+      "key": "CHASE-HUD-CAPTION-SPACING",
+      "title": "Keep CHASE HUD unit captions clear of the next instrument row",
+      "kind": "bug",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Correct the existing classic two-row HUD caption/ring overlap using internal drawing layout only. Preserve complete native-truth titles/units, physical dashboard captions and all camera/input/hide choices. This is bounded HUD readability work after #178, separate from #179 gaze design.",
+      "depends_on": [
+        "ORDINARY-FLIGHT-LAYOUT"
+      ],
+      "labels": [
+        "type:bug",
+        "phase:P2",
+        "area:ui",
+        "priority:P1",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "app/proof/interactive/flight_panel.gd",
+        "tests/instruments/hud_caption_checks.gd",
+        "tests/integration/first_flight/hud_caption_visual_checks.gd",
+        "docs/evidence/P2/hud-caption-spacing.md",
+        "tools/interactive-preview/simulation-staging.ps1",
+        "tools/interactive-preview/simulation-staging.test.ps1",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md",
+        "tools/interactive-preview/run.ps1",
+        "tools/interactive-preview/package.mjs",
+        "tools/interactive-preview/verify.test.mjs",
+        "tools/interactive-preview/README.md",
+        "docs/README.md"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/agent-operations.md",
+        "docs/roadmap.md",
+        "docs/phases/p2-first-flight.md",
+        "docs/experience-and-progress.md",
+        "docs/decisions/009-cockpit-readings.md",
+        "docs/decisions/019-ordinary-flight-overlay-layout.md",
+        "docs/evidence/P2/ordinary-flight-layout.md"
+      ],
+      "requirements": [
+        "PRD-015",
+        "UX-009"
+      ],
+      "acceptance": [
+        "After ORDINARY-FLIGHT-LAYOUT #178 is accepted, freeze accepted FlightPanel source and original before-image hashes. Reproduce the existing classic CHASE HUD first-row unit-caption overlap at1920x1080 and2560x1440. Preserve failed historical records; their partial captures are defect evidence, not a passed29-view qualification.",
+        "Fix only internal nonphysical HUD drawing geometry so each of six complete existing titles and unit/source qualifiers occupies an explicit readable caption band clear of every ring/shadow, neighboring row/column and viewport edge. Use actual pinned fallback-font glyph extents/ascent/descent at actual integer _text font sizes; preserve current legibility floor. No ellipsis, text clipping, dropped units, formatter/source changes or shrinking/abbreviating numeric truth to hide the defect. Radius/spacing may change only within the HUD, with actual dial marks/readouts still readable.",
+        "Preserve _physical_dial_caption, _draw_cockpit_surface physical texture/caption policy and all native Readings/EngineStatus/validity/formatters exactly. No public/shared interface, new signal/setter, native/input/schema/preset/model change, camera/FOV/gaze policy, forced HUD or change to requested hide/help/collapse choices. Physical auxiliary-panel visibility under the locator and issue179 deliberate-gaze design remain separate.",
+        "Add independent caption/ring/glyph-bound assertions through actual production drawing geometry at960x540,1920x1080,2560x1440 plus899/900px heights on both sides of the compact/classic threshold, representative intermediate heights and the panel-height-cap/radius-branch boundaries. Include all six original caption strings, unavailable/retained/default and existing large-value formatting. The prechange classic formulas must fail the specific row-overlap assertion; fixed geometry must pass without changed truth. Static arithmetic alone is not pixel acceptance.",
+        "In settled paused legacy and piston sessions compare entire original serialized Readback, held commands/debt, mapper/filter/latch, recorder and origin before/after view-only HUD resizing/show-hide. Preserve expected existing camera selection behavior without treating explicit lifecycle changes as passive invariance. Verify actual requested HUD-off remains off; unchanged physical caption policy and actual mode0/3 source values remain regression checks.",
+        "Independently inspect fresh original Windows CHASE HUD PNGs at all three named sizes for both profiles, bound to actual source/PCK/module/model/config receipts in editor, portable and corresponding-source-replacement contexts as appropriate to the delivery proof. Retain full caption/glyph/row metadata and paired binary truth; inspect original native-resolution images, not downscaled previews. Add representative physical-panel regression images proving its separate captions unchanged. No aircraft/pilot/physical-device or broad all-window/phase claim.",
+        "Run focused HUD/readings/presentation tests, relevant existing integration and actual delivery/source-closure checks plus node tools/check-docs.mjs and current protected CI. Obtain independent exact-head source and original-image review. Close only this bug leaf, preserving #26/#179 and all aircraft, sensed-instrument, human and phase gates."
+      ],
+      "evidence": [
+        "Source-pinned failing-before/passing-after actual glyph/ring geometry tests; unchanged physical caption and formatter provenance; full copied/native/mapper/origin invariance.",
+        "Fresh three-context original Windows CHASE HUD images at named sizes, independent source/pixel review and exact source/PCK/module/model binding; honest intermediate-size and unavailable-state limits."
+      ]
     }
   ]
 }
