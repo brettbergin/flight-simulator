@@ -8,6 +8,8 @@ const EngineStatus = preload("res://cockpit/instruments/engine_status.gd")
 const FlightPanel = preload("res://interactive/flight_panel.gd")
 const Sound = preload("res://interactive/flight_sound.gd")
 const HISTORY: String="res://engine_tests/reference/minimal.fsreview.json"
+const HISTORY_BYTES: int=3023
+const HISTORY_SHA256: String="e830a36a899f216a44da263df16f59fc94611c7e44a3c610f3f968d0250965bf"
 
 class SyntheticScene extends Scene:
  var synthetic_raw: Dictionary={"keys":[],"mouse_buttons":[],"devices":[]}
@@ -133,6 +135,44 @@ func _presentation(host: Node) -> Dictionary:
  sound.free()
  return {"scope":"Synthetic presentation inputs; real oscillator phase only, no calibrated sound or pixel qualification"}
 
+func _retire_history_fixture(host: Node,path: String) -> void:
+ # Only the single file and fresh directory created by this fixture; no recursion.
+ if FileAccess.file_exists(path):
+  host.check(DirAccess.remove_absolute(path)==OK,"engine_scene_history_fixture_file_retired")
+ host.check(DirAccess.remove_absolute(path.get_base_dir())==OK,"engine_scene_history_fixture_directory_retired")
+
+func _materialize_history_fixture(host: Node) -> String:
+ # res:// is virtual inside a PCK. The production Open actor deliberately accepts
+ # ordinary local files only, so materialize the exact public fixture outside the
+ # payload rather than weakening its filesystem or privacy checks.
+ var bytes: PackedByteArray=FileAccess.get_file_as_bytes(HISTORY)
+ var pinned: bool=bytes.size()==HISTORY_BYTES and FileAccess.get_sha256(HISTORY)==HISTORY_SHA256
+ host.check(pinned,"engine_scene_history_resource_matches_pinned_public_fixture")
+ if not pinned: return ""
+ var directory: String=ProjectSettings.globalize_path("user://").path_join("cold-scene-history-"+str(OS.get_process_id())+"-"+str(Time.get_ticks_usec()))
+ var fresh: bool=not DirAccess.dir_exists_absolute(directory) and not FileAccess.file_exists(directory)
+ host.check(fresh,"engine_scene_history_fixture_directory_is_fresh")
+ if not fresh: return ""
+ var created: bool=DirAccess.make_dir_absolute(directory)==OK
+ host.check(created,"engine_scene_history_fixture_directory_created")
+ if not created: return ""
+ var path: String=directory.path_join("minimal.fsreview.json")
+ var file: FileAccess=FileAccess.open(path,FileAccess.WRITE)
+ host.check(file!=null,"engine_scene_history_fixture_file_created")
+ if file==null:
+  _retire_history_fixture(host,path)
+  return ""
+ var written: bool=file.store_buffer(bytes)
+ file.flush()
+ written=written and file.get_error()==OK
+ file.close()
+ var exact: bool=written and FileAccess.get_file_as_bytes(path)==bytes and FileAccess.get_sha256(path)==HISTORY_SHA256
+ host.check(exact,"engine_scene_history_fixture_copy_is_byte_exact")
+ if not exact:
+  _retire_history_fixture(host,path)
+  return ""
+ return path
+
 func run(host: Node) -> Dictionary:
  var scene: Node=SyntheticScene.new()
  host.add_child(scene)
@@ -207,13 +247,15 @@ func run(host: Node) -> Dictionary:
  var review_before: Dictionary=_capture(scene)
  host.check(not scene.begin_archive_operation("save",false) and scene.archive_operation.is_empty() and _capture(scene)==review_before,"engine_scene_cold_current_save_blocked_without_native_or_record_mutation")
  host.check(FileAccess.file_exists(HISTORY),"engine_scene_explicit_legacy_history_fixture_staged")
+ var history_path: String=_materialize_history_fixture(host)
  host.check(scene.begin_archive_operation("open",false),"engine_scene_cold_review_allows_explicit_historical_open")
- var opened: Dictionary=scene.finish_archive_operation(ProjectSettings.globalize_path(HISTORY))
+ var opened: Dictionary=scene.finish_archive_operation(history_path)
  if OS.get_name()=="Windows":
   host.check(opened.ok and scene.archive_imported and scene.observed_panel.get("_record").metadata.model_identity==Facade.LEGACY_PROFILE,"engine_scene_opened_legacy_history_is_separate_display_only")
   host.check(not scene.begin_archive_operation("save",false) and scene.archive_imported and _capture(scene)==review_before,"engine_scene_viewing_legacy_history_cannot_enable_cold_current_save")
  else:
   host.check(not opened.ok and not scene.archive_imported and _capture(scene)==review_before,"engine_scene_nonWindows_archive_io_truthfully_unsupported_without_mutation")
+ if not history_path.is_empty(): _retire_history_fixture(host,history_path)
  scene.show_current_review()
  host.check(not scene.archive_imported and scene.observed_panel.get("_record").state=="empty" and _capture(scene)==review_before,"engine_scene_current_returns_to_empty_cold_view_without_importing_history_into_recorder")
  scene.dismiss_observed_review()
