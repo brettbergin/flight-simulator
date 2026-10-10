@@ -2,6 +2,8 @@
 
 Status: accepted numerical and interface contract for existing [issue127](https://github.com/brettbergin/flight-simulator/issues/127), through independently reviewed [PR146](https://github.com/brettbergin/flight-simulator/pull/146), merge `34e1d3086b49e93dfdaf6487bf69ddaf3ee89dcf`. All four protected checks passed. This contract does not close issue127, authorize consumer observations before the pretrial gates below, or establish aircraft/pilot/phase acceptance. It follows accepted [ADR010](010-original-piston-profile.md) and [ADR013](013-steady-wind-starts.md).
 
+[ADR016](016-generated-native-build-identity.md) supplies the per-build expected identity handoff needed by subsequent Godot/package consumers. Verified backend/materializer and compiler/build-control identity remain in the native fingerprint; actual open/source/profile checks and replacement rights are preserved.
+
 ## Problem and source evidence
 
 The original piston candidate failed its frozen startup convergence gates. At 1.1 s the 240 Hz shaft rate was 3.706203744874886 rad/s; the 60 Hz error 0.6861320802971007 exceeded its 0.4318117349318127 budget and the 120 Hz error 0.22790042334652272 exceeded its 0.21590586746590634 budget. At 1.2 s the 60 Hz error 0.6586076961541938 exceeded its 0.6026542957924536 budget. Failed samples, command schedules, model parameters, the original 55-case reference packet and all physical budgets remain unchanged.
