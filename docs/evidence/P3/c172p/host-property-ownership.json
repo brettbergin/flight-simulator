@@ -1,0 +1,542 @@
+{
+  "schema_version": "c172p-host-property-proposal/v1",
+  "status": "source investigation, NOT accepted runtime contract",
+  "property_family_count": 24,
+  "groups": [
+    {
+      "id": "engine-index",
+      "representative_properties": [
+        "/controls/engines/active-engine",
+        "/controls/engines/current-engine/*",
+        "/engines/active-engine/*"
+      ],
+      "units_or_type": "selector index; mixed typed children",
+      "observed_producers": [
+        "c172p-set.xml154 default active index 0",
+        "Systems/engine.xml29-46,350-462 routes index 0 or 1",
+        "Nasal/c172p.nas702 setlimits listener"
+      ],
+      "observed_consumers": [
+        "Systems/fuel.xml, c172p-engine.xml, Nasal/engine.nas"
+      ],
+      "observed_initialization": "Conventional set selects 0; both real engines still loaded by FDM",
+      "timing": "FG property rules plus listeners; order unresolved",
+      "proposed_owner": "Future profile freezes one physical engine index 0 and rejects variant changes",
+      "unresolved": "current-engine is routed property state, not proven alias; main.xml950-953 engine[2] RPM is a visual multiplayer alias only",
+      "contract_accepted": false
+    },
+    {
+      "id": "manual-flight-controls",
+      "representative_properties": [
+        "controls/flight/aileron",
+        "controls/flight/elevator",
+        "controls/flight/rudder",
+        "controls/flight/elevator-trim"
+      ],
+      "units_or_type": "normalized; signed mapping explicitly needed",
+      "observed_producers": [
+        "FG native input, Systems/control-lock.xml",
+        "KAP140 autopilot.xml433/688/826"
+      ],
+      "observed_consumers": [
+        "FG JSBSim.cxx580-589 -> FCS",
+        "c172p.xml flight_control"
+      ],
+      "observed_initialization": "Control-lock state may persist; KAP files actively loaded, engagement state unresolved",
+      "timing": "copy_to once before FDM batch; autopilot/property updates separate",
+      "proposed_owner": "Native simulation command authority; explicit no KAP/control-lock writers unless contracted",
+      "unresolved": "FG rudder/yaw-trim signs differ from steer; do not copy our command signs blindly",
+      "contract_accepted": false
+    },
+    {
+      "id": "throttle-mixture-magnetos",
+      "representative_properties": [
+        "controls/engines/current-engine/{throttle,mixture}",
+        "controls/engines/engine[0]/*",
+        "controls/switches/magnetos"
+      ],
+      "units_or_type": "normalized; magneto enum; prop advance normalized",
+      "observed_producers": [
+        "Systems/engine.xml350-462",
+        "Nasal/engine.nas490-495 controls service",
+        "Nasal/state-manager.nas28-50"
+      ],
+      "observed_consumers": [
+        "FG JSBSim.cxx611-624",
+        "FGPiston/FGPropeller"
+      ],
+      "observed_initialization": "State manager/autostart can assign mixture, starter, both throttles and trim",
+      "timing": "Listeners/property filters/host copy before batch",
+      "proposed_owner": "Explicit native manual engine controls, selected engine 0 only",
+      "unresolved": "Startup assist and automatic mixture ownership must be visible; cannot label no-assist merely from default flag",
+      "contract_accepted": false
+    },
+    {
+      "id": "fuel-inventory",
+      "representative_properties": [
+        "consumables/fuel/tank[0..3]/level-lbs",
+        "propulsion/tank[4]/contents-lbs",
+        "fuel/from-tank*-to-tank4"
+      ],
+      "units_or_type": "lb, lb/s, lb/US gal; conversion needed at SI boundary",
+      "observed_producers": [
+        "FG native JSBSim.cxx702-711 copies host tank masses/density into solver",
+        "Systems/fuel.xml90-120 transfers",
+        "JSBSim.cxx953-957 publishes back"
+      ],
+      "observed_consumers": [
+        "Both candidate engines feed collector tank4",
+        "Nasal/tanks.nas5-18 priority listeners"
+      ],
+      "observed_initialization": "Fuel load, selector and persistence may initialize; root FDM tank contents not sole authority",
+      "timing": "host pre/post FDM batch plus JSBSim-step transfer/filter",
+      "proposed_owner": "One native mass inventory with explicit collector/selector law if retained",
+      "unresolved": "Avoid double integration, density-default substitution, hidden refueling or duplicated solver/host mass authority",
+      "contract_accepted": false
+    },
+    {
+      "id": "fuel-selector",
+      "representative_properties": [
+        "consumables/fuel/tank[0..3]/selected",
+        "propulsion/tank[0..4]/priority"
+      ],
+      "units_or_type": "bool / priority integer",
+      "observed_producers": [
+        "Nasal/tanks.nas5-18",
+        "Systems/engine.xml797-937 selection filters",
+        "Nasal/state-manager.nas17-25"
+      ],
+      "observed_consumers": [
+        "Systems/fuel.xml30-83",
+        "JSBSim fuel consumption"
+      ],
+      "observed_initialization": "Integral and standard tanks both modeled; switch/persistence determines selection",
+      "timing": "Property listeners and FCS filters",
+      "proposed_owner": "Explicit selected land tank installation/selector contract",
+      "unresolved": "Which certified tank installation applies remains #171 source gate; cannot activate both standard/integral capacities as one aircraft",
+      "contract_accepted": false
+    },
+    {
+      "id": "starter-electrical",
+      "representative_properties": [
+        "systems/electrical/outputs/starter",
+        "engines/active-engine/starter/*"
+      ],
+      "units_or_type": "volts, bool, temperature degC",
+      "observed_producers": [
+        "Nasal/electrical.nas391-404;628-635 updater enables",
+        "Systems/engine.xml942-1035 thermal/overheat"
+      ],
+      "observed_consumers": [
+        "Systems/engine.xml70-86,391-418 routes starter to engine",
+        "Nasal/engine.nas priming/start logic"
+      ],
+      "observed_initialization": "Battery reset when save disabled; electrical updater active; complex/starter management default false",
+      "timing": "Generic updater dt from elapsed-sec * sim-speed; enabled after FDM init",
+      "proposed_owner": "Source-reviewed native electrical/starter owner or faithful licensed port",
+      "unresolved": "Electrical source header is C172S-derived. Do not certify C172P bus, alternator, battery or starter law from this file",
+      "contract_accepted": false
+    },
+    {
+      "id": "primer",
+      "representative_properties": [
+        "controls/engines/engine[0]/primer",
+        "engines/active-engine/use-primer"
+      ],
+      "units_or_type": "counter/normalized lever; exact semantics must freeze",
+      "observed_producers": [
+        "Nasal/engine.nas67-97,389-445",
+        "Nasal/state-manager.nas41-42"
+      ],
+      "observed_consumers": [
+        "c172p.xml1347-1371 mixture switch",
+        "Nasal/engine.nas starter callbacks"
+      ],
+      "observed_initialization": "State-manager and user pump differ; primer timer resets state",
+      "timing": "5s primer timer and startup callbacks, .3s engine loop",
+      "proposed_owner": "Explicit primer state/event owner if retained",
+      "unresolved": "Nasal source credits Spitfire-based primer; numerical/procedure applicability not proved",
+      "contract_accepted": false
+    },
+    {
+      "id": "oil-mass-health",
+      "representative_properties": [
+        "engines/active-engine/oil-level",
+        "engine/oil-lacking",
+        "inertia/pointmass-weight-lbs[16]"
+      ],
+      "units_or_type": "oil level quarts; derived mass lb; pressure psi, temp degF",
+      "observed_producers": [
+        "Nasal/engine.nas oil timer120-194 and real-temp224",
+        "Systems/c172p-engine.xml29-37 negative missing-oil pointmass",
+        "FG JSBSim.cxx831-840"
+      ],
+      "observed_consumers": [
+        "c172p.xml pointmass16; engine friction/cooling; engine killed/coughing rules"
+      ],
+      "observed_initialization": "Complex flag default false; disabling oil use resets neutral loss factors",
+      "timing": "1s oil, .5s real-temp, host FDM batch",
+      "proposed_owner": "Native oil mass/thermal owner with explicit dry normal assumptions",
+      "unresolved": "Not merely presentation: missing oil changes total mass; persistence restores level",
+      "contract_accepted": false
+    },
+    {
+      "id": "complex-feature-flags",
+      "representative_properties": [
+        "engines/active-engine/complex-engine-procedures",
+        "engines/active-engine/{damage_allowed,oil_consumption_allowed,carb_icing_allowed}",
+        "consumables/fuel/contamination_allowed"
+      ],
+      "units_or_type": "bool",
+      "observed_producers": [
+        "c172p-main.xml916-943 defaults",
+        "Systems/engine.xml695-716 copies complex into four flags"
+      ],
+      "observed_consumers": [
+        "Nasal/engine.nas timers",
+        "damage and engine-kill rules"
+      ],
+      "observed_initialization": "Default false not immutable; saved aircraft state may restore mode",
+      "timing": "FG property rules plus Nasal timers",
+      "proposed_owner": "Freeze declared normal-feature scope and reject unsupported activations",
+      "unresolved": "Disabled timers may still write neutral state. Do not delete initializer merely because boolean false",
+      "contract_accepted": false
+    },
+    {
+      "id": "carb-heat-icing",
+      "representative_properties": [
+        "controls/engines/current-engine/carb-heat",
+        "engines/active-engine/carb_ice",
+        "propulsion/engine[0]/air-intake-impedance-factor",
+        "propulsion/engine[0]/volumetric-efficiency"
+      ],
+      "units_or_type": "normalized ice/heat; dimensionless multipliers",
+      "observed_producers": [
+        "Nasal/engine.nas241-291",
+        "Systems/engine.xml669-688",
+        "Systems/c172p-engine.xml44-55"
+      ],
+      "observed_consumers": [
+        "FGPiston intake/power law; cough/kill rules"
+      ],
+      "observed_initialization": "Default carb icing false; heat command and neutral volumetric efficiency still needed",
+      "timing": "1s icing + host rule / solver FCS rates",
+      "proposed_owner": "Explicit carb heat normal law; icing unsupported pending references",
+      "unresolved": "Replacing dry flags must preserve carb heat effect; 180-hp parallel writers excluded explicitly",
+      "contract_accepted": false
+    },
+    {
+      "id": "damage",
+      "representative_properties": [
+        "wing-damage/{left-wing,right-wing}",
+        "gear/unit[0..2]/broken",
+        "engine/damage-level"
+      ],
+      "units_or_type": "normalized / bool",
+      "observed_producers": [
+        "Systems/c172p-damage.xml",
+        "Systems/damage.xml",
+        "Nasal/physics.nas1-50,173-189"
+      ],
+      "observed_consumers": [
+        "c172p.xml1259+,1798,1973,1994-2010,2231 aero/contact modifications"
+      ],
+      "observed_initialization": "Repair, crash and variant-change listeners alter state",
+      "timing": "FCS, property rule, Nasal loop/listener",
+      "proposed_owner": "Explicit zero-damage normal boundary or separately sourced failures",
+      "unresolved": "Aero changes require neutralization proof; no failure qualification implied by existing branches",
+      "contract_accepted": false
+    },
+    {
+      "id": "land-contacts",
+      "representative_properties": [
+        "gear/unit[0..2]/z-position",
+        "gear/unit[0..2]/*friction*",
+        "environment/surface/*",
+        "position/altitude-agl-m"
+      ],
+      "units_or_type": "source gear length/coeff units field-specific; m for host AGL",
+      "observed_producers": [
+        "Systems/c172p-ground-effects.xml",
+        "Systems/bushkit.xml",
+        "FG terrain/material/ground cache"
+      ],
+      "observed_consumers": "c172p.xml gear/contact integration",
+      "observed_initialization": "Land selector and ground material/snow defaults interact",
+      "timing": "FG ground cache per batch; FCS runtime writes",
+      "proposed_owner": "Existing authoritative ground provider must own contact surface/material; transform law explicitly",
+      "unresolved": "MSL/AGL/local vertical/body frame differences; cannot conflate uncompressed locations with actual acting arms",
+      "contract_accepted": false
+    },
+    {
+      "id": "hydrodynamics",
+      "representative_properties": [
+        "hydro/*",
+        "float/*",
+        "mooring/*"
+      ],
+      "units_or_type": "mixed feet/fps/angles/forces, not adopted",
+      "observed_producers": [
+        "FGData Generic hydrodynamics.xml",
+        "Systems/c172p-hydrodynamics.xml",
+        "Nasal/jsbsim-hydrodynamics.nas",
+        "Nasal/mooring.nas"
+      ],
+      "observed_consumers": [
+        "c172p.xml2276-2383 nine external force/moment consumers",
+        "Nasal/physics.nas68-140"
+      ],
+      "observed_initialization": "Float active branch via bushkit selector; generic file unconditionally loaded",
+      "timing": "FDM systems plus timers/environment callbacks",
+      "proposed_owner": "Proposed exclude all water/skis/marine variants",
+      "unresolved": "Removing one include leaves consumer properties and contact/variant logic; no actual transformation executed",
+      "contract_accepted": false
+    },
+    {
+      "id": "payload-mass-cg",
+      "representative_properties": [
+        "inertia/pointmass-weight-lbs[0..22]",
+        "inertia/pointmass-location-*",
+        "fdm/jsbsim/bushkit"
+      ],
+      "units_or_type": "lb and structural units; fixed datum conversion required",
+      "observed_producers": [
+        "c172p.xml mass definition",
+        "Systems/bushkit.xml12-67",
+        "Nasal/state-manager.nas60-61",
+        "Systems/pax.xml",
+        "c172p-main.xml118-119 actual /sim/model/c172p/variant alias -> /fdm/jsbsim/bushkit"
+      ],
+      "observed_consumers": [
+        "JSBSim mass balance, aero/contact geometry, cabin heat"
+      ],
+      "observed_initialization": "Selected engine1 adds C172S-derived pointmass15; oil/ice extra masses too",
+      "timing": "Input initialization and runtime system updates",
+      "proposed_owner": "Explicit selected land certified loading inventory only after #171",
+      "unresolved": "Do not use candidate mass as certified truth; strip 180 and icing branches with downstream proof; actual bushkit initial solver value not independently established",
+      "contract_accepted": false
+    },
+    {
+      "id": "atmosphere-wind",
+      "representative_properties": [
+        "environment/pressure-inhg",
+        "environment/temperature-degc",
+        "environment/wind-from-*",
+        "velocities/mach"
+      ],
+      "units_or_type": "inhg, degC, wind-from components converted to solver wind-toward",
+      "observed_producers": [
+        "FG environment native subsystem",
+        "FG JSBSim.cxx694-696 negates host wind-from components"
+      ],
+      "observed_consumers": [
+        "solver atmosphere, pitot/static, heat/icing, engine density-altitude"
+      ],
+      "observed_initialization": "Weather host defaults not our admitted source identity",
+      "timing": "copy_to before FDM batch; native weather subsystem external",
+      "proposed_owner": "One explicit admitted native atmosphere",
+      "unresolved": "No METAR/cloud/weather-generation host imported; no frozen-calm fallback silently used",
+      "contract_accepted": false
+    },
+    {
+      "id": "pitot-native",
+      "representative_properties": [
+        "systems/pitot/total-pressure-inhg",
+        "systems/pitot/serviceable"
+      ],
+      "units_or_type": "inhg / bool",
+      "observed_producers": [
+        "FG src/Systems/pitot.cxx42-86 uses pressure, Mach, alpha, beta",
+        "Systems/indicated-airspeed.xml86-103 serviceability/heat"
+      ],
+      "observed_consumers": [
+        "FG airspeed indicator native",
+        "Systems/instrumentation.xml33-38"
+      ],
+      "observed_initialization": "Candidate config pitot; cover/icing listener defaults may affect serviceable",
+      "timing": "Native system update distinct from FDM; ordering unresolved",
+      "proposed_owner": "Source-reviewed pitot pressure/lag/fault owner",
+      "unresolved": "No static error/IAS lookup substitution; selected instrument identities unknown",
+      "contract_accepted": false
+    },
+    {
+      "id": "static-selected",
+      "representative_properties": [
+        "systems/static[0..1]/pressure-inhg",
+        "systems/static-pressure-inhg-selected"
+      ],
+      "units_or_type": "inhg",
+      "observed_producers": [
+        "FG src/Systems/static.cxx43-108",
+        "Systems/static-sources.xml34-108"
+      ],
+      "observed_consumers": [
+        "Systems/instrumentation.xml altimeter/ASI/encoder/VSI"
+      ],
+      "observed_initialization": "Primary index0 and alternate index1 native systems; selected source default0",
+      "timing": "Native static lag plus property selected-pressure rule",
+      "proposed_owner": "Explicit selected source owner if retained",
+      "unresolved": "Alternate correction comments derive from C182S POH; C172P applicability not established",
+      "contract_accepted": false
+    },
+    {
+      "id": "airspeed-indication",
+      "representative_properties": [
+        "instrumentation/airspeed-indicator/indicated-speed-kt",
+        "velocities/vias-kts"
+      ],
+      "units_or_type": "knots; first native output is CAS per implementation",
+      "observed_producers": [
+        "FG airspeed_indicator.cxx96-111",
+        "Systems/indicated-airspeed.xml47-54 table transform"
+      ],
+      "observed_consumers": [
+        "candidate UI and systems consuming IAS"
+      ],
+      "observed_initialization": "Native serviceable and pressure initial state",
+      "timing": "Native instrument then FDM correction; execution ordering remains to prove",
+      "proposed_owner": "CAS/IAS semantic contract plus applicable reference",
+      "unresolved": "C172P POH5-9 table source not fully acquired/cleared; no adopted numeric calibration",
+      "contract_accepted": false
+    },
+    {
+      "id": "thermal-preheater",
+      "representative_properties": [
+        "engines/active-engine/*temperature*",
+        "external-heat/*",
+        "cabin/*"
+      ],
+      "units_or_type": "mixed degF/degC documented at each field",
+      "observed_producers": [
+        "Systems/c172p-heat.xml",
+        "Systems/external-heat.xml",
+        "Nasal/engine.nas real-temp timer"
+      ],
+      "observed_consumers": [
+        "engine primer/oil/carb state; alternate static/cabin dependencies require full trace"
+      ],
+      "observed_initialization": "Preheater listener can force off at crank; door/cabin defaults matter",
+      "timing": "FCS filters and Nasal .5s real-temp",
+      "proposed_owner": "Conditional neutral inactive preheater + explicit ambient/engine thermal source",
+      "unresolved": "C182S preheater reference not approved C172P law; full thermal/property closure not complete",
+      "contract_accepted": false
+    },
+    {
+      "id": "ice-mass-aero",
+      "representative_properties": [
+        "ice/{wing,fuselage,propeller}*",
+        "inertia/pointmass-weight-lbs[17..22]",
+        "fcs/advance-pos-norm"
+      ],
+      "units_or_type": "dimensionless + lb",
+      "observed_producers": [
+        "Nasal/icing.nas",
+        "Systems/icing.xml named functions",
+        "Systems/propulsion.xml"
+      ],
+      "observed_consumers": [
+        "c172p.xml aero/mass",
+        "FGPropeller advance/drag"
+      ],
+      "observed_initialization": "Ice outputs initialized; weather/enable-fog-frost can force melt rather than noop",
+      "timing": "Nasal2s accumulation, cloud0s callbacks, solver transforms",
+      "proposed_owner": "Proposed dry normal scope; no structural/pitot icing claim",
+      "unresolved": "Must remove all accumulators/writers or enforce declared dry neutral with proof; empty output-tag list is not no output",
+      "contract_accepted": false
+    },
+    {
+      "id": "startup-trim-assists",
+      "representative_properties": [
+        "sim/presets/trim",
+        "controls/engines/current-engine/mixture",
+        "engines/active-engine/auto-start",
+        "fdm/jsbsim/running"
+      ],
+      "units_or_type": "bool, normalized, solver trim selection",
+      "observed_producers": [
+        "states/c172p-automatic-overlay.xml23-35",
+        "Nasal/state-manager.nas28-75",
+        "Nasal/c172p.nas5-159"
+      ],
+      "observed_consumers": "FG initial condition/trim and starter path",
+      "observed_initialization": "Auto overlay requests trim; startup applies mixture/throttle/trim/securing changes",
+      "timing": "Initialization, listeners and timer timeouts",
+      "proposed_owner": "Explicit source-labeled preparation assistance with immutable receipt",
+      "unresolved": "Not manual no-assist behavior; no accepted cold/airborne start contract for candidate",
+      "contract_accepted": false
+    },
+    {
+      "id": "host-clock",
+      "representative_properties": [
+        "sim/time/elapsed-sec",
+        "sim/speed-up",
+        "sim/signals/{fdm-initialized,reinit}"
+      ],
+      "units_or_type": "seconds / factor / signal",
+      "observed_producers": [
+        "FG native clock and lifecycle",
+        "Generic updateloop.nas80-161"
+      ],
+      "observed_consumers": [
+        "all timers/property rules/electrical",
+        "Nasal engine3Hz-like .3s loop and icing loops"
+      ],
+      "observed_initialization": "updateloop resets time_last at initialization/reinit",
+      "timing": "Electrical every frame; dt=(elapsed delta)*sim_speed; no fixed-tick equivalence established",
+      "proposed_owner": "Native tick-owned scheduler if ported with explicit pause/resume/reset",
+      "unresolved": "Nasal random cough and callback order need deterministic seed/event ownership; not backend regression truth",
+      "contract_accepted": false
+    },
+    {
+      "id": "persistence",
+      "representative_properties": [
+        "sim/model/c172p/save-state",
+        "aircraft-data/*",
+        "systems/electrical/save-battery-charge"
+      ],
+      "units_or_type": "bool / mixed saved state",
+      "observed_producers": [
+        "Nasal/save.nas",
+        "aircraft.data.load in c172p.nas780-781",
+        "Systems/engine.xml722-739 save flags"
+      ],
+      "observed_consumers": [
+        "fuel/oil/battery/controls/features/securing initializes"
+      ],
+      "observed_initialization": "Saved state may override source-file defaults",
+      "timing": "FDM-initialized callback and explicit save/load",
+      "proposed_owner": "Existing simulator persistence owns state, no FlightGear user data import",
+      "unresolved": "No user data read in this investigation; future candidate save schema/source identity needs separate acceptance",
+      "contract_accepted": false
+    },
+    {
+      "id": "autopilot-guidance",
+      "representative_properties": [
+        "autopilot/kap140/*",
+        "controls/flight/{aileron,elevator,elevator-trim}"
+      ],
+      "units_or_type": "mode/servo values, normalized control outputs",
+      "observed_producers": [
+        "KAP140 autopilot.xml433/688/826",
+        "KAP140 proprules and config",
+        "nav-selector.xml"
+      ],
+      "observed_consumers": [
+        "FG controls -> solver FCS"
+      ],
+      "observed_initialization": "Conventional set loads these files; actual initial engagement not independently established",
+      "timing": "FG XML autopilot/property services using elapsed clock",
+      "proposed_owner": "Proposed exclude entire KAP/nav-selector controller graph from manual baseline",
+      "unresolved": "Do not call loaded controller merely cosmetic or prove no assist from panel hidden",
+      "contract_accepted": false
+    }
+  ],
+  "normalization_rules": [
+    "Preserve original property prefix and source-side unit until an explicit SI conversion is reviewed",
+    "Runtime-built property strings remain unresolved despite lexical inventory; no guessed aliases",
+    "Host init/default and persistence are separate; absence of copied host does not imply all-zero safety",
+    "Each native state has one future writer; model/UI/host timers cannot silently compete",
+    "No property values, aircraft tolerances, timing equivalence or profile identity adopted here"
+  ],
+  "source_index": "host-source-index.json"
+}
