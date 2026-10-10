@@ -5826,6 +5826,211 @@
         "Independent reviewed recursive dependency graph, metadata source index, property-ownership matrix and scoped GPL/source-package obligations proposal, with unresolved dynamic/rights/compatibility cells explicit; no executable import or package clearance.",
         "Partial source preparation only. Preserve selected C172S #28/#76, original profiles and independent normal-reference/contract/pilot/phase gates. Both dossiers join before any separately authorized profile/interface/package decision."
       ]
+    },
+    {
+      "key": "ORDINARY-FLIGHT-LAYOUT-CONTRACT",
+      "title": "Freeze a readable ordinary-flight overlay layout contract",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Explicitly amend ADR018 presentation preservation and freeze a feasible copied geometry seam for ordinary legacy/cold overlays; no runtime implementation.",
+      "depends_on": [
+        "POINTER-ENGINE-CONTROLS",
+        "COCKPIT-PRESENTATION",
+        "FIRST-FLIGHT-FRONTEND-CONTRACT",
+        "FIRST-FLIGHT-BRIEFING",
+        "SYNTHETIC-CIRCUIT-REFERENCE"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:ui",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "docs/decisions/019-ordinary-flight-overlay-layout.md",
+        "docs/decisions/018-first-flight-briefing-and-circuit-aid.md",
+        "docs/contracts.md",
+        "docs/evidence/P2/ordinary-flight-layout-contract.md",
+        "docs/README.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/phases/p2-first-flight.md",
+        "docs/agent-operations.md",
+        "docs/contracts.md",
+        "docs/decisions/009-cockpit-readings.md",
+        "docs/decisions/013-steady-wind-starts.md",
+        "docs/decisions/017-frontend-pointer-engine-controls.md",
+        "docs/decisions/018-first-flight-briefing-and-circuit-aid.md",
+        "docs/experience-and-progress.md",
+        "tools/interactive-preview/README.md"
+      ],
+      "requirements": [
+        "PRD-015",
+        "PRD-017",
+        "PRD-020",
+        "UX-009",
+        "UX-010",
+        "UX-011"
+      ],
+      "acceptance": [
+        "Freeze one bounded Scene-owned policy for ordinary legacy and original piston profiles,960x540/1920x1080/2560x1440 and existing camera modes0(cockpit),3(panel),1(chase). Cover ordinary free flight and First flight, circuit off/on/unavailable, map open/closed, engine expanded/collapsed, wind available/unavailable, manual route present/absent, live/paused/retained/closed truth. No new start/profile/circuit/wind domain.",
+        "Explicitly supersede ADR018 aid-off presentation preservation and its current-only duplicate-summary restriction; preserve physics, existing flags/defaults/session reset behavior and input semantics. Define copied presentation-only dimensions/modes between Scene, locator, landmark board, engine widget and existing flight panel feedback bounds. Any panel-width seam is copied presentation geometry only: same native fields, values, formatters, source validity and requested visibility; no feedback hidden to manufacture a fit. No public generic layout schema/framework, native dependency or persistence. Freeze exact setter names/shape only after inspecting actual leaves; unchanged setters need no replacement API.",
+        "In recentered cockpit mode0 and panel mode3 at their existing default FOV, require all six primary faces/readouts clear and readable; in chase mode1 require all six existing HUD readings clear and readable when that HUD is requested visible. Throughout deliberate gaze and zoom retain readable native/status/control/release guidance and preserve the existing camera/FOV and requested hide/collapse choices. Fixed docks do not move with gaze. Avoiding aid occlusion of exposed physical faces at changed gaze/FOV is explicitly deferred to GAZE-OVERLAY-LAYOUT-DESIGN; do not claim this leaf solves it. Record camera-clipped/behind portions separately from aid occlusion, and claim neither as readable. Do not force visibility, add a HUD fallback or automatically switch presentation. Require readable native top strips and remapped release guidance; readable wind/source labels, route current title/count/range/anchor-bearing/footer, locator title/status/runway/extent/closing hint and circuit title/all five labels/full fixed schematic when applicable. Main current target cannot be ellipsized; secondary itinerary may be explicitly ellipsized with complete explanatory footer. Retained/unavailable clears current guidance as before. Do not label body-yaw rate as a certified turn instrument or prototype native quantities as sensors. During live ordinary flight protect the default recentered physical readings or requested CHASE HUD under this bounded policy; changed-gaze exposed-face occlusion remains the separate named follow-up. Preserve requested hide/collapse states. The paused First flight briefing may cover the cockpit using readable standard controls/scrolling/tabs; keep pause/session status, Back and Controls reachable. Back returns still paused to ordinary explicit Resume; add no panel Resume signal.",
+        "Prove fit using actual font metrics and existing hit/draw regions, accounting for every requested-visible native strip. Measured960 PANEL source has a full-width piston feedback strip at y480..534, so the live right-side clear band y92..480 is388px, not448px. The216 engine +8 gap +220 locator stack fails against that unchanged strip; retained/error top124 also makes the444px stack end568, outside540. The private50-check font/hit/default-camera proof supports only a conditional live recentered alternative: engine(696,92,250,216), locator(696,316,250,220), native feedback explicitly narrowed to(10,480,676,54) with the same fields/formatters. These are candidate rectangles, not frozen geometry. Decide and independently review whether a Scene-owned presentation-only panel-width seam is acceptable before selecting dimensions; add no camera/FOV change, auto-collapse, hidden page/scroll state or new interaction. Retained/unavailable/closed, gaze status/control/release accessibility, very large values, maximum validated remapped hints and all other required default modes/sizes still need real-font/hit and original-pixel coverage. Preserve explicit A/R/P, readable denial/release guidance and all six usable engine controls. Full current target cannot be ellipsized; binding-only shortening may retain the existing complete tooltip plus persistent release instruction, with that exact policy reviewed rather than assumed.",
+        "Preserve existing engine gesture protocol, eligibility, preflight hit admission, full Raw ordering, bound-primary denial, token/generation/rearm, held starter cancel and actual/request/pending/preview truth. Specify resize/camera/map transitions during capture: unchanged targets/coordinate mapping or existing explicit capture retirement; never move an active hit target silently. No fabricated release, device polling or wheel ownership changes.",
+        "Locator extent/ownship centering/runway/route and original current-geographic _route admission remain unchanged; no auto zoom/pan/recenter, forged route or inferred leg. Suppress the duplicate route card only when the requested-visible locator actually renders the complete equivalent current or explicitly noncurrent/completed manual summary. Admit noncurrent/completed itinerary metadata separately from geographic _route using an exact defensively copied existing Board.view; it cannot restore target/range/bearing or current geography. Preserve actual fallback title, unavailable metrics, leg/count/secondary itinerary and full historical/source/paused qualification. A pure renders_manual_summary accessor must report actual complete in-bounds equivalence. Closed/hidden/malformed/unfit map restores Board ownership; an unfit restoration is a failing layout, never permission to hide unique information. Existing hides and remapped map_toggle/runway_toggle/map_zoom_in/map_zoom_out, engine header and paused aid checkbox remain the only controls.",
+        "Freeze consumer tests/evidence below, exact owned paths and coordinator serialization. Run docs checks and independent exact contract review/current required CI. Merge accepts the layout seam only, no consumer/human/phase gate."
+      ],
+      "evidence": [
+        "Exact source/before-image pins; independent bounded contract/source review; docs check/current protected CI.",
+        "Partial requirement coverage only; broad issues, aircraft, hardware, pilot, training-credit and phase gates remain open."
+      ]
+    },
+    {
+      "key": "ORDINARY-FLIGHT-LAYOUT",
+      "title": "Keep ordinary flight overlays clear of instruments and each other",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Implement only the accepted responsive presentation seam, preserving native, pointer, map/route and hide authority with exact exported readability evidence.",
+      "depends_on": [
+        "ORDINARY-FLIGHT-LAYOUT-CONTRACT",
+        "POINTER-ENGINE-CONTROLS",
+        "COCKPIT-PRESENTATION",
+        "FIRST-FLIGHT-FRONTEND-CONTRACT",
+        "FIRST-FLIGHT-BRIEFING",
+        "SYNTHETIC-CIRCUIT-REFERENCE"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:ui",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "app/simulation/flight_scene.gd",
+        "app/proof/interactive/flight_map.gd",
+        "app/proof/interactive/flight_panel.gd",
+        "app/ui/freeflight/landmark_board.gd",
+        "app/cockpit/engine_controls.gd",
+        "tests/integration/first_flight/visual_checks.gd",
+        "tests/integration/first_flight/scene_checks.gd",
+        "tests/integration/first_flight/map_checks.gd",
+        "tests/cockpit/engine_controls_checks.gd",
+        "tests/ui/freeflight/landmark_checks.gd",
+        "tests/integration/input/pointer_engine_scene_checks.gd",
+        "tools/interactive-preview/simulation-staging.ps1",
+        "tools/interactive-preview/simulation-staging.test.ps1",
+        "tools/interactive-preview/run.ps1",
+        "tools/interactive-preview/package.mjs",
+        "tools/interactive-preview/verify.test.mjs",
+        ".github/workflows/native-ci.yml",
+        "docs/evidence/P2/ordinary-flight-layout.md",
+        "docs/README.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md",
+        "app/ui/first_flight/circuit_guide.gd",
+        "tests/scenarios/first-flight/circuit_checks.gd"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/phases/p2-first-flight.md",
+        "docs/agent-operations.md",
+        "docs/contracts.md",
+        "docs/decisions/009-cockpit-readings.md",
+        "docs/decisions/013-steady-wind-starts.md",
+        "docs/decisions/017-frontend-pointer-engine-controls.md",
+        "docs/decisions/018-first-flight-briefing-and-circuit-aid.md",
+        "docs/experience-and-progress.md",
+        "tools/interactive-preview/README.md",
+        "docs/decisions/019-ordinary-flight-overlay-layout.md"
+      ],
+      "requirements": [
+        "PRD-015",
+        "PRD-017",
+        "PRD-020",
+        "UX-009",
+        "UX-010",
+        "UX-011"
+      ],
+      "acceptance": [
+        "Implement only the accepted geometry/presentation API. Scene remains single owner of placement; child drawing/hit regions agree before GPU draw. Reflow all six existing engine controls without removing commands, auto-collapse or hidden page/scroll state. Preserve actual/request/pending/preview, denied reasons, hover hints and remapped release access. If ADR019 accepts the proposed panel-width alternative, implement only copied feedback bounds; retain every existing native field/formatter and source/validity meaning. No presumed permission to hide feedback, reduce numeric truth or change camera/FOV. Explicitly owned CircuitReferenceCard changes are presentation-only wide unavailable title/reason; existing copied view/setter, aid flag, available diagram geometry, source availability and session reset remain unchanged.",
+        "At each supported size/mode, independently inspect original PNGs showing ordinary legacy aid-off wind+route, cold map+expanded controls, map closed/restored and collapsed controls. In live ordinary flight apply this mode-specific protection: In recentered cockpit mode0 and panel mode3 at their existing default FOV, require all six primary faces/readouts clear and readable; in chase mode1 require all six existing HUD readings clear and readable when that HUD is requested visible. Throughout deliberate gaze and zoom retain readable native/status/control/release guidance and preserve the existing camera/FOV and requested hide/collapse choices. Fixed docks do not move with gaze. Avoiding aid occlusion of exposed physical faces at changed gaze/FOV is explicitly deferred to GAZE-OVERLAY-LAYOUT-DESIGN; do not claim this leaf solves it. Record camera-clipped/behind portions separately from aid occlusion, and claim neither as readable. Do not force visibility, add a HUD fallback or automatically switch presentation. Native/status strips stay unobscured. Preserve ADR018's readable paused-modal exception: pause/session status, Back and Controls stay reachable, with Back returning still paused to ordinary Resume. Route current title/count/range/anchor bearing/full footer, wind/source status, locator labels and closing hint fit; existing requested visibility/hide states persist. Circuit enabled/unsupported regression images retain complete fixed schematic/five labels or explicit reason, respectively. Do not treat rectangle checks as pixel acceptance.",
+        "Freeze prechange actual artifact and fixture hashes first. Headless tests measure real glyph bounds/child heights, every engine draw/hit region, actual current-target/footer content, sizing/reflow and source-copy ownership. Test maximum supported existing labels and validated remapped hints, not just short defaults. Add explicit negative regressions for the measured388px band/full-width feedback conflict and retained124px top/568px overflowing stack. Candidate50-check live recentered font geometry is prior preparation only; require actual retained/unavailable/closed/gaze-accessibility/large-value/all-remap results for the frozen policy. Test the narrowed feedback fields, width and complete unchanged formatting independently if that seam is selected. Bounds at three resolutions do not establish all intermediate sizes or all OS-frame behavior.",
+        "In settled paused isolated sessions with no active capture, compare entire original native Readback/commands/debt/held controls, mapper filters/latches/edges, recorder and origin before/after passive layout/map/camera/aid operations. Compare original serialized truth bytes, not lossy JSON. Test intentional collapse or active-target geometry transitions separately: keep unchanged targets/coordinate mapping, or retire through existing cancellation with explicitly expected mapper/token-generation/rearm changes. Capture retirement alone must preserve full native Readback/commands/debt/held controls, recording and origin; do not fake a release or conceal a native call. Verify the next ordinary full Raw/input boundary respects existing starter-release and rearm safety. Explicit pause/focus/lifecycle actions retain their documented command provenance and are not passive invariance cases. Verify route/runway/extent at1000m and normal geographic clipping unchanged across map closed/restored. Normal live Run advances physics; compare legal command provenance/expected transitions rather than falsely demand constant state while moving. Test current-geographic admission separately from exact full Board.view summary admission; malformed summary metadata must clear only summary equivalence and restore the Board. Include full noncurrent/completed fallback title, unavailable metrics and historical/source/paused footer with no current geographic target restored.",
+        "Use actual remapped bound actions and full Raw to exercise normal map close/restore, zoom/runway and camera changes. Exercise real engine pointer press/drag/release including held starter, resize/map/camera mid-capture, look-held/released, primary button bound elsewhere, stale generation, pause/focus loss and tooltips before draw. No direct manufactured visibility, forced route replacement or hidden event suppression as interaction proof. Synthetic fixtures remain synthetic; physical hardware evaluation separate.",
+        "Run affected focused/headless/staging/package regressions and existing protected checks. Bind final source and staged/package/archive/portable/rebuilt identities. Obtain bounded joined editor, portable and replacement actual exported visual evidence (three sizes/modes); dedup originals only by complete exact byte equality. Include at least one real exported legacy flight and one original piston cold-to-engine-control interaction via ordinary explicit Resume with native feedback/command provenance, clean joins and no human process/userdata interference. No performance/fidelity or pilot claim from GPU receipts.",
+        "Retain failed trials and before/after source/image pins, independent original-pixel review and actual human feedback or explicitly pending status. Close only this leaf after its own evidence/current CI/accepted merge. Keep broad #21-27 and aircraft/hardware/pilot/phase/training gates open."
+      ],
+      "evidence": [
+        "Focused headless/invariance/hit-draw checks; exact joined editor/portable/replacement closure; original exported pixels and legacy/piston interactions; independent final review/current CI; actual human feedback or pending.",
+        "Partial requirement coverage only; broad issues, aircraft, hardware, pilot, training-credit and phase gates remain open."
+      ]
+    },
+    {
+      "key": "GAZE-OVERLAY-LAYOUT-DESIGN",
+      "title": "Design overlay readability during deliberate gaze and zoom",
+      "kind": "spike",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Measure exposed-face overlay collisions outside default recentered views and prepare a feasible, stable presentation proposal before any successor consumer.",
+      "depends_on": [
+        "ORDINARY-FLIGHT-LAYOUT"
+      ],
+      "labels": [
+        "type:spike",
+        "phase:P2",
+        "area:ui",
+        "priority:P2",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "docs/evidence/P2/gaze-overlay-layout-design.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/agent-operations.md",
+        "docs/contracts.md",
+        "docs/decisions/017-frontend-pointer-engine-controls.md",
+        "docs/decisions/018-first-flight-briefing-and-circuit-aid.md",
+        "docs/decisions/019-ordinary-flight-overlay-layout.md",
+        "docs/evidence/P2/ordinary-flight-layout.md"
+      ],
+      "requirements": [
+        "PRD-015",
+        "PRD-017",
+        "UX-009",
+        "UX-010",
+        "UX-011"
+      ],
+      "acceptance": [
+        "Inspect the actual accepted default layout and camera contracts; freeze source and original before-image hashes before measurement. Explicitly distinguish camera clipping/behind/near-plane limits, actual exposed primary drawing/glyph bounds and overlay occlusion. Do not claim camera clipping fixes occlusion.",
+        "Measure bounded representative deliberate gaze and legal FOV extrema at960x540/1920x1080/2560x1440 for cockpit/panel and legacy/piston profiles, map open/closed and engine expanded/collapsed. Retain the known fixed-dock collision cases as negative fixtures, not passing readability cases.",
+        "Prepare a concrete feasible stable layout or explicit incompatibility result with actual projection, font, hit-area and representative original-pixel evidence. Preserve full status/control/release access and user camera/hide intent. Any moving target must have an explicitly proposed ADR017 capture-retirement/rearm policy; no silent target movement, forced HUD, fabricated button-up, automatic pause, physics/input/native/preset/save change or consumer implementation.",
+        "Obtain independent review of the result and specify a separate contract/consumer issue with exact ownership if justified. This spike closes for a reviewed feasibility result, including explicit infeasibility, not for fixing the UI or passing a broad cockpit, hardware, pilot or phase gate.",
+        "Run documentation checks and current required CI for published documentation. Keep broad aircraft/human/phase evidence pending and preserve all historical failed trials."
+      ],
+      "evidence": [
+        "Source-pinned projection/font/hit measurements, original pixel review and negative collision fixtures.",
+        "Independent feasibility review, explicit remaining limits and downstream contract proposal; no runtime or phase acceptance."
+      ]
     }
   ]
 }

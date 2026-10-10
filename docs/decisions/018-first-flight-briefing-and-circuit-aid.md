@@ -52,6 +52,8 @@ Scene owns one session-local `circuit_aid_enabled:bool`, initially false. Choice
 
 ## Presentation, recording and source limits
 
+Presentation successor: [ADR019](019-ordinary-flight-overlay-layout.md), proposed by [#177](https://github.com/brettbergin/flight-simulator/issues/177), supersedes only the aid-off baseline-presentation rule and current-only duplicate-summary restriction once its checked contract merges. It permits complete equivalent noncurrent manual summaries in the locator, independently of current geographic route admission. Circuit domain, copied truth, geometry, map/route selection, session-local defaults, bindings, recording and flight behavior remain unchanged. Its consumer delivery and changed-gaze follow-up have separate gates; proposed documentation alone changes no runtime.
+
 Persistent label: **OPTIONAL SYNTHETIC CIRCUIT REFERENCE · not evaluated**. Reading labels remain native truth/TAS/ellipsoid height/anchor-north as appropriate. Diagram legs and manual software steps never represent actual flight phases, clearance, stable approach, safe altitude or landing success. Do not invent C172 speeds, procedures, manufacturer dimensions, radio calls, sensor behavior or achievements.
 
 ADR011/012 recording and archive remain byte-compatible. No scenario/assist fields are inserted, and no saved review is claimed to contain new orientation/aid context. The briefing states: **Circuit aid choice is session-local and is not stored in saved flight reviews.** Cold review remains unavailable. Pilot commands retain their existing provenance because the aid cannot command flight; visible geometric guidance is separately labeled. No persistent progress, hours, awards or profile state is created.
