@@ -1,5 +1,6 @@
 extends RefCounted
 const FlightPanel=preload("res://interactive/flight_panel.gd")
+const GeometryChecks=preload("res://instrument_tests/cockpit_geometry_checks.gd")
 const UNITS={"tas":"m/s","ground_speed":"m/s","pitch":"rad","bank":"rad","heading_true":"rad","ellipsoid_height":"m","vertical_speed":"m/s","body_yaw_rate":"rad/s","fuel_total":"kg"}
 var checks: int=0
 var failures: Array=[]
@@ -99,5 +100,47 @@ func run(host: Node)->Dictionary:
  panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
  panel.size=Vector2(960,540);panel.queue_redraw();await host.get_tree().process_frame;await host.get_tree().process_frame
  panel.set_cockpit_surface(true);panel.size=Vector2(1024,512);panel.queue_redraw();await host.get_tree().process_frame;await host.get_tree().process_frame
+ # Both physical rows use the unchanged native channel conversions, not held axes.
+ var engine: Dictionary={"native_truth":true,"state":"paused","readings":{
+  "propeller.angular_speed":{"value":1234.0*TAU/60.0,"unit":"radps","valid":true,"error":""},
+  "engine.mixture":{"value":0.37,"unit":"fraction","valid":true,"error":""}}}
+ var engine_before: Dictionary=engine.duplicate(true)
+ panel.set_native_readings(input,raw,held,{"engine_status":engine})
+ _check(panel._physical_engine_rows()=={"rpm":"1234","mixture":"37%"},"adapter_physical_engine_rows_native_values_not_held")
+ engine.readings["engine.mixture"].value=0.99
+ _check(panel._physical_engine_rows().mixture=="37%" and panel._info.engine_status==engine_before,"adapter_physical_engine_rows_owned_copy")
+ for state in ["live","paused","historical"]:
+  var status: Dictionary=engine_before.duplicate(true);status.state=state
+  panel.set_native_readings(input,raw,held,{"engine_status":status})
+  _check(panel._physical_engine_rows()=={"rpm":"1234","mixture":"37%"},"adapter_physical_engine_rows_"+state)
+ var unavailable: Dictionary=engine_before.duplicate(true)
+ unavailable.readings["propeller.angular_speed"]={"value":null,"unit":"radps","valid":false,"error":"Unavailable"}
+ unavailable.readings["engine.mixture"]={"value":null,"unit":"fraction","valid":false,"error":"Unavailable"}
+ panel.set_native_readings(input,raw,held,{"engine_status":unavailable})
+ _check(panel._physical_engine_rows()=={"rpm":"—","mixture":"—%"},"adapter_physical_engine_rows_unavailable_not_stale")
+ panel.set_native_readings(input,raw,held,{"engine_status":{}})
+ _check(panel._physical_engine_rows()=={"rpm":"—","mixture":"—%"},"adapter_physical_engine_rows_invalid_not_stale")
+ for row in [{"text":"1234","width":148.0,"pixels":16},{"text":"100%","width":108.0,"pixels":14},{"text":"—%","width":108.0,"pixels":14}]:
+  _check(panel._font.get_string_size(row.text,HORIZONTAL_ALIGNMENT_LEFT,-1,row.pixels).x<=row.width,"adapter_physical_engine_row_font_width_"+row.text)
+ # Inspect actual fallback font bounds against projected annuli at the frozen eye.
+ var caption_titles: Array=["TRUE AIRSPEED","ATTITUDE","ELLIPSOID ALT","TRUE HEADING","BODY YAW RATE","VERTICAL SPEED"]
+ var caption_units: Array=["kt · derived","native truth","ft · WGS84","degrees","°/s · body r","ft/min · kinematic"]
+ var metres_per_pixel: float=1.115/1024.0
+ var eye_y: float=(0.255+0.5575*0.5-0.67)/metres_per_pixel
+ var projection: float=(1.535-0.92)/(1.530-0.92)
+ var first_bottom: float=eye_y+(145.59+100.59-eye_y)*projection
+ var second_top: float=eye_y+(364.59-100.59-eye_y)*projection
+ var second_bottom: float=eye_y+(364.59+100.59-eye_y)*projection
+ for index in range(6):
+  var caption: Dictionary=panel._physical_dial_caption(index,caption_titles[index],caption_units[index])
+  _check(caption.text==caption_titles[index]+" · "+caption_units[index] and caption.pixels==12,"adapter_physical_full_caption_"+str(index))
+  var measured: Vector2=panel._font.get_string_size(caption.text,HORIZONTAL_ALIGNMENT_LEFT,-1,caption.pixels)
+  _check(measured.x+6.0<=213.0,"adapter_physical_caption_three_pixel_side_margins_"+str(index))
+  var top: float=caption.baseline-panel._font.get_ascent(caption.pixels)
+  var bottom: float=caption.baseline+panel._font.get_descent(caption.pixels)
+  _check(top>first_bottom and bottom<second_top if index<3 else top>second_bottom and bottom<498.0,"adapter_physical_caption_bbox_clears_projected_rings_"+str(index))
+ var geometry: Dictionary=GeometryChecks.new().run(host)
+ checks+=geometry.checks
+ failures.append_array(geometry.failures)
  panel.queue_free();await host.get_tree().process_frame
  return {"passed":failures.is_empty(),"checks":checks,"failures":failures,"scope":"Actual adapter direct UI-value tests. Independent of scan validator; no native/controller/GPU/hardware/phase acceptance."}

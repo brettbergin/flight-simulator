@@ -21,7 +21,7 @@ var wind_draft: String="calm"
 var current_wind_profile: String="calm"
 var wind_panel: Control
 var wind_label: Label
-var wind_card: PanelContainer
+var wind_card: Panel
 var windsock_visual: MeshInstance3D
 var archive_files: RefCounted=ArchiveFiles.new()
 var archive_dialog: FileDialog
@@ -91,6 +91,15 @@ func _ready() -> void:
 		for device in Input.get_connected_joypads():
 			observe_connection(device,true)
 	super._ready()
+	if not legacy_proof and "--cockpit-visual-smoke" in OS.get_cmdline_user_args():
+		set_process(false)
+		set_physics_process(false)
+		set_process_input(false)
+		set_process_unhandled_input(false)
+		set_process_unhandled_key_input(false)
+		set_process_shortcut_input(false)
+		call_deferred("run_cockpit_visual")
+		return
 	if not legacy_proof and "--piston-visual-smoke" in OS.get_cmdline_user_args():
 		set_process(false)
 		set_process_input(false)
@@ -556,8 +565,9 @@ func make_menu(canvas: CanvasLayer) -> void:
 	wind_panel.draft_selected.connect(select_wind_draft)
 	wind_panel.start_requested.connect(start_wind_draft)
 	wind_panel.dismissed.connect(dismiss_wind)
-	wind_card=PanelContainer.new()
+	wind_card=Panel.new()
 	wind_card.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	wind_card.clip_contents=true
 	var wind_style:=StyleBoxFlat.new()
 	wind_style.bg_color=Color(0.02,0.05,0.08,0.96)
 	wind_style.set_content_margin_all(6.0)
@@ -566,6 +576,8 @@ func make_menu(canvas: CanvasLayer) -> void:
 	canvas.add_child(wind_card)
 	wind_label=Label.new()
 	wind_label.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	wind_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	wind_label.clip_text=true
 	wind_label.add_theme_font_size_override("font_size",12)
 	wind_label.add_theme_color_override("font_color",Color("d1e9ec"))
 	wind_label.add_theme_color_override("font_shadow_color",Color.BLACK)
@@ -896,9 +908,16 @@ func update_wind_presentation(readback: Dictionary) -> void:
 		cue=WindCue.from_readback({})
 	if wind_label!=null:
 		wind_label.text="SYNTHETIC STEADY WIND / NATIVE TRUTH\n"+WindPanel.describe(cue)
-		var viewport_height: float=get_viewport().get_visible_rect().size.y
-		var overlay_height: float=minf(viewport_height*0.34,455.0) if panel.get("_panel_visible") else 32.0
-		wind_card.position=Vector2(16,viewport_height-overlay_height-52.0)
+		# Reserve the lower cockpit for its actual instrument faces. Wrapping
+		# prevents a long wind description from growing over the heading dial.
+		var available: Vector2=get_viewport().get_visible_rect().size
+		# Manual bounded geometry avoids the first-frame wrapped-container
+		# minimum-size race; no deferred sort can cover the instrument panel.
+		wind_card.size=Vector2(minf(300.0,available.x*0.31),92.0)
+		wind_label.position=Vector2(6,6)
+		wind_label.size=wind_card.size-Vector2(12,12)
+		var stopped: bool=readback.get("host_mode") in ["coverage_blocked","stalled","discarded","closed"] or readback.get("native_outcome") in ["discarded","error","coverage_blocked"]
+		wind_card.position=Vector2(16,92.0+(58.0 if piston_mode() else 0.0)+(32.0 if stopped else 0.0))
 		wind_card.visible=not menu_open and camera_mode!=3
 	if wind_panel!=null and wind_panel.visible:
 		wind_panel.set_context(wind_draft,current_wind_profile,cue,review_boundary() and archive_operation.is_empty() and pending_discard.is_empty())
@@ -1853,3 +1872,15 @@ func run_instrument_visual() -> void:
 	file.store_string(JSON.stringify(receipt,"  "));file.close()
 	print("INSTRUMENT_VISUAL_PASSED" if receipt.passed else "INSTRUMENT_VISUAL_FAILED")
 	get_tree().quit(0 if receipt.passed else 1)
+
+func run_cockpit_visual() -> void:
+	# Opt-in view-only engineering observer; Root owns routing and staging.
+	var observer: Script=load("res://instrument_tests/cockpit_visual.gd")
+	if observer==null or not observer.can_instantiate():
+		var joined: bool=close_session()
+		if sound!=null: joined=bool(await sound.call("shutdown")) and joined
+		push_error("Cockpit visual observer unavailable; joined="+str(joined))
+		get_tree().quit(1)
+		return
+	var runner: RefCounted=observer.new()
+	await runner.run(self)

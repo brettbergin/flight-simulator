@@ -8,6 +8,57 @@ var throttle_handle: Node3D
 var trim_wheel: Node3D
 const YOKE_HOME := Vector3(-0.27,0.075,-1.265)
 const THROTTLE_HOME := Vector3(0.22,-0.07,-1.305)
+# Align the six rings to the unchanged 1024x512 physical drawing coordinates.
+const PANEL_SIZE := Vector2(1.115,0.5575)
+const PANEL_CENTER := Vector3(0,0.255,-1.535)
+const BEZEL_SEGMENTS: int = 48
+const BEZEL_INNER: float = (91.59+4.0)*1.115/1024.0
+const BEZEL_OUTER: float = (91.59+9.0)*1.115/1024.0
+const BEZEL_REAR_Z: float = -1.534
+const BEZEL_DEPTH: float = 0.004
+
+func _bezel_quad(vertices: PackedVector3Array, normals: PackedVector3Array, points: Array[Vector3], face_normals: Array[Vector3]) -> void:
+	# Godot front faces wind clockwise when viewed from the outward normal.
+	for index in [0,1,2,0,2,3]:
+		vertices.append(points[index])
+		normals.append(face_normals[index])
+
+func _bezel_mesh() -> ArrayMesh:
+	var vertices := PackedVector3Array()
+	var normals := PackedVector3Array()
+	for segment in range(BEZEL_SEGMENTS):
+		var a: float = TAU*float(segment)/float(BEZEL_SEGMENTS)
+		var b: float = TAU*float(segment+1)/float(BEZEL_SEGMENTS)
+		var n0 := Vector3(cos(a),sin(a),0)
+		var n1 := Vector3(cos(b),sin(b),0)
+		var i0: Vector3 = n0*BEZEL_INNER
+		var i1: Vector3 = n1*BEZEL_INNER
+		var o0: Vector3 = n0*BEZEL_OUTER
+		var o1: Vector3 = n1*BEZEL_OUTER
+		var front := Vector3(0,0,BEZEL_DEPTH)
+		_bezel_quad(vertices,normals,[i0+front,i1+front,o1+front,o0+front],[Vector3.BACK,Vector3.BACK,Vector3.BACK,Vector3.BACK])
+		_bezel_quad(vertices,normals,[o0,o1,i1,i0],[Vector3.FORWARD,Vector3.FORWARD,Vector3.FORWARD,Vector3.FORWARD])
+		_bezel_quad(vertices,normals,[o0,o0+front,o1+front,o1],[n0,n0,n1,n1])
+		_bezel_quad(vertices,normals,[i0+front,i0,i1,i1+front],[-n0,-n0,-n1,-n1])
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX]=vertices
+	arrays[Mesh.ARRAY_NORMAL]=normals
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,arrays)
+	return mesh
+
+func _build_bezels(parent: Node3D, material: Material) -> void:
+	# Shared geometry/material: six mesh instances, 2304 triangles, no caps/glass.
+	var mesh: ArrayMesh = _bezel_mesh()
+	for index in range(6):
+		var u: float = 130.5+float(index%3)*221.0
+		var v: float = 145.59+float(index/3)*219.0
+		var at := Vector3(-PANEL_SIZE.x*0.5+u*PANEL_SIZE.x/1024.0,PANEL_CENTER.y+PANEL_SIZE.y*0.5-v*PANEL_SIZE.y/512.0,BEZEL_REAR_Z)
+		var ring := mesh_node(parent,mesh,at,material)
+		ring.name="OriginalDialBezel"+str(index)
+		ring.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
 
 func paint(color: Color, roughness: float=0.65, metallic: float=0.0) -> StandardMaterial3D:
 	var value := StandardMaterial3D.new()
@@ -72,10 +123,11 @@ func build(parent: Node3D, panel_texture: Texture2D) -> Dictionary:
 	var warm: Material=paint(Color(0.46,0.43,0.36),0.94)
 	var cloth: Material=paint(Color(0.25,0.29,0.29),0.95)
 	var dark: Material=paint(Color(0.045,0.058,0.061),0.87)
-	var metal: Material=paint(Color(0.31,0.36,0.37),0.42,0.45)
-	var leather: Material=paint(Color(0.18,0.23,0.23),0.68)
+	var metal: Material=paint(Color(0.25,0.28,0.29),0.78,0.12)
+	var leather: Material=paint(Color(0.22,0.24,0.22),0.92)
 	var accent: Material=paint(Color(0.075,0.39,0.41),0.52)
-	var black: Material=paint(Color(0.013,0.018,0.021),0.55)
+	var black: Material=paint(Color(0.013,0.018,0.021),0.92)
+	var bezel: Material=paint(Color(0.055,0.065,0.071),0.90,0.08)
 	# Open windshield and side-window apertures preserve outside visibility.
 	# There are no opaque panes or fabricated weather/visibility effects.
 	box(root,Vector3(1.40,0.08,2.06),Vector3(0,1.19,-0.37),warm)
@@ -114,6 +166,7 @@ func build(parent: Node3D, panel_texture: Texture2D) -> Dictionary:
 	var panel := mesh_node(root,screen,Vector3(0,0.255,-1.535),display)
 	panel.name="LiveReadonlyPanelSurface"
 	panel.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_build_bezels(root,bezel)
 	for x in [-0.573,0.573]:
 		for y in [-0.032,0.541]:
 			ellipsoid(root,Vector3(0.013,0.013,0.006),Vector3(x,y,-1.548),metal)

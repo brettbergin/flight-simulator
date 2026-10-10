@@ -82,7 +82,7 @@ function Get-CockpitSourceGroups {
  param([Parameter(Mandatory)][string]$RepoRoot)
  @(
   @{source='app/cockpit';destination='cockpit';required=@('instruments/native_readings.gd','instruments/scan_panel.gd','instruments/engine_status.gd')},
-  @{source='tests/instruments';destination='instrument_tests';required=@('instrument_checks.gd','adapter_checks.gd','scan_checks.gd','scene_checks.gd','engine_status_checks.gd','reference.json','preparation-manifest.json')},
+  @{source='tests/instruments';destination='instrument_tests';required=@('instrument_checks.gd','adapter_checks.gd','cockpit_geometry_checks.gd','cockpit_visual.gd','scan_checks.gd','scene_checks.gd','engine_status_checks.gd','reference.json','preparation-manifest.json')},
   @{source='content/aircraft/prototype';destination='content/aircraft/prototype';required=@('cockpit-presentation.json')}
  )|ForEach-Object {
   $_.snapshot=@(Get-SimulationSourceSnapshot (Join-Path $RepoRoot $_.source) -RequiredEntries $_.required)

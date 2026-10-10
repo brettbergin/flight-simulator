@@ -159,7 +159,10 @@ func _draw_topbar() -> void:
 	_text(Vector2(width * 0.61, 28), view_name, 12, MUTED, true)
 	_text(Vector2(width - 225, 28), "P  PAUSE     R  RESET     H  HELP", 11, MUTED)
 	if not _info.get("blocked",false) and not _info.get("stalled",false):
-		_text(Vector2(width*0.43,28),str(_info.get("input_label","PAD" if str(_info.get("input_name","")).begins_with("Gamepad") else "KEYBOARD")),10,MUTED,true)
+		var input_label: String=str(_info.get("input_label","PAD" if str(_info.get("input_name","")).begins_with("Gamepad") else "KEYBOARD"))
+		var status_right: float=329.0+_font.get_string_size(status,HORIZONTAL_ALIGNMENT_LEFT,-1,12).x
+		var input_width: float=_font.get_string_size(input_label,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x
+		_text(Vector2(maxf(width*0.43,status_right+18.0+input_width*0.5),28),input_label,10,MUTED,true)
 	if _info.get("blocked",false) or _info.get("stalled",false):
 		draw_rect(Rect2(0,46,width,32),Color("492a20"))
 		_text(Vector2(18,68),str(_info.get("status","Flight stopped; R starts a fresh attempt")).left(int((width-36)/7.5)),13,AMBER)
@@ -278,10 +281,10 @@ func _draw_instrument(index: int, cell: Rect2) -> void:
 	var radius := minf(cell.size.x * 0.43, (cell.size.y - 26.0) * 0.5)
 	var center := Vector2(cell.get_center().x, cell.position.y + radius + 4)
 	draw_circle(center + Vector2(0, 4), radius + 4, Color(0, 0, 0, 0.45), true, -1, true)
-	draw_circle(center, radius + 3, Color("364151"), true, -1, true)
+	draw_circle(center, radius + 3, Color("252b30") if _cockpit_surface else Color("364151"), true, -1, true)
 	draw_circle(center, radius + 1, Color("080d14"), true, -1, true)
-	draw_circle(center, radius - 2, FACE, true, -1, true)
-	draw_arc(center, radius + 2, PI * 1.10, PI * 1.90, 36, Color("657488"), 1, true)
+	draw_circle(center, radius - 2, Color("0f151b") if _cockpit_surface else FACE, true, -1, true)
+	draw_arc(center, radius + 2, PI * 1.10, PI * 1.90, 36, Color("56606a") if _cockpit_surface else Color("657488"), 1, true)
 	if not _instrument_available(index):
 		_text(center + Vector2(0, 6), "—", radius * 0.3, MUTED, true)
 	elif absf(float(_readings.get(["tas_kt","pitch_deg","altitude_ft","heading_deg","yaw_rate_deg_s","vsi_fpm"][index],0.0)))>999999.0:
@@ -300,8 +303,17 @@ func _draw_instrument(index: int, cell: Rect2) -> void:
 	var titles := ["TRUE AIRSPEED", "ATTITUDE", "ELLIPSOID ALT", "TRUE HEADING", "BODY YAW RATE", "VERTICAL SPEED"]
 	var units := ["kt · derived", "native truth", "ft · WGS84", "degrees", "°/s · body r", "ft/min · kinematic"]
 	var label_y := cell.position.y + radius * 2 + 20
-	_text(Vector2(cell.get_center().x, label_y), titles[index], clampf(radius * 0.14, 10, 15), INK, true)
-	_text(Vector2(cell.get_center().x, label_y + 13), units[index], clampf(radius * 0.115, 10, 12), MUTED, true)
+	if _cockpit_surface:
+		var caption: Dictionary = _physical_dial_caption(index,titles[index],units[index])
+		_text(Vector2(cell.get_center().x,caption.baseline),caption.text,caption.pixels,INK,true)
+	else:
+		_text(Vector2(cell.get_center().x, label_y), titles[index], clampf(radius * 0.14, 10, 15), INK, true)
+		_text(Vector2(cell.get_center().x, label_y + 13), units[index], clampf(radius * 0.115, 10, 12), MUTED, true)
+
+func _physical_dial_caption(index: int, title: String, unit: String) -> Dictionary:
+	# Full qualifier in one line between projected rings; never ellipsize it.
+	# Frozen eye/front depth + actual12px ascent13/descent4 bound these baselines.
+	return {"text":title+" · "+unit,"baseline":262.7 if index<3 else 485.0,"pixels":12}
 
 func _dial_label(center: Vector2, radius: float, at: Vector2, value: String, pixels: float, color: Color = INK) -> void:
 	# Reserve the readout's footprint, including text ascenders and margins.
@@ -309,14 +321,14 @@ func _dial_label(center: Vector2, radius: float, at: Vector2, value: String, pix
 	var relative := at - center
 	if relative.y > radius * 0.20 and relative.y < radius * 0.76 and absf(relative.x) < radius * 0.68:
 		return
-	_text(at, value, pixels, color, true)
+	_text(at, value, maxf(pixels,13.0) if _cockpit_surface else pixels, color, true)
 
 func _scale(center: Vector2, radius: float, limit: float, step: float, major: float) -> void:
 	var value := 0.0
 	while value <= limit + 0.01:
 		var angle := deg_to_rad(135.0 + value / limit * 270.0)
 		var big := absf(fposmod(value, major)) < 0.01
-		_line(_polar(center, radius * (0.76 if big else 0.84), angle), _polar(center, radius * 0.91, angle), INK if big else MUTED, 1.3 if big else 1.0)
+		_line(_polar(center, radius * (0.76 if big else 0.84), angle), _polar(center, radius * 0.91, angle), INK if big else MUTED, (2.0 if big else 1.15) if _cockpit_surface else (1.3 if big else 1.0))
 		if big:
 			_dial_label(center, radius, _polar(center, radius * 0.61, angle) + Vector2(0, radius * 0.055), str(roundi(value)), radius * 0.13)
 		value += step
@@ -539,6 +551,10 @@ func _draw_controls(rect: Rect2) -> void:
 	_text(rect.position + Vector2(0, 254), str(_info.get("input_name", "KEYBOARD")).to_upper(), 11, MUTED)
 	_text(rect.position + Vector2(0, 279), "H  CONTROLS & DISPLAY GUIDE", 10, MUTED)
 
+func _physical_engine_rows() -> Dictionary:
+	# Presentation-only formatting; the existing copied EngineStatus remains owner.
+	return {"rpm":_engine_number("propeller.angular_speed",60.0/TAU),"mixture":_engine_number("engine.mixture",100.0)+"%"}
+
 func _draw_cockpit_surface() -> void:
 	draw_rect(Rect2(0, 0, 1024, 512), Color("161c24"))
 	_box(Rect2(7, 7, 1010, 498), Color("1b2532"), Color("495361"), 14)
@@ -559,11 +575,15 @@ func _draw_cockpit_surface() -> void:
 	_text(Vector2(x + 125, 138), _bounded_text(_native_number(fuel,1)+" kg",119.0,19) if is_finite(fuel) else "— kg", 19)
 	if is_finite(fuel):
 		_bar(Vector2(x, 151), width, fuel / 100.0, GREEN)
-	_text(Vector2(x, 181), "ORIGINAL SYNTHETIC ENGINE", 11, MUTED)
 	if _info.has("engine_status"):
-		# Native RPM and mixture share the existing engine-area footprint.
-		draw_rect(Rect2(x,162,width,30),Color("1b2532"))
-		_text(Vector2(x,181),"%s RPM · MIX %s%%" % [_engine_number("propeller.angular_speed",60.0/TAU),_engine_number("engine.mixture",100.0)],15,CYAN)
+		# Two bounded native rows, below the fuel bar and above the divider.
+		var engine_rows: Dictionary = _physical_engine_rows()
+		_text(Vector2(x,176),"RPM",13,MUTED)
+		_text(Vector2(x+96,176),_bounded_text(engine_rows.rpm,148.0,16),16,CYAN)
+		_text(Vector2(x,193),"MIXTURE",12,MUTED)
+		_text(Vector2(x+136,193),_bounded_text(engine_rows.mixture,108.0,14),14,INK)
+	else:
+		_text(Vector2(x, 181), "ORIGINAL SYNTHETIC ENGINE", 11, MUTED)
 	_line(Vector2(x, 199), Vector2(x + width, 199), LINE)
 	for index in range(2):
 		var y := 229 + index * 52
