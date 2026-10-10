@@ -5941,7 +5941,10 @@
         "docs/requirements.md",
         "docs/phases/p2-first-flight.md",
         "app/ui/first_flight/circuit_guide.gd",
-        "tests/scenarios/first-flight/circuit_checks.gd"
+        "tests/scenarios/first-flight/circuit_checks.gd",
+        "tests/integration/first_flight/layout_visual_checks.gd",
+        "tests/input/piston_panel_checks.gd",
+        "tools/interactive-preview/README.md"
       ],
       "docs": [
         "docs/README.md",
