@@ -15,6 +15,9 @@ static func from_readback(value: Variant) -> Dictionary:
 	var qualified: Dictionary = Readings.from_readback(value)
 	if qualified.state in ["invalid","empty"]:
 		return _unavailable(qualified.state,qualified.error)
+	# Instrument admission may support more profiles than ADR013's reviewed cue.
+	if value.model_identity!=Closure.LEGACY_PROFILE:
+		return _unavailable("invalid","Wind cue is qualified only for the ready-to-fly original profile")
 	# ADR009 qualifies the full closed Readback and wire pair, original model/world.
 	# ADR013 additionally pins the semantics needed for the fixed-anchor projection.
 	var weather: Dictionary = value.atmosphere

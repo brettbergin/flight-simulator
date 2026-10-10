@@ -5,11 +5,14 @@
 #include <functional>
 #include <future>
 #include <mutex>
+#include <optional>
 #include <thread>
 
 namespace flight::bridge {
 struct InteractiveReply {
   std::string aircraft, atmosphere, fault;
+  // Open-only metadata sampled through the actual getter on the owner worker.
+  std::optional<std::string> angular_method;
   interactive::c::PilotAxes held;
   std::vector<std::string> commands, events;
   std::uint64_t event_sequence{};

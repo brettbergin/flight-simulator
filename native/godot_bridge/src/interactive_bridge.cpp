@@ -45,11 +45,12 @@ class FlightInteractiveSession final:public godot::RefCounted {
  std::unique_ptr<InteractiveWorker> worker_;
  std::shared_ptr<const interactive::AnalyticSurface> surface_;
  std::uint64_t delivered_{};
+ interactive::Profile profile_{interactive::Profile::legacy};
  const std::thread::id owner_{std::this_thread::get_id()};
  void check_thread()const{if(owner_!=std::this_thread::get_id())throw std::logic_error("Interactive bridge requires its construction thread");}
  protected:
  static void _bind_methods(){
-  godot::ClassDB::bind_method(godot::D_METHOD("open_session","model_root","named_start","wind_profile"),&FlightInteractiveSession::open_session,DEFVAL(godot::String("calm")));
+  godot::ClassDB::bind_method(godot::D_METHOD("open_session","model_root","named_start","wind_profile","profile_id"),&FlightInteractiveSession::open_session,DEFVAL(godot::String("calm")),DEFVAL(godot::String("original-interactive-prototype")));
   godot::ClassDB::bind_method(godot::D_METHOD("submit","command"),&FlightInteractiveSession::submit);
   godot::ClassDB::bind_method(godot::D_METHOD("session_control","control"),&FlightInteractiveSession::session_control);
   godot::ClassDB::bind_method(godot::D_METHOD("step_fixed","count"),&FlightInteractiveSession::step_fixed);
@@ -58,28 +59,42 @@ class FlightInteractiveSession final:public godot::RefCounted {
  }
  public:
  ~FlightInteractiveSession() override {worker_.reset();godot::UtilityFunctions::print("INTERACTIVE_DESTRUCTOR_JOINED");}
- godot::Dictionary open_session(godot::String root,godot::String start,godot::Variant profile){
+ godot::Dictionary open_session(godot::String root,godot::String start,godot::Variant wind_selector,godot::Variant profile_selector){
   if(owner_!=std::this_thread::get_id())return failure(std::logic_error("Interactive open requires its construction thread"));
-  if(profile.get_type()!=godot::Variant::STRING)return failure(std::invalid_argument("Wind profile requires an exact String"));
-  const godot::String wind=profile;
+  if(wind_selector.get_type()!=godot::Variant::STRING)return failure(std::invalid_argument("Wind profile requires an exact String"));
+  const godot::String wind=wind_selector;
+  if(profile_selector.get_type()!=godot::Variant::STRING)return failure(std::invalid_argument("Aircraft profile requires an exact String"));
+  const godot::String profile=profile_selector;
+  interactive::Profile selected_profile;
+  if(profile=="original-interactive-prototype")selected_profile=interactive::Profile::legacy;
+  else if(profile=="original-piston-prop-v1")selected_profile=interactive::Profile::piston;
+  else return failure(std::invalid_argument("Unknown interactive profile"));
   interactive::SteadyWindProfile selected;
   if(wind=="calm")selected=interactive::SteadyWindProfile::calm;
   else if(wind=="from-north")selected=interactive::SteadyWindProfile::from_north;
   else if(wind=="from-west")selected=interactive::SteadyWindProfile::from_west;
   else if(wind=="from-east")selected=interactive::SteadyWindProfile::from_east;
   else return failure(std::invalid_argument("Unknown steady-wind profile"));
+  if(selected_profile==interactive::Profile::piston&&(wind!="calm"||start!="piston-cold-ground"))return failure(std::invalid_argument("Piston profile supports only piston-cold-ground with calm wind"));
+  if(selected_profile==interactive::Profile::legacy&&start!="ground-ready"&&start!="airborne-prepared")return failure(std::invalid_argument("Only ground-ready and airborne-prepared starts are supported"));
   if(worker_)return failure(std::invalid_argument("Close before a fresh interactive attempt"));
   try {
-   interactive::Config config;config.wind_profile=selected;const auto utf8=root.utf8();config.model_root=std::filesystem::path(std::u8string(reinterpret_cast<const char8_t*>(utf8.get_data()),static_cast<std::size_t>(utf8.length())));
-   if(start=="ground-ready")config.start=interactive::Start::ground;
+   interactive::Config config;config.profile=selected_profile;config.wind_profile=selected;const auto utf8=root.utf8();config.model_root=std::filesystem::path(std::u8string(reinterpret_cast<const char8_t*>(utf8.get_data()),static_cast<std::size_t>(utf8.length())));
+   if(selected_profile==interactive::Profile::piston){config.start=interactive::Start::piston_cold_ground;config.angular_method=interactive::AngularMethod::event_aware_coupled_midpoint_v1;}
+   else if(start=="ground-ready")config.start=interactive::Start::ground;
    else if(start=="airborne-prepared"){config.start=interactive::Start::airborne;config.requested_height_m=1000;config.forward_mps=55*std::cos(.02);config.down_mps=55*std::sin(.02);config.pitch_rad=.02;config.trim=true;}
    else throw std::invalid_argument("Only ground-ready and airborne-prepared starts are supported");
    static std::atomic<std::uint64_t> epoch{0};const auto sequence=++epoch;if(sequence==0)throw std::overflow_error("Interactive epoch exhausted");
    const auto stamp=std::chrono::steady_clock::now().time_since_epoch().count();
    config.session_id="interactive-"+std::to_string(godot::OS::get_singleton()->get_process_id())+"-"+std::to_string(stamp)+"-"+std::to_string(sequence);
    interactive::SurfaceConfig plane;surface_=std::make_shared<const interactive::AnalyticSurface>(plane,interactive::prepared_identity(plane));config.surface=surface_;config.hz=120;config.seed={42};
-   const auto model_root=config.model_root;worker_=std::make_unique<InteractiveWorker>(std::move(config));delivered_=0;
-   auto d=encode(worker_->call([surface=surface_](auto& session){return interactive_sample(session,*surface);}));
+   const auto model_root=config.model_root;worker_=std::make_unique<InteractiveWorker>(std::move(config));delivered_=0;profile_=selected_profile;
+   auto opened=worker_->call([surface=surface_,selected_profile](auto& session){
+    auto reply=interactive_sample(session,*surface);reply.angular_method=session.angular_integration_method();
+    if(selected_profile==interactive::Profile::piston&&(!reply.angular_method||*reply.angular_method!="event_aware_coupled_midpoint_v1"))throw std::runtime_error("Actual piston angular method mismatch");
+    if(selected_profile==interactive::Profile::legacy&&reply.angular_method)throw std::runtime_error("Direct-thrust profile reported an angular method");
+    return reply;});
+   auto d=encode(opened);d["angular_integration_method"]=opened.angular_method?godot::Variant(gs(*opened.angular_method)):godot::Variant();
    d["runtime_modules"]=modules(model_root.parent_path());d["named_start"]=start;d["wind_profile"]=wind;d["native_source_fingerprint"]=gs(interactive::source_fingerprint());
    godot::Dictionary anchor;anchor["latitude_rad"]=plane.anchor.latitude_rad;anchor["longitude_rad"]=plane.anchor.longitude_rad;anchor["ellipsoid_height_m"]=plane.anchor.ellipsoid_height_m;d["world_anchor"]=anchor;d["prepared_world_sha256"]=gs(surface_->identity().prepared_surface_sha256);return d;
   }catch(const std::exception& error){worker_.reset();surface_.reset();return failure(error);}
@@ -88,7 +103,7 @@ class FlightInteractiveSession final:public godot::RefCounted {
  godot::Dictionary submit(godot::Dictionary value){try{
   check_thread();
   if(!worker_) {throw std::runtime_error("Interactive session closed");}
-  auto command=decode_command(value);
+  auto command=decode_command(value,profile_);
   return encode(worker_->call([command=std::move(command),surface=surface_](auto& s)mutable{const auto reject=s.submit(std::move(command));auto r=interactive_sample(s,*surface);r.rejection=static_cast<int>(reject);r.queued=reject==interactive::c::CommandRejection::none;return r;}));
  }catch(const std::exception& error){return failure(error);}}
  godot::Dictionary session_control(godot::Dictionary value){try{
@@ -103,7 +118,7 @@ class FlightInteractiveSession final:public godot::RefCounted {
   if(count<1||count>32) {throw std::invalid_argument("Interactive batch must be1..32");}
   const auto cursor=delivered_;
   auto r=worker_->call([count,cursor,surface=surface_](auto& s){InteractiveReply out;interactive::Status status=interactive::Status::completed;int completed=0;
-   for(int64_t i=0;i<count;++i){auto step=s.step_fixed();status=step.status;if(status!=interactive::Status::completed)break;++completed;for(const auto& cmd:step.applied)out.commands.push_back(interactive::command_json(cmd));}
+   for(int64_t i=0;i<count;++i){auto step=s.step_fixed();status=step.status;if(status!=interactive::Status::completed)break;++completed;for(const auto& cmd:step.applied)out.commands.push_back(interactive::command_json(cmd,s.profile()));}
    auto current=interactive_sample(s,*surface);current.completed=completed;current.status=status;current.commands=std::move(out.commands);
    for(const auto& event:s.events())if(event.sequence.value>cursor){current.events.push_back(fdm::transport::json(event));current.event_sequence=event.sequence.value;}
    return current;});

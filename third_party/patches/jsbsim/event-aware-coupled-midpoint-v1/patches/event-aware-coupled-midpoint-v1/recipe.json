@@ -3,9 +3,9 @@
   "changes": [
     {
       "after": {
-        "bytes": 48739,
+        "bytes": 49088,
         "member": "vendor/src/models/propulsion/FGPiston.cpp",
-        "sha256": "80f51ec8f702cf0b484ac076272e3440f59ddd4ae2ac10dbcc503e5377357232"
+        "sha256": "509097a76de13c00ff29c6e86e4c475aa6cb14694c3091607be72acc92f730b9"
       },
       "before": {
         "bytes": 41430,
@@ -16,9 +16,9 @@
     },
     {
       "after": {
-        "bytes": 19171,
+        "bytes": 19520,
         "member": "vendor/src/models/propulsion/FGPiston.h",
-        "sha256": "9c7083d69a1ed9430b1dfc35bedf74cc58b04330d93bcaf2517c22e467c13799"
+        "sha256": "1272b70745d30748f70ee9d39b96ca6993581ee4aa23ea165b0c3909ec9e7b89"
       },
       "before": {
         "bytes": 19045,

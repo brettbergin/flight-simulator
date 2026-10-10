@@ -6,6 +6,11 @@ signal device_selected(slot: String, device: int)
 const Preset=preload("res://input/input_preset.gd")
 const Mapper=preload("res://input/input_mapper.gd")
 var _draft: Dictionary={}
+var _v2: bool=false
+var _profile: Dictionary={}
+var _held_systems: Dictionary={}
+var _hint_label: Label
+var _engine_status_label: Label
 var _raw: Dictionary={"keys":[],"mouse_buttons":[],"devices":[]}
 var _held: Dictionary={}
 var _start: Dictionary={}
@@ -61,12 +66,13 @@ func _ensure_ui() -> void:
  _device.item_selected.connect(_select_device); devices.add_child(_device)
  devices.add_child(_label("Select device, then move each control to observe it."))
  var hint:=_label("Draft edits never change flight.  RAW -> MAPPED TARGET | NATIVE HELD.  Mixture unavailable in this prototype.")
- hint.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART; box.add_child(hint)
+ hint.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART; box.add_child(hint); _hint_label=hint
  var scroll:=ScrollContainer.new(); scroll.size_flags_vertical=Control.SIZE_EXPAND_FILL; box.add_child(scroll)
  _list=VBoxContainer.new(); _list.size_flags_horizontal=Control.SIZE_EXPAND_FILL; _list.add_theme_constant_override("separation",9); scroll.add_child(_list)
  _message=_label("Guest preset ... explicit Save/Load only ... SQLite profile integration is separate")
  _message.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART; _message.custom_minimum_size.y=38; box.add_child(_message)
  _status_label=_label("Takeover: none / brake hold: on for ground start"); _status_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART; box.add_child(_status_label)
+ _engine_status_label=_label(""); _engine_status_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART; _engine_status_label.hide(); box.add_child(_engine_status_label)
  _dialog=FileDialog.new(); _dialog.access=FileDialog.ACCESS_FILESYSTEM; _dialog.filters=PackedStringArray(["*.json ; Input preset JSON"])
  _dialog.file_selected.connect(_file_selected); add_child(_dialog)
 func open(preset: Dictionary, raw: Dictionary, held: Dictionary, start: Dictionary) -> void:
@@ -74,6 +80,7 @@ func open(preset: Dictionary, raw: Dictionary, held: Dictionary, start: Dictiona
  var checked: Dictionary=Preset.validate_preset(preset)
  if not checked.ok: show_error(checked.error); return
  var raw_checked: Dictionary=Preset.validate_raw(raw); _raw_valid=raw_checked.ok
+ _v2=false; _profile.clear(); _held_systems.clear(); _engine_status_label.hide(); _hint_label.text="Draft edits never change flight. RAW -> MAPPED TARGET | NATIVE HELD. Mixture unavailable in this prototype."
  _draft=checked.value; _raw=raw_checked.value if _raw_valid else {"keys":[],"mouse_buttons":[],"devices":[]}; _held=held.duplicate(true); _start=start.duplicate(true)
  _capture.clear(); _calibration.clear(); _name.text=_draft.name; _rebuild(); show()
  if not _raw_valid: show_error("Input readings unavailable: "+raw_checked.error)
@@ -112,10 +119,10 @@ func _rebuild() -> void:
   var row:=HBoxContainer.new(); section.add_child(row)
   row.add_child(_label(axis.target.to_upper(),92))
   var kind:=OptionButton.new(); kind.add_item("Keyboard pair"); kind.add_item("Selected axis"); kind.add_item("Fixed")
-  kind.selected=["key_pair","joy_axis","fixed"].find(axis.kind); kind.disabled=axis.target=="mixture"
+  kind.selected=["key_pair","joy_axis","fixed"].find(axis.kind); kind.disabled=axis.target=="mixture" and not _v2
   kind.item_selected.connect(func(index: int): _change_kind(axis.target,index)); row.add_child(kind)
   var binding:=_label(_binding_text(axis)); binding.size_flags_horizontal=Control.SIZE_EXPAND_FILL; row.add_child(binding)
-  if axis.target=="mixture": row.add_child(_label("Unavailable in this prototype"))
+  if axis.target=="mixture" and not _v2: row.add_child(_label("Unavailable in this prototype"))
   elif axis.kind=="key_pair":
    row.add_child(_button("Learn -",func(): _learn({"mode":"key","target":axis.target,"side":"negative"})))
    row.add_child(_button("Learn +",func(): _learn({"mode":"key","target":axis.target,"side":"positive"})))
@@ -125,7 +132,7 @@ func _rebuild() -> void:
    row.add_child(_button("Sweep range",func(): _sweep(axis.target)))
   else:
    _spin(row,axis,"value",-1.0 if axis.target in ["roll","pitch","yaw","trim"] else 0.0,1.0,0.01)
-  if axis.target!="mixture" and axis.kind!="fixed":
+  if (axis.target!="mixture" or _v2) and axis.kind!="fixed":
    var shape:=HBoxContainer.new(); section.add_child(shape)
    if axis.kind=="joy_axis":
     _spin(shape,axis,"minimum",-1,1,0.01); _spin(shape,axis,"center",-1,1,0.01); _spin(shape,axis,"maximum",-1,1,0.01)
@@ -147,6 +154,13 @@ func _rebuild() -> void:
   var row:=HBoxContainer.new(); _list.add_child(row); row.add_child(_label(action.id,150))
   var sources:=_label(JSON.stringify(action.sources)); sources.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS; sources.size_flags_horizontal=Control.SIZE_EXPAND_FILL; row.add_child(sources)
   row.add_child(_button("Learn",func(): _learn({"mode":"action","id":action.id})))
+ if _v2:
+  _list.add_child(_label("ENGINE BINDINGS / ignition & feed toggle; starter held / idealized supply"))
+  for binding in _draft.systems:
+   var row:=HBoxContainer.new(); _list.add_child(row); row.add_child(_label(binding.id,170))
+   var sources:=_label("UNBOUND - migration draft" if binding.sources.is_empty() else JSON.stringify(binding.sources))
+   sources.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS; sources.size_flags_horizontal=Control.SIZE_EXPAND_FILL; row.add_child(sources)
+   row.add_child(_button("Learn",func(): _learn({"mode":"system","id":binding.id})))
  _validate_draft()
 func _conflicts() -> Array[String]:
  var owners: Dictionary={}; var conflicts: Array[String]=[]
@@ -156,7 +170,7 @@ func _conflicts() -> Array[String]:
    for key in axis.negative+axis.positive: identities.append("key "+OS.get_keycode_string(int(key)))
   elif axis.kind=="joy_axis": identities.append(axis.slot+" axis "+str(axis.index))
   for identity in identities: owners[identity]=["axis "+axis.target] if not owners.has(identity) else owners[identity]+["axis "+axis.target]
- for action in _draft.actions:
+ for action in _draft.actions+_draft.get("systems",[]):
   for source in action.sources:
    var identities: Array=[]
    if source.kind=="physical_keys":
@@ -164,7 +178,7 @@ func _conflicts() -> Array[String]:
    elif source.kind=="joy_button": identities.append(source.slot+" button "+str(source.index))
    else: identities.append("mouse "+str(source.button))
    for identity in identities:
-    var owner: String="action "+action.id
+    var owner: String=("engine " if action.id in Preset.SYSTEM_IDS else "action ")+action.id
     if not owners.has(identity): owners[identity]=[owner]
     elif owner not in owners[identity]: owners[identity].append(owner)
  for identity in owners:
@@ -172,7 +186,7 @@ func _conflicts() -> Array[String]:
  return conflicts
 func _validate_draft() -> void:
  if _draft.is_empty(): return
- var checked: Dictionary=Preset.validate_preset(_draft); _valid=checked.ok
+ var checked: Dictionary=_validate_active_draft(); _valid=checked.ok
  var conflicts: Array[String]=[]
  if _valid: conflicts=_conflicts()
  if not conflicts.is_empty(): _valid=false
@@ -183,9 +197,9 @@ func _validate_draft() -> void:
   _message.text="Draft ready. Apply to use these controls; Save keeps a preset file."
   _message.modulate=Color("9ed9ba")
 func _change_kind(target: String, choice: int) -> void:
- if target=="mixture": return
+ if target=="mixture" and not _v2: return
  if choice==0:
-  for axis in Mapper.default_preset().axes:
+  for axis in (Mapper.default_preset_v2() if _v2 else Mapper.default_preset()).axes:
    if axis.target==target and axis.kind=="key_pair": _set_axis(target,axis.duplicate(true)); return
   _set_axis(target,{"target":target,"kind":"key_pair","negative":[KEY_J],"positive":[KEY_K],"rate":0.25,"gain":1.0,"return_to_start":false})
  elif choice==1:
@@ -241,6 +255,7 @@ func update_diagnostics(raw: Dictionary, mapped: Dictionary, held: Dictionary, s
   target=clampf(target,-1.0 if axis.target in ["roll","pitch","yaw","trim"] else 0.0,1.0)
   row.raw.value=float(value) if value!=null else 0.0; row.mapped.value=target
   row.values.text=("RAW unavailable" if value==null else "RAW %.3f"%float(value))+"  -> target %.3f | native held %.3f"%[target,float(held.get(axis.target,0.0))]
+ if _v2: _update_engine_diagnostics(status)
  _status_label.text="Takeover: "+(", ".join(status.get("takeover",[])) if not status.get("takeover",[]).is_empty() else "none")+" / brake hold: "+("ON" if status.get("brake_hold",false) else "off")
  if _valid and not str(status.get("error","")).is_empty() and _capture.is_empty() and _calibration.is_empty(): show_error(str(status.error))
 func _generation(slot: String) -> Variant:
@@ -294,6 +309,10 @@ func _input(event: InputEvent) -> void:
   _capture.clear(); _rebuild(); return
  if source.is_empty(): return
  if _capture.mode=="key" and source.kind=="physical_keys": _axis(_capture.target)[_capture.side]=source.keys
+ elif _capture.mode=="system":
+  if source.kind=="mouse_button" and int(source.button) in [4,5,6,7]: show_error("Starter/engine bindings require a held source, not wheel pulses"); return
+  for binding in _draft.systems:
+   if binding.id==_capture.id: binding.sources=[source]; break
  elif _capture.mode=="action":
   for action in _draft.actions:
    if action.id==_capture.id: action.sources=[source]; break
@@ -318,28 +337,65 @@ func _apply() -> void:
  _capture.clear(); _calibration.clear()
  _validate_draft()
  if not _valid: return
- var checked: Dictionary=Preset.validate_preset(_draft)
+ var checked: Dictionary=_validate_active_draft()
  applied.emit(checked.value.duplicate(true)) # Coordinator alone ACKs and hides.
 func _cancel() -> void:
  _capture.clear(); _calibration.clear(); dismissed.emit()
 func _defaults() -> void:
- _draft=Mapper.default_preset().duplicate(true); _name.text=_draft.name; _capture.clear(); _calibration.clear(); _rebuild()
+ _draft=(Mapper.default_preset_v2() if _v2 else Mapper.default_preset()).duplicate(true); _name.text=_draft.name; _capture.clear(); _calibration.clear(); _rebuild()
 func _choose_file(save_file: bool) -> void:
  _capture.clear(); _calibration.clear(); _save_dialog=save_file
  _dialog.file_mode=FileDialog.FILE_MODE_SAVE_FILE if save_file else FileDialog.FILE_MODE_OPEN_FILE
  _dialog.title="Save explicit guest preset" if save_file else "Load preset into draft (not applied)"
- _dialog.current_file="controls.json" if save_file else ""
+ _dialog.current_file=("controls-v2.json" if _v2 else "controls.json") if save_file else ""
  _dialog.popup_centered_ratio(0.75)
 func _file_selected(path: String) -> void:
  if _save_dialog:
-  var result: Dictionary=Preset.save(path,_draft)
+  var result: Dictionary=Preset.save_v2(path,_draft) if _v2 else Preset.save(path,_draft)
   if result.ok: _message.text="Explicit preset saved after verified replacement. No automatic profile storage."
   else: show_error(result.error)
  else:
   var file=FileAccess.open(path,FileAccess.READ)
   if file==null: show_error("Cannot read selected preset; draft preserved"); return
   if file.get_length()>Preset.MAX_BYTES: file.close(); show_error("Preset exceeds64KiB; draft preserved"); return
-  var result: Dictionary=Preset.decode(file.get_buffer(file.get_length())); file.close()
+  var bytes: PackedByteArray=file.get_buffer(file.get_length()); file.close()
+  var result: Dictionary=Preset.decode_v2(bytes) if _v2 else Preset.decode(bytes)
+  var migrated: bool=false
+  if _v2 and not result.ok:
+   var legacy: Dictionary=Preset.decode(bytes)
+   if legacy.ok: result=Preset.migrate_v1_draft(legacy.value); migrated=result.ok
   if not result.ok: show_error(result.error+"; draft preserved"); return
   _draft=result.value; _name.text=_draft.name; _capture.clear(); _calibration.clear(); _rebuild()
-  _message.text="Preset loaded into guest draft only. Select ambiguous devices explicitly, then Apply while paused."
+  _message.text="V1 migration DRAFT: mixture fixed full rich; engine controls UNBOUND. Choose bindings, then explicitly Apply." if migrated else "Preset loaded into guest draft only. Select ambiguous devices explicitly, then Apply while paused."
+
+func _validate_active_draft() -> Dictionary:
+ return Preset.validate_preset_v2(_draft) if _v2 else Preset.validate_preset(_draft)
+func open_v2(preset: Dictionary, raw: Dictionary, heldaxes: Dictionary, startaxes: Dictionary, profile: Dictionary, heldsystems: Dictionary) -> void:
+ _ensure_ui()
+ var checked: Dictionary=Preset.validate_preset_v2(preset)
+ if not checked.ok: show_error(checked.error); return
+ if not Preset.valid_profile(profile) or not Preset.valid_systems(heldsystems) or not Preset.valid_axes_v2(heldaxes) or not Preset.valid_axes_v2(startaxes): show_error("Verified piston profile/held controls unavailable; draft preserved"); return
+ var raw_checked: Dictionary=Preset.validate_raw(raw)
+ _v2=true; _profile=profile.duplicate(true); _held_systems=heldsystems.duplicate(true)
+ _draft=checked.value; _raw_valid=raw_checked.ok; _raw=raw_checked.value if _raw_valid else {"keys":[],"mouse_buttons":[],"devices":[]}
+ _held=heldaxes.duplicate(true); _start=startaxes.duplicate(true); _capture.clear(); _calibration.clear()
+ _hint_label.text="PISTON PROTOTYPE / idealized external starter supply. Draft edits never change flight. Mixture and engine bindings require explicit Apply."
+ _engine_status_label.show(); _update_engine_diagnostics({"profile":profile,"held_systems":heldsystems,"pending_systems":{}})
+ _name.text=_draft.name; _rebuild(); show()
+ if not _raw_valid: show_error("Input readings unavailable: "+raw_checked.error)
+func _update_engine_diagnostics(info: Dictionary) -> void:
+ var held: Variant=info.get("held_systems")
+ var pending: Variant=info.get("pending_systems")
+ if not Preset.valid_profile(info.get("profile")) or not Preset.valid_systems(held):
+  _engine_status_label.text="Engine native-held unavailable / pending is local intent only"; return
+ _held_systems=held.duplicate(true)
+ var lines: PackedStringArray=[]
+ for id in Preset.SYSTEM_IDS:
+  var name: String=id.trim_prefix("engine.").trim_prefix("fuel.")
+  lines.append(name+" "+("ON" if held[id] else "off"))
+ var intent: String="unavailable"
+ if Preset.valid_systems(pending):
+  var values: PackedStringArray=[]
+  for id in Preset.SYSTEM_IDS: values.append(id.trim_prefix("engine.").trim_prefix("fuel.")+" "+("ON" if pending[id] else "off"))
+  intent=", ".join(values)
+ _engine_status_label.text="NATIVE HELD: "+", ".join(lines)+"\nPENDING (not admission): "+intent

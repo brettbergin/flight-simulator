@@ -49,7 +49,8 @@ fdm::c::SampleHeader header(const Dictionary& value) {
   return {{integer(value,"tick")},std::move(session)};
 }
 }
-fdm::c::ControlCommand decode_command(const Dictionary& value) {
+fdm::c::ControlCommand decode_command(const Dictionary& value,interactive::Profile profile) {
+  if(!(profile==interactive::Profile::legacy||profile==interactive::Profile::piston)) throw std::invalid_argument("Unknown command profile");
   keys(value,{"type","schema_version","tick","session_id","sequence","source_id","authority","assistance","payload"}); version(value,"ControlCommand");
   fdm::c::ControlCommand command;
   command.header=header(value); command.sequence={integer(value,"sequence")}; command.source_id=text(value,"source_id");
@@ -60,7 +61,13 @@ fdm::c::ControlCommand decode_command(const Dictionary& value) {
   const Variant active=assistance["active"];
   if(command.assistance.profile_id!="unassisted"||active.get_type()!=Variant::ARRAY||static_cast<godot::Array>(active).size()!=0) throw std::invalid_argument("Unsupported assistance");
   const auto payload=object(value,"payload");
-  if(text(payload,"kind")!="axes") throw std::invalid_argument("Unsupported pilot payload");
+  const auto kind=text(payload,"kind");
+  if(kind=="system"&&profile==interactive::Profile::piston){
+    keys(payload,{"kind","control_id","value"});const auto id=text(payload,"control_id");
+    if(!interactive::piston_system_id(id)) throw std::invalid_argument("Unsupported piston system");
+    command.payload=fdm::c::SystemControl{id,boolean(payload,"value")};return command;
+  }
+  if(kind!="axes") throw std::invalid_argument("Unsupported pilot payload");
   keys(payload,{"kind","roll","pitch","yaw","throttle","mixture","left_brake","right_brake","trim"});
   fdm::c::PilotAxes axes{number(payload,"roll"),number(payload,"pitch"),number(payload,"yaw"),number(payload,"throttle"),
     number(payload,"mixture"),number(payload,"left_brake"),number(payload,"right_brake"),number(payload,"trim")};

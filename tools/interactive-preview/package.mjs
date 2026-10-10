@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import {selectedLibrary,verifyExportSelection} from '../export/selected-source.mjs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import {fileURLToPath} from 'node:url';
@@ -11,6 +12,75 @@ const write=(file,value)=>{fs.mkdirSync(path.dirname(file),{recursive:true});fs.
 const register=json(path.join(repo,'third_party/licenses/register.json'));
 const model=register.entries.find(e=>e.id==='original-interactive-prototype');
 const policy=model.content_policy;
+const pistonModel=register.entries.find(e=>e.id==='original-piston-prop-v1');
+const pistonNames=['inventory.json','aircraft/original-piston-prop/original-piston-prop.xml','engine/original-piston.xml','engine/original-fixed-prop.xml','parameter-ledger.json','NOTICE-MIT.txt','README.md'].sort();
+function ordinaryAncestors(file){
+ for(let at=path.resolve(file);;at=path.dirname(at)){
+  const info=fs.lstatSync(at);assert(!info.isSymbolicLink(),'Model/receipt path contains link');
+  assert(info.isFile()||info.isDirectory(),'Unsupported model/receipt filesystem object');
+  if(path.dirname(at)===at)break;
+ }
+}
+function ordinaryFiles(root,prefix=''){
+ ordinaryAncestors(root);assert(fs.lstatSync(root).isDirectory(),'Model root must be an ordinary directory');
+ return fs.readdirSync(root,{withFileTypes:true}).flatMap(entry=>{
+  const name=prefix+entry.name,file=path.join(root,entry.name);const info=fs.lstatSync(file);
+  assert(!info.isSymbolicLink(),'Model tree contains link');
+  if(info.isDirectory())return ordinaryFiles(file,name+'/');
+  assert(info.isFile(),'Model tree contains unsupported object');return [name];
+ });
+}
+export function validatePistonModelTree(root,entry=pistonModel){
+ assert(entry&&entry.content_policy&&entry.source,'Reviewed piston content policy missing');
+ assert.equal(entry.id,'original-piston-prop-v1');assert.equal(entry.version,'0.1.0-prototype');
+ const policy=entry.content_policy;
+ assert.equal(policy.model_id,'original-piston-prop-v1');
+ assert.equal(policy.root,'native/fdm_jsbsim/models/original-piston-prop');
+ assert.equal(policy.inventory_path,'native/fdm_jsbsim/models/original-piston-prop/inventory.json');
+ assert.equal(policy.inventory_sha256,'f7766fda173d8ee83d4c4a8c02f6333124175a1f7064d3f4d8e78df3d17da12a','Reviewed piston inventory identity changed');
+ assert.equal(entry.source.revision,'sha256:f7766fda173d8ee83d4c4a8c02f6333124175a1f7064d3f4d8e78df3d17da12a');
+ assert.deepEqual(ordinaryFiles(root).sort(),pistonNames,'Exact seven-file piston model tree required');
+ const raw=fs.readFileSync(path.join(root,'inventory.json'));
+ assert.equal(sha(raw),policy.inventory_sha256,'Frozen piston inventory changed');
+ const inventory=json(path.join(root,'inventory.json'));
+ assert.deepEqual(inventory.files,policy.files);assert.deepEqual(inventory.metadata,policy.metadata);
+ const pins=[...policy.files,...policy.metadata];
+ assert.deepEqual(['inventory.json',...pins.map(pin=>pin.path)].sort(),pistonNames,'Piston content-policy roster changed');
+ for(const pin of pins){
+  const bytes=fs.readFileSync(path.join(root,pin.path));assert.equal(bytes.length,pin.bytes);assert.equal(sha(bytes),pin.sha256,'Piston source/metadata changed');
+ }
+ return pistonNames;
+}
+const pistonGroups=['bridge','facade','pacing','input','panel','status','wind','scene'];
+const plain=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);
+export function validatePistonReceipt(receipt){
+ assert(plain(receipt));assert.deepEqual(Object.keys(receipt).sort(),['schema','passed','checks','failures','scope','groups'].sort(),'Cold receipt closed shape');
+ assert.equal(receipt.schema,'PistonFlightChecks/v1');assert.equal(receipt.passed,true);
+ assert(Number.isSafeInteger(receipt.checks)&&receipt.checks>0);assert.deepEqual(receipt.failures,[]);
+ assert.equal(typeof receipt.scope,'string');assert(receipt.scope.trim().length>0&&receipt.scope.length<=1024);
+ assert(plain(receipt.groups));assert.deepEqual(Object.keys(receipt.groups).sort(),[...pistonGroups].sort(),'All eight cold groups required');
+ let total=0;
+ for(const name of pistonGroups){
+  const group=receipt.groups[name];assert(plain(group));
+  assert.deepEqual(Object.keys(group).sort(),['passed','checks','failures','result'].sort(),'Cold group closed shape/'+name);
+  assert.equal(group.passed,true);assert(Number.isSafeInteger(group.checks)&&group.checks>0);assert.deepEqual(group.failures,[]);assert(plain(group.result));
+  if(name!=='scene'){
+   assert.equal(group.result.passed,true);assert(Number.isSafeInteger(group.result.checks)&&group.result.checks>0);assert.deepEqual(group.result.failures,[]);
+   assert.equal(group.checks,group.result.checks+1,'Child actual checks plus host admission/'+name);
+  }
+  total+=group.checks;assert(Number.isSafeInteger(total));
+ }
+ assert.equal(total,receipt.checks,'Cold group aggregate count');
+ const profiles=receipt.groups.pacing.result.native_profiles;assert(Array.isArray(profiles));assert.equal(profiles.length,25);
+ const covered=new Set();
+ for(const row of profiles){
+  assert(plain(row));assert(['30','60','144','240','jitter'].includes(row.cadence));assert(['1/4','1/2','1','2','4'].includes(row.scale));
+  const key=row.cadence+':'+row.scale;assert(!covered.has(key),'Duplicate cold pacing profile');covered.add(key);
+  assert.equal(row.completed_profile,true);assert.equal(row.final_tick,'120');assert(Number.isSafeInteger(row.final_debt_quanta));assert.equal(row.final_debt_quanta,0);
+ }
+ const scene=receipt.groups.scene;assert(scene.checks>=2,'Scene host assertions plus initialized assertion required');
+ assert.equal(scene.result.initialized,true);assert.equal(scene.result.cold_initial_tick,'0');assert.equal(scene.result.cold_reset_tick,'0');
+}
 function models(source,destination){
  assert.equal(sha(fs.readFileSync(path.join(source,'inventory.json'))),policy.inventory_sha256,'Frozen model inventory changed');
  const inventory=json(path.join(source,'inventory.json'));assert.deepEqual(inventory.files,policy.files);
@@ -59,7 +129,12 @@ function audit(root,proof,build,python='python'){
  assert.equal(qualification.status,0,'Independent native/resource package qualification failed');
  assert.deepEqual(JSON.parse(qualification.stdout),nativeIdentity);
  assert.equal(nativeIdentity.schema,'PreviewNativeBuildIdentity/v2');
- assert.equal(nativeIdentity.source_variant,'jsbsim-1.3.1-upstream','Modified preview delivery requires matching selected-source export/replacement evidence');
+ const selection=selectedLibrary(register,nativeIdentity,repo);
+ verifyExportSelection(selection,proof);
+ const libraryId=selection.component_id;
+ const acceptedLibrary=json(path.join(proof,'evidence/package-inventory.json')).components.find(item=>item.id===libraryId);
+ assert(acceptedLibrary,'Matching source release component missing');
+ assert.equal(sha(fs.readFileSync(path.join(proof,'payload/bin/flight_godot_bridge.dll'))),nativeIdentity.build_witnesses.find(item=>item.path==='bin/flight_godot_bridge.dll').sha256,'Export consumer ABI differs');
  const reconstructionRoot=path.join(payload,'source/whole-flight-preview');
  const reconstruction=json(path.join(reconstructionRoot,'native-reconstruction.json'));
  assert.deepEqual(Object.keys(reconstruction).sort(),['schema','base_git_commit','files','scope'].sort());
@@ -109,6 +184,16 @@ function audit(root,proof,build,python='python'){
   assert.equal(receipt.observed.recorder.reference_cases,42);
   assert.equal(receipt.observed.recorder.reference_sha256,'a4c3184c46f2eb76c85ff4ba43fc8aac49e772a447576eeec5663fff1ac78844');
  }
+ const pistonEnabled=nativeIdentity.source_variant==='jsbsim-1.3.1-event-aware-coupled-midpoint-v1';
+ const coldReceipts=[];
+ if(pistonEnabled){
+  for(const modelRoot of [path.join(repo,pistonModel.content_policy.root),path.join(root,'project/piston-models'),path.join(payload,'piston-models'),path.join(replacement,'piston-models'),path.join(payload,'source/whole-flight-preview/piston-models')])validatePistonModelTree(modelRoot);
+  for(const context of ['editor','portable','replacement']){
+   const file=path.join(evidence,context+'-piston-receipt.json');ordinaryAncestors(file);assert(fs.lstatSync(file).isFile());
+   const raw=fs.readFileSync(file);const receipt=json(file);validatePistonReceipt(receipt);
+   coldReceipts.push({context,raw,checks:receipt.checks});
+  }
+ }else{assert(!fs.existsSync(path.join(payload,'piston-models')),'Cold model delivery requires selected coupled source');}
  const geometry=json(path.join(repo,'tests/ui/freeflight/reference.json'));
  assert.equal(geometry.case_count,16);assert.equal(geometry.cases.length,16);
  for(const folder of ['ui/freeflight','freeflight_tests']){
@@ -163,21 +248,34 @@ function audit(root,proof,build,python='python'){
  function declare(id,file,role){const c=component(id);c.files=c.files.filter(x=>x.path!==file);c.files.push({path:file,sha256:sha(fs.readFileSync(path.join(payload,file))),role});}
  function stage(id,file,value){const dest=path.join(payload,file);write(dest,value);declare(id,file,'evidence');}
  for(const file of walk(payload)){
-  if(file.startsWith('models/'))declare(model.id,file,'content');
+  if(file.startsWith('piston-models/')){assert(pistonEnabled);declare(pistonModel.id,file,'content');}
+  else if(file.startsWith('source/whole-flight-preview/piston-models/')){assert(pistonEnabled);declare(pistonModel.id,file,'source');}
+  else if(file.startsWith('models/'))declare(model.id,file,'content');
   else if(file.startsWith('source/whole-flight-preview/'))declare('native-export-proof',file,'source');
   else if(file.endsWith('.exe'))declare('godot',file,'binary');
   else if(file.endsWith('.pck')||['launch.ps1','README.md'].includes(file))declare('native-export-proof',file,'content');
   else if(['portable-smoke.log','smoke-receipt.json','loop.records.ndjson'].includes(file))declare('native-export-proof',file,'evidence');
  }
  for(const notice of model.notice_files){const target='notices/'+path.basename(notice.path);fs.copyFileSync(path.join(repo,notice.path),path.join(payload,target));declare(model.id,target,'notice');component(model.id).notices.push({register_path:notice.path,package_path:target});}
+ if(pistonEnabled){
+  for(const notice of pistonModel.notice_files){
+   const bytes=fs.readFileSync(path.join(repo,notice.path));assert.equal(sha(bytes),notice.sha256);
+   const target='notices/'+path.basename(notice.path);fs.writeFileSync(path.join(payload,target),bytes);declare(pistonModel.id,target,'notice');
+   const owner=component(pistonModel.id);owner.notices=owner.notices.filter(item=>item.register_path!==notice.path);owner.notices.push({register_path:notice.path,package_path:target});
+  }
+  for(const {context,raw} of coldReceipts){
+   const target='evidence/'+context+'-piston-receipt.json';fs.mkdirSync(path.dirname(path.join(payload,target)),{recursive:true});
+   fs.writeFileSync(path.join(payload,target),raw);declare('native-export-proof',target,'evidence');
+  }
+ }
  stage('microsoft-vc143-crt','evidence/selected-runtime.json',runtime);stage('microsoft-vc143-crt','evidence/native-dependencies.json',dependencies);
- stage('jsbsim','evidence/jsbsim-replacement.json',replacementEvidence);stage('jsbsim','evidence/baseline-modules.json',modules);stage('jsbsim','evidence/replacement-modules.json',replacedModules);
- assert.equal(sha(fs.readFileSync(path.join(payload,'source/jsbsim-1.3.1-library-source.zip'))),register.entries.find(x=>x.id==='jsbsim').library_policy.source_archive_sha256);
+ stage(libraryId,'evidence/jsbsim-replacement.json',replacementEvidence);stage(libraryId,'evidence/baseline-modules.json',modules);stage(libraryId,'evidence/replacement-modules.json',replacedModules);
+ assert.equal(sha(fs.readFileSync(path.join(payload,acceptedLibrary.source_archive))),selection.source_archive_sha256);
  const manifest={schema_version:1,components};
  assert.deepEqual(auditRelease(register,manifest,{repoRoot:repo,packageRoot:payload}),[]);
  assert.deepEqual(auditDependencyLock(register,json(path.join(repo,'third_party/dependencies.lock.json'))),[]);
  write(path.join(evidence,'package-inventory.json'),manifest);
- write(path.join(evidence,'package-audit.json'),{schema_version:1,rights_integrity_passed:true,actual_combined_replacement_passed:true,model_pins_verified:true,actual_seven_modules_inside_payload:true,exact_editor_portable_repeat:true,observed_editor_portable_replacement_checks_passed:true,observed_source_closure_verified:true,observed_archive_checks_passed:true,runtime_verification:runtime,trace_records_compared:traces[0].length});
+ write(path.join(evidence,'package-audit.json'),{schema_version:1,rights_integrity_passed:true,actual_combined_replacement_passed:true,model_pins_verified:true,actual_seven_modules_inside_payload:true,exact_editor_portable_repeat:true,observed_editor_portable_replacement_checks_passed:true,observed_source_closure_verified:true,observed_archive_checks_passed:true,...(pistonEnabled?{piston_model_pins_verified:true,piston_editor_portable_replacement_checks_passed:true,piston_contexts:coldReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)}))}:{}),runtime_verification:runtime,trace_records_compared:traces[0].length,selected_library:selection,native_build_identity:nativeIdentity});
  console.log('PASS combined package model/source/notices/full PE+CRT closure and actual replacement loop');
 }
 const [mode,...args]=process.argv.slice(2);

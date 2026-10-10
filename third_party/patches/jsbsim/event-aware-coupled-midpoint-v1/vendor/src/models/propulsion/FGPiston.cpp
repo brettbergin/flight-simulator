@@ -1,3 +1,9 @@
+/* Project modification notice - flight-simulator project contributors.
+ * Changed on 2026-10-09: opt-in source-law coupled shaft integration and
+ * its public-boundary piston mode/frame interface (ADR015).
+ * This notice-only renewal preserves the existing numerical implementation.
+ * Original copyright and LGPL grants below remain in force.
+ */
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
  Module:       FGPiston.cpp

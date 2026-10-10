@@ -5,12 +5,23 @@ $ErrorActionPreference='Stop'
 $repo=(Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $run=Get-Content (Join-Path $repo '.local/export-proof/latest-run.json') -Raw | ConvertFrom-Json
 if(-not $run.windows_portable_passed) { throw 'Require a passing Windows export baseline first' }
-$environment=Get-Content (Join-Path $repo '.local/toolchain/environment.json') -Raw | ConvertFrom-Json
+$environment=Get-Content (Join-Path $run.toolchain_root 'environment.json') -Raw | ConvertFrom-Json
+. (Join-Path $repo 'tools/interactive-preview/simulation-staging.ps1')
+$currentNative=Get-PreviewNativeBuildIdentity -RepoRoot $repo -NativeBuildRoot $run.native_build_identity.root -Python $Python
+$currentNative|ConvertTo-Json -Depth 10|Set-Content -LiteralPath (Join-Path $run.evidence 'replacement-native-build-identity.json') -Encoding utf8
+$rawSelection=& node (Join-Path $PSScriptRoot 'selected-source.mjs') build (Join-Path $run.evidence 'replacement-native-build-identity.json')
+if($LASTEXITCODE -ne 0){throw 'Actual replacement source has no reviewed release policy'}
+foreach($module in @('JSBSim.dll','flight_godot_bridge.dll')){
+ if((Get-FileHash -LiteralPath (Join-Path $currentNative.root ('bin/'+$module))).Hash -cne (Get-FileHash -LiteralPath (Join-Path $run.payload ('bin/'+$module))).Hash){throw 'Export baseline changed before source rebuild'}
+}
+$selection=$rawSelection|ConvertFrom-Json -ErrorAction Stop
+if($null -eq $selection -or $selection.schema -cne 'SelectedLibraryRelease/v1' -or $selection.source_variant -cnotin @('jsbsim-1.3.1-upstream','jsbsim-1.3.1-event-aware-coupled-midpoint-v1')){throw 'Require a freshly source-qualified export baseline'}
+if($SourceSHA256 -cne $selection.source_archive_sha256 -or ($selection.modified -and (Get-Item -LiteralPath $SourceArchive).Length -ne $selection.source_archive_bytes)){throw 'Replacement archive differs from selected baseline source'}
 $root=Join-Path $run.root 'source-rebuild'
 $source=Join-Path $root 'fresh-source'
 $build=Join-Path $root 'build'
 New-Item -ItemType Directory -Path $root | Out-Null
-& $Python (Join-Path $PSScriptRoot 'extract-source.py') --archive $SourceArchive --sha256 $SourceSHA256 --destination $source
+& $Python (Join-Path $PSScriptRoot 'extract-source.py') --archive $SourceArchive --sha256 $SourceSHA256 --destination $source --source-variant $selection.source_variant
 if($LASTEXITCODE -ne 0) { throw 'Source archive extraction/verification failed' }
 $vswhere=Join-Path ([Environment]::GetEnvironmentVariable('ProgramFiles(x86)')) 'Microsoft Visual Studio/Installer/vswhere.exe'
 $installation=& $vswhere -version '[17.0,18.0)' -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
@@ -25,6 +36,9 @@ if($LASTEXITCODE -ne 0) { throw 'Source archive configure failed' }
 if($LASTEXITCODE -ne 0) { throw 'Independent source DLL build failed' }
 & $Python (Join-Path $source 'verify.py') --root $source | Set-Content (Join-Path $run.evidence 'source-after-build.json')
 if($LASTEXITCODE -ne 0) { throw 'Source changed during rebuild' }
+$verified=Get-Content -LiteralPath (Join-Path $run.evidence 'source-after-build.json') -Raw|ConvertFrom-Json
+$sourceManifest=Get-Content -LiteralPath (Join-Path $source 'manifest.json') -Raw|ConvertFrom-Json
+if($sourceManifest.schema_version -ne $selection.source_manifest_schema -or $verified.bundle_files -ne $selection.bundle_files -or $verified.vendor_files -ne $selection.vendor_files -or ($selection.modified -and ($verified.source_variant -cne $selection.source_variant -or $verified.modified_vendor_files -ne 4 -or $verified.unchanged_vendor_files -ne 275)) -or (-not $selection.modified -and $verified.all_hashes_unchanged -ne $true)){throw 'Rebuilt source verification differs from selected release'}
 & $environment.tools.ninja -C $build -t deps | Set-Content (Join-Path $run.evidence 'source-header-deps.txt')
 & $environment.tools.ninja -C $build -t commands libJSBSim | Set-Content (Join-Path $run.evidence 'source-compile-commands.txt')
 & dumpbin /dependents (Join-Path $build 'bin/JSBSim.dll') | Set-Content (Join-Path $run.evidence 'rebuilt-dll-imports.txt')
@@ -51,7 +65,7 @@ Assert-ProofSuccess $result
 if($LASTEXITCODE -ne 0) { throw 'Replacement authoritative sample/schema/module-path proof failed' }
 & node (Join-Path $repo 'tests/export/compare-replacement.mjs') (Join-Path $run.evidence 'portable-unicode.log') (Join-Path $run.evidence 'replacement.log')
 if($LASTEXITCODE -ne 0) { throw 'Replacement changed expected numerical boundary' }
-$identity=[ordered]@{schema_version=1;source_archive_sha256=$SourceSHA256;source_archive_bytes=(Get-Item $SourceArchive).Length;unmodified_vendor_files=279;source_rebuild_passed=$true;compiler=(Get-Item (Get-Command cl.exe).Source).VersionInfo.FileVersion;toolset=$env:VCToolsVersion;windows_sdk=$env:WindowsSDKVersion;replaced_library_sha256=(Get-FileHash $rebuilt -Algorithm SHA256).Hash.ToLowerInvariant();baseline_library_sha256=$before['bin/JSBSim.dll'];changed_payload_files=$changed;other_payload_unchanged=$true;actual_replacement_module_inside_payload=$true;clean_path=$true;unicode_relocation=$true;command_snapshot_schema_passed=$true;finite_state_units_unchanged=$true;worker_joined=$true;reverse_engineering_permitted=$true}
+$identity=[ordered]@{schema_version=1;source_archive_sha256=$SourceSHA256;source_archive_bytes=(Get-Item $SourceArchive).Length;unmodified_vendor_files=$selection.unchanged_vendor_files;modified_vendor_files=$selection.modified_vendor_files;source_variant=$selection.source_variant;backend_identity_sha256=$selection.backend_identity_sha256;selected_library=$selection;source_rebuild_passed=$true;compiler=(Get-Item (Get-Command cl.exe).Source).VersionInfo.FileVersion;toolset=$env:VCToolsVersion;windows_sdk=$env:WindowsSDKVersion;replaced_library_sha256=(Get-FileHash $rebuilt -Algorithm SHA256).Hash.ToLowerInvariant();baseline_library_sha256=$before['bin/JSBSim.dll'];changed_payload_files=$changed;other_payload_unchanged=$true;actual_replacement_module_inside_payload=$true;clean_path=$true;unicode_relocation=$true;command_snapshot_schema_passed=$true;finite_state_units_unchanged=$true;worker_joined=$true;reverse_engineering_permitted=$true}
 $identity | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $run.evidence 'replacement-evidence.json') -Encoding utf8
 $run.source_replacement='passed'
 $run | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $repo '.local/export-proof/latest-run.json') -Encoding utf8

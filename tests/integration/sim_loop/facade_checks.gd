@@ -27,8 +27,8 @@ class ObservedAdapter extends RefCounted:
 	func _init(mutant: String = "") -> void:
 		mode = mutant
 		native = ClassDB.instantiate("FlightInteractiveSession") as RefCounted
-	func open_session(model_root: String, named_start: String, wind_profile: Variant="calm") -> Dictionary:
-		latest = native.call("open_session",model_root,named_start,wind_profile)
+	func open_session(model_root: String, named_start: String, wind_profile: Variant="calm", profile_id: Variant="original-interactive-prototype") -> Dictionary:
+		latest = native.call("open_session",model_root,named_start,wind_profile,profile_id)
 		if mode=="native_fingerprint": latest.native_source_fingerprint=("0" if Facade.NATIVE[0]!="0" else "1")+Facade.NATIVE.substr(1)
 		elif mode=="wind_missing": latest.erase("wind_profile")
 		elif mode=="wind_echo": latest.wind_profile="calm"

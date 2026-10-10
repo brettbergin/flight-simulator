@@ -90,6 +90,23 @@ class IdentityTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         self.repo, self.build, self.selected, self.consumer = fixture(self.root)
 
+
+    def test_repository_reconstruction_excludes_only_python_caches(self):
+        for folder in ('native', 'tests/engine', 'tests/interactive', 'tools/bootstrap'):
+            (self.repo/folder).mkdir(parents=True, exist_ok=True)
+        put(self.repo, 'tests/engine/keep.py', 'source fixture\n')
+        put(self.repo, 'tests/engine/keep.pyc.txt', 'ordinary authored fixture\n')
+        put(self.repo, 'tests/engine/__pycache__/cached.pyc', 'cache artifact\n')
+        put(self.repo, 'native/cached.pyc', 'cache artifact\n')
+        put(self.repo, 'tools/bootstrap/__pycache__/nested/ordinary.txt', 'cache-tree artifact\n')
+        names = n.reconstruction_paths(self.repo)
+        self.assertIn('tests/engine/keep.py', names)
+        self.assertIn('tests/engine/keep.pyc.txt', names)
+        self.assertNotIn('tests/engine/__pycache__/cached.pyc', names)
+        self.assertNotIn('native/cached.pyc', names)
+        self.assertNotIn('tools/bootstrap/__pycache__/nested/ordinary.txt', names)
+        self.assertTrue(set(n.SOURCES+n.CONTROLS) <= set(names))
+
     def tearDown(self):
         self.temp.cleanup()
 

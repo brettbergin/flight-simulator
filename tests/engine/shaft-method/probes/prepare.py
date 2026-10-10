@@ -5,7 +5,7 @@ HERE=Path(__file__).resolve().parent
 
 PINS={'FGPropeller.cpp':'e0ff11682070f2fa5a40ed7f14dbfcf56719a186089eb03185af8cdf9227d9f4',
       'FGPropeller.h':'730819eba6e87b94c75c8e02606f55a8006e54822f8f8f669f24d2941b1be6a5',
-      'FGPiston.cpp':'80f51ec8f702cf0b484ac076272e3440f59ddd4ae2ac10dbcc503e5377357232'}
+      'FGPiston.cpp':'509097a76de13c00ff29c6e86e4c475aa6cb14694c3091607be72acc92f730b9'}
 def sha(b):return hashlib.sha256(b).hexdigest()
 def between(s,a,b):
     assert s.count(a)==1,a
