@@ -86,6 +86,10 @@ depends on #20/#23; #26 joins cockpit, instruments and input; #27 owns the
 integrated human exercise. Existing preview slices are useful inputs and
 evidence, but do not automatically close those product issues.
 
+### Bounded first-flight frontend dispatch
+
+[ADR018](../../decisions/018-first-flight-briefing-and-circuit-aid.md) proposes two reversible P2 frontend leaves against the accepted interfaces: an in-game paused briefing over the three existing starts, and an optional original synthetic circuit reference for legacy ground-ready/calm/runway36. After the checked contract, accepted issue158 delivery and each leaf's named prerequisites, agents may implement their disjoint leaf files in parallel. One integrator owns shared scene/map/lifecycle/tool changes and joins both in one cohesive dependency-group PR. Actual briefing adoption/discard/lifecycle tests and both leaves' acceptance, exported interaction, independent readability review and protected checks are required before merge. This bounded handoff does not close #2/#3/#21–27, approve source-supported aircraft procedures or replace hardware/pilot and phase evaluation.
+
 ## Bounded aircraft source-preparation handoff
 
 [Issue #169 — C172P source assessment](https://github.com/brettbergin/flight-simulator/issues/169) records a [conditional maintained-model candidate](../P3/c172p-candidate-assessment.md) and [metadata-only identities](../P3/c172p-candidate-source-index.json). Accepted #13/#19 foundations permit this source preparation while aggregate gates remain open. Exact certified configuration, POH/normal references, recursive host/license closure and a separate runtime contract remain prerequisites; no aircraft is imported or adopted. Existing original-model evidence and selected C172S work are preserved. This paragraph does not refresh historical package claims or accept #2/#3/#4/#28/#76, hardware/pilot/training or phase gates.

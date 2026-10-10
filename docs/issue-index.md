@@ -23,25 +23,15 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | SAVE-PROOF | [#17 Prove full-state restore or deterministic reconstruction strategy](https://github.com/brettbergin/flight-simulator/issues/17) | EPIC-P0, CORE-CONTRACTS, FDM-HARNESS |
 | RENDER-PROOF | [#18 Benchmark representative cockpit readability and regional rendering](https://github.com/brettbergin/flight-simulator/issues/18) | EPIC-P0, TOOLCHAIN, NATIVE-EXPORT |
 | VALIDATION-CORPUS | [#19 Create versioned aircraft reference matrix and regression corpus](https://github.com/brettbergin/flight-simulator/issues/19) | EPIC-P0, LICENSE-REGISTER, CORE-CONTRACTS, FDM-HARNESS |
-
 | AIRBORNE-PREVIEW | [#94 Deliver a human-controllable Windows airborne engineering preview](https://github.com/brettbergin/flight-simulator/issues/94) | EPIC-P0, CORE-CONTRACTS, FDM-HARNESS, NATIVE-EXPORT |
-
 | INTERACTIVE-CONTRACT | [#95 Ratify the bounded original ground-to-flight prototype contract and model](https://github.com/brettbergin/flight-simulator/issues/95) | EPIC-P0, CORE-CONTRACTS, FDM-HARNESS, GROUND-PROOF, LICENSE-REGISTER |
-
 | WHOLE-FLIGHT-PREVIEW | [#98 Deliver a Windows taxi-to-landing engineering preview](https://github.com/brettbergin/flight-simulator/issues/98) | EPIC-P0, CORE-CONTRACTS, FDM-HARNESS, GROUND-PROOF, NATIVE-EXPORT, INTERACTIVE-CONTRACT |
-
 | FLIGHT-UX | [#100 Replace debug presentation with a usable visual flight experience](https://github.com/brettbergin/flight-simulator/issues/100) | WHOLE-FLIGHT-PREVIEW |
-
 | COCKPIT-UX | [#102 Add a physical prototype cockpit, focused panel view and local flight map](https://github.com/brettbergin/flight-simulator/issues/102) | FLIGHT-UX |
-
 | ENVIRONMENT-STABILITY | [#104 Eliminate terrain and airfield surface flicker in the playable preview](https://github.com/brettbergin/flight-simulator/issues/104) | COCKPIT-UX |
-
 | AIRFIELD-LANDMARKS | [#106 Enrich the rural airfield scenery and add a selectable runway-end locator](https://github.com/brettbergin/flight-simulator/issues/106) | ENVIRONMENT-STABILITY |
-
 | AIRCRAFT-GROUND-UX | [#108 Fix intersecting cabin glazing and clarify rollout controls](https://github.com/brettbergin/flight-simulator/issues/108) | AIRFIELD-LANDMARKS |
-
 | THIRD-PERSON-STABILITY | [#110 Smooth third-person aircraft motion and keep camera tracking in the same frame](https://github.com/brettbergin/flight-simulator/issues/110) | AIRCRAFT-GROUND-UX |
-
 | DOCS-NATIVE-CI-SCOPE | [#124 Bound native CI work for documentation-only PRs](https://github.com/brettbergin/flight-simulator/issues/124) | CORE-CONTRACTS, TOOLCHAIN, NATIVE-EXPORT |
 
 ## P2 — First cockpit and synthetic airfield
@@ -49,8 +39,6 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | Key | Issue | Dependencies |
 |---|---|---|
 | EPIC-P2 | [#3 First cockpit and synthetic airfield](https://github.com/brettbergin/flight-simulator/issues/3) | EPIC-P1 |
-| INPUT-CONTROLS-CONTRACT | [#116 Ratify pilot input presets and paused calibration](https://github.com/brettbergin/flight-simulator/issues/116) | CORE-CONTRACTS, SIM-LOOP-CONTRACT, INTERACTIVE-CONTRACT |
-| SIM-LOOP-CONTRACT | [#112 Ratify the synchronous flight-loop and render-origin interface](https://github.com/brettbergin/flight-simulator/issues/112) | CORE-CONTRACTS, NATIVE-EXPORT, INTERACTIVE-CONTRACT |
 | SIM-LOOP | [#20 Integrate fixed-tick core, interpolation, terrain queries and pause](https://github.com/brettbergin/flight-simulator/issues/20) | EPIC-P1, NATIVE-EXPORT, GROUND-PROOF, SIM-LOOP-CONTRACT |
 | INPUT-PROFILES | [#21 Implement keyboard, mouse, gamepad and calibrated flight-device bindings](https://github.com/brettbergin/flight-simulator/issues/21) | EPIC-P1, CORE-CONTRACTS, INPUT-CONTROLS-CONTRACT |
 | SYNTHETIC-AIRFIELD | [#22 Build deterministic runway, markings and ground collision fixture](https://github.com/brettbergin/flight-simulator/issues/22) | EPIC-P1, GROUND-PROOF, SIM-LOOP |
@@ -59,6 +47,8 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | FLIGHT-AUDIO | [#25 Implement state-driven engine, wind and warning sound with captions](https://github.com/brettbergin/flight-simulator/issues/25) | EPIC-P1, SIM-LOOP, LICENSE-REGISTER |
 | HUD-CAMERA | [#26 Implement cockpit views, optional training HUD and assistance visibility](https://github.com/brettbergin/flight-simulator/issues/26) | EPIC-P1, COCKPIT-ASSET, SIX-PACK, INPUT-PROFILES |
 | FIRST-FLIGHT | [#27 Validate first pilot-operable takeoff, circuit and landing prototype](https://github.com/brettbergin/flight-simulator/issues/27) | EPIC-P1, SYNTHETIC-AIRFIELD, HUD-CAMERA, FLIGHT-AUDIO |
+| SIM-LOOP-CONTRACT | [#112 Ratify the synchronous flight-loop and render-origin interface](https://github.com/brettbergin/flight-simulator/issues/112) | CORE-CONTRACTS, NATIVE-EXPORT, INTERACTIVE-CONTRACT |
+| INPUT-CONTROLS-CONTRACT | [#116 Ratify pilot input presets and paused calibration](https://github.com/brettbergin/flight-simulator/issues/116) | CORE-CONTRACTS, SIM-LOOP-CONTRACT, INTERACTIVE-CONTRACT |
 | COCKPIT-READINGS-CONTRACT | [#119 Ratify native-truth cockpit readings and view-only scan focus](https://github.com/brettbergin/flight-simulator/issues/119) | CORE-CONTRACTS, SIM-LOOP-CONTRACT, INPUT-CONTROLS-CONTRACT |
 | LANDMARK-FREE-FLIGHT | [#130 Add a synthetic landmark itinerary and optional target card](https://github.com/brettbergin/flight-simulator/issues/130) | AIRFIELD-LANDMARKS, SIM-LOOP, INPUT-CONTROLS-CONTRACT, COCKPIT-READINGS-CONTRACT |
 | OBSERVED-REVIEW-CONTRACT | [#132 Ratify bounded recorded flight observations and read-only review](https://github.com/brettbergin/flight-simulator/issues/132) | SIM-LOOP-CONTRACT, INPUT-CONTROLS-CONTRACT, COCKPIT-READINGS-CONTRACT |
@@ -67,17 +57,18 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | OBSERVED-REVIEW-FILES | [#138 Save and reopen exact paused flight reviews](https://github.com/brettbergin/flight-simulator/issues/138) | OBSERVED-ARCHIVE-CONTRACT, OBSERVED-FLIGHT-REVIEW |
 | STEADY-WIND-CONTRACT | [#140 Define selectable steady-wind starts and native-truth cues](https://github.com/brettbergin/flight-simulator/issues/140) | INTERACTIVE-CONTRACT, SIM-LOOP-CONTRACT, COCKPIT-READINGS-CONTRACT, OBSERVED-REVIEW-CONTRACT, OBSERVED-ARCHIVE-CONTRACT |
 | STEADY-WIND-FLIGHT | [#142 Add selectable steady wind and native-truth flight cues](https://github.com/brettbergin/flight-simulator/issues/142) | STEADY-WIND-CONTRACT, OBSERVED-REVIEW-FILES |
-
 | POINTER-ENGINE-CONTRACT | [#157 Ratify pointer ownership for original engine controls](https://github.com/brettbergin/flight-simulator/issues/157) | ORIGINAL-PISTON-FLIGHT, SIM-LOOP-CONTRACT, INPUT-CONTROLS-CONTRACT, COCKPIT-READINGS-CONTRACT, ORIGINAL-PISTON-CONTRACT |
 | POINTER-ENGINE-CONTROLS | [#158 Add mouse-operable original engine controls](https://github.com/brettbergin/flight-simulator/issues/158) | POINTER-ENGINE-CONTRACT, ORIGINAL-PISTON-FLIGHT, SIM-LOOP-CONTRACT, INPUT-CONTROLS-CONTRACT, COCKPIT-READINGS-CONTRACT |
 | COCKPIT-PRESENTATION | [#159 Improve the original cockpit finish and physical-panel readability](https://github.com/brettbergin/flight-simulator/issues/159) | ORIGINAL-PISTON-FLIGHT, COCKPIT-READINGS-CONTRACT, INPUT-CONTROLS-CONTRACT, LICENSE-REGISTER, RENDER-PROOF |
 | GROUND-MATERIALS | [#160 Improve stable procedural grass, soil and asphalt appearance](https://github.com/brettbergin/flight-simulator/issues/160) | AIRFIELD-LANDMARKS, SIM-LOOP-CONTRACT, LICENSE-REGISTER, RENDER-PROOF |
+| FIRST-FLIGHT-FRONTEND-CONTRACT | [#165 Ratify a small briefing and synthetic circuit-reference seam](https://github.com/brettbergin/flight-simulator/issues/165) | SIM-LOOP, SIM-LOOP-CONTRACT, COCKPIT-READINGS-CONTRACT, LANDMARK-FREE-FLIGHT, STEADY-WIND-FLIGHT, POINTER-ENGINE-CONTRACT, INPUT-CONTROLS-CONTRACT, ORIGINAL-PISTON-FLIGHT, STEADY-WIND-CONTRACT |
+| FIRST-FLIGHT-BRIEFING | [#166 Add clear supported starts and paused cockpit orientation](https://github.com/brettbergin/flight-simulator/issues/166) | FIRST-FLIGHT-FRONTEND-CONTRACT, SIM-LOOP, SIM-LOOP-CONTRACT, COCKPIT-READINGS-CONTRACT, LANDMARK-FREE-FLIGHT, STEADY-WIND-FLIGHT, POINTER-ENGINE-CONTRACT, POINTER-ENGINE-CONTROLS, INPUT-CONTROLS-CONTRACT, ORIGINAL-PISTON-FLIGHT |
+| SYNTHETIC-CIRCUIT-REFERENCE | [#167 Add an optional local circuit diagram and flight card](https://github.com/brettbergin/flight-simulator/issues/167) | FIRST-FLIGHT-FRONTEND-CONTRACT, SIM-LOOP, SIM-LOOP-CONTRACT, COCKPIT-READINGS-CONTRACT, LANDMARK-FREE-FLIGHT, STEADY-WIND-FLIGHT, POINTER-ENGINE-CONTRACT, POINTER-ENGINE-CONTROLS, STEADY-WIND-CONTRACT |
 
 ## P3 — Complete circuit and durable progress
 
 | Key | Issue | Dependencies |
 |---|---|---|
-| ORIGINAL-PISTON-CONTRACT | [#122 Ratify an opt-in original piston and fixed-pitch profile](https://github.com/brettbergin/flight-simulator/issues/122) | CORE-CONTRACTS, INTERACTIVE-CONTRACT, SIM-LOOP-CONTRACT, INPUT-CONTROLS-CONTRACT, COCKPIT-READINGS-CONTRACT |
 | EPIC-P3 | [#4 Complete circuit and durable progress](https://github.com/brettbergin/flight-simulator/issues/4) | EPIC-P2 |
 | AIRCRAFT-EVIDENCE | [#28 Freeze exact analog C172S configuration and source applicability](https://github.com/brettbergin/flight-simulator/issues/28) | EPIC-P2, LICENSE-REGISTER, VALIDATION-CORPUS |
 | ENGINE-FUEL | [#29 Implement sourced fuel-injected engine and fuel-system lifecycle](https://github.com/brettbergin/flight-simulator/issues/29) | EPIC-P2, AIRCRAFT-EVIDENCE |
@@ -92,7 +83,7 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | PROFILE-SESSION-UI | [#74 Implement profile selection, local practice log and retention/export controls](https://github.com/brettbergin/flight-simulator/issues/74) | EPIC-P2, LOCAL-PERSISTENCE, ASSIST-PROFILES |
 | BASIC-DEBRIEF | [#75 Implement first circuit event review, basic map and recorded playback](https://github.com/brettbergin/flight-simulator/issues/75) | EPIC-P2, PROFILE-SESSION-UI, REPLAY-RESUME |
 | BASELINE-PERFORMANCE | [#76 Validate normal C172S performance before scored maneuver curriculum](https://github.com/brettbergin/flight-simulator/issues/76) | EPIC-P2, AIRCRAFT-EVIDENCE, VALIDATION-CORPUS, ENGINE-FUEL, CONTROLS-GROUND |
-
+| ORIGINAL-PISTON-CONTRACT | [#122 Ratify an opt-in original piston and fixed-pitch profile](https://github.com/brettbergin/flight-simulator/issues/122) | CORE-CONTRACTS, INTERACTIVE-CONTRACT, SIM-LOOP-CONTRACT, INPUT-CONTROLS-CONTRACT, COCKPIT-READINGS-CONTRACT |
 | ORIGINAL-PISTON-MODEL | [#125 Publish original piston model and independent reference source](https://github.com/brettbergin/flight-simulator/issues/125) | ORIGINAL-PISTON-CONTRACT, CORE-CONTRACTS, INTERACTIVE-CONTRACT, LICENSE-REGISTER |
 | ORIGINAL-PISTON-FLIGHT | [#127 Build deliberate engine startup, taxi and shutdown interaction](https://github.com/brettbergin/flight-simulator/issues/127) | ORIGINAL-PISTON-CONTRACT, ORIGINAL-PISTON-MODEL, STEADY-WIND-FLIGHT, PISTON-COUPLING-ACCURACY |
 | PISTON-COUPLING-ACCURACY | [#149 Correct cold-start and shutdown convergence without changing frozen limits](https://github.com/brettbergin/flight-simulator/issues/149) | ORIGINAL-PISTON-CONTRACT, ORIGINAL-PISTON-MODEL, STEADY-WIND-FLIGHT |

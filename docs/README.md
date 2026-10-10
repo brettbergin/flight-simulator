@@ -52,6 +52,8 @@ The [original cold-engine player](evidence/P3/original-piston-player.md) adds de
 
 The accepted [pointer engine-control contract](decisions/017-frontend-pointer-engine-controls.md) defines mouse-operated throttle, mixture, ignition, fuel feed and momentary starter. The existing mapper retains pilot intent and conflict handling; UI requests cannot bypass bindings or change native truth. [Issue158 integration evidence](evidence/P2/pointer-engine-controls.md) separates development results from final exported delivery and pilot acceptance.
 
+The proposed [first-flight briefing and circuit-reference contract](decisions/018-first-flight-briefing-and-circuit-aid.md) makes the existing cold, ready-ground and airborne starts understandable inside the game. It defines paused software orientation and a separately optional original circuit diagram for calm legacy runway36 flights. Consumer implementation waits for the checked contract and accepted pointer-controls delivery; no aircraft procedure, evaluation or phase acceptance is implied.
+
 [Issue159](https://github.com/brettbergin/flight-simulator/issues/159) separately schedules original cockpit bezels, matte materials and physical-panel readability after qualified startup delivery. It preserves the current eye point, camera limits, native readings and controls, and does not claim manufacturer geometry or broad cockpit acceptance.
 
 The [filtered original ground materials](evidence/P2/ground-materials.md) add modest grass, soil and asphalt detail with distance filtering over the same synthetic flat contact plane. Actual Windows editor, portable and rebuilt-library resources passed the focused material and existing flight checks; terrain, airport and pilot qualification remain separate.
