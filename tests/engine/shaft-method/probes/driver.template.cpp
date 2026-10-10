@@ -19,7 +19,7 @@ static_assert(sizeof(void*)==8,"Only the actual x64 strict route is qualified");
 static_assert(M_PI==3.14159265358979323846,"Pinned backend pi definition required");
 namespace JSBSim {
 @@OWNED_TYPES@@
-@@EXACT_HELPERS@@
+#include <flight_coupled_exact_vendor_helpers_v1.inc>
 @@PISTON_CHECK@@
 bool ExtractedModePolicy(bool Running,bool spark,bool fuel,double RPM,double IdleRPM,double prospectiveIndicated) {
 @@EXACT_MODE_POLICY@@
@@ -113,7 +113,10 @@ int main() {
         int mode;if(!(in>>mode))throw std::runtime_error("Missing mode");
         j::CoupledShaftFrameV1 f{static_cast<j::ShaftOperatingModeV1>(mode),scalar(in),scalar(in),scalar(in),scalar(in),scalar(in),scalar(in),scalar(in)};
         const double w=scalar(in),knot=scalar(in),load=scalar(in),A=scalar(in);int direction;
-        if(!(in>>direction)||(direction!=-1&&direction!=1))throw std::runtime_error("Invalid direction");end(in);
+        if(!(in>>direction)||(direction!=-1&&direction!=1)) {
+          throw std::runtime_error("Invalid direction");
+        }
+        end(in);
         const auto p=j::CBuildLaw(f,w,knot,load,A,direction);
         std::cout<<"{\"id\":"<<quoted(id)<<",\"kind\":\"L\",\"rejected\":false,\"c0_bits\":\""<<bits(p.c0)<<"\",\"c1_bits\":\""<<bits(p.c1)<<"\",\"c2_bits\":\""<<bits(p.c2)<<"\",\"c3_bits\":\""<<bits(p.c3)<<"\"}\n";
       } else if(kind=="P") {
@@ -124,7 +127,8 @@ int main() {
         int running,cranking;if(!(in>>running>>cranking)||(running!=0&&running!=1)||(cranking!=0&&cranking!=1))throw std::runtime_error("Invalid coefficient mode");
         j::CoefficientInputs q{};q.Running=running!=0;q.Cranking=cranking!=0;
         double* fields[]={&q.StarterTorque,&q.StarterGain,&q.StarterRPM,&q.RPM,&q.Cycles,&q.displacement_SI,&q.StaticFriction_HP,&q.PMEP,&q.MAP,&q.R_air,&q.T_amb,&q.volumetric_efficiency_reduced,&q.equivalence_ratio,&q.ME,&q.sparkFactor,&q.ISFC,&q.FMEPStatic,&q.FMEPDynamic,&q.Stroke,&q.fttom};
-        for(double* p:fields)*p=scalar(in);const double h=scalar(in);end(in);
+        for(double* p:fields) { *p=scalar(in); }
+        const double h=scalar(in);end(in);
         const auto f=j::ExtractedCoefficients(q,h);
         std::cout<<"{\"id\":"<<quoted(id)<<",\"kind\":\"C\",\"rejected\":false,\"c0_bits\":\""<<bits(f.engine_c0_ftlb_per_s)<<"\",\"c1_bits\":\""<<bits(f.engine_c1_ftlb)<<"\",\"c2_bits\":\""<<bits(f.engine_c2_ftlb_s)<<"\",\"t0_bits\":\""<<bits(f.starter_torque_ftlb)<<"\",\"ws_bits\":\""<<bits(f.starter_limit_w_radps)<<"\"}\n";
       } else if(kind=="G") {

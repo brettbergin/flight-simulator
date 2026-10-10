@@ -22,6 +22,7 @@ set(probe_vendor_inputs
   "${FLIGHT_JSBSIM_SOURCE_ROOT}/src/models/FGPropulsion.cpp")
 add_custom_command(OUTPUT
   "${probe_generated}/driver.cpp" "${probe_generated}/extraction-binding.json"
+  "${probe_generated}/flight_coupled_exact_vendor_helpers_v1.inc"
   "${probe_generated}/source-manifest.json" "${probe_generated}/chronology-source-evidence.json"
   COMMAND "${Python3_EXECUTABLE}" -B "${CMAKE_CURRENT_SOURCE_DIR}/prepare.py"
     --vendor-root "${FLIGHT_JSBSIM_SOURCE_ROOT}" --template-root "${CMAKE_CURRENT_SOURCE_DIR}"
@@ -33,6 +34,9 @@ add_custom_command(OUTPUT
     "${CMAKE_BINARY_DIR}/interactive-source-fingerprint.txt"
   VERBATIM)
 add_executable(coupled_kernel_probe "${probe_generated}/driver.cpp")
+# Only the byte-exact vendor helper header receives the vendor warning boundary.
+# Angle inclusion never searches the driver directory ahead of this SYSTEM path.
+target_include_directories(coupled_kernel_probe SYSTEM PRIVATE "${probe_generated}")
 add_executable(coupled_library_probe library-probe.cpp)
 add_executable(coupled_chronology_probe chronology-probe.cpp)
 add_executable(coupled_terminal_retention terminal-retention.cpp)

@@ -17,14 +17,14 @@ class PortableIdentityTests(unittest.TestCase):
         vendor_names=['src/models/propulsion/'+n for n in ('FGPropeller.cpp','FGPropeller.h','FGPiston.cpp')]+['src/FGJSBBase.h','src/models/FGPropulsion.cpp']
         for name in vendor_names:create(vendor/name)
         for name in ('jsbsim-source-build-manifest.txt','interactive-source-fingerprint.txt'):create(build/name)
-        for name in ('driver.cpp','extraction-binding.json','chronology-source-evidence.json'):create(generated/name)
+        for name in ('driver.cpp','flight_coupled_exact_vendor_helpers_v1.inc','extraction-binding.json','chronology-source-evidence.json'):create(generated/name)
         public={'schema':'coupled-probe-source-manifest-v1','files':{n:meta(probes/n) for n in v.PROBE_FILES},'shared_sources':{n:meta(repo/n) for n in v.SHARED_FILES}}
         public_path=probes/'probe-manifest.json';public_path.write_text(json.dumps(public),encoding='utf-8')
         paths={'probes/'+n:probes/n for n in v.PROBE_FILES}
         paths.update({'shared/'+n:repo/n for n in v.SHARED_FILES})
         paths.update({'vendor-tree/'+n:vendor/n for n in vendor_names})
         paths.update({'vendor/'+n:vendor/'src/models/propulsion'/n for n in ('FGPropeller.cpp','FGPropeller.h','FGPiston.cpp')})
-        paths.update({'public-probe-manifest':public_path,'vendor/FGJSBBase.h':vendor/'src/FGJSBBase.h','vendor/FGPropulsion.cpp':vendor/'src/models/FGPropulsion.cpp','loaded-library.hpp':repo/'tests/engine/loaded-library.hpp','Session.cpp':repo/'native/fdm_jsbsim/interactive/src/session.cpp','source-build-manifest':build/'jsbsim-source-build-manifest.txt','consumer-fingerprint':build/'interactive-source-fingerprint.txt','generated-driver':generated/'driver.cpp','extraction-binding':generated/'extraction-binding.json','static-chronology':generated/'chronology-source-evidence.json'})
+        paths.update({'public-probe-manifest':public_path,'vendor/FGJSBBase.h':vendor/'src/FGJSBBase.h','vendor/FGPropulsion.cpp':vendor/'src/models/FGPropulsion.cpp','loaded-library.hpp':repo/'tests/engine/loaded-library.hpp','Session.cpp':repo/'native/fdm_jsbsim/interactive/src/session.cpp','source-build-manifest':build/'jsbsim-source-build-manifest.txt','consumer-fingerprint':build/'interactive-source-fingerprint.txt','generated-driver':generated/'driver.cpp','generated-helpers':generated/'flight_coupled_exact_vendor_helpers_v1.inc','extraction-binding':generated/'extraction-binding.json','static-chronology':generated/'chronology-source-evidence.json'})
         record={'schema':'coupled-probe-build-source-v1','public_manifest_sha256':v.sha(public_path),'backend_identity_sha256':'a'*64,'build_control_sha256':'b'*64,'consumer_fingerprint':'c'*64,'vendor_root':str(vendor),'vendor_roster':sorted(vendor_names),'repository_root':str(repo),'template_root':str(probes),'build_root':str(build),'files':{n:{'path':str(path),**meta(path)} for n,path in paths.items()}}
         binding=generated/'source-manifest.json';binding.write_text(json.dumps(record),encoding='utf-8')
         return probes,public_path,public,binding,record
@@ -115,6 +115,23 @@ class PortableIdentityTests(unittest.TestCase):
                     else:del record['files']['vendor-tree/src/FGJSBBase.h']
                     binding.write_text(json.dumps(record),encoding='utf-8')
                     with self.assertRaisesRegex(ValueError,'closed configured source binding roster'):v.source_files()
+
+    def test_generated_helper_binding_omitted_rejected(self):
+        with tempfile.TemporaryDirectory() as name:
+            probes,_,_,binding,record=self.build_fixture(Path(name))
+            with patch.object(v,'HERE',probes),patch.object(v,'SOURCE_MANIFEST',binding):
+                v.source_files()
+                del record['files']['generated-helpers']
+                binding.write_text(json.dumps(record),encoding='utf-8')
+                with self.assertRaisesRegex(ValueError,'closed configured source binding roster'):v.source_files()
+
+    def test_generated_helper_bytes_changed_rejected(self):
+        with tempfile.TemporaryDirectory() as name:
+            probes,_,_,binding,record=self.build_fixture(Path(name))
+            with patch.object(v,'HERE',probes),patch.object(v,'SOURCE_MANIFEST',binding):
+                v.source_files()
+                Path(record['files']['generated-helpers']['path']).write_bytes(b'changed helper\n')
+                with self.assertRaisesRegex(ValueError,'source identity changed'):v.source_files()
 
     def test_public_probe_shared_omission_rejected(self):
         for field in ('files','shared_sources'):

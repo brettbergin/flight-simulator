@@ -164,6 +164,7 @@ def source_files():
       'source-build-manifest':contained(build,'jsbsim-source-build-manifest.txt'),
       'consumer-fingerprint':contained(build,'interactive-source-fingerprint.txt'),
       'generated-driver':contained(Path(SOURCE_MANIFEST).parent,'driver.cpp'),
+      'generated-helpers':contained(Path(SOURCE_MANIFEST).parent,'flight_coupled_exact_vendor_helpers_v1.inc'),
       'extraction-binding':contained(Path(SOURCE_MANIFEST).parent,'extraction-binding.json'),
       'static-chronology':contained(Path(SOURCE_MANIFEST).parent,'chronology-source-evidence.json')})
     demand(set(binding['files'])==set(paths),'wrong closed configured source binding roster')

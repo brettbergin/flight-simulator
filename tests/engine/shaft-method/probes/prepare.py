@@ -42,17 +42,27 @@ def main():
     for line in encode:assert cpp.count(line)==1
     values['@@EXACT_ENCODE@@']=''.join(encode)
     template=(templates/'driver.template.cpp').read_bytes();driver=template.decode()
-    for key,value in values.items():assert driver.count(key)==1,key;driver=driver.replace(key,value)
+    # The helper block is exact vendor bytes in a uniquely named SYSTEM header.
+    # The driver, wrapper, owned types and standard includes stay outside it.
+    helper_name='flight_coupled_exact_vendor_helpers_v1.inc'
+    helpers=values['@@EXACT_HELPERS@@'].encode()
+    assert sha(helpers)=='f207d3d7dde6fe4b36c7112aa78cb235201a1de2172c168a96733c7f6323db6c','Verbatim helper header changed'
+    assert driver.count('#include <'+helper_name+'>')==1
+    for key,value in values.items():
+        if key=='@@EXACT_HELPERS@@':continue
+        assert driver.count(key)==1,key
+        driver=driver.replace(key,value)
     assert '@@' not in driver
     target=a.output.resolve()
     assert not target.exists() or not any(target.iterdir()),'Preserve old extraction; use a fresh build directory'
     target.mkdir(parents=True,exist_ok=True)
     data=driver.encode()
-    assert sha(data)=='4b78c5084659b866090e183cd4c43e69b1a41025b82e052f0e29e88309337d6a','Verbatim driver changed'
+    assert sha(data)=='962373cc03fc6ce3d44e9f7220ac0d565335682f52a4f6cb7852989be8b7ab38','Verbatim driver changed'
     (target/'driver.cpp').write_bytes(data)
+    (target/helper_name).write_bytes(helpers)
     receipt={'status':'SOURCE_ONLY_NO_COMPILER_OR_NUMERICAL_EXECUTION','vendor_source_sha256':PINS,
       'pi_source_sha256':sha(pi_bytes),'template_sha256':sha(template),'prepare_sha256':sha(Path(__file__).read_bytes()),
-      'driver_sha256':sha(data),'sections':{k:{'bytes':len(v.encode()),'sha256':sha(v.encode())} for k,v in values.items()}}
+      'driver_sha256':sha(data),'helper_header':{'path':helper_name,'bytes':len(helpers),'sha256':sha(helpers)},'sections':{k:{'bytes':len(v.encode()),'sha256':sha(v.encode())} for k,v in values.items()}}
     (target/'extraction-binding.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf-8',newline='\n')
     spec=importlib.util.spec_from_file_location('static_chronology',templates/'source-chronology.py')
     module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
@@ -90,7 +100,8 @@ def main():
     bind('loaded-library.hpp',repo/'tests/engine/loaded-library.hpp')
     bind('Session.cpp',repo/'native/fdm_jsbsim/interactive/src/session.cpp')
     bind('source-build-manifest',build_manifest);bind('consumer-fingerprint',consumer)
-    bind('generated-driver',target/'driver.cpp');bind('extraction-binding',target/'extraction-binding.json')
+    bind('generated-driver',target/'driver.cpp');bind('generated-helpers',target/helper_name)
+    bind('extraction-binding',target/'extraction-binding.json')
     bind('static-chronology',target/'chronology-source-evidence.json')
     record={'schema':'coupled-probe-build-source-v1','public_manifest_sha256':sha(public_manifest.read_bytes()),
       'backend_identity_sha256':field('Backend identity SHA256'),
