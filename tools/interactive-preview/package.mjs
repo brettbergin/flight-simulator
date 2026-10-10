@@ -221,6 +221,9 @@ function audit(root,proof,build,python='python'){
  const bridgeIdentity=nativeIdentity.build_witnesses.find(item=>item.path==='bin/flight_godot_bridge.dll');
  assert.equal(bridgeIdentity.sha256,modules.find(item=>item.name==='flight_godot_bridge.dll').sha256);
  assert.equal(bridgeIdentity.sha256,replacedModules.find(item=>item.name==='flight_godot_bridge.dll').sha256);
+ const pointerEnabled=nativeIdentity.source_variant==='jsbsim-1.3.1-event-aware-coupled-midpoint-v1';
+ const pointerReceipts=[];
+ if(pointerEnabled){validatePointerSources(repo,path.join(root,'project'),reconstructionRoot);for(const context of ['editor','portable','replacement'])pointerReceipts.push({context,...validatePointerEvidence(path.join(evidence,context+'-pointer-check-receipt.json'),path.join(evidence,context+'-pointer-flight-trace.json'),repo,path.join(root,'project'),nativeIdentity)});}
  const groundIdentity=validateGroundMaterialSources(repo,path.join(root,'project'),reconstructionRoot);
  const groundReceipts=['editor','portable','replacement'].map(context=>{
   const file=path.join(evidence,context+'-ground-receipt.json');ordinaryAncestors(file);const raw=fs.readFileSync(file);
@@ -348,6 +351,7 @@ function audit(root,proof,build,python='python'){
   const target='evidence/'+context+'-ground-receipt.json';fs.mkdirSync(path.dirname(path.join(payload,target)),{recursive:true});
   fs.writeFileSync(path.join(payload,target),raw);declare('native-export-proof',target,'evidence');
  }
+ for(const {context,raw} of pointerReceipts){const target='evidence/'+context+'-pointer-check-receipt.json';fs.mkdirSync(path.dirname(path.join(payload,target)),{recursive:true});fs.writeFileSync(path.join(payload,target),raw);declare('native-export-proof',target,'evidence');}
  stage('microsoft-vc143-crt','evidence/selected-runtime.json',runtime);stage('microsoft-vc143-crt','evidence/native-dependencies.json',dependencies);
  stage(libraryId,'evidence/jsbsim-replacement.json',replacementEvidence);stage(libraryId,'evidence/baseline-modules.json',modules);stage(libraryId,'evidence/replacement-modules.json',replacedModules);
  const sourceIdentity=stageAcceptedSourceIdentity(payload,path.join(proof,'payload'),acceptedLibrary,selection);
@@ -357,10 +361,131 @@ function audit(root,proof,build,python='python'){
  assert.deepEqual(auditRelease(register,manifest,{repoRoot:repo,packageRoot:payload}),[]);
  assert.deepEqual(auditDependencyLock(register,json(path.join(repo,'third_party/dependencies.lock.json'))),[]);
  write(path.join(evidence,'package-inventory.json'),manifest);
- write(path.join(evidence,'package-audit.json'),{schema_version:1,rights_integrity_passed:true,actual_combined_replacement_passed:true,model_pins_verified:true,actual_seven_modules_inside_payload:true,exact_editor_portable_repeat:true,observed_editor_portable_replacement_checks_passed:true,observed_source_closure_verified:true,observed_archive_checks_passed:true,ground_material_checks_passed:true,ground_material_contexts:groundReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)})),...(pistonEnabled?{piston_model_pins_verified:true,piston_editor_portable_replacement_checks_passed:true,piston_contexts:coldReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)}))}:{}),runtime_verification:runtime,trace_records_compared:traces[0].length,selected_library:selection,native_build_identity:nativeIdentity});
+ write(path.join(evidence,'package-audit.json'),{schema_version:1,rights_integrity_passed:true,actual_combined_replacement_passed:true,model_pins_verified:true,actual_seven_modules_inside_payload:true,exact_editor_portable_repeat:true,observed_editor_portable_replacement_checks_passed:true,observed_source_closure_verified:true,observed_archive_checks_passed:true,pointer_checks_enabled:pointerEnabled,...(pointerEnabled?{pointer_checks_passed:true,pointer_contexts:pointerReceipts.map(({context,raw,traceRaw,receipt,rows,commands})=>({context,checks:receipt.checks,rows,commands,summary:{bytes:raw.length,sha256:sha(raw)},trace:{path:context+'-pointer-flight-trace.json',bytes:traceRaw.length,sha256:sha(traceRaw)}}))}:{}),ground_material_checks_passed:true,ground_material_contexts:groundReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)})),...(pistonEnabled?{piston_model_pins_verified:true,piston_editor_portable_replacement_checks_passed:true,piston_contexts:coldReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)}))}:{}),runtime_verification:runtime,trace_records_compared:traces[0].length,selected_library:selection,native_build_identity:nativeIdentity});
  console.log('PASS combined package model/source/notices/full PE+CRT closure and actual replacement loop');
 }
+
+const pointerLimitsSHA='9b667d4b61e47e94af1eed20701119bd72d6de63e6eac28b8597ab44ae6d9feb';
+export const pointerSourcePaths={
+ 'app/input/input_mapper.gd':'input/input_mapper.gd',
+ 'app/input/input_preset.gd':'input/input_preset.gd',
+ 'app/cockpit/engine_controls.gd':'cockpit/engine_controls.gd',
+ 'app/cockpit/instruments/engine_status.gd':'cockpit/instruments/engine_status.gd',
+ 'app/simulation/flight_scene.gd':'simulation/flight_scene.gd',
+ 'app/simulation/session_facade.gd':'simulation/session_facade.gd',
+ 'tests/input/pointer_engine_checks.gd':'input_tests/pointer_engine_checks.gd',
+ 'tests/cockpit/engine_controls_checks.gd':'cockpit_tests/engine_controls_checks.gd',
+ 'tests/integration/input/pointer_engine_scene_checks.gd':'pointer_scene_tests/pointer_engine_scene_checks.gd',
+ 'tests/integration/input/pointer_flight_checks.gd':'pointer_scene_tests/pointer_flight_checks.gd',
+ 'tests/integration/input/pointer_visual.gd':'pointer_scene_tests/pointer_visual.gd',
+ 'tests/engine/native-limits.json':'pointer_scene_tests/native-limits.json',
+ ...Object.fromEntries(pistonNames.map(name=>['native/fdm_jsbsim/models/original-piston-prop/'+name,'piston-models/'+name])),
+ 'generated/pointer_checks.gd':'pointer_checks.gd',
+};
+function pointerKeys(value,keys,label){assert(plain(value),label+' object');assert.deepEqual(Object.keys(value).sort(),[...keys].sort(),label+' closed shape');}
+function pointerPass(value,extras=[]){
+ pointerKeys(value,['passed','checks','failures','scope',...extras],'Pointer group');
+ assert.equal(value.passed,true);assert(Number.isSafeInteger(value.checks)&&value.checks>0);assert.deepEqual(value.failures,[]);
+ assert.equal(typeof value.scope,'string');assert(value.scope.trim().length>0&&value.scope.length<=1024);
+}
+export function pointerSourceIdentity(repository,project){
+ const source_files={};
+ for(const [authored,mapped] of Object.entries(pointerSourcePaths)){
+  const file=path.join(authored.startsWith('generated/')?project:repository,authored.startsWith('generated/')?mapped:authored);
+  ordinaryAncestors(file);assert(fs.lstatSync(file).isFile());const raw=fs.readFileSync(file);
+  source_files[authored]={bytes:raw.length,sha256:sha(raw)};
+ }
+ assert.equal(source_files['tests/engine/native-limits.json'].sha256,pointerLimitsSHA,'Frozen original lifecycle limits changed');
+ return source_files;
+}
+export function validatePointerSummary(receipt,sourceFiles,resource){
+ pointerKeys(receipt,['schema','passed','checks','failures','scope','groups','source_files','native_identity'],'Pointer receipt');
+ assert.equal(receipt.schema,'PointerEngineChecks/v1');assert.equal(receipt.passed,true);assert.deepEqual(receipt.failures,[]);
+ assert(Number.isSafeInteger(receipt.checks)&&receipt.checks>0);assert.equal(typeof receipt.scope,'string');assert(receipt.scope.trim().length>0&&receipt.scope.length<=1024);
+ assert.deepEqual(receipt.source_files,sourceFiles,'Actual pointer runtime resources differ');validateResourceReceipt(receipt.native_identity,resource);
+ pointerKeys(receipt.groups,['mapper','panel','host','flight'],'Pointer mandatory four groups');
+ pointerPass(receipt.groups.mapper);pointerPass(receipt.groups.panel);pointerPass(receipt.groups.host,['physical_capture_observed','display_backend']);
+ const host=receipt.groups.host;assert.equal(typeof host.display_backend,'string');assert(host.display_backend.length>0&&host.display_backend.length<=64);
+ assert.equal(host.physical_capture_observed,host.display_backend!=='headless','Physical capture must remain unobserved on headless');
+ const flight=receipt.groups.flight;
+ pointerPass(flight,['rows','initialized','native_joined','audio_joined','limits_sha256','first_running_tick','first_stopped_tick','trace']);
+ assert.equal(flight.rows,13321);assert.equal(flight.initialized,true);assert.equal(flight.native_joined,true);assert.equal(flight.audio_joined,true);assert.equal(flight.limits_sha256,pointerLimitsSHA);
+ for(const name of ['first_running_tick','first_stopped_tick'])assert(Number.isSafeInteger(flight[name])&&flight[name]>=0);
+ pointerKeys(flight.trace,['path','bytes','sha256'],'External pointer flight binding');assert.equal(flight.trace.path,'pointer-flight-trace.json');
+ assert(Number.isSafeInteger(flight.trace.bytes)&&flight.trace.bytes>0&&flight.trace.bytes<=128*1024*1024);assert.match(flight.trace.sha256,/^[a-f0-9]{64}$/);
+ assert.equal(receipt.checks,Object.values(receipt.groups).reduce((sum,item)=>sum+item.checks,0),'Pointer aggregate uses each raw suite count exactly once');
+ return receipt.checks;
+}
+export function validatePointerFlight(trace,summary,limits,fingerprint){
+ pointerKeys(trace,['schema','passed','checks','failures','scene_failures','initialized','limits_sha256','initial_readback','first_running_tick','first_stopped_tick','gestures','lever_values','denied','rows','native_joined','audio_joined','scope'],'External pointer flight');
+ assert.equal(trace.schema,'PointerEngineFlight/v1');
+ for(const key of ['passed','checks','failures','scope','initialized','limits_sha256','first_running_tick','first_stopped_tick','native_joined','audio_joined'])assert.deepEqual(trace[key],summary[key],'Pointer full trace summary/'+key);
+ assert.deepEqual(trace.scene_failures,[]);assert(Array.isArray(trace.rows));assert.equal(trace.rows.length,13321);
+ const initial=trace.initial_readback;assert(plain(initial));assert.equal(initial.tick,'0');assert.equal(initial.paused,true);assert.equal(initial.native_live,true);assert.equal(initial.native_source_fingerprint,fingerprint);
+ assert.deepEqual(initial.model_identity,limits.profile);assert.equal(initial.named_start,'piston-cold-ground');assert.equal(initial.prepared_world_sha256,limits.world_sha256);
+ const targets=limits.targets;let nextSequence=1,previousFuel=100,firstRunning=-1,firstStopped=-1,maxCrank=0,maxTaxiSpeed=0,taxiStart=null;
+ for(const [index,row] of trace.rows.entries()){
+  pointerKeys(row,['tick','wall_us','raw','requested','expected_commands','actual_commands','readback'],'Pointer row');
+  const tick=index+1;assert.equal(row.tick,tick);assert.equal(row.wall_us,tick%3===1?8334:8333);
+  assert.deepEqual(row.actual_commands,row.expected_commands,'Exact full pointer command arrays/'+tick);
+  assert(Array.isArray(row.actual_commands));
+  for(const command of row.actual_commands){
+   pointerKeys(command,['type','schema_version','tick','session_id','sequence','source_id','authority','assistance','payload'],'Pointer command');
+   assert.equal(command.type,'ControlCommand');assert.equal(command.schema_version,1);assert.equal(command.tick,String(tick));assert.equal(command.sequence,String(nextSequence++));assert.equal(command.session_id,initial.session_id);assert.equal(command.source_id,'pilot.controls');assert.equal(command.authority,'pilot');assert.deepEqual(command.assistance,{profile_id:'unassisted',active:[]});
+  }
+  const state=row.readback;assert(plain(state));assert.equal(state.tick,String(tick));assert.equal(state.session_id,initial.session_id);assert.equal(state.native_live,true);assert.equal(state.paused,false);assert.equal(state.host_mode,'live');assert.equal(state.native_source_fingerprint,fingerprint);assert.equal(state.prepared_world_sha256,initial.prepared_world_sha256);assert.deepEqual(state.model_identity,initial.model_identity);assert.equal(state.debt_quanta,tick%3===1?320:tick%3===2?160:0);
+  assert.equal(state.aircraft.tick,String(tick));assert.equal(state.aircraft.session_id,initial.session_id);
+  const readings=new Map(state.aircraft.systems.map(item=>[item.id,item]));
+  const value=id=>{const item=readings.get(id);assert(item&&item.validity==='valid','Public pointer channel/'+id);return item.value;};
+  assert.equal(state.held_axes.throttle,row.requested.requested_axes.throttle);assert.equal(state.held_axes.mixture,row.requested.requested_axes.mixture);
+  for(const command of row.actual_commands){
+   if(command.payload.kind==='axes')assert.deepEqual(command.payload,state.held_axes,'Full admitted axes reflected in actual publication');
+   else{pointerKeys(command.payload,['kind','control_id','value'],'Pointer system payload');assert.equal(command.payload.kind,'system');assert(['engine.ignition_left','engine.ignition_right','engine.starter','fuel.feed'].includes(command.payload.control_id));assert.equal(typeof command.payload.value,'boolean');assert.equal(command.payload.value,value(command.payload.control_id),'Admitted system reflected in actual publication');}
+  }
+  const shaft=value('propeller.angular_speed'),running=value('engine.running'),fuel=value('fuel.total');assert(Number.isFinite(shaft)&&shaft>=targets.shaft_radps_domain[0]&&shaft<=targets.shaft_radps_domain[1]);assert.equal(typeof running,'boolean');assert(Number.isFinite(fuel)&&fuel>=0&&fuel<=100&&fuel<=previousFuel+targets.fuel_abs_tolerance_kg);previousFuel=fuel;
+  if(running&&firstRunning<0)firstRunning=tick;if(tick>=120&&tick<=240)maxCrank=Math.max(maxCrank,shaft);
+  if(tick>=960&&tick<=6120){assert.equal(running,true);assert(state.aircraft.contacts.length>0&&state.aircraft.contacts.every(item=>item.on_ground));}
+  if(tick>=960&&tick<=3480)assert(shaft>=targets.warm_shaft_radps[0]&&shaft<=targets.warm_shaft_radps[1]);
+  if(tick>=961)assert.equal(value('engine.starter'),false);
+  const velocity=state.aircraft.velocity_body_mps,speed=Math.hypot(velocity.x,velocity.y,velocity.z);
+  if(tick===3480)taxiStart=state.aircraft.ecef_position_m;
+  if(tick>=3480&&tick<=4680)maxTaxiSpeed=Math.max(maxTaxiSpeed,speed);
+  if(tick===4680){const end=state.aircraft.ecef_position_m;const forward=(end.x-taxiStart.x)*(-Math.sin(.8)*Math.cos(-2))+(end.y-taxiStart.y)*(-Math.sin(.8)*Math.sin(-2))+(end.z-taxiStart.z)*Math.cos(.8);assert(forward>=targets.taxi_forward_distance_min_m&&velocity.x>=targets.taxi_end_forward_speed_min_mps&&maxTaxiSpeed<=targets.taxi_speed_max_mps);}
+  if(tick>=4681&&firstStopped<0&&speed<=targets.stopped_speed_max_mps)firstStopped=tick;
+  if(tick===6120){assert.equal(running,true);assert(shaft>0);assert.equal(value('fuel.feed'),true);assert.equal(state.held_axes.mixture,1);}
+  if(tick===6121){assert.equal(running,false);assert(shaft>0);}
+  if(tick===9720)assert(shaft<=targets.coast_60rpm_radps);
+  if(tick===13320)assert(shaft<=targets.coast_1rpm_radps);
+  if(tick===13321)for(const id of ['fuel.feed','engine.ignition_left','engine.ignition_right'])assert.equal(value(id),false);
+ }
+ assert.equal(trace.first_running_tick,firstRunning);assert(firstRunning>=0&&firstRunning<=targets.first_running_deadline_s*120);assert(maxCrank>=targets.cranking_min_radps);assert.equal(trace.first_stopped_tick,firstStopped);assert(firstStopped>=0&&firstStopped<=targets.stopped_deadline_s*120);
+ assert(Array.isArray(trace.gestures)&&trace.gestures.length>0);assert(Array.isArray(trace.lever_values)&&trace.lever_values.length>0);
+ assert.deepEqual(trace.denied.map(item=>item.case),['malformed_Raw','bound_primary']);for(const item of trace.denied){assert.equal(item.paused,true);assert.deepEqual(item.before,item.after,'Denied pointer input admitted no commands/advance');assert.equal(typeof item.problem,'string');assert(item.problem.length>0);}
+ return {rows:trace.rows.length,commands:nextSequence-1};
+}
+export function validatePointerEvidence(receiptFile,traceFile,repository,project,nativeIdentity){
+ ordinaryAncestors(receiptFile);ordinaryAncestors(traceFile);
+ const raw=fs.readFileSync(receiptFile);assert(raw.length>0&&raw.length<=512*1024,'Bounded pointer summary required');const receipt=JSON.parse(raw.toString('utf8'));
+ validatePointerSummary(receipt,pointerSourceIdentity(repository,project),nativeIdentity.resource);
+ const traceRaw=fs.readFileSync(traceFile);assert.equal(traceRaw.length,receipt.groups.flight.trace.bytes);assert.equal(sha(traceRaw),receipt.groups.flight.trace.sha256);
+ const result=validatePointerFlight(JSON.parse(traceRaw.toString('utf8')),receipt.groups.flight,json(path.join(repository,'tests/engine/native-limits.json')),nativeIdentity.declared_source_fingerprint);
+ return {receipt,raw,traceRaw,...result};
+}
+function validatePointerSources(repository,project,reconstruction){
+ for(const [authored,mapped] of Object.entries(pointerSourcePaths)){
+  const expected=fs.readFileSync(path.join(authored.startsWith('generated/')?project:repository,authored.startsWith('generated/')?mapped:authored));
+  for(const root of [project,reconstruction]){const file=path.join(root,mapped);ordinaryAncestors(file);assert(fs.lstatSync(file).isFile());assert.deepEqual(fs.readFileSync(file),expected,'Pointer staged/corresponding resource/'+mapped);}
+ }
+ for(const folder of ['cockpit_tests','pointer_scene_tests']){
+  const expected=Object.values(pointerSourcePaths).filter(item=>item.startsWith(folder+'/')).map(item=>item.slice(folder.length+1)).sort();
+  assert.deepEqual(ordinaryFiles(path.join(reconstruction,folder)).sort(),expected,'Closed pointer corresponding-source roster');
+  const files=ordinaryFiles(path.join(project,folder));
+  for(const file of files.filter(item=>!expected.includes(item))){assert(file.endsWith('.gd.uid')&&expected.includes(file.slice(0,-4)));const raw=fs.readFileSync(path.join(project,folder,file));assert(raw.length<=64);assert.match(raw.toString('utf8'),/^uid:\/\/[a-z0-9]{1,20}\r?\n?$/);}
+  assert.deepEqual(files.filter(item=>expected.includes(item)).sort(),expected);
+ }
+}
+
 const [mode,...args]=process.argv.slice(2);
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
-if(mode==='models')models(...args);else if(mode==='audit')audit(...args);else if(mode==='ground-receipt'){assert.equal(args.length,2);ordinaryAncestors(args[0]);validateGroundMaterialReceipt(json(args[0]),groundMaterialIdentity(args[1]));console.log('PASS actual ground-material receipt/source identity');}else throw new Error('Expected models, audit or ground-receipt');
+if(mode==='models')models(...args);else if(mode==='audit')audit(...args);else if(mode==='pointer-receipt'){assert.equal(args.length,5);validatePointerEvidence(args[0],args[1],args[2],args[3],json(args[4]));console.log('PASS actual pointer four-suite receipt/external trace/source/native identity');}else if(mode==='ground-receipt'){assert.equal(args.length,2);ordinaryAncestors(args[0]);validateGroundMaterialReceipt(json(args[0]),groundMaterialIdentity(args[1]));console.log('PASS actual ground-material receipt/source identity');}else throw new Error('Expected models, audit or ground-receipt');
 }

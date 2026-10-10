@@ -60,7 +60,7 @@ function Get-InputSourceGroups {
  @(
   @{source='app/input';destination='input';required=@('input_mapper.gd','input_preset.gd')},
   @{source='app/ui/controls';destination='ui/controls';required=@('controls_panel.gd')},
-  @{source='tests/input';destination='input_tests';required=@('input_checks.gd','scene_checks.gd','piston_checks.gd','piston_panel_checks.gd','reference.json')}
+  @{source='tests/input';destination='input_tests';required=@('input_checks.gd','scene_checks.gd','piston_checks.gd','piston_panel_checks.gd','pointer_engine_checks.gd','reference.json')}
  )|ForEach-Object {
   $_.snapshot=@(Get-SimulationSourceSnapshot (Join-Path $RepoRoot $_.source) -RequiredEntries $_.required)
   $_
@@ -81,7 +81,7 @@ function Assert-InputSourceGroups {
 function Get-CockpitSourceGroups {
  param([Parameter(Mandatory)][string]$RepoRoot)
  @(
-  @{source='app/cockpit';destination='cockpit';required=@('instruments/native_readings.gd','instruments/scan_panel.gd','instruments/engine_status.gd')},
+  @{source='app/cockpit';destination='cockpit';required=@('instruments/native_readings.gd','instruments/scan_panel.gd','instruments/engine_status.gd','engine_controls.gd')},
   @{source='tests/instruments';destination='instrument_tests';required=@('instrument_checks.gd','adapter_checks.gd','cockpit_geometry_checks.gd','cockpit_visual.gd','scan_checks.gd','scene_checks.gd','engine_status_checks.gd','reference.json','preparation-manifest.json')},
   @{source='content/aircraft/prototype';destination='content/aircraft/prototype';required=@('cockpit-presentation.json')}
  )|ForEach-Object {
@@ -657,4 +657,126 @@ $pistonChecks
  get_tree().quit(0 if report.passed else 1)
 "@)
  [IO.File]::WriteAllText((Join-Path $ProjectRoot 'sim_loop_checks.tscn'),"[gd_scene load_steps=2 format=3]`n[ext_resource type=`"Script`" path=`"res://sim_loop_checks.gd`" id=`"1`"]`n[node name=`"SimulationChecks`" type=`"Node`"]`nscript=ExtResource(`"1`")`n")
+}
+
+# ADR017 pointer proof is separate from unchanged facade/cold receipt schemas.
+function Get-PointerSourceDefinitions {
+ @(
+  @{source='tests/cockpit/engine_controls_checks.gd';destination='cockpit_tests/engine_controls_checks.gd'},
+  @{source='tests/integration/input/pointer_engine_scene_checks.gd';destination='pointer_scene_tests/pointer_engine_scene_checks.gd'},
+  @{source='tests/integration/input/pointer_flight_checks.gd';destination='pointer_scene_tests/pointer_flight_checks.gd'},
+  @{source='tests/integration/input/pointer_visual.gd';destination='pointer_scene_tests/pointer_visual.gd'},
+  @{source='tests/engine/native-limits.json';destination='pointer_scene_tests/native-limits.json'}
+ )
+}
+function Get-PointerSourceGroups {
+ param([Parameter(Mandatory)][string]$RepoRoot)
+ @(Get-PointerSourceDefinitions|ForEach-Object {
+  $file=Join-Path $RepoRoot $_.source
+  Assert-PreviewOrdinaryAncestors -Path $file
+  $item=Get-Item -Force -LiteralPath $file -ErrorAction Stop
+  if($item.PSIsContainer){throw 'Pointer source must be an ordinary file'}
+  [pscustomobject]@{source=$_.source;destination=$_.destination;bytes=$item.Length;sha256=(Get-FileHash -LiteralPath $file).Hash.ToLowerInvariant()}
+ })
+}
+function Assert-PointerSourceGroups {
+ param([Parameter(Mandatory)][string]$Root,[Parameter(Mandatory)][object[]]$Groups,[switch]$Authoring,[switch]$AllowGeneratedUIDs)
+ $definitions=@(Get-PointerSourceDefinitions)
+ if($Groups.Count -ne $definitions.Count){throw 'Complete pointer source roster required'}
+ for($i=0;$i -lt $definitions.Count;$i++){
+  $file=$Groups[$i];$expected=$definitions[$i]
+  if((($file.PSObject.Properties.Name|Sort-Object)-join "`n") -cne "bytes`ndestination`nsha256`nsource" -or $file.source -cne $expected.source -or $file.destination -cne $expected.destination -or ($file.bytes -isnot [int] -and $file.bytes -isnot [long]) -or $file.bytes -le 0 -or $file.sha256 -isnot [string] -or $file.sha256 -cnotmatch '^[a-f0-9]{64}$'){throw 'Pointer source descriptor rejected'}
+  $path=Join-Path $Root $(if($Authoring){$file.source}else{$file.destination})
+  Assert-PreviewOrdinaryAncestors -Path $path
+  $item=Get-Item -Force -LiteralPath $path -ErrorAction Stop
+  if($item.PSIsContainer -or $item.Length -ne $file.bytes -or (Get-FileHash -LiteralPath $path).Hash.ToLowerInvariant() -cne $file.sha256){throw 'Pointer source bytes changed'}
+ }
+ if(-not $Authoring){
+  foreach($folder in @('cockpit_tests','pointer_scene_tests')){
+   $snapshot=@($Groups|Where-Object {$_.destination.StartsWith($folder+'/')}|ForEach-Object {[pscustomobject]@{path=$_.destination.Substring($folder.Length+1);bytes=$_.bytes;sha256=$_.sha256}}|Sort-Object path)
+   Assert-SimulationSourceSnapshot -SourceRoot (Join-Path $Root $folder) -Snapshot $snapshot -RequiredEntries @($snapshot.path) -AllowGeneratedUIDs:$AllowGeneratedUIDs
+  }
+ }
+}
+function Copy-PointerSourceGroups {
+ param([Parameter(Mandatory)][string]$RepoRoot,[Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Groups)
+ Assert-PointerSourceGroups -Root $RepoRoot -Groups $Groups -Authoring
+ Assert-PreviewOrdinaryAncestors -Path $DestinationRoot
+ foreach($folder in @('cockpit_tests','pointer_scene_tests')){if(Test-Path -LiteralPath (Join-Path $DestinationRoot $folder)){throw 'Pointer destinations must be fresh'}}
+ foreach($file in $Groups){
+  $target=Join-Path $DestinationRoot $file.destination
+  New-Item -ItemType Directory -Force -Path (Split-Path -Parent $target)|Out-Null
+  Copy-Item -LiteralPath (Join-Path $RepoRoot $file.source) -Destination $target
+ }
+ Assert-PointerSourceGroups -Root $DestinationRoot -Groups $Groups
+ Assert-PointerSourceGroups -Root $RepoRoot -Groups $Groups -Authoring
+}
+function Get-PointerRuntimeSourceDefinitions {
+ @(
+  @{source='app/input/input_mapper.gd';destination='input/input_mapper.gd'},
+  @{source='app/input/input_preset.gd';destination='input/input_preset.gd'},
+  @{source='app/cockpit/engine_controls.gd';destination='cockpit/engine_controls.gd'},
+  @{source='app/cockpit/instruments/engine_status.gd';destination='cockpit/instruments/engine_status.gd'},
+  @{source='app/simulation/flight_scene.gd';destination='simulation/flight_scene.gd'},
+  @{source='app/simulation/session_facade.gd';destination='simulation/session_facade.gd'},
+  @{source='tests/input/pointer_engine_checks.gd';destination='input_tests/pointer_engine_checks.gd'}
+ )
+ Get-PointerSourceDefinitions
+ @{source='generated/pointer_checks.gd';destination='pointer_checks.gd'}
+ Get-PistonSourceDefinitions|Where-Object {$_.destination.StartsWith('piston-models/')}
+}
+function Write-PointerCheckHarness {
+ param([Parameter(Mandatory)][string]$ProjectRoot)
+ $sources=ConvertTo-Json -InputObject @(Get-PointerRuntimeSourceDefinitions|ForEach-Object {,@($_.source,('res://'+$_.destination))}) -Depth 5 -Compress
+ [IO.File]::WriteAllText((Join-Path $ProjectRoot 'pointer_checks.gd'),@"
+extends Node
+var _driver_failures: Array[String]=[]
+func _ready() -> void:
+ call_deferred("run")
+func check(ok: bool,label: String) -> void:
+ if not ok: _driver_failures.append(label)
+func _output(name: String) -> String:
+ return ProjectSettings.globalize_path("res://"+name) if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join(name)
+func run() -> void:
+ if "--pointer-visual-smoke" in OS.get_cmdline_user_args():
+  var visual: Dictionary=await load("res://pointer_scene_tests/pointer_visual.gd").new().run(self)
+  print("POINTER_VISUAL_CHECKS "+JSON.stringify({"passed":visual.get("passed",false),"views":visual.get("views",[]).size(),"failures":visual.get("failures",[])}))
+  get_tree().quit(0 if visual.get("passed")==true and _driver_failures.is_empty() else 1)
+  return
+ var groups: Dictionary={}
+ groups.mapper=load("res://input_tests/pointer_engine_checks.gd").new().run()
+ groups.panel=await load("res://cockpit_tests/engine_controls_checks.gd").new().run(self)
+ groups.host=await load("res://pointer_scene_tests/pointer_engine_scene_checks.gd").new().run(self)
+ var flight: Dictionary=await load("res://pointer_scene_tests/pointer_flight_checks.gd").new().run(self)
+ var trace_path: String=_output("pointer-flight-trace.json")
+ var trace: FileAccess=FileAccess.open(trace_path,FileAccess.WRITE)
+ if trace==null:
+  push_error("Pointer trace could not be persisted")
+  get_tree().quit(1)
+  return
+ trace.store_string(JSON.stringify(flight));trace.close()
+ groups.flight={"passed":flight.get("passed",false),"checks":flight.get("checks",0),"failures":flight.get("failures",["flight result absent"]),"scope":flight.get("scope",""),"rows":flight.get("rows",[]).size(),"initialized":flight.get("initialized",false),"native_joined":flight.get("native_joined",false),"audio_joined":flight.get("audio_joined",false),"limits_sha256":flight.get("limits_sha256",""),"first_running_tick":flight.get("first_running_tick",-1),"first_stopped_tick":flight.get("first_stopped_tick",-1),"trace":{"path":"pointer-flight-trace.json","bytes":FileAccess.get_file_as_bytes(trace_path).size(),"sha256":FileAccess.get_sha256(trace_path)}}
+ var failures: Array=_driver_failures.duplicate()
+ var checks: int=0
+ for name in groups:
+  var item: Dictionary=groups[name]
+  if typeof(item.get("checks"))==TYPE_INT: checks+=item.checks
+  if item.get("passed")!=true or int(item.get("checks",0))<=0 or not item.get("failures",["absent"]).is_empty(): failures.append("pointer_"+name+"_failed_or_vacuous")
+ var source_files: Dictionary={}
+ var source_paths: Array=$sources
+ for item in source_paths:
+  var raw: PackedByteArray=FileAccess.get_file_as_bytes(item[1])
+  source_files[item[0]]={"bytes":raw.size(),"sha256":FileAccess.get_sha256(item[1])}
+ var resource_path: String="res://build/native_identity.gd"
+ var native_identity: Dictionary={"schema":"PreviewNativeResource/v1","path":"build/native_identity.gd","bytes":FileAccess.get_file_as_bytes(resource_path).size(),"sha256":FileAccess.get_sha256(resource_path)}
+ var receipt: Dictionary={"schema":"PointerEngineChecks/v1","passed":failures.is_empty(),"checks":checks,"failures":failures,"scope":"Actual separately identified pointer mapper/panel/host/native flight checks; original prototype only, no hardware/pilot/GPU or training qualification","groups":groups,"source_files":source_files,"native_identity":native_identity}
+ var output: FileAccess=FileAccess.open(_output("pointer-check-receipt.json"),FileAccess.WRITE)
+ if output==null:
+  push_error("Pointer summary could not be persisted")
+  get_tree().quit(1)
+  return
+ output.store_string(JSON.stringify(receipt));output.close()
+ print("POINTER_ENGINE_CHECKS "+str(checks)+" "+str(failures.size()))
+ get_tree().quit(0 if failures.is_empty() else 1)
+"@)
 }

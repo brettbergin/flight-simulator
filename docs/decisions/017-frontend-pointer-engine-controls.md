@@ -1,6 +1,6 @@
 # ADR017: Transient pointer operation of original engine controls
 
-Status: proposed under [#157](https://github.com/brettbergin/flight-simulator/issues/157); consumer [#158](https://github.com/brettbergin/flight-simulator/issues/158). Qualified #127 delivery is a merge prerequisite; this reviewed contract PR must merge before consumers change. Depends on accepted ADR007/008/009/010 and qualified #127 delivery; supports #21/#23, REAL-019/021, PRD-015 and UX-009/010/011/012/013. Does not close their broad hardware, source, interaction or phase acceptance requirements.
+Status: accepted under [#157](https://github.com/brettbergin/flight-simulator/issues/157) by [PR161](https://github.com/brettbergin/flight-simulator/pull/161), merged as `3cd3eaf79438e3802705b4bf8177f9b3bf59893e`; consumer [#158](https://github.com/brettbergin/flight-simulator/issues/158). Qualified #127 delivery merged before the contract. Depends on accepted ADR007/008/009/010 and qualified #127 delivery; supports #21/#23, REAL-019/021, PRD-015 and UX-009/010/011/012/013. Does not close their broad hardware, source, interaction or phase acceptance requirements.
 
 ## Decision
 
