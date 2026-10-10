@@ -17,6 +17,10 @@ The necessary changes are explicit:
 3. The new shaft equation has no 0.01 rad/s torque divisor or 0.1 RPM negative-power clip. Constant-power friction has an explicitly constrained finite stop. Those old regularizations remain in both preserved methods. Existing pre-step thrust/moment evaluation remains once per public call; its legacy reaction-moment divisor is not silently removed by this shaft proposal.
 4. At the public engine boundary, decide current combustion eligibility before computing Running-dependent FMEP. A current no-combustion condition must not compute a full tick of Running FMEP and then publish Running=false. This is an intentional chronology/model-surrogate amendment. The source's simplistic disappearance of Running FMEP after combustion stops remains a retained engineering approximation, not a validated friction model.
 
+## Reaction moment compatibility
+
+The preserved pre-step reaction path retains the original piston scalar-power clip: at pre-step engine `RPM<=0.1`, pass `max(pre_step_power_ftlb_per_s,0)` as reaction-moment input; otherwise pass the signed pre-step power. Evaluate `-Sense*reaction_power/max(0.01,omega0)` once in the existing propeller moment chronology. This prevents stopped-engine constant-friction power from becoming an artificial airframe reaction through the retained divisor. The source-derived shaft descriptor remains unclipped and independent of this moment-only scalar; it retains the finite-stop law specified below. Keep the original RPM comparison and both old-method source paths exact. Current-boundary mode selection still determines pre-step engine power. Verify zero negative-power reaction at stopped RPM and both sides of the original clip threshold separately from shaft integration.
+
 ## Public chronology and mode policy
 
 For the new method only, FGPiston Calculate performs these operations once:
