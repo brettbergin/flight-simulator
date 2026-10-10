@@ -423,6 +423,25 @@ function Assert-PreviewNativeResourceReceipt {
     ($Receipt.bytes -isnot [long] -and $Receipt.bytes -isnot [int]) -or $Receipt.bytes -ne $Identity.resource.bytes -or
     $Receipt.sha256 -isnot [string] -or $Receipt.sha256 -cnotmatch '^[a-f0-9]{64}$' -or $Receipt.sha256 -cne $Identity.resource.sha256){throw 'Actual runtime generated resource differs from independently qualified bytes'}
 }
+# Issue160 has a dedicated test namespace, separate from wind and facade groups.
+function Get-GroundMaterialSourceGroups {
+ param([Parameter(Mandatory)][string]$RepoRoot)
+ $group=@{source='tests/world/ground-materials';destination='ground_material_tests';required=@('checks.gd')}
+ $group.snapshot=@(Get-SimulationSourceSnapshot (Join-Path $RepoRoot $group.source) -RequiredEntries $group.required)
+ if($group.snapshot.Count -ne 1 -or $group.snapshot[0].path -cne 'checks.gd'){throw 'Ground-material test roster must contain exactly checks.gd'}
+ @($group)
+}
+function Copy-GroundMaterialSourceGroups {
+ param([Parameter(Mandatory)][string]$RepoRoot,[Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Groups)
+ foreach($group in $Groups){Copy-SimulationSourceSnapshot (Join-Path $RepoRoot $group.source) (Join-Path $DestinationRoot $group.destination) $group.snapshot -RequiredEntries $group.required}
+}
+function Assert-GroundMaterialSourceGroups {
+ param([Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Groups,[switch]$Authoring,[switch]$AllowGeneratedUIDs)
+ foreach($group in $Groups){
+  $path=if($Authoring){$group.source}else{$group.destination}
+  Assert-SimulationSourceSnapshot (Join-Path $DestinationRoot $path) $group.snapshot -RequiredEntries $group.required -AllowGeneratedUIDs:$AllowGeneratedUIDs
+ }
+}
 function Write-SimulationCheckHarness {
  param([Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)][string]$RepoRoot,[switch]$IncludePiston)
  $pistonChecks=if($IncludePiston){@'
@@ -479,7 +498,42 @@ func _ready() -> void:
  call_deferred("execute")
 func stage(boundary: String, name: String) -> void:
  print("PROOF_STAGE "+boundary+" "+name+" ms="+str(Time.get_ticks_msec()))
+func ground_material_checks() -> void:
+ # Only the test's temporary Node3D/ground is created; no flight session.
+ var driver: Script=load("res://ground_material_tests/checks.gd") as Script
+ if driver==null or not driver.can_instantiate():
+  push_error("Ground-material checks unavailable")
+  get_tree().quit(1)
+  return
+ var result: Dictionary=driver.run()
+ var source_files: Dictionary={}
+ for item in [
+  ["app/proof/interactive/flight_world.gd","res://interactive/flight_world.gd"],
+  ["tests/world/ground-materials/checks.gd","res://ground_material_tests/checks.gd"],
+  ["content/aircraft/prototype/ground-presentation.json","res://content/aircraft/prototype/ground-presentation.json"]]:
+  var raw: PackedByteArray=FileAccess.get_file_as_bytes(item[1])
+  source_files[item[0]]={"bytes":raw.size(),"sha256":FileAccess.get_sha256(item[1])}
+ var world: Script=load("res://interactive/flight_world.gd") as Script
+ var shader_constants: Dictionary=world.get_script_constant_map()
+ var shader_code: String=shader_constants["GROUND_SHADER"]
+ var report: Dictionary={"result":result,"source_files":source_files,"shader_code_utf8_sha256":shader_code.sha256_text()}
+ var output: String=ProjectSettings.globalize_path("res://ground-material-receipt.json") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("ground-material-receipt.json")
+ if FileAccess.file_exists(output):
+  push_error("Ground-material receipt must be fresh")
+  get_tree().quit(1)
+  return
+ var file: FileAccess=FileAccess.open(output,FileAccess.WRITE)
+ if file==null:
+  push_error("Ground-material receipt cannot be saved")
+  get_tree().quit(1)
+  return
+ file.store_string(JSON.stringify(report,"  "));file.close()
+ print("GROUND_MATERIALS_CHECKS ",JSON.stringify(report))
+ get_tree().quit(0 if result.get("passed",false) else 1)
 func execute() -> void:
+ if "--ground-material-checks" in OS.get_cmdline_user_args():
+  ground_material_checks()
+  return
  var identity_bytes: PackedByteArray=FileAccess.get_file_as_bytes("res://build/native_identity.gd")
  var identity_hash: String=FileAccess.get_sha256("res://build/native_identity.gd")
  var identity_receipt: Dictionary={"schema":"PreviewNativeResource/v1","path":"build/native_identity.gd","bytes":identity_bytes.size(),"sha256":identity_hash}

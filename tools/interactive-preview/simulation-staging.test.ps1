@@ -421,3 +421,31 @@ Write-Output 'PASS hidden native identity ancestors/source/destination/build/res
 $runnerText=[IO.File]::ReadAllText((Join-Path $PSScriptRoot 'run.ps1'))
 if($runnerText -notmatch 'exclude_filter="[^"\r\n]*landmark\*\.png,landmark\*-receipt\.json,observed\*\.png,observed\*-receipt\.json,wind\*\.png,wind\*-receipt\.json"'){throw 'Landmark/observed/wind observer output must be excluded from PCK authoring'}
 Write-Output 'PASS bounded landmark/observed/wind visual observer output exclusion; source/reference groups remain exact.'
+
+# Actual dedicated ground group: keep its checks.gd distinct from every other suite.
+$groundFixture=Join-Path $testRoot 'ground-repo'
+$groundFolder=Join-Path $groundFixture 'tests/world/ground-materials'
+New-Item -ItemType Directory -Path $groundFolder -Force|Out-Null
+[IO.File]::WriteAllText((Join-Path $groundFolder 'checks.gd'),'extends RefCounted # ground fixture')
+$groundGroups=@(Get-GroundMaterialSourceGroups -RepoRoot $groundFixture)
+$groundProject=Join-Path $testRoot 'ground-project'
+$groundSource=Join-Path $testRoot 'ground-source'
+Copy-GroundMaterialSourceGroups -RepoRoot $groundFixture -DestinationRoot $groundProject -Groups $groundGroups
+Copy-GroundMaterialSourceGroups -RepoRoot $groundFixture -DestinationRoot $groundSource -Groups $groundGroups
+Assert-GroundMaterialSourceGroups -DestinationRoot $groundFixture -Groups $groundGroups -Authoring
+Assert-GroundMaterialSourceGroups -DestinationRoot $groundProject -Groups $groundGroups
+Assert-GroundMaterialSourceGroups -DestinationRoot $groundSource -Groups $groundGroups
+$groundScript=Join-Path $groundProject 'ground_material_tests/checks.gd'
+$groundBytes=[IO.File]::ReadAllBytes($groundScript)
+[IO.File]::WriteAllText($groundScript,'changed ground source')
+Must-Reject {Assert-GroundMaterialSourceGroups -DestinationRoot $groundProject -Groups $groundGroups} 'ground staged byte drift'
+[IO.File]::WriteAllBytes($groundScript,$groundBytes)
+[IO.File]::WriteAllText(($groundScript+'.uid'),"uid://groundfixture`n")
+Assert-GroundMaterialSourceGroups -DestinationRoot $groundProject -Groups $groundGroups -AllowGeneratedUIDs
+Must-Reject {Assert-GroundMaterialSourceGroups -DestinationRoot $groundProject -Groups $groundGroups} 'ground UID in exact source'
+[IO.File]::WriteAllText((Join-Path $groundFolder 'extra.gd'),'extends Node')
+Must-Reject {Get-GroundMaterialSourceGroups -RepoRoot $groundFixture} 'unknown ground authoring resource'
+Remove-Item -LiteralPath (Join-Path $groundFolder 'extra.gd')
+Remove-Item -LiteralPath (Join-Path $groundFolder 'checks.gd')
+Must-Reject {Get-GroundMaterialSourceGroups -RepoRoot $groundFixture} 'missing ground check entry point'
+Write-Output 'PASS dedicated ground-material source staging, byte/set drift and destination-only UID policy.'
