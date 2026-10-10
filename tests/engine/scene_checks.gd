@@ -5,7 +5,7 @@ const Scene = preload("res://simulation/flight_scene.gd")
 const Facade = preload("res://simulation/session_facade.gd")
 const Mapper = preload("res://input/input_mapper.gd")
 const EngineStatus = preload("res://cockpit/instruments/engine_status.gd")
-const Panel = preload("res://interactive/flight_panel.gd")
+const FlightPanel = preload("res://interactive/flight_panel.gd")
 const Sound = preload("res://interactive/flight_sound.gd")
 const HISTORY: String="res://engine_tests/reference/minimal.fsreview.json"
 
@@ -14,7 +14,7 @@ class SyntheticScene extends Scene:
  func collect_input_raw(_preset: Dictionary={}) -> Dictionary:
   return synthetic_raw.duplicate(true)
 
-class CapturedPanel extends Panel:
+class CapturedPanel extends FlightPanel:
  var text_calls: Array[String]=[]
  func _text(_at: Vector2,text: String,_pixels: float=14.0,_color: Color=INK,_centered: bool=false) -> void:
   text_calls.append(text)
