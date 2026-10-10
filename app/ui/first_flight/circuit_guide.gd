@@ -7,6 +7,7 @@ const CAPTION: String = "Fixed schematic · not to map scale"
 const CYAN := Color("79d7e4")
 const MUTED := Color("a0b5c4")
 var _view: Dictionary = Geometry.unavailable("Aid off")
+var _compact_unavailable: bool = false
 var _title: Label
 var _caption: Label
 var _reason: Label
@@ -16,7 +17,7 @@ var _font: Font = ThemeDB.fallback_font
 
 func _init() -> void:
 	mouse_filter=Control.MOUSE_FILTER_IGNORE
-	custom_minimum_size=Vector2(280,300)
+	custom_minimum_size=Vector2(240,200)
 	_title=_label(TITLE,12,CYAN)
 	_title.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	_caption=_label(CAPTION,11,MUTED)
@@ -45,6 +46,11 @@ func set_state(view: Dictionary, enabled: bool) -> void:
 		_view=view.duplicate(true) if Geometry.valid_view(view) else Geometry.unavailable("Malformed circuit display")
 	_arrange()
 
+func set_compact_unavailable(enabled: bool) -> void:
+	# Presentation only. Availability and the copied source view remain unchanged.
+	_compact_unavailable=enabled
+	_arrange()
+
 static func schematic_points(rect: Rect2) -> Array[Vector2]:
 	# Fixed authored x[-1400,0], z[-2700,1300], independent of ownship/map extent.
 	var result: Array[Vector2] = []
@@ -59,20 +65,30 @@ func schematic_rect() -> Rect2:
 
 func _arrange() -> void:
 	if _title==null: return
+	var compact: bool=_compact_unavailable and not _view.available
+	custom_minimum_size=Vector2(240,84 if compact else 200)
+	if size.x<custom_minimum_size.x or size.y<custom_minimum_size.y:
+		size=Vector2(maxf(size.x,custom_minimum_size.x),maxf(size.y,custom_minimum_size.y))
+	_caption.visible=not compact
+	_footer.visible=not compact
+	_reason.add_theme_font_size_override("font_size",11 if compact else 12)
 	_title.position=Vector2(12,8)
 	_title.size=Vector2(maxf(1.0,size.x-24),40)
-	_caption.position=Vector2(12,52)
-	_caption.size=Vector2(maxf(1.0,size.x-24),18)
-	_reason.position=Vector2(14,88)
-	_reason.size=Vector2(maxf(1.0,size.x-28),maxf(1.0,size.y-126))
+	_caption.position=Vector2(12,50)
+	_caption.size=Vector2(maxf(1.0,size.x-24),16)
+	_reason.position=Vector2(8 if compact else 14,50 if compact else 70)
+	_reason.size=Vector2(maxf(1.0,size.x-(16 if compact else 28)),maxf(1.0,size.y-(56 if compact else 102)))
 	_reason.text=_view.error
 	_reason.visible=not _view.available
 	_footer.position=Vector2(12,maxf(0.0,size.y-24))
 	_footer.size=Vector2(maxf(1.0,size.x-24),16)
+	# A 20 px pitch preserves 12 px legend text at the 200 px minimum.
+	# Taller panels gain spacing without changing the fixed projection.
+	var legend_pitch: float=clampf((size.y-100.0)/5.0,20.0,29.0)
 	for i in _labels.size():
 		var label: Label=_labels[i]
-		label.position=Vector2(size.x*0.52+8,82+i*29)
-		label.size=Vector2(maxf(1.0,size.x*0.48-20),22)
+		label.position=Vector2(size.x*0.52+8,70+i*legend_pitch)
+		label.size=Vector2(maxf(1.0,size.x*0.48-20),18)
 		label.text="%d  %s" % [i+1,_view.leg_labels[i]] if _view.available else ""
 		label.visible=_view.available
 	queue_redraw()

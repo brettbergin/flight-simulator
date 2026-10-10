@@ -270,7 +270,121 @@ function New-WindReceiptFixture {
  }
 }
 $receipt|Add-Member -NotePropertyName wind -NotePropertyValue (New-WindReceiptFixture)
+function New-FirstFlightReceiptFixture {
+ param([bool]$IncludePiston=$true,[string]$ExpectedSourceFingerprint='5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5')
+ $groups=[pscustomobject]@{}
+ foreach($name in @('briefing','bindings','geometry','card','map','scene')){
+  $item=[pscustomobject]@{passed=$true;checks=1;failures=@()}
+  $item|Add-Member -NotePropertyName $(if($name -eq 'bindings'){'limits'}else{'scope'}) -NotePropertyValue 'Synthetic receipt admission fixture only'
+  if($name -eq 'geometry'){
+   $item|Add-Member -NotePropertyName fixture_sha256 -NotePropertyValue '2a4540d99d4500e326a1b1f0673583bd6f8ea99d430b991fcca1130befbbddcc'
+   $item|Add-Member -NotePropertyName captured_readback_sha256 -NotePropertyValue '58b1a7b0ec46161357c1268dbaeeaab27f84bbbd4de70def35571fd45ddb67f9'
+   $item|Add-Member -NotePropertyName baseline_origin -NotePropertyValue $(if($IncludePiston){'saved-capture'}else{'observed-upstream'})
+   $item|Add-Member -NotePropertyName baseline_source_fingerprint -NotePropertyValue $ExpectedSourceFingerprint
+  }
+  if($name -eq 'scene'){
+   $choices=@(
+    @{id='cold-familiarization';start='piston-cold-ground';profile=@{id='original-piston-prop-v1';version='0.1.0-prototype';backend_model='original-piston-prop'}},
+    @{id='ready-flight';start='ground-ready';profile=@{id='original-interactive-prototype';version='0.1.0-prototype';backend_model='original-interactive'}},
+    @{id='airborne-orientation';start='airborne-prepared';profile=@{id='original-interactive-prototype';version='0.1.0-prototype';backend_model='original-interactive'}}
+   )
+   $selected=if($IncludePiston){$choices}else{@($choices[1],$choices[2])}
+   $oldSources=if($IncludePiston){@(@{profile='original-interactive-prototype';start='ground-ready'},@{profile='original-piston-prop-v1';start='piston-cold-ground'})}else{@(@{profile='original-interactive-prototype';start='ground-ready'},@{profile='original-interactive-prototype';start='airborne-prepared'})}
+   $rows=@(
+    foreach($old in $oldSources){foreach($choice in $selected){[pscustomobject]@{label='immediate_'+$old.profile+'_'+$old.start+'_'+$choice.id;model_identity=[pscustomobject]$choice.profile.Clone();start=$choice.start;tick='0';pause_attempts=@($true);native_calls=1;completed=0}}}
+    foreach($choice in $selected){[pscustomobject]@{label='confirmed_'+$choice.id;model_identity=[pscustomobject]$choice.profile.Clone();start=$choice.start;tick='0';pause_attempts=@($true);native_calls=1;completed=0}}
+    [pscustomobject]@{label='joined_failure_explicit_recovery';model_identity=[pscustomobject]$choices[1].profile.Clone();start='ground-ready';tick='0';pause_attempts=@($true);native_calls=1;completed=0}
+   )
+   $item|Add-Member -NotePropertyName adoptions -NotePropertyValue $rows
+   $item|Add-Member -NotePropertyName include_piston -NotePropertyValue $IncludePiston
+   $item|Add-Member -NotePropertyName route_scope -NotePropertyValue $(if($IncludePiston){'coupled: all six same/cross-profile choices and three advanced confirmations'}else{'upstream: four legacy start mappings, two advanced confirmations and explicit cold admission rejection; cold runtime is not qualified'})
+  }
+  $groups|Add-Member -NotePropertyName $name -NotePropertyValue $item
+ }
+ $groups
+}
+$receipt|Add-Member -NotePropertyName first_flight -NotePropertyValue (New-FirstFlightReceiptFixture)
 Assert-PreviewFacadeReceipt $receipt
+foreach($name in @('briefing','bindings','geometry','card','map','scene')){
+ foreach($wrong in @(0,-1,'1',[double]1)){
+  $receipt.first_flight=New-FirstFlightReceiptFixture;$receipt.first_flight.$name.checks=$wrong
+  Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('vacuous or malformed first-flight '+$name)
+ }
+ $receipt.first_flight=New-FirstFlightReceiptFixture;$receipt.first_flight.$name.passed=$false
+ Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('failed first-flight '+$name)
+ $receipt.first_flight=New-FirstFlightReceiptFixture;$receipt.first_flight.PSObject.Properties.Remove($name)
+ Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('missing first-flight '+$name)
+}
+$receipt.first_flight=New-FirstFlightReceiptFixture
+$receipt.first_flight.geometry.captured_readback_sha256='f'*64
+Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'unbound first-flight capture'
+$receipt.first_flight=New-FirstFlightReceiptFixture
+foreach($field in @('baseline_origin','baseline_source_fingerprint')){
+ $receipt.first_flight=New-FirstFlightReceiptFixture
+ $receipt.first_flight.geometry.$field='unbound'
+ Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('unbound first-flight '+$field)
+}
+$receipt.first_flight=New-FirstFlightReceiptFixture
+Must-Reject {Assert-PreviewFacadeReceipt $receipt -IncludePiston $false -ExpectedSourceFingerprint ('f'*64)} 'relabeling saved capture as upstream'
+$receipt.first_flight=New-FirstFlightReceiptFixture -IncludePiston $false -ExpectedSourceFingerprint ('f'*64)
+Assert-PreviewFacadeReceipt $receipt -IncludePiston $false -ExpectedSourceFingerprint ('f'*64)
+Must-Reject {Assert-PreviewFacadeReceipt $receipt -IncludePiston $false -ExpectedSourceFingerprint ('e'*64)} 'wrong actual upstream source'
+$receipt.first_flight=New-FirstFlightReceiptFixture
+# These mutations specifically exercise PS/Node parity, not the implementation
+# of the UI/native tests. Coherent selected-route positives precede both modes.
+$firstFlightParityNegatives=0
+foreach($mode in @($true,$false)){
+ $sourceFingerprint=if($mode){'5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'}else{'f'*64}
+ $receipt.first_flight=New-FirstFlightReceiptFixture -IncludePiston $mode -ExpectedSourceFingerprint $sourceFingerprint
+ if($receipt.first_flight.scene.adoptions.Count -ne $(if($mode){10}else{7})){throw 'Receipt fixture must exercise the complete selected adoption roster'}
+ Assert-PreviewFacadeReceipt $receipt -IncludePiston $mode -ExpectedSourceFingerprint $sourceFingerprint
+ foreach($name in @('briefing','bindings','geometry','card','map','scene')){
+  foreach($kind in @('extra','missing','both-diagnostics')){
+   $receipt.first_flight=New-FirstFlightReceiptFixture -IncludePiston $mode -ExpectedSourceFingerprint $sourceFingerprint
+   $item=$receipt.first_flight.$name
+   if($kind -eq 'extra'){$item|Add-Member -NotePropertyName skipped -NotePropertyValue $true}
+   elseif($kind -eq 'missing'){$item.PSObject.Properties.Remove('checks')}
+   else{$item|Add-Member -NotePropertyName $(if($name -eq 'bindings'){'scope'}else{'limits'}) -NotePropertyValue 'Ambiguous second evidence scope'}
+   Must-Reject {Assert-PreviewFacadeReceipt $receipt -IncludePiston $mode -ExpectedSourceFingerprint $sourceFingerprint} ('first-flight closed child '+$name+'/'+$kind)
+   $firstFlightParityNegatives++
+  }
+ }
+ $mutations=@(
+  @{label='wrong selected backend';change={param($v) $v.scene.include_piston=-not $v.scene.include_piston}},
+  @{label='nonboolean selected backend';change={param($v) $v.scene.include_piston='true'}},
+  @{label='misreported route scope';change={param($v) $v.scene.route_scope='all routes skipped'}},
+  @{label='omitted adoption';change={param($v) $v.scene.adoptions=@($v.scene.adoptions|Select-Object -Skip 1)}},
+  @{label='duplicate adoption';change={param($v) $v.scene.adoptions[1]=$v.scene.adoptions[0]}},
+  @{label='unknown adoption';change={param($v) $v.scene.adoptions[0].label='unknown'}},
+  @{label='case-changed adoption';change={param($v) $v.scene.adoptions[0].label=$v.scene.adoptions[0].label.ToUpperInvariant()}},
+  @{label='extra adoption field';change={param($v) $v.scene.adoptions[0]|Add-Member -NotePropertyName skipped -NotePropertyValue $true}},
+  @{label='incomplete profile';change={param($v) $v.scene.adoptions[0].model_identity.PSObject.Properties.Remove('backend_model')}},
+  @{label='extra profile field';change={param($v) $v.scene.adoptions[0].model_identity|Add-Member -NotePropertyName substituted -NotePropertyValue $true}},
+  @{label='wrong full profile';change={param($v) $v.scene.adoptions[0].model_identity.version='other'}},
+  @{label='wrong named start';change={param($v) $v.scene.adoptions[0].start='invented-running-piston'}},
+  @{label='advanced tick';change={param($v) $v.scene.adoptions[0].tick='1'}},
+  @{label='numeric tick';change={param($v) $v.scene.adoptions[0].tick=0}},
+  @{label='empty pause attempts';change={param($v) $v.scene.adoptions[0].pause_attempts=@()}},
+  @{label='hidden Resume';change={param($v) $v.scene.adoptions[0].pause_attempts=@($true,$false)}},
+  @{label='coerced pause truth';change={param($v) $v.scene.adoptions[0].pause_attempts=@(1)}},
+  @{label='unbounded pause attempts';change={param($v) $v.scene.adoptions[0].pause_attempts=@(1..129|ForEach-Object {$true})}},
+  @{label='no native call';change={param($v) $v.scene.adoptions[0].native_calls=0}},
+  @{label='noninteger native call';change={param($v) $v.scene.adoptions[0].native_calls=[double]1}},
+  @{label='unsafe native call count';change={param($v) $v.scene.adoptions[0].native_calls=[long]9007199254740992}},
+  @{label='completed hidden Run';change={param($v) $v.scene.adoptions[0].completed=1}},
+  @{label='noninteger completed count';change={param($v) $v.scene.adoptions[0].completed=[double]0}},
+  @{label='unsafe group count';change={param($v) $v.briefing.checks=[long]9007199254740992}},
+  @{label='unsafe accumulated count';change={param($v) $v.briefing.checks=[long]4503599627370495;$v.card.checks=[long]4503599627370495}}
+ )
+ foreach($mutation in $mutations){
+  $receipt.first_flight=New-FirstFlightReceiptFixture -IncludePiston $mode -ExpectedSourceFingerprint $sourceFingerprint
+  & $mutation.change $receipt.first_flight
+  Must-Reject {Assert-PreviewFacadeReceipt $receipt -IncludePiston $mode -ExpectedSourceFingerprint $sourceFingerprint} ('first-flight '+$mutation.label)
+  $firstFlightParityNegatives++
+ }
+}
+$receipt.first_flight=New-FirstFlightReceiptFixture
+Write-Output ('PASS first-flight PS/Node receipt parity, both selected-source routes and '+$firstFlightParityNegatives+' closed-shape/lifecycle/count negatives')
 foreach($name in @('bridge','cue','scene')){
  foreach($wrong in @(0,-1,'1',[double]1)){
   $receipt.wind=New-WindReceiptFixture;$receipt.wind.$name.checks=$wrong
@@ -493,3 +607,31 @@ if($harnessPairs.Count -ne 20){throw 'Generated pointer runtime source roster in
 foreach($pair in $harnessPairs){if($pair.Count -ne 2 -or $pair[0] -isnot [string] -or $pair[1] -isnot [string] -or -not $pair[1].StartsWith('res://')){throw 'Generated pointer source/runtime pair malformed'}}
 if(@($harnessPairs|Where-Object {$_[0] -ceq 'generated/pointer_checks.gd' -and $_[1] -ceq 'res://pointer_checks.gd'}).Count -ne 1){throw 'Generated harness actual self-hash missing'}
 Write-Output 'PASS generated pointer harness source-pair shape and self-hash'
+
+# ADR018 resources must survive authoring/staged/corresponding source intact.
+$firstFlightGroups=@(Get-FirstFlightSourceGroups -RepoRoot $repo)
+if($firstFlightGroups.Count -ne 8 -or @($firstFlightGroups|ForEach-Object {$_.snapshot}).Count -ne 13){throw 'Complete first-flight resource roster required'}
+$firstFlightStage=Join-Path $testRoot 'first-flight-stage'
+$firstFlightSource=Join-Path $testRoot 'first-flight-source'
+Copy-FirstFlightSourceGroups -RepoRoot $repo -DestinationRoot $firstFlightStage -Groups $firstFlightGroups
+Copy-FirstFlightSourceGroups -RepoRoot $repo -DestinationRoot $firstFlightSource -Groups $firstFlightGroups
+Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -Groups $firstFlightGroups
+Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightSource -Groups $firstFlightGroups
+$firstFlightBound=Join-Path $firstFlightStage 'world_tests/synthetic/circuit_checks.gd'
+$firstFlightBytes=[IO.File]::ReadAllBytes($firstFlightBound)
+$firstFlightChanged=[byte[]]$firstFlightBytes.Clone()
+$firstFlightChanged[0]=$firstFlightChanged[0] -bxor 1
+[IO.File]::WriteAllBytes($firstFlightBound,$firstFlightChanged)
+Must-Reject {Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -Groups $firstFlightGroups} 'first-flight same-length baseline/source tampering'
+[IO.File]::WriteAllBytes($firstFlightBound,$firstFlightBytes)
+$firstFlightUid=$firstFlightBound+'.uid'
+[IO.File]::WriteAllText($firstFlightUid,"uid://123abc`n")
+Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -Groups $firstFlightGroups -AllowGeneratedUIDs
+Must-Reject {Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -Groups $firstFlightGroups} 'first-flight UID in exact corresponding source'
+[IO.File]::WriteAllText($firstFlightUid,'not a UID')
+Must-Reject {Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -Groups $firstFlightGroups -AllowGeneratedUIDs} 'malformed first-flight UID'
+Remove-Item -LiteralPath $firstFlightUid
+$firstFlightVisual=Join-Path $firstFlightStage 'first_flight_scene_tests/visual_checks.gd'
+Remove-Item -LiteralPath $firstFlightVisual
+Must-Reject {Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -Groups $firstFlightGroups -AllowGeneratedUIDs} 'omitted first-flight visual driver'
+Write-Output 'PASS first-flight full resource staging, exact capture/source tampering, missing visual and generated UID negatives'

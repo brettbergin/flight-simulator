@@ -8,8 +8,8 @@ const Sources = preload("res://world_tests/synthetic/circuit_checks.gd")
 var checks: int = 0
 var failures: Array[String] = []
 
-static func run() -> Dictionary:
-	return new()._run()
+static func run(observed_readback: Dictionary = {}) -> Dictionary:
+	return new()._run(observed_readback)
 
 func _check(ok: bool, label: String) -> void:
 	checks+=1
@@ -24,15 +24,29 @@ func _clear(card: Control, label: String) -> void:
 	for item in card._labels: _check(not item.visible and item.text.is_empty(),label+"_empty_label")
 	_check(card._reason.visible and not card._reason.text.is_empty(),label+"_visible_reason")
 
-func _run() -> Dictionary:
-	var base: Dictionary=Sources.captured_readback()
-	_check(not base.is_empty(),"approved_original_fixture")
-	if base.is_empty(): return _result()
+func _run(observed_readback: Dictionary = {}) -> Dictionary:
+	var original: Dictionary=Sources.captured_readback()
+	_check(not original.is_empty(),"approved_original_fixture")
+	if original.is_empty(): return _result()
+	if not observed_readback.is_empty():
+		_check(observed_readback.get("native_source_fingerprint")==Sources.Cue.SUPPORTED_SOURCE and original.native_source_fingerprint!=Sources.Cue.SUPPORTED_SOURCE,"supplied_baseline_is_current_upstream_not_saved_capture")
+		_check(not Geometry.view(original,"calm",36).available,"original_capture_unavailable_on_upstream")
+	var base: Dictionary=original.duplicate(true) if observed_readback.is_empty() else observed_readback.duplicate(true)
+	var baseline_snapshot: Dictionary=base.duplicate(true)
 	var view: Dictionary=Geometry.view(base,"calm",36)
 	_check(view.available,"qualified_available_view")
 	if not view.available: return _result()
 	var card := Card.new()
-	_check(card.custom_minimum_size==Vector2(280,300),"narrow_card_minimum")
+	# Enter the active tree so Label resolves the real theme overrides and wraps
+	# text at the requested width before inspecting rectangles/font metrics.
+	var tree := Engine.get_main_loop() as SceneTree
+	_check(tree!=null,"actual_label_theme_tree_available")
+	if tree==null:
+		card.free()
+		return _result()
+	tree.root.add_child(card)
+	_check(card.custom_minimum_size==Vector2(240,200),"narrow_card_minimum")
+	_check(not card._compact_unavailable,"compact_unavailable_default_false")
 	_check(card.mouse_filter==Control.MOUSE_FILTER_IGNORE,"card_never_intercepts_live_mouse")
 	_check(card.has_signal("enabled_requested"),"paused_chooser_signal_seam")
 	for child in card.get_children():
@@ -45,9 +59,10 @@ func _run() -> Dictionary:
 	_check(card._view==snapshot,"set_state_recursively_owns_input")
 	_check(card._title.text=="OPTIONAL SYNTHETIC CIRCUIT REFERENCE · not evaluated","persistent_optional_not_evaluated")
 	_check(card._caption.text=="Fixed schematic · not to map scale","fixed_not_map_scale")
+	_check(card._footer.text=="Illustration only · no target altitude","persistent_illustration_no_target_altitude")
 	# Actual window-oriented candidate card sizes. Root owns final placement and
 	# independent pixels; these checks establish complete geometry/legend fit only.
-	var sizes: Array=[Vector2(280,300),Vector2(280,302),Vector2(280,330),Vector2(360,330),Vector2(420,360)]
+	var sizes: Array=[Vector2(240,200),Vector2(240,206),Vector2(280,200),Vector2(300,210),Vector2(340,230),Vector2(280,300),Vector2(280,302),Vector2(280,330),Vector2(360,330),Vector2(420,360)]
 	for index in sizes.size():
 		card.size=sizes[index]; card._arrange()
 		var bounds := Rect2(Vector2.ZERO,card.size)
@@ -61,7 +76,35 @@ func _run() -> Dictionary:
 			var glyph: Vector2=label.get_theme_font("font").get_string_size(label.text,HORIZONTAL_ALIGNMENT_LEFT,-1,label.get_theme_font_size("font_size"))
 			_check(glyph.x<=label.size.x and glyph.y<=label.size.y,"legend_glyph_metrics_size_"+str(index))
 		_check(bounds.encloses(card._title.get_rect()) and bounds.encloses(card._caption.get_rect()) and bounds.encloses(card._footer.get_rect()),"persistent_text_bounds_size_"+str(index))
-		_check(card._view==snapshot and base==Sources.captured_readback(),"resize_no_source_or_display_state_change_"+str(index))
+		_check(card._view==snapshot and base==baseline_snapshot,"resize_no_source_or_display_state_change_"+str(index))
+		for text_label in [card._caption,card._footer]:
+			var font: Font=text_label.get_theme_font("font")
+			var pixels: int=text_label.get_theme_font_size("font_size")
+			var glyph: Vector2=font.get_string_size(text_label.text,HORIZONTAL_ALIGNMENT_LEFT,-1,pixels)
+			_check(glyph.x<=text_label.size.x and glyph.y<=text_label.size.y,"full_persistent_glyph_fit_"+str(index))
+		var title_font: Font=card._title.get_theme_font("font")
+		var title_width: float=title_font.get_string_size(card._title.text,HORIZONTAL_ALIGNMENT_LEFT,-1,card._title.get_theme_font_size("font_size")).x
+		_check(card._title.get_line_count()>=1 and card._title.get_line_count()*card._title.get_line_height()+maxi(0,card._title.get_line_count()-1)*card._title.get_theme_constant("line_spacing")<=card._title.size.y,"complete_wrapped_title_height_"+str(index))
+		_check(title_width<=card._title.size.x or card._title.get_line_count()>=2,"full_title_wrap_when_needed_"+str(index))
+		_check(card._title.get_rect().end.y<=card._caption.position.y,"title_caption_no_collision_"+str(index))
+		_check(card._caption.get_rect().end.y<card.schematic_rect().position.y-9,"caption_numbered_schematic_separation_"+str(index))
+		for i in 5:
+			var label: Label=card._labels[i]
+			_check(label.get_rect().position.y>=card._caption.get_rect().end.y and label.get_rect().end.y<=card._footer.position.y,"legend_header_footer_separation_"+str(index))
+			for j in range(i+1,5): _check(not label.get_rect().intersects(card._labels[j].get_rect()),"legend_pair_no_collision_"+str(index))
+			var at: Vector2=(points[i]+points[i+1])*0.5
+			var marker := Rect2(at-Vector2(9,9),Vector2(18,18))
+			_check(bounds.encloses(marker) and marker.position.y>=card._caption.get_rect().end.y and marker.end.y<=card._footer.position.y,"number_marker_full_bounds_"+str(index))
+			for other in card._labels: _check(not marker.intersects(other.get_rect()),"marker_legend_no_collision_"+str(index))
+			for j in range(i+1,5):
+				var other_at: Vector2=(points[j]+points[j+1])*0.5
+				_check(at.distance_to(other_at)>=18.0,"number_markers_no_collision_"+str(index))
+		card.set_state(Geometry.unavailable("Circuit reference needs current live or paused native truth"),true)
+		_check(card._reason.visible and bounds.encloses(card._reason.get_rect()),"unavailable_reason_bounds_"+str(index))
+		_check(card._reason.get_line_count()*card._reason.get_line_height()+maxi(0,card._reason.get_line_count()-1)*card._reason.get_theme_constant("line_spacing")<=card._reason.size.y,"unavailable_reason_full_wrap_"+str(index))
+		_check(card._reason.position.y>=card._caption.get_rect().end.y and card._reason.get_rect().end.y<=card._footer.position.y,"unavailable_reason_no_collision_"+str(index))
+		card.set_state(snapshot,true)
+
 	# Independent pre-consumer rational cases. These rectangles are arbitrary fit
 	# inputs, not mandatory UI rectangles or viewport/map projection expectations.
 	var rects: Array=[Rect2(16,56,150,240),Rect2(16,56,230,336),Rect2(16,56,330,448)]
@@ -87,6 +130,47 @@ func _run() -> Dictionary:
 	card.set_state(Geometry.unavailable("Unsupported start"),true)
 	_clear(card,"unavailable")
 	_check(card._reason.text=="Unsupported start","copied_unavailable_reason")
+	# A compact unavailable notice is presentation only and cannot shrink an
+	# available diagram, retain identity, or enable the session-local aid.
+	var compact_reason: String="Circuit reference unavailable for this start"
+	var compact_source: Dictionary=Geometry.unavailable(compact_reason)
+	card.set_state(compact_source,true)
+	var compact_snapshot: Dictionary=card._view.duplicate(true)
+	card.set_compact_unavailable(true)
+	_check(card._view==compact_snapshot and compact_source==compact_snapshot,"compact_flag_preserves_copied_unavailable_truth")
+	_check(card.custom_minimum_size==Vector2(240,84),"compact_unavailable_minimum")
+	for width in [240,260,280]:
+		for height in [84,96,110]:
+			card.size=Vector2(width,height);card._arrange()
+			var bounds := Rect2(Vector2.ZERO,card.size)
+			_check(card.size==Vector2(width,height),"compact_requested_size_"+str(width)+"_"+str(height))
+			_clear(card,"compact_unavailable_"+str(width)+"_"+str(height))
+			_check(not card._caption.visible and not card._footer.visible,"compact_no_inapplicable_scale_footer")
+			_check(card._title.visible and card._title.text==Card.TITLE and card._title.position==Vector2(12,8) and card._title.size.y==40,"compact_complete_persistent_title")
+			_check(bounds.encloses(card._title.get_rect()) and bounds.encloses(card._reason.get_rect()),"compact_full_text_rectangles")
+			_check(card._title.get_line_count()*card._title.get_line_height()+maxi(0,card._title.get_line_count()-1)*card._title.get_theme_constant("line_spacing")<=card._title.size.y,"compact_full_title_line_height")
+			_check(card._reason.text==compact_reason and card._reason.position==Vector2(8,50) and card._reason.size.y==height-56,"compact_exact_reason_and_height")
+			_check(card._reason.get_theme_font_size("font_size")>=11,"compact_reason_readable_font_size")
+			_check(card._reason.get_line_count()*card._reason.get_line_height()+maxi(0,card._reason.get_line_count()-1)*card._reason.get_theme_constant("line_spacing")<=card._reason.size.y,"compact_actual_common_reason_wrap")
+			_check(card._title.get_rect().end.y<=card._reason.position.y,"compact_title_reason_no_collision")
+			_check(card._view==compact_snapshot and base==baseline_snapshot,"compact_resize_preserves_source_truth")
+			_check(card.mouse_filter==Control.MOUSE_FILTER_IGNORE and card._reason.mouse_filter==Control.MOUSE_FILTER_IGNORE,"compact_notice_mouse_ignore")
+	card.set_state(snapshot,true)
+	_check(card.custom_minimum_size==Vector2(240,200) and card.size.y>=200,"available_restores_full_minimum_even_flag_true")
+	_check(card._caption.visible and card._footer.visible and not card._reason.visible,"available_restores_applicable_captions")
+	_check(card._view==snapshot,"available_restore_exact_copied_geometry")
+	card.set_state(snapshot,false)
+	_clear(card,"compact_off")
+	_check(card._reason.text=="Aid off" and card.custom_minimum_size==Vector2(240,84),"compact_off_truth_and_minimum")
+	card.size=Vector2(240,84);card._arrange()
+	_check(Rect2(Vector2.ZERO,card.size).encloses(card._reason.get_rect()) and card._reason.get_line_count()*card._reason.get_line_height()+maxi(0,card._reason.get_line_count()-1)*card._reason.get_theme_constant("line_spacing")<=card._reason.size.y,"compact_off_reason_complete_at_minimum")
+	card.set_compact_unavailable(false)
+	_check(card.custom_minimum_size==Vector2(240,200) and card._caption.visible and card._footer.visible and card._reason.get_theme_font_size("font_size")==12,"flag_off_restores_default_full_presentation")
+	_check(card._view==Geometry.unavailable("Aid off"),"flag_off_no_availability_rewrite")
+	card.set_compact_unavailable(true)
+	card.set_state(snapshot,true)
+	card.set_compact_unavailable(false)
+	_check(card._view==snapshot and card.custom_minimum_size==Vector2(240,200) and card._caption.visible and card._footer.visible,"flag_toggle_available_never_shrinks_or_rewrites")
 	var cases: Array=[]
 	var extra: Dictionary=snapshot.duplicate(true); extra.extra=true; cases.append(extra)
 	var wrong_id: Dictionary=snapshot.duplicate(true); wrong_id.fixture_id="wrong"; cases.append(wrong_id)

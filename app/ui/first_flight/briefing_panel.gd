@@ -6,6 +6,7 @@ const BindingHelp = preload("res://ui/first_flight/binding_help.gd")
 const FIXTURE_PATH = "res://content/scenarios/first-flight/briefing.json"
 const FIXTURE_SHA256 = "461ded9adf22b5265c6b487c23590efe30acb929f3c056356742a93206d400df"
 const CHOICE_IDS = ["cold-familiarization","ready-flight","airborne-orientation"]
+const CHOICE_TITLES = {"cold-familiarization":"Engine-off familiarization","ready-flight":"On the runway, engine running","airborne-orientation":"Already airborne"}
 signal choice_requested(choice_id: String, source_session: String)
 signal controls_requested(source_session: String)
 signal back_requested(source_session: String)
@@ -84,6 +85,9 @@ func _page(title: String) -> VBoxContainer:
 func _ready() -> void:
 	mouse_filter=Control.MOUSE_FILTER_STOP
 	var background: Panel = Panel.new()
+	var background_style := StyleBoxFlat.new()
+	background_style.bg_color=Color("101c29")
+	background.add_theme_stylebox_override("panel",background_style)
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); add_child(background)
 	var margin: MarginContainer = MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -91,18 +95,19 @@ func _ready() -> void:
 	add_child(margin)
 	var layout: VBoxContainer = VBoxContainer.new()
 	layout.add_theme_constant_override("separation",8); margin.add_child(layout)
-	_label(layout,"FIRST FLIGHT | software familiarization",22)
+	_label(layout,"First flight",28)
+	_label(layout,"Explore the controls and choose a starting point. These are original prototype flights, not aircraft checklists.",14)
 	_status=_label(layout,"State unavailable",16)
 	_tabs=TabContainer.new(); _tabs.size_flags_vertical=Control.SIZE_EXPAND_FILL
 	_tabs.add_theme_font_size_override("font_size",16); layout.add_child(_tabs)
 	_tabs.get_tab_bar().focus_mode=Control.FOCUS_ALL
 	var overview: VBoxContainer = _page("Start & state")
 	_actual=_label(overview,"")
-	_label(overview,"Choose a new start. This is a draft request; ordinary replacement/discard confirmation still applies.")
+	_label(overview,"Choose a starting point. Your new flight stays paused until you return to the menu and select Resume.")
 	for id in CHOICE_IDS:
 		var choice: Dictionary = choice_for(id)
-		_label(overview,id+"\n"+" | ".join(choice.get("required_truth",[])))
-		var button: Button = _button(overview,"Choose "+id,"Request this exact original start; remain paused after successful adoption.",_request_choice.bind(id))
+		_label(overview,CHOICE_TITLES[id]+"\n"+" | ".join(choice.get("required_truth",[])))
+		var button: Button = _button(overview,"Choose: "+CHOICE_TITLES[id],"Request this exact original start; remain paused after successful adoption.",_request_choice.bind(id))
 		_choice_buttons.append(button)
 	circuit_slot=VBoxContainer.new(); circuit_slot.name="CircuitOptions"; overview.add_child(circuit_slot)
 	_label(overview,"OPTIONAL SYNTHETIC CIRCUIT REFERENCE | not evaluated\nAvailable only for ready-flight / ground-ready / calm / runway36. Open paused First flight to disable it; map visibility uses the current map_toggle binding.")
@@ -140,11 +145,14 @@ func _refresh() -> void:
 	if not _fixture_error.is_empty(): _status.text=_fixture_error
 	elif state in ["invalid","empty"]: _status.text += "\n"+str(_qualified.get("error","No qualified Readback"))
 	if state in ["live","paused","historical"]:
-		_actual.text="Actual %s Readback (not a draft)\nProfile: %s\nNamed start: %s | adopted wind profile: %s\nActual atmosphere wind NED m/s: %s\nHistorical truth cannot authorize a current-session request." % [state,JSON.stringify(_readback.model_identity),_readback.named_start,_current_wind,str(_readback.atmosphere.get("wind_toward_ned_mps","unavailable"))]
-		for id in ["tas","ellipsoid_height"]:
-			var reading: Dictionary = _qualified.readings[id]
-			_actual.text += "\nNative %s: %s %s" % [id,str(reading.value) if reading.valid else "unavailable",reading.unit]
-		_actual.text += "\nNative-held throttle / mixture / left brake / right brake (fraction): %s / %s / %s / %s" % [_readback.held_axes.throttle,_readback.held_axes.mixture,_readback.held_axes.left_brake,_readback.held_axes.right_brake]
+		var start_name: String={"piston-cold-ground":"Ground, engine off","ground-ready":"Ground, engine already running","airborne-prepared":"Prepared airborne start"}.get(_readback.named_start,_readback.named_start)
+		var wind: Dictionary=_readback.atmosphere.wind_toward_ned_mps
+		_actual.text="Current aircraft state (%s)\nModel: %s · %s\nStart: %s | Wind preset: %s\nActual wind NED: north %.1f / east %.1f / down %.1f m/s" % [state,_readback.model_identity.id,_readback.model_identity.version,start_name,_current_wind,wind.x,wind.y,wind.z]
+		var speed: Dictionary=_qualified.readings.tas
+		var height: Dictionary=_qualified.readings.ellipsoid_height
+		_actual.text += "\nTrue airspeed: %s | Ellipsoid height: %s (WGS84, not MSL)" % [("%.1f kt" % (speed.value*3600.0/1852.0)) if speed.valid else "unavailable",("%.1f ft" % (height.value/0.3048)) if height.valid else "unavailable"]
+		_actual.text += "\nNative-held controls: throttle %.0f%% / mixture %.0f%% / brakes L %.0f%% R %.0f%%" % [_readback.held_axes.throttle*100.0,_readback.held_axes.mixture*100.0,_readback.held_axes.left_brake*100.0,_readback.held_axes.right_brake*100.0]
+		if state=="historical": _actual.text += "\nHistorical readings are view-only; they cannot start or control a current flight."
 		if _readback.model_identity == Readings.PISTON_PROFILE:
 			var engine: Dictionary = EngineStatus.from_readback(_readback)
 			var running: Dictionary = engine.readings["engine.running"]

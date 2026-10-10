@@ -209,9 +209,11 @@ const CAPTURED_READBACK: String = """{
         }"""
 var checks: int = 0
 var failures: Array[String] = []
+var baseline_origin: String = "saved-capture"
+var baseline_source_fingerprint: String = ""
 
-static func run() -> Dictionary:
-	return new()._run()
+static func run(observed_readback: Dictionary = {}) -> Dictionary:
+	return new()._run(observed_readback)
 
 static func reference_readback() -> Dictionary:
 	# Shared integration-test seam: fresh owned values, same exact-byte loader.
@@ -250,13 +252,21 @@ func _unavailable(value: Dictionary, label: String) -> void:
 func _rejected(input: Variant, label: String, wind: String="calm", runway: int=36) -> void:
 	_unavailable(Geometry.view(input,wind,runway),label)
 
-func _run() -> Dictionary:
-	var base: Dictionary=captured_readback()
-	_check(not base.is_empty(),"exact_original_capture_hash_and_zero_debt")
-	if base.is_empty(): return _result()
-	_check(reference_readback()==base,"public_reference_readback_exact_owned_loader")
-	_check(base.native_source_fingerprint==Cue.SUPPORTED_SOURCE,"actual_capture_matches_generated_source_without_rewrite")
-	_check(Readings.from_readback(base).state=="paused" and Cue.from_readback(base).state=="paused","full_original_baseline_admission")
+func _run(observed_readback: Dictionary = {}) -> Dictionary:
+	# Always verify the original source bytes; supplied values never rewrite it.
+	var original: Dictionary=captured_readback()
+	_check(not original.is_empty(),"exact_original_capture_hash_and_zero_debt")
+	if original.is_empty(): return _result()
+	_check(reference_readback()==original,"public_reference_readback_exact_owned_loader")
+	var base: Dictionary=original.duplicate(true)
+	if not observed_readback.is_empty():
+		baseline_origin="observed-upstream"
+		base=observed_readback.duplicate(true)
+		_check(original.native_source_fingerprint!=Cue.SUPPORTED_SOURCE,"saved_capture_is_not_upstream_generated_source")
+		_unavailable(Geometry.view(original,"calm",36),"saved_capture_rejected_by_upstream_source")
+	baseline_source_fingerprint=str(base.get("native_source_fingerprint",""))
+	_check(baseline_source_fingerprint==Cue.SUPPORTED_SOURCE,"selected_baseline_matches_generated_source_without_rewrite")
+	_check(Readings.from_readback(base).state=="paused" and Cue.from_readback(base).state=="paused","full_selected_baseline_admission")
 	var before: Dictionary=base.duplicate(true)
 	var view: Dictionary=Geometry.view(base,"calm",36)
 	_check(Geometry.valid_view(view) and view.available and view.state=="paused","paused_positive")
@@ -364,4 +374,4 @@ func _run() -> Dictionary:
 	return _result()
 
 func _result() -> Dictionary:
-	return {"passed":failures.is_empty(),"checks":checks,"failures":failures,"fixture_sha256":Geometry.FIXTURE_SHA256,"captured_readback_sha256":CAPTURED_SHA,"scope":"Pure copied presentation; captured baseline plus explicitly synthetic mutations, no native execution or physics qualification"}
+	return {"passed":failures.is_empty(),"checks":checks,"failures":failures,"fixture_sha256":Geometry.FIXTURE_SHA256,"captured_readback_sha256":CAPTURED_SHA,"baseline_origin":baseline_origin,"baseline_source_fingerprint":baseline_source_fingerprint,"scope":"Pure copied presentation; verified saved capture or supplied observed upstream baseline plus explicitly synthetic mutations; this test performs no native execution or physics qualification"}

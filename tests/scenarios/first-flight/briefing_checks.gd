@@ -31,4 +31,4 @@ func run(host: Node, _readback: Dictionary = {}) -> Dictionary:
 	for changed in [PackedByteArray(),bytes+PackedByteArray([32]),bytes.get_string_from_utf8().replace('"revision": 1','"revision": 2').to_utf8_buffer(),bytes.get_string_from_utf8().replace('0.1.0-prototype','0.2.0').to_utf8_buffer()]:
 		var rejected: Dictionary = FirstFlightPanel.validate_fixture_bytes(changed)
 		_check(not rejected.ok and not rejected.error.is_empty() and rejected.value.is_empty(),"drift_rejected")
-	return {"passed":_failures.is_empty(),"checks":_checks,"failures":_failures}
+	return {"passed":_failures.is_empty(),"checks":_checks,"failures":_failures,"scope":"Frozen original briefing choices and content rejection; no native or aircraft qualification"}

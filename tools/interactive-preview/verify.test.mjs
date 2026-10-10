@@ -159,3 +159,117 @@ test('pointer full trace cannot be replaced by passing labels or missing native 
  assert.equal(pointerSourcePaths['tests/engine/native-limits.json'],'pointer_scene_tests/native-limits.json');
  assert.equal(pointerSourcePaths['generated/pointer_checks.gd'],'pointer_checks.gd');
 });
+
+// ADR018 synthetic admission fixtures exercise the delivery boundary only;
+// they are not lifecycle, simulator, flight, hardware or visual observations.
+import {validateFirstFlightReceipt,validateFirstFlightFacadeAdmission,validateFirstFlightSources,firstFlightSourceGroups} from './package.mjs';
+const savedFirstFlightSource='5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5';
+const observedFirstFlightSource='a'.repeat(64); // Synthetic validator fixture, not an observed flight.
+function firstFlightReceipt(coupled=true){
+ const legacy={id:'original-interactive-prototype',version:'0.1.0-prototype',backend_model:'original-interactive'};
+ const piston={id:'original-piston-prop-v1',version:'0.1.0-prototype',backend_model:'original-piston-prop'};
+ const ready=['ready-flight',legacy,'ground-ready'],airborne=['airborne-orientation',legacy,'airborne-prepared'],cold=['cold-familiarization',piston,'piston-cold-ground'];
+ const choices=coupled?[cold,ready,airborne]:[ready,airborne];
+ const sources=coupled?['original-interactive-prototype_ground-ready','original-piston-prop-v1_piston-cold-ground']:['original-interactive-prototype_ground-ready','original-interactive-prototype_airborne-prepared'];
+ const row=(label,choice)=>({label,model_identity:structuredClone(choice[1]),start:choice[2],tick:'0',pause_attempts:[true],native_calls:3,completed:0});
+ const adoptions=sources.flatMap(source=>choices.map(choice=>row('immediate_'+source+'_'+choice[0],choice)));
+ adoptions.push(...choices.map(choice=>row('confirmed_'+choice[0],choice)),row('joined_failure_explicit_recovery',ready));
+ const basic=()=>({passed:true,checks:3,failures:[],scope:'Synthetic closed admission only; no executed lifecycle, flight or visual qualification'});
+ const bindings=basic();bindings.limits=bindings.scope;delete bindings.scope;
+ return {briefing:basic(),bindings,geometry:{...basic(),fixture_sha256:'2a4540d99d4500e326a1b1f0673583bd6f8ea99d430b991fcca1130befbbddcc',captured_readback_sha256:'58b1a7b0ec46161357c1268dbaeeaab27f84bbbd4de70def35571fd45ddb67f9',baseline_origin:coupled?'saved-capture':'observed-upstream',baseline_source_fingerprint:coupled?savedFirstFlightSource:observedFirstFlightSource},card:basic(),map:basic(),scene:{...basic(),adoptions,include_piston:coupled,route_scope:coupled?'coupled: all six same/cross-profile choices and three advanced confirmations':'upstream: four legacy start mappings, two advanced confirmations and explicit cold admission rejection; cold runtime is not qualified'}};
+}
+test('first-flight baseline origin and selected native fingerprint fail closed',()=>{
+ const upstream=firstFlightReceipt(false);
+ assert.equal(validateFirstFlightReceipt(upstream,false,observedFirstFlightSource),18);
+ assert.throws(()=>validateFirstFlightReceipt(upstream,false),'No implicit upstream fingerprint');
+ for(const mode of [true,false])for(const change of [
+  r=>delete r.geometry.baseline_origin,r=>delete r.geometry.baseline_source_fingerprint,
+  r=>r.geometry.baseline_origin=mode?'observed-upstream':'saved-capture',
+  r=>r.geometry.baseline_origin='',r=>r.geometry.baseline_origin=null,
+  r=>r.geometry.baseline_source_fingerprint='b'.repeat(64),r=>r.geometry.baseline_source_fingerprint=null,
+  r=>r.geometry.baseline_source_fingerprint=mode?observedFirstFlightSource:savedFirstFlightSource,
+ ]){const bad=firstFlightReceipt(mode);change(bad);assert.throws(()=>validateFirstFlightReceipt(bad,mode,mode?savedFirstFlightSource:observedFirstFlightSource));}
+ for(const invalid of [null,42,'','A'.repeat(64),'a'.repeat(63),'a'.repeat(65)])assert.throws(()=>validateFirstFlightReceipt(upstream,false,invalid));
+ const relabeled=firstFlightReceipt(false);relabeled.geometry.baseline_source_fingerprint=savedFirstFlightSource;
+ assert.throws(()=>validateFirstFlightReceipt(relabeled,false,savedFirstFlightSource));
+ const alteredSaved=firstFlightReceipt();alteredSaved.geometry.baseline_source_fingerprint=observedFirstFlightSource;
+ assert.throws(()=>validateFirstFlightReceipt(alteredSaved,true,observedFirstFlightSource));
+});
+test('mandatory first-flight receipt rejects skipped groups bad counts and unbound source/capture pins',()=>{
+ for(const mode of [true,false])assert.equal(validateFirstFlightReceipt(firstFlightReceipt(mode),mode,mode?savedFirstFlightSource:observedFirstFlightSource),18);
+ assert.throws(()=>validateFirstFlightReceipt(firstFlightReceipt()));
+ for(const name of ['briefing','bindings','geometry','card','map','scene']){
+  for(const change of [
+   r=>delete r[name],r=>r[name]=null,r=>r[name].passed=false,r=>r[name].passed='true',
+   r=>r[name].checks=0,r=>r[name].checks=-1,r=>r[name].checks=1.5,r=>r[name].checks='3',r=>r[name].checks=Number.MAX_SAFE_INTEGER+1,
+   r=>r[name].failures=['unexecuted'],r=>r[name].failures=null,r=>r[name].skipped=true,
+   r=>{delete r[name].scope;delete r[name].limits;},r=>{r[name].scope='';delete r[name].limits;},
+   r=>{r[name].scope=' '.repeat(3);delete r[name].limits;},r=>{r[name].scope='x'.repeat(1025);delete r[name].limits;},
+   r=>{r[name].scope='scope';r[name].limits='ambiguous';},
+  ]){const bad=firstFlightReceipt();change(bad);assert.throws(()=>validateFirstFlightReceipt(bad,true),name);}
+ }
+ for(const change of [r=>r.extra=true,r=>r.geometry.fixture_sha256='a'.repeat(64),r=>r.geometry.captured_readback_sha256='b'.repeat(64),r=>delete r.geometry.fixture_sha256,r=>delete r.geometry.captured_readback_sha256,r=>r.map.checks=Number.MAX_SAFE_INTEGER]){
+  const bad=firstFlightReceipt();change(bad);assert.throws(()=>validateFirstFlightReceipt(bad,true));
+ }
+});
+test('first-flight scene binds the selected backend and complete nonduplicated actual start mapping roster',()=>{
+ assert.throws(()=>validateFirstFlightReceipt(firstFlightReceipt(false),true));
+ assert.throws(()=>validateFirstFlightReceipt(firstFlightReceipt(true),false,observedFirstFlightSource));
+ const mutations=[
+  r=>r.scene.include_piston='true',r=>r.scene.route_scope='coupled: passed',r=>r.scene.adoptions.pop(),
+  r=>r.scene.adoptions.push(structuredClone(r.scene.adoptions[0])),r=>r.scene.adoptions[1]=structuredClone(r.scene.adoptions[0]),
+  r=>r.scene.adoptions[0].model_identity.version='0.2.0',r=>r.scene.adoptions[0].model_identity.extra=true,
+  r=>r.scene.adoptions[0].start='ground-ready',r=>r.scene.adoptions[0].tick=0,r=>r.scene.adoptions[0].tick='1',
+  r=>r.scene.adoptions[0].pause_attempts.push(false),r=>r.scene.adoptions[0].pause_attempts=[],r=>r.scene.adoptions[0].pause_attempts=[1],r=>r.scene.adoptions[0].pause_attempts=null,
+  r=>r.scene.adoptions[0].native_calls=0,r=>r.scene.adoptions[0].native_calls=3.5,r=>r.scene.adoptions[0].completed=1,
+  r=>r.scene.adoptions[0].skipped=true,r=>r.scene.adoptions[0].label='invented-route',
+ ];
+ for(const mutate of mutations){const bad=firstFlightReceipt();mutate(bad);assert.throws(()=>validateFirstFlightReceipt(bad,true));}
+ const legacy=firstFlightReceipt(false);legacy.scene.route_scope=firstFlightReceipt(true).scene.route_scope;
+ assert.throws(()=>validateFirstFlightReceipt(legacy,false,observedFirstFlightSource),'Upstream cannot claim coupled cold coverage');
+});
+test('facade closed shape makes first-flight mandatory without dropping previous groups',()=>{
+ const keys=['schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive','wind'];
+ const good=Object.fromEntries(keys.map(name=>[name,null]));good.first_flight=firstFlightReceipt();
+ assert.equal(validateFirstFlightFacadeAdmission(good,true),18);
+ const upstream=structuredClone(good);upstream.first_flight=firstFlightReceipt(false);
+ assert.equal(validateFirstFlightFacadeAdmission(upstream,false,observedFirstFlightSource),18);
+ assert.throws(()=>validateFirstFlightFacadeAdmission(upstream,false));
+ assert.throws(()=>validateFirstFlightFacadeAdmission(upstream,false,'b'.repeat(64)));
+ for(const name of [...keys,'first_flight']){const bad=structuredClone(good);delete bad[name];assert.throws(()=>validateFirstFlightFacadeAdmission(bad,true));}
+ const extra=structuredClone(good);extra.runtime_skip=true;assert.throws(()=>validateFirstFlightFacadeAdmission(extra,true));
+});
+test('all eight first-flight source groups bind exact authoring staged and corresponding bytes',()=>{
+ const temporary=fs.mkdtempSync(path.join(root,'first-flight-'));
+ const authored=path.join(temporary,'repo'),project=path.join(temporary,'project'),source=path.join(temporary,'source');
+ assert.equal(firstFlightSourceGroups.length,8);
+ const mapping=firstFlightSourceGroups.flatMap(([a,b,names])=>names.map(name=>[a+'/'+name,b+'/'+name]));
+ assert.equal(mapping.length,13);
+ for(const [name,mapped] of mapping){
+  const raw=name==='content/world/synthetic/practice-circuit.json'?fs.readFileSync(path.join(repo,name)):Buffer.from('Original synthetic source-closure fixture: '+name+'\n');
+  for(const [base,relative] of [[authored,name],[project,mapped],[source,mapped]]){const target=path.join(base,relative);fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,raw);}
+ }
+ const expected=validateFirstFlightSources(authored,project,source);
+ assert.equal(Object.keys(expected.source_files).length,13);
+ assert.equal(expected.source_files['content/world/synthetic/practice-circuit.json'].sha256,'2a4540d99d4500e326a1b1f0673583bd6f8ea99d430b991fcca1130befbbddcc');
+ assert.equal(mapping.find(([name])=>name==='tests/integration/first_flight/visual_checks.gd')[1],'first_flight_scene_tests/visual_checks.gd');
+ for(const [name,mapped] of mapping)for(const [base,relative] of [[authored,name],[project,mapped],[source,mapped]]){
+  const file=path.join(base,relative),raw=fs.readFileSync(file);
+  fs.appendFileSync(file,'drift');assert.throws(()=>validateFirstFlightSources(authored,project,source));fs.writeFileSync(file,raw);
+  fs.unlinkSync(file);assert.throws(()=>validateFirstFlightSources(authored,project,source));fs.writeFileSync(file,raw);
+ }
+ for(const [a,b] of firstFlightSourceGroups)for(const [base,folder] of [[authored,a],[project,b],[source,b]]){
+  const extra=path.join(base,folder,'unbound.gd');fs.writeFileSync(extra,'extends RefCounted');assert.throws(()=>validateFirstFlightSources(authored,project,source));fs.unlinkSync(extra);
+ }
+ const uid=path.join(project,'ui/first_flight/binding_help.gd.uid');fs.writeFileSync(uid,'uid://firstflightfixture\n');
+ assert.doesNotThrow(()=>validateFirstFlightSources(authored,project,source));
+ for(const value of ['invalid','uid://'+'a'.repeat(21)+'\n','uid://valid\nextra']){fs.writeFileSync(uid,value);assert.throws(()=>validateFirstFlightSources(authored,project,source));}
+ fs.unlinkSync(uid);
+ const orphan=path.join(project,'ui/first_flight/unknown.gd.uid');fs.writeFileSync(orphan,'uid://fixture\n');assert.throws(()=>validateFirstFlightSources(authored,project,source));fs.unlinkSync(orphan);
+ const originals=mapping.find(([name])=>name==='content/world/synthetic/practice-circuit.json');
+ for(const [base,name] of [[authored,originals[0]],[project,originals[1]],[source,originals[1]]])fs.appendFileSync(path.join(base,name),'\n');
+ assert.throws(()=>validateFirstFlightSources(authored,project,source),/Frozen circuit content changed/,'Coherent three-tree drift cannot replace frozen content');
+ for(const [base,name] of [[authored,originals[0]],[project,originals[1]],[source,originals[1]]])fs.writeFileSync(path.join(base,name),fs.readFileSync(path.join(repo,originals[0])));
+ const folder=path.join(source,'first_flight_scene_tests'),outside=path.join(temporary,'outside');fs.renameSync(folder,outside);fs.symlinkSync(outside,folder,process.platform==='win32'?'junction':'dir');
+ assert.throws(()=>validateFirstFlightSources(authored,project,source),/link/);
+});
