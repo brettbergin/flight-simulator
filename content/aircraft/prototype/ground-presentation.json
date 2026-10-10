@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "id": "original-ground-material-presentation",
+  "version": "0.1.0-prototype",
+  "kind": "original-presentation-provenance",
+  "date": "2026-10-10",
+  "author": "Flight Simulator contributors",
+  "license": "MIT",
+  "license_source": "LICENSE",
+  "usage": "Original procedural presentation choices, not a runtime terrain loader, operational airport record or physical material definition.",
+  "source": "app/proof/interactive/flight_world.gd:GROUND_SHADER",
+  "reference_baseline_commit": "2a8d1b4427eb6a5ccdf385cb22f3915388cc9870",
+  "unchanged": {
+    "visual_plane_size_m": [
+      80000,
+      80000
+    ],
+    "native_resident_half_extent_m": 20000,
+    "ground_height_m": 0,
+    "frame": "accepted anchor east/up/south; local VERTEX.xz",
+    "opaque_ground_surfaces": 1,
+    "extra_textures_or_geometry": 0,
+    "native_surface": "unchanged flat prototype plane, including cosmetic soil/water",
+    "protected_shader_lf_sha256": {
+      "coverage_and_marks_helpers": "3f788f3ca35b162e8df863d93f46601788d5a97d2c2f5cd5c5013ff0c3470828",
+      "countryside_water_paving_masks": "e0e2856efd58ea57ddb2ccdc393b9920b7542999dcbc714c7d37e8b5b84af8ee",
+      "paint_and_outputs": "969a8a452dd66100bb25024523bb8bac2eab07173a3f22c12a7c707f973983a6"
+    }
+  },
+  "material_terms": [
+    {
+      "id": "dry_patches",
+      "cell_m": 18.0,
+      "coordinate_scale": [
+        1.0,
+        1.0
+      ],
+      "footprint_multiplier": 1.0
+    },
+    {
+      "id": "earth_grain",
+      "cell_m": 1.8,
+      "coordinate_scale": [
+        1.0,
+        1.0
+      ],
+      "footprint_multiplier": 1.0
+    },
+    {
+      "id": "tufts",
+      "cell_m": 0.45,
+      "coordinate_scale": [
+        1.0,
+        2.0
+      ],
+      "footprint_multiplier": 2.0
+    },
+    {
+      "id": "weathering",
+      "cell_m": 22.0,
+      "coordinate_scale": [
+        1.0,
+        1.0
+      ],
+      "footprint_multiplier": 1.0
+    },
+    {
+      "id": "aggregate",
+      "cell_m": 0.12,
+      "coordinate_scale": [
+        1.0,
+        1.0
+      ],
+      "footprint_multiplier": 1.0
+    }
+  ],
+  "filter": {
+    "footprint": "length(fwidth(anchor_xz)); anisotropic coordinate scale conservatively multiplies it",
+    "fade_start_cell_fraction": 0.125,
+    "fade_end_cell_fraction": 0.5,
+    "neutral_noise_mean": 0.5,
+    "existing_coverage_and_three_noise_scales": "unchanged",
+    "noise_samples_per_fragment": 8,
+    "new_noise_samples": 5,
+    "animation": false
+  },
+  "limits": [
+    "Flat single-pass color detail, no displacement, normal map, transparent layers or collision changes.",
+    "Approximate screen-space filtering; actual Compatibility GPU compilation, moving shimmer/seam inspection and bounded render-cost comparison remain required.",
+    "No sourced terrain/airport, photorealism, aircraft, pilot or phase acceptance."
+  ]
+}
