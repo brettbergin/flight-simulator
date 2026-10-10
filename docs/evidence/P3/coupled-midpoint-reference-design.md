@@ -125,4 +125,21 @@ Event and equilibrium rows test the declared event policy directly. They do not 
 
 Expected scalar values are exact expressions or certified intervals. A correctly rounded expected double is a reference representation, not automatically a one-ULP native tolerance. Native coefficient construction, residual evaluation, RPM encode/decode, event-time consumption and final rounded selection require a separate operation audit; freeze that arithmetic bound and each input-domain limit before any new native outputs. Chronology assertions are exact structural/state assertions, not tunable numeric comparisons. Preserve invalid-state behavior and last-valid publication.
 
-Open work: merge the reviewed ADR015 contract; review generator source/Sturm and rational quadrature logic; pin exact backend constants/loader operations; ratify coefficient/operation bounds and R04/R05 witnesses; generate/review immutable packet; review actual vendor implementation and corresponding-source scope; strict compile both modified units; authorize actual-library probes; run original complete coupled suite without edits. No packet output, hardware/compiler claim or production default adoption is made by this document.
+The contract was accepted in PR150 and clarified in PR151. The [independent reference package](../../../tests/engine/shaft-method/coupled-midpoint-v1/README.md) now supplies the reviewed source and immutable packet. Its recorded mathematical and isolated native observations remain distinct from portable test integration, aircraft qualification and production default adoption.
+
+## Portable reference manifest contract
+
+Publish the reference before its portable harness and CI consumers. `reference-manifest.json` is the repository-relative identity contract for the package; its schema is `coupled-midpoint-reference-manifest-v1`. It describes expected inputs and recorded evidence, and does not grant execution permission or establish aircraft acceptance.
+
+| Field | Required meaning |
+|---|---|
+| `schema`, `method`, `contract_merge` | Exact manifest version, `event_aware_coupled_midpoint_v1`, and accepted ADR015 merge. |
+| `packet` | `references.json`, its byte length and SHA256. Consumers check identity before using expectations. |
+| `generator_sources` | SHA256 of exactly `generate.py`, `exact.py` and `native_fixture.py`, agreeing with the packet and source roster. |
+| `source_files` | Closed nine-file generator, test and explanatory-document roster, each with byte length and SHA256. The manifest excludes itself to avoid a self-hash cycle. |
+| `roster` | `cases.json` identity, 41 named groups, maximum 192 native requests, and `coupled-native-fixtures-v1`. |
+| `model_pins` | Repository-relative engine and propeller XML paths with exact hashes used by the independent reference. Native admission separately verifies its complete seven-file model inventory. |
+| `evidence` | Hashes and bounded counts from recorded mathematical, generation and isolated native trials; these are historical observations, not live executable or DLL identities. |
+| `limitations` | Explicit scope, including separate physical/phase gates and distinctions between scalar fixtures, actual library observations and source chronology checks. |
+
+Consumers verify every declared source/model/roster/packet identity, reject incompatible schemas and keep package paths within their declared roots. They preserve the exact native expectations and request grammar; coefficient intervals cannot replace exact field or rejection comparisons. A fresh independent generation check compares bytes against the committed packet and never rewrites it. Actual native execution additionally requires its selected source/build identity, compiled executable and loaded-module checks, canonical requests and preserved pre/post observations. No private investigation directory or machine-local receipt is a required input to the portable tools.

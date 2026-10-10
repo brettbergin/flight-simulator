@@ -1,0 +1,94 @@
+{
+  "contract_merge": "eb410a634a9f18b4ea9177640aff391def5e7988",
+  "evidence": {
+    "generation": {
+      "log_sha256": "2bef0a9a27e6421c0d2ceee673f3df7d48a7f15d73ca2d2130a9a368fd5dec45",
+      "receipt_sha256": "83484bab04083c3d52b56568417b96ceab92c5854813bfc2a7dcf93ce422beba",
+      "status": "PASS",
+      "timed_out": false
+    },
+    "mathematical_tests": {
+      "log_sha256": "a930da924470e7cc2cb11b419722583d28db095df6a1eeb999458b404b2cc883",
+      "passed": 24
+    },
+    "native_comparison": {
+      "actual_chronology_rows": 12,
+      "actual_module_sha256": "540093bc76f001d29edcce474e0fcadf02884fff1156de1a0a3a6a9f8c370485",
+      "execution_receipt_sha256": "c2c90891cfe376ce5540cde0265b738e9c28eca00379ceb424bc03051541d241",
+      "legacy_checks": 270,
+      "native_rows": 137,
+      "scope": "independent numerical packet + actual DLL unit chronology/default + source callback chronology; no aircraft/phase claim",
+      "status": "PASS",
+      "validation_result_sha256": "328cdf6dbe650b44c3aa9f0c03c1e37f6aaa5cf50dad7c112a43e30975c963a8"
+    },
+    "packet_review_sha256": "2a024d91146ef6cf3d3b5ab252da56ea1db4c7c2d56cf8332b3a508edad4c443"
+  },
+  "generator_sources": {
+    "exact.py": "4e5aba0906b1cbb26fd9f36c78d1a399fdbbefcfed50b2f6b2ae55bbaa95a307",
+    "generate.py": "34f99c9b426419408f36fd278eca95aae98a549d4510964e4c464cd27f588928",
+    "native_fixture.py": "24aff9ed415b03da7f0f4795c6f8cf410413244821c9e8b19cd45ceeedb40c1f"
+  },
+  "limitations": [
+    "Evidence hashes identify the recorded reviewed trial; live native qualification still needs actual loaded-module and pre/post executable/DLL checks.",
+    "Original complete twelve-process physical/publication gate is separate; no aircraft fidelity, phase acceptance or aviation training-credit claim.",
+    "E06 rounded knots are distinct and explicitly separated; not coincident-knot execution evidence.",
+    "C held-ME intervals are conditional scalar coefficient checks, not FGTable execution.",
+    "Nominal RN-DAG coefficient bits are diagnostic; absolute interval channels are authoritative."
+  ],
+  "method": "event_aware_coupled_midpoint_v1",
+  "model_pins": {
+    "native/fdm_jsbsim/models/original-piston-prop/engine/original-fixed-prop.xml": "b4f3f376f062d869a338bb2757466c9ba23d6320d895d3fc5921e351748bb0af",
+    "native/fdm_jsbsim/models/original-piston-prop/engine/original-piston.xml": "4212b398118be77cdff44f6e41abfded7e4fd8fcfece422dba27fd64ad30b638"
+  },
+  "packet": {
+    "bytes": 1638204,
+    "path": "references.json",
+    "sha256": "9496b4d4ed0930f0cb0fb0f994b66806ce45e18beaca439c92bda1b056fc8437"
+  },
+  "roster": {
+    "maximum_requests": 192,
+    "named_groups": 41,
+    "native_fixture_schema": "coupled-native-fixtures-v1",
+    "path": "cases.json",
+    "sha256": "9529f294413c847adfd7baded5f48a5354b0c37717405e4f725ef28de17dc881"
+  },
+  "schema": "coupled-midpoint-reference-manifest-v1",
+  "source_files": {
+    "COMPARISON-PLAN.md": {
+      "bytes": 9238,
+      "sha256": "6f35b43d880b92f735b90925fca9cca06b012fb34968840423979674b9fb3d5e"
+    },
+    "NATIVE-FIXTURES.md": {
+      "bytes": 4061,
+      "sha256": "21212785fd3194709a4a30d8e13945a237ee556d14e14ccecb39349712f081f5"
+    },
+    "README.md": {
+      "bytes": 5798,
+      "sha256": "842d7b690cfb5cd2169d6dcefa7c4b0f1745248d0024fdad841bb23b7639e5e2"
+    },
+    "cases.json": {
+      "bytes": 11808,
+      "sha256": "9529f294413c847adfd7baded5f48a5354b0c37717405e4f725ef28de17dc881"
+    },
+    "exact.py": {
+      "bytes": 12942,
+      "sha256": "4e5aba0906b1cbb26fd9f36c78d1a399fdbbefcfed50b2f6b2ae55bbaa95a307"
+    },
+    "generate.py": {
+      "bytes": 39684,
+      "sha256": "34f99c9b426419408f36fd278eca95aae98a549d4510964e4c464cd27f588928"
+    },
+    "native_fixture.py": {
+      "bytes": 25125,
+      "sha256": "24aff9ed415b03da7f0f4795c6f8cf410413244821c9e8b19cd45ceeedb40c1f"
+    },
+    "test_native_fixture.py": {
+      "bytes": 3849,
+      "sha256": "01796398a5dd9242f2432f35f27654e6c45afec3f48a4541ccfbae39cb61b6d1"
+    },
+    "test_reference.py": {
+      "bytes": 4782,
+      "sha256": "808636ab813f8bc29ab82725bffe042604367d02aa10ad451535937ae4fbe4a3"
+    }
+  }
+}
