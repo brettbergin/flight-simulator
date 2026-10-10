@@ -48,4 +48,10 @@ Independent final saved-pixel review `1e465874672ef3da1817f16dda2e885583b818620d
 
 ## Remaining gates
 
+### Standalone Windows CI preflight correction
+
+The first PR164 Windows native job failed in its standalone input preflight: the new mapper imports `wire_validation.gd`, which imports `uint64.gd`, but this small fixture project staged neither file. Retained job `114275102766` and its uploaded editor log identify the missing resource. The complete qualified player already stages both dependencies. The correction adds exactly those two source mappings to `tools/input-controls/check.py`; it changes no runtime code, assertion, fixture or acceptance threshold. All 198 qualified authoring sources remain byte-identical.
+
+The corrected local Windows preflight `536d2ea2097b4a1c926156a8de35a6d1` completed import, editor, export and portable execution successfully, with all 310 existing input assertions passing in each runtime. Its six staged source identities and clean logs are retained separately from the full player qualification. Current hosted checks must rerun on the corrected PR head; the earlier failing hosted result is not treated as a pass.
+
 Current protected checks and final evidence review must pass before merge. Owner feedback, physical hardware/listening/pilot review, source-supported C172 applicability and P1/P2/P3 acceptance remain open; this leaf cannot close broad #21/#23. The controls are qualified frontend interactions with the unchanged original model, not an aircraft procedure or training-credit claim.

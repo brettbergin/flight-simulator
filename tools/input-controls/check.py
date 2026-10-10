@@ -34,6 +34,8 @@ def main():
     sources = {
         'app/input/input_mapper.gd':'input/input_mapper.gd',
         'app/input/input_preset.gd':'input/input_preset.gd',
+        'app/simulation/wire_validation.gd':'simulation/wire_validation.gd',
+        'app/simulation/uint64.gd':'simulation/uint64.gd',
         'tests/input/input_checks.gd':'input_tests/input_checks.gd',
         'tests/input/reference.json':'input_tests/reference.json',
     }
