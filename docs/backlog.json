@@ -5316,6 +5316,61 @@
         "Actual Windows three-context GPU images at declared sizes/FOVs, independent exported pixel review and short before/after render measurement; owner feedback status and remaining limits recorded separately.",
         "No manufacturer asset/GLB completion, new input gesture/aircraft system, calibrated indication, physics performance or phase acceptance inferred."
       ]
+    },
+    {
+      "key": "GROUND-MATERIALS",
+      "title": "Improve stable procedural grass, soil and asphalt appearance",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "A bounded original ground-color pass over the accepted single opaque plane. Add believable near/middle material detail with derivative filtering while preserving all geometry, marks, anchor coordinates and native surface behavior.",
+      "depends_on": [
+        "AIRFIELD-LANDMARKS",
+        "SIM-LOOP-CONTRACT",
+        "LICENSE-REGISTER",
+        "RENDER-PROOF"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:world",
+        "priority:P1",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "app/proof/interactive/flight_world.gd",
+        "tests/world/ground_materials_checks.gd",
+        "content/aircraft/prototype/ground-presentation.json",
+        "docs/evidence/P2/ground-materials.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/phases/p2-first-flight.md",
+        "docs/agent-operations.md",
+        "docs/decisions/007-sim-loop-facade.md",
+        "docs/evidence/P1/environment-stability.md",
+        "docs/evidence/P1/airfield-landmarks.md"
+      ],
+      "requirements": [
+        "PRD-015",
+        "UX-014"
+      ],
+      "acceptance": [
+        "Change only GROUND_SHADER appearance plus focused tests/provenance. Keep the single opaque plane, all native coverage/physics, coordinate anchoring, geometry, runway/taxi/apron/paint masks and dimensions, roads, water and extent definitions unchanged. Do not alter generic material helpers or the aircraft builder in this shared file.",
+        "Use original deterministic procedural grass/dry-soil/asphalt detail at useful near and middle scales. Fade fine terms using conservative pixel footprint before they become subpixel; no animated noise, displacement, extra coplanar faces, transparency, unrestricted high-frequency detail or unlicensed textures. Preserve readable runway paint and horizon.",
+        "Add focused actual-builder/shader checks covering one-surface ownership, anchor invariance, preserved masks/geometry and filtering bounds. Record original provenance and unchanged physical material; cosmetic soil is not new collision terrain.",
+        "Compile on actual Windows Compatibility GPU and independently inspect before/after near taxi, runway-end, approach/airborne and rebased views at960x540 and1920x1080, with a short moving sequence checking shimmer/popping/seams. Retain exact source/image identities, native unchanged-state comparisons and a bounded before/after render-cost observation. No subjective photorealism or true terrain fidelity claim.",
+        "Root coordinates staging/export integration and verifies the portable build uses the new shader. Run focused relevant checks and current protected CI; close only this leaf after reviewed merge. Keep broad scenery/airport/pilot/phase gates open."
+      ],
+      "evidence": [
+        "Exact source/provenance and focused module checks, actual GPU compile/captures and independent visual review.",
+        "Integrated portable package/source binding and bounded render-cost observations; preserved native state and frame anchoring."
+      ]
     }
   ]
 }
