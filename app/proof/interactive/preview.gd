@@ -565,6 +565,7 @@ func make_world() -> void:
 	panel_viewport.add_child(cockpit_panel)
 	# Keep the authored panel in logical pixels; only its texture is sampled at2x.
 	# Full-rect anchors would double the layout as well as the render target.
+	cockpit_panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	cockpit_panel.size=Vector2(1024,512)
 	cockpit_panel.scale=Vector2(2,2)
 	cockpit_panel.call("set_cockpit_surface",true)
