@@ -139,6 +139,27 @@ class IdentityTests(unittest.TestCase):
             with self.assertRaises(ValueError):self.qualify()
         path.write_bytes(old)
 
+    def test_crlf_fingerprint_manifest_preserves_identity_but_resource_is_raw(self):
+        for family in ('MSVC','GNU'):
+            root=self.root/('crlf-'+family);root.mkdir()
+            repo,build,selected,expected=fixture(root,family)
+            original=n.qualify(repo,build,lambda *_:selected)
+            manifest=build/'interactive-source-fingerprint.txt';raw=manifest.read_bytes()
+            manifest.write_bytes(raw.replace(b'\n',b'\r\n'))
+            actual=n.qualify(repo,build,lambda *_:selected)
+            self.assertEqual(actual['declared_source_fingerprint'],expected)
+            self.assertEqual(actual['resource'],original['resource'])
+            # Evidence still records the actual CRLF witness bytes; only the
+            # semantic metadata comparison normalizes platform line endings.
+            witness=next(row for row in actual['build_witnesses'] if row['path']=='interactive-source-fingerprint.txt')
+            self.assertEqual(witness['sha256'],sha(manifest.read_bytes()))
+            self.assertNotEqual(witness['sha256'],sha(raw))
+            manifest.write_bytes(manifest.read_bytes().replace(expected.encode(),b'b'*64,1))
+            with self.assertRaises(ValueError):n.qualify(repo,build,lambda *_:selected)
+            manifest.write_bytes(raw.replace(b'\n',b'\r\n'))
+            resource=build/n.BUILD_PATH;resource.write_bytes(resource.read_bytes().replace(b'\n',b'\r\n'))
+            with self.assertRaises(ValueError):n.qualify(repo,build,lambda *_:selected)
+
     def test_changed_source_controls_template_and_backend(self):
         for name in (n.SOURCES[0],n.CONTROLS[0],n.TEMPLATE):
             path=self.repo/name;old=path.read_bytes();path.write_bytes(old+b'changed')

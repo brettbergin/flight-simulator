@@ -280,7 +280,7 @@ def verify_manifests(build, values, selected, control, family, version, flags, b
         '\nMSVC runtime: ' + runtime + '\nDeclared modified-source strict FP flags: ' + flags +
         '\nActual compiler commands must be inspected before numerical execution.\n').encode()
     require(lf(read(build, 'jsbsim-source-build-manifest.txt')) == expected, 'Selected source/build manifest differs')
-    require(read(build, 'interactive-source-fingerprint.txt') == consumer.encode() + b'\n' + body,
+    require(lf(read(build, 'interactive-source-fingerprint.txt')) == consumer.encode() + b'\n' + body,
             'Interactive fingerprint manifest differs')
     toolchain = lf(read(build, 'toolchain-build-manifest.txt')).decode('utf-8')
     for key, value in [('Compiler', family + ' ' + version), ('Generator', values['CMAKE_GENERATOR']),
