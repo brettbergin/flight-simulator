@@ -1,4 +1,6 @@
 import fs from 'node:fs';
+import {spawnSync} from 'node:child_process';
+import {selectedLibrary,requireMatchingSelection,verifySelectedArchive} from './selected-source.mjs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import {fileURLToPath} from 'node:url';
@@ -8,14 +10,29 @@ const repo=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
 const run=JSON.parse(fs.readFileSync(path.join(repo,'.local/export-proof/latest-run.json'),'utf8'));
 assert.equal(run.source_replacement,'passed','Source replacement gate incomplete');
 const register=JSON.parse(fs.readFileSync(path.join(repo,'third_party/licenses/register.json'),'utf8'));
+const qualification=spawnSync(run.python_executable,['-B',path.join(repo,'tools/interactive-preview/native-identity.py'),'--repository-root',repo,'--build-root',run.native_build_identity.root,'--evidence',path.join(run.evidence,'native-build-identity.json')],{encoding:'utf8'});
+assert.equal(qualification.status,0,'Actual selected native export identity rejected');
+const nativeIdentity=JSON.parse(qualification.stdout);
+assert.deepEqual(nativeIdentity,run.native_build_identity);
+const selection=selectedLibrary(register,nativeIdentity,repo);
+requireMatchingSelection(selection,run.selected_library);
+const libraryId=selection.component_id;
 const sourceRoot=path.resolve(process.argv[2]);
 const sourceEvidence=JSON.parse(fs.readFileSync(path.join(sourceRoot,'source-bundle-evidence.json'),'utf8'));
-const sourceArchive=path.join(sourceRoot,'jsbsim-1.3.1-library-source.zip');
-const jsb=register.entries.find(e=>e.id==='jsbsim');
+const sourceArchive=path.join(sourceRoot,selection.source_archive_name);
+verifySelectedArchive(selection,sourceArchive);
+assert.equal(sourceEvidence.schema_version,selection.source_manifest_schema);
+assert.equal(sourceEvidence.source_verification.bundle_files,selection.bundle_files);
+assert.equal(sourceEvidence.source_verification.vendor_files,selection.vendor_files);
+if(selection.modified){assert.equal(sourceEvidence.source_variant,selection.source_variant);assert.equal(sourceEvidence.source_verification.modified_vendor_files,4);assert.equal(sourceEvidence.source_verification.unchanged_vendor_files,275);}
+const jsb=register.entries.find(e=>e.id===libraryId);
 assert.equal(sourceEvidence.source_archive_sha256,jsb.library_policy.source_archive_sha256);
 assert.equal(sha(fs.readFileSync(sourceArchive)),jsb.library_policy.source_archive_sha256);
 const replacement=JSON.parse(fs.readFileSync(path.join(run.evidence,'replacement-evidence.json'),'utf8'));
 assert.equal(replacement.source_archive_sha256,jsb.library_policy.source_archive_sha256);
+requireMatchingSelection(selection,replacement.selected_library);
+assert.equal(replacement.backend_identity_sha256,nativeIdentity.backend_identity_sha256);
+assert.equal(replacement.source_variant,nativeIdentity.source_variant);
 for(const field of ['source_rebuild_passed','other_payload_unchanged','actual_replacement_module_inside_payload','clean_path','unicode_relocation','command_snapshot_schema_passed','finite_state_units_unchanged','worker_joined'])assert.equal(replacement[field],true,field);
 const baselineModules=JSON.parse(fs.readFileSync(path.join(run.evidence,'portable-unicode.log.modules.json'),'utf8'));
 const replacementModules=JSON.parse(fs.readFileSync(path.join(run.evidence,'replacement.log.modules.json'),'utf8'));
@@ -35,7 +52,7 @@ for(const relative of fs.readdirSync(payload)) {
  const file=path.join(payload,relative);
  if(!fs.statSync(file).isFile()||relative==='README.txt')continue;
  if(relative==='flight_godot_bridge.dll'){declared('native-export-proof',relative,'binary');declared('godot-cpp',relative,'binary');}
- else if(relative==='JSBSim.dll')declared('jsbsim',relative,'binary');
+ else if(relative==='JSBSim.dll')declared(libraryId,relative,'binary');
  else if(relative.toLowerCase().endsWith('.dll'))declared('microsoft-vc143-crt',relative,'binary');
  else if(relative.endsWith('.pck'))declared('native-export-proof',relative,'content');
  else if(relative.endsWith('.exe'))declared('godot',relative,'binary');
@@ -43,18 +60,21 @@ for(const relative of fs.readdirSync(payload)) {
 }
 for(const relative of fs.readdirSync(path.join(payload,'bin'))) {
  if(relative==='flight_godot_bridge.dll'){declared('native-export-proof','bin/'+relative,'binary');declared('godot-cpp','bin/'+relative,'binary');}
- else if(relative==='JSBSim.dll')declared('jsbsim','bin/'+relative,'binary');
+ else if(relative==='JSBSim.dll')declared(libraryId,'bin/'+relative,'binary');
  else declared('microsoft-vc143-crt','bin/'+relative,'binary');
 }
 function walk(root,prefix=''){for(const entry of fs.readdirSync(root,{withFileTypes:true})){const relative=prefix+entry.name;if(entry.isDirectory())walk(path.join(root,entry.name),relative+'/');else declared('prototype-aircraft','models/'+relative,'content');}}
 walk(path.join(payload,'models'));
-stage('jsbsim',sourceArchive,'source/jsbsim-1.3.1-library-source.zip','source');
-stage('jsbsim',path.join(sourceRoot,'source/BUILD.md'),'source/BUILD.md','build-instructions');
-stage('jsbsim',path.join(run.evidence,'replacement-evidence.json'),'evidence/jsbsim-replacement.json','evidence');
-stage('jsbsim',path.join(run.evidence,'portable-unicode.log.modules.json'),'evidence/baseline-modules.json','evidence');
-stage('jsbsim',path.join(run.evidence,'replacement.log.modules.json'),'evidence/replacement-modules.json','evidence');
-Object.assign(component('jsbsim'),{linkage:'dynamic',shared_library:'bin/JSBSim.dll',source_archive:'source/jsbsim-1.3.1-library-source.zip',build_instructions:'source/BUILD.md',replacement_test:'evidence/jsbsim-replacement.json',reverse_engineering_permitted:true,modified:false});
-const runtimeReport=checkRuntime(JSON.parse(fs.readFileSync(path.join(run.evidence,'selected-crt.json'),'utf8')),fs.readFileSync(path.join(repo,'.local/build/native-release/toolchain-build-manifest.txt'),'utf8'),register.entries.find(e=>e.id==='microsoft-vc143-crt').runtime_policy,{packageRoot:payload});
+const stagedArchive='source/'+selection.source_archive_name;
+stage(libraryId,sourceArchive,stagedArchive,'source');
+stage(libraryId,path.join(sourceRoot,'source/BUILD.md'),'source/BUILD.md','build-instructions');
+if(selection.modified)stage(libraryId,path.join(repo,selection.source_identity.path),'evidence/jsbsim-coupled-source-identity.json','evidence');
+stage(libraryId,path.join(run.evidence,'replacement-evidence.json'),'evidence/jsbsim-replacement.json','evidence');
+stage(libraryId,path.join(run.evidence,'portable-unicode.log.modules.json'),'evidence/baseline-modules.json','evidence');
+stage(libraryId,path.join(run.evidence,'replacement.log.modules.json'),'evidence/replacement-modules.json','evidence');
+Object.assign(component(libraryId),{linkage:'dynamic',shared_library:'bin/JSBSim.dll',source_archive:stagedArchive,build_instructions:'source/BUILD.md',replacement_test:'evidence/jsbsim-replacement.json',reverse_engineering_permitted:true,modified:selection.modified});
+if(selection.modified)Object.assign(component(libraryId),{source_variant:selection.source_variant,source_identity:'evidence/jsbsim-coupled-source-identity.json',modification_notice:'notices/MODIFICATIONS.md'});
+const runtimeReport=checkRuntime(JSON.parse(fs.readFileSync(path.join(run.evidence,'selected-crt.json'),'utf8')),fs.readFileSync(path.join(nativeIdentity.root,'toolchain-build-manifest.txt'),'utf8'),register.entries.find(e=>e.id==='microsoft-vc143-crt').runtime_policy,{packageRoot:payload});
 const runtimeFile=path.join(run.evidence,'runtime-verification.json');fs.writeFileSync(runtimeFile,JSON.stringify(runtimeReport,null,2)+'\n');
 stage('microsoft-vc143-crt',runtimeFile,'evidence/selected-runtime.json','evidence');
 component('microsoft-vc143-crt').runtime_inventory='evidence/selected-runtime.json';
@@ -72,5 +92,5 @@ const errors=auditRelease(register,manifest,{repoRoot:repo,packageRoot:payload})
 errors.push(...auditDependencyLock(register,JSON.parse(fs.readFileSync(path.join(repo,'third_party/dependencies.lock.json'),'utf8'))));
 assert.deepEqual(errors,[],'Package rights/integrity audit failed');
 const manifestFile=path.join(run.evidence,'package-inventory.json');fs.writeFileSync(manifestFile,JSON.stringify(manifest,null,2)+'\n');
-fs.writeFileSync(path.join(run.evidence,'package-audit.json'),JSON.stringify({schema_version:1,rights_integrity_passed:true,runtime_verification:runtimeReport,components:manifest.components.map(c=>c.id),payload_files:manifest.components.reduce((n,c)=>n+c.files.length,0),source_archive_sha256:jsb.library_policy.source_archive_sha256,actual_replacement_passed:true},null,2)+'\n');
+fs.writeFileSync(path.join(run.evidence,'package-audit.json'),JSON.stringify({schema_version:1,rights_integrity_passed:true,runtime_verification:runtimeReport,components:manifest.components.map(c=>c.id),payload_files:manifest.components.reduce((n,c)=>n+c.files.length,0),source_archive_sha256:jsb.library_policy.source_archive_sha256,actual_replacement_passed:true,selected_library:selection,native_build_identity:nativeIdentity},null,2)+'\n');
 console.log('PASS portable proof payload rights, source/replacement and exact selected CRT inventory');

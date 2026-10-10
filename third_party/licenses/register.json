@@ -68,6 +68,71 @@
       "evidence_file": "third_party/licenses/evidence/jsbsim-scope.md"
     },
     {
+      "id": "jsbsim-coupled-midpoint-v1",
+      "class": "runtime",
+      "name": "JSBSim C++ shared library — reviewed coupled midpoint source",
+      "version": "1.3.1",
+      "owner": "simulation-maintainer",
+      "scope": "C++ library compiled by upstream src CMake; excludes aircraft/engine/system XML, tests, bindings and Unreal plugin; only four reviewed propulsion source modifications under ADR015; no model XML",
+      "decision": "Conditional modified-source delivery only through ADR015 closed renewed source identity, dated file notices, replaceable DLL, matching source rebuild/export/replacement evidence and retained upstream grants.",
+      "license": "LGPL-2.1-or-later; bundled MIT components",
+      "redistribution": "conditional",
+      "evidence": "source-verified",
+      "source": {
+        "url": "https://github.com/JSBSim-Team/jsbsim/tree/3b25f25e49b42d0489c04ac805674fc1450ca579",
+        "revision": "3b25f25e49b42d0489c04ac805674fc1450ca579",
+        "rights_url": "https://github.com/JSBSim-Team/jsbsim/blob/3b25f25e49b42d0489c04ac805674fc1450ca579/COPYING",
+        "applicability": "C++ library; SimGear Library-GPL-2.0-or-later grants permit later 2.1 choice",
+        "archive_url": "https://codeload.github.com/JSBSim-Team/jsbsim/zip/3b25f25e49b42d0489c04ac805674fc1450ca579",
+        "archive_sha256": "df57467a831cfa3ee3cadcb98d8291ce56bb11976e35dd9e93c94201ff1420d5"
+      },
+      "obligations": [
+        "retain-notices",
+        "stage-third-party-notices",
+        "include-corresponding-source",
+        "allow-library-replacement",
+        "permit-reverse-engineering",
+        "record-modifications"
+      ],
+      "notice_files": [
+        {
+          "path": "third_party/licenses/notices/JSBSim-COPYING.txt",
+          "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551",
+          "source_url": "https://github.com/JSBSim-Team/jsbsim/blob/3b25f25e49b42d0489c04ac805674fc1450ca579/COPYING",
+          "upstream_git_blob": "3394995abc5463238286bc53ce7608839b5d0ba7"
+        },
+        {
+          "path": "third_party/licenses/notices/JSBSim-Expat-COPYING.txt",
+          "sha256": "8c6b5b6de8fae20b317f4992729abc0e520bfba4c7606cd1e9eeb87418eebdec",
+          "source_url": "https://github.com/JSBSim-Team/jsbsim/blob/3b25f25e49b42d0489c04ac805674fc1450ca579/src/simgear/xml/COPYING",
+          "upstream_git_blob": "3c0142e71c8d4fcb2b73fd1c29bc797ae9b7151e"
+        },
+        {
+          "path": "third_party/licenses/notices/JSBSim-GeographicLib-LICENSE.txt",
+          "sha256": "90d25298be0c5d7f5219ae20009d18910150b3a4ea0ca86dda5df04cfb8d3823",
+          "source_url": "https://github.com/JSBSim-Team/jsbsim/blob/3b25f25e49b42d0489c04ac805674fc1450ca579/src/GeographicLib/LICENSE.txt",
+          "upstream_git_blob": "e841c1b64e52b25571fa8be6336d9d5809d590a6"
+        },
+        {
+          "path": "tools/export/jsbsim-coupled-midpoint/MODIFICATIONS.md",
+          "sha256": "e550d82f1ff0dd5b545fd0abc2410e2047edcb5495b7967ba003332da7238035",
+          "source_url": "https://github.com/brettbergin/flight-simulator/blob/main/tools/export/jsbsim-coupled-midpoint/MODIFICATIONS.md"
+        }
+      ],
+      "library_policy": {
+        "linkage": "dynamic",
+        "source_archive_sha256": "39181ba60397fe5c2ad74d14c02150a2488bc8c96dc29529a0a0396cfc1e3b2d",
+        "source_delivery": "Reviewed schema3 library-only archive: 293 regular files, 279 vendor paths, 275 pristine and four modified; preserve before-images, recipe, upstream inventory, wrappers, LGPL/embedded notices and exact BUILD replacement instructions.",
+        "modification_policy": "Flight-simulator project contributors changed FGPiston.cpp, FGPiston.h, FGPropeller.cpp and FGPropeller.h on 2026-10-09 under retained LGPL-2.1-or-later grants. Piston notices renewed without numerical token changes; reviewed source identity and dated MODIFICATIONS.md required. Original copyright/embedded grants remain in force; no aircraft qualification claim.",
+        "release_policy": "jsbsim-coupled-midpoint-v1",
+        "source_identity": {
+          "path": "third_party/patches/jsbsim/event-aware-coupled-midpoint-v1/identity.json",
+          "sha256": "8b3793f79e86760795a0cf5ea3454a62bbdc49ed82bbf9c1a5adc6e007ed1f00"
+        }
+      },
+      "evidence_file": "docs/decisions/015-source-law-coupled-shaft.md"
+    },
+    {
       "id": "godot",
       "class": "runtime",
       "name": "Godot engine and export template runtime",

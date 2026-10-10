@@ -4955,7 +4955,29 @@
         "third_party/licenses/evidence/",
         "third_party/licenses/notices/",
         "tools/license-audit/",
-        ".github/workflows/native-ci.yml"
+        ".github/workflows/native-ci.yml",
+        "tools/ci/coupled-player.py",
+        "tools/ci/test_coupled_player.py",
+        ".github/workflows/coupled-ci.yml",
+        "app/cockpit/instruments/engine_status.gd",
+        "app/cockpit/instruments/native_readings.gd",
+        "app/proof/interactive/flight_panel.gd",
+        "app/proof/interactive/flight_sound.gd",
+        "app/world/wind/wind_cue.gd",
+        "tests/engine/facade_checks.gd",
+        "tests/engine/pacing_checks.gd",
+        "tests/engine/scene_checks.gd",
+        "tests/engine/visual_checks.gd",
+        "tests/engine/wind_profile_checks.gd",
+        "tests/input/piston_checks.gd",
+        "tests/input/piston_panel_checks.gd",
+        "tests/instruments/engine_status_checks.gd",
+        "tests/integration/sim_loop/facade_checks.gd",
+        "tests/ui/freeflight/scene_checks.gd",
+        "native/godot_bridge/src/codec.cpp",
+        "native/godot_bridge/src/codec.hpp",
+        "tests/debrief/observed/scene_checks.gd",
+        "tests/integration/wind/scene_checks.gd"
       ],
       "docs": [
         "docs/README.md",
@@ -4968,7 +4990,9 @@
         "docs/agent-operations.md",
         "tests/engine/shaft-method/README.md",
         "docs/decisions/015-source-law-coupled-shaft.md",
-        "docs/evidence/P3/coupled-midpoint-reference-design.md"
+        "docs/evidence/P3/coupled-midpoint-reference-design.md",
+        "docs/decisions/016-generated-native-build-identity.md",
+        "docs/evidence/P3/original-piston-player.md"
       ],
       "requirements": [
         "REAL-013",

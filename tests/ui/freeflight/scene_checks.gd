@@ -16,8 +16,8 @@ class CountedBridge extends RefCounted:
 	var joined := false
 	func _init(existing: RefCounted) -> void:
 		native=existing
-	func open_session(model_root: String, start: String, wind_profile: Variant="calm") -> Dictionary:
-		return native.call("open_session",model_root,start,wind_profile)
+	func open_session(model_root: String, start: String, wind_profile: Variant="calm", profile_id: Variant="original-interactive-prototype") -> Dictionary:
+		return native.call("open_session",model_root,start,wind_profile,profile_id)
 	func read_state() -> Dictionary:
 		return native.call("read_state")
 	func submit(command: Dictionary) -> Dictionary:

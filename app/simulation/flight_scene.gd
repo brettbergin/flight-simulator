@@ -44,6 +44,15 @@ var landmark_board: Control
 var route_open: bool=false
 var route_aids_visible: bool=true
 var route_view: Dictionary={}
+const EngineStatus = preload("res://cockpit/instruments/engine_status.gd")
+# These identify only the last fully adopted fresh flight, never a menu draft.
+var selected_profile: String="original-interactive-prototype"
+var adopted_session_id: String=""
+var profile_presets: Dictionary={}
+var engine_status: Dictionary={}
+var held_systems: Dictionary={}
+var pending_systems: Dictionary={}
+var profile_button: Button
 var shared_readings: Dictionary={}
 var scan_panel: Control
 var scan_open: bool=false
@@ -82,6 +91,13 @@ func _ready() -> void:
 		for device in Input.get_connected_joypads():
 			observe_connection(device,true)
 	super._ready()
+	if not legacy_proof and "--piston-visual-smoke" in OS.get_cmdline_user_args():
+		set_process(false)
+		set_process_input(false)
+		set_process_unhandled_input(false)
+		set_process_unhandled_key_input(false)
+		call_deferred("run_piston_visual")
+		return
 	if not legacy_proof and "--wind-visual-smoke" in OS.get_cmdline_user_args():
 		set_process(false)
 		call_deferred("run_wind_visual")
@@ -136,7 +152,7 @@ func close_session() -> bool:
 	var result: Dictionary=facade.close()
 	# Retain the old prefix when replacement fails, but still label its actual
 	# confirmed stop. New-session publications remain held until begin succeeds.
-	if initializing_recording and not observed_status.is_empty():
+	if initializing_recording and not piston_mode() and not observed_status.is_empty():
 		var ended: Dictionary=observed_recorder.observe(result.readback)
 		if ended.status!=null: observed_status=ended.status
 	else:
@@ -149,30 +165,42 @@ func close_session() -> bool:
 		adopt_result(result)
 	return result.ok
 
-func restart(replace_confirmed: bool=false, selected_wind: Variant=null) -> bool:
+func restart(replace_confirmed: bool=false, selected_wind: Variant=null, requested_profile: Variant=null, requested_start: Variant=null) -> bool:
 	if legacy_proof:
 		return super.restart()
 	if not archive_operation.is_empty(): return false
+	var next_profile: Variant=selected_profile if requested_profile==null else requested_profile
+	var next_start: Variant=named_start if requested_start==null else requested_start
 	var requested_wind: Variant=current_wind_profile if selected_wind==null else selected_wind
-	if not Facade.valid_wind_profile(requested_wind):
-		status="Invalid synthetic wind selection; flight unchanged"
+	if not Facade.valid_profile(next_profile) or typeof(next_start)!=TYPE_STRING:
+		status="Invalid fresh profile/start selection; flight unchanged"
+		return false
+	var model_root: String=flight_model_root(next_profile)
+	# Inventory/root/recipe/wind admission runs before old worker destruction.
+	var selection_error: String=Facade._selection_error(model_root,next_start,requested_wind,next_profile)
+	if not selection_error.is_empty():
+		status=selection_error+"; flight unchanged"
 		return false
 	if recorded_flight_advanced() and not replace_confirmed:
-		request_discard("restart",named_start,requested_wind)
+		request_discard("restart",next_start,requested_wind,next_profile)
 		return false
 	if recorded_flight_advanced() and not review_boundary():
 		status="Recorded flight replacement requires a verified paused or joined boundary; flight unchanged"
 		return false
+	# Keep independent guest presets; never promote a legacy preset implicitly.
+	var next_presets: Dictionary=profile_presets.duplicate(true)
+	if not active_preset.is_empty(): next_presets[selected_profile]=active_preset.duplicate(true)
 	initializing_recording=true
 	if not close_session():
 		initializing_recording=false
 		return fail("Native worker did not join")
+	held_systems.clear()
+	pending_systems.clear()
+	engine_status.clear()
 	facade=Facade.new()
-	# The inherited view checks a nonnull host reference; it never owns or calls
-	# a native executive. Ordinary lifecycle/input overrides use the facade.
+	# The inherited view reference never owns a native executive.
 	bridge=facade
-	var model_root: String=flight_model_root()
-	var result: Dictionary=facade.start(model_root,named_start,requested_wind)
+	var result: Dictionary=facade.start(model_root,next_start,requested_wind,next_profile)
 	if not result.ok:
 		return restart_failed(result.error)
 	adopt_result(result)
@@ -219,27 +247,82 @@ func restart(replace_confirmed: bool=false, selected_wind: Variant=null) -> bool
 	if not paused_start.ok:
 		return restart_failed("Controls initialization could not pause native flight")
 	mapper=Mapper.new()
-	if active_preset.is_empty():
-		active_preset=Mapper.default_preset()
-	var configured: Dictionary=mapper.configure(active_preset,held_controls,initial.solved_controls,collect_input_raw())
+	var next_preset: Dictionary=next_presets.get(next_profile,{}).duplicate(true)
+	if next_preset.is_empty():
+		next_preset=Mapper.default_preset_v2() if piston_mode() else Mapper.default_preset()
+	var configured: Dictionary=configure_mapper(next_preset)
 	input_blocked=not configured.ok
 	input_problem="" if configured.ok else configured.error
 	takeover_targets=[]
 	if configured.ok:
-		brake_hold=mapper.sample(collect_input_raw(),0).brake_hold
+		brake_hold=mapper.sample(collect_input_raw(next_preset),0).brake_hold
 	submitted_count=0
 	event_count=0
 	attempt+=1
-	status="PAUSED | %s | fresh attempt %d | confirm controls"%[named_start,attempt]
+	status="PAUSED | %s | fresh attempt %d | confirm controls"%[next_start,attempt]
 	last_wall_us=Time.get_ticks_usec()
-	var begun: Dictionary=observed_recorder.begin(facade.readback(),true)
+	if piston_mode():
+		# ADR011/012 records support only the legacy profile. Clear its history
+		# only after explicit replacement and successful cold scene adoption.
+		observed_recorder=ObservedRecorder.new()
+		observed_status=observed_recorder.status()
+	else:
+		var begun: Dictionary=observed_recorder.begin(facade.readback(),true)
+		if not begun.ok:
+			return restart_failed("Flight observation recording unavailable: "+begun.error)
+		observed_status=begun.status
 	initializing_recording=false
-	if not begun.ok:
-		return restart_failed("Flight observation recording unavailable: "+begun.error)
-	observed_status=begun.status
+	active_preset=next_preset.duplicate(true)
+	profile_presets=next_presets
+	profile_presets[next_profile]=active_preset.duplicate(true)
+	selected_profile=next_profile
+	named_start=next_start
+	adopted_session_id=result.readback.session_id
 	review_joined=false
 	current_wind_profile=requested_wind
 	return true
+
+func piston_mode() -> bool:
+	# During fresh adoption the verified facade identity precedes scene commit.
+	if facade!=null:
+		var identity: Variant=facade.readback().get("model_identity")
+		if identity!=null: return identity==Facade.PISTON_PROFILE
+	return selected_profile==Facade.PISTON_PROFILE.id
+
+func configure_mapper(preset: Dictionary) -> Dictionary:
+	if not piston_mode():
+		return mapper.configure(preset,held_controls,initial.solved_controls,collect_input_raw(preset))
+	var source: Dictionary=facade.readback()
+	var systems: Dictionary=EngineStatus.held_systems_from_readback(source)
+	if not systems.ok:
+		return {"ok":false,"error":systems.error}
+	return mapper.configure_v2(preset,held_controls,initial.solved_controls,collect_input_raw(preset),source.model_identity,systems.value)
+
+func suspend_mapper(reason: String) -> void:
+	if mapper==null: return
+	if not piston_mode():
+		mapper.suspend(reason,held_controls)
+		return
+	var feedback: Dictionary=EngineStatus.held_systems_from_readback(facade.readback())
+	var result: Dictionary=mapper.suspend_v2(reason,held_controls,feedback.value if feedback.ok else {})
+	pending_systems.clear()
+	if not result.ok:
+		input_blocked=true
+		input_problem=result.error
+	else:
+		pending_systems=feedback.value.duplicate(true)
+		pending_systems["engine.starter"]=false
+	# This clears only local intent. Facade owns release admission before resume.
+
+func choose_profile() -> void:
+	# Draft selection remains separate from the current adopted profile and preset.
+	if not paused or facade==null or facade.readback().host_mode!="paused": return
+	if review_open or scan_open or route_open or not archive_operation.is_empty() or not pending_discard.is_empty(): return
+	if controls_panel!=null and controls_panel.visible: return
+	var draft_profile: String=Facade.LEGACY_PROFILE.id if selected_profile==Facade.PISTON_PROFILE.id else Facade.PISTON_PROFILE.id
+	var draft_start: String="piston-cold-ground" if draft_profile==Facade.PISTON_PROFILE.id else "ground-ready"
+	var draft_wind: String="calm" if draft_profile==Facade.PISTON_PROFILE.id else current_wind_profile
+	request_discard("restart",draft_start,draft_wind,draft_profile)
 
 func adopt_result(result: Dictionary) -> void:
 	var was_paused: bool=paused
@@ -254,9 +337,13 @@ func adopt_result(result: Dictionary) -> void:
 		var ground: Dictionary=facade.call("_ground_display")
 		ground_valid=ground.ground_query_valid
 		plane_clearance=ground.plane_clearance_m
+	if piston_mode():
+		engine_status=EngineStatus.from_readback(state)
+		var feedback: Dictionary=EngineStatus.held_systems_from_readback(state)
+		held_systems=feedback.value.duplicate(true) if feedback.ok else {}
 	paused=state.paused or state.host_mode!="live"
 	if paused and mapper!=null and (not was_paused or not result.ok):
-		mapper.suspend("Native flight paused or rejected",held_controls)
+		suspend_mapper("Native flight paused or rejected")
 	stalled=state.host_mode=="stalled"
 	blocked=state.host_mode in ["coverage_blocked","discarded"]
 	native_outcome=state.native_outcome if state.native_outcome!=null else "error"
@@ -285,18 +372,19 @@ func pause_session(value: bool) -> bool:
 			input_problem=ready.error
 			status="CONTROLS PAUSED | "+input_problem
 			return false
+		if piston_mode() and not pending_systems.is_empty(): pending_systems["engine.starter"]=false
 	else:
 		input_blocked=true
 	var result: Dictionary=facade.set_paused(value)
 	adopt_result(result)
 	last_wall_us=Time.get_ticks_usec()
 	if value and mapper!=null:
-		mapper.suspend("Native flight paused",held_controls)
+		suspend_mapper("Native flight paused")
 	if not result.ok:
 		input_blocked=true
 		input_problem="Native pause/resume rejected; start a fresh attempt"
 		if mapper!=null:
-			mapper.suspend(input_problem,held_controls)
+			suspend_mapper(input_problem)
 		# A failed requested pause cannot leave a worker advancing unnoticed.
 		if value:
 			adopt_result(facade.close())
@@ -330,7 +418,10 @@ func _process(delta: float) -> void:
 	process_input_interval(elapsed)
 	show_state(clampf(float(elapsed)/1000000.0,0.0,0.25))
 	if sound!=null and not snapshot.is_empty():
-		sound.call("update_audio",float(held_controls.get("throttle",0)),flight_speed(),paused,any_wow())
+		if piston_mode():
+			sound.call("update_engine_audio",engine_status,flight_speed(),paused,any_wow())
+		else:
+			sound.call("update_audio",float(held_controls.get("throttle",0)),flight_speed(),paused,any_wow())
 
 func process_input_interval(elapsed: int) -> void:
 	if not archive_operation.is_empty(): return
@@ -341,7 +432,7 @@ func process_input_interval(elapsed: int) -> void:
 		# Preserve overload semantics before touching input filters; never clamp time.
 		if elapsed<0 or elapsed>250000:
 			adopt_result(facade.advance_wall_us(elapsed))
-			mapper.suspend("Host timing requires recovery",held_controls)
+			suspend_mapper("Host timing requires recovery")
 			input_blocked=true
 			input_problem="Host timing requires a fresh attempt"
 			return
@@ -361,8 +452,17 @@ func process_input_interval(elapsed: int) -> void:
 			if facade!=sampled_facade or paused or menu_open or input_blocked:
 				return
 		Input.mouse_mode=Input.MOUSE_MODE_CAPTURED if Mapper.action_pressed(active_preset,raw,"look_hold") else Input.MOUSE_MODE_VISIBLE
-		if submit_axes(controls):
-			advance_wall_us(elapsed)
+		if piston_mode():
+			pending_systems=sample.systems.duplicate(true)
+			var intent: Dictionary=facade.set_pilot_intent(controls,pending_systems)
+			adopt_result(intent)
+			if intent.ok:
+				advance_wall_us(elapsed)
+			else:
+				pause_for_input("Native pilot intent rejected; release controls before Resume")
+		else:
+			if submit_axes(controls):
+				advance_wall_us(elapsed)
 	else:
 		wheel_pulses.clear()
 		var diagnostic: Dictionary=mapper.sample(raw,0)
@@ -386,6 +486,8 @@ func make_menu(canvas: CanvasLayer) -> void:
 			box.remove_child(child)
 			child.queue_free()
 	var controls_button: Button=add_menu_button(box,"Controls and calibration  (F7)",open_controls)
+	profile_button=add_menu_button(box,"Aircraft: ready-to-fly prototype",choose_profile)
+	profile_button.add_theme_font_size_override("font_size",15)
 	var scan_button: Button=add_menu_button(box,"Instrument scan",open_instrument_scan)
 	var route_button: Button=add_menu_button(box,"Landmark route",open_landmark_route)
 	var review_button: Button=add_menu_button(box,"Flight review",open_observed_review)
@@ -671,7 +773,7 @@ func pause_for_input(reason: String) -> void:
 	input_blocked=true
 	input_problem=reason
 	if mapper!=null:
-		mapper.suspend(reason,held_controls)
+		suspend_mapper(reason)
 	wheel_pulses.clear()
 	open_menu("Controls paused")
 	status="CONTROLS PAUSED | "+reason
@@ -684,6 +786,10 @@ func collect_input_raw(preset: Dictionary={}) -> Dictionary:
 			for code in binding.negative+binding.positive: key_codes[code]=true
 	for action in selected.get("actions",[]):
 		for source in action.sources:
+			if source.kind=="physical_keys":
+				for code in source.keys: key_codes[code]=true
+	for binding in selected.get("systems",[]):
+		for source in binding.sources:
 			if source.kind=="physical_keys":
 				for code in source.keys: key_codes[code]=true
 	key_codes[KEY_ESCAPE]=true
@@ -716,7 +822,12 @@ func controls_diagnostics() -> Dictionary:
 	var connected: Array=[]
 	for device in Input.get_connected_joypads():
 		connected.append({"id":device,"name":Input.get_joy_name(device),"guid":Input.get_joy_guid(device)})
-	return {"error":input_problem,"takeover":takeover_targets.duplicate(),"brake_hold":brake_hold,"connected_devices":connected,"transient":true}
+	var info: Dictionary={"error":input_problem,"takeover":takeover_targets.duplicate(),"brake_hold":brake_hold,"connected_devices":connected,"transient":true}
+	if piston_mode():
+		info.profile=Facade.PISTON_PROFILE.duplicate(true)
+		info.held_systems=held_systems.duplicate(true)
+		info.pending_systems=pending_systems.duplicate(true)
+	return info
 
 func select_input_device(slot: String, device: int) -> void:
 	if not archive_operation.is_empty(): return
@@ -740,7 +851,10 @@ func open_controls() -> void:
 	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
 	wheel_pulses.clear()
 	controls_selection_backup=selected_slots.duplicate(true)
-	controls_panel.open(active_preset,collect_input_raw(),held_controls,initial.solved_controls)
+	if piston_mode():
+		controls_panel.open_v2(active_preset,collect_input_raw(),held_controls,initial.solved_controls,Facade.PISTON_PROFILE,held_systems)
+	else:
+		controls_panel.open(active_preset,collect_input_raw(),held_controls,initial.solved_controls)
 	controls_panel.update_diagnostics(collect_input_raw(),held_controls,held_controls,controls_diagnostics())
 
 func open_wind() -> void:
@@ -760,7 +874,12 @@ func select_wind_draft(value: Variant) -> void:
 
 func start_wind_draft(start: String) -> void:
 	if wind_panel==null or not wind_panel.visible: return
-	request_discard("restart",start,wind_draft)
+	if selected_profile==Facade.PISTON_PROFILE.id:
+		if start!="ground-ready" and start!="piston-cold-ground":
+			status="Cold piston has no airborne start; current flight retained"
+			return
+		start="piston-cold-ground"
+	request_discard("restart",start,wind_draft,selected_profile)
 
 func dismiss_wind() -> void:
 	if wind_panel==null or not wind_panel.visible or not pending_discard.is_empty(): return
@@ -773,7 +892,7 @@ func update_wind_presentation(readback: Dictionary) -> void:
 	var cue: Dictionary=WindCue.from_readback(readback)
 	# A newly opened worker is not the current scene until setup and recording
 	# adoption succeed. Failed replacement cannot present its wind as current.
-	if cue.state not in ["empty","invalid"] and (observed_status.is_empty() or cue.session_id!=observed_status.get("session_id")):
+	if cue.state not in ["empty","invalid"] and (adopted_session_id.is_empty() or cue.session_id!=adopted_session_id):
 		cue=WindCue.from_readback({})
 	if wind_label!=null:
 		wind_label.text="SYNTHETIC STEADY WIND / NATIVE TRUTH\n"+WindPanel.describe(cue)
@@ -804,12 +923,13 @@ func apply_controls(preset: Dictionary) -> void:
 	if not archive_operation.is_empty(): return
 	if facade==null or mapper==null or facade.readback().host_mode!="paused":
 		return
-	var applied: Dictionary=mapper.configure(preset,held_controls,initial.solved_controls,collect_input_raw(preset))
+	var applied: Dictionary=configure_mapper(preset)
 	if not applied.ok:
 		input_problem=applied.error
 		controls_panel.update_diagnostics(collect_input_raw(),held_controls,held_controls,controls_diagnostics())
 		return
 	active_preset=preset.duplicate(true)
+	profile_presets[selected_profile]=active_preset.duplicate(true)
 	controls_selection_backup.clear()
 	input_blocked=false
 	input_problem="Preset applied; release centered controls and confirm Resume"
@@ -832,27 +952,29 @@ func start_flight(start: String) -> void:
 	if legacy_proof:
 		super.start_flight(start)
 		return
-	request_discard("restart",start,wind_draft)
+	if selected_profile==Facade.PISTON_PROFILE.id:
+		if start=="airborne-prepared":
+			status="This piston prototype supports a cold ground start; the current session is retained"
+			return
+		if start=="ground-ready": start="piston-cold-ground"
+	request_discard("restart",start,wind_draft,selected_profile)
 
-func perform_start(start: String, selected_wind: Variant=null) -> void:
+func perform_start(start: String, selected_wind: Variant=null, requested_profile: Variant=null) -> void:
 	if not archive_operation.is_empty(): return
-	if start not in ["ground-ready","airborne-prepared"] or (selected_wind!=null and not Facade.valid_wind_profile(selected_wind)):
-		status="Invalid fresh-start selection; flight unchanged"
-		return
-	var prior_start: String=named_start
-	named_start=start
-	if restart(true,selected_wind):
+	var next_profile: Variant=selected_profile if requested_profile==null else requested_profile
+	var profile_changed: bool=next_profile!=selected_profile
+	# restart validates before close and commits selection only after adoption.
+	if restart(true,selected_wind,next_profile,start):
 		if wind_panel!=null: wind_panel.hide()
 		if controls_panel!=null: controls_panel.hide()
 		if observed_panel!=null: observed_panel.set_open(false)
 		review_open=false
 		clear_imported_review()
 		open_menu("Fresh flight · confirm controls")
-		close_menu()
+		# A new profile requires an explicit paused Controls/Resume decision.
+		if not profile_changed: close_menu()
 	else:
-		named_start=prior_start
 		open_menu("Restart failed · recorded flight retained")
-
 
 func update_canonical_scene_sources() -> void:
 	var visual_ecef: Variant=facade.call("_visual_ecef")
@@ -884,6 +1006,8 @@ func show_state(seconds: float=0.0) -> void:
 		return
 	layout_flight_menu()
 	var map_top: float=124.0 if snapshot.is_empty() or blocked or stalled or native_outcome in ["discarded","error","coverage_blocked"] else 92.0
+	if piston_mode():
+		map_top+=58.0
 	flight_map.size=Vector2(minf(420,get_viewport().get_visible_rect().size.x*0.42),minf(500,get_viewport().get_visible_rect().size.y-map_top-14))
 	flight_map.position=Vector2(get_viewport().get_visible_rect().size.x-flight_map.size.x-14,map_top)
 	var current: Dictionary=facade.readback()
@@ -959,7 +1083,12 @@ func show_state(seconds: float=0.0) -> void:
 	camera_ready=true
 	camera.look_at(look_target,up)
 	if propeller!=null and not paused:
-		propeller.rotate_z(clampf(seconds,0.0,0.25)*(25+float(held_controls.throttle)*65))
+		if piston_mode():
+			var shaft: Dictionary=engine_status.get("readings",{}).get("propeller.angular_speed",{})
+			if engine_status.get("state")=="live" and shaft.get("valid")==true:
+				propeller.rotate_z(clampf(seconds,0.0,0.25)*float(shaft.value))
+		else:
+			propeller.rotate_z(clampf(seconds,0.0,0.25)*(25+float(held_controls.throttle)*65))
 	var view_names: Array[String]=["COCKPIT","CHASE","ORBIT","PANEL"]
 	var input_name: String=active_preset.get("name","Controls")+" / guest"
 	if not takeover_targets.is_empty():
@@ -1175,6 +1304,9 @@ func dismiss_landmark_route() -> void:
 func publish_readings(readback: Dictionary, info: Dictionary) -> void:
 	shared_readings=NativeReadings.from_readback(readback)
 	publish_landmark_route(readback,info)
+	if piston_mode():
+		engine_status=EngineStatus.from_readback(readback)
+		info.engine_status=engine_status.duplicate(true)
 	var source: Dictionary=readback.aircraft if readback.get("aircraft") is Dictionary else {}
 	var held: Dictionary=readback.held_axes if readback.get("held_axes") is Dictionary else {}
 	panel.call("set_native_readings",shared_readings,source,held,info)
@@ -1224,6 +1356,10 @@ func open_menu(title: String="Flight paused") -> void:
 		if landmark_board!=null:
 			landmark_board.set_open(false)
 	super.open_menu(title)
+	if not legacy_proof and profile_button!=null:
+		profile_button.text="Aircraft: cold piston prototype  ·  switch" if selected_profile==Facade.PISTON_PROFILE.id else "Aircraft: ready-to-fly prototype  ·  switch"
+		if piston_mode():
+			menu_message.text="Original piston prototype · idealized starter supply\nStart: brakes held, mixture rich, ignition both, hold starter.\nUse your engine bindings in Controls (F7). Release starter after firing.\nNative shaft RPM / combustion / switches are shown below.\nThis is an engineering interaction; no C172 procedure is claimed."
 
 func close_menu() -> void:
 	if not archive_operation.is_empty(): return
@@ -1253,11 +1389,13 @@ func restart_failed(message: String) -> bool:
 	initializing_recording=false
 	return fail(message)
 
-func flight_model_root() -> String:
-	return ProjectSettings.globalize_path("res://models") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("models")
+func flight_model_root(profile_id: Variant=null) -> String:
+	var profile: Variant=selected_profile if profile_id==null else profile_id
+	var folder: String="piston-models" if profile==Facade.PISTON_PROFILE.id else "models"
+	return ProjectSettings.globalize_path("res://"+folder) if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join(folder)
 
 func observe_flight(readback: Dictionary) -> void:
-	if legacy_proof or initializing_recording or observed_status.is_empty(): return
+	if legacy_proof or initializing_recording or piston_mode() or observed_status.is_empty(): return
 	var result: Dictionary=observed_recorder.observe(readback)
 	if result.status!=null: observed_status=result.status
 
@@ -1293,8 +1431,8 @@ func open_observed_review() -> void:
 		status="Recorded flight cannot be qualified for review"
 		return
 	archive_imported=false
-	archive_message=""
-	observed_panel.set_file_context(false)
+	archive_message="Cold-engine flight recording is unavailable. Open may display a saved legacy flight; it never resumes or records this airplane." if selected_profile==Facade.PISTON_PROFILE.id else ""
+	observed_panel.set_file_context(false,archive_message)
 	scan_open=false
 	route_open=false
 	if landmark_board!=null: landmark_board.set_open(false)
@@ -1324,7 +1462,7 @@ func show_current_review() -> void:
 	var current: Variant=observed_recorder.recording()
 	if observed_panel.set_recording(current):
 		archive_imported=false
-		archive_message="Current paused flight. Save new review always saves this flight."
+		archive_message="Cold-engine flight recording is unavailable. Opened legacy history stays separate; Save cannot record this cold flight." if selected_profile==Facade.PISTON_PROFILE.id else "Current paused flight. Save new review always saves this flight."
 		observed_panel.set_file_context(false,archive_message)
 
 func begin_archive_operation(action: String, show_dialog: bool=true) -> bool:
@@ -1334,13 +1472,16 @@ func begin_archive_operation(action: String, show_dialog: bool=true) -> bool:
 		return false
 	var bytes:=PackedByteArray()
 	if action=="save":
+		if selected_profile==Facade.PISTON_PROFILE.id:
+			archive_feedback("Review not saved: cold-engine flight recording is unsupported; an opened legacy file is historical only.")
+			return false
 		# Exactly one current snapshot, even while an imported file is displayed.
 		var encoded: Dictionary=ArchiveCodec.encode(observed_recorder.recording())
 		if not encoded.ok:
 			archive_feedback("Review not saved: "+encoded.error)
 			return false
 		bytes=encoded.value.duplicate()
-	archive_operation={"action":action,"session_id":observed_status.get("session_id"),"bytes":bytes,"prior_message":archive_message,"prior_recent":FileDialog.get_recent_list()}
+	archive_operation={"action":action,"session_id":adopted_session_id,"bytes":bytes,"prior_message":archive_message,"prior_recent":FileDialog.get_recent_list()}
 	observed_panel.set_file_context(archive_imported,"Choose a new file." if action=="save" else "Choose a historical review file.",true)
 	if show_dialog:
 		archive_dialog.file_mode=FileDialog.FILE_MODE_SAVE_FILE if action=="save" else FileDialog.FILE_MODE_OPEN_FILE
@@ -1362,7 +1503,7 @@ func cancel_archive_operation() -> void:
 func finish_archive_operation(path: String) -> Dictionary:
 	var rejected: Dictionary={"ok":false,"error":"No matching paused file operation","state":"rejected","path":"","temp_path":null,"value":null,"payload_sha256":null}
 	if archive_operation.is_empty(): return rejected
-	if initializing_recording or not review_boundary() or archive_operation.session_id!=observed_status.get("session_id"):
+	if initializing_recording or not review_boundary() or archive_operation.session_id!=adopted_session_id:
 		cancel_archive_operation()
 		archive_feedback(rejected.error)
 		return rejected
@@ -1440,20 +1581,27 @@ func make_discard_confirmation(canvas: CanvasLayer) -> void:
 		card.position=(discard_layer.size-card.size)*0.5)
 	discard_layer.hide()
 
-func request_discard(action: String, start: String="", selected_wind: Variant=null) -> void:
+func request_discard(action: String, start: String="", selected_wind: Variant=null, requested_profile: Variant=null) -> void:
 	if not archive_operation.is_empty(): return
 	if not pending_discard.is_empty() or not action in ["restart","quit"]: return
-	if action=="restart" and not start in ["ground-ready","airborne-prepared"]: return
+	var next_profile: Variant=selected_profile if requested_profile==null else requested_profile
 	var requested_wind: Variant=current_wind_profile if selected_wind==null else selected_wind
-	if action=="restart" and not Facade.valid_wind_profile(requested_wind): return
+	if action=="restart":
+		if not Facade.valid_profile(next_profile):
+			status="Invalid fresh profile; flight unchanged"
+			return
+		var selection_error: String=Facade._selection_error(flight_model_root(next_profile),start,requested_wind,next_profile)
+		if not selection_error.is_empty():
+			status=selection_error+"; flight unchanged"
+			return
 	if not recorded_flight_advanced():
-		if action=="restart": perform_start(start,requested_wind)
+		if action=="restart": perform_start(start,requested_wind,next_profile)
 		else: await perform_quit()
 		return
 	if not ensure_review_boundary():
 		status="Cannot discard until native flight is paused or its worker has joined"
 		return
-	pending_discard={"action":action,"start":start,"session_id":observed_status.session_id,"wind_profile":requested_wind}
+	pending_discard={"action":action,"start":start,"session_id":adopted_session_id,"wind_profile":requested_wind,"profile_id":next_profile}
 	menu_open=true
 	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
 	discard_message.text="This flight has %d recorded observations. %s discards its in-memory review. Cancel keeps the flight paused and the review available. Only explicitly saved review files remain on disk."%[observed_status.sample_count,"Restarting" if action=="restart" else "Quitting"]
@@ -1479,14 +1627,14 @@ func cancel_discard() -> void:
 
 func confirm_discard() -> void:
 	if pending_discard.is_empty(): return
-	if pending_discard.session_id!=observed_status.session_id or not review_boundary():
+	if pending_discard.session_id!=adopted_session_id or not review_boundary():
 		status="Discard request no longer matches the verified flight boundary"
 		cancel_discard()
 		return
 	var decision: Dictionary=pending_discard.duplicate(true)
 	pending_discard.clear()
 	discard_layer.hide()
-	if decision.action=="restart": perform_start(decision.start,decision.wind_profile)
+	if decision.action=="restart": perform_start(decision.start,decision.wind_profile,decision.profile_id)
 	else: await perform_quit()
 
 func quit_flight() -> void:
@@ -1503,6 +1651,13 @@ func _exit_tree() -> void:
 	# Forced shutdown can lose an unsaved review, but native ownership must join.
 	archive_operation.clear()
 	super._exit_tree()
+
+func run_piston_visual() -> void:
+	# The observer disables the ordinary host loop: keep audio silent separately.
+	if sound!=null:
+		sound.set_enabled(false)
+		sound.set_process(false)
+	await load("res://engine_tests/visual_checks.gd").new().run(self)
 
 func run_wind_visual() -> void:
 	await load("res://wind_scene_tests/visual_checks.gd").new().run(self)

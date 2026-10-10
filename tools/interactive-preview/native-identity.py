@@ -375,7 +375,12 @@ def reconstruction_paths(repo):
         for path in root.rglob('*'):
             ordinary(path, path.is_dir())
             if path.is_file():
-                names.add(path.relative_to(repo).as_posix())
+                relative = path.relative_to(repo)
+                # Exclude Python cache artifacts only from repository overlays.
+                # ordinary() above still rejects links/unsupported paths.
+                if '__pycache__' in relative.parts or relative.suffix == '.pyc':
+                    continue
+                names.add(relative.as_posix())
     return sorted(names)
 
 

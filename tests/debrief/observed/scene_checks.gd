@@ -16,8 +16,8 @@ class SyntheticScene extends Scene:
 		observed_recorder=TrackingRecorder.new()
 	func collect_input_raw(_preset: Dictionary={}) -> Dictionary:
 		return synthetic_raw.duplicate(true)
-	func flight_model_root() -> String:
-		return ProjectSettings.globalize_path("res://__missing_observed_test_models__") if missing_models else super.flight_model_root()
+	func flight_model_root(profile_id: Variant=null) -> String:
+		return ProjectSettings.globalize_path("res://__missing_observed_test_models__") if missing_models else super.flight_model_root(profile_id)
 	func fail(message: String) -> bool:
 		if not missing_models: return super.fail(message)
 		# Expected actual facade inventory rejection. Suppress only push_error;
@@ -101,14 +101,17 @@ func run(host: Node) -> Dictionary:
 	var paused_again: Dictionary=_capture(scene)
 	scene.dismiss_observed_review()
 	_check(_capture(scene)==paused_again,"live_open_dismiss_does_not_resume")
+	var before_invalid_reset: Dictionary=_capture(scene)
+	var record_before_invalid_reset: Dictionary=scene.observed_recorder.recording()
+	var writes_before_invalid_reset: Dictionary=_counter.writes()
 	scene.missing_models=true
 	scene.start_flight("ground-ready")
 	scene.confirm_discard()
-	_check(_counter.joined and scene.expected_start_errors==["Reviewed model inventory identity mismatch"],"approved_reset_joins_then_rejects_missing_actual_inventory")
+	_check(not _counter.joined and _counter.writes()==writes_before_invalid_reset and scene.expected_start_errors.is_empty() and scene.status.contains("Reviewed model inventory identity mismatch"),"missing_inventory_rejected_before_existing_worker_mutation")
 	var retained: Dictionary=scene.observed_recorder.recording()
-	_check(retained.metadata==record.metadata and retained.samples==record.samples and retained.last_observed_tick==record.last_observed_tick and retained.state=="sealed" and retained.seal_reason=="closed" and not scene.initializing_recording,"failed_initialization_preserves_old_prefix_and_labels_actual_joined_close")
+	_check(_capture(scene)==before_invalid_reset and retained==record_before_invalid_reset and not scene.initializing_recording,"preflight_rejection_preserves_complete_paused_flight_and_recording")
 	scene.open_observed_review()
-	_check(scene.review_open and scene.observed_panel.get("_record")==retained,"failed_reset_review_remains_available_after_join")
+	_check(scene.review_open and scene.observed_panel.get("_record")==retained,"rejected_reset_review_remains_available_on_unchanged_worker")
 	scene.dismiss_observed_review()
 	scene.missing_models=false
 	scene.start_flight("ground-ready")

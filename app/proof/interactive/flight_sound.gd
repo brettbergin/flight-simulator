@@ -1,5 +1,5 @@
 extends Node
-# Original synthesized presentation only: no sampled assets, measured RPM,
+# Original synthesized presentation only: no sampled assets, calibrated acoustics,
 # propeller/engine physics, warning system or aviation-fidelity assertion.
 var player: AudioStreamPlayer
 var generator: AudioStreamGenerator
@@ -12,6 +12,9 @@ var grounded: bool = true
 var phase: float = 0.0
 var level: float = 0.0
 var wind: float = 0.0
+var native_engine: bool = false
+var native_running: bool = false
+var native_shaft: float = 0.0
 var random := RandomNumberGenerator.new()
 
 func _ready() -> void:
@@ -33,7 +36,26 @@ func set_enabled(value: bool) -> void:
 		player.stream_paused=not enabled or paused
 
 func update_audio(native_throttle: float, speed_mps: float, is_paused: bool, is_grounded: bool) -> void:
+	native_engine=false
 	throttle=clampf(native_throttle,0,1)
+	speed=clampf(speed_mps,0,150)
+	paused=is_paused
+	grounded=is_grounded
+	if player!=null:
+		player.stream_paused=not enabled or paused
+
+func update_engine_audio(engine_status: Dictionary, speed_mps: float, is_paused: bool, is_grounded: bool) -> void:
+	native_engine=true
+	native_running=false
+	native_shaft=0.0
+	# The host supplies the identity-qualified producer. Missing channels mute
+	# engine cues; wind is independent of combustion and still follows airspeed.
+	var readings: Dictionary=engine_status.get("readings",{})
+	var shaft: Dictionary=readings.get("propeller.angular_speed",{})
+	var running: Dictionary=readings.get("engine.running",{})
+	if engine_status.get("state") in ["live","paused"] and shaft.get("valid")==true and shaft.get("unit")=="radps" and typeof(shaft.get("value"))==TYPE_FLOAT and is_finite(shaft.value) and shaft.value>=0.0:
+		native_shaft=shaft.value
+		native_running=running.get("valid")==true and running.get("unit")=="bool" and typeof(running.get("value"))==TYPE_BOOL and running.value
 	speed=clampf(speed_mps,0,150)
 	paused=is_paused
 	grounded=is_grounded
@@ -48,9 +70,17 @@ func _process(_delta: float) -> void:
 	buffer.resize(count)
 	for i in range(count):
 		level=lerpf(level,throttle,0.0006)
-		phase=fposmod(phase+TAU*(43+level*72)/22050.0,TAU)
+		var frequency: float=43+level*72
+		if native_engine:
+			frequency=native_shaft/TAU*2.0
+		phase=fposmod(phase+TAU*frequency/22050.0,TAU)
 		wind=lerpf(wind,random.randf_range(-1,1),0.07)
 		var engine: float=(sin(phase)+0.36*sin(phase*2)+0.12*sin(phase*4))*(0.08+0.13*level)
+		if native_engine:
+			engine=(sin(phase)+0.36*sin(phase*2)+0.12*sin(phase*4))*0.17 if native_running and native_shaft>0.0 else 0.0
+			if not native_running and native_shaft>0.0:
+				# Shaft rotation cue covers cranking/coast without inventing combustion.
+				engine=sin(phase)*0.04
 		var air: float=wind*clampf(speed/90.0,0,1)*0.32
 		var sample: float=clampf(engine+air,-0.5,0.5)
 		buffer[i]=Vector2(sample,sample)

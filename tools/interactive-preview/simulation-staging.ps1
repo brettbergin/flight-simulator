@@ -60,7 +60,7 @@ function Get-InputSourceGroups {
  @(
   @{source='app/input';destination='input';required=@('input_mapper.gd','input_preset.gd')},
   @{source='app/ui/controls';destination='ui/controls';required=@('controls_panel.gd')},
-  @{source='tests/input';destination='input_tests';required=@('input_checks.gd','scene_checks.gd','reference.json')}
+  @{source='tests/input';destination='input_tests';required=@('input_checks.gd','scene_checks.gd','piston_checks.gd','piston_panel_checks.gd','reference.json')}
  )|ForEach-Object {
   $_.snapshot=@(Get-SimulationSourceSnapshot (Join-Path $RepoRoot $_.source) -RequiredEntries $_.required)
   $_
@@ -81,8 +81,8 @@ function Assert-InputSourceGroups {
 function Get-CockpitSourceGroups {
  param([Parameter(Mandatory)][string]$RepoRoot)
  @(
-  @{source='app/cockpit';destination='cockpit';required=@('instruments/native_readings.gd','instruments/scan_panel.gd')},
-  @{source='tests/instruments';destination='instrument_tests';required=@('instrument_checks.gd','adapter_checks.gd','scan_checks.gd','scene_checks.gd','reference.json','preparation-manifest.json')},
+  @{source='app/cockpit';destination='cockpit';required=@('instruments/native_readings.gd','instruments/scan_panel.gd','instruments/engine_status.gd')},
+  @{source='tests/instruments';destination='instrument_tests';required=@('instrument_checks.gd','adapter_checks.gd','scan_checks.gd','scene_checks.gd','engine_status_checks.gd','reference.json','preparation-manifest.json')},
   @{source='content/aircraft/prototype';destination='content/aircraft/prototype';required=@('cockpit-presentation.json')}
  )|ForEach-Object {
   $_.snapshot=@(Get-SimulationSourceSnapshot (Join-Path $RepoRoot $_.source) -RequiredEntries $_.required)
@@ -266,6 +266,105 @@ function Assert-PreviewFacadeReceipt {
  }
  if($cue.reference_sha256 -isnot [string] -or $cue.reference_sha256 -cne '7d71cbb4f8d9ad12fe91501d5e020f14bbf02516d363512e69b6fa41320856c3'){throw 'Wind frozen reference identity rejected'}
 }
+# ADR010 opt-in cold fixtures: selective roster, never the entire engine test tree.
+function Get-PistonSourceDefinitions {
+ @(
+  @{source='tests/engine/facade_checks.gd';destination='engine_tests/facade_checks.gd'},
+  @{source='tests/engine/pacing_checks.gd';destination='engine_tests/pacing_checks.gd'},
+  @{source='tests/engine/wind_profile_checks.gd';destination='engine_tests/wind_profile_checks.gd'},
+  @{source='tests/engine/scene_checks.gd';destination='engine_tests/scene_checks.gd'},
+  @{source='tests/engine/visual_checks.gd';destination='engine_tests/visual_checks.gd'},
+  @{source='tests/interactive/bridge_profile_checks.gd';destination='engine_tests/bridge_profile_checks.gd'},
+  @{source='tests/debrief/observed_archive/reference/minimal.fsreview.json';destination='engine_tests/reference/minimal.fsreview.json'}
+ )
+ foreach($name in @('inventory.json','aircraft/original-piston-prop/original-piston-prop.xml','engine/original-piston.xml','engine/original-fixed-prop.xml','parameter-ledger.json','NOTICE-MIT.txt','README.md')){
+  @{source=('native/fdm_jsbsim/models/original-piston-prop/'+$name);destination=('piston-models/'+$name)}
+ }
+}
+function Get-PistonSourceSnapshot {
+ param([Parameter(Mandatory)][string]$RepoRoot)
+ $modelRoot=Join-Path $RepoRoot 'native/fdm_jsbsim/models/original-piston-prop'
+ $modelEntries=@('inventory.json','aircraft/original-piston-prop/original-piston-prop.xml','engine/original-piston.xml','engine/original-fixed-prop.xml','parameter-ledger.json','NOTICE-MIT.txt','README.md')
+ $model=@(Get-SimulationSourceSnapshot $modelRoot -RequiredEntries $modelEntries)
+ if($model.Count -ne 7){throw 'Original piston model requires exactly seven ordinary files'}
+ $inventory=Join-Path $modelRoot 'inventory.json'
+ if((Get-FileHash -LiteralPath $inventory).Hash.ToLowerInvariant() -cne 'f7766fda173d8ee83d4c4a8c02f6333124175a1f7064d3f4d8e78df3d17da12a'){throw 'Accepted original piston inventory changed'}
+ $manifest=Get-Content -LiteralPath $inventory -Raw|ConvertFrom-Json
+ foreach($pin in @($manifest.files)+@($manifest.metadata)){
+  $row=@($model|Where-Object {$_.path -ceq $pin.path})
+  if($row.Count -ne 1 -or $row[0].bytes -ne $pin.bytes -or $row[0].sha256 -cne $pin.sha256){throw 'Accepted original piston payload changed'}
+ }
+ @(Get-PistonSourceDefinitions|ForEach-Object {
+  $file=Join-Path $RepoRoot $_.source
+  Assert-PreviewOrdinaryAncestors -Path $file
+  $item=Get-Item -Force -LiteralPath $file -ErrorAction Stop
+  if($item.PSIsContainer){throw 'Piston source must be an ordinary file'}
+  [pscustomobject]@{source=$_.source;destination=$_.destination;bytes=$item.Length;sha256=(Get-FileHash -LiteralPath $file).Hash.ToLowerInvariant()}
+ })
+}
+function Assert-PistonSourceSnapshot {
+ param([Parameter(Mandatory)][string]$Root,[Parameter(Mandatory)][object[]]$Snapshot,[switch]$Authoring,[switch]$AllowGeneratedUIDs)
+ $definitions=@(Get-PistonSourceDefinitions)
+ if($Snapshot.Count -ne $definitions.Count -or $Snapshot.Count -ne 14){throw 'Complete fourteen-file piston staging roster required'}
+ for($i=0;$i -lt $definitions.Count;$i++){
+  $file=$Snapshot[$i];$definition=$definitions[$i]
+  if((($file.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "bytes`ndestination`nsha256`nsource" -or $file.source -cne $definition.source -or $file.destination -cne $definition.destination -or ($file.bytes -isnot [long] -and $file.bytes -isnot [int]) -or $file.bytes -lt 0 -or $file.sha256 -isnot [string] -or $file.sha256 -cnotmatch '^[0-9a-f]{64}$'){throw 'Piston staging source/destination/identity declaration rejected'}
+  $path=Join-Path $Root $(if($Authoring){$file.source}else{$file.destination})
+  Assert-PreviewOrdinaryAncestors -Path $path
+  $item=Get-Item -Force -LiteralPath $path -ErrorAction Stop
+  if($item.PSIsContainer -or $item.Length -ne $file.bytes -or (Get-FileHash -LiteralPath $path).Hash.ToLowerInvariant() -cne $file.sha256){throw 'Piston staging source bytes changed'}
+ }
+ if($Authoring){
+  # Recheck the closed pinned model tree, including unexpected file additions.
+  $actual=@(Get-PistonSourceSnapshot -RepoRoot $Root)
+  if(($actual|ConvertTo-Json -Depth 5 -Compress) -cne ($Snapshot|ConvertTo-Json -Depth 5 -Compress)){throw 'Piston authoring roster changed'}
+ }else{
+  foreach($folder in @('engine_tests','piston-models')){
+   $expected=@($Snapshot|Where-Object {$_.destination.StartsWith($folder+'/')}|ForEach-Object {[pscustomobject]@{path=$_.destination.Substring($folder.Length+1);bytes=$_.bytes;sha256=$_.sha256}}|Sort-Object path)
+   Assert-SimulationSourceSnapshot -SourceRoot (Join-Path $Root $folder) -Snapshot $expected -RequiredEntries @($expected.path) -AllowGeneratedUIDs:$AllowGeneratedUIDs
+  }
+ }
+}
+function Copy-PistonSourceSnapshot {
+ param([Parameter(Mandatory)][string]$RepoRoot,[Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Snapshot)
+ Assert-PistonSourceSnapshot -Root $RepoRoot -Snapshot $Snapshot -Authoring
+ Assert-PreviewOrdinaryAncestors -Path $DestinationRoot
+ foreach($folder in @('engine_tests','piston-models')){if(Test-Path -LiteralPath (Join-Path $DestinationRoot $folder)){throw 'Piston staging destinations must be fresh'}}
+ foreach($file in $Snapshot){
+  $target=Join-Path $DestinationRoot $file.destination
+  New-Item -ItemType Directory -Path (Split-Path -Parent $target) -Force|Out-Null
+  Copy-Item -LiteralPath (Join-Path $RepoRoot $file.source) -Destination $target
+ }
+ Assert-PistonSourceSnapshot -Root $DestinationRoot -Snapshot $Snapshot
+ Assert-PistonSourceSnapshot -Root $RepoRoot -Snapshot $Snapshot -Authoring
+}
+function Assert-PreviewPistonReceipt {
+ param([Parameter(Mandatory)]$Receipt)
+ if((($Receipt.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "checks`nfailures`ngroups`npassed`nschema`nscope" -or $Receipt.schema -cne 'PistonFlightChecks/v1' -or $Receipt.passed -isnot [bool] -or -not $Receipt.passed -or ($Receipt.checks -isnot [long] -and $Receipt.checks -isnot [int]) -or $Receipt.checks -le 0 -or $Receipt.failures -isnot [array] -or $Receipt.failures.Count -ne 0 -or $Receipt.scope -isnot [string] -or [string]::IsNullOrWhiteSpace($Receipt.scope) -or $Receipt.scope.Length -gt 1024){throw 'Cold-flight receipt shape or active checks rejected'}
+ $groups=@('bridge','facade','pacing','input','panel','status','wind','scene')
+ if((($Receipt.groups.PSObject.Properties.Name|Sort-Object) -join "`n") -cne (($groups|Sort-Object) -join "`n")){throw 'All eight cold-flight test groups are mandatory'}
+ $total=0
+ foreach($name in $groups){
+  $item=$Receipt.groups.$name
+  if((($item.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "checks`nfailures`npassed`nresult" -or $item.passed -isnot [bool] -or -not $item.passed -or ($item.checks -isnot [long] -and $item.checks -isnot [int]) -or $item.checks -le 0 -or $item.failures -isnot [array] -or $item.failures.Count -ne 0 -or $item.result -isnot [pscustomobject]){throw "Cold-flight $name group omitted, vacuous or failed"}
+  if($name -ne 'scene'){
+   $raw=$item.result
+   if($raw.passed -isnot [bool] -or -not $raw.passed -or ($raw.checks -isnot [long] -and $raw.checks -isnot [int]) -or $raw.checks -le 0 -or $raw.failures -isnot [array] -or $raw.failures.Count -ne 0 -or $item.checks -ne ($raw.checks+1)){throw "Cold-flight $name source result/count differs"}
+  }
+  $total+=$item.checks
+ }
+ if($total -ne $Receipt.checks){throw 'Cold-flight group check total mismatch'}
+ $pacing=$Receipt.groups.pacing.result
+ if($pacing.native_profiles -isnot [array] -or $pacing.native_profiles.Count -ne 25){throw 'All twenty-five cold pacing profiles are mandatory'}
+ $covered=@()
+ foreach($row in $pacing.native_profiles){
+  $key=$row.cadence+':'+$row.scale
+  if($row.cadence -isnot [string] -or $row.scale -isnot [string] -or $row.cadence -cnotin @('30','60','144','240','jitter') -or $row.scale -cnotin @('1/4','1/2','1','2','4') -or $covered -ccontains $key -or $row.completed_profile -isnot [bool] -or -not $row.completed_profile -or $row.final_tick -isnot [string] -or $row.final_tick -cne '120' -or ($row.final_debt_quanta -isnot [long] -and $row.final_debt_quanta -isnot [int]) -or $row.final_debt_quanta -ne 0){throw 'Cold pacing profile roster or completion rejected'}
+  $covered+=$key
+ }
+ if($Receipt.groups.scene.result.initialized -isnot [bool] -or -not $Receipt.groups.scene.result.initialized -or $Receipt.groups.scene.result.cold_initial_tick -isnot [string] -or $Receipt.groups.scene.result.cold_initial_tick -cne '0' -or $Receipt.groups.scene.result.cold_reset_tick -isnot [string] -or $Receipt.groups.scene.result.cold_reset_tick -cne '0'){throw 'Actual cold scene adoption/reset evidence required'}
+}
+
 # ADR016: build-side expectation qualification, never native self-report trust.
 function Get-PreviewNativeBuildIdentity {
  param([Parameter(Mandatory)][string]$RepoRoot,[Parameter(Mandatory)][string]$NativeBuildRoot,[string]$Python='python')
@@ -325,7 +424,44 @@ function Assert-PreviewNativeResourceReceipt {
     $Receipt.sha256 -isnot [string] -or $Receipt.sha256 -cnotmatch '^[a-f0-9]{64}$' -or $Receipt.sha256 -cne $Identity.resource.sha256){throw 'Actual runtime generated resource differs from independently qualified bytes'}
 }
 function Write-SimulationCheckHarness {
- param([Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)][string]$RepoRoot)
+ param([Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)][string]$RepoRoot,[switch]$IncludePiston)
+ $pistonChecks=if($IncludePiston){@'
+ var piston_start_checks: int=checks
+ var piston_start_failures: int=failures.size()
+ var piston_groups: Dictionary={}
+ for name in ["bridge","facade","pacing","input","panel","status","wind","scene"]:
+  var group_checks: int=checks
+  var group_failures: int=failures.size()
+  stage("begin","piston."+name)
+  var cold_result: Dictionary
+  match name:
+   "bridge": cold_result=load("res://engine_tests/bridge_profile_checks.gd").new().run(ProjectSettings.globalize_path("res://models"),ProjectSettings.globalize_path("res://piston-models"))
+   "facade": cold_result=load("res://engine_tests/facade_checks.gd").run(ProjectSettings.globalize_path("res://piston-models"))
+   "pacing": cold_result=load("res://engine_tests/pacing_checks.gd").run(ProjectSettings.globalize_path("res://piston-models"))
+   "input": cold_result=load("res://input_tests/piston_checks.gd").new().run()
+   "panel": cold_result=await load("res://input_tests/piston_panel_checks.gd").new().run(self)
+   "status": cold_result=load("res://instrument_tests/engine_status_checks.gd").run()
+   "wind": cold_result=load("res://engine_tests/wind_profile_checks.gd").run(ProjectSettings.globalize_path("res://piston-models"))
+   "scene": cold_result=await load("res://engine_tests/scene_checks.gd").new().run(self)
+  stage("end","piston."+name)
+  if name!="scene":
+   var active_count: Variant=cold_result.get("checks")
+   check(typeof(active_count)==TYPE_INT and active_count>0 and typeof(cold_result.get("passed"))==TYPE_BOOL and cold_result.passed and cold_result.get("failures") is Array and cold_result.failures.is_empty(),"actual_piston_"+name+"_checks")
+   if typeof(active_count)==TYPE_INT and active_count>0: checks+=active_count
+  else:
+   check(cold_result.get("initialized")==true and checks>group_checks and failures.size()==group_failures,"actual_piston_scene_checks")
+  var failed: Array=failures.slice(group_failures)
+  piston_groups[name]={"passed":failed.is_empty(),"checks":checks-group_checks,"failures":failed,"result":cold_result}
+ var piston_report: Dictionary={"schema":"PistonFlightChecks/v1","passed":failures.size()==piston_start_failures,"checks":checks-piston_start_checks,"failures":failures.slice(piston_start_failures),"scope":"Actual opt-in original cold profile bridge/facade/pacing/scene; synthetic input/status/display fixtures. No aircraft, pilot, phase, GPU or sound calibration qualification.","groups":piston_groups}
+ var piston_output: String=ProjectSettings.globalize_path("res://piston-check-receipt.json") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("piston-check-receipt.json")
+ var piston_file=FileAccess.open(piston_output,FileAccess.WRITE)
+ check(piston_file!=null,"cold_flight_receipt_saved")
+ if piston_file!=null:
+  piston_file.store_string(JSON.stringify(piston_report,"  "))
+  piston_file.close()
+
+'@}else{''}
+ $pistonCompileFolder=if($IncludePiston){',"res://engine_tests"'}else{''}
  $fixtures=Join-Path $ProjectRoot 'wire_fixtures'
  New-Item -ItemType Directory -Path $fixtures -Force|Out-Null
  foreach($name in @('AircraftSnapshot','AtmosphereSample','ControlCommand','OperationalEvent')){
@@ -355,7 +491,7 @@ func execute() -> void:
   return
  identity_file.store_string(JSON.stringify(identity_receipt))
  identity_file.close()
- for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests","res://world/wind","res://ui/wind","res://wind_tests","res://wind_scene_tests"]:
+ for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests","res://world/wind","res://ui/wind","res://wind_tests","res://wind_scene_tests"$pistonCompileFolder]:
   for name in DirAccess.get_files_at(folder):
    if name.ends_with(".gd"):
     var script=load(folder.path_join(name)) as Script
@@ -449,6 +585,7 @@ func execute() -> void:
  stage("begin","simulation.scene")
  var scene: Dictionary=await load("res://sim_loop_tests/scene_checks.gd").new().run(self)
  stage("end","simulation.scene")
+$pistonChecks
  var report: Dictionary={"schema_version":1,"scope":"Headless actual-native facade and synthetic wire/render fixtures; GPU and pilot qualification separate","passed":failures.is_empty(),"checks":checks,"failures":failures.duplicate(),"facade":facade,"origin":origin,"participants":participants,"wire":wire,"scene":scene,"input":input,"input_scene":input_scene,"instruments":instruments,"cockpit":cockpit_checks,"freeflight":freeflight_checks,"observed":observed_checks,"observed_archive":archive_checks,"wind":wind_checks}
  var output: String=ProjectSettings.globalize_path("res://facade-check-receipt.json") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("facade-check-receipt.json")
  for argument in OS.get_cmdline_user_args():

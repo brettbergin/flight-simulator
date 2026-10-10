@@ -1,17 +1,27 @@
 [CmdletBinding()]
-param([switch]$EditorOnly,[string]$Python='python')
+param([switch]$EditorOnly,[string]$Python='python',[string]$NativeBuildRoot='', [string]$ToolchainRoot='')
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'common.ps1')
 $repo=(Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
-$environment=Get-Content (Join-Path $repo '.local/toolchain/environment.json') -Raw | ConvertFrom-Json
+if([string]::IsNullOrWhiteSpace($ToolchainRoot)){$ToolchainRoot=Join-Path $repo '.local/toolchain'}
+$ToolchainRoot=(Resolve-Path -LiteralPath $ToolchainRoot).Path
+$environment=Get-Content (Join-Path $ToolchainRoot 'environment.json') -Raw | ConvertFrom-Json
 $godot=$environment.tools.godot
-$build=Join-Path $repo '.local/build/native-release'
+if([string]::IsNullOrWhiteSpace($NativeBuildRoot)){$NativeBuildRoot=Join-Path $repo '.local/build/native-release'}
+. (Join-Path $repo 'tools/interactive-preview/simulation-staging.ps1')
+$nativeIdentity=Get-PreviewNativeBuildIdentity -RepoRoot $repo -NativeBuildRoot $NativeBuildRoot -Python $Python
+$build=$nativeIdentity.root
 $windowsHost=$env:OS -eq 'Windows_NT'
 if(-not $windowsHost -and -not $EditorOnly) { throw 'Release export proof currently targets Windows only' }
 $root=Join-Path $repo ('.local/export-proof/run-'+[Guid]::NewGuid().ToString('N'))
 $project=Join-Path $root 'project'
 $evidence=Join-Path $root 'evidence'
 New-Item -ItemType Directory -Force -Path $project,$evidence,(Join-Path $project 'bin') | Out-Null
+$nativeIdentity | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath (Join-Path $evidence 'native-build-identity.json') -Encoding utf8
+$rawSelection=& node (Join-Path $PSScriptRoot 'selected-source.mjs') build (Join-Path $evidence 'native-build-identity.json')
+if($LASTEXITCODE -ne 0){throw 'Selected source has no matching reviewed release policy'}
+$selection=$rawSelection|ConvertFrom-Json -ErrorAction Stop
+$selection|ConvertTo-Json -Depth 10|Set-Content -LiteralPath (Join-Path $evidence 'selected-library-release.json') -Encoding utf8
 Get-ChildItem -LiteralPath (Join-Path $repo 'app/proof') -File | Copy-Item -Destination $project
 Copy-Item -LiteralPath (Join-Path $repo 'tests/export/initializer.bin') -Destination (Join-Path $project 'initializer.bin')
 Copy-Item -LiteralPath (Join-Path $repo 'native/fdm_jsbsim/models/original-synthetic') -Destination (Join-Path $project 'models') -Recurse
@@ -50,7 +60,7 @@ Assert-ProofSuccess $editor
 & node (Join-Path $repo 'tests/export/validate-log.mjs') (Join-Path $evidence 'editor-scene.log')
 if($LASTEXITCODE -ne 0) { throw 'Editor snapshot/command schemas rejected' }
 if(-not $EditorOnly) {
-  $templates=Join-Path $repo '.local/toolchain/godot-templates'
+  $templates=Join-Path $ToolchainRoot 'godot-templates'
   if(-not (Test-Path (Join-Path $templates 'windows_release_x86_64.exe'))) { throw 'Fetch matching export templates with bootstrap.py --with-godot --with-export-templates' }
   $preset=Get-Content (Join-Path $project 'export_presets.cfg') -Raw
   $template=(Join-Path $templates 'windows_release_x86_64.exe').Replace('\','/')
@@ -100,6 +110,6 @@ if(-not $EditorOnly) {
     # with an installed global CRT, the bridge must reject its escaped module path.
   }
 }
-$manifest=[ordered]@{schema_version=1;root=$root;project=$project;evidence=$evidence;payload=$(if($EditorOnly){$null}else{$package});relocated=$(if($EditorOnly){$null}else{$relocated});editor_passed=$true;windows_portable_passed=(-not $EditorOnly);clean_path=(-not $EditorOnly);unicode_path=(-not $EditorOnly);source_replacement='pending independent source rebuild/replacement stage';selected_crt=$crtFiles}
+$manifest=[ordered]@{schema_version=1;root=$root;project=$project;evidence=$evidence;payload=$(if($EditorOnly){$null}else{$package});relocated=$(if($EditorOnly){$null}else{$relocated});editor_passed=$true;windows_portable_passed=(-not $EditorOnly);clean_path=(-not $EditorOnly);unicode_path=(-not $EditorOnly);source_replacement='pending independent source rebuild/replacement stage';selected_crt=$crtFiles;native_build_identity=$nativeIdentity;selected_library=$selection;python_executable=$Python;toolchain_root=$ToolchainRoot}
 $manifest | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $repo '.local/export-proof/latest-run.json') -Encoding utf8
 $manifest | ConvertTo-Json -Depth 8 | Write-Output
