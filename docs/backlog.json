@@ -5647,6 +5647,68 @@
         "frozen fixture identity, pure copy/domain/geometry tests, actual scene invariance and joined editor/portable/source-replacement receipts, exported pixels and flight interaction. No numerical model research or physical reference tuning. Close this leaf only after its own acceptance/evidence and the cohesive A+B PR are accepted and merged; #22/#26/#27 and epics remain open.",
         "Partial planned requirement coverage only. Record actual owner/human observations or pending status; retain separate aircraft/source/hardware/pilot/performance and phase gates."
       ]
+    },
+    {
+      "key": "C172P-SOURCE-ASSESSMENT",
+      "title": "Assess a maintained C172P candidate before a standalone port",
+      "kind": "task",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Make a conditional source-backed decision about a separately named 160 hp land C172P candidate; no runtime port, C172S substitution, rights/fidelity clearance or phase acceptance.",
+      "depends_on": [
+        "LICENSE-REGISTER",
+        "VALIDATION-CORPUS"
+      ],
+      "labels": [
+        "type:task",
+        "priority:P1",
+        "phase:P3",
+        "status:in-progress",
+        "area:aircraft"
+      ],
+      "owned_paths": [
+        "docs/evidence/P3/c172p-candidate-assessment.md",
+        "docs/evidence/P3/c172p-candidate-source-index.json",
+        "docs/sources.md",
+        "docs/README.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p3-complete-circuit.md",
+        "docs/evidence/P1/gate-review.md"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/sources.md",
+        "docs/realism-and-validation.md",
+        "docs/roadmap.md",
+        "docs/phases/p3-complete-circuit.md",
+        "docs/agent-operations.md",
+        "docs/decisions/001-engine-and-native-stack.md",
+        "docs/decisions/002-dynamics-and-timing.md",
+        "docs/decisions/010-original-piston-profile.md",
+        "docs/decisions/015-source-law-coupled-shaft.md",
+        "docs/evidence/P3/c172p-candidate-assessment.md",
+        "docs/evidence/P3/c172p-candidate-source-index.json"
+      ],
+      "requirements": [
+        "REAL-001",
+        "REAL-002",
+        "REAL-003",
+        "PRD-003"
+      ],
+      "acceptance": [
+        "Pin candidate version/2024.1.3 at ee9bc21137cc2f96c5f86886fe908f337923389a, actual read-file Git identities and primary license URLs; distinguish targeted source reads, metadata-only observations and uninspected files. No upstream aircraft/assets/manual/table redistribution or archive-SHA256 relabeling.",
+        "Identify the two engine definitions, 17 direct systems, absent Systems/hydrodynamics.xml, land/float/loading branches and material FlightGear/Nasal startup/fuel/electrical/heat/property ownership. Recursive/external closure remains explicitly unresolved.",
+        "Describe one conventional-panel 160 hp land C172P candidate without claiming certified applicability; record unknown year/serial, approved engine/propeller, equipment/loading, current TCDS and applicable POH/AFM/supplements. Optional 180 hp/C172S data cannot silently enter this scope.",
+        "Require separately reviewed profile/control/start/source/package contract, scoped GPL/source obligations, native ownership, independent normal references including climb rate/fuel use and pretrial uncertainty/tolerances, offline compatibility and later pilot review before adoption. Preserve original regressions and selected C172S work; invent no aircraft values or numerical budgets.",
+        "Return conditional adopt/decline and precise future dependency tasks with blocked references visible; no port consumer, broad issue/phase closure, rights/fidelity clearance or training claim.",
+        "Update only this canonical leaf/mapping and bounded source handoff, pass node tools/check-docs.mjs, obtain independent exact final documentation/source-index review and required current CI before checked merge."
+      ],
+      "evidence": [
+        "Metadata-only source index and conditional assessment with exact primary source identities, dependency/host gaps and unverified applicability/performance cells.",
+        "Documentation check and independent final source-claim/mapping review; no runtime build/launch or aircraft/phase acceptance."
+      ]
     }
   ]
 }
