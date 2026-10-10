@@ -48,13 +48,3 @@ Example component shape (substitute verified hashes and paths; this is not a val
 Add all required notices, source, instructions and replacement evidence to `files`. The source file hash must equal the reviewed distributable-source digest. The example's intentionally incomplete inventory fails. A release uses actual SHA-256 digests rather than placeholders.
 
 The auditor checks integrity and evidence presence. Human/source review must establish source-bundle dependency closure, archive members' rights, authentic compiler/runtime identity, the truth of replacement-test results and applicable publication/asset rights. It does not inspect arbitrary archive members or certify legal conclusions from labels. A reviewed source-bundle digest is therefore a prerequisite, not something generated and trusted by the release job itself. Any future library modification needs renewed source review and an explicit policy extension before this auditor permits it.
-
-
-## Reserved coupled-source release extension
-
-[ADR015's closed modified-library release policy](../../docs/decisions/015-source-law-coupled-shaft.md) reserves only component/policy `jsbsim-coupled-midpoint-v1` for source variant `jsbsim-1.3.1-event-aware-coupled-midpoint-v1`. The current auditor still rejects modified libraries until the separately reviewed implementation lands. Existing `jsbsim` policy and dependency lock remain pristine.
-
-The extension requires a reviewed renewed schema3 identity/archive after prominent piston-file changed/date notices, unchanged four-file/293-file scope, exact staged source identity and modification notice, retained upstream notices, dynamic replacement/debugging rights and matching actual source-rebuild/export evidence. The issue149 archive9b1b digest remains preserved numerical evidence, not modified-release approval. No other component, arbitrary policy/digest, generic modified-library exemption or old pristine ExportProofRoot is admitted. See ADR015 for exact added register/component fields; schema1's existing meanings are preserved.
-
-
-The same ADR015 addendum reserves exact `SelectedLibraryRelease/v1` source/export selection and separate `PistonFlightChecks/v1` focused-player receipts before consumers. Their exact shapes, counts, source/backend matching and nonvacuous checks are defined there; existing facade receipts remain unchanged.
