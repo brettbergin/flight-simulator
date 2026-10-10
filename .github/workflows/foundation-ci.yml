@@ -48,6 +48,8 @@ jobs:
         run: python tests/engine/reference/generate_loader_v1.py --check
       - name: Recompute proposed event-aware shaft references without a solver
         run: python tests/engine/shaft-method/reference-proposed-v1/generate.py --check
+      - name: Check separate event-aware source-package provenance and corruption cases
+        run: python tests/export/test_source_variant.py
       - name: Bind corrected piston source to independent references
         run: python tests/engine/check_model.py --model-root native/fdm_jsbsim/models/original-piston-prop --reference-packet tests/engine/reference/expected-v3.json
       - name: Check independent reference algebra and metadata
