@@ -38,11 +38,18 @@ func _consumed(panel: Control,view: Dictionary,engine: Dictionary,preset: Dictio
 
 func run(host: Node) -> Dictionary:
 	_host=host
+	# A fresh headless Window can be only64x64. Real uncaptured hover events
+	# outside it are clipped, even when captured drag events reached this panel.
+	# Own the viewport dimensions rather than depending on an earlier host suite.
+	var viewport_window: Window=host.get_tree().root
+	var previous_viewport_size: Vector2i=viewport_window.size
+	viewport_window.size=Vector2i(960,540)
 	var panel: Control=EnginePanel.new()
 	panel.position=Vector2(10,180);panel.size=Vector2(940,140)
 	host.add_child(panel)
 	panel.gesture_requested.connect(_event);panel.capture_invalidated.connect(_invalidated);panel.denied_press.connect(_deny)
 	await host.get_tree().process_frame
+	_check(viewport_window.size==Vector2i(960,540),"fixture_viewport_observed_960x540")
 	var view: Dictionary=_view();var engine: Dictionary=_engine();var preset: Dictionary=_preset()
 	panel.set_state(view,engine,preset,true,"","Release right mouse look")
 	var source_bytes: PackedByteArray=var_to_bytes([view,engine,preset])
@@ -255,4 +262,7 @@ func run(host: Node) -> Dictionary:
 		panel.set_state(view,engine,preset,false,"Look binding unavailable","");await host.get_tree().process_frame
 		_check("unavailable" in panel._compact_look_text() and not "Mouse 2" in panel._compact_look_text(),"compact_missing_hint_not_invented_"+str(hint_width))
 	panel.queue_free();await host.get_tree().process_frame
+	viewport_window.size=previous_viewport_size
+	await host.get_tree().process_frame
+	_check(viewport_window.size==previous_viewport_size,"fixture_viewport_previous_size_restored")
 	return {"passed":_failures.is_empty(),"checks":_checks,"failures":_failures,"scope":"Real viewport-routed GUI events against synthetic copied view/status; no native, mapper Raw, physical hardware, exported pixels or phase qualification."}
