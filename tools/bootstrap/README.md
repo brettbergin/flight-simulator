@@ -19,6 +19,26 @@ python tools/bootstrap/test_bootstrap.py
 
 Linux requires GCC 13+, Python 3.12+, and PowerShell (available on the GitHub Ubuntu runner). The same build script uses the pinned Linux CMake/Ninja artifacts. CI sets CC=gcc-13 and CXX=g++-13.
 
+## Coupled engine qualification
+
+The optional ADR015 backend has a separate staged build and test route. It does not change the ordinary pristine build or select the engine in the player. Use a fresh work directory for each qualification attempt and preserve failed attempts. The commands below match the headless Windows/Linux coupled CI job; substitute the actual Python executable if needed.
+
+~~~powershell
+$coupledWork = '.local/coupled-ci'
+python -B tests/engine/shaft-method/probes/run.py math
+python -B -m unittest discover -s tools/ci -p 'test_coupled_native.py' -v
+python -B tools/ci/coupled-native.py pretrial --work-root $coupledWork
+./tools/bootstrap/build.ps1 -Python python -PatchedSourceVariant event-aware-coupled-midpoint-v1 -HeadlessNative -ConfigureAndBuildOnly -BuildDirectory "$coupledWork/build" -SourcePreparationDirectory "$coupledWork/prepared-source" -PretrialRatification "$coupledWork/pretrial.json" -ExecutionRatification "$coupledWork/physical-execution.json" -ProbeExecutionRatification "$coupledWork/unit-execution.json"
+python -B tests/engine/shaft-method/probes/run.py authorize --config "$coupledWork/build/coupled-probes-config.json" --ratification "$coupledWork/unit-execution.json" --approve-execution
+python -B tools/ci/coupled-native.py authorize --work-root $coupledWork --approve-execution
+./tools/bootstrap/build.ps1 -Python python -PatchedSourceVariant event-aware-coupled-midpoint-v1 -HeadlessNative -RunTestsOnly -BuildDirectory "$coupledWork/build" -SourceBundleRoot "$coupledWork/prepared-source/source" -PretrialRatification "$coupledWork/pretrial.json" -ExecutionRatification "$coupledWork/physical-execution.json" -ProbeExecutionRatification "$coupledWork/unit-execution.json"
+python -B tools/ci/coupled-native.py verify --work-root $coupledWork
+~~~
+
+Stop at any failed command. Compilation produces `COMPILED_NOT_TESTED`; it neither runs native probes nor grants execution implicitly. The two explicit authorization commands bind the measured binaries, actual strict compiler invocations, selected source, fixed reference packet and current source inputs. CTest orders mathematical checks before isolated native probes and then the original twelve-process physical suite. Missing or failed prerequisites fail qualification. `verify` requires complete fresh unit and physical receipts without skipped comparisons.
+
+`-HeadlessNative` omits Godot bindings for this staged route. It still builds the actual shared flight library and baseline native tests. A full editor/export build and player adoption require their own integration evidence. The independent reference CI job separately regenerates the committed packet with `generate.py --repo-root . --check tests/engine/shaft-method/coupled-midpoint-v1/references.json`; configuration and compilation never regenerate it.
+
 The authoritative lock is [dependencies.lock.json](../../third_party/dependencies.lock.json). GitHub release binary SHA-256 values were verified against the official release API digests. Source archives are fixed to exact commits or the official SQLite version and have SHA-256 values measured from those downloaded bytes. Extraction rejects traversal, special members, and excessive expanded sizes. Receipts include a full extracted-tree fingerprint; corrupted downloads and changed sources fail before build.
 
 CMake 3.31.8 and Ninja 1.13.1 are downloaded under ignored .local/toolchain. Source caches live in .local/deps and downloads in .local/download-cache. Build/test output lives in .local/build/native-release. Compiler environments affect the process only; all native Windows targets use the dynamic CRT (/MD for RelWithDebInfo, /MDd for Debug). Compiler patch and tool versions enter the build manifest. Hosted runner compilers/OS images can change, so identical binaries across different compiler/image versions are not promised.

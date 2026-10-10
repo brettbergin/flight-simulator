@@ -35,7 +35,7 @@ jobs:
       - name: Install locked contract validators
         run: npm ci --ignore-scripts --prefix schemas
       - name: Check reconstruction declaration rejection cases
-        run: node --test tests/replay/declarations.test.mjs
+        run: node --test tests/replay/declarations.test.mjs tests/fdm/source-fingerprint.test.mjs
       - name: Check renderer evidence mathematics and integrity
         run: node --test tools/benchmark/reduce.test.mjs tools/benchmark/evidence.test.mjs
       - name: Check original GLB units, bindings and animation corruption cases

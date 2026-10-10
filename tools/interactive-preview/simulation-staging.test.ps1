@@ -1,4 +1,5 @@
 #Requires -Version 7.0
+param([string]$Python='python')
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'simulation-staging.ps1')
 $repo=(Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
@@ -208,7 +209,7 @@ $binding.original_ratification_sha256='a'*64
 Write-WindBinding $binding
 Must-RejectWindReference 'Accepted wind ratification required' 'wrong preconsumer ratification binding'
 [IO.File]::WriteAllBytes($bindingPath,$bindingOriginal)
-Assert-WindReferences $windReferences (Get-Command python -ErrorAction Stop).Source
+Assert-WindReferences $windReferences $Python
 foreach($file in Get-ChildItem -LiteralPath $windReferenceRoot -Recurse -File){
  $relative=[IO.Path]::GetRelativePath($windReferenceRoot,$file.FullName)
  if((Get-FileHash -LiteralPath $file.FullName).Hash -cne (Get-FileHash -LiteralPath (Join-Path $repo ('tests/world/wind/'+$relative))).Hash){throw 'Readonly wind reference regeneration changed bytes'}
@@ -349,57 +350,39 @@ $receipt.PSObject.Properties.Remove('observed')
 Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'missing observed result group'
 Write-Output 'PASS fixed mandatory observed receipt groups and vacuous/failed/malformed controls.'
 
-# A declared native build is admitted from its exact closed source set, facade
-# pin and compiler definition; no fixture executes the fake binary.
-$identityRepo=Join-Path $testRoot 'identity-repo'
-$identityBuild=Join-Path $testRoot 'identity-build'
-$identityPaths=@('native/fdm_jsbsim/interactive/src/session.cpp','native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp','native/fdm_jsbsim/interactive/include/flight/interactive/surface.hpp','tests/interactive/native.cpp','tests/interactive/negatives.hpp','native/fdm_jsbsim/interactive/src/model-pins.hpp')
-$identityClosure=''
-foreach($entry in $identityPaths){
- $file=Join-Path $identityRepo $entry
- New-Item -ItemType Directory -Path (Split-Path $file) -Force|Out-Null
- $body='bound source '+$entry+"`r`n"
- [IO.File]::WriteAllText($file,$body)
- $hash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($body.Replace("`r`n","`n")))).ToLowerInvariant()
- $identityClosure+=$entry+':'+$hash+"`n"
-}
-$identityHash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($identityClosure))).ToLowerInvariant()
-$cmakeFile=Join-Path $identityRepo 'native/fdm_jsbsim/interactive/CMakeLists.txt'
-$cmakeOriginal='set(INTERACTIVE_SOURCE_PATHS '+($identityPaths -join "`n")+")`n"
-[IO.File]::WriteAllText($cmakeFile,$cmakeOriginal)
-New-Item -ItemType Directory -Path (Join-Path $identityRepo 'app/simulation'),(Join-Path $identityBuild 'bin') -Force|Out-Null
-[IO.File]::WriteAllText((Join-Path $identityRepo 'app/simulation/session_facade.gd'),'const NATIVE: String="'+$identityHash+'"')
-$ninjaFile=Join-Path $identityBuild 'build.ninja'
-$ninjaOriginal='DEFINES = -DFLIGHT_INTERACTIVE_SOURCE_SHA256=\\\"'+$identityHash+'\\\"'
-[IO.File]::WriteAllText($ninjaFile,$ninjaOriginal)
-$bridgeFile=Join-Path $identityBuild 'bin/flight_godot_bridge.dll'
-[IO.File]::WriteAllText($bridgeFile,'not executable; declared identity '+$identityHash)
-[IO.File]::WriteAllText((Join-Path $identityBuild 'CMakeCache.txt'),'fixture build configuration')
-$manifestFile=Join-Path $identityBuild 'toolchain-build-manifest.txt'
-[IO.File]::WriteAllText($manifestFile,'fixture declared build manifest')
-$identity=Get-PreviewNativeBuildIdentity $identityRepo $identityBuild
-if($identity.declared_source_fingerprint -cne $identityHash -or $identity.source_bindings.Count -ne 6 -or $identity.build_witnesses.Count -ne 4){throw 'Selected native identity witness incomplete'}
-[IO.File]::WriteAllText($ninjaFile,$ninjaOriginal.Replace($identityHash,('a'*64)))
-Must-Reject {Get-PreviewNativeBuildIdentity $identityRepo $identityBuild} 'mismatched compiler identity'
-[IO.File]::WriteAllText($ninjaFile,$ninjaOriginal+"`n"+$ninjaOriginal.Replace($identityHash,('a'*64)))
-Must-Reject {Get-PreviewNativeBuildIdentity $identityRepo $identityBuild} 'conflicting compiler identities'
-[IO.File]::WriteAllText($ninjaFile,$ninjaOriginal)
-[IO.File]::WriteAllText($bridgeFile,'no accepted identity')
-Must-Reject {Get-PreviewNativeBuildIdentity $identityRepo $identityBuild} 'bridge missing source identity'
-[IO.File]::WriteAllText($bridgeFile,'not executable; declared identity '+$identityHash)
-Remove-Item -LiteralPath $manifestFile
-Must-Reject {Get-PreviewNativeBuildIdentity $identityRepo $identityBuild} 'missing declared build witness'
-[IO.File]::WriteAllText($manifestFile,'fixture declared build manifest')
-$nativeFile=Join-Path $identityRepo $identityPaths[0]
-$nativeOriginal=[IO.File]::ReadAllText($nativeFile)
-[IO.File]::WriteAllText($nativeFile,$nativeOriginal+'changed')
-Must-Reject {Get-PreviewNativeBuildIdentity $identityRepo $identityBuild} 'authoring source differs from facade pin'
-[IO.File]::WriteAllText($nativeFile,$nativeOriginal)
-[IO.File]::WriteAllText($cmakeFile,$cmakeOriginal.Replace($identityPaths[5],'unknown/native.cpp'))
-Must-Reject {Get-PreviewNativeBuildIdentity $identityRepo $identityBuild} 'unreviewed native closure'
-[IO.File]::WriteAllText($cmakeFile,$cmakeOriginal)
-Get-PreviewNativeBuildIdentity $identityRepo $identityBuild|Out-Null
-Write-Output 'PASS selected native source/compile/bridge witnesses and identity/closure/missing-file negatives; no native execution.'
+# Synthetic Windows/Linux v2 qualifier and staging negatives; no real build.
+& $Python -B (Join-Path $PSScriptRoot 'test_native_identity.py')
+if($LASTEXITCODE -ne 0){throw 'Independent ADR016 identity fixtures failed'}
+# Separately bound generated resource, exact set, narrow UID and runtime receipt.
+$identityBuild=Join-Path $testRoot 'v2-build'
+$identityStage=Join-Path $testRoot 'v2-project'
+New-Item -ItemType Directory -Path $identityBuild,$identityStage|Out-Null
+$identityRaw='extends RefCounted'+"`n"+'const SCHEMA: String = "flight-native-build-identity-v1"'+"`n"+'const SOURCE_VARIANT: String = "jsbsim-1.3.1-upstream"'+"`n"+'const BACKEND_IDENTITY_SHA256: String = "'+('a'*64)+'"'+"`n"+'const BUILD_CONTROL_SHA256: String = "'+('b'*64)+'"'+"`n"+'const SOURCE_FINGERPRINT: String = "'+('c'*64)+'"'+"`n"
+[IO.File]::WriteAllText((Join-Path $identityBuild 'native-identity.gd'),$identityRaw,[Text.UTF8Encoding]::new($false))
+$identity=[pscustomobject]@{schema='PreviewNativeBuildIdentity/v2';root=$identityBuild;resource=[pscustomobject]@{build_path='native-identity.gd';staged_path='build/native_identity.gd';bytes=[Text.Encoding]::UTF8.GetByteCount($identityRaw);sha256=(Get-FileHash (Join-Path $identityBuild 'native-identity.gd')).Hash.ToLowerInvariant()}}
+Copy-PreviewNativeIdentityResource $identity $identityStage
+Assert-PreviewNativeIdentityResource $identity $identityStage
+Must-Reject {Copy-PreviewNativeIdentityResource $identity $identityStage} 'reuse generated resource directory'
+$runtime=[pscustomobject]@{schema='PreviewNativeResource/v1';path='build/native_identity.gd';bytes=$identity.resource.bytes;sha256=$identity.resource.sha256}
+Assert-PreviewNativeResourceReceipt $runtime $identity
+$runtime.bytes=$true
+Must-Reject {Assert-PreviewNativeResourceReceipt $runtime $identity} 'boolean resource byte count'
+$runtime.bytes=$identity.resource.bytes
+$runtime.sha256='d'*64
+Must-Reject {Assert-PreviewNativeResourceReceipt $runtime $identity} 'wrong runtime resource hash'
+$uid=Join-Path $identityStage 'build/native_identity.gd.uid'
+[IO.File]::WriteAllText($uid,"uid://c6ia3qumfvccx`n")
+Assert-PreviewNativeIdentityResource $identity $identityStage -AllowGeneratedUIDs
+Must-Reject {Assert-PreviewNativeIdentityResource $identity $identityStage} 'UID in exact corresponding source'
+[IO.File]::WriteAllText($uid,'arbitrary source')
+Must-Reject {Assert-PreviewNativeIdentityResource $identity $identityStage -AllowGeneratedUIDs} 'unbound generated UID'
+Remove-Item -LiteralPath $uid
+[IO.File]::WriteAllText((Join-Path $identityStage 'build/extra.gd'),'extra resource')
+Must-Reject {Assert-PreviewNativeIdentityResource $identity $identityStage} 'extra generated resource'
+Remove-Item -LiteralPath (Join-Path $identityStage 'build/extra.gd')
+[IO.File]::WriteAllText((Join-Path $identityStage 'build/native_identity.gd'),'changed')
+Must-Reject {Assert-PreviewNativeIdentityResource $identity $identityStage} 'changed generated resource'
+Write-Output 'PASS separately bound generated resource staging and exact-byte/set/receipt/UID negatives.'
 
 $runnerText=[IO.File]::ReadAllText((Join-Path $PSScriptRoot 'run.ps1'))
 if($runnerText -notmatch 'exclude_filter="[^"\r\n]*landmark\*\.png,landmark\*-receipt\.json,observed\*\.png,observed\*-receipt\.json,wind\*\.png,wind\*-receipt\.json"'){throw 'Landmark/observed/wind observer output must be excluded from PCK authoring'}

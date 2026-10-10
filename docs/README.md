@@ -44,6 +44,10 @@ The [event-aware propeller evidence](evidence/P3/event-aware-shaft.md) records t
 
 The [source-law coupled shaft contract](decisions/015-source-law-coupled-shaft.md) and [independent reference design](evidence/P3/coupled-midpoint-reference-design.md) define the corrective work for issue149: actual starter torque, speed-dependent aerodynamic load, explicit boundary mode selection and a bounded midpoint solve. Implementation and unchanged coupled accuracy gates must pass before runtime adoption.
 
+The [coupled piston and propeller implementation evidence](evidence/P3/coupled-midpoint-shaft.md) records the reviewed four-file source package, passing independent comparisons and all 1,618,656 checks in the original physical lifecycle suite. A fresh public Windows build also passed all eleven integrated CTests. The implementation PR records hosted native CI; opt-in cold-engine player adoption is tracked separately in issue127.
+
+The accepted [generated native build identity contract](decisions/016-generated-native-build-identity.md) defines a per-build expected resource for Windows/Linux facade and package qualification, while retaining exact actual-source mismatch rejection. Consumer qualification and exported adoption remain separate; current launch packages and historical proof records remain unchanged.
+
 The accepted [observed flight review contract](decisions/011-observed-flight-review.md) defines a bounded paused review of sampled flight path, instruments and held controls. The [player implementation evidence](evidence/P2/observed-flight-review.md) tracks its source, lifecycle and exported verification separately; this iteration establishes neither durable saves nor physics replay.
 
 The accepted [recorded-review interchange contract](decisions/012-observed-review-interchange.md) defines explicit new-file Save/Open of historical path and instrument observations. [Issue138 implementation evidence](evidence/P2/observed-review-interchange.md) tracks its codec, file creation and paused UI consumers; automatic profiles, physics continuation and pilot/phase acceptance remain separate.

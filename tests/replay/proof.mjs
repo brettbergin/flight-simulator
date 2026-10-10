@@ -1,4 +1,4 @@
-import { readFile, writeFile, mkdir, realpath, readdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, realpath } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { resolve, join } from 'node:path';
@@ -7,15 +7,11 @@ import assert from 'node:assert/strict';
 import { scenario } from '../fdm/fixture.mjs';
 import { repoRoot, modelRoot, encodeRequest, verifyModel, validateOutput } from '../../tools/run-scenario/runner.mjs';
 import { contractSetSha256, validateContract } from '../../schemas/validate.mjs';
+import { currentSourceFingerprint } from '../../tools/run-scenario/source-fingerprint.mjs';
 
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const json = async path => JSON.parse(await readFile(path, 'utf8'));
 const records = async path => (await readFile(path, 'utf8')).trim().split('\n').filter(Boolean).map(line=>JSON.parse(line));
-async function adapterFingerprint() {
-  const base=join(repoRoot,'native/fdm_jsbsim'),paths=[];
-  async function visit(path){for(const item of await readdir(join(base,path),{withFileTypes:true})){const child=`${path}/${item.name}`;if(item.isDirectory())await visit(child);else if(item.isFile())paths.push(child);else throw new Error('Unexpected adapter source object');}}
-  await visit('src');await visit('include');paths.sort();let text='';for(const path of paths)text+=`${path}:${hash(await readFile(join(base,path)))}\n`;return hash(Buffer.from(text));
-}
 function run(executable,args) {
   const result=spawnSync(executable,args,{encoding:'utf8',env:{...process.env,JSBSIM_DEBUG:'0'},maxBuffer:4*1024*1024,timeout:120000});
   if(result.error||result.status!==0)throw new Error(`Replay proof failed: ${result.error?.message??result.stderr}`);
@@ -43,11 +39,12 @@ export function validateDeclarations({manifestBytes,replay,checkpoint,files,iden
 }
 export async function runProof({executable=join(repoRoot,'.local/build/native-release/bin',process.platform==='win32'?'reconstruction_proof.exe':'reconstruction_proof'),output=join(repoRoot,'.local/replay-proof')}={}) {
   executable=await realpath(executable);output=resolve(output);await mkdir(output,{recursive:true});
+  const expectedSourceFingerprint=await currentSourceFingerprint(executable);
   const s=await scenario();await verifyModel();const initial=encodeRequest(s,[],{duration_s:600,sample_hz:1});
   const input=join(output,'initial-request.bin'),identityFile=join(output,'identity.bin');await writeFile(input,initial);
   run(executable,['identify',modelRoot,input,join(output,'identify.json')]);const identified=await json(join(output,'identify.json'));
   validateOutput([identified]);
-  assert.equal(identified.source_fingerprint,await adapterFingerprint(),'compiled adapter matches actual current first-party source');
+  assert.equal(identified.source_fingerprint,expectedSourceFingerprint,'compiled adapter matches selected backend, build controls and current first-party source');
   const library=await realpath(identified.loaded_library_path);
   const identity=[hash(await readFile(executable)),hash(await readFile(library)),contractSetSha256,identified.source_fingerprint,hash(await readFile(join(modelRoot,'inventory.json'))),identified.compiler,identified.library_version];
   await writeFile(identityFile,identityBytes(identity));
@@ -65,6 +62,7 @@ export async function runProof({executable=join(repoRoot,'.local/build/native-re
     }
     for(const event of await records(join(directory,'events.ndjson')))assert.equal(validateContract(event,'OperationalEvent').valid,true);
   }
+  assert.equal(await currentSourceFingerprint(executable),expectedSourceFingerprint,'source and declared build identity stayed identical');
   assert.equal(hash(await readFile(executable)),identity[0],'executable stayed identical');assert.equal(hash(await readFile(library)),identity[1],'actual loaded library stayed identical');await verifyModel();
   const baselineTiming=await json(join(baseline,'timing.json')),restoredTiming=await json(join(restored,'timing.json'));
   assert.ok(baselineTiming.negative_cases>100);assert.equal(restoredTiming.cut_tick,'72000');assert.equal(restoredTiming.continuation_ticks,'7200');

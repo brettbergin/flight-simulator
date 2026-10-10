@@ -266,42 +266,63 @@ function Assert-PreviewFacadeReceipt {
  }
  if($cue.reference_sha256 -isnot [string] -or $cue.reference_sha256 -cne '7d71cbb4f8d9ad12fe91501d5e020f14bbf02516d363512e69b6fa41320856c3'){throw 'Wind frozen reference identity rejected'}
 }
-# Read-only native reuse: bind declared compiler/source identities here; the
-# existing actual facade/portable checks still verify the loaded native reply.
+# ADR016: build-side expectation qualification, never native self-report trust.
 function Get-PreviewNativeBuildIdentity {
- param([Parameter(Mandatory)][string]$RepoRoot,[Parameter(Mandatory)][string]$NativeBuildRoot)
- $build=(Get-Item -LiteralPath $NativeBuildRoot -ErrorAction Stop)
- if(-not $build.PSIsContainer -or ($build.Attributes -band [IO.FileAttributes]::ReparsePoint)){throw 'Native build root must be an ordinary directory'}
- $cmake=[IO.File]::ReadAllText((Join-Path $RepoRoot 'native/fdm_jsbsim/interactive/CMakeLists.txt'))
- $lists=[regex]::Matches($cmake,'(?s)set\(INTERACTIVE_SOURCE_PATHS\s+(.*?)\)')
- if($lists.Count -ne 1){throw 'Expected one native source closure'}
- $paths=@(($lists[0].Groups[1].Value.Trim() -split '\s+'))
- $expected=@('native/fdm_jsbsim/interactive/src/session.cpp','native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp','native/fdm_jsbsim/interactive/include/flight/interactive/surface.hpp','tests/interactive/native.cpp','tests/interactive/negatives.hpp','native/fdm_jsbsim/interactive/src/model-pins.hpp')
- if(($paths -join "`n") -cne ($expected -join "`n")){throw 'Unexpected native closure; review required before reuse'}
- $bindings=@();$text=''
- foreach($path in $paths){
-  $file=Get-Item -LiteralPath (Join-Path $RepoRoot $path) -ErrorAction Stop
-  if($file.PSIsContainer -or ($file.Attributes -band [IO.FileAttributes]::ReparsePoint)){throw 'Native source must be ordinary files'}
-  $raw=[IO.File]::ReadAllBytes($file.FullName)
-  $normalized=[IO.File]::ReadAllText($file.FullName).Replace("`r`n","`n")
-  $lfHash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($normalized))).ToLowerInvariant()
-  $text+=$path+':'+$lfHash+"`n"
-  $bindings+=@{path=$path;bytes=$raw.Length;raw_sha256=(Get-FileHash -LiteralPath $file.FullName).Hash.ToLowerInvariant();lf_sha256=$lfHash}
+ param([Parameter(Mandatory)][string]$RepoRoot,[Parameter(Mandatory)][string]$NativeBuildRoot,[string]$Python='python')
+ $raw=& $Python -B (Join-Path $PSScriptRoot 'native-identity.py') --repository-root $RepoRoot --build-root $NativeBuildRoot
+ if($LASTEXITCODE -ne 0){throw 'Independent selected native build/resource qualification rejected'}
+ $raw | ConvertFrom-Json -ErrorAction Stop
+}
+function Assert-PreviewOrdinaryAncestors {
+ param([Parameter(Mandatory)][string]$Path)
+ $item=Get-Item -LiteralPath $Path -ErrorAction Stop
+ while($null -ne $item){
+  if($item.Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'Generated resource path contains reparse point'}
+  $parent=Split-Path -Parent $item.FullName
+  if([string]::IsNullOrEmpty($parent) -or $parent -ceq $item.FullName){break}
+  $item=Get-Item -LiteralPath $parent -ErrorAction Stop
  }
- $fingerprint=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($text))).ToLowerInvariant()
- $pins=[regex]::Matches([IO.File]::ReadAllText((Join-Path $RepoRoot 'app/simulation/session_facade.gd')),'const NATIVE: String\s*=\s*"([a-f0-9]{64})"')
- if($pins.Count -ne 1 -or $pins[0].Groups[1].Value -cne $fingerprint){throw 'Native source closure differs from accepted facade pin'}
- $ninja=Join-Path $build.FullName 'build.ninja'
- $definitions=@([regex]::Matches([IO.File]::ReadAllText($ninja),'FLIGHT_INTERACTIVE_SOURCE_SHA256=[^A-Za-z0-9\r\n]{1,8}([a-f0-9]{64})')|ForEach-Object {$_.Groups[1].Value}|Select-Object -Unique)
- if($definitions.Count -ne 1 -or $definitions[0] -cne $fingerprint){throw 'Selected native build compile definition differs from source'}
- $bridge=Join-Path $build.FullName 'bin/flight_godot_bridge.dll'
- if(-not [Text.Encoding]::ASCII.GetString([IO.File]::ReadAllBytes($bridge)).Contains($fingerprint)){throw 'Selected bridge lacks the accepted native identity'}
- $witnesses=@('bin/flight_godot_bridge.dll','build.ninja','CMakeCache.txt','toolchain-build-manifest.txt')|ForEach-Object {
-  $file=Get-Item -LiteralPath (Join-Path $build.FullName $_) -ErrorAction Stop
-  if($file.PSIsContainer -or ($file.Attributes -band [IO.FileAttributes]::ReparsePoint)){throw 'Native build witness must be ordinary files'}
-  @{path=$_;bytes=$file.Length;sha256=(Get-FileHash -LiteralPath $file.FullName).Hash.ToLowerInvariant()}
+}
+function Assert-PreviewNativeIdentityResource {
+ param([Parameter(Mandatory)]$Identity,[Parameter(Mandatory)][string]$DestinationRoot,[switch]$AllowGeneratedUIDs)
+ if($Identity.schema -cne 'PreviewNativeBuildIdentity/v2' -or $Identity.resource.build_path -cne 'native-identity.gd' -or $Identity.resource.staged_path -cne 'build/native_identity.gd' -or
+    ($Identity.resource.bytes -isnot [int] -and $Identity.resource.bytes -isnot [long]) -or $Identity.resource.bytes -lt 0 -or
+    $Identity.resource.sha256 -isnot [string] -or $Identity.resource.sha256 -cnotmatch '^[a-f0-9]{64}$'){throw 'Generated resource declaration rejected'}
+ Assert-PreviewOrdinaryAncestors -Path $DestinationRoot
+ $root=Get-Item -LiteralPath $DestinationRoot -ErrorAction Stop
+ $folder=Get-Item -LiteralPath (Join-Path $root.FullName 'build') -ErrorAction Stop
+ foreach($item in @($root,$folder)+@(Get-ChildItem -LiteralPath $folder.FullName -Recurse -Force)){
+  if($item.Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'Generated resource path contains reparse point'}
  }
- @{root=$build.FullName;declared_source_fingerprint=$fingerprint;source_bindings=$bindings;build_witnesses=@($witnesses);scope='Declared source/compiler/bridge-byte identity; actual loaded facade identity verified by unchanged runtime gates'}
+ $files=@(Get-ChildItem -LiteralPath $folder.FullName -Recurse -Force)
+ foreach($file in $files){
+  $name=[IO.Path]::GetRelativePath($folder.FullName,$file.FullName).Replace([char]92,[char]47)
+  if($name -ceq 'native_identity.gd' -and -not $file.PSIsContainer){continue}
+  if($AllowGeneratedUIDs -and $name -ceq 'native_identity.gd.uid' -and -not $file.PSIsContainer -and $file.Length -le 64 -and [IO.File]::ReadAllText($file.FullName) -cmatch '^uid://[a-z0-9]{1,20}\r?\n?$'){continue}
+  throw 'Undeclared generated build resource'
+ }
+ $resource=Get-Item -LiteralPath (Join-Path $folder.FullName 'native_identity.gd') -ErrorAction Stop
+ if($resource.Length -ne $Identity.resource.bytes -or (Get-FileHash -LiteralPath $resource.FullName).Hash.ToLowerInvariant() -cne $Identity.resource.sha256){throw 'Generated resource bytes changed'}
+}
+function Copy-PreviewNativeIdentityResource {
+ param([Parameter(Mandatory)]$Identity,[Parameter(Mandatory)][string]$DestinationRoot)
+ $root=Get-Item -LiteralPath $DestinationRoot -ErrorAction Stop
+ Assert-PreviewOrdinaryAncestors -Path $DestinationRoot
+ Assert-PreviewOrdinaryAncestors -Path (Join-Path $Identity.root 'native-identity.gd')
+ if(-not $root.PSIsContainer -or $root.Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'Generated resource destination must be an ordinary directory'}
+ $folder=Join-Path $root.FullName 'build'
+ if(Test-Path -LiteralPath $folder){throw 'Generated resource directory must be fresh'}
+ New-Item -ItemType Directory -Path $folder|Out-Null
+ Copy-Item -LiteralPath (Join-Path $Identity.root 'native-identity.gd') -Destination (Join-Path $folder 'native_identity.gd')
+ Assert-PreviewNativeIdentityResource -Identity $Identity -DestinationRoot $DestinationRoot
+}
+function Assert-PreviewNativeResourceReceipt {
+ param([Parameter(Mandatory)]$Receipt,[Parameter(Mandatory)]$Identity)
+ $keys=@('schema','path','bytes','sha256')
+ if((($Receipt.PSObject.Properties.Name|Sort-Object) -join "`n") -cne (($keys|Sort-Object) -join "`n")){throw 'Runtime generated resource receipt exact shape rejected'}
+ if($Receipt.schema -cne 'PreviewNativeResource/v1' -or $Receipt.path -cne 'build/native_identity.gd' -or
+    ($Receipt.bytes -isnot [long] -and $Receipt.bytes -isnot [int]) -or $Receipt.bytes -ne $Identity.resource.bytes -or
+    $Receipt.sha256 -isnot [string] -or $Receipt.sha256 -cnotmatch '^[a-f0-9]{64}$' -or $Receipt.sha256 -cne $Identity.resource.sha256){throw 'Actual runtime generated resource differs from independently qualified bytes'}
 }
 function Write-SimulationCheckHarness {
  param([Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)][string]$RepoRoot)
@@ -323,6 +344,17 @@ func _ready() -> void:
 func stage(boundary: String, name: String) -> void:
  print("PROOF_STAGE "+boundary+" "+name+" ms="+str(Time.get_ticks_msec()))
 func execute() -> void:
+ var identity_bytes: PackedByteArray=FileAccess.get_file_as_bytes("res://build/native_identity.gd")
+ var identity_hash: String=FileAccess.get_sha256("res://build/native_identity.gd")
+ var identity_receipt: Dictionary={"schema":"PreviewNativeResource/v1","path":"build/native_identity.gd","bytes":identity_bytes.size(),"sha256":identity_hash}
+ var identity_output: String=ProjectSettings.globalize_path("res://native-identity-receipt.json") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("native-identity-receipt.json")
+ var identity_file=FileAccess.open(identity_output,FileAccess.WRITE)
+ if identity_file==null:
+  push_error("Native resource receipt cannot be saved")
+  get_tree().quit(1)
+  return
+ identity_file.store_string(JSON.stringify(identity_receipt))
+ identity_file.close()
  for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests","res://world/wind","res://ui/wind","res://wind_tests","res://wind_scene_tests"]:
   for name in DirAccess.get_files_at(folder):
    if name.ends_with(".gd"):

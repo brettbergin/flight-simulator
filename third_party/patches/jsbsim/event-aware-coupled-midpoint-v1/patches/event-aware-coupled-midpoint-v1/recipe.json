@@ -1,0 +1,73 @@
+{
+  "acquisition_sha256": "df57467a831cfa3ee3cadcb98d8291ce56bb11976e35dd9e93c94201ff1420d5",
+  "changes": [
+    {
+      "after": {
+        "bytes": 48739,
+        "member": "vendor/src/models/propulsion/FGPiston.cpp",
+        "sha256": "80f51ec8f702cf0b484ac076272e3440f59ddd4ae2ac10dbcc503e5377357232"
+      },
+      "before": {
+        "bytes": 41430,
+        "member": "patches/event-aware-coupled-midpoint-v1/FGPiston.cpp.before",
+        "sha256": "1f69e3caa742cbf24e5467245e1520293460975f003c7b8de8577262329ba836"
+      },
+      "path": "src/models/propulsion/FGPiston.cpp"
+    },
+    {
+      "after": {
+        "bytes": 19171,
+        "member": "vendor/src/models/propulsion/FGPiston.h",
+        "sha256": "9c7083d69a1ed9430b1dfc35bedf74cc58b04330d93bcaf2517c22e467c13799"
+      },
+      "before": {
+        "bytes": 19045,
+        "member": "patches/event-aware-coupled-midpoint-v1/FGPiston.h.before",
+        "sha256": "caf5d49ae05c286a5deb27c4087216fa8264ef94d0c388af3c45418389915494"
+      },
+      "path": "src/models/propulsion/FGPiston.h"
+    },
+    {
+      "after": {
+        "bytes": 54782,
+        "member": "vendor/src/models/propulsion/FGPropeller.cpp",
+        "sha256": "e0ff11682070f2fa5a40ed7f14dbfcf56719a186089eb03185af8cdf9227d9f4"
+      },
+      "before": {
+        "bytes": 18319,
+        "member": "patches/event-aware-coupled-midpoint-v1/FGPropeller.cpp.before",
+        "sha256": "61c207fec6a80a48a142e3b29f2ef0a3210158e4ab4a0d2929835b72c99fe4d7"
+      },
+      "path": "src/models/propulsion/FGPropeller.cpp"
+    },
+    {
+      "after": {
+        "bytes": 14960,
+        "member": "vendor/src/models/propulsion/FGPropeller.h",
+        "sha256": "730819eba6e87b94c75c8e02606f55a8006e54822f8f8f669f24d2941b1be6a5"
+      },
+      "before": {
+        "bytes": 13232,
+        "member": "patches/event-aware-coupled-midpoint-v1/FGPropeller.h.before",
+        "sha256": "2330dad95c6636d1e834d9b82e71f37b0751887e7de406936befe4822b74a14d"
+      },
+      "path": "src/models/propulsion/FGPropeller.h"
+    }
+  ],
+  "materializer": {
+    "bytes": 11394,
+    "sha256": "6774634a5b930bf18dd718e2a63661dfad6f4ca0064de4655ad202cc00722867"
+  },
+  "modifications": {
+    "author": "flight-simulator project contributors",
+    "date": "2026-10-09",
+    "license": "LGPL-2.1-or-later",
+    "method_revision": "event_aware_coupled_midpoint_v1"
+  },
+  "patch_kind": "exact-file-replacement-v1",
+  "schema_version": 1,
+  "source_bundle_schema": 3,
+  "source_variant": "jsbsim-1.3.1-event-aware-coupled-midpoint-v1",
+  "upstream_commit": "3b25f25e49b42d0489c04ac805674fc1450ca579",
+  "upstream_inventory_sha256": "083ba0601443c0d24b6641fd04794840cd3054fb7adc98e47f2fb7a1a1048fc5"
+}

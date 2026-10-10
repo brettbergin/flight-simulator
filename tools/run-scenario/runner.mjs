@@ -1,10 +1,11 @@
-import { readFile, writeFile, mkdir, stat, realpath, readdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, stat, realpath } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { isDeepStrictEqual } from 'node:util';
 import { resolve, dirname, join, relative, isAbsolute } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { validateContract, contractSetSha256 } from '../../schemas/validate.mjs';
+import { currentSourceFingerprint } from './source-fingerprint.mjs';
 
 export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 export const modelRoot = join(repoRoot, 'native/fdm_jsbsim/models/original-synthetic');
@@ -73,11 +74,6 @@ export async function verifyModel(root=modelRoot) {
     const bytes=await readFile(path);if(bytes.length!==file.bytes||sha(bytes)!==file.sha256)throw new Error(`Model hash mismatch: ${file.path}`);
   }
   return {inventory,inventory_sha256:sha(inventoryBytes)};
-}
-async function currentSourceFingerprint() {
-  const base=join(repoRoot,'native/fdm_jsbsim');const paths=[];
-  async function visit(path){for(const entry of await readdir(join(base,path),{withFileTypes:true})){const child=`${path}/${entry.name}`;if(entry.isDirectory())await visit(child);else if(entry.isFile())paths.push(child);else throw new Error('Unexpected adapter source object');}}
-  await visit('src');await visit('include');paths.sort();let text='';for(const path of paths)text+=`${path}:${sha(await readFile(join(base,path)))}\n`;return sha(text);
 }
 function finiteTree(value) {
   if(typeof value==='number'&&!Number.isFinite(value))throw new Error('Nonfinite diagnostic record');
@@ -165,12 +161,13 @@ export async function runScenario(scenario,commands=[],options={}) {
   await writeFile(join(outDir,'scenario.json'),scenarioBytes);await writeFile(join(outDir,'commands.json'),commandBytes);
   const requestPath=join(outDir,'request.bin'),outputPath=join(outDir,'telemetry.ndjson'); await writeFile(requestPath,bytes);
   const executable=resolve(options.executable??join(repoRoot,'.local/build/native-release/bin',process.platform==='win32'?'fdm_harness.exe':'fdm_harness'));
+  const expectedSourceFingerprint=await currentSourceFingerprint(executable);
   const result=spawnSync(executable,[modelRoot,requestPath,outputPath],{encoding:'utf8',env:{...process.env,JSBSIM_DEBUG:'0'},timeout:120000,maxBuffer:1024*1024});
   await writeFile(join(outDir,'native-log.txt'),`${result.stdout??''}${result.stderr??''}`);
   if(result.error||result.status!==0)throw new Error(`Native runner failed: ${result.error?.message??result.stderr??result.status}`);
   if((await stat(outputPath)).size>100*1024*1024)throw new Error('Telemetry exceeds bound');
   const output=await readFile(outputPath);const records=output.toString('utf8').trim().split('\n').map(line=>JSON.parse(line));
-  validateOutput(records,{scenario,commands,options,expectedSourceFingerprint:await currentSourceFingerprint()});
+  validateOutput(records,{scenario,commands,options,expectedSourceFingerprint});
   const states=records.filter(record=>record.type==='AircraftSnapshot');
   if(BigInt(states.at(-1).tick)!==BigInt((options.duration_s??10)*scenario.clock.tick_rate_hz))throw new Error('Incomplete runner output');
   const performance=JSON.parse(await readFile(outputPath+'.timing.json','utf8'));
@@ -185,6 +182,7 @@ export async function runScenario(scenario,commands=[],options={}) {
     compiler:records[0].compiler,source_fingerprint:records[0].source_fingerprint,performance,dependency_lock_sha256:sha(await readFile(join(repoRoot,'third_party/dependencies.lock.json'))),
     build_manifest_sha256:sha(await readFile(join(dirname(executable),'../toolchain-build-manifest.txt'))),
     initialization:records[0],limitations:['original-synthetic-no-aircraft-calibration','no-ground-contacts','no-stall-envelope','no-propeller','no-mixture-brakes','dry-isa-constant-wind']};
+  if(await currentSourceFingerprint(executable)!==expectedSourceFingerprint)throw new Error('Source or declared build identity changed during the native run');
   await writeFile(join(outDir,'provenance.json'),JSON.stringify(provenance,null,2)+'\n');
   return {records,states,provenance,out_dir:outDir};
 }

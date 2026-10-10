@@ -37,6 +37,11 @@ $payload=Join-Path $root 'payload'
 $evidence=Join-Path $root 'evidence'
 New-Item -ItemType Directory -Force $project,$payload,$evidence | Out-Null
 $environment=Get-Content (Join-Path $toolchain 'environment.json') -Raw | ConvertFrom-Json
+if([string]::IsNullOrWhiteSpace($NativeBuildRoot)){$NativeBuildRoot=Join-Path $repo '.local/build/native-release'}
+$nativeIdentity=Get-PreviewNativeBuildIdentity -RepoRoot $repo -NativeBuildRoot $NativeBuildRoot -Python $environment.python_executable
+if($nativeIdentity.source_variant -cne 'jsbsim-1.3.1-upstream'){throw 'This preview accepts only pristine export/replacement provenance; modified-source delivery requires its separately qualified matching package gate'}
+$nativeIdentity | ConvertTo-Json -Depth 10 | Set-Content -Encoding utf8 (Join-Path $evidence 'native-build-identity.json')
+$build=$nativeIdentity.root
 & $environment.python_executable (Join-Path $PSScriptRoot 'verify-pins.py') --toolchain $toolchain --output (Join-Path $evidence 'tool-pins.json')
 if($LASTEXITCODE -ne 0){throw 'Actual editor/template pins rejected'}
 $pins=Get-Content (Join-Path $evidence 'tool-pins.json') -Raw | ConvertFrom-Json
@@ -52,6 +57,8 @@ foreach($component in $accepted.components){foreach($file in $component.files){
  $candidate=Join-Path $proof ('payload/'+$file.path)
  if((Get-FileHash -LiteralPath $candidate -Algorithm SHA256).Hash.ToLowerInvariant() -ne $file.sha256){throw "Accepted package changed: $($file.path)"}
 }}
+# This route reuses pristine corresponding source/replacement evidence only.
+if((Get-FileHash -LiteralPath (Join-Path $build 'bin/JSBSim.dll')).Hash -cne (Get-FileHash -LiteralPath (Join-Path $proof 'payload/bin/JSBSim.dll')).Hash){throw 'Selected pristine build and accepted export JSBSim bytes differ'}
 $simulationRoot=Join-Path $repo 'app/simulation'
 $simulationEntries=@('session_facade.gd','render_origin.gd','origin_participant.gd','wire_validation.gd','flight_scene.gd','flight_scene.tscn')
 $simulationSnapshot=@(Get-SimulationSourceSnapshot -SourceRoot $simulationRoot -RequiredEntries $simulationEntries)
@@ -67,10 +74,6 @@ Assert-WindReferences -RepoRoot $repo -Python $environment.python_executable
 Assert-ObservedReviewReferences -RepoRoot $repo -Python $environment.python_executable
 & $environment.python_executable (Join-Path $repo 'tests/ui/freeflight/reference-generator.py') --check
 if($LASTEXITCODE -ne 0){throw 'Frozen landmark reference reproduction rejected'}
-if([string]::IsNullOrWhiteSpace($NativeBuildRoot)){$NativeBuildRoot=Join-Path $repo '.local/build/native-release'}
-$nativeIdentity=Get-PreviewNativeBuildIdentity -RepoRoot $repo -NativeBuildRoot $NativeBuildRoot
-$nativeIdentity | ConvertTo-Json -Depth 10 | Set-Content -Encoding utf8 (Join-Path $evidence 'native-build-identity.json')
-$build=$nativeIdentity.root
 $inputs=@()
 foreach($directory in @('app/proof/interactive','app/simulation','app/input','app/ui/controls','app/ui/freeflight','tests/ui/freeflight','app/replay/observed','app/ui/debrief/observed','tests/debrief/observed','app/replay/observed_archive','tests/debrief/observed_archive','tests/input','app/cockpit','tests/instruments','content/aircraft/prototype','tests/integration/sim_loop','app/world/wind','app/ui/wind','tests/world/wind','tests/integration/wind','tools/interactive-preview','native/godot_bridge','native/fdm_jsbsim/interactive','native/fdm_jsbsim/models/original-interactive')){
  foreach($file in Get-ChildItem -LiteralPath (Join-Path $repo $directory) -Recurse -File){
@@ -91,6 +94,7 @@ Copy-ObservedReviewSourceGroups -RepoRoot $repo -DestinationRoot $project -Group
 Copy-WindSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $windGroups
 Copy-Item -LiteralPath (Join-Path $repo 'app/proof/interactive/project-settings.cfg') -Destination (Join-Path $project 'project.godot')
 Set-SimulationMainScene -ProjectFile (Join-Path $project 'project.godot')
+Copy-PreviewNativeIdentityResource -Identity $nativeIdentity -DestinationRoot $project
 Write-SimulationCheckHarness -ProjectRoot $project -RepoRoot $repo
 Copy-Item -LiteralPath (Join-Path $repo 'app/proof/flight.gdextension'),(Join-Path $repo 'app/proof/export_presets.cfg'),(Join-Path $repo 'LICENSE') -Destination $project
 Copy-Item -LiteralPath (Join-Path $proof 'payload/bin') -Destination $project -Recurse
@@ -103,8 +107,11 @@ if($LASTEXITCODE -ne 0){throw 'Combined model pin gate failed'}
 
 $preset=Get-Content (Join-Path $project 'export_presets.cfg') -Raw
 if($preset -notmatch 'include_filter="\*\.bin"'){throw 'Unexpected raw resource inclusion before archive staging'}
+if(([regex]::Matches($preset,'(?m)^script_export_mode=2\r?$')).Count -ne 1){throw 'Unexpected staged script export mode'}
+# Raw generated GDScript bytes must survive the PCK; authored preset stays exact.
+$preset=$preset.Replace('script_export_mode=2','script_export_mode=0')
 $preset=$preset.Replace('include_filter="*.bin"','include_filter="*.bin,*.ps1"')
-$preset=$preset.Replace('custom_template/release=""','custom_template/release="'+$template.Replace('\','/')+'"').Replace('exclude_filter=""','exclude_filter="smoke-receipt.json,loop.records.ndjson,compile-all.gd,facade-check-receipt.json,controls*-receipt.json,controls*-preset.json,controls*.png,landmark*.png,landmark*-receipt.json,observed*.png,observed*-receipt.json,wind*.png,wind*-receipt.json"')
+$preset=$preset.Replace('custom_template/release=""','custom_template/release="'+$template.Replace('\','/')+'"').Replace('exclude_filter=""','exclude_filter="native-identity-receipt.json,smoke-receipt.json,loop.records.ndjson,compile-all.gd,facade-check-receipt.json,controls*-receipt.json,controls*-preset.json,controls*.png,landmark*.png,landmark*-receipt.json,observed*.png,observed*-receipt.json,wind*.png,wind*-receipt.json"')
 $preset | Set-Content -Encoding utf8 (Join-Path $project 'export_presets.cfg')
 # Keep engine/profile/cache writes within this fresh run even during authoring.
 $prior=@{}
@@ -148,6 +155,9 @@ func _initialize() -> void:
    $receipt=Get-Content (Join-Path $project 'facade-check-receipt.json') -Raw | ConvertFrom-Json
    if($result.text -notmatch 'SIM_LOOP_CHECKS_PASSED'){throw 'Actual facade checks failed'}
    Assert-PreviewFacadeReceipt -Receipt $receipt
+   $identityReceipt=Get-Content -LiteralPath (Join-Path $project 'native-identity-receipt.json') -Raw | ConvertFrom-Json
+   Assert-PreviewNativeResourceReceipt -Receipt $identityReceipt -Identity $nativeIdentity
+   Copy-Item -LiteralPath (Join-Path $project 'native-identity-receipt.json') -Destination (Join-Path $evidence 'editor-native-identity-receipt.json')
    Copy-Item -LiteralPath (Join-Path $project 'facade-check-receipt.json') -Destination (Join-Path $evidence 'editor-facade-receipt.json')
   }
   if($operation.name -eq 'editor-smoke'){
@@ -178,6 +188,9 @@ Copy-FreeflightSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $fr
 Copy-ObservedReviewSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $observedGroups
 Copy-WindSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $windGroups
 Copy-Item -LiteralPath (Join-Path $project 'wire_fixtures'),(Join-Path $project 'sim_loop_checks.gd'),(Join-Path $project 'sim_loop_checks.tscn') -Destination $source -Recurse
+Copy-PreviewNativeIdentityResource -Identity $nativeIdentity -DestinationRoot $source
+& $environment.python_executable -B (Join-Path $PSScriptRoot 'native-identity.py') --repository-root $repo --build-root $build --evidence (Join-Path $evidence 'native-build-identity.json') --staged-root $project --staged-root $source --reconstruction-root $source
+if($LASTEXITCODE -ne 0){throw 'Corresponding-source identity reconstruction rejected'}
 & (Join-Path $payload 'launch.ps1') -HeadlessSmoke
 Copy-Item -LiteralPath (Join-Path $payload 'smoke-receipt.json'),(Join-Path $payload 'portable-smoke.log'),(Join-Path $payload 'loop.records.ndjson') -Destination $evidence
 $replacement=Join-Path $root 'Replacement space — Δ飛行'
@@ -197,10 +210,13 @@ foreach($target in @(@{name='portable';path=$payload},@{name='replacement';path=
  if($result.text -notmatch 'SIM_LOOP_CHECKS_PASSED' -or $result.text -notmatch 'FLIGHT_BRIDGE_TERMINATED_JOINED'){throw 'Exported actual facade checks failed'}
  $receipt=Get-Content (Join-Path $target.path 'facade-check-receipt.json') -Raw | ConvertFrom-Json
  Assert-PreviewFacadeReceipt -Receipt $receipt
+ $identityReceipt=Get-Content -LiteralPath (Join-Path $target.path 'native-identity-receipt.json') -Raw | ConvertFrom-Json
+ Assert-PreviewNativeResourceReceipt -Receipt $identityReceipt -Identity $nativeIdentity
+ Move-Item -LiteralPath (Join-Path $target.path 'native-identity-receipt.json') -Destination (Join-Path $evidence ($target.name+'-native-identity-receipt.json'))
  Move-Item -LiteralPath (Join-Path $target.path 'facade-check-receipt.json') -Destination (Join-Path $evidence ($target.name+'-facade-receipt.json'))
 }
 Write-ProofDependencyReport -Payload $payload -BuildManifest (Join-Path $build 'toolchain-build-manifest.txt') -Output (Join-Path $evidence 'native-dependencies.json')
-& node (Join-Path $PSScriptRoot 'package.mjs') audit $root $proof $build
+& node (Join-Path $PSScriptRoot 'package.mjs') audit $root $proof $build $environment.python_executable
 if($LASTEXITCODE -ne 0){throw 'Whole-flight package integrity failed'}
 # Detect concurrent source/toolchain drift before publishing a successful receipt.
 Assert-SimulationSourceSnapshot -SourceRoot $simulationRoot -Snapshot $simulationSnapshot -RequiredEntries $simulationEntries
@@ -224,7 +240,9 @@ Assert-ObservedReviewSourceGroups -DestinationRoot $source -Groups $observedGrou
 Assert-WindSourceGroups -DestinationRoot $repo -Groups $windGroups -Authoring
 Assert-WindSourceGroups -DestinationRoot $project -Groups $windGroups -AllowGeneratedUIDs
 Assert-WindSourceGroups -DestinationRoot $source -Groups $windGroups
-$finalNativeIdentity=Get-PreviewNativeBuildIdentity -RepoRoot $repo -NativeBuildRoot $build
+Assert-PreviewNativeIdentityResource -Identity $nativeIdentity -DestinationRoot $project -AllowGeneratedUIDs
+Assert-PreviewNativeIdentityResource -Identity $nativeIdentity -DestinationRoot $source
+$finalNativeIdentity=Get-PreviewNativeBuildIdentity -RepoRoot $repo -NativeBuildRoot $build -Python $environment.python_executable
 if(($nativeIdentity | ConvertTo-Json -Depth 10 -Compress) -cne ($finalNativeIdentity | ConvertTo-Json -Depth 10 -Compress)){throw 'Selected native build/source changed during proof'}
 if((Get-FileHash $bridge).Hash -ne $initialBridgeHash){throw 'Native bridge changed during proof'}
 foreach($input in $inputs){if((Get-FileHash (Join-Path $repo $input.path)).Hash.ToLowerInvariant() -ne $input.sha256){throw 'Authoring source changed during proof'}}

@@ -16,3 +16,13 @@ test('runtime model staging pins actual bytes and rejects altered XML/inventory'
  fs.writeFileSync(path.join(source,'inventory.json'),'{}\n');
  const inventory=run(source,path.join(temporary,'inventory'));assert.notEqual(inventory.status,0);assert.match(inventory.stderr,/Frozen model inventory changed/);
 });
+
+// Pure package validator fixtures; no compiler/native/Godot execution.
+import {validateResourceReceipt} from './package.mjs';
+test('export resource receipts bind exact independently expected canonical bytes',()=>{
+ const resource={bytes:512,sha256:'a'.repeat(64)};
+ const good={schema:'PreviewNativeResource/v1',path:'build/native_identity.gd',bytes:512,sha256:resource.sha256};
+ assert.doesNotThrow(()=>validateResourceReceipt(good,resource));
+ for(const bad of [{...good,schema:'old'},{...good,path:'../outside'},{...good,bytes:true},{...good,bytes:511},{...good,sha256:'b'.repeat(64)},{...good,extra:true}])assert.throws(()=>validateResourceReceipt(bad,resource));
+ for(const key of Object.keys(good)){const bad={...good};delete bad[key];assert.throws(()=>validateResourceReceipt(bad,resource));}
+});
