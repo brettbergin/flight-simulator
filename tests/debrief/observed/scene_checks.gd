@@ -16,8 +16,8 @@ class SyntheticScene extends Scene:
 		observed_recorder=TrackingRecorder.new()
 	func collect_input_raw(_preset: Dictionary={}) -> Dictionary:
 		return synthetic_raw.duplicate(true)
-	func flight_model_root() -> String:
-		return ProjectSettings.globalize_path("res://__missing_observed_test_models__") if missing_models else super.flight_model_root()
+	func flight_model_root(profile_id: Variant=null) -> String:
+		return ProjectSettings.globalize_path("res://__missing_observed_test_models__") if missing_models else super.flight_model_root(profile_id)
 	func fail(message: String) -> bool:
 		if not missing_models: return super.fail(message)
 		# Expected actual facade inventory rejection. Suppress only push_error;
