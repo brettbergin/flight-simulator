@@ -4920,7 +4920,8 @@
       "depends_on": [
         "ORIGINAL-PISTON-CONTRACT",
         "ORIGINAL-PISTON-MODEL",
-        "STEADY-WIND-FLIGHT"
+        "STEADY-WIND-FLIGHT",
+        "PISTON-COUPLING-ACCURACY"
       ],
       "labels": [
         "type:task",
@@ -4965,7 +4966,9 @@
         "docs/evidence/P3/original-piston-source.md",
         "docs/contracts.md",
         "docs/agent-operations.md",
-        "tests/engine/shaft-method/README.md"
+        "tests/engine/shaft-method/README.md",
+        "docs/decisions/015-source-law-coupled-shaft.md",
+        "docs/evidence/P3/coupled-midpoint-reference-design.md"
       ],
       "requirements": [
         "REAL-013",
@@ -4990,6 +4993,64 @@
       "evidence": [
         "Exact source/profile/method and model identities; independent numerical/rights/source reviews and pretrial chronology; unchanged legacy regressions and genuine 60/120/240 Hz lifecycle/convergence trials.",
         "Native/input/status/scene rejection and retained-state checks; all three Windows runtime contexts, complete patched corresponding source and actual DLL replacement, independently reviewed exported views and all protected CI checks. Human C172/pilot/phase gates remain open."
+      ]
+    },
+    {
+      "key": "PISTON-COUPLING-ACCURACY",
+      "title": "Correct cold-start and shutdown convergence without changing frozen limits",
+      "kind": "bug",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Resolve the preserved ADR014 coupled-trial failures before issue127 runtime acceptance. Publish a separately reviewed source-power and state-event coupling contract, then implement and qualify it without fitting model data, commands, references or limits.",
+      "depends_on": [
+        "ORIGINAL-PISTON-CONTRACT",
+        "ORIGINAL-PISTON-MODEL",
+        "STEADY-WIND-FLIGHT"
+      ],
+      "labels": [
+        "type:bug",
+        "phase:P3",
+        "area:aircraft",
+        "priority:P0",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "docs/decisions/",
+        "docs/evidence/P3/",
+        "tests/engine/",
+        "native/fdm_jsbsim/interactive/",
+        "third_party/patches/jsbsim/",
+        "tools/bootstrap/",
+        "tools/export/jsbsim-event-aware/"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/agent-operations.md",
+        "docs/decisions/010-original-piston-profile.md",
+        "docs/decisions/014-event-aware-shaft.md",
+        "docs/evidence/P3/event-aware-shaft.md",
+        "docs/decisions/015-source-law-coupled-shaft.md",
+        "docs/evidence/P3/coupled-midpoint-reference-design.md"
+      ],
+      "requirements": [
+        "REAL-013",
+        "REAL-014",
+        "REAL-019",
+        "PRD-004",
+        "PRD-010",
+        "PRD-015"
+      ],
+      "acceptance": [
+        "Publish an independently reviewed coupling/source chronology contract before consumers: exact units, public tick and fuel ownership, algorithm/events, checked method IDs, invalid state policy, legacy compatibility and source closure.",
+        "Preserve all failed evidence, original model parameters,55 numerical reference values, full111-second command schedules and frozen physical/convergence limits; derive independent references before output.",
+        "No hidden common-rate solver, subcycled combustion/fuel, RPM injection, fitted floor, moved sample, added event exclusion or widened budget.",
+        "Freeze exact reviewed source and pretrial identities; verify actual strict compilation, loaded DLL and legacy/default behavior, then pass the unchanged complete12-process60/120/240Hz native suite including1.1s,1.2s and53.8s.",
+        "Complete runtime/editor/export/source-replacement qualification under ORIGINAL-PISTON-FLIGHT separately; aircraft, pilot and phase gates remain open."
+      ],
+      "evidence": [
+        "Preserved three-failure native receipt and independent source/trace diagnosis; reviewed corrective ADR, independent references and pretrial chronology.",
+        "Actual strict build/default regression and complete unchanged coupled-suite evidence tied to exact source/DLL identities; all protected checks before merge."
       ]
     }
   ]

@@ -89,7 +89,8 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | BASELINE-PERFORMANCE | [#76 Validate normal C172S performance before scored maneuver curriculum](https://github.com/brettbergin/flight-simulator/issues/76) | EPIC-P2, AIRCRAFT-EVIDENCE, VALIDATION-CORPUS, ENGINE-FUEL, CONTROLS-GROUND |
 
 | ORIGINAL-PISTON-MODEL | [#125 Publish original piston model and independent reference source](https://github.com/brettbergin/flight-simulator/issues/125) | ORIGINAL-PISTON-CONTRACT, CORE-CONTRACTS, INTERACTIVE-CONTRACT, LICENSE-REGISTER |
-| ORIGINAL-PISTON-FLIGHT | [#127 Build deliberate engine startup, taxi and shutdown interaction](https://github.com/brettbergin/flight-simulator/issues/127) | ORIGINAL-PISTON-CONTRACT, ORIGINAL-PISTON-MODEL, STEADY-WIND-FLIGHT |
+| ORIGINAL-PISTON-FLIGHT | [#127 Build deliberate engine startup, taxi and shutdown interaction](https://github.com/brettbergin/flight-simulator/issues/127) | ORIGINAL-PISTON-CONTRACT, ORIGINAL-PISTON-MODEL, STEADY-WIND-FLIGHT, PISTON-COUPLING-ACCURACY |
+| PISTON-COUPLING-ACCURACY | [#149 Correct cold-start and shutdown convergence without changing frozen limits](https://github.com/brettbergin/flight-simulator/issues/149) | ORIGINAL-PISTON-CONTRACT, ORIGINAL-PISTON-MODEL, STEADY-WIND-FLIGHT |
 
 ## P4 — Regional navigation and environment
 

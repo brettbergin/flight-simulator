@@ -1,0 +1,368 @@
+# Native first-trial receipt v1
+
+This historical receipt preserves the original failed coupled trial and passing default probe. It is documentation, not runtime configuration or acceptance of the corrective method.
+
+```json
+{
+  "actual_default_regression": {
+    "actual_loaded_module_same_file_pre_post_hash_verified": true,
+    "case_ids": [
+      "static40",
+      "j_half",
+      "j_one",
+      "reverse_flow",
+      "j_end_clamp",
+      "stopped",
+      "low_omega_floor",
+      "low_rps_floor",
+      "rps_boundary",
+      "rps_above",
+      "gyro_step_60",
+      "gyro_step_120",
+      "gyro_step_240"
+    ],
+    "checks": 270,
+    "converted_observations": [
+      "thrust_n",
+      "load_power_w",
+      "pre_omega_radps",
+      "post_omega_radps"
+    ],
+    "derived_algebraic_fields": [
+      "excess_torque_ftlbf",
+      "unclamped_angular_impulse_residual",
+      "discrete_kinetic_energy_delta_ftlbf",
+      "rpm_clamp_active",
+      "near_zero_advance_branch"
+    ],
+    "exit_code": 0,
+    "failures": [],
+    "guards": "Actual fresh legacy getters, invalid enum rejection without mutation, explicit event selection retained across ResetToIC, return to legacy, separate fresh unset object for all legacy cases.",
+    "independent_review_sha256": "825a0a5e04167c1f04e73b0f5f5b113fb7a1321e5bceef652db01d771752336a",
+    "maximum_original_comparison_budget_fraction": "0.002049338959618450844834557631",
+    "original_cases": 13,
+    "original_fields_per_case": 18,
+    "passed": true,
+    "probe_executable_sha256": "455f13896ba574be6a2b2a085573d6da60381f4fc429592de12fc920fc9efdb6",
+    "probe_source_sha256": {
+      "AUDIT.md": "05027ebc12840d98f54035fa9102843d148e0d689f0937cff39b88771b9f3f92",
+      "CMakeLists.txt": "7d89830e039bc3a17f851daad257adfa5407e4164249cdbc682b7e7e2c238739",
+      "loaded-library.hpp": "3911b0601260fcb581f95515d267b3bc02ac351144801923737fa0776ac15019",
+      "probe.cpp": "9384d4fa173b75dc6a20e4d12cbf333b9d4441cbdb5aa4e17ae7a3c1eb57c8b8",
+      "run_checks.py": "3ea0287fde4c1c272fdfffa27c0ab8b79fa291a259c272d60098943f087971f6"
+    },
+    "raw_receipt_sha256": "ca937358a18eaa0f482c5ad119d26f46b5628a1bdcb908f3935bccf58ceda240",
+    "raw_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "raw_stdout_sha256": "80a32eb89f4dabf45b41e4fadfa639b9c650f24dffa1f3084d76116cab55813a",
+    "reference_sha256": "36aac20d85e841743d7eb9a357be8a0d40d8f103c1cbc60e084dde9ef23db63b",
+    "request_sha256": "d2555685fe72662a17fad7e71ade0f0e4ee307d2d47b5735804fdbc707718051",
+    "scope": "Isolated actual-library legacy propeller unit fixture with explicitly seeded RPM/held inputs; no Run, RunIC, event-method Calculate or coupled-flight execution.",
+    "terminal_exit_observed": true
+  },
+  "authorization_chronology": {
+    "coupled_distinct_execution_authorization_sha256": "bc287490fefba4193e798cecb527b9db470c43a7a2d0d727a8e195a086e4d6b6",
+    "coupled_execution_chronology_sha256": "d9a734130407c45e57080b419705c553868a05234ca03c3573e8dec3af4c9245",
+    "native_compile_only_pretrial_sha256": "117712671d0beadc99bbb8169057f7c92553a46e78976a471b95799077da7ae7",
+    "order": "Compile-only ratification; strict actual compiler and measured artifacts; separate actual-library default authorization/result; separate coupled authorization/result. No numerical execution inferred from compilation.",
+    "probe_compile_only_pretrial_sha256": "01b13904f7e9e2da86a54c5f7ce99f675518754ea34b1068b56247d147978aa6",
+    "probe_distinct_execution_authorization_sha256": "62e552e85a88a6da62684ec7f2250ddc10e3f36258743c17c5c24bd0620017f4",
+    "probe_execution_chronology_sha256": "c850e44ca6c179c041723b3fcf57412a6133d57c49c9d9891934ea4b5f581428"
+  },
+  "bounded_diagnosis": {
+    "first_zero_after_shutdown_s": {
+      "120": 53.80833333333333,
+      "240": 53.8125,
+      "60": 53.8
+    },
+    "inference": "Investigate timestep-dependent engine/load coupling and stop timing. Existing observations do not establish an arithmetic-kernel defect or authorize altered budgets/exclusions.",
+    "recorded_stage_diagnostics_sha256": "4f16ded8adc3c7eb51e2442cf8142cd215c430773f66bff2facd86dd265fd2f3",
+    "shutdown": "At53.8s all rates have mixture0 and Running false;60Hz reaches literal zero while120/240 remain rotating.",
+    "source_fact": "Calculate computes EnginePower minus GetPowerRequired once before the held-power angular solve.",
+    "startup": "1.1s/1.2s failures occur with starter true and Running false. First admitted raw engine power is identical across rates; later pre-step RPM and delivered power differ.",
+    "unresolved": "A separately reviewed coupling contract is required before changing power/load chronology, substeps, state ownership or acceptance criteria. The current held-power kernel qualification cannot establish full-system rate convergence."
+  },
+  "build": {
+    "actual_loaded_jsbsim_dll_sha256": "c3897312ebc809721a9ed9911c8668e5cb408d4d55afe050669884a0cfa81d5d",
+    "actual_propeller_compilation_target": "Propulsion OBJECT_LIBRARY",
+    "actual_propeller_strict_option": "/fp:strict",
+    "compile_exit": 0,
+    "compile_receipt_sha256": "38915c6c574c173b4f3814fc54412febd364dc4c583e03bc547f9e0c155c8fd2",
+    "compiler": "MSVC 19.40.33813.0 HostX64/x64",
+    "configuration": "RelWithDebInfo",
+    "configure_exit": 0,
+    "configured_propeller_command_sha256": "85de80b1f390bf3251793f04618dbc092c5b02718d6ac09458f22d050bd51495",
+    "configured_unique_propeller_command_verified": true,
+    "conflicting_fp_modes_absent": true,
+    "explicit_source_variant_option": true,
+    "implicit_CL_flags": null,
+    "implicit_trailing_CL_flags": null,
+    "mechanism_executable_sha256": "b882cf3182623f5eab14fcc07c8a1c35bbeb3aa4f0ade36a51f39a7069068b94",
+    "native_executable_sha256": "4f0e57ead742041b7c49a5c20fbe01497ec8ca4b9b2df9ddedb2e9536e2f499c",
+    "runtime": "dynamic release CRT /MD",
+    "verbose_actual_propeller_invocation_verified": true,
+    "verbose_build_log_sha256": "58128545c8c1e13a086cfad840d44dba6c332e0fb00a58f96282a01a3aa1ae71"
+  },
+  "coupled_first_trial": {
+    "all12_actual_loaded_module_identity_verified": true,
+    "all12_terminal_exit0": true,
+    "checks": 1618656,
+    "dependent_comparisons_skipped": false,
+    "failed_checks": 3,
+    "failed_constraints": [
+      {
+        "angular_radps": {
+          "120": 2.5750382510576757,
+          "240": 2.7291603674239986,
+          "60": 2.2704708309365413
+        },
+        "budget120_radps": 0.18659456614237974,
+        "budget60_radps": 0.3731891322847595,
+        "error120_radps": 0.1541221163663229,
+        "error60_radps": 0.45868953648745725,
+        "failed_constraints": [
+          "60Hz absolute shaft envelope"
+        ],
+        "refinement_bound_radps": 0.5634092916071171,
+        "refinement_passed": true,
+        "time_s": 1.1
+      },
+      {
+        "angular_radps": {
+          "120": 5.373341367531638,
+          "240": 5.5663272952300735,
+          "60": 4.981138552764888
+        },
+        "budget120_radps": 0.271709573976562,
+        "budget60_radps": 0.543419147953124,
+        "error120_radps": 0.1929859276984356,
+        "error60_radps": 0.5851887424651858,
+        "failed_constraints": [
+          "60Hz absolute shaft envelope"
+        ],
+        "refinement_bound_radps": 0.6899084975848456,
+        "refinement_passed": true,
+        "time_s": 1.2
+      },
+      {
+        "angular_radps": {
+          "120": 1.3768770213459354,
+          "240": 2.182960374377622,
+          "60": 0
+        },
+        "budget120_radps": 0.1702085663509884,
+        "budget60_radps": 0.3404171327019768,
+        "error120_radps": 0.8060833530316864,
+        "error60_radps": 2.182960374377622,
+        "failed_constraints": [
+          "60Hz absolute shaft envelope",
+          "120Hz absolute shaft envelope"
+        ],
+        "refinement_bound_radps": 2.2876801294972817,
+        "refinement_passed": true,
+        "time_s": 53.8
+      }
+    ],
+    "independent_result_review_sha256": "03aa22f63246671942147ffb6124dc9b8ec29c2e15dd80d6f57b18e76c13ec7f",
+    "independent_terminal_review_sha256": "ed1f42a8d63b5ddce7d2e5e1d11e6fe400d9d21a6020cb16d574263499ba4c1e",
+    "limits_sha256": "9b667d4b61e47e94af1eed20701119bd72d6de63e6eac28b8597ab44ae6d9feb",
+    "metrics": {
+      "240": {
+        "first_running_s": 4.270833333333333,
+        "first_stopped_s": 39.329166666666666,
+        "guarded_pmep_upper_max_pa": -2.960953566536773,
+        "pumping_guard": "source-derived conservative bound;8*(ulp(reconstructed_MAPPa)+ulp(engine_ambientPa))",
+        "pumping_upper_max_hp": -0.0,
+        "pumping_upper_min_hp": -1.8569122471690627,
+        "raw_pmep_source_max_pa": -2.9609535667230378
+      },
+      "60": {
+        "first_running_s": 4.316666666666666,
+        "first_stopped_s": 39.35,
+        "guarded_pmep_upper_max_pa": -2.960953576525208,
+        "pumping_guard": "source-derived conservative bound;8*(ulp(reconstructed_MAPPa)+ulp(engine_ambientPa))",
+        "pumping_upper_max_hp": -0.0,
+        "pumping_upper_min_hp": -1.8569122336735615,
+        "raw_pmep_source_max_pa": -2.9609535767114723
+      },
+      "convergence": {
+        "events": {
+          "120": {
+            "running": 4.291666666666667,
+            "stopped": 39.333333333333336
+          },
+          "240": {
+            "running": 4.270833333333333,
+            "stopped": 39.329166666666666
+          },
+          "60": {
+            "running": 4.316666666666666,
+            "stopped": 39.35
+          }
+        },
+        "excluded_samples_s": [
+          4.1,
+          4.2,
+          4.3,
+          4.4,
+          4.5,
+          50.8,
+          50.9,
+          51.0,
+          51.1,
+          51.2
+        ],
+        "reference240_path_m": 8.28350973194636
+      },
+      "feed-off": {
+        "first_running_s": 4.291666666666667,
+        "first_stopped_s": 39.333333333333336,
+        "guarded_pmep_upper_max_pa": -2.9609535723342564,
+        "pumping_guard": "source-derived conservative bound;8*(ulp(reconstructed_MAPPa)+ulp(engine_ambientPa))",
+        "pumping_upper_max_hp": -0.0,
+        "pumping_upper_min_hp": -1.8569122424795186,
+        "raw_pmep_source_max_pa": -2.9609535725205207
+      },
+      "feed-recovery": null,
+      "ignition-off": {
+        "first_running_s": 4.291666666666667,
+        "first_stopped_s": 39.333333333333336,
+        "guarded_pmep_upper_max_pa": -2.9609535723226146,
+        "pumping_guard": "source-derived conservative bound;8*(ulp(reconstructed_MAPPa)+ulp(engine_ambientPa))",
+        "pumping_upper_max_hp": -0.0,
+        "pumping_upper_min_hp": -1.8569122424795186,
+        "raw_pmep_source_max_pa": -2.9609535725088794
+      },
+      "lifecycle": {
+        "first_running_s": 4.291666666666667,
+        "first_stopped_s": 39.333333333333336,
+        "guarded_pmep_upper_max_pa": -2.960953574429732,
+        "pumping_guard": "source-derived conservative bound;8*(ulp(reconstructed_MAPPa)+ulp(engine_ambientPa))",
+        "pumping_upper_max_hp": -0.0,
+        "pumping_upper_min_hp": -1.8569122424795186,
+        "raw_pmep_source_max_pa": -2.9609535746159965
+      },
+      "mechanism": {
+        "K_actual_starved": false,
+        "K_plus1_starved": true,
+        "K_plus2_running": false,
+        "partial_actual_kg": 1e-07,
+        "partial_requested_kg": 4.4293128688555225e-06
+      },
+      "mixture-zero": null,
+      "no-feed": null,
+      "no-spark": null
+    },
+    "passed": false,
+    "processes": [
+      {
+        "case": "admission120",
+        "rows": 0,
+        "terminal_exit": 0
+      },
+      {
+        "case": "no-spark120",
+        "rows": 1561,
+        "terminal_exit": 0
+      },
+      {
+        "case": "no-feed120",
+        "rows": 1561,
+        "terminal_exit": 0
+      },
+      {
+        "case": "mixture-zero120",
+        "rows": 1561,
+        "terminal_exit": 0
+      },
+      {
+        "case": "feed-recovery120",
+        "rows": 3481,
+        "terminal_exit": 0
+      },
+      {
+        "case": "lifecycle120",
+        "rows": 13321,
+        "terminal_exit": 0
+      },
+      {
+        "case": "ignition-off120",
+        "rows": 13321,
+        "terminal_exit": 0
+      },
+      {
+        "case": "feed-off120",
+        "rows": 13321,
+        "terminal_exit": 0
+      },
+      {
+        "case": "lifecycle120-repeat",
+        "rows": 13321,
+        "terminal_exit": 0
+      },
+      {
+        "case": "lifecycle60",
+        "rows": 6661,
+        "terminal_exit": 0
+      },
+      {
+        "case": "lifecycle240",
+        "rows": 26641,
+        "terminal_exit": 0
+      },
+      {
+        "case": "mechanism120",
+        "rows": 970,
+        "terminal_exit": 0
+      }
+    ],
+    "raw_suite_receipt_sha256": "5d9bccf2bf0fe6b76ddc483652012ee2d91b3f76dd9e6d8f39fe40b413a253e8",
+    "same_build_lifecycle120_trace_and_commands_identical": true,
+    "skipped_cases": [],
+    "skipped_comparisons": [],
+    "terminal_ctest_log_sha256": "c096ce05f46a133327ef959b592d58c1331ed7e2302084d5ca60f490c1b1a474",
+    "unchanged_limits": true,
+    "unchanged_schedule": "Original12 processes, genuine60/120/240Hz111-second lifecycle traces; no new exclusions, fitted expected values, widened budgets or observation-driven retry."
+  },
+  "defect_issue": "#149",
+  "format": "EventAwareNativeFirstTrialEvidence/v1",
+  "privacy": "Sanitized engineering metadata and hashes only; no absolute local paths, pilot profiles, flight logs or crash dumps.",
+  "remaining_gates": [
+    "Resolve the failed unchanged coupled convergence gate through reviewed source/coupling work",
+    "Review native consumer and profile/UI publication separately",
+    "Wind/interactive regressions and exported player evidence",
+    "Actual ABI-compatible shared-library replacement and source-rights release review",
+    "Aircraft, pilot, hardware, phase and training-credit acceptance remain open"
+  ],
+  "schema_version": 1,
+  "source": {
+    "archive_bytes": 3827121,
+    "archive_sha256": "461aba72cd91ae806bcbfaacb6e257d01f258c25b096d0be83d2a12e9a82bde1",
+    "backend_identity_sha256": "dc0e062b6192d5fb47499ebd9cc2cd1859b701b20e4e21d79c1dbf5b4fcf6648",
+    "build_control_sha256": "7261a3f49dc9bf3b40dc0eac7eff85b622bc08603236fdc62fd502ea4a9d45fb",
+    "consumer_source_fingerprint": "6f9dbd1fd0cf8f4a294b152e7d7008ad0e565ef81115c5081a78aa7621cc6766",
+    "consumer_source_inputs_sha256": {
+      "native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp": "20871875f01cdf17113cfcf0bba301b96d9afbb8499abba609a77b592265399c",
+      "native/fdm_jsbsim/interactive/include/flight/interactive/surface.hpp": "8c5d74cda3828b90d3da7c84aa25064c6e7b2223de4fa045764f5582bb280694",
+      "native/fdm_jsbsim/interactive/src/model-pins.hpp": "fda6e0c16542d84ffae9cd811fd21ea99a5b070dd70398fb3e9eb12c8c07b847",
+      "native/fdm_jsbsim/interactive/src/piston-model-pins.hpp": "24a3ac2d966df58b384e4b300754cdd6fd1d1abcd618a86e5a30d8fdd4ecf02e",
+      "native/fdm_jsbsim/interactive/src/session.cpp": "f39aa82c1f6687159d7541e862f975a291e4a1a0d47e311547f2e2f0a93acff2",
+      "tests/engine/CMakeLists.txt": "0eb96c1033e19f95a973cb81bdd87b7683584f4f6636be0470ec8c7b8112fdbb",
+      "tests/engine/loaded-library.hpp": "3911b0601260fcb581f95515d267b3bc02ac351144801923737fa0776ac15019",
+      "tests/engine/native-generate.py": "6a84fc48f91d4938fd714a9a3baa1cafbe4ca817bb918f2f6ae3a3fe34b88bde",
+      "tests/engine/native-limits.hpp": "c462dadfd0268a5ebec2c8ccaa1da5dcc175f0c738229aeb37f805ef35cf21da",
+      "tests/engine/native-limits.json": "9b667d4b61e47e94af1eed20701119bd72d6de63e6eac28b8597ab44ae6d9feb",
+      "tests/engine/native-mechanism.cpp": "980bad1bf48752fd1dab013d1bb35d47be869deff0ab208380c74e2a7d399df8",
+      "tests/engine/native-validate.py": "7490931674ad8a4d20710204d354ca1a9edb5852a3365b852efaff8f24ee6ee0",
+      "tests/engine/native.cpp": "23684f09d60f308425920048df3620bfe3c5933217ef0240cf459ea92b0d246d",
+      "tests/interactive/native.cpp": "2836809262ffbf92c3c30e83695111002fa23197723ffd4a908469fd78bc0006",
+      "tests/interactive/negatives.hpp": "f9768cdbcc5c9fc69d4b3997d4600e232a075c0c85e25424deeecdd5f2b2f976"
+    },
+    "model_inventory_sha256": "f7766fda173d8ee83d4c4a8c02f6333124175a1f7064d3f4d8e78df3d17da12a",
+    "public_identity_sha256": "1afe06ac2eb56f1efcd4cbbe82c0c844dab434cc57eff153d6f62ac25dc27214",
+    "recipe_sha256": "71db638631bdb4a20aa5e72b4a7a45aa27c20dcc57709bdbbf85924c7058bcdd",
+    "source_variant": "jsbsim-1.3.1-event-aware-constant-power-v1",
+    "vendor_tree_sha256": "81a0233611154263bfa4ebeded8a1b34331a3e2f8ce97c52b70de82647ebad2e"
+  },
+  "status": "COUPLED_GATE_FAILED"
+}
+```
