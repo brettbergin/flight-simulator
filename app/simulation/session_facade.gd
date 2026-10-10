@@ -349,6 +349,12 @@ func start(model_root: String, named_start: String, wind_profile: Variant="calm"
 	var entry_error: String=_entry_error()
 	if not entry_error.is_empty():
 		return _entry_rejection(entry_error)
+	# Use the same canonical spelling for inventory admission and native module
+	# ownership. A trailing separator must not make parent_path() name the model
+	# directory instead of the payload directory containing the actual DLLs.
+	model_root=ProjectSettings.globalize_path(model_root).replace("\\","/").simplify_path()
+	while model_root.ends_with("/") and model_root.length()>1 and not (model_root.length()==3 and model_root[1]==":"):
+		model_root=model_root.trim_suffix("/")
 	# Selection admission precedes any close, factory call or host mutation.
 	var selection_error: String=_selection_error(model_root,named_start,wind_profile,profile_id)
 	if not selection_error.is_empty():

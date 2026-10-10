@@ -104,13 +104,20 @@ func _presentation(host: Node) -> Dictionary:
  # are read back; phase checks prove the absence of a minimum rotation pitch.
  host.check(sound.playback!=null,"engine_scene_sound_actual_generator_available")
  if sound.playback!=null:
-  sound.playback.clear_buffer()
   host.check(sound.playback.get_frames_available()>0,"engine_scene_sound_zero_fixture_has_buffer_capacity")
   sound.phase=0.0
   sound.update_engine_audio(_display_status(0.0,true),0.0,false,true)
   sound._process(0.0)
   host.check(sound.phase==0.0,"engine_scene_sound_zero_shaft_has_no_frequency_floor_even_if_running")
-  sound.playback.clear_buffer()
+ # clear_buffer() rejects an active generator. The zero case fills its ring;
+ # retire it and use a fresh real generator so tiny rotation processes samples.
+ host.check(bool(await sound.shutdown()),"engine_scene_sound_zero_fixture_audio_retired")
+ sound.free()
+ sound=Sound.new()
+ host.add_child(sound)
+ sound.set_process(false)
+ host.check(sound.playback!=null,"engine_scene_sound_tiny_actual_generator_available")
+ if sound.playback!=null:
   host.check(sound.playback.get_frames_available()>0,"engine_scene_sound_tiny_fixture_has_buffer_capacity")
   sound.phase=0.0
   sound.update_engine_audio(_display_status(0.00000001,false),0.0,false,true)

@@ -9,6 +9,7 @@ var failures: Array[String]=[]
 var adapters: Array=[]
 var mode: String=""
 var fault_position: int=0
+var disposable_models: Dictionary={}
 
 class ObservedAdapter extends RefCounted:
 	var native: RefCounted=ClassDB.instantiate("FlightInteractiveSession") as RefCounted
@@ -132,13 +133,16 @@ func _selector_cases(root: String) -> void:
 	_check(facade.close().ok and adapter.joined,"selector_session_joined")
 
 func _copy_model(root: String,label: String) -> String:
-	# Retain disposable test inputs under the test process's isolated userdata.
-	# Never edit the installed model or remove a prior fixture directory.
-	var target: String=ProjectSettings.globalize_path("user://cold-model-"+label+"-"+str(Time.get_ticks_usec()))
-	if DirAccess.dir_exists_absolute(target): return ""
+	# Sibling copies share the real payload/bin module owner. A user:// copy
+	# correctly fails that production check, regardless of its valid model bytes.
+	# Never edit the installed model or reuse/remove a prior fixture directory.
+	var target: String=root.get_base_dir().path_join("cold-model-"+label+"-"+str(OS.get_process_id())+"-"+str(Time.get_ticks_usec()))
+	if DirAccess.dir_exists_absolute(target) or FileAccess.file_exists(target): return ""
+	if FileAccess.get_sha256(root.path_join("inventory.json"))!=Facade.PISTON_INVENTORY: return ""
 	var inventory: Dictionary=JSON.parse_string(FileAccess.get_file_as_string(root.path_join("inventory.json")))
 	var paths: Array=["inventory.json"]
 	for row in inventory.files+inventory.metadata: paths.append(row.path)
+	disposable_models[target]=paths.duplicate()
 	for relative in paths:
 		var path: String=target.path_join(relative)
 		if DirAccess.make_dir_recursive_absolute(path.get_base_dir())!=OK: return ""
@@ -148,13 +152,36 @@ func _copy_model(root: String,label: String) -> String:
 		file.close()
 	return target
 
+func _remove_model_copy(target: String) -> void:
+	# Remove only this process's explicitly created fixture names, never recurse
+	# through an installed model or read paths from a mutated inventory.
+	_check(disposable_models.has(target),"disposable_cleanup_owned_root")
+	if not disposable_models.has(target): return
+	var paths: Array=disposable_models[target].duplicate()
+	paths.append_array(["unexpected.txt",".unexpected"])
+	for relative in paths:
+		var path: String=target.path_join(relative)
+		if FileAccess.file_exists(path):
+			_check(DirAccess.remove_absolute(path)==OK,"disposable_cleanup_file_"+str(relative))
+	for relative in ["aircraft/original-piston-prop","aircraft","engine",""]:
+		var path: String=target if relative.is_empty() else target.path_join(relative)
+		if DirAccess.dir_exists_absolute(path):
+			_check(DirAccess.remove_absolute(path)==OK,"disposable_cleanup_directory_"+str(relative))
+	_check(not DirAccess.dir_exists_absolute(target),"disposable_model_copy_retired")
+	disposable_models.erase(target)
+
 func _preclose_model_cases(root: String) -> void:
 	mode=""
 	for defect in ["inventory","engine_same_length","metadata","missing_engine","extra","hidden_extra"]:
 		var copy: String=_copy_model(root,defect)
 		_check(not copy.is_empty(),"disposable_model_copy_"+defect)
 		if copy.is_empty(): continue
+		_check(Facade._selection_error(copy,"piston-cold-ground","calm",Facade.PISTON_PROFILE.id).is_empty(),"disposable_copy_has_complete_reviewed_model_"+defect)
 		var facade: RefCounted=_host(copy)
+		if not facade.readback().native_live:
+			facade.close()
+			_remove_model_copy(copy)
+			continue
 		var adapter: RefCounted=adapters[-1]
 		var before: Dictionary=facade.readback()
 		var origin: RefCounted=facade.render_origin
@@ -177,7 +204,9 @@ func _preclose_model_cases(root: String) -> void:
 		var result: Dictionary=facade.reset("piston-cold-ground")
 		_check(not result.ok and adapters.size()==count and adapter.calls==calls and facade.readback()==before and facade.render_origin==origin and not adapter.joined,"model_tamper_rejected_before_old_close_"+defect)
 		_check(facade.close().ok and adapter.joined,"tamper_session_joined_"+defect)
-	# These paths must remain admissible after canonicalization, not just reject.
+		_remove_model_copy(copy)
+	# These raw spellings must exercise actual Facade normalization, not just
+	# a test-side rewrite or rejection before reaching the real native bridge.
 	for valid_root in [root,root+"/",root+"\\"]:
 		var facade: RefCounted=_host(valid_root)
 		_check(facade.close().ok,"valid_root_normalization_"+valid_root)
@@ -309,4 +338,6 @@ func _run(root: String) -> Dictionary:
 		_command_cases(root)
 		_partial_admission(root)
 		_starter_recovery_cases(root)
+	# Also retire an explicitly registered partial copy after an I/O failure.
+	for target in disposable_models.keys(): _remove_model_copy(target)
 	return {"passed":failures.is_empty(),"checks":checks,"failures":failures.duplicate(),"scope":"Actual original cold profile host/control delegation plus synthetic acknowledgement, publication and uint64 faults; physical lifecycle/reference and pilot gates separate"}

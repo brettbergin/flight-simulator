@@ -99,13 +99,17 @@ func run(host: Node) -> Dictionary:
 	_check(scene.pause_session(true),"fresh_start_pause")
 	var old_profile: String=scene.current_wind_profile
 	var old_record: Dictionary=scene.observed_recorder.recording()
+	scene.show_state(0.0)
+	var before_invalid_start: Dictionary=_capture(scene)
+	var old_cue: Dictionary=scene.flight_map.get("_wind_cue").duplicate(true)
+	var old_sock_visible: bool=scene.windsock_visual.visible
 	scene.missing_models=true
 	scene.perform_start("ground-ready","from-east")
 	scene.show_state(0.0)
 	var stopped_record: Dictionary=scene.observed_recorder.recording()
-	_check(scene.expected_start_errors.size()==1 and not scene.facade.readback().native_live and scene.facade.readback().host_mode=="closed","failed_fresh_start_is_closed_not_old_live")
-	_check(scene.current_wind_profile==old_profile and stopped_record.metadata==old_record.metadata and stopped_record.samples==old_record.samples and stopped_record.state=="sealed","failed_start_keeps_old_choice_and_closed_recording")
-	_check(not scene.windsock_visual.visible and scene.flight_map.get("_wind_cue").state in ["empty","invalid"],"failed_start_has_no_current_looking_wind")
+	_check(scene.expected_start_errors.is_empty() and scene.facade.readback().native_live and scene.facade.readback().host_mode=="paused" and _capture(scene)==before_invalid_start,"missing_inventory_rejected_before_paused_worker_replacement")
+	_check(scene.current_wind_profile==old_profile and stopped_record==old_record,"rejected_start_preserves_old_weather_and_complete_recording")
+	_check(scene.windsock_visual.visible==old_sock_visible and scene.flight_map.get("_wind_cue")==old_cue,"rejected_start_keeps_existing_native_wind_cue")
 	scene.missing_models=false
 	scene.perform_start("airborne-prepared",old_profile)
 	_check(scene.pause_session(true),"recovered_fresh_start_paused")

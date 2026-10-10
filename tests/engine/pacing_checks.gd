@@ -41,7 +41,9 @@ static func _expected_commands(session: String) -> Array:
 		for id in SYSTEM_ORDER:
 			if systems[id]!=previous[id]: payloads.append({"kind":"system","control_id":id,"value":systems[id]})
 		for payload in payloads:
-			out.append({"type":"ControlCommand","schema_version":1,"tick":str(1+index*30),"session_id":session,"sequence":str(out.size()+1),"source_id":"pilot.controls","authority":"pilot","assistance":{"profile_id":"unassisted","active":[]},"payload":payload})
+			# Native command records are JSON-decoded: schema_version is float1.0.
+			# Dictionary equality is type-sensitive; keep the complete exact wire oracle.
+			out.append({"type":"ControlCommand","schema_version":1.0,"tick":str(1+index*30),"session_id":session,"sequence":str(out.size()+1),"source_id":"pilot.controls","authority":"pilot","assistance":{"profile_id":"unassisted","active":[]},"payload":payload})
 		previous=systems
 	return out
 
