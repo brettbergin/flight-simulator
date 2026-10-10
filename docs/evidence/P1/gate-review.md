@@ -85,3 +85,7 @@ prototype geometry and eye point explicit. #22/#25 depend on #20; #24
 depends on #20/#23; #26 joins cockpit, instruments and input; #27 owns the
 integrated human exercise. Existing preview slices are useful inputs and
 evidence, but do not automatically close those product issues.
+
+## Bounded aircraft source-preparation handoff
+
+[Issue #169 — C172P source assessment](https://github.com/brettbergin/flight-simulator/issues/169) records a [conditional maintained-model candidate](../P3/c172p-candidate-assessment.md) and [metadata-only identities](../P3/c172p-candidate-source-index.json). Accepted #13/#19 foundations permit this source preparation while aggregate gates remain open. Exact certified configuration, POH/normal references, recursive host/license closure and a separate runtime contract remain prerequisites; no aircraft is imported or adopted. Existing original-model evidence and selected C172S work are preserved. This paragraph does not refresh historical package claims or accept #2/#3/#4/#28/#76, hardware/pilot/training or phase gates.

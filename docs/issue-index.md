@@ -96,6 +96,7 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | ORIGINAL-PISTON-MODEL | [#125 Publish original piston model and independent reference source](https://github.com/brettbergin/flight-simulator/issues/125) | ORIGINAL-PISTON-CONTRACT, CORE-CONTRACTS, INTERACTIVE-CONTRACT, LICENSE-REGISTER |
 | ORIGINAL-PISTON-FLIGHT | [#127 Build deliberate engine startup, taxi and shutdown interaction](https://github.com/brettbergin/flight-simulator/issues/127) | ORIGINAL-PISTON-CONTRACT, ORIGINAL-PISTON-MODEL, STEADY-WIND-FLIGHT, PISTON-COUPLING-ACCURACY |
 | PISTON-COUPLING-ACCURACY | [#149 Correct cold-start and shutdown convergence without changing frozen limits](https://github.com/brettbergin/flight-simulator/issues/149) | ORIGINAL-PISTON-CONTRACT, ORIGINAL-PISTON-MODEL, STEADY-WIND-FLIGHT |
+| C172P-SOURCE-ASSESSMENT | [#169 Assess a maintained C172P candidate before a standalone port](https://github.com/brettbergin/flight-simulator/issues/169) | LICENSE-REGISTER, VALIDATION-CORPUS |
 
 ## P4 — Regional navigation and environment
 

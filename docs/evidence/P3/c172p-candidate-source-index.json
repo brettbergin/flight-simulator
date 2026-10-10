@@ -1,0 +1,530 @@
+{
+  "schema_version": 1,
+  "document_kind": "metadata-only-candidate-source-assessment",
+  "issue": 169,
+  "assessment_date": "2026-10-10",
+  "candidate": {
+    "repository": "c172p-team/c172p",
+    "release_tag": "version/2024.1.3",
+    "commit": "ee9bc21137cc2f96c5f86886fe908f337923389a",
+    "tree_url": "https://github.com/c172p-team/c172p/tree/ee9bc21137cc2f96c5f86886fe908f337923389a",
+    "release_url": "https://github.com/c172p-team/c172p/releases/tag/version%2F2024.1.3",
+    "archive_sha256": null
+  },
+  "status": {
+    "source_assessment": "conditional-candidate",
+    "runtime_adoption": "not-authorized",
+    "redistributable_package": "not-cleared",
+    "normal_performance": "unverified",
+    "certified_configuration": "unverified",
+    "recursive_dependency_closure": "incomplete",
+    "pilot_evaluation": "not-performed"
+  },
+  "identity_semantics": "git_blob_sha1 identifies upstream Git file content as reported by the primary repository connector. It is not a SHA256 archive, local physical file or package hash.",
+  "read_scope": "The following source files were retrieved and inspected for targeted license/dependency/configuration/host-ownership signals on 2026-10-10. This is not line-by-line numerical verification. Unlisted repository files were observed only through tree metadata where described, not source-reviewed or rights-cleared.",
+  "reviewed_files": [
+    {
+      "path": "c172p.xml",
+      "git_blob_sha1": "6ae69d4b09e402253abadac6e804f86a734830df",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/c172p.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "FDM header/BETA status; loading comments; two engines; control/aero structure; direct system references."
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "git_blob_sha1": "36b277a49f01cb29c43ffe9ded7040e87f76307b",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/CONTRIBUTING.md",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Project GPL 2+ grant and contributor certification; acknowledged CC exceptions."
+    },
+    {
+      "path": "LICENSE",
+      "git_blob_sha1": "d159169d1050894d3ea3b98e1c965c4058208fe1",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/LICENSE",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "GPLv2 terms and source/derivative redistribution obligations."
+    },
+    {
+      "path": "Thanks",
+      "git_blob_sha1": "c2786d66850ec9e2e0943553dbacb816d34b6ec4",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Thanks",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Asset attribution exceptions; assets not imported or cleared."
+    },
+    {
+      "path": "Systems/bushkit.xml",
+      "git_blob_sha1": "1776752d12eb1957bcdf80b01461ccd21cf29eb0",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Systems/bushkit.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Direct FDM system dependency; targeted header/license and host-property/variant signals."
+    },
+    {
+      "path": "Systems/fuel.xml",
+      "git_blob_sha1": "4d29c2a9d537818c33e7d4f8d2767d12b68782a9",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Systems/fuel.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Direct FDM system dependency; targeted header/license and host-property/variant signals."
+    },
+    {
+      "path": "Systems/c172p-engine.xml",
+      "git_blob_sha1": "1ec170fc9d879a7d625fc82c4ded6d3bdd7c5b6e",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Systems/c172p-engine.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Direct FDM system dependency; targeted header/license and host-property/variant signals."
+    },
+    {
+      "path": "Systems/c172p-skis.xml",
+      "git_blob_sha1": "ef105248d50d8c8576fd5a08a6e21cfbfc26aef6",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Systems/c172p-skis.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Direct FDM system dependency; targeted header/license and host-property/variant signals."
+    },
+    {
+      "path": "Systems/c172p-hydrodynamics.xml",
+      "git_blob_sha1": "e1cc6834e3407cc17f7d8269787e8bdeed67d19f",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Systems/c172p-hydrodynamics.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Direct FDM system dependency; targeted header/license and host-property/variant signals."
+    },
+    {
+      "path": "Systems/c172p-ground-effects.xml",
+      "git_blob_sha1": "afaf865a69d966fb04d8725b81e4cdc960aa0169",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Systems/c172p-ground-effects.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Direct FDM system dependency; targeted header/license and host-property/variant signals."
+    },
+    {
+      "path": "Systems/c172p-damage.xml",
+      "git_blob_sha1": "e369fe2552d3e40d67324f17b1c4f46febfb6284",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Systems/c172p-damage.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Direct FDM system dependency; targeted header/license and host-property/variant signals."
+    },
+    {
+      "path": "Systems/c172p-sounds.xml",
+      "git_blob_sha1": "56351cd07dd0713bcd9ca657117f8659c850f897",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Systems/c172p-sounds.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Direct FDM system dependency; targeted header/license and host-property/variant signals."
+    },
+    {
+      "path": "Systems/c172p-heat.xml",
+      "git_blob_sha1": "ba2b63e3b213dee3bd113b9d83556f97158e14cb",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Systems/c172p-heat.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Direct FDM system dependency; targeted header/license and host-property/variant signals."
+    },
+    {
+      "path": "Systems/external-heat.xml",
+      "git_blob_sha1": "48d8acc329f0200679e06fc347527314c9fbd3f3",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Systems/external-heat.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Direct FDM system dependency; targeted header/license and host-property/variant signals."
+    },
+    {
+      "path": "Systems/propulsion.xml",
+      "git_blob_sha1": "f310da655e801d93a9ba97cf7cb2b078cd00e53f",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Systems/propulsion.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Direct FDM system dependency; targeted header/license and host-property/variant signals."
+    },
+    {
+      "path": "Systems/indicated-airspeed.xml",
+      "git_blob_sha1": "8445037193f6e3e3f5058a9ea475888553e64ab7",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Systems/indicated-airspeed.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Direct FDM system dependency; targeted header/license and host-property/variant signals."
+    },
+    {
+      "path": "Systems/icing.xml",
+      "git_blob_sha1": "4d544d5922cd49f12a551843cebe9af8720b4285",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Systems/icing.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Direct FDM system dependency; targeted header/license and host-property/variant signals."
+    },
+    {
+      "path": "Systems/static-sources.xml",
+      "git_blob_sha1": "b0bad0459f3f8e8892cf292cf1c28f5bf7e1f4f2",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Systems/static-sources.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Direct FDM system dependency; targeted header/license and host-property/variant signals."
+    },
+    {
+      "path": "Systems/mooring-jsbsim.xml",
+      "git_blob_sha1": "29e7b99a02fb7a10b4623dd0b49e6133e33e78dc",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Systems/mooring-jsbsim.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Direct FDM system dependency; targeted header/license and host-property/variant signals."
+    },
+    {
+      "path": "Systems/towbar.xml",
+      "git_blob_sha1": "c387c437fc875e85f0b9503f5926e466ac7f3cc8",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Systems/towbar.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Direct FDM system dependency; targeted header/license and host-property/variant signals."
+    },
+    {
+      "path": "Systems/engine.xml",
+      "git_blob_sha1": "b8e8a350e62e9fb5f657b90194361c4ae7608592",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Systems/engine.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Separate FlightGear property-rule engine ownership, starter supply and active-engine aliases."
+    },
+    {
+      "path": "Systems/systems.xml",
+      "git_blob_sha1": "1aa5eac9b8b244ba923a25c2c960f6795029ed6e",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Systems/systems.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "FlightGear property-rule systems glue."
+    },
+    {
+      "path": "Nasal/engine.nas",
+      "git_blob_sha1": "d3eb9f70da8d8fda8b71a4916bc3b9fe9a90566a",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Nasal/engine.nas",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Host primer, oil and carb-icing behavior; targeted ownership signals."
+    },
+    {
+      "path": "Nasal/c172p.nas",
+      "git_blob_sha1": "1fb06d5e0952af2a5de792d58a9824158ebaec01",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Nasal/c172p.nas",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Host active-engine selection, auto-start/auto-mixture helpers and state management."
+    },
+    {
+      "path": "c172p-main.xml",
+      "git_blob_sha1": "d1c2de0f8cbbc4a94cafc073d600a8919da307d9",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/c172p-main.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "FlightGear PropertyList includes, property-system paths, aliases and Nasal entry points."
+    },
+    {
+      "path": "c172p-set.xml",
+      "git_blob_sha1": "50afb962309b61954815832ef509668ec6f4f08f",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/c172p-set.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "FlightGear aircraft entry point and main PropertyList include."
+    },
+    {
+      "path": "Engines/eng_io320.xml",
+      "git_blob_sha1": "5d8e9e5d84d9811adf0092b4409bc76db8d86508",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Engines/eng_io320.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "160 hp piston definition; header says no injection; filename is not certified installation proof."
+    },
+    {
+      "path": "Engines/eng_io360.xml",
+      "git_blob_sha1": "0b9caebbef12178b9dadb79b88846357b0cd618a",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Engines/eng_io360.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Optional 180 hp piston definition; not the proposed single-engine scope."
+    },
+    {
+      "path": "Engines/prop_75in2f.xml",
+      "git_blob_sha1": "e15a6d9335060be07a3528e66d34c4eeb8507874",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Engines/prop_75in2f.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Active first-engine fixed-pitch propeller table definition; calibration unverified."
+    },
+    {
+      "path": "Engines/prop_76in2f_NACA_20deg.xml",
+      "git_blob_sha1": "aa4159a55bcb8da52bb1aaee6c4b3fbd8844edb0",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Engines/prop_76in2f_NACA_20deg.xml",
+      "read_status": "source-retrieved-targeted-read",
+      "review_focus": "Active optional second-engine propeller definition; not the proposed first-engine scope."
+    }
+  ],
+  "tree_observation": {
+    "url": "https://api.github.com/repos/c172p-team/c172p/git/trees/ee9bc21137cc2f96c5f86886fe908f337923389a?recursive=1",
+    "query_ref": "ee9bc21137cc2f96c5f86886fe908f337923389a",
+    "truncated": false,
+    "inspection": "Path/identity metadata only; no complete recursive source/license/asset review.",
+    "absent_exact_paths": [
+      "Systems/hydrodynamics.xml"
+    ],
+    "present_similarly_named_paths": [
+      "Systems/c172p-hydrodynamics.xml",
+      "Nasal/jsbsim-hydrodynamics.nas"
+    ],
+    "absence_limit": "Only absence from this pinned repository tree is established; actual external host origin and compatible revision remain unverified."
+  },
+  "direct_fdm_dependencies": {
+    "engines": [
+      {
+        "fdm_file_attribute": "eng_io320",
+        "resolved_candidate_path": "Engines/eng_io320.xml",
+        "thruster_file_attribute": "prop_75in2f",
+        "resolved_thruster_path": "Engines/prop_75in2f.xml",
+        "candidate_role": "First engine / prospective160 hp path; standalone selection not implemented."
+      },
+      {
+        "fdm_file_attribute": "eng_io360",
+        "resolved_candidate_path": "Engines/eng_io360.xml",
+        "thruster_file_attribute": "prop_76in2f_NACA_20deg",
+        "resolved_thruster_path": "Engines/prop_76in2f_NACA_20deg.xml",
+        "candidate_role": "Optional180 hp path; not proposed as target."
+      }
+    ],
+    "systems": [
+      {
+        "file_attribute": "bushkit",
+        "candidate_path": "Systems/bushkit.xml",
+        "source_read": true,
+        "status": "present-direct-reference-targeted-read"
+      },
+      {
+        "file_attribute": "fuel",
+        "candidate_path": "Systems/fuel.xml",
+        "source_read": true,
+        "status": "present-direct-reference-targeted-read"
+      },
+      {
+        "file_attribute": "c172p-engine",
+        "candidate_path": "Systems/c172p-engine.xml",
+        "source_read": true,
+        "status": "present-direct-reference-targeted-read"
+      },
+      {
+        "file_attribute": "c172p-skis",
+        "candidate_path": "Systems/c172p-skis.xml",
+        "source_read": true,
+        "status": "present-direct-reference-targeted-read"
+      },
+      {
+        "file_attribute": "hydrodynamics",
+        "candidate_path": "Systems/hydrodynamics.xml",
+        "source_read": false,
+        "status": "absent-in-candidate-tree-external-origin-unverified"
+      },
+      {
+        "file_attribute": "c172p-hydrodynamics",
+        "candidate_path": "Systems/c172p-hydrodynamics.xml",
+        "source_read": true,
+        "status": "present-direct-reference-targeted-read"
+      },
+      {
+        "file_attribute": "c172p-ground-effects",
+        "candidate_path": "Systems/c172p-ground-effects.xml",
+        "source_read": true,
+        "status": "present-direct-reference-targeted-read"
+      },
+      {
+        "file_attribute": "c172p-damage",
+        "candidate_path": "Systems/c172p-damage.xml",
+        "source_read": true,
+        "status": "present-direct-reference-targeted-read"
+      },
+      {
+        "file_attribute": "c172p-sounds",
+        "candidate_path": "Systems/c172p-sounds.xml",
+        "source_read": true,
+        "status": "present-direct-reference-targeted-read"
+      },
+      {
+        "file_attribute": "c172p-heat",
+        "candidate_path": "Systems/c172p-heat.xml",
+        "source_read": true,
+        "status": "present-direct-reference-targeted-read"
+      },
+      {
+        "file_attribute": "external-heat",
+        "candidate_path": "Systems/external-heat.xml",
+        "source_read": true,
+        "status": "present-direct-reference-targeted-read"
+      },
+      {
+        "file_attribute": "propulsion",
+        "candidate_path": "Systems/propulsion.xml",
+        "source_read": true,
+        "status": "present-direct-reference-targeted-read"
+      },
+      {
+        "file_attribute": "indicated-airspeed",
+        "candidate_path": "Systems/indicated-airspeed.xml",
+        "source_read": true,
+        "status": "present-direct-reference-targeted-read"
+      },
+      {
+        "file_attribute": "icing",
+        "candidate_path": "Systems/icing.xml",
+        "source_read": true,
+        "status": "present-direct-reference-targeted-read"
+      },
+      {
+        "file_attribute": "static-sources",
+        "candidate_path": "Systems/static-sources.xml",
+        "source_read": true,
+        "status": "present-direct-reference-targeted-read"
+      },
+      {
+        "file_attribute": "mooring-jsbsim",
+        "candidate_path": "Systems/mooring-jsbsim.xml",
+        "source_read": true,
+        "status": "present-direct-reference-targeted-read"
+      },
+      {
+        "file_attribute": "towbar",
+        "candidate_path": "Systems/towbar.xml",
+        "source_read": true,
+        "status": "present-direct-reference-targeted-read"
+      }
+    ],
+    "roster_limit": "Two engine definitions, their four active engine/propeller files and 17 direct systems only. Commented alternate thrusters are not active references. This is not recursive closure or a standalone load proof."
+  },
+  "external_host_findings": [
+    {
+      "source_path": "c172p-main.xml",
+      "locator": "PropertyList include; sim/systems and nasal sections",
+      "observation": "Imports external Aircraft/Generic/Human/Include/walker-include.xml and Aircraft/Generic/updateloop.nas, separate property-system XML and Nasal scripts.",
+      "closure": "Actual generic host sources/revisions and transitive behavior unverified."
+    },
+    {
+      "source_path": "Nasal/c172p.nas",
+      "locator": "auto-start / auto-mixture helpers and active-engine listener",
+      "observation": "Host can write engine controls and variant state; helper presence does not establish always-enabled assists.",
+      "closure": "Activation/defaults and replacement/native ownership not fully reviewed."
+    },
+    {
+      "source_path": "Systems/fuel.xml",
+      "locator": "active-engine and set-running references",
+      "observation": "Consumes host active-engine state; XML-only port must account for fuel routing and startup dependencies.",
+      "closure": "Recursive fuel/Nasal/property-rule closure incomplete."
+    },
+    {
+      "source_path": "Systems/engine.xml",
+      "locator": "Engine Starter and active-engine property rules",
+      "observation": "Starter depends on electrical output and engine control aliases outside FDM-only load.",
+      "closure": "Electrical supply, aliases, initialization and update-order ownership unverified."
+    },
+    {
+      "source_path": "Nasal/engine.nas",
+      "locator": "primer, oil and carburetor-icing sections",
+      "observation": "Host participates in primer, oil state and carb icing; FDM alone does not establish full systems behavior.",
+      "closure": "Recursive ownership, host timing and retained unsupported behavior unresolved."
+    }
+  ],
+  "license_evidence": {
+    "declared_license": "GPL-2.0-or-later",
+    "grant": {
+      "path": "CONTRIBUTING.md",
+      "locator": "line12",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/CONTRIBUTING.md#L12"
+    },
+    "terms": {
+      "path": "LICENSE",
+      "locator": "GPLv2 sections1-3 and6",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/LICENSE"
+    },
+    "exceptions": {
+      "path": "Thanks",
+      "url": "https://github.com/c172p-team/c172p/blob/ee9bc21137cc2f96c5f86886fe908f337923389a/Thanks",
+      "observation": "Selected asset CC-BY/CC0 and GPL attributions; no assets acquired into project."
+    },
+    "conclusion": "Affirmative upstream project grant supports further assessment, not a reviewed distributable application/package. Do not require individual headers on every file, erase actual contrary terms, or mark GPL material MIT.",
+    "remaining": "Selected transitive license/attribution/source closure, derivative and application distribution scope require separate review."
+  },
+  "candidate_scope": {
+    "proposed": "One conventional-panel160 hp land C172P candidate, not an approved profile.",
+    "upstream_implementation_locator": "c172p.xml loading comment references 1982 C172P; optional180 hp pointmass comment references 1998 C172S.",
+    "certified_model_year": null,
+    "serial_applicability": null,
+    "approved_engine_installation": null,
+    "approved_propeller": null,
+    "equipment_and_modifications": null,
+    "loading_basis": null,
+    "current_aircraft_tcds": null,
+    "current_engine_tcds": null,
+    "poh_afm_and_supplements": null,
+    "scope_warning": "Upstream names/comments/values are implementation evidence only. Exclude or isolate optional180 hp/C172S-loading/float/amphibious/ski branches through a later reviewed transformation, never silently merge them."
+  },
+  "normal_reference_gaps": [
+    {
+      "quantity": "Trim equilibrium and cruise TAS/power/fuel",
+      "status": "unsupported-reference-not-acquired",
+      "source_revision": null,
+      "expected_value": null,
+      "uncertainty": null,
+      "tolerance": null
+    },
+    {
+      "quantity": "Climb IAS and climb rate with conditions",
+      "status": "unsupported-reference-not-acquired",
+      "source_revision": null,
+      "expected_value": null,
+      "uncertainty": null,
+      "tolerance": null
+    },
+    {
+      "quantity": "Takeoff ground roll and distance over specified obstacle as separate quantities",
+      "status": "unsupported-reference-not-acquired",
+      "source_revision": null,
+      "expected_value": null,
+      "uncertainty": null,
+      "tolerance": null
+    },
+    {
+      "quantity": "Approach configuration/speed and landing ground roll/obstacle distance separately",
+      "status": "unsupported-reference-not-acquired",
+      "source_revision": null,
+      "expected_value": null,
+      "uncertainty": null,
+      "tolerance": null
+    },
+    {
+      "quantity": "IAS/CAS distinction and calibration where supported",
+      "status": "unsupported-reference-not-acquired",
+      "source_revision": null,
+      "expected_value": null,
+      "uncertainty": null,
+      "tolerance": null
+    },
+    {
+      "quantity": "Mass/CG/fuel, altitude/datum/pressure/temperature/wind/surface and prescribed technique",
+      "status": "unsupported-reference-not-acquired",
+      "source_revision": null,
+      "expected_value": null,
+      "uncertainty": null,
+      "tolerance": null
+    }
+  ],
+  "primary_reference_routes": [
+    {
+      "url": "https://www.faa.gov/faq/how-can-i-locate-type-certificate-data-sheet-tcds-aircraft",
+      "kind": "discovery-route",
+      "limitation": "Current 3A12 and engine certificate revisions/applicability not retrieved here."
+    },
+    {
+      "url": "https://txtav.com/en/apps",
+      "kind": "publisher-acquisition-route",
+      "limitation": "No applicable C172P POH/AFM acquired; no extraction or redistribution grant inferred."
+    },
+    {
+      "url": "https://www.lycoming.com/sites/default/files/file/2025-07/SSP-110-3%20Certified%20Engines.pdf",
+      "kind": "manufacturer-public-catalog",
+      "revision": "July2025",
+      "locator": "Printed p4/PDF page8 O-320-D2J row; printed p35/PDF page39 Skyhawk172 installation row",
+      "limitation": "Engine-family context only, not exact 172P serial/approved-propeller/POH proof. Copyrighted; no table/manual redistribution cleared."
+    }
+  ],
+  "excluded_pinned_seed": {
+    "repository": "JSBSim-Team/jsbsim",
+    "commit": "3b25f25e49b42d0489c04ac805674fc1450ca579",
+    "path": "aircraft/c172p/c172p.xml",
+    "url": "https://github.com/JSBSim-Team/jsbsim/blob/3b25f25e49b42d0489c04ac805674fc1450ca579/aircraft/c172p/c172p.xml",
+    "locator": "fileheader note lines13-22",
+    "restriction": "Actual not-to-be-sold note remains unresolved; existing exclusion retained.",
+    "local_source_sha256": "0af58c613f7bca7e1d85f4b2e178a4d7b0b14dda6d5f79b38c571d9911187aa4",
+    "readme": {
+      "path": "aircraft/c172p/README.flightmodel.c172p",
+      "length_bytes": 0,
+      "local_source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "limits": [
+    "No upstream XML/assets/manuals/tables redistributed",
+    "No runtime/profile/control schema or aircraft adoption",
+    "No simulator build, launch, tuning or numerical test",
+    "No full recursive source/asset closure, independent performance or pilot qualification",
+    "Selected C172S and original-model regression evidence preserved"
+  ]
+}

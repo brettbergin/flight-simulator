@@ -66,6 +66,8 @@ The accepted [steady-wind start contract](decisions/013-steady-wind-starts.md) d
 
 The [selectable steady-wind implementation](evidence/P2/steady-wind-flight.md) adds the paused Wind chooser, qualified FROM/TO cues and direction-only windsock. Its final Windows package, rebuilt DLL and exported visual review passed; the current player uses OpenGL Compatibility, while Forward+ and aircraft/pilot qualification remain separate gates.
 
+The [maintained C172P source assessment](evidence/P3/c172p-candidate-assessment.md), [issue #169](https://github.com/brettbergin/flight-simulator/issues/169), identifies a conditional separately named 160 hp landplane candidate and its license, host-dependency and reference gaps. It authorizes no port and preserves the original prototype, selected C172S objective and aircraft/pilot/phase gates.
+
 ## Read in this order
 
 1. [Product scope and requirements](product.md): expected pilot experience and initial boundaries.
