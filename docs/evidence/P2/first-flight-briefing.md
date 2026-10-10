@@ -1,0 +1,17 @@
+# First-flight briefing - bounded Consumer A
+
+Issue [#166](https://github.com/brettbergin/flight-simulator/issues/166), using [ADR018](../../decisions/018-first-flight-briefing-and-circuit-aid.md). This leaf presents original software familiarization and copied runtime truth. It does not validate an aircraft, procedure, flight phase, completion, hardware or training credit.
+
+## Frozen source and seams
+
+Original MIT fixture `content/scenarios/first-flight/briefing.json`, revision1, SHA256 `461ded9adf22b5265c6b487c23590efe30acb929f3c056356742a93206d400df` (2,835 bytes), frozen before consumer execution. Three exact case-sensitive choices retain full existing profile identity, named start and calm wind. Missing/changed bytes, unknown revision or unknown choice cannot produce a launch mapping. Returned dictionaries are recursive copies.
+
+`FirstFlightPanel.set_state(readback,preset,current_wind)` owns copies; full ADR009 qualification distinguishes current, historical and invalid truth. BindingHelp uses the actual v1/v2 validator and displays all14 relevant actions, six axes and actual v2 systems. Joystick assignments are CONFIGURED; current availability and observation are unverified here. Missing/invalid bindings remain unavailable, including absent legacy engine systems. The panel contains no native/facade/device/clock calls, persistence or Resume signal. Root controls panel visibility and lifecycle. Root can append its circuit checkbox to `circuit_slot` and use `focus_back()`.
+
+Standard focusable controls, synchronous tooltips and three scrolling tabs keep pause/session status, Back and Controls outside the scroll region. Manual software steps are bounded, retained on refresh and do not assess flight. Exact storage notice: Circuit aid choice is session-local and is not stored in saved flight reviews.
+
+## Verification and remaining integration
+
+Leaf checks freeze literal mapping and bytes independently; cover drift/revision/case rejection, recursive ownership, all declared remaps, mouse/joystick identities, reversal, fixed/key-pair axes, missing/invalid/conflicting presets and actual v2 systems. UI checks require a supplied full qualified paused baseline; missing input fails instead of skipping successfully. Headless geometry checks use observed960x540/1920x1080/2560x1440 windows, footer/status bounds and focus/scroll access. These are not pixel acceptance.
+
+Focused pinned Godot4.7.2 headless leaf execution:18 fixture checks and116 UI checks passed, with the independent complete actual ground-ready/calm baseline SHA256 `58b1a7b0ec46161357c1268dbaeeaab27f84bbbd4de70def35571fd45ddb67f9`. Only validated zero debt was restored to integer after Godot JSON parsing. Complete supplied Readback bytes remained unchanged. Initial test class-name collision and empty-byte hashing diagnostic were corrected before the clean run; their earlier output is retained privately. Coordinator review and integration remain pending. Root owns actual pause/join/discard/stale-widget/file-operation guards, same-profile zero-hidden-tick adoption, full native/readback/mapper/recording invariance, compiler/package/exported interactions and independent three-size pixels. Consumer B's circuit checkbox and availability integration are pending. Broad #21-27, C172, sensed instruments, hardware/pilot and phase gates stay open. No source/model/preset/archive changes are authorized by this leaf.

@@ -1,0 +1,79 @@
+{
+  "id": "original-first-flight-briefing",
+  "revision": 1,
+  "provenance": {
+    "author": "Flight Simulator contributors",
+    "license": "MIT",
+    "kind": "original software familiarization; no aircraft procedure"
+  },
+  "choices": [
+    {
+      "choice_id": "cold-familiarization",
+      "model_identity": {
+        "id": "original-piston-prop-v1",
+        "version": "0.1.0-prototype",
+        "backend_model": "original-piston-prop"
+      },
+      "named_start": "piston-cold-ground",
+      "wind": "calm",
+      "required_truth": [
+        "Original cold piston",
+        "Idealized starter supply",
+        "No aircraft-specific checklist",
+        "Recorded review unavailable"
+      ],
+      "circuit_available": false
+    },
+    {
+      "choice_id": "ready-flight",
+      "model_identity": {
+        "id": "original-interactive-prototype",
+        "version": "0.1.0-prototype",
+        "backend_model": "original-interactive"
+      },
+      "named_start": "ground-ready",
+      "wind": "calm",
+      "required_truth": [
+        "Original ready-to-fly model",
+        "Engine already running",
+        "Startup procedures skipped",
+        "Legacy observed review available"
+      ],
+      "circuit_available": true
+    },
+    {
+      "choice_id": "airborne-orientation",
+      "model_identity": {
+        "id": "original-interactive-prototype",
+        "version": "0.1.0-prototype",
+        "backend_model": "original-interactive"
+      },
+      "named_start": "airborne-prepared",
+      "wind": "calm",
+      "required_truth": [
+        "Explicitly prepared airborne model",
+        "Start/taxi/takeoff skipped",
+        "Display actual initialized state, not requested trim recipe"
+      ],
+      "circuit_available": false
+    }
+  ],
+  "steps": [
+    {
+      "title": "Inspect the adopted start",
+      "text": "Read Actual state before continuing. A choice is a draft until initialization succeeds. Cold, already-running and prepared-airborne starts skip different work; none is an aircraft checklist."
+    },
+    {
+      "title": "Inspect your controls",
+      "text": "Open Controls while paused. Confirm your configured assignments and inspect observed device status there. This briefing does not observe hardware. Release mouse look before using pointer controls."
+    },
+    {
+      "title": "Orient the view and locator",
+      "text": "Use your bound view, recenter and map actions shown in Control help. The airfield is synthetic. The optional circuit reference is a fixed horizontal illustration, not a clearance, safe path or evaluated exercise."
+    },
+    {
+      "title": "Continue explicitly",
+      "text": "Back returns to the ordinary paused menu. Only its explicit Resume action continues flight. These manual software steps do not detect takeoff, landing, engine success or completion."
+    }
+  ]
+}
