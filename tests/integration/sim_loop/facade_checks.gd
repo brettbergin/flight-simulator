@@ -29,7 +29,8 @@ class ObservedAdapter extends RefCounted:
 		native = ClassDB.instantiate("FlightInteractiveSession") as RefCounted
 	func open_session(model_root: String, named_start: String, wind_profile: Variant="calm") -> Dictionary:
 		latest = native.call("open_session",model_root,named_start,wind_profile)
-		if mode=="wind_missing": latest.erase("wind_profile")
+		if mode=="native_fingerprint": latest.native_source_fingerprint=("0" if Facade.NATIVE[0]!="0" else "1")+Facade.NATIVE.substr(1)
+		elif mode=="wind_missing": latest.erase("wind_profile")
 		elif mode=="wind_echo": latest.wind_profile="calm"
 		elif mode=="wind_extra": latest.wind_setup={"profile":wind_profile}
 		elif mode=="wind_actual":
@@ -535,6 +536,22 @@ static func _wind_cases(model_root: String, report: Dictionary) -> void:
 		_check(report,not rejected.ok and adapters.size()==1 and adapters[0].joined and not facade.readback().native_live,"wind_bad_open_joined_"+mode)
 		_check(report,facade.close().ok,"wind_bad_open_host_closed")
 
+static func _native_identity_cases(model_root: String, report: Dictionary) -> void:
+	var adapters: Array=[]
+	var factory: Callable=func() -> RefCounted:
+		var adapter:=ObservedAdapter.new("native_fingerprint")
+		adapters.append(adapter)
+		return adapter
+	var facade:=Facade.new(factory)
+	var opened: Dictionary=facade.start(model_root,"ground-ready","calm")
+	_check(report,not opened.ok and adapters.size()==1,"wrong_native_identity_rejected")
+	if not adapters.is_empty():
+		_check(report,adapters[0].joined and adapters[0].close_calls==1,"wrong_native_identity_worker_joined")
+		_check(report,adapters[0].requests.is_empty() and adapters[0].integrated==0,"wrong_native_identity_zero_ticks")
+	var truth: Dictionary=facade.readback()
+	_check(report,not truth.native_live and truth.historical and truth.tick==null and truth.native_source_fingerprint==null,"wrong_native_identity_no_publication")
+	_check(report,facade.close().ok,"wrong_native_identity_host_closed")
+
 static func run(model_root: String) -> Dictionary:
 	var report: Dictionary = {"checks":0,"failures":[],"native_profiles":[],"synthetic_faults":[],"scope":"Original same-build ADR007 facade/coordinate fixtures; no pilot, aircraft calibration or product performance qualification"}
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://sim_loop_tests/independent-reference.json"))
@@ -548,6 +565,7 @@ static func run(model_root: String) -> Dictionary:
 		return report
 	_native_profiles(model_root,parsed,report)
 	_native_lifecycle(model_root,report)
+	_native_identity_cases(model_root,report)
 	_reachable_guards(model_root,report)
 	_unjoined_reset(model_root,report)
 	_wind_cases(model_root,report)

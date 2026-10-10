@@ -20,8 +20,13 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04, windows-2022]
+        include:
+          - os: ubuntu-24.04
+            job_timeout_minutes: 30
+          - os: windows-2022
+            job_timeout_minutes: 60
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+    timeout-minutes: ${{ matrix.job_timeout_minutes }}
     defaults:
       run:
         shell: pwsh
@@ -118,6 +123,11 @@ jobs:
       - name: Verify unchanged source/tool receipts after build
         if: steps.scope.outputs.docs_only != 'true'
         run: python tools/bootstrap/bootstrap.py --offline --with-godot
+      - name: Check synthetic schema3 source provenance and invalid packages
+        if: steps.scope.outputs.docs_only != 'true'
+        run: |
+          python -B tests/export/source-coupled-midpoint.py --repository-root . --upstream-root .local/deps/jsbsim --output .local/source-coupled-midpoint-ci
+          if ($LASTEXITCODE -ne 0) { throw "Synthetic schema3 source-tool fixtures failed" }
       - name: Prove authoritative synthetic dynamics and strict scenario boundaries
         if: steps.scope.outputs.docs_only != 'true'
         run: |
@@ -130,6 +140,12 @@ jobs:
       - name: Prove native initializer loaded in pinned Godot
         if: steps.scope.outputs.docs_only != 'true'
         run: ./tools/bootstrap/verify-godot.ps1
+      - name: Reject malformed generated facade expectations before allocation
+        if: steps.scope.outputs.docs_only != 'true'
+        run: |
+          $environment = Get-Content .local/toolchain/environment.json -Raw | ConvertFrom-Json
+          python -B tests/integration/sim_loop/identity_resource.py --godot $environment.tools.godot --output .local/facade-identity-admission-ci
+          if ($LASTEXITCODE -ne 0) { throw 'Generated facade expectation admission checks failed' }
       - name: Prove original asset import and CPU render-frame geometry
         if: steps.scope.outputs.docs_only != 'true'
         run: |
@@ -153,7 +169,7 @@ jobs:
       - name: Prove one-executive ground-to-flight loop and fail-closed boundaries
         if: steps.scope.outputs.docs_only != 'true'
         run: |
-          node --test tests/interactive/verify.test.mjs
+          node --test tests/interactive/source-fingerprint.test.mjs tests/interactive/verify.test.mjs
           if ($LASTEXITCODE -ne 0) { throw "Interactive ground-to-flight repeat, v1 records or boundary checks failed" }
       - name: Prove actual typed native bridge in Godot editor
         if: steps.scope.outputs.docs_only != 'true'
@@ -176,10 +192,13 @@ jobs:
           . ./tools/interactive-preview/simulation-staging.ps1
           $proof=Get-Content .local/export-proof/latest-run.json -Raw | ConvertFrom-Json
           $environment=Get-Content .local/toolchain/environment.json -Raw | ConvertFrom-Json
+          $nativeIdentity=Get-PreviewNativeBuildIdentity -RepoRoot $PWD -NativeBuildRoot (Join-Path $PWD '.local/build/native-release') -Python python
           $root=Join-Path $PWD ('.local/sim-loop-ci/run-'+[Guid]::NewGuid().ToString('N'))
           $project=Join-Path $root 'project'
           $evidence=Join-Path $root 'evidence'
           New-Item -ItemType Directory -Force $project,$evidence | Out-Null
+          Copy-PreviewNativeIdentityResource -Identity $nativeIdentity -DestinationRoot $project
+          $nativeIdentity | ConvertTo-Json -Depth 12 | Set-Content (Join-Path $evidence 'native-build-identity.json')
           Copy-Item -LiteralPath (Join-Path $proof.project 'bin') -Destination $project -Recurse
           Copy-Item app/proof/flight.gdextension -Destination $project
           Copy-Item app/proof/interactive/project-settings.cfg -Destination (Join-Path $project 'project.godot')
@@ -221,6 +240,12 @@ jobs:
           $receipt=Get-Content (Join-Path $project 'facade-check-receipt.json') -Raw | ConvertFrom-Json
           if($result.text -notmatch 'SIM_LOOP_CHECKS_PASSED' -or $result.text -notmatch 'FLIGHT_BRIDGE_TERMINATED_JOINED' -or $receipt.passed -ne $true -or $receipt.checks -le 0 -or $receipt.failures.Count -ne 0) { throw 'Active simulation facade checks failed' }
           Assert-PreviewFacadeReceipt -Receipt $receipt
+          $resourceReceipt=Get-Content (Join-Path $project 'native-identity-receipt.json') -Raw | ConvertFrom-Json
+          Assert-PreviewNativeResourceReceipt -Receipt $resourceReceipt -Identity $nativeIdentity
+          Copy-Item (Join-Path $project 'native-identity-receipt.json') -Destination $evidence
+          Assert-PreviewNativeIdentityResource -Identity $nativeIdentity -DestinationRoot $project -AllowGeneratedUIDs
+          $nativeIdentityAfter=Get-PreviewNativeBuildIdentity -RepoRoot $PWD -NativeBuildRoot (Join-Path $PWD '.local/build/native-release') -Python python
+          if(($nativeIdentity | ConvertTo-Json -Depth 12 -Compress) -cne ($nativeIdentityAfter | ConvertTo-Json -Depth 12 -Compress)){throw 'Qualified native source/build/resource changed during facade checks'}
           Copy-Item (Join-Path $project 'facade-check-receipt.json') -Destination $evidence
           Assert-SimulationSourceSnapshot app/simulation $snapshot -RequiredEntries $entries
           Assert-SimulationSourceSnapshot (Join-Path $project 'simulation') $snapshot -RequiredEntries $entries -AllowGeneratedUIDs
@@ -271,7 +296,14 @@ jobs:
           if-no-files-found: error
           path: |
             .local/native-ci-scope/receipt.json
+            .local/source-coupled-midpoint-ci/run-receipt.json
             .local/build/native-release/toolchain-build-manifest.txt
+            .local/build/native-release/native-identity.gd
+            .local/build/native-release/interactive-source-fingerprint.txt
+            .local/build/native-release/jsbsim-source-build-manifest.txt
+            .local/build/native-release/compile_commands.json
+            .local/build/native-release/CMakeCache.txt
+            .local/build/native-release/build.ninja
             .local/build/native-release/Testing/Temporary/LastTest.log
             .local/toolchain/environment.json
             .local/input-preflight/*/*.json
@@ -280,6 +312,11 @@ jobs:
             .local/powershell-startup/run-*/evidence/*.log
             .local/build/native-release/dynamic-dependencies.txt
             .local/build/native-release/godot-binding-load.txt
+            .local/facade-identity-admission-ci/receipt.json
+            .local/facade-identity-admission-ci/version.stdout
+            .local/facade-identity-admission-ci/version.stderr
+            .local/facade-identity-admission-ci/*/stdout.log
+            .local/facade-identity-admission-ci/*/stderr.log
             .local/fdm-proof/**
             .local/export-proof/**/evidence/**
             .local/build/native-release/replay-proof/**

@@ -1,0 +1,1407 @@
+{
+  "acquisition_sha256": "df57467a831cfa3ee3cadcb98d8291ce56bb11976e35dd9e93c94201ff1420d5",
+  "excluded_src_files": [
+    "src/models/atmosphere/MSIS/CMakeLists.txt",
+    "src/models/atmosphere/MSIS/nrlmsise-00_test.c"
+  ],
+  "files": [
+    {
+      "bytes": 1690,
+      "path": "AUTHORS",
+      "sha256": "ca8556894da80f81f773893a9c1009021aac2972d7bb6a39c2f981b4fd00aa9a"
+    },
+    {
+      "bytes": 13378,
+      "path": "CMakeLists.txt",
+      "sha256": "d9105cb2c4913b0cc3d5ca2eed791c0cdaaacb9dee63c67c5f8496be53aa7824"
+    },
+    {
+      "bytes": 27032,
+      "path": "COPYING",
+      "sha256": "1e7e6bae5a5bde32f1ae5a7c37a082d1ab03cf89354f7f936ac40be9e39a6531"
+    },
+    {
+      "bytes": 18547,
+      "path": "README.md",
+      "sha256": "1b6784429aaa68a4e6ade444bfce4651c7380148525351ae9aab87cfe5079c97"
+    },
+    {
+      "bytes": 5295,
+      "path": "src/CMakeLists.txt",
+      "sha256": "36279167813c3004939fb4010f5aab5f52e168c7c41f923a801b265d4c67a446"
+    },
+    {
+      "bytes": 51537,
+      "path": "src/FGFDMExec.cpp",
+      "sha256": "aec366841a4fe95fa4eaa6da43db05a944a283ade98d01a64a9a7085cca48237"
+    },
+    {
+      "bytes": 29218,
+      "path": "src/FGFDMExec.h",
+      "sha256": "5d58efb5f94c56e138b0820ebca1f129a21c12d05d3c57ec18bfee8b11da5adc"
+    },
+    {
+      "bytes": 3355,
+      "path": "src/FGJSBBase.cpp",
+      "sha256": "3c8906c309eeff5c2d5750f1324a9632f392b4b2b914f9743f7c5ea1b18915d0"
+    },
+    {
+      "bytes": 12122,
+      "path": "src/FGJSBBase.h",
+      "sha256": "f9d2478597ec4cf358900e9d33c0428f531c88f83f58ea0b4803a82deb652d9b"
+    },
+    {
+      "bytes": 321,
+      "path": "src/GeographicLib/CMakeLists.txt",
+      "sha256": "1eac0ce28560928bc78159f91b50f32838fd8bd7abcbf9d231a60f36a2e73f06"
+    },
+    {
+      "bytes": 418,
+      "path": "src/GeographicLib/Config.h",
+      "sha256": "ac7c17819ce89b404a72c70f04610b97685b09241181040033ec92fcf0ca2c38"
+    },
+    {
+      "bytes": 13226,
+      "path": "src/GeographicLib/Constants.hpp",
+      "sha256": "1e5a022ecd1f1f01e4cb3f985c9057f8a4eda54c3e4f76b5161a0b21ef6f99b5"
+    },
+    {
+      "bytes": 74362,
+      "path": "src/GeographicLib/Geodesic.cpp",
+      "sha256": "ea2a142bbc346fe2a2e31a0a2742743614b09537cb2ae89e23cb177c94c6ccf8"
+    },
+    {
+      "bytes": 44953,
+      "path": "src/GeographicLib/Geodesic.hpp",
+      "sha256": "ee052ad4d4371da8abc64e43c7eed53501ca0e01a3d9f204fe996aab612d598e"
+    },
+    {
+      "bytes": 12690,
+      "path": "src/GeographicLib/GeodesicLine.cpp",
+      "sha256": "6293e95bcf88a51b72674fd29e92e89d8c0124dab6a8a8de3aa9d06ef83c0856"
+    },
+    {
+      "bytes": 30671,
+      "path": "src/GeographicLib/GeodesicLine.hpp",
+      "sha256": "eed6307de94b9e4f317e2ce52c4b67748a3250df682fbcf4bdf97232ac0b3bc6"
+    },
+    {
+      "bytes": 1089,
+      "path": "src/GeographicLib/LICENSE.txt",
+      "sha256": "90d25298be0c5d7f5219ae20009d18910150b3a4ea0ca86dda5df04cfb8d3823"
+    },
+    {
+      "bytes": 11502,
+      "path": "src/GeographicLib/Math.cpp",
+      "sha256": "1b622c47367eee882bf659f041720b0f51e5bed877b9d7c33d417b75d40ad269"
+    },
+    {
+      "bytes": 25110,
+      "path": "src/GeographicLib/Math.hpp",
+      "sha256": "31514b683e4ac9f5dd8784e5007567ade0e990978dc17236ec60e98483590057"
+    },
+    {
+      "bytes": 439,
+      "path": "src/initialization/CMakeLists.txt",
+      "sha256": "8fe5125b06f598978980005865e9487bf6abd022f8ba34a82528e3a18cc5f5e6"
+    },
+    {
+      "bytes": 60382,
+      "path": "src/initialization/FGInitialCondition.cpp",
+      "sha256": "354b7a5d26e7bc960f6cc448c7f7f0a035fb943b142e5644d516a06d547e005b"
+    },
+    {
+      "bytes": 29628,
+      "path": "src/initialization/FGInitialCondition.h",
+      "sha256": "988a3935fc10f0f6f520d481afb9cba500c50372567eba752ac33f0a2e78426b"
+    },
+    {
+      "bytes": 3745,
+      "path": "src/initialization/FGLinearization.cpp",
+      "sha256": "9659251a51560b534676ebe8c14ac97d23a995b84a4807a263ca213eb65d40a6"
+    },
+    {
+      "bytes": 3187,
+      "path": "src/initialization/FGLinearization.h",
+      "sha256": "071c491ce928f29307cea5b06132b3e5394d4a063231b2432cec42de8025e615"
+    },
+    {
+      "bytes": 5015,
+      "path": "src/initialization/FGSimplexTrim.cpp",
+      "sha256": "c2be3e3239e931dd1ea73c1871c2142a386b9c4468b78f17f5d0793d054a5885"
+    },
+    {
+      "bytes": 2418,
+      "path": "src/initialization/FGSimplexTrim.h",
+      "sha256": "f72e06c9a1fe08aea66d7105ac6937a1759ed85baec0f5af468e75defdc04605"
+    },
+    {
+      "bytes": 31521,
+      "path": "src/initialization/FGTrim.cpp",
+      "sha256": "f07af17e27380a7d5395aa0cf4447df7abd574af6cd7c738aa3c7d0a8e1624dd"
+    },
+    {
+      "bytes": 10324,
+      "path": "src/initialization/FGTrim.h",
+      "sha256": "3ab0da37cbd239a1ca4c3d6b0f7a265295dd7e983cab2987083bcfd225bf525e"
+    },
+    {
+      "bytes": 124494,
+      "path": "src/initialization/FGTrimAnalysis.cpp",
+      "sha256": "44fb189dd46f86f8e576bcbf37cdeea49c0f141fe49c765f88feb3f91285cca7"
+    },
+    {
+      "bytes": 24343,
+      "path": "src/initialization/FGTrimAnalysis.h",
+      "sha256": "9dce22b6c82b35eb8fc75aedb7e55e16de014a53e768ede703592b19988feb44"
+    },
+    {
+      "bytes": 17308,
+      "path": "src/initialization/FGTrimAnalysisControl.cpp",
+      "sha256": "10c650728b6ef39a54c213f38618cf4eb6be08ae172184f72afe65a40f555769"
+    },
+    {
+      "bytes": 7219,
+      "path": "src/initialization/FGTrimAnalysisControl.h",
+      "sha256": "e3e86873003a78dcdf0f4c813840b7be3752c2db1b36691565ea14d9f3f56c0e"
+    },
+    {
+      "bytes": 11846,
+      "path": "src/initialization/FGTrimAxis.cpp",
+      "sha256": "e9403a52f80c143ff37e3dbbfde339b5685f4f0b5dcf07b83a46421973d1c102"
+    },
+    {
+      "bytes": 6191,
+      "path": "src/initialization/FGTrimAxis.h",
+      "sha256": "fa739cf80d52a0771254713efc3a2b2811e8fb306c2e444a64a686b98b39c1a7"
+    },
+    {
+      "bytes": 15349,
+      "path": "src/initialization/FGTrimmer.cpp",
+      "sha256": "adcf1d48cd5bc40d6042c525138e54515424ca275ea21cabc185cbd7535e09ff"
+    },
+    {
+      "bytes": 1982,
+      "path": "src/initialization/FGTrimmer.h",
+      "sha256": "ca3deb69fafa4b54a990e1dc597417cf7fbbb67d83078a250de9d09cd9b59d50"
+    },
+    {
+      "bytes": 1737,
+      "path": "src/input_output/CMakeLists.txt",
+      "sha256": "fcc389ece4708ff4a41e5d46db0580ca7745c947f188e53e9c877c7c71111195"
+    },
+    {
+      "bytes": 15322,
+      "path": "src/input_output/FGfdmSocket.cpp",
+      "sha256": "9ee8cc2058ec89d6a8f92512a8b432cb67c6512b858932a2db9cbee94c5f0b17"
+    },
+    {
+      "bytes": 5860,
+      "path": "src/input_output/FGfdmSocket.h",
+      "sha256": "3a6317407b743fa7a76a9a97712c9e2dadab0c3aea199fca2abb88499c67f618"
+    },
+    {
+      "bytes": 2368,
+      "path": "src/input_output/FGGroundCallback.cpp",
+      "sha256": "062d258e62d84eef31df9c3deb4a5b742aa7f77a43463e3dec50e985c0bc9afc"
+    },
+    {
+      "bytes": 5358,
+      "path": "src/input_output/FGGroundCallback.h",
+      "sha256": "7d17ebb97ede67268bff34c60a9caf490247d5fa146c50ebecc39999b93a6215"
+    },
+    {
+      "bytes": 9171,
+      "path": "src/input_output/FGInputSocket.cpp",
+      "sha256": "de577a05a79c2cc5cb32df39803846aa4f2b59cdc8518e79457da7e9035b59af"
+    },
+    {
+      "bytes": 3287,
+      "path": "src/input_output/FGInputSocket.h",
+      "sha256": "4d8ae1e747b460b636b4e4aacb7ae79d4b1744e3c9b6e7f48a890499be854689"
+    },
+    {
+      "bytes": 4814,
+      "path": "src/input_output/FGInputType.cpp",
+      "sha256": "17848380764f3b99c9c9d7469ebe25b360beb12cc803869839501e3ddb3f2b56"
+    },
+    {
+      "bytes": 5378,
+      "path": "src/input_output/FGInputType.h",
+      "sha256": "052a5f80ef7e9a8b6ec73997410efad19966bd79b52c6c4522088ff16e08c879"
+    },
+    {
+      "bytes": 8208,
+      "path": "src/input_output/FGLog.cpp",
+      "sha256": "ec890ab0ba7d9d468eed86d2a7501a1eeae56b919a5412b81fed42f4f311bb9a"
+    },
+    {
+      "bytes": 8669,
+      "path": "src/input_output/FGLog.h",
+      "sha256": "988955a3214550bc08ae7d7c6b5994d0a3af62f4371fb2412c8d54a87f25b80f"
+    },
+    {
+      "bytes": 3161,
+      "path": "src/input_output/FGModelLoader.cpp",
+      "sha256": "aa7e0724690b8d191fd2e7049e73c0ad7ed911b2a3aba32b254517df431b7696"
+    },
+    {
+      "bytes": 2618,
+      "path": "src/input_output/FGModelLoader.h",
+      "sha256": "c19481fa649a7cd2c2386ad124cee40af904f3520962f85154172b3d94a837c2"
+    },
+    {
+      "bytes": 14513,
+      "path": "src/input_output/FGOutputFG.cpp",
+      "sha256": "a86b1556b3b59145569498e4a58a84e221fded93705a3c023849c2cdc9910648"
+    },
+    {
+      "bytes": 2984,
+      "path": "src/input_output/FGOutputFG.h",
+      "sha256": "3a8310475604ae20867753666aabda6445ef7a1c171c9f215b7a703024ba2c12"
+    },
+    {
+      "bytes": 3043,
+      "path": "src/input_output/FGOutputFile.cpp",
+      "sha256": "09e8c47610ae860a1ec3f4a0cc9a86c0c3c952177e8de63013c77f8458f2b5c8"
+    },
+    {
+      "bytes": 4774,
+      "path": "src/input_output/FGOutputFile.h",
+      "sha256": "4f0236232b46ed57c66d7fb49f4d74dca7facd38801ff5c815a0b1aa9aa50313"
+    },
+    {
+      "bytes": 12324,
+      "path": "src/input_output/FGOutputSocket.cpp",
+      "sha256": "8e935531ee68f13ac1aeec63f2d167bbb22edd55601cc24d74c43aeba3b3f9d5"
+    },
+    {
+      "bytes": 4187,
+      "path": "src/input_output/FGOutputSocket.h",
+      "sha256": "c7f5ad1b9897b6324ebd05eff1e03bef454bf1494d892e120dbe2e70fc2691da"
+    },
+    {
+      "bytes": 18071,
+      "path": "src/input_output/FGOutputTextFile.cpp",
+      "sha256": "52a9c02fa9d5a88d571b8dd430a8de3283c187d2ba4d63f25c3c9076cb51e08f"
+    },
+    {
+      "bytes": 3320,
+      "path": "src/input_output/FGOutputTextFile.h",
+      "sha256": "77a1245083ce44478ec2a54ea77b441cc228472948eecd82cf55f42cdbcbffcf"
+    },
+    {
+      "bytes": 10522,
+      "path": "src/input_output/FGOutputType.cpp",
+      "sha256": "a65ba041fdb90451fad67c499559b8a05dd3980c68e375ee86d0efd89923efa7"
+    },
+    {
+      "bytes": 8647,
+      "path": "src/input_output/FGOutputType.h",
+      "sha256": "5a0fd7838d649e084abb9fbc0828c00101734eadec6e28920df03c65435ee1ce"
+    },
+    {
+      "bytes": 5528,
+      "path": "src/input_output/FGPropertyManager.cpp",
+      "sha256": "1e873d16ae81a498026d41e6a19b5d1f38733ab419819bb0fdb3b796e987db78"
+    },
+    {
+      "bytes": 15433,
+      "path": "src/input_output/FGPropertyManager.h",
+      "sha256": "c1858e9b820b308300227722aa017e189ec8c8eb7d1647253e9476193419e449"
+    },
+    {
+      "bytes": 5148,
+      "path": "src/input_output/FGPropertyReader.cpp",
+      "sha256": "ebdd502e0dec7bf5c9bb996480d99329ab2a051d3fa1d4bfe6a8d1fff168384d"
+    },
+    {
+      "bytes": 3295,
+      "path": "src/input_output/FGPropertyReader.h",
+      "sha256": "fb7190559d36241a1f222f1eb9756d24fe48d5d688271e7da1649e5759427075"
+    },
+    {
+      "bytes": 26691,
+      "path": "src/input_output/FGScript.cpp",
+      "sha256": "bec476d49b4ad074d59e69710def549ddb751a5d6527a6824065d7e260c483d7"
+    },
+    {
+      "bytes": 8894,
+      "path": "src/input_output/FGScript.h",
+      "sha256": "e5a5370cbb107e214fe1fdd8ebb3514c2037f69828821b5bdcec27e477fde398"
+    },
+    {
+      "bytes": 4054,
+      "path": "src/input_output/FGUDPInputSocket.cpp",
+      "sha256": "fec37ebc383363381a2c868e28a4eb6ae91367812d720ed0819b1bdd9899493b"
+    },
+    {
+      "bytes": 2791,
+      "path": "src/input_output/FGUDPInputSocket.h",
+      "sha256": "240adc2f20c2e8d77247f4fa43db6497d9799119f5dfd2164ba6d06abf0edf02"
+    },
+    {
+      "bytes": 24189,
+      "path": "src/input_output/FGXMLElement.cpp",
+      "sha256": "ed6d4bd0148463ccef4a92fbe3c2ea30c7523219ad7dbeaaf99b8f53e4b5d140"
+    },
+    {
+      "bytes": 18459,
+      "path": "src/input_output/FGXMLElement.h",
+      "sha256": "51c9a07691ae8324e36d19064a11f05eeec785c4f8663c3931e59d6ffc608130"
+    },
+    {
+      "bytes": 2414,
+      "path": "src/input_output/FGXMLFileRead.cpp",
+      "sha256": "8e6173abda217ed291102cf0a72b509e8e15ed397cb8b70f5c4ab63bcf78b517"
+    },
+    {
+      "bytes": 2289,
+      "path": "src/input_output/FGXMLFileRead.h",
+      "sha256": "0c0eed10cd9a6a36fb5b78587bb39a08761e30076da8ec86e2f366e9c5b928ad"
+    },
+    {
+      "bytes": 3625,
+      "path": "src/input_output/FGXMLParse.cpp",
+      "sha256": "8fd8120f13ad66655805f37c1a3eed6638308b5b8e3a9fe8e207691ac3a6b72c"
+    },
+    {
+      "bytes": 3199,
+      "path": "src/input_output/FGXMLParse.h",
+      "sha256": "03cb217f1e37bd5191fcdf9dfc9d1da051bb12e8f227752a95319403e67b6480"
+    },
+    {
+      "bytes": 4062,
+      "path": "src/input_output/net_fdm.hxx",
+      "sha256": "0c6b92833ce3c7e0b07b48d0f8e7ab67336e5afff8c8f1c569c65adbbf22a127"
+    },
+    {
+      "bytes": 5227,
+      "path": "src/input_output/string_utilities.cpp",
+      "sha256": "1ec8d27e689e70096e559a476506f12042d3018b233193041a567e6902361867"
+    },
+    {
+      "bytes": 2648,
+      "path": "src/input_output/string_utilities.h",
+      "sha256": "a3b3d5b3df8146c2aaac1c5b948bb7ccaae8b2034c6510f7d1aee6abcf0c565d"
+    },
+    {
+      "bytes": 29766,
+      "path": "src/JSBSim.cpp",
+      "sha256": "51dec3a757e6e18fa1550e0d727f95c6d9926ad13e9d523aee0e673cefc69796"
+    },
+    {
+      "bytes": 156,
+      "path": "src/JSBSim.minimal.cpp",
+      "sha256": "e15037950ed85f418617c1611ec1becf0240120c75846b3fc2d17dffd9dcdf82"
+    },
+    {
+      "bytes": 1661,
+      "path": "src/JSBSim_API.h",
+      "sha256": "4e8c26a4764226fc50b2e8ec9da0195f0781141808fb737145c3994c565aa0a7"
+    },
+    {
+      "bytes": 1024,
+      "path": "src/math/CMakeLists.txt",
+      "sha256": "9cf7f7cf9e93fad7670f8e3895eddbd37ab6f5bed52fb65addefb909eb49a711"
+    },
+    {
+      "bytes": 4243,
+      "path": "src/math/FGColumnVector3.cpp",
+      "sha256": "349e95535e44703e8ab82ecd7f5831cf1366582c8002d883a8f13b69d2640650"
+    },
+    {
+      "bytes": 10254,
+      "path": "src/math/FGColumnVector3.h",
+      "sha256": "d017622086a42a7677a9b070f9647b295f5c1b2cb602fd00596ef8c576fc97c8"
+    },
+    {
+      "bytes": 8736,
+      "path": "src/math/FGCondition.cpp",
+      "sha256": "9da809daad96684c9cb12a9e7be3ef96998612c70617d39b13f3724ce7185d57"
+    },
+    {
+      "bytes": 2990,
+      "path": "src/math/FGCondition.h",
+      "sha256": "36e093dc530ce38bc9dbe0df0af57fe2127ed695cfb4cccf302a9393a389532d"
+    },
+    {
+      "bytes": 44656,
+      "path": "src/math/FGFunction.cpp",
+      "sha256": "c6a50ee35a44a96a5591b2a16de383db375f0b5cd20ef8873bd991933c551a5c"
+    },
+    {
+      "bytes": 28430,
+      "path": "src/math/FGFunction.h",
+      "sha256": "74097a65c6be84c3fef5c4a050fbd16ce16f6d9e661ab07bebb89150a14c52f5"
+    },
+    {
+      "bytes": 3314,
+      "path": "src/math/FGFunctionValue.h",
+      "sha256": "3774388cd39fff5f28d5d2dbf92623f627e5a559ddbea6b778ced982c81c2831"
+    },
+    {
+      "bytes": 11532,
+      "path": "src/math/FGLocation.cpp",
+      "sha256": "1f7e1449e2ca3f4ce94883526735d5b7edc5c021f2b36886d01b03efd672a0cf"
+    },
+    {
+      "bytes": 24767,
+      "path": "src/math/FGLocation.h",
+      "sha256": "07209e639108e8d37777cf038aa69158a52d8bffcd11f96a6f7bb14695fa66ec"
+    },
+    {
+      "bytes": 14968,
+      "path": "src/math/FGMatrix33.cpp",
+      "sha256": "d2f9f5f95696e84b8c638c6d3ec2e40d2dabbcd6a197e50008b26eb9446f91a8"
+    },
+    {
+      "bytes": 13802,
+      "path": "src/math/FGMatrix33.h",
+      "sha256": "13a7399e6b3a3c7bcc58be436edaad2cb13ab15c7037a7290001e2e2fcf70b5a"
+    },
+    {
+      "bytes": 5739,
+      "path": "src/math/FGModelFunctions.cpp",
+      "sha256": "da86f8632c5ef0759ff15b8560c7189605f39fc8aa7ec9927959ea678af2ad8e"
+    },
+    {
+      "bytes": 4300,
+      "path": "src/math/FGModelFunctions.h",
+      "sha256": "bd26cf71c436b43a1c75d19869926df6f26ea5efd59c96a37bba448c31f1eb5f"
+    },
+    {
+      "bytes": 11749,
+      "path": "src/math/FGNelderMead.cpp",
+      "sha256": "3a6aa3d0bcc1aa844c2e726c2bdcdbddfb5c558bcf5df6b5bb55431a381c5c1b"
+    },
+    {
+      "bytes": 3096,
+      "path": "src/math/FGNelderMead.h",
+      "sha256": "22e4f06a7617b72ba2c4954df496a59cc15afac84de031e718bd42a05e465cb8"
+    },
+    {
+      "bytes": 2804,
+      "path": "src/math/FGParameter.h",
+      "sha256": "86a1a8b16dd8c862cec108f5300933c76e9778ea91d04bdeae69d5c7b4a67dba"
+    },
+    {
+      "bytes": 3802,
+      "path": "src/math/FGParameterValue.h",
+      "sha256": "ad9bd00405b9ffb659fbd830b1c02bcca91ce4372c20ab97c8a2f9a77dfb9cd5"
+    },
+    {
+      "bytes": 4305,
+      "path": "src/math/FGPropertyValue.cpp",
+      "sha256": "d2c9d6fdc736e218b94803bd0c49f715dc964c4d583f2181b3cbd7393c9cb475"
+    },
+    {
+      "bytes": 3640,
+      "path": "src/math/FGPropertyValue.h",
+      "sha256": "c390d7927dfb4a8bbfa9f8674a39152ab3b74593db760e3a011bc43a055a220b"
+    },
+    {
+      "bytes": 8108,
+      "path": "src/math/FGQuaternion.cpp",
+      "sha256": "256296e560163b39013e8a0bc339f128db7c4a6b56d8b3a3dc8c108c5c661b66"
+    },
+    {
+      "bytes": 19766,
+      "path": "src/math/FGQuaternion.h",
+      "sha256": "13277fb5e86c906e3ff165ebed8aba3dde7f657694396e58a12f6fa22f250510"
+    },
+    {
+      "bytes": 1704,
+      "path": "src/math/FGRealValue.cpp",
+      "sha256": "413118824c8605233466c0b44f3086c91f4dfe19e602ac851cbb3ec18fdab8c3"
+    },
+    {
+      "bytes": 2462,
+      "path": "src/math/FGRealValue.h",
+      "sha256": "ac3198f8d6659b0f2e22f52ef5b28af0c6533ccfc613dd1baba1b715eeecf7b1"
+    },
+    {
+      "bytes": 6530,
+      "path": "src/math/FGRungeKutta.cpp",
+      "sha256": "719211c37eb4ff21f36af9153d6bee6432ac2a641f8b3f89ade20371cf0040db"
+    },
+    {
+      "bytes": 5267,
+      "path": "src/math/FGRungeKutta.h",
+      "sha256": "0fa381c4c80034cf151d0bb4fffa1d1d5a0944307228484b407891e0897041bc"
+    },
+    {
+      "bytes": 5642,
+      "path": "src/math/FGStateSpace.cpp",
+      "sha256": "b0152a79c9bc1717692ba73e23114c4e025cf54914780d5ff680b6c1e9f58d8e"
+    },
+    {
+      "bytes": 26283,
+      "path": "src/math/FGStateSpace.h",
+      "sha256": "ff54110ea2e61daa7637536e4375b6cc785151964a26f371678aecd40318b20a"
+    },
+    {
+      "bytes": 26756,
+      "path": "src/math/FGTable.cpp",
+      "sha256": "19833dbc259699a5e99d567dda3b56d10b3b06429924b5d6a5914422f3ff3c44"
+    },
+    {
+      "bytes": 15314,
+      "path": "src/math/FGTable.h",
+      "sha256": "beeda29b0ebd3b12b6f5c4346c26de92013a052653eae9b91af600f0097af820"
+    },
+    {
+      "bytes": 2278,
+      "path": "src/math/FGTemplateFunc.cpp",
+      "sha256": "d93a2b841af61c6b99079822d31b085d50099f477e2b684b0d653c0ceb050166"
+    },
+    {
+      "bytes": 2865,
+      "path": "src/math/FGTemplateFunc.h",
+      "sha256": "6d057151cba94278065a016f5d09aac6debf1e7d9ab9b4dc3b8ec6f6ae7073ef"
+    },
+    {
+      "bytes": 2218,
+      "path": "src/math/LagrangeMultiplier.h",
+      "sha256": "898aa0071b000c6c0c6874441993a26b9420988f304cd7c12ea1022ec3aadfd6"
+    },
+    {
+      "bytes": 488,
+      "path": "src/models/atmosphere/CMakeLists.txt",
+      "sha256": "faf3a7040b5b0bc22b4658fa8c1b0a35dc40216a58a97cc78737c9bfc07c6dcb"
+    },
+    {
+      "bytes": 4599,
+      "path": "src/models/atmosphere/FGMars.cpp",
+      "sha256": "5c9a8093719155577d91c081aa967d02f2fb6756704ea90037d0ce3d5084994f"
+    },
+    {
+      "bytes": 2518,
+      "path": "src/models/atmosphere/FGMars.h",
+      "sha256": "665f8d99307beba83bf677edb2718047f80e1be55a5b6af334efbb4689afe59b"
+    },
+    {
+      "bytes": 8576,
+      "path": "src/models/atmosphere/FGMSIS.cpp",
+      "sha256": "7a16d66d3689fb03662d71b9dd90a8c4403647825c39dad21c9ae86897510d6d"
+    },
+    {
+      "bytes": 5425,
+      "path": "src/models/atmosphere/FGMSIS.h",
+      "sha256": "29d0d5685fbe6f1a168b7b202abe9dedd664f7899a7072fa5975965b05e3dd80"
+    },
+    {
+      "bytes": 31572,
+      "path": "src/models/atmosphere/FGStandardAtmosphere.cpp",
+      "sha256": "727675916e0376df5ebbc86246376e27e86e3b0cd0b36f2d17b08237ed5b28ec"
+    },
+    {
+      "bytes": 16814,
+      "path": "src/models/atmosphere/FGStandardAtmosphere.h",
+      "sha256": "08e8e31bb8788fd6ff4671ea96fc5273e76ac34127d02ff532a6db3d3fba995c"
+    },
+    {
+      "bytes": 25773,
+      "path": "src/models/atmosphere/FGWinds.cpp",
+      "sha256": "31a96d864d9a5c97685a28ebcfc551758f0384e41e471be1648d146f4086013f"
+    },
+    {
+      "bytes": 18295,
+      "path": "src/models/atmosphere/FGWinds.h",
+      "sha256": "519c1270e10fcaac6aeb5625811e48b42963eb39fe20bc3245a4a70d9239bfe7"
+    },
+    {
+      "bytes": 11469,
+      "path": "src/models/atmosphere/MSIS/DOCUMENTATION",
+      "sha256": "e7db72964c22861e446d4b61931a22a58c32eeaa7f9bb23b45d887751b4ecae3"
+    },
+    {
+      "bytes": 44170,
+      "path": "src/models/atmosphere/MSIS/nrlmsise-00.c",
+      "sha256": "a20d6523420188241963f095ad0b65df44ac0a6fa6db52d2e1df823c366f0285"
+    },
+    {
+      "bytes": 7930,
+      "path": "src/models/atmosphere/MSIS/nrlmsise-00.h",
+      "sha256": "d5b45be690bbc6cf394f69b18c0e641a1769da0a87015704fdabf0e7560794aa"
+    },
+    {
+      "bytes": 48114,
+      "path": "src/models/atmosphere/MSIS/nrlmsise-00_data.c",
+      "sha256": "957f2c868e08e02cffb705ff11d973abc20ebc2daa6b7ace6906902dbcdfa925"
+    },
+    {
+      "bytes": 1395,
+      "path": "src/models/CMakeLists.txt",
+      "sha256": "5e6946e28d14d9a965d1fc846696128eaf9e69693a8580b83b281a7d6f3b63ae"
+    },
+    {
+      "bytes": 16657,
+      "path": "src/models/FGAccelerations.cpp",
+      "sha256": "ea1ffa04309f42d1352758d6b0ec4910b5abdb999ec870a422891a3ede9af6c5"
+    },
+    {
+      "bytes": 19335,
+      "path": "src/models/FGAccelerations.h",
+      "sha256": "d8d9b07d56990000707f516fb18cd1f66cb05997d7eb092db2322ff31fef75ed"
+    },
+    {
+      "bytes": 25408,
+      "path": "src/models/FGAerodynamics.cpp",
+      "sha256": "7aab84cf046a4a0383d905b9973337957e69a9bc4882093a5956ba4d17e25d33"
+    },
+    {
+      "bytes": 11168,
+      "path": "src/models/FGAerodynamics.h",
+      "sha256": "7a178ffd7303d55515c081fc5e83f423d3fdcca29f5aea3d34d01be85a7b842d"
+    },
+    {
+      "bytes": 9559,
+      "path": "src/models/FGAircraft.cpp",
+      "sha256": "70c4cd27460036a8e5a43e47754edc8473ef49b8705a3a7923297f12a5291188"
+    },
+    {
+      "bytes": 8166,
+      "path": "src/models/FGAircraft.h",
+      "sha256": "295d5dbff4857a9b450115a828ce3fbd17165bbc83298b502caa8b0070cbe9a2"
+    },
+    {
+      "bytes": 12624,
+      "path": "src/models/FGAtmosphere.cpp",
+      "sha256": "c5a131cf6b3857332ebf88ae935cc5ca377237bf5aaf62cc46925eef1f8d83f0"
+    },
+    {
+      "bytes": 12414,
+      "path": "src/models/FGAtmosphere.h",
+      "sha256": "549bf738e7a5c178a83dcb810bb70ce16f4eaf01c6939b685d1949c41291157e"
+    },
+    {
+      "bytes": 20420,
+      "path": "src/models/FGAuxiliary.cpp",
+      "sha256": "e56996534876a074e4912902396797562df48659f93506e1b03a18aacc4d17b1"
+    },
+    {
+      "bytes": 14964,
+      "path": "src/models/FGAuxiliary.h",
+      "sha256": "aa25e7f76da9e84709c9f3eef1cd309de4e925c712f7d13aba5db68c3e587231"
+    },
+    {
+      "bytes": 8865,
+      "path": "src/models/FGBuoyantForces.cpp",
+      "sha256": "5cefb1674dccf15640b048662064ff80546906a6665b461d8762297b39b434dd"
+    },
+    {
+      "bytes": 6887,
+      "path": "src/models/FGBuoyantForces.h",
+      "sha256": "aa329c3b254b8dac6156885e74e96e5f26f6f2cb801eff6c5bbfbded79482aeb"
+    },
+    {
+      "bytes": 9185,
+      "path": "src/models/FGExternalForce.cpp",
+      "sha256": "1903d76873296c234fd93978528233606794302507bdc64ab3eb74f9cf13beef"
+    },
+    {
+      "bytes": 8258,
+      "path": "src/models/FGExternalForce.h",
+      "sha256": "5aa76453322b076a5d53c12ff39ed7b8f65e325d4ee4188e4989468a169cdd0d"
+    },
+    {
+      "bytes": 6416,
+      "path": "src/models/FGExternalReactions.cpp",
+      "sha256": "0814fc10930a473f3f04ccdd3006a99ab1d84b7d2c947699b6fd2d191487c4fd"
+    },
+    {
+      "bytes": 6722,
+      "path": "src/models/FGExternalReactions.h",
+      "sha256": "b1994b636e8b60d7534c9ed720d49a6f437786e22335348191342074721e61b1"
+    },
+    {
+      "bytes": 30425,
+      "path": "src/models/FGFCS.cpp",
+      "sha256": "a64caac7ad0674bb2d8484745ce62e9e3881413de630363b9b34860f14072d56"
+    },
+    {
+      "bytes": 21965,
+      "path": "src/models/FGFCS.h",
+      "sha256": "697e8cacb546b7f6101ba3b0c36a5295ad89e3ca77cf6fbef952bd6498b25889"
+    },
+    {
+      "bytes": 5635,
+      "path": "src/models/FGFCSChannel.h",
+      "sha256": "eaed4957d6d889580bdf4531226626c4b15e8064a1ee5199e2b059567638bf2b"
+    },
+    {
+      "bytes": 31915,
+      "path": "src/models/FGGasCell.cpp",
+      "sha256": "7284829ea2fed17316c139251e600f0aeb6c713b0cf82e20e8a4005ca2da198a"
+    },
+    {
+      "bytes": 13141,
+      "path": "src/models/FGGasCell.h",
+      "sha256": "5bedfdd5ba07be8660989a4fef57349d8f6d93c1f21b41dc2f191a86d1e2a872"
+    },
+    {
+      "bytes": 9676,
+      "path": "src/models/FGGroundReactions.cpp",
+      "sha256": "485f64786835ab4eaad03f36713e1e48db93b0f50874302f23c588beb00580b2"
+    },
+    {
+      "bytes": 5118,
+      "path": "src/models/FGGroundReactions.h",
+      "sha256": "182b78e2295c628c7024921d5769ffaf8853cde5ad2b4cb7973c35bfe5d995c2"
+    },
+    {
+      "bytes": 10768,
+      "path": "src/models/FGInertial.cpp",
+      "sha256": "30400eb76bcf28a10e3a28d4e45dd288d6599d3cf1f3b3423adc93df3383ddec"
+    },
+    {
+      "bytes": 8999,
+      "path": "src/models/FGInertial.h",
+      "sha256": "282c331076c064c6476f428e03bf52458703d8f5ed8e99117d26465546f294c8"
+    },
+    {
+      "bytes": 7858,
+      "path": "src/models/FGInput.cpp",
+      "sha256": "8b405828e8a8a46072a4a57984ca65024713c6b25e064ca5db35de0b69c9e788"
+    },
+    {
+      "bytes": 6167,
+      "path": "src/models/FGInput.h",
+      "sha256": "afa29fdfc482c286365e3d431c71abfd797f2599bc495743dc64e04f1e8d2f31"
+    },
+    {
+      "bytes": 34940,
+      "path": "src/models/FGLGear.cpp",
+      "sha256": "374b658b7884ee8bb973984314eb96fd501af2641e9adec74600b49fb272bcb8"
+    },
+    {
+      "bytes": 16795,
+      "path": "src/models/FGLGear.h",
+      "sha256": "c7a628fae02fb38de0802d8ea99b218ee2cf231441d79293a0c5d34034bda962"
+    },
+    {
+      "bytes": 19792,
+      "path": "src/models/FGMassBalance.cpp",
+      "sha256": "85c766aecd92fd4a416a9a625a967d19ed69fba39db2fb5bdfeb59d765652fbd"
+    },
+    {
+      "bytes": 12143,
+      "path": "src/models/FGMassBalance.h",
+      "sha256": "11dd75d9a0a8e37ca569d8a26f25557a83aadb8cc9b37ebb34e7e41d8b1f3e2a"
+    },
+    {
+      "bytes": 6299,
+      "path": "src/models/FGModel.cpp",
+      "sha256": "85a8f28bb334b47ae94d013e77afd50b573664e97e46240d9e19a8bf8cae541f"
+    },
+    {
+      "bytes": 4376,
+      "path": "src/models/FGModel.h",
+      "sha256": "06e25d6dfa354ea3beb93a811091f3a8239ea2fe5135fec0920caf0ce4c270d6"
+    },
+    {
+      "bytes": 10072,
+      "path": "src/models/FGOutput.cpp",
+      "sha256": "2cc27ae4af05d9da01bc6a8760444442d6041095aaae60c7733c7a8ec23942f4"
+    },
+    {
+      "bytes": 10220,
+      "path": "src/models/FGOutput.h",
+      "sha256": "8f11eb6f92db32e88f1a751e98b04df1d8cc8132ae6de75ca24dbeac7dc40efd"
+    },
+    {
+      "bytes": 45568,
+      "path": "src/models/FGPropagate.cpp",
+      "sha256": "dbfec853bc64feddb494c11663f470b551e46c1d2c3339004d5c298320a25210"
+    },
+    {
+      "bytes": 30192,
+      "path": "src/models/FGPropagate.h",
+      "sha256": "e3d62444ee2687a8d01bd897a2a21c7be51fed5fc3a22ec22a5058caf64dabb7"
+    },
+    {
+      "bytes": 29151,
+      "path": "src/models/FGPropulsion.cpp",
+      "sha256": "c2d99de2972b3bfc8a6e9210db83cd231bad41f7c5bccc18672579f7c609c071"
+    },
+    {
+      "bytes": 7346,
+      "path": "src/models/FGPropulsion.h",
+      "sha256": "c59f2e706851bb477fc9fbe76de5aefa8fda06f73f0487cc1f7306de2bb01672"
+    },
+    {
+      "bytes": 3863,
+      "path": "src/models/FGSurface.cpp",
+      "sha256": "835d0abda957add2d6e1f4a401753dcdd4cd3e6303575a546debdefd28c73ebb"
+    },
+    {
+      "bytes": 4078,
+      "path": "src/models/FGSurface.h",
+      "sha256": "6681d24d5aec6760f0c99248b054b8c58a6abe8cc9cb672f838458625aac0b58"
+    },
+    {
+      "bytes": 1210,
+      "path": "src/models/flight_control/CMakeLists.txt",
+      "sha256": "f783da7fe3bbb5340e5b3c9f6400c72b4297a2b3066fd5615db53e4fddee9953"
+    },
+    {
+      "bytes": 5102,
+      "path": "src/models/flight_control/FGAccelerometer.cpp",
+      "sha256": "993f5fe714f05db56ba33d607b5ea5900814e1d47294fd40c55ea71de63c8111"
+    },
+    {
+      "bytes": 4568,
+      "path": "src/models/flight_control/FGAccelerometer.h",
+      "sha256": "054911f31c8ee9472d813423d1f1ce15f94d491f0ccf8ec54798c8c4b7a9273e"
+    },
+    {
+      "bytes": 12622,
+      "path": "src/models/flight_control/FGActuator.cpp",
+      "sha256": "a055f9495efccdfde9ae5da52cbce396d2471242680c9104d8747d58e12c0194"
+    },
+    {
+      "bytes": 6348,
+      "path": "src/models/flight_control/FGActuator.h",
+      "sha256": "a3541fbb6088279c67293f87b7ed0b9aa2f505e796266b8389be84dceea78744"
+    },
+    {
+      "bytes": 7027,
+      "path": "src/models/flight_control/FGAngles.cpp",
+      "sha256": "5661fbbe6dcc765f0f1f1a3d1c9ea7f219390fa847ec9547bbc05b3a48576ea9"
+    },
+    {
+      "bytes": 3182,
+      "path": "src/models/flight_control/FGAngles.h",
+      "sha256": "06e97661f548449ded8542a688eb4fc787e12f3fbbf483ceb0c7df69bcec3dc6"
+    },
+    {
+      "bytes": 5100,
+      "path": "src/models/flight_control/FGDeadBand.cpp",
+      "sha256": "fbda6df6e69842684208818e7032691626aa3587feeeab0c00452a9a8f1b65de"
+    },
+    {
+      "bytes": 3302,
+      "path": "src/models/flight_control/FGDeadBand.h",
+      "sha256": "338ef4191cbacf7620bf6199cd46104fd74c79aea5425889e6c3dd1f2b9aed73"
+    },
+    {
+      "bytes": 6680,
+      "path": "src/models/flight_control/FGDistributor.cpp",
+      "sha256": "c28337c28ea4fb5efc4d43a664c02eb5ac2630831f623d23fdbbc234e732fb05"
+    },
+    {
+      "bytes": 6629,
+      "path": "src/models/flight_control/FGDistributor.h",
+      "sha256": "a7aafdd21c67f5b8e49a8cb1e13c167395ac398ccd58f930e04bd8afbd3b7b57"
+    },
+    {
+      "bytes": 13218,
+      "path": "src/models/flight_control/FGFCSComponent.cpp",
+      "sha256": "d411cd66efb9a48dcdfac94ae74390f1f718a75925309cc728d8321fbba5c841"
+    },
+    {
+      "bytes": 3959,
+      "path": "src/models/flight_control/FGFCSComponent.h",
+      "sha256": "1fb777186f0fd9dd4e87f03467ec4b701f3b2052ce373c6a4256827e06fee2d8"
+    },
+    {
+      "bytes": 4823,
+      "path": "src/models/flight_control/FGFCSFunction.cpp",
+      "sha256": "79e99883df6e82d7fa0124cbb0d954e4d3c66333b3423c54c4f1e224b23a0b11"
+    },
+    {
+      "bytes": 3858,
+      "path": "src/models/flight_control/FGFCSFunction.h",
+      "sha256": "52694661459f00d6796e7a1c4925ee00e23364bf08e4fb67e3b82de3929b34de"
+    },
+    {
+      "bytes": 7937,
+      "path": "src/models/flight_control/FGFilter.cpp",
+      "sha256": "6761816ac333b18c23f881efa9b6aa2ab1973513d1c13043fbecc6bcdf0e19a1"
+    },
+    {
+      "bytes": 7263,
+      "path": "src/models/flight_control/FGFilter.h",
+      "sha256": "c2badba43d38c6a0d5a15bec188cf09cb649a20b47b6549db1190e7dad44648b"
+    },
+    {
+      "bytes": 7688,
+      "path": "src/models/flight_control/FGGain.cpp",
+      "sha256": "422550e7a9409bfae98d2ab6928468597951da45f975e0449794cb3d5112771c"
+    },
+    {
+      "bytes": 8492,
+      "path": "src/models/flight_control/FGGain.h",
+      "sha256": "41cab5ddfd65ba6b9d05ca4e34d3a04399b4a5aab6f34e6955aa2d65c4c71e2f"
+    },
+    {
+      "bytes": 4326,
+      "path": "src/models/flight_control/FGGyro.cpp",
+      "sha256": "c37c459404dbcbb758b924630af502a89de924bdfaa474f955bf476187b63345"
+    },
+    {
+      "bytes": 3671,
+      "path": "src/models/flight_control/FGGyro.h",
+      "sha256": "a88d7c0ac403d6765cd7003b3776d85af45f0136b1af4b05b1e94116c9944ca8"
+    },
+    {
+      "bytes": 7106,
+      "path": "src/models/flight_control/FGKinemat.cpp",
+      "sha256": "409ae530a6eb55037bb46824b6be794548f701de22fa7e398ba634fa615b7b68"
+    },
+    {
+      "bytes": 4736,
+      "path": "src/models/flight_control/FGKinemat.h",
+      "sha256": "a938bb12d22420d45fbc9aad810ca648411c9c91fafac882d4dd25c4d78966e0"
+    },
+    {
+      "bytes": 9557,
+      "path": "src/models/flight_control/FGLinearActuator.cpp",
+      "sha256": "dc6cc128d56bd3d5e241177901f00e0325b300f45bf89a8a93a43f25faa17bc4"
+    },
+    {
+      "bytes": 9684,
+      "path": "src/models/flight_control/FGLinearActuator.h",
+      "sha256": "65f75a6dc15c1ca1be7b99a41b629ab78a0215009f47b87db97b0f0b4b20d332"
+    },
+    {
+      "bytes": 6450,
+      "path": "src/models/flight_control/FGMagnetometer.cpp",
+      "sha256": "37997f7e5040f592d8789afa38f294e0805ee16bc02bfd88dce0472fa40defda"
+    },
+    {
+      "bytes": 4480,
+      "path": "src/models/flight_control/FGMagnetometer.h",
+      "sha256": "f2042a4ce82cdf3e65e5cb15d602eebf7696aa43c6a55492769c046fd0c3c5a6"
+    },
+    {
+      "bytes": 8265,
+      "path": "src/models/flight_control/FGPID.cpp",
+      "sha256": "fa668f05b232a44ac1a9ed0ce7a96d7088d702de7ecb5d7354a2b567ed71eb11"
+    },
+    {
+      "bytes": 5319,
+      "path": "src/models/flight_control/FGPID.h",
+      "sha256": "5da759534651a52c80406c4d9b4049fd2f656f44a3f0261acccfce331e29f8f8"
+    },
+    {
+      "bytes": 12607,
+      "path": "src/models/flight_control/FGSensor.cpp",
+      "sha256": "fbfa95b2bd731a1723095c0faa3f8839ae25ce04be9bc2f7ff54758e15743bce"
+    },
+    {
+      "bytes": 6816,
+      "path": "src/models/flight_control/FGSensor.h",
+      "sha256": "798e38231ef59c3ea693fa12da8d212f86d3b171ca84f3a2cb2ad2ce02bd4113"
+    },
+    {
+      "bytes": 4112,
+      "path": "src/models/flight_control/FGSensorOrientation.h",
+      "sha256": "4406f29489cf13b018d8abb99075318eb0d21dc17a033b962845ec02b10c0f2f"
+    },
+    {
+      "bytes": 4587,
+      "path": "src/models/flight_control/FGSummer.cpp",
+      "sha256": "0c301e6ad9a2a1e08480964ea8c396c37f0b954fb86b32a2865a21e81829a7b4"
+    },
+    {
+      "bytes": 3694,
+      "path": "src/models/flight_control/FGSummer.h",
+      "sha256": "64d0e47f007ec10f100bde5b99d02798f6b33da0ac5dd89fbcba77fecb177cd8"
+    },
+    {
+      "bytes": 7794,
+      "path": "src/models/flight_control/FGSwitch.cpp",
+      "sha256": "1d9b17029425ddff5ed485bcc127b4db7a1d83928aad6038d6fcf94bad9e8853"
+    },
+    {
+      "bytes": 5600,
+      "path": "src/models/flight_control/FGSwitch.h",
+      "sha256": "13f22560b9a12d4b265ab3ddd3b82da9850403ab3d4b56627c7c8e46881dd653"
+    },
+    {
+      "bytes": 9454,
+      "path": "src/models/flight_control/FGWaypoint.cpp",
+      "sha256": "601ff1d3b0522f5f907b4399760896a59d3b1d803281aa5c96a0d90298213182"
+    },
+    {
+      "bytes": 4388,
+      "path": "src/models/flight_control/FGWaypoint.h",
+      "sha256": "0af11cef820ce8d3b6a1cd7bea0deb4a3a52a24c90a92376b90653cc094ba2d1"
+    },
+    {
+      "bytes": 984,
+      "path": "src/models/propulsion/CMakeLists.txt",
+      "sha256": "b54440bdfd33b6b40b57f2d8713dc8fb6c402cf6285c5635d38f48b566e326b4"
+    },
+    {
+      "bytes": 8121,
+      "path": "src/models/propulsion/FGBrushLessDCMotor.cpp",
+      "sha256": "7c7f5c0f794694476e6f44c38f04d63c3ce602f1a6d215276a0d11c6917fe592"
+    },
+    {
+      "bytes": 4180,
+      "path": "src/models/propulsion/FGBrushLessDCMotor.h",
+      "sha256": "fcdb5f565bd77ed3c9c3b189fd9dbc1a07ba5874c2167bc5b050c79304e62113"
+    },
+    {
+      "bytes": 6138,
+      "path": "src/models/propulsion/FGElectric.cpp",
+      "sha256": "3ffcff4e56b74df265cc29121c46909257a6ab0f042fae10df7d5788867dfd8d"
+    },
+    {
+      "bytes": 3487,
+      "path": "src/models/propulsion/FGElectric.h",
+      "sha256": "ea00eea1ea338aab6d30d332b4180b9e884242dfcd3a6ea25ce5ea9f47e9bd72"
+    },
+    {
+      "bytes": 10363,
+      "path": "src/models/propulsion/FGEngine.cpp",
+      "sha256": "18168516dd8222f4324a7e66f6f8821075a7c3d009876473e09713a52eaf69e7"
+    },
+    {
+      "bytes": 7556,
+      "path": "src/models/propulsion/FGEngine.h",
+      "sha256": "584863c2b69a27c14914c676981d30273b56007b8e75ba77f11279b4923c4f0d"
+    },
+    {
+      "bytes": 5846,
+      "path": "src/models/propulsion/FGForce.cpp",
+      "sha256": "83392d283b48962088a5849a4bb9d5876f469e2a01794da187977d138648858b"
+    },
+    {
+      "bytes": 14048,
+      "path": "src/models/propulsion/FGForce.h",
+      "sha256": "805c77c9b281957a6c44bc8b6e72a908816b5e5668f26cb15ffb4e79e1c47f39"
+    },
+    {
+      "bytes": 4938,
+      "path": "src/models/propulsion/FGNozzle.cpp",
+      "sha256": "482e95ea327b7343e26b97db6b0d5c698023ad3398cc1385c31ae4901ebdd821"
+    },
+    {
+      "bytes": 3089,
+      "path": "src/models/propulsion/FGNozzle.h",
+      "sha256": "7369460e7ec2c3e1d0df0481cb441026f54bd91bc8d0f92840456dcb5d2de0bc"
+    },
+    {
+      "bytes": 41430,
+      "path": "src/models/propulsion/FGPiston.cpp",
+      "sha256": "1f69e3caa742cbf24e5467245e1520293460975f003c7b8de8577262329ba836"
+    },
+    {
+      "bytes": 19045,
+      "path": "src/models/propulsion/FGPiston.h",
+      "sha256": "caf5d49ae05c286a5deb27c4087216fa8264ef94d0c388af3c45418389915494"
+    },
+    {
+      "bytes": 18319,
+      "path": "src/models/propulsion/FGPropeller.cpp",
+      "sha256": "61c207fec6a80a48a142e3b29f2ef0a3210158e4ab4a0d2929835b72c99fe4d7"
+    },
+    {
+      "bytes": 13232,
+      "path": "src/models/propulsion/FGPropeller.h",
+      "sha256": "2330dad95c6636d1e834d9b82e71f37b0751887e7de406936befe4822b74a14d"
+    },
+    {
+      "bytes": 13957,
+      "path": "src/models/propulsion/FGRocket.cpp",
+      "sha256": "bbfc437c7bc3f10195cc93c781481ab508ee691e06271a7a7f598cd93a75d2a5"
+    },
+    {
+      "bytes": 8525,
+      "path": "src/models/propulsion/FGRocket.h",
+      "sha256": "71c8f6c833f4c35bc172a0e79482f0d7c26adf7e76b3fbe7287fb3ad7fa23f74"
+    },
+    {
+      "bytes": 32291,
+      "path": "src/models/propulsion/FGRotor.cpp",
+      "sha256": "557f7a25f93bc05c5090571c4a3ef1128737fb5a34013ba067eead1dc01a33f7"
+    },
+    {
+      "bytes": 17559,
+      "path": "src/models/propulsion/FGRotor.h",
+      "sha256": "62eca9e6f60664597f1d0a82aa5ce3ea87b3a69df003d49d98f8b7fe3d7ce464"
+    },
+    {
+      "bytes": 20648,
+      "path": "src/models/propulsion/FGTank.cpp",
+      "sha256": "59d11bc314a2e97197cf6dd776befb5d8297a4069d54037084d3eccd98465857"
+    },
+    {
+      "bytes": 14854,
+      "path": "src/models/propulsion/FGTank.h",
+      "sha256": "d787bbb39c0744a108ada9c400ab6af096e8b69b7186a7be90c1b6200ba056f6"
+    },
+    {
+      "bytes": 7737,
+      "path": "src/models/propulsion/FGThruster.cpp",
+      "sha256": "d949f8b5b8da196ce6ae865abb62083e30f63cf56a1122cf32d2085f898772c3"
+    },
+    {
+      "bytes": 4620,
+      "path": "src/models/propulsion/FGThruster.h",
+      "sha256": "a841303c9ce1641569b9e347f1ca94e8ee6c6f9292223695e370ee89f1de3c9b"
+    },
+    {
+      "bytes": 7408,
+      "path": "src/models/propulsion/FGTransmission.cpp",
+      "sha256": "e686f3595a5512293eedf104cbdae5dad1e475b3720c4c387ec0dfc658845213"
+    },
+    {
+      "bytes": 6291,
+      "path": "src/models/propulsion/FGTransmission.h",
+      "sha256": "90de1f9bb17dfce13e6635e0ba5edc07adae2dfc37317aff916c9d9c85796ffe"
+    },
+    {
+      "bytes": 24154,
+      "path": "src/models/propulsion/FGTurbine.cpp",
+      "sha256": "ee869548814ed10e3d2baaf46b9a3d1fe95227053a8d8cf2c32e07a9264c0bd2"
+    },
+    {
+      "bytes": 15280,
+      "path": "src/models/propulsion/FGTurbine.h",
+      "sha256": "5ece86eeeaad354481698eb6e60b5c149147d3c5d9c24f72365676f3681bac02"
+    },
+    {
+      "bytes": 20202,
+      "path": "src/models/propulsion/FGTurboProp.cpp",
+      "sha256": "102085f5e361bd4c208ff649e2ea3e24b90f2be50fe2f43661f866491e17fc58"
+    },
+    {
+      "bytes": 7515,
+      "path": "src/models/propulsion/FGTurboProp.h",
+      "sha256": "12e2dd3c502a4e4f7969fc23cbe2c7d282023907c350fda8b8f96c909b40a144"
+    },
+    {
+      "bytes": 256,
+      "path": "src/simgear/CMakeLists.txt",
+      "sha256": "b12c39d22d59b6dbf47b5571f31d82086720827ccfbb97fc504ddf186bc7d6ae"
+    },
+    {
+      "bytes": 3800,
+      "path": "src/simgear/compiler.h",
+      "sha256": "d6b10b5ac1024774c1e778bb9cce9b8c61ed380c20cf5556fc1b6262c965933d"
+    },
+    {
+      "bytes": 211,
+      "path": "src/simgear/io/iostreams/CMakeLists.txt",
+      "sha256": "54d712f9a35a459e8585bfb7bacb873a404d30454ad2318145d672325bf521a5"
+    },
+    {
+      "bytes": 1975,
+      "path": "src/simgear/io/iostreams/sgstream.cxx",
+      "sha256": "597aeea8b7a299cbc414ae323bc37df0255b78b659e05f88a1ffc369e43ace08"
+    },
+    {
+      "bytes": 1710,
+      "path": "src/simgear/io/iostreams/sgstream.hxx",
+      "sha256": "3348ada79e234fd44e662be42dd801b7c6524a58ee3115f47b0f1977bb2b187a"
+    },
+    {
+      "bytes": 200,
+      "path": "src/simgear/magvar/CMakeLists.txt",
+      "sha256": "b65a850752d521c0cb9564d2ad6bed6b91bbf7c55aa6045e2362f2e1f4c5a16d"
+    },
+    {
+      "bytes": 13086,
+      "path": "src/simgear/magvar/coremag.cxx",
+      "sha256": "dbdf80d69eb00a9e86d5c9c1ed38e5e584ae608de95b0df13a12d801b0267e94"
+    },
+    {
+      "bytes": 1896,
+      "path": "src/simgear/magvar/coremag.hxx",
+      "sha256": "ce9a3e564c4c410f63dd75c24f60a50edac65ed067ab730c56d95fd799a2774a"
+    },
+    {
+      "bytes": 306,
+      "path": "src/simgear/misc/CMakeLists.txt",
+      "sha256": "23bbe3db088c9a679401b434762aad9117c62b18df13b597a3676c55a3c21218"
+    },
+    {
+      "bytes": 16235,
+      "path": "src/simgear/misc/sg_path.cxx",
+      "sha256": "c1f97b3d13cf51ba52c6bebcdd2a17475b7bd006792209fc14bc4f53b025744a"
+    },
+    {
+      "bytes": 8538,
+      "path": "src/simgear/misc/sg_path.hxx",
+      "sha256": "22627a489c15381a8270c64b78352f26ed42c61a85e5c3068551b4b84a0dc056"
+    },
+    {
+      "bytes": 2549,
+      "path": "src/simgear/misc/stdint.hxx",
+      "sha256": "5a94f3f12e0fc0bcd3c81a2b02b8bb9f45bd36a216d438448d7bd58e6b187ca6"
+    },
+    {
+      "bytes": 18783,
+      "path": "src/simgear/misc/strutils.cxx",
+      "sha256": "3cd173bb3a5890fa58c08c1aa024062f1c5fbb4654bcfd315b1b27af91b3016e"
+    },
+    {
+      "bytes": 8116,
+      "path": "src/simgear/misc/strutils.hxx",
+      "sha256": "6077e292ad109c6a0f80f3263ed043d91d22569662e8cfe896179d0943479c96"
+    },
+    {
+      "bytes": 199,
+      "path": "src/simgear/props/CMakeLists.txt",
+      "sha256": "55c243e1b9b95a1735104bd3412b13e1b619514b3281727160e362455b73be7b"
+    },
+    {
+      "bytes": 64417,
+      "path": "src/simgear/props/props.cxx",
+      "sha256": "f03c4a9373aca1620324fef579e7657e45ee1a572c8141c109ec6342e6e11c75"
+    },
+    {
+      "bytes": 54342,
+      "path": "src/simgear/props/props.hxx",
+      "sha256": "dc983c40bfc5cd387f3453a86f6eea8cc5e2a8a4f64b983648e22280d848c6c8"
+    },
+    {
+      "bytes": 171,
+      "path": "src/simgear/structure/CMakeLists.txt",
+      "sha256": "03eca47de9e8183afc5fbd6d7cf5ede6069254c2ccce67d5d3d22ad88df33b2f"
+    },
+    {
+      "bytes": 1839,
+      "path": "src/simgear/structure/SGReferenced.hxx",
+      "sha256": "db96fdda527c58aad5255ef2725eba96ff54ee523ccec0081040d2097d4593e9"
+    },
+    {
+      "bytes": 3204,
+      "path": "src/simgear/structure/SGSharedPtr.hxx",
+      "sha256": "905f55e8b92a71a0e0cb244ba665dbf17892b55239696ff7f473749e7a198d32"
+    },
+    {
+      "bytes": 3682,
+      "path": "src/simgear/xml/ascii.h",
+      "sha256": "42f8b392c70366743eacbc60ce021389ccaa333598dd49eef6ee5c93698ca205"
+    },
+    {
+      "bytes": 3520,
+      "path": "src/simgear/xml/asciitab.h",
+      "sha256": "1cc0ae749019fc0e488cd1cf245f6beaa6d4f7c55a1fc797e5aa40a408bc266b"
+    },
+    {
+      "bytes": 1402,
+      "path": "src/simgear/xml/CMakeLists.txt",
+      "sha256": "23b89dcc3320a1872444bd4385754dcbe827d15e6f8350d1b8caffd32dcd9e6e"
+    },
+    {
+      "bytes": 1144,
+      "path": "src/simgear/xml/COPYING",
+      "sha256": "8c6b5b6de8fae20b317f4992729abc0e520bfba4c7606cd1e9eeb87418eebdec"
+    },
+    {
+      "bytes": 8383,
+      "path": "src/simgear/xml/easyxml.cxx",
+      "sha256": "760f1b6b4690ad2f8e9733c17e14f40e51075c2c317a0930e59838e1378cdd42"
+    },
+    {
+      "bytes": 14432,
+      "path": "src/simgear/xml/easyxml.hxx",
+      "sha256": "7d9f1677d523dc8154a53f77c36dbf9584cc3bf665c8bb46c695ad767e10043e"
+    },
+    {
+      "bytes": 44733,
+      "path": "src/simgear/xml/expat.h",
+      "sha256": "d20997001462356b5ce3810ebf5256c8205f58462c64f21eb9bf80f8d1822b08"
+    },
+    {
+      "bytes": 1513,
+      "path": "src/simgear/xml/expat_config.h",
+      "sha256": "35048ea5df094b71594565d630e2ba5d1214ffdd3fd688e0e891e46afcdf6c83"
+    },
+    {
+      "bytes": 6138,
+      "path": "src/simgear/xml/expat_external.h",
+      "sha256": "f60c50a9d2bc5303526bc4a2f9f67fff6ae74626f1185cefc450d66e19523f06"
+    },
+    {
+      "bytes": 3590,
+      "path": "src/simgear/xml/iasciitab.h",
+      "sha256": "ad8b01e9f323cc4208bcd22241df383d7e8641fe3c8b3415aa513de82531f89f"
+    },
+    {
+      "bytes": 7224,
+      "path": "src/simgear/xml/internal.h",
+      "sha256": "c803935722f0dbdeeede7f040028fb119135e96dfad949479f8a5304b885bdd6"
+    },
+    {
+      "bytes": 3573,
+      "path": "src/simgear/xml/latin1tab.h",
+      "sha256": "eab66226da100372e01e42e1cbcd8ac2bbbb5c1b5f95d735289cc85c7a8fc2ba"
+    },
+    {
+      "bytes": 1325,
+      "path": "src/simgear/xml/macconfig.h",
+      "sha256": "cde5f5392d4488aa69751017ddef8ee8037c4a7950f9f8e38d2fa9e6d6bf9379"
+    },
+    {
+      "bytes": 9044,
+      "path": "src/simgear/xml/nametab.h",
+      "sha256": "67dcf415d37a4b692a6a8bb46f990c02d83f2ef3d01a65cd61c8594a084246f2"
+    },
+    {
+      "bytes": 13014,
+      "path": "src/simgear/xml/siphash.h",
+      "sha256": "f537add526ecda8389503b7ef45fb52b6217e4dc171dcc3a8dc6903ff6134726"
+    },
+    {
+      "bytes": 3522,
+      "path": "src/simgear/xml/utf8tab.h",
+      "sha256": "8cd26bd461d334d5e1caedb3af4518d401749f2fc66d56208542b29085159c18"
+    },
+    {
+      "bytes": 2038,
+      "path": "src/simgear/xml/winconfig.h",
+      "sha256": "e70948500d34dfcba4e9f0b305319dfe2a937c7cbfb687905128b56e1a6f8b33"
+    },
+    {
+      "bytes": 309575,
+      "path": "src/simgear/xml/xmlparse.c",
+      "sha256": "f4f87aa0268d92f2b8f5e663788bfadd2e926477d0b061ed4463c02ad29a3e25"
+    },
+    {
+      "bytes": 35512,
+      "path": "src/simgear/xml/xmlrole.c",
+      "sha256": "5b81f0eb0e144b611dbd1bc9e6037075a16bff94f823d57a81eb2a3e4999e91a"
+    },
+    {
+      "bytes": 4457,
+      "path": "src/simgear/xml/xmlrole.h",
+      "sha256": "92e41f373b67f6e0dcd7735faef3c3f1e2c17fe59e007e6b74beef6a2e70fa88"
+    },
+    {
+      "bytes": 54395,
+      "path": "src/simgear/xml/xmltok.c",
+      "sha256": "0ad3f915f2748dc91bf4e4b4a50cf40bf2c95769d0eca7e3b293a230d82bb779"
+    },
+    {
+      "bytes": 13088,
+      "path": "src/simgear/xml/xmltok.h",
+      "sha256": "91bf003a725a675761ea8d92cebc299a76fd28c3a950572f41bc7ce5327ee7b5"
+    },
+    {
+      "bytes": 53720,
+      "path": "src/simgear/xml/xmltok_impl.c",
+      "sha256": "a3fe18ff32b21fbcb7c190895c68158404e1b9fb449db6431bc08b261dc03938"
+    },
+    {
+      "bytes": 3430,
+      "path": "src/simgear/xml/xmltok_impl.h",
+      "sha256": "f05ad4fe5e98429a7349ff04f57192cac58c324601f2a2e5e697ab0bc05d36d5"
+    },
+    {
+      "bytes": 4711,
+      "path": "src/simgear/xml/xmltok_ns.c",
+      "sha256": "b2188c7e5fa5b33e355cf6cf342dfb8f6e23859f2a6b1ddf79841d7f84f7b196"
+    }
+  ],
+  "purpose": "Frozen unchanged library-only JSBSim source selection; aircraft/model XML excluded",
+  "upstream_commit": "3b25f25e49b42d0489c04ac805674fc1450ca579",
+  "upstream_file_count": 279
+}

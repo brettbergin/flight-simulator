@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import {fileURLToPath} from 'node:url';
+import {spawnSync} from 'node:child_process';
 import {checkRuntime,checkDependencies,sha,runtimeNames} from '../export/check-runtime.mjs';
 import {auditRelease,auditDependencyLock} from '../license-audit/audit.mjs';
 const repo=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
@@ -27,7 +28,13 @@ function compare(a,b,label,exact=false){
  if(a&&typeof a==='object'){assert.deepEqual(Object.keys(a).sort(),Object.keys(b).sort(),label);for(const key of Object.keys(a))if(key!=='session_id')compare(a[key],b[key],label+'/'+key,exact);return;}
  assert.equal(a,b,label);
 }
-function audit(root,proof,build){
+export function validateResourceReceipt(receipt,resource){
+ assert.deepEqual(Object.keys(receipt).sort(),['schema','path','bytes','sha256'].sort(),'Runtime resource receipt closed shape');
+ assert.equal(receipt.schema,'PreviewNativeResource/v1');assert.equal(receipt.path,'build/native_identity.gd');
+ assert(Number.isSafeInteger(receipt.bytes)&&receipt.bytes>=0);assert.equal(receipt.bytes,resource.bytes);
+ assert.equal(typeof receipt.sha256,'string');assert.match(receipt.sha256,/^[a-f0-9]{64}$/);assert.equal(receipt.sha256,resource.sha256);
+}
+function audit(root,proof,build,python='python'){
  const payload=path.join(root,'payload'),evidence=path.join(root,'evidence'),replacement=path.join(root,'Replacement space — Δ飛行');
  const baseline=json(path.join(evidence,'smoke-receipt.json')),changed=json(path.join(evidence,'replacement-smoke-receipt.json'));
  for(const receipt of [baseline,changed]){
@@ -47,11 +54,25 @@ function audit(root,proof,build){
  }
  const modules=witness(baseline,payload),replacedModules=witness(changed,replacement);
  const nativeIdentity=json(path.join(evidence,'native-build-identity.json'));
- assert.equal(path.resolve(nativeIdentity.root),path.resolve(build));
- assert.match(nativeIdentity.declared_source_fingerprint,/^[a-f0-9]{64}$/);
- assert.equal(nativeIdentity.source_bindings.length,6);assert.equal(nativeIdentity.build_witnesses.length,4);
- for(const item of nativeIdentity.source_bindings){const bytes=fs.readFileSync(path.join(repo,item.path));assert.equal(bytes.length,item.bytes);assert.equal(sha(bytes),item.raw_sha256);assert.equal(sha(Buffer.from(bytes.toString('utf8').replaceAll('\r\n','\n'))),item.lf_sha256);}
- for(const item of nativeIdentity.build_witnesses){const bytes=fs.readFileSync(path.join(build,item.path));assert.equal(bytes.length,item.bytes);assert.equal(sha(bytes),item.sha256);}
+ // Independent selector/current compiler/source reconstruction, not shape-only evidence.
+ const qualification=spawnSync(python,['-B',path.join(repo,'tools/interactive-preview/native-identity.py'),'--repository-root',repo,'--build-root',build,'--evidence',path.join(evidence,'native-build-identity.json'),'--staged-root',path.join(root,'project'),'--staged-root',path.join(payload,'source/whole-flight-preview'),'--check-reconstruction-root',path.join(payload,'source/whole-flight-preview')],{encoding:'utf8'});
+ assert.equal(qualification.status,0,'Independent native/resource package qualification failed');
+ assert.deepEqual(JSON.parse(qualification.stdout),nativeIdentity);
+ assert.equal(nativeIdentity.schema,'PreviewNativeBuildIdentity/v2');
+ assert.equal(nativeIdentity.source_variant,'jsbsim-1.3.1-upstream','Modified preview delivery requires matching selected-source export/replacement evidence');
+ const reconstructionRoot=path.join(payload,'source/whole-flight-preview');
+ const reconstruction=json(path.join(reconstructionRoot,'native-reconstruction.json'));
+ assert.deepEqual(Object.keys(reconstruction).sort(),['schema','base_git_commit','files','scope'].sort());
+ assert.equal(reconstruction.schema,'PreviewNativeReconstruction/v1');assert.match(reconstruction.base_git_commit,/^[a-f0-9]{40}$/);
+ const names=new Set();for(const item of reconstruction.files){
+  assert.deepEqual(Object.keys(item).sort(),['path','bytes','sha256'].sort());
+  assert.equal(typeof item.path,'string');assert(!item.path.includes('\\')&&!item.path.includes(':')&&!item.path.startsWith('/')&&!item.path.split('/').some(x=>!x||x==='.'||x==='..'));
+  assert(!names.has(item.path));names.add(item.path);assert(Number.isSafeInteger(item.bytes)&&item.bytes>=0);assert.match(item.sha256,/^[a-f0-9]{64}$/);
+  for(const parent of [repo,path.join(reconstructionRoot,'repository')]){const file=path.join(parent,item.path);const raw=fs.readFileSync(file);assert.equal(raw.length,item.bytes);assert.equal(sha(raw),item.sha256);}
+ }
+ for(const item of nativeIdentity.source_bindings)assert(names.has(item.path),'Missing consumer reconstruction source');
+ for(const name of ['native/fdm_jsbsim/interactive/native_identity.gd.in','tools/bootstrap/source-selection.cmake','CMakePresets.json'])assert(names.has(name),'Missing generator/build reconstruction source');
+ for(const context of ['editor','portable','replacement'])validateResourceReceipt(json(path.join(evidence,context+'-native-identity-receipt.json')),nativeIdentity.resource);
  const bridgeIdentity=nativeIdentity.build_witnesses.find(item=>item.path==='bin/flight_godot_bridge.dll');
  assert.equal(bridgeIdentity.sha256,modules.find(item=>item.name==='flight_godot_bridge.dll').sha256);
  assert.equal(bridgeIdentity.sha256,replacedModules.find(item=>item.name==='flight_godot_bridge.dll').sha256);
@@ -160,4 +181,6 @@ function audit(root,proof,build){
  console.log('PASS combined package model/source/notices/full PE+CRT closure and actual replacement loop');
 }
 const [mode,...args]=process.argv.slice(2);
+if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
 if(mode==='models')models(...args);else if(mode==='audit')audit(...args);else throw new Error('Expected models or audit');
+}

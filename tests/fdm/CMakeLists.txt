@@ -1,7 +1,7 @@
 add_executable(fdm_boundary_tests native.cpp)
 target_link_libraries(fdm_boundary_tests PRIVATE flight::fdm_jsbsim)
 target_compile_features(fdm_boundary_tests PRIVATE cxx_std_20)
-target_include_directories(fdm_boundary_tests SYSTEM PRIVATE "${FLIGHT_DEPENDENCY_ROOT}/jsbsim/src")
+target_include_directories(fdm_boundary_tests SYSTEM PRIVATE "${FLIGHT_JSBSIM_SOURCE_ROOT}/src")
 target_link_libraries(fdm_boundary_tests PRIVATE flight::jsbsim)
 if(MSVC)
   target_compile_options(fdm_boundary_tests PRIVATE /W4 /WX /permissive-)

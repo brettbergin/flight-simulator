@@ -13,6 +13,7 @@
       "binaryDir": "${sourceDir}/.local/build/native-release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "BUILD_TESTING": "ON",
         "FLIGHT_BUILD_GODOT_BINDINGS": "ON"
       }

@@ -1,0 +1,75 @@
+{
+  "schema": "coupled-probe-source-manifest-v1",
+  "files": {
+    "chronology-probe.cpp": {
+      "sha256": "c84e395a0d880874c4c60289c82ca861a5d0b4aee3ac649d8d02ebecba2f1d68",
+      "bytes": 5446
+    },
+    "CMakeLists.txt": {
+      "sha256": "39f1358f838aae53c3dc25174280330fce7693ea6b3daa29807c9b418efe405e",
+      "bytes": 5405
+    },
+    "driver.template.cpp": {
+      "sha256": "0cfb84e5b8097d2de19939b51fe7694cc32bf917f1b4071d85d8c09481e64d5b",
+      "bytes": 9471
+    },
+    "legacy_compare.py": {
+      "sha256": "1c7fa1731f8742a1e8e9a71a5ffe341861d2af69f7f20cdaa05b0594ad8f5b91",
+      "bytes": 3732
+    },
+    "library-probe.cpp": {
+      "sha256": "c6bddb9d35cc33db192ca73e5324369705be79002fec752342068cd04b77cabf",
+      "bytes": 9588
+    },
+    "prepare.py": {
+      "sha256": "13a5d8268e9e101273eed2189db75602fe03c53ad40f7a50bafb6418a092ab4e",
+      "bytes": 7964
+    },
+    "README.md": {
+      "sha256": "6bdeafc5e40a189a48b181da250107a714d9ca8b51a07c7d8aa3a6907576358c",
+      "bytes": 4801
+    },
+    "run.py": {
+      "sha256": "0e401bae7f22a9cf38849d11ea7bf88ab5fd79d319bded0696108c13bbcc7b7e",
+      "bytes": 14521
+    },
+    "source-chronology.py": {
+      "sha256": "9a4544f32dca16c7bc931d42cb16173b27f1ab5e79b6cb87c079f7608e8fefd8",
+      "bytes": 2924
+    },
+    "terminal-retention.cpp": {
+      "sha256": "69fdb6cd2c7f97979651a7368c984f979e918e0c397fa079f3027a9f880a5f53",
+      "bytes": 7031
+    },
+    "test_portable.py": {
+      "sha256": "d65a211dfd8102554be17eff4e9ca2d9313b1486da207a76a8ceb68db252f26d",
+      "bytes": 14550
+    },
+    "test_validate.py": {
+      "sha256": "8fbd27eacbe4010bab819bea12ec9fc2fd72968820a8ddec7a61a09b47abdbbc",
+      "bytes": 3700
+    },
+    "validate.py": {
+      "sha256": "4c1c09986a09fb7c175f92332b24b05435e5cdd0e23a94b2ef438b1223832f37",
+      "bytes": 27678
+    }
+  },
+  "shared_sources": {
+    "tests/engine/loaded-library.hpp": {
+      "sha256": "3911b0601260fcb581f95515d267b3bc02ac351144801923737fa0776ac15019",
+      "bytes": 2300
+    },
+    "tests/engine/reference/expected-v3.json": {
+      "sha256": "36aac20d85e841743d7eb9a357be8a0d40d8f103c1cbc60e084dde9ef23db63b",
+      "bytes": 37399
+    },
+    "tests/engine/CMakeLists.txt": {
+      "sha256": "88f939609a52c00f6e511f2d68bca1ad2a7b93b94caa2793d52d97eb38d37a80",
+      "bytes": 2232
+    },
+    "tools/bootstrap/build.ps1": {
+      "sha256": "40c4725cb5e7b8a87bad2843e8fe6730556ff6cc50f32cdfa3b7dd2ea94d76ea",
+      "bytes": 19725
+    }
+  }
+}

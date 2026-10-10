@@ -4,10 +4,11 @@ const U64 = preload("res://simulation/uint64.gd")
 const Frames = preload("res://simulation/canonical_frames.gd")
 const Origin = preload("res://simulation/render_origin.gd")
 const Wire = preload("res://simulation/wire_validation.gd")
+const NativeIdentity = preload("res://build/native_identity.gd")
 const QUANTA: int = 4000000
 const MAX_INT: int = 9223372036854775807
 const WORLD: String = "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5"
-const NATIVE: String = "5fd66c2a861fe0556e077a37f556f3273f584eac26081ffe641a6e0525d1a218"
+const NATIVE: String = NativeIdentity.SOURCE_FINGERPRINT
 const INVENTORY: String = "98b30b5641ce86cc6f0af6298424606aa96a1e4a35ef3e9fcaf377bebb3f00cd"
 
 var render_origin: RefCounted
@@ -48,6 +49,18 @@ var _owner_thread: int
 func _init(adapter_factory: Callable = Callable()) -> void:
 	_factory=adapter_factory
 	_owner_thread=OS.get_thread_caller_id()
+
+static func _native_identity_valid() -> bool:
+	if NativeIdentity.SCHEMA!="flight-native-build-identity-v1" or NativeIdentity.SOURCE_VARIANT not in ["jsbsim-1.3.1-upstream","jsbsim-1.3.1-event-aware-constant-power-v1","jsbsim-1.3.1-event-aware-coupled-midpoint-v1"]:
+		return false
+	for value in [NativeIdentity.BACKEND_IDENTITY_SHA256,NativeIdentity.BUILD_CONTROL_SHA256,NativeIdentity.SOURCE_FINGERPRINT]:
+		if not value is String or value.length()!=64:
+			return false
+		for index in value.length():
+			var code: int=value.unicode_at(index)
+			if not ((code>=48 and code<=57) or (code>=97 and code<=102)):
+				return false
+	return true
 
 func _wrong_thread() -> bool:
 	return not Thread.is_main_thread() or OS.get_thread_caller_id()!=_owner_thread
@@ -216,6 +229,8 @@ func start(model_root: String, named_start: String, wind_profile: Variant="calm"
 	# Selection admission precedes any close, factory call or host mutation.
 	if not valid_wind_profile(wind_profile) or named_start not in ["ground-ready","airborne-prepared"]:
 		return _entry_rejection("Supported named start and exact synthetic wind String required")
+	if not _native_identity_valid():
+		return _entry_rejection("Qualified generated native build identity required")
 	_begin()
 	if _bridge!=null or _truth.host_mode!="closed":
 		return _result(false,"Close before starting a fresh session")
@@ -254,7 +269,7 @@ func start(model_root: String, named_start: String, wind_profile: Variant="calm"
 	_wind_profile=wind_profile
 	_truth.named_start=named_start
 	_truth.model_identity={"id":"original-interactive-prototype","version":"0.1.0-prototype","backend_model":"original-interactive"}
-	_truth.native_source_fingerprint=NATIVE
+	_truth.native_source_fingerprint=reply.native_source_fingerprint
 	_truth.prepared_world_sha256=WORLD
 	_truth.debt_quanta=0
 	_truth.time_scale=1.0
