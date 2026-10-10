@@ -85,3 +85,7 @@ prototype geometry and eye point explicit. #22/#25 depend on #20; #24
 depends on #20/#23; #26 joins cockpit, instruments and input; #27 owns the
 integrated human exercise. Existing preview slices are useful inputs and
 evidence, but do not automatically close those product issues.
+
+### Bounded first-flight frontend dispatch
+
+[ADR018](../../decisions/018-first-flight-briefing-and-circuit-aid.md) proposes two reversible P2 frontend leaves against the accepted interfaces: an in-game paused briefing over the three existing starts, and an optional original synthetic circuit reference for legacy ground-ready/calm/runway36. After the checked contract, accepted issue158 delivery and each leaf's named prerequisites, agents may implement their disjoint leaf files in parallel. One integrator owns shared scene/map/lifecycle/tool changes and joins both in one cohesive dependency-group PR. Actual briefing adoption/discard/lifecycle tests and both leaves' acceptance, exported interaction, independent readability review and protected checks are required before merge. This bounded handoff does not close #2/#3/#21–27, approve source-supported aircraft procedures or replace hardware/pilot and phase evaluation.

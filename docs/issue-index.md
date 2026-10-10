@@ -72,6 +72,10 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | POINTER-ENGINE-CONTROLS | [#158 Add mouse-operable original engine controls](https://github.com/brettbergin/flight-simulator/issues/158) | POINTER-ENGINE-CONTRACT, ORIGINAL-PISTON-FLIGHT, SIM-LOOP-CONTRACT, INPUT-CONTROLS-CONTRACT, COCKPIT-READINGS-CONTRACT |
 | COCKPIT-PRESENTATION | [#159 Improve the original cockpit finish and physical-panel readability](https://github.com/brettbergin/flight-simulator/issues/159) | ORIGINAL-PISTON-FLIGHT, COCKPIT-READINGS-CONTRACT, INPUT-CONTROLS-CONTRACT, LICENSE-REGISTER, RENDER-PROOF |
 | GROUND-MATERIALS | [#160 Improve stable procedural grass, soil and asphalt appearance](https://github.com/brettbergin/flight-simulator/issues/160) | AIRFIELD-LANDMARKS, SIM-LOOP-CONTRACT, LICENSE-REGISTER, RENDER-PROOF |
+| FIRST-FLIGHT-FRONTEND-CONTRACT | [#165 Ratify a small briefing and synthetic circuit-reference seam](https://github.com/brettbergin/flight-simulator/issues/165) | SIM-LOOP, SIM-LOOP-CONTRACT, COCKPIT-READINGS-CONTRACT, LANDMARK-FREE-FLIGHT, STEADY-WIND-FLIGHT, POINTER-ENGINE-CONTRACT, INPUT-CONTROLS-CONTRACT, ORIGINAL-PISTON-FLIGHT, STEADY-WIND-CONTRACT |
+| FIRST-FLIGHT-BRIEFING | [#166 Add clear supported starts and paused cockpit orientation](https://github.com/brettbergin/flight-simulator/issues/166) | FIRST-FLIGHT-FRONTEND-CONTRACT, SIM-LOOP, SIM-LOOP-CONTRACT, COCKPIT-READINGS-CONTRACT, LANDMARK-FREE-FLIGHT, STEADY-WIND-FLIGHT, POINTER-ENGINE-CONTRACT, POINTER-ENGINE-CONTROLS, INPUT-CONTROLS-CONTRACT, ORIGINAL-PISTON-FLIGHT |
+| SYNTHETIC-CIRCUIT-REFERENCE | [#167 Add an optional local circuit diagram and flight card](https://github.com/brettbergin/flight-simulator/issues/167) | FIRST-FLIGHT-FRONTEND-CONTRACT, SIM-LOOP, SIM-LOOP-CONTRACT, COCKPIT-READINGS-CONTRACT, LANDMARK-FREE-FLIGHT, STEADY-WIND-FLIGHT, POINTER-ENGINE-CONTRACT, POINTER-ENGINE-CONTROLS, STEADY-WIND-CONTRACT |
+
 
 ## P3 — Complete circuit and durable progress
 
