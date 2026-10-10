@@ -44,7 +44,7 @@ try{
   if($path.EndsWith('.gd')){[IO.File]::WriteAllText($path,"extends RefCounted`n")}else{Copy-Item -LiteralPath (Join-Path $RepoRoot $definition.source) -Destination $path}
  }
  $snapshot=@(Get-PistonSourceSnapshot -RepoRoot $authoring)
- Check ($snapshot.Count -eq 13) 'closed_thirteen_source_rows'
+ Check ($snapshot.Count -eq 14) 'closed_fourteen_source_rows'
  Copy-PistonSourceSnapshot -RepoRoot $authoring -DestinationRoot $staged -Snapshot $snapshot
  Assert-PistonSourceSnapshot -Root $staged -Snapshot $snapshot
  Check $true 'fresh_exact_copy_admitted'

@@ -273,6 +273,7 @@ function Get-PistonSourceDefinitions {
   @{source='tests/engine/pacing_checks.gd';destination='engine_tests/pacing_checks.gd'},
   @{source='tests/engine/wind_profile_checks.gd';destination='engine_tests/wind_profile_checks.gd'},
   @{source='tests/engine/scene_checks.gd';destination='engine_tests/scene_checks.gd'},
+  @{source='tests/engine/visual_checks.gd';destination='engine_tests/visual_checks.gd'},
   @{source='tests/interactive/bridge_profile_checks.gd';destination='engine_tests/bridge_profile_checks.gd'},
   @{source='tests/debrief/observed_archive/reference/minimal.fsreview.json';destination='engine_tests/reference/minimal.fsreview.json'}
  )
@@ -304,7 +305,7 @@ function Get-PistonSourceSnapshot {
 function Assert-PistonSourceSnapshot {
  param([Parameter(Mandatory)][string]$Root,[Parameter(Mandatory)][object[]]$Snapshot,[switch]$Authoring,[switch]$AllowGeneratedUIDs)
  $definitions=@(Get-PistonSourceDefinitions)
- if($Snapshot.Count -ne $definitions.Count -or $Snapshot.Count -ne 13){throw 'Complete thirteen-file piston staging roster required'}
+ if($Snapshot.Count -ne $definitions.Count -or $Snapshot.Count -ne 14){throw 'Complete fourteen-file piston staging roster required'}
  for($i=0;$i -lt $definitions.Count;$i++){
   $file=$Snapshot[$i];$definition=$definitions[$i]
   if((($file.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "bytes`ndestination`nsha256`nsource" -or $file.source -cne $definition.source -or $file.destination -cne $definition.destination -or ($file.bytes -isnot [long] -and $file.bytes -isnot [int]) -or $file.bytes -lt 0 -or $file.sha256 -isnot [string] -or $file.sha256 -cnotmatch '^[0-9a-f]{64}$'){throw 'Piston staging source/destination/identity declaration rejected'}

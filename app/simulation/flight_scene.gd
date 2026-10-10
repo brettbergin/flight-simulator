@@ -91,6 +91,13 @@ func _ready() -> void:
 		for device in Input.get_connected_joypads():
 			observe_connection(device,true)
 	super._ready()
+	if not legacy_proof and "--piston-visual-smoke" in OS.get_cmdline_user_args():
+		set_process(false)
+		set_process_input(false)
+		set_process_unhandled_input(false)
+		set_process_unhandled_key_input(false)
+		call_deferred("run_piston_visual")
+		return
 	if not legacy_proof and "--wind-visual-smoke" in OS.get_cmdline_user_args():
 		set_process(false)
 		call_deferred("run_wind_visual")
@@ -1644,6 +1651,13 @@ func _exit_tree() -> void:
 	# Forced shutdown can lose an unsaved review, but native ownership must join.
 	archive_operation.clear()
 	super._exit_tree()
+
+func run_piston_visual() -> void:
+	# The observer disables the ordinary host loop: keep audio silent separately.
+	if sound!=null:
+		sound.set_enabled(false)
+		sound.set_process(false)
+	await load("res://engine_tests/visual_checks.gd").new().run(self)
 
 func run_wind_visual() -> void:
 	await load("res://wind_scene_tests/visual_checks.gd").new().run(self)

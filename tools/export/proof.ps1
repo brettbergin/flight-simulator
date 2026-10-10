@@ -4,6 +4,7 @@ $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'common.ps1')
 $repo=(Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 if([string]::IsNullOrWhiteSpace($ToolchainRoot)){$ToolchainRoot=Join-Path $repo '.local/toolchain'}
+$ToolchainRoot=(Resolve-Path -LiteralPath $ToolchainRoot).Path
 $environment=Get-Content (Join-Path $ToolchainRoot 'environment.json') -Raw | ConvertFrom-Json
 $godot=$environment.tools.godot
 if([string]::IsNullOrWhiteSpace($NativeBuildRoot)){$NativeBuildRoot=Join-Path $repo '.local/build/native-release'}
