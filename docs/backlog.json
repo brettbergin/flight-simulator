@@ -5076,6 +5076,170 @@
         "Preserved three-failure native receipt and independent source/trace diagnosis; reviewed corrective ADR, independent references and pretrial chronology.",
         "Actual strict build/default regression and complete unchanged coupled-suite evidence tied to exact source/DLL identities; all protected checks before merge."
       ]
+    },
+    {
+      "key": "POINTER-ENGINE-CONTRACT",
+      "title": "Ratify pointer ownership for original engine controls",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Publish ADR017 before mouse consumers: a closed transient six-control frontend seam owned by the existing pilot mapper, with atomic input conflict admission, deliberate pointer access and honest held-versus-requested feedback over the qualified original piston player. This is a bounded #21/#23 interaction slice, not acceptance of their broad hardware/cockpit or phase gates.",
+      "depends_on": [
+        "ORIGINAL-PISTON-FLIGHT",
+        "SIM-LOOP-CONTRACT",
+        "INPUT-CONTROLS-CONTRACT",
+        "COCKPIT-READINGS-CONTRACT",
+        "ORIGINAL-PISTON-CONTRACT"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:input",
+        "priority:P0",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "docs/decisions/017-frontend-pointer-engine-controls.md",
+        "docs/decisions/008-input-presets.md",
+        "docs/decisions/010-original-piston-profile.md",
+        "docs/contracts.md",
+        "docs/README.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/phases/p2-first-flight.md",
+        "docs/evidence/P1/gate-review.md",
+        "docs/contracts.md",
+        "docs/decisions/007-sim-loop-facade.md",
+        "docs/decisions/008-input-presets.md",
+        "docs/decisions/009-cockpit-readings.md",
+        "docs/decisions/010-original-piston-profile.md",
+        "docs/decisions/014-event-aware-shaft.md",
+        "docs/decisions/015-source-law-coupled-shaft.md",
+        "docs/decisions/016-generated-native-build-identity.md",
+        "docs/evidence/P3/original-piston-player.md",
+        "docs/agent-operations.md"
+      ],
+      "requirements": [
+        "REAL-019",
+        "REAL-021",
+        "PRD-015",
+        "PRD-017",
+        "PRD-020",
+        "UX-009",
+        "UX-010",
+        "UX-011",
+        "UX-012",
+        "UX-013"
+      ],
+      "acceptance": [
+        "Publish exact main-thread copied bind_pointer_session/pointer_view/queue_pointer/invalidate_pointer methods, closed gesture/view shapes, one capture, sixteen-event cap and nonwrapping session/generation/token rules. Fix primary-left-only first UI and cancel-retains-already-sampled-intent decisions; no open consumer choices for shared semantics. After full closed metadata validation, obsolete end/cancel for another valid session or older generation/token and exact duplicate terminals return accepted-inert success with no queue/state change or host pause; current-identity future/mismatched or malformed requests still error/pause. Stale begin/move retains error/pause. Unsampled preview belongs locally to the panel, requested_* is successfully sampled mapper intent, actual is native-only; clear preview on terminal consumption/invalidation without adding view fields.",
+        "Define unchanged complete Raw validation and atomic sample preparation before filters, action edges, brake latch, takeover or intent mutation; same-control conflicts reject and pause before submission/Run, independent controls remain compatible. Do not strip GUI-handled buttons from Raw or suppress device validity. A visible live/profile-eligible engine hit region remains subject to bound-primary-button preflight even if visually disabled solely by that binding conflict; pause before Raw/filter/Run and never double-fire. Hidden/legacy/retained/nonlive/modal-owned regions remain noninteractive under existing physical semantics.",
+        "Define complete active-preset button conflict routing, visible-pointer/mouse-look transition, fixed/key_pair/joy_axis lever authority and target-only existing0.03 mapped takeover. Digital control resumes from final requested value without double elapsed integration.",
+        "Define desired-bool switch coalescing and momentary starter capture/release/rearm through up/outside/leave/focus/modal/pause/reset/Apply/fault and stale-token transitions. Preserve honest paused starter=true until existing accepted release-before-resumed-Run completes; no hidden tick or pulse.",
+        "Retain all native/wire/InputPreset v1/v2 shapes, model/source/solver identity, four deployed winds/default legacy behavior, provenance and phase limits. Panel cannot directly call Facade/native, write readbacks or synthesize physical keys.",
+        "Publish disjoint mapper, pure panel and Root scene/delivery ownership plus meaningful admission, GUI/Raw, lifecycle, real command/publication and exported three-context readability checks. Keep #21/#23 and P1/P2/P3/aircraft/pilot gates open.",
+        "Update canonical backlog, issue index, generated requirement/phase mappings and ADR008/010 crossreferences. Independent final contract review, documentation/schema/contract checks and all required hosted checks precede protected merge; consumers remain blocked until that merge."
+      ],
+      "evidence": [
+        "Reviewed exact ADR017 and crossreference/requirement/dependency mapping; copyable assignment comments on both new issues; contract merge SHA and appropriate check outputs.",
+        "No consumer implementation, modified aircraft/source, hardware/pilot or phase qualification is inferred."
+      ]
+    },
+    {
+      "key": "POINTER-ENGINE-CONTROLS",
+      "title": "Add mouse-operable original engine controls",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Let the pilot operate visible throttle/mixture, ignition left/right, fuel feed and momentary starter through the existing mapper-to-Facade intent path. Add compact truthful actual/requested feedback and safe pointer ownership without changing the qualified #127 model, presets or native simulation. Completes only this bounded #21/#23 slice.",
+      "depends_on": [
+        "POINTER-ENGINE-CONTRACT",
+        "ORIGINAL-PISTON-FLIGHT",
+        "SIM-LOOP-CONTRACT",
+        "INPUT-CONTROLS-CONTRACT",
+        "COCKPIT-READINGS-CONTRACT"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:cockpit",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "app/input/input_mapper.gd",
+        "tests/input/piston_checks.gd",
+        "tests/input/pointer_engine_checks.gd",
+        "app/cockpit/engine_controls.gd",
+        "tests/cockpit/engine_controls_checks.gd",
+        "app/simulation/flight_scene.gd",
+        "tests/integration/input/pointer_engine_scene_checks.gd",
+        "tools/interactive-preview/simulation-staging.ps1",
+        "tools/interactive-preview/simulation-staging.test.ps1",
+        "tools/interactive-preview/run.ps1",
+        "tools/interactive-preview/package.mjs",
+        "tools/interactive-preview/verify.test.mjs",
+        "tools/interactive-preview/README.md",
+        "docs/evidence/P2/pointer-engine-controls.md",
+        "docs/README.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/phases/p2-first-flight.md",
+        "docs/evidence/P1/gate-review.md",
+        "docs/contracts.md",
+        "docs/decisions/007-sim-loop-facade.md",
+        "docs/decisions/008-input-presets.md",
+        "docs/decisions/009-cockpit-readings.md",
+        "docs/decisions/010-original-piston-profile.md",
+        "docs/decisions/014-event-aware-shaft.md",
+        "docs/decisions/015-source-law-coupled-shaft.md",
+        "docs/decisions/016-generated-native-build-identity.md",
+        "docs/evidence/P3/original-piston-player.md",
+        "docs/agent-operations.md",
+        "docs/decisions/017-frontend-pointer-engine-controls.md",
+        "tools/interactive-preview/README.md"
+      ],
+      "requirements": [
+        "REAL-019",
+        "REAL-021",
+        "PRD-015",
+        "PRD-017",
+        "PRD-020",
+        "UX-009",
+        "UX-010",
+        "UX-011",
+        "UX-012",
+        "UX-013"
+      ],
+      "acceptance": [
+        "Implement exactly the accepted ADR017 transient mapper seam. Throttle/mixture and four bool controls pass through the single ordinary complete pilot intent submission with unchanged next-tick identities/order/pilot.controls/unassisted provenance. Never call native/Facade from the panel or change engine/model/source/preset/wire contracts.",
+        "Use primary-left-only precise levers, ignition/feed desired-bool buttons and momentary starter; actual/native-held, mapper-requested and queued/pending values stay visibly distinct. Fixed bindings are disabled with reason, current remap/look hints are truthful, and cold/legacy/retained/unavailable/terminal truth is neither guessed nor painted from a request.",
+        "Validate full Raw and all pinned devices before any candidate mutation. Cover fixed/key_pair/joy_axis authority, digital release continuation, hardware below/equal/above0.03 mapped takeover including reversed sources, target-only takeover and active-device failure during drag. Conflicts and malformed data leave all filters/edges/brake latch/takeover/intent unchanged before normal host pause.",
+        "Exercise closed types/ranges/keys/session/generation/token/queue admission, idempotent exact duplicates, stale release versus newer capture, sixteen-event bounds with terminal preservation, and no-wrap exhaustion. No accepted-prefix sample or dropped starter release is hidden. After full closed metadata validation, obsolete end/cancel for another valid session or older generation/token and exact duplicate terminals return accepted-inert success with no queue/state change or host pause; current-identity future/mismatched or malformed requests still error/pause. Stale begin/move retains error/pause. Unsampled preview belongs locally to the panel, requested_* is successfully sampled mapper intent, actual is native-only; clear preview on terminal consumption/invalidation without adding view fields.",
+        "Prove real GUI events plus independently polled Raw cannot double-apply a bound click as brakes/view/Run/system action. Existing look release exposes visible pointer without camera jump; look activation during capture pauses. Existing physical remaps and v1/v2 preset roundtrip bytes remain unchanged. A visible live/profile-eligible engine hit region remains subject to bound-primary-button preflight even if visually disabled solely by that binding conflict; pause before Raw/filter/Run and never double-fire. Hidden/legacy/retained/nonlive/modal-owned regions remain noninteractive under existing physical semantics.",
+        "Prove starter release and observed-button rearm for inside/outside up, leave/re-entry, capture/focus/modal/widget loss, pause/resume, Apply, reset/profile and terminal fault. Preserve actual paused starter=true, admit starter=false before resumed Run, and allow down/up before a due tick to produce no native pulse.",
+        "Preserve existing legacy/default, four-wind, input/cockpit/readings and #127 eight-group/25-profile lifecycle regressions. Keep new pointer evidence separately identifiable; no relabeling historical receipts or broad parent closure.",
+        "Record actual exported pointer startup, bounded taxi/held-brake stop and shutdown using the same qualified original #127 profile/model/method/limits. Retain complete commands/publications and denied-input no-submit/no-advance evidence. Do not fit physical references, inject RPM or widen tolerances; visual interaction is a frontend qualification.",
+        "Freeze and independently review exact editor/portable/source-replacement source/resource/module/model/rights package evidence and captures at960x540,1920x1080,2560x1440. Verify hit targets, actual/requested/pending distinction, binding/release reasons, primary instruments/runway and existing Controls/help/status access. Headless checks do not substitute for independent exported pixel/GUI review. Record owner feedback separately without claiming pilot/hardware/phase acceptance.",
+        "Complete focused meaningful tests, affected staging/package regressions, documentation and all current protected checks; publish exact source/package hashes, actual results and limitations. Close only this leaf after accepted merged evidence, leaving #21/#23/P1/P2/P3/C172/hardware/pilot gates open."
+      ],
+      "evidence": [
+        "Independent final mapper/panel/scene/source review; rejected-sample pre/post field comparisons and actual GUI/Raw/native command traces; unchanged preset/legacy/wind/#127 evidence.",
+        "Bound Windows editor/portable/source-replacement package/module/resource/model/rights and real viewport/pointer-operation evidence with owner review status stated explicitly.",
+        "No automatic start, extra flight axes, electrical/sensed systems, procedure scoring, calibrated aircraft/sound, broad cockpit geometry or durable pointer settings."
+      ]
     }
   ]
 }

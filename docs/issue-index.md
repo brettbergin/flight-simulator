@@ -68,6 +68,9 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | STEADY-WIND-CONTRACT | [#140 Define selectable steady-wind starts and native-truth cues](https://github.com/brettbergin/flight-simulator/issues/140) | INTERACTIVE-CONTRACT, SIM-LOOP-CONTRACT, COCKPIT-READINGS-CONTRACT, OBSERVED-REVIEW-CONTRACT, OBSERVED-ARCHIVE-CONTRACT |
 | STEADY-WIND-FLIGHT | [#142 Add selectable steady wind and native-truth flight cues](https://github.com/brettbergin/flight-simulator/issues/142) | STEADY-WIND-CONTRACT, OBSERVED-REVIEW-FILES |
 
+| POINTER-ENGINE-CONTRACT | [#157 Ratify pointer ownership for original engine controls](https://github.com/brettbergin/flight-simulator/issues/157) | ORIGINAL-PISTON-FLIGHT, SIM-LOOP-CONTRACT, INPUT-CONTROLS-CONTRACT, COCKPIT-READINGS-CONTRACT, ORIGINAL-PISTON-CONTRACT |
+| POINTER-ENGINE-CONTROLS | [#158 Add mouse-operable original engine controls](https://github.com/brettbergin/flight-simulator/issues/158) | POINTER-ENGINE-CONTRACT, ORIGINAL-PISTON-FLIGHT, SIM-LOOP-CONTRACT, INPUT-CONTROLS-CONTRACT, COCKPIT-READINGS-CONTRACT |
+
 ## P3 — Complete circuit and durable progress
 
 | Key | Issue | Dependencies |
