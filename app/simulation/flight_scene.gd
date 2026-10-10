@@ -575,6 +575,7 @@ func make_menu(canvas: CanvasLayer) -> void:
 	canvas.add_child(wind_card)
 	wind_label=Label.new()
 	wind_label.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	wind_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	wind_label.add_theme_font_size_override("font_size",12)
 	wind_label.add_theme_color_override("font_color",Color("d1e9ec"))
 	wind_label.add_theme_color_override("font_shadow_color",Color.BLACK)
@@ -905,9 +906,12 @@ func update_wind_presentation(readback: Dictionary) -> void:
 		cue=WindCue.from_readback({})
 	if wind_label!=null:
 		wind_label.text="SYNTHETIC STEADY WIND / NATIVE TRUTH\n"+WindPanel.describe(cue)
-		var viewport_height: float=get_viewport().get_visible_rect().size.y
-		var overlay_height: float=minf(viewport_height*0.34,455.0) if panel.get("_panel_visible") else 32.0
-		wind_card.position=Vector2(16,viewport_height-overlay_height-52.0)
+		# Reserve the lower cockpit for its actual instrument faces. Wrapping
+		# prevents a long wind description from growing over the heading dial.
+		var available: Vector2=get_viewport().get_visible_rect().size
+		wind_card.size=Vector2(minf(300.0,available.x*0.31),0.0)
+		var stopped: bool=readback.get("host_mode") in ["coverage_blocked","stalled","discarded","closed"] or readback.get("native_outcome") in ["discarded","error","coverage_blocked"]
+		wind_card.position=Vector2(16,92.0+(58.0 if piston_mode() else 0.0)+(32.0 if stopped else 0.0))
 		wind_card.visible=not menu_open and camera_mode!=3
 	if wind_panel!=null and wind_panel.visible:
 		wind_panel.set_context(wind_draft,current_wind_profile,cue,review_boundary() and archive_operation.is_empty() and pending_discard.is_empty())
