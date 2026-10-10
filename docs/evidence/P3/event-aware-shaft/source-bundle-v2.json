@@ -1,0 +1,21 @@
+{
+  "materialization_receipt_sha256": "7b0d1a6c5a1e8c0e34f283c42b26bd420ff14e47b9049b6bd06e7a6b66fc35bd",
+  "recipe_sha256": "71db638631bdb4a20aa5e72b4a7a45aa27c20dcc57709bdbbf85924c7058bcdd",
+  "repeat_matches": true,
+  "schema_version": 2,
+  "source_archive_bytes": 3827121,
+  "source_archive_sha256": "461aba72cd91ae806bcbfaacb6e257d01f258c25b096d0be83d2a12e9a82bde1",
+  "source_variant": "jsbsim-1.3.1-event-aware-constant-power-v1",
+  "source_verification": {
+    "bundle_files": 291,
+    "materializer_sha256": "0ab21c536c8f94f59c5647384c20b48e8e26d78a856b666a2a1148c5851af1c2",
+    "modified_vendor_files": 2,
+    "provenance_reconstructed": true,
+    "recipe_sha256": "71db638631bdb4a20aa5e72b4a7a45aa27c20dcc57709bdbbf85924c7058bcdd",
+    "schema_version": 2,
+    "source_variant": "jsbsim-1.3.1-event-aware-constant-power-v1",
+    "unchanged_vendor_files": 277,
+    "vendor_files": 279,
+    "vendor_tree_sha256": "81a0233611154263bfa4ebeded8a1b34331a3e2f8ce97c52b70de82647ebad2e"
+  }
+}

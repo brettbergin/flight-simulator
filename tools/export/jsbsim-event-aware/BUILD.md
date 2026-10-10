@@ -34,7 +34,7 @@ not a compilation permission check: recipients may edit vendor source and
 rebuild directly; deliberate edits no longer identify the reviewed variant.
 
 ```
-cmake -S . -B ../jsbsim-build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_MAKE_PROGRAM=C:/path/to/ninja.exe
+cmake -S . -B ../jsbsim-build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_MAKE_PROGRAM=C:/path/to/ninja.exe
 cmake --build ../jsbsim-build --target libJSBSim --parallel 6
 ```
 
@@ -42,10 +42,11 @@ Expected outputs are bin/JSBSim.dll and lib/JSBSim.lib. The wrapper disables
 docs/Python/Julia/Matlab, tests/PkgConfig and system Expat; only libJSBSim is
 qualified. Upstream install/CPack/dist and models are outside this selection.
 This schema2 wrapper applies `/fp:strict` specifically to FGPropeller.cpp in the
-libJSBSim target's directory scope. Inspect the actual Ninja compile command
-before a numerical build; do not accept inherited `/fp:fast` or implicit FMA
-contraction. The future repository Linux route must likewise select
-`-fno-fast-math -ffp-contract=off` for this source and prove the actual flags.
+Propulsion OBJECT target's directory scope. Before building, require exactly one
+FGPropeller.cpp entry in compile_commands.json with `/fp:strict` and neither
+`/fp:fast` nor `/fp:precise`; retain the command and inspect the verbose actual
+compiler invocation before numerical use. Do not accept implicit FMA contraction. The future repository Linux route must likewise select
+`-fno-fast-math -ffp-contract=off -frounding-math` for this source and prove the actual flags.
 Record actual configure/build commands and results separately; source verification does not establish compilation success.
 No aircraft XML, binaries or Microsoft redistributables enter this archive.
 Keep original grants/notices in vendor/COPYING, vendor/README.md, SimGear,

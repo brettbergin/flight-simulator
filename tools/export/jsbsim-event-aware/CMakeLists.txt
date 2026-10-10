@@ -21,7 +21,14 @@ set(PkgConfig_FOUND OFF)
 # Vendor source carries the reviewed opt-in ADR014 amendment; its CMake selects C++17 for the library.
 add_subdirectory(vendor vendor-build EXCLUDE_FROM_ALL)
 # ADR014 error-free transformations require strict binary64 evaluation and no
-# implicit multiply-add contraction. Apply in libJSBSim's source directory scope.
+# implicit multiply-add contraction. FGPropeller.cpp belongs to Propulsion's directory scope.
 # This separate schema2 wrapper does not alter historical schema1 flags.
+if(NOT TARGET Propulsion)
+  message(FATAL_ERROR "Pinned JSBSim Propulsion compilation target is missing")
+endif()
+get_target_property(propulsion_kind Propulsion TYPE)
+if(NOT propulsion_kind STREQUAL "OBJECT_LIBRARY")
+  message(FATAL_ERROR "Pinned JSBSim Propulsion must be an object library")
+endif()
 set_property(SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/vendor/src/models/propulsion/FGPropeller.cpp"
-  TARGET_DIRECTORY libJSBSim APPEND PROPERTY COMPILE_OPTIONS /fp:strict)
+  TARGET_DIRECTORY Propulsion APPEND PROPERTY COMPILE_OPTIONS /fp:strict)
