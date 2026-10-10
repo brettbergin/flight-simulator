@@ -1,0 +1,522 @@
+{
+  "schema": "coupled-midpoint-input-roster-v1",
+  "method": "event_aware_coupled_midpoint_v1",
+  "backend_pi_bits": "400921fb54442d18",
+  "model_inputs": [
+    {
+      "path": "native/fdm_jsbsim/models/original-piston-prop/engine/original-piston.xml",
+      "sha256": "4212b398118be77cdff44f6e41abfded7e4fd8fcfece422dba27fd64ad30b638"
+    },
+    {
+      "path": "native/fdm_jsbsim/models/original-piston-prop/engine/original-fixed-prop.xml",
+      "sha256": "b4f3f376f062d869a338bb2757466c9ba23d6320d895d3fc5921e351748bb0af"
+    }
+  ],
+  "named_groups": [
+    "C01",
+    "C02",
+    "C03",
+    "C04",
+    "C05",
+    "C06",
+    "C07",
+    "K01",
+    "K02",
+    "K03",
+    "K04",
+    "K05",
+    "K06",
+    "K07",
+    "K08",
+    "K09",
+    "K10",
+    "K11",
+    "K12",
+    "K13",
+    "K14",
+    "K15",
+    "K16",
+    "E01",
+    "E02",
+    "E03",
+    "E04",
+    "E05",
+    "E06",
+    "E07",
+    "R01",
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "M01",
+    "M02",
+    "M03",
+    "M04",
+    "M05",
+    "M06"
+  ],
+  "kernel": [
+    {
+      "id": "K01",
+      "I": "1",
+      "w0": "0",
+      "h": "1/8",
+      "c": [
+        "0",
+        "2",
+        "0",
+        "0"
+      ],
+      "status": "advance"
+    },
+    {
+      "id": "K02",
+      "I": "1",
+      "w0": "1",
+      "h": "1/8",
+      "c": [
+        "0",
+        "-2",
+        "0",
+        "0"
+      ],
+      "status": "advance"
+    },
+    {
+      "id": "K03",
+      "I": "1",
+      "w0": "1",
+      "h": "1/2",
+      "h_sides": [
+        "2047/4096",
+        "1/2",
+        "2049/4096"
+      ],
+      "c": [
+        "0",
+        "-2",
+        "0",
+        "0"
+      ],
+      "status_sides": [
+        "advance",
+        "stop",
+        "stop"
+      ]
+    },
+    {
+      "id": "K04",
+      "I": "2",
+      "w0": "3",
+      "h": "1/4",
+      "c": [
+        "-2",
+        "0",
+        "0",
+        "0"
+      ],
+      "status": "advance"
+    },
+    {
+      "id": "K05",
+      "I": "2",
+      "w0": "3",
+      "h": "9/2",
+      "h_sides": [
+        "18431/4096",
+        "9/2",
+        "18433/4096"
+      ],
+      "c": [
+        "-2",
+        "0",
+        "0",
+        "0"
+      ],
+      "status_sides": [
+        "advance",
+        "stop",
+        "stop"
+      ]
+    },
+    {
+      "id": "K06",
+      "I": "1",
+      "w0": "0",
+      "h": "1/8",
+      "c": [
+        "0",
+        "0",
+        "0",
+        "-1"
+      ],
+      "status": "hold"
+    },
+    {
+      "id": "K07",
+      "I": "1",
+      "w0": "2",
+      "h": "1/8",
+      "c": [
+        "0",
+        "0",
+        "-1",
+        "0"
+      ],
+      "status": "advance"
+    },
+    {
+      "id": "K08",
+      "I": "1",
+      "w0": "2",
+      "h": "2",
+      "h_sides": [
+        "2",
+        "8193/4096"
+      ],
+      "c": [
+        "0",
+        "0",
+        "-1",
+        "0"
+      ],
+      "status_sides": [
+        "reject",
+        "reject"
+      ]
+    },
+    {
+      "id": "K09",
+      "I": "1",
+      "w0": "2",
+      "h": "1/8",
+      "c": [
+        "0",
+        "0",
+        "0",
+        "-1"
+      ],
+      "status": "advance"
+    },
+    {
+      "id": "K10",
+      "I": "1",
+      "w0": "2",
+      "h": "2",
+      "c": [
+        "0",
+        "0",
+        "0",
+        "-1"
+      ],
+      "status": "reject"
+    },
+    {
+      "id": "K11",
+      "I": "1",
+      "w0": "1",
+      "h": "1/8",
+      "c": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      "status": "hold"
+    },
+    {
+      "id": "K12",
+      "I": "1",
+      "w0": "2",
+      "h": "1/8",
+      "c": [
+        "0",
+        "1",
+        "-1",
+        "0"
+      ],
+      "status": "advance"
+    },
+    {
+      "id": "K13",
+      "I": "1",
+      "w0": "2",
+      "h": "2",
+      "h_sides": [
+        "2",
+        "8193/4096"
+      ],
+      "c": [
+        "0",
+        "1",
+        "-1",
+        "0"
+      ],
+      "status_sides": [
+        "reject",
+        "reject"
+      ]
+    },
+    {
+      "id": "K14",
+      "I": "1",
+      "w0": "1",
+      "h": "1/8",
+      "c": [
+        "0",
+        "1",
+        "-1",
+        "0"
+      ],
+      "status": "hold"
+    },
+    {
+      "id": "K15",
+      "I": "1",
+      "w0": "1/4",
+      "h": "21/500",
+      "c": [
+        "-1",
+        "2",
+        "0",
+        "0"
+      ],
+      "status": "reject"
+    },
+    {
+      "id": "K16",
+      "I": "1",
+      "w0": "0",
+      "h": "1/8",
+      "c": [
+        "-1",
+        "2",
+        "0",
+        "0"
+      ],
+      "status": "hold"
+    }
+  ],
+  "assertions": [
+    {
+      "id": "R01",
+      "kind": "bits",
+      "input_rpm_bits": [
+        "0000000000000000",
+        "8000000000000000",
+        "3ff0000000000000"
+      ],
+      "h_bits": "0000000000000000",
+      "expected": "admitted actual frame: exact incoming RPM bits unchanged; no final angular-to-RPM decode or assignment; ordinary pre-stage encode/validation and once-public-call chronology retained"
+    },
+    {
+      "id": "R02",
+      "kind": "rejections",
+      "inputs": [
+        "NaN in each frame/solver scalar",
+        "positive infinity in each scalar",
+        "negative infinity in each scalar",
+        "I=-1",
+        "h=-1/8",
+        "w0=-1",
+        "c0=1 positive-power production frame"
+      ],
+      "expected": "visible rejection and last completed publication retained"
+    },
+    {
+      "id": "R03",
+      "kind": "rejections",
+      "inputs": [
+        "engine not piston",
+        "gear ratio not1",
+        "pitch not20",
+        "CP topology not original",
+        "CP or Ct scale not1",
+        "Mach correction active",
+        "stale frame RPM",
+        "stale frame h",
+        "old scalar Calculate under new method"
+      ],
+      "expected": "visible rejection without fallback; initialization rejects unsupported content"
+    },
+    {
+      "id": "R04",
+      "kind": "prospective concrete arithmetic-domain assertions",
+      "checked_operand_policy": "finite, zero or normal with ilogb in [-60,60]; predicate admission alone is not whole-trajectory success",
+      "operand_bits": [
+        {
+          "bits": "3c30000000000000",
+          "expected": "admit lower exponent boundary"
+        },
+        {
+          "bits": "3c2fffffffffffff",
+          "expected": "reject predecessor, exponent -61"
+        },
+        {
+          "bits": "43bfffffffffffff",
+          "expected": "admit upper exponent binade maximum"
+        },
+        {
+          "bits": "43c0000000000000",
+          "expected": "reject successor, exponent 61"
+        },
+        {
+          "bits": "0000000000000001",
+          "expected": "reject nonzero subnormal"
+        },
+        {
+          "bits": "0000000000000000",
+          "expected": "admit positive zero"
+        },
+        {
+          "bits": "8000000000000000",
+          "expected": "admit negative zero"
+        }
+      ],
+      "environment_witnesses": [
+        {
+          "mutation": "MXCSR FTZ 0x8000",
+          "expected": "reject"
+        },
+        {
+          "mutation": "MXCSR DAZ 0x0040",
+          "expected": "reject"
+        },
+        {
+          "mutation": "MXCSR non-nearest rounding 0x6000",
+          "expected": "reject",
+          "scope": "source-audited guard only; no separate numerical request because CRT fegetround may observe SSE rounding directly"
+        },
+        {
+          "mutation": "fesetround(FE_TOWARDZERO)",
+          "expected": "reject"
+        }
+      ],
+      "checked_product": {
+        "expression": "CoupledRounded(2^60 * 2)",
+        "expected": "reject exponent61; finite IEEE result, not called overflow"
+      },
+      "progress_witness": {
+        "I": "1",
+        "w0": "1/1152921504606846976",
+        "h": "1/1152921504606846976",
+        "c": [
+          "0",
+          "-1/4",
+          "0",
+          "0"
+        ],
+        "expected": "reject final positive progress 3*2^-62 outside domain; no zero clipping"
+      },
+      "status": "source-reviewed witnesses; no native execution or success evidence",
+      "not_executed_evidence": true
+    },
+    {
+      "id": "R05",
+      "kind": "prospective concrete production primitive resource assertions",
+      "witnesses": [
+        {
+          "primitive": "CIsolate",
+          "polynomial": [
+            "-1/1152921504606846976",
+            "1"
+          ],
+          "bracket": [
+            "0",
+            "1152921504606846976"
+          ],
+          "expected": "reject after64 bisections: bracket still nonadjacent; exact root requires120 halvings"
+        },
+        {
+          "primitive": "CCertifyDecay",
+          "law": [
+            "0",
+            "2",
+            "-1",
+            "0"
+          ],
+          "w0": "2",
+          "endpoint": "1",
+          "expected": "B identically zero: cannot certify strict negative range; reject after8 total splits"
+        },
+        {
+          "primitive": "CAdd",
+          "expression": "CAdd(CScale(CoupledDyadic(1),4096),CoupledDyadic(1))",
+          "expected": "reject required4097-bit result before array access"
+        }
+      ],
+      "expected": "visible rejection; no partial publication",
+      "scope": "extracted exact production primitives; not assertions that these inputs reach each guard through an admissible actual engine trajectory",
+      "status": "source-reviewed witnesses, no counter seam needed; no native execution",
+      "not_executed_evidence": true
+    },
+    {
+      "id": "M01",
+      "kind": "chronology",
+      "conditions": [
+        "current mixture cutoff",
+        "current magnetos0"
+      ],
+      "expected": "no-combustion mode selected before Running FMEP/power; no stale full-tick FMEP pulse"
+    },
+    {
+      "id": "M02",
+      "kind": "chronology",
+      "sequence": [
+        "previous supplied fuel available; current feed unavailable",
+        "actual ConsumeFuel reveals Starved",
+        "next public call observes Starved"
+      ],
+      "expected": "preserve source supplied-fuel/ConsumeFuel lag; no immediate feed-command fuel oracle"
+    },
+    {
+      "id": "M03",
+      "kind": "strict mode-policy expansion",
+      "rpm_sides": "480 +/- 2^-12 plus exact480",
+      "hp_sides": "1/8 +/- 2^-20 plus exact1/8",
+      "expected": "strict comparisons and prior-mode retention at equalities; no fuel or no spark always prevents running"
+    },
+    {
+      "id": "M04",
+      "kind": "chronology",
+      "initial_running": false,
+      "within_step_crossing_rpm": "480",
+      "expected": "mode frozen through scalar solve; next public boundary may ignite"
+    },
+    {
+      "id": "M05",
+      "kind": "call counts",
+      "expected_counts": {
+        "Calculate": 1,
+        "MAP": 1,
+        "airflow": 1,
+        "fuel_flow": 1,
+        "thermal_update": 1,
+        "ConsumeFuel": 1
+      },
+      "expected": "CP/taper/stop scalar segments have no stateful engine callback"
+    },
+    {
+      "id": "M06",
+      "kind": "selector lifecycle",
+      "default": "legacy_euler",
+      "methods": [
+        "legacy_euler",
+        "event_aware_constant_power_v1",
+        "event_aware_coupled_midpoint_v1"
+      ],
+      "expected": "unknown selector rejected unchanged; actual getter before RunIC/publication; reset retains chosen method; historical references immutable"
+    }
+  ],
+  "fixed_expansions": {
+    "C05": "ws*(1-2^-12), ws, ws*(1+2^-12)",
+    "C06": "V=-10,0,30 ft/s",
+    "C07": "loaded .08 table ratio knot plus/minus exact2^-30 and exact knot",
+    "E03": "positive and negative outgoing drift at exact CP knot",
+    "E05": "negative,zero,positive outgoing drift at exact starter knot",
+    "E06": "RN integer construction with actual knot equality check; separated knots explicitly reported if unequal",
+    "smooth_C01": "w0=100, compact[99,101], T=1/(8*(1+Fmax+L)), partitions8,16,32",
+    "smooth_K07": "w0=2, compact[1,2], T=1/2, partitions8,16,32",
+    "smooth_K09": "w0=2, compact[1,2], T=1/8, partitions8,16,32"
+  }
+}
