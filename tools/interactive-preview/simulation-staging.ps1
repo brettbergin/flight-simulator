@@ -502,7 +502,7 @@ function Get-FirstFlightSourceGroups {
   @{source='tests/scenarios/first-flight';destination='scenario_tests/first-flight';required=@('briefing_checks.gd','circuit_checks.gd')},
   @{source='tests/ui/first_flight';destination='first_flight_ui_tests';required=@('briefing_checks.gd')},
   @{source='tests/world/synthetic';destination='world_tests/synthetic';required=@('circuit_checks.gd')},
-  @{source='tests/integration/first_flight';destination='first_flight_scene_tests';required=@('scene_checks.gd','map_checks.gd','visual_checks.gd')}
+  @{source='tests/integration/first_flight';destination='first_flight_scene_tests';required=@('scene_checks.gd','map_checks.gd','visual_checks.gd','layout_visual_checks.gd')}
  )|ForEach-Object {$_.snapshot=@(Get-SimulationSourceSnapshot (Join-Path $RepoRoot $_.source) -RequiredEntries $_.required);$_}
 }
 function Copy-FirstFlightSourceGroups {
@@ -621,6 +621,12 @@ func observed_first_flight_baseline() -> Dictionary:
  return value if stopped.ok and not stopped.readback.native_live and admitted.available and value.get("tick")=="0" and value.get("debt_quanta")==0 else {}
 func execute() -> void:
  for argument in OS.get_cmdline_user_args():
+  if argument.begins_with("--ordinary-flight-layout-output="):
+   var output: String=argument.trim_prefix("--ordinary-flight-layout-output=")
+   var layout: Dictionary=await load("res://first_flight_scene_tests/layout_visual_checks.gd").new().run_layout(self,output)
+   print("ORDINARY_FLIGHT_LAYOUT_VISUAL ",JSON.stringify({"passed":layout.get("passed",false),"checks":layout.get("checks",0),"failures":layout.get("failures",[]),"views":layout.get("views",[]).size(),"native_joined":layout.get("native_joined",false),"audio_joined":layout.get("audio_joined",false)}))
+   get_tree().quit(0 if layout.get("passed")==true and layout.get("native_joined")==true and layout.get("audio_joined")==true and layout.get("views",[]).size()==29 else 1)
+   return
   if argument.begins_with("--first-flight-interaction-output="):
    var output: String=argument.trim_prefix("--first-flight-interaction-output=")
    var interaction: Dictionary=await load("res://first_flight_scene_tests/visual_checks.gd").new().run_interaction(self,output)

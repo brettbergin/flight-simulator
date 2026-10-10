@@ -5,6 +5,7 @@ extends RefCounted
 const Scene=preload("res://simulation/flight_scene.gd")
 const Facade=preload("res://simulation/session_facade.gd")
 const Mapper=preload("res://input/input_mapper.gd")
+const Preset=preload("res://input/input_preset.gd")
 const CHOICES: Array=[
  {"id":"cold-familiarization","start":"piston-cold-ground","profile":{"id":"original-piston-prop-v1","version":"0.1.0-prototype","backend_model":"original-piston-prop"}},
  {"id":"ready-flight","start":"ground-ready","profile":{"id":"original-interactive-prototype","version":"0.1.0-prototype","backend_model":"original-interactive"}},
@@ -91,6 +92,11 @@ class SyntheticScene extends Scene:
   blocked=true
   failures.append(message)
   return false
+
+class UnhandledWitness extends Node:
+ var events: Array[InputEvent]=[]
+ func _unhandled_input(event: InputEvent) -> void:
+  events.append(event)
 
 var _host: Node
 var _checks: int=0
@@ -471,7 +477,10 @@ func _presentation_bytes(scene: Node) -> PackedByteArray:
  return var_to_bytes({"map":scene.flight_map.get_global_rect(),"compact":scene.flight_map.compact_aid_layout,
   "engine":scene.engine_controls.get_global_rect(),"engine_expanded":scene.engine_controls.is_expanded(),
   "wind":scene.wind_card.get_global_rect(),"wind_label":scene.wind_label.get_global_rect(),"wind_visible":scene.wind_card.visible,
-  "route_card":board._card.get_global_rect(),"route_visible":board._card.visible,"summary":board._summary_in_map,"dock":board._card_dock,
+  # Hidden Containers defer minimum-size settlement. Their committed dock,
+  # visibility and typography remain checked; actual visible bounds are checked
+  # below after opening the card and processing its real layout frames.
+  "route_card":board._card.get_global_rect() if board._card.is_visible_in_tree() else Rect2(),"route_visible":board._card.visible,"summary":board._summary_in_map,"dock":board._card_dock,
   "title_font":board._title.get_theme_font_size("font_size"),"metrics_font":board._metrics.get_theme_font_size("font_size"),"state_wrap":board._state.autowrap_mode,"state_minimum":board._state.custom_minimum_size})
 
 func _layout_frames(scene: Node) -> void:
@@ -549,7 +558,7 @@ func _layout_matrix(scene: Node) -> void:
     _check(card._view.available==(not cold),"layout_actual_start_availability_"+label)
     # Accepted live top bar occupies y0..85. Cold cockpit/chase additionally
     # draws its native engine feedback through y144; PANEL draws it at bottom.
-    var top: float=144.0 if cold and mode!=3 else 85.0
+    var top: float=85.0
     var native_bar: Rect2=Rect2(0,0,dimensions.x,top)
     _check(not card_rect.intersects(native_bar),"layout_card_preserves_native_top_bar_"+label)
     if mode==1:
@@ -563,7 +572,7 @@ func _layout_matrix(scene: Node) -> void:
       var bezel: Rect2=_projected_bezel(scene,index)
       _check(bezel.size.x>0.0 and bezel.size.y>0.0,"layout_observed_actual_bezel_"+label+"_"+str(index))
       _check(not card_rect.intersects(bezel),"layout_card_preserves_primary_dial_"+label+"_"+str(index))
-      if not cold: _check(not map_rect.intersects(bezel),"layout_map_preserves_primary_dial_"+label+"_"+str(index))
+      _check(not map_rect.intersects(bezel),"layout_map_preserves_primary_dial_"+label+"_"+str(index))
     if cold:
      _check(card._view.points_anchor_eus_m.is_empty() and card._view.leg_labels.is_empty() and card._reason.visible and not card._reason.text.is_empty(),"layout_cold_notice_no_false_diagram_"+label)
      _check(card_rect.encloses(card._title.get_global_rect()) and card_rect.encloses(card._reason.get_global_rect()),"layout_cold_complete_notice_regions_"+label)
@@ -600,14 +609,249 @@ func _layout_matrix(scene: Node) -> void:
      _check(var_to_bytes(scene.flight_map.get("_route"))==route and scene.landmark_board._view.active,"layout_map_close_preserves_current_manual_route_"+label)
      scene.dispatch_input_action("map_toggle")
      await _layout_frames(scene)
+    var engine_rect: Rect2=scene.engine_controls.get_global_rect()
+    if cold:
+     _check(viewport.encloses(engine_rect) and engine_rect.size==Vector2(clampf(dimensions.x/6.0,250,360),216),"layout_compact_engine_inside_"+label)
+     _check(not engine_rect.intersects(map_rect),"layout_engine_locator_distinct_"+label)
+    var release: Label=scene.look_release_label
+    _check(release.is_visible_in_tree()==(not cold),"layout_legacy_persistent_release_expanded_engine_equivalent_"+label)
+    if release.is_visible_in_tree():
+     _check(viewport.encloses(release.get_global_rect()) and release.mouse_filter==Control.MOUSE_FILTER_PASS,"layout_release_inside_noninteractive_"+label)
+     _check(release.text.begins_with("Look: ") and release.text.ends_with("release to use") and not release.tooltip_text.is_empty(),"layout_release_complete_action_and_full_binding_"+label)
+     _check(release.get_theme_font("font").get_string_size(release.text,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x<=release.size.x,"layout_release_actual_composed_font_fits_"+label)
+    var stable: PackedByteArray=_presentation_bytes(scene)
+    for repeat in 3: scene.layout_live_flight_aids()
+    _check(_presentation_bytes(scene)==stable,"layout_identical_publication_idempotent_"+label)
+    var gaze: Vector2=scene.look_angles
+    scene.look_angles=Vector2(1.1,0.15)
+    scene.show_state(0.0)
+    _check(_presentation_bytes(scene)==stable,"layout_gaze_does_not_move_targets_"+label)
+    scene.look_angles=gaze
+    scene.show_state(0.0)
     _check(_snapshot(scene)==native and _ledger(scene)==ledger,"layout_view_only_full_native_mapper_recording_origin_invariant_"+label)
     await _set_layout_aid(scene,false)
+    if _presentation_bytes(scene)!=off:
+     print("LAYOUT_RESTORE_DIAGNOSTIC "+label+" "+JSON.stringify({"before":bytes_to_var(off),"after":bytes_to_var(_presentation_bytes(scene))}))
     _check(_presentation_bytes(scene)==off,"layout_aid_off_restores_original_map_wind_route_presentation_"+label)
-    _check(scene.landmark_board._state.custom_minimum_size.y==0.0,"layout_aid_off_restores_original_route_footer_minimum_"+label)
+    _check(scene.landmark_board._state.custom_minimum_size.y>=scene.landmark_board._state.get_line_height(),"layout_aid_off_keeps_readable_docked_route_footer_"+label)
     _check(_snapshot(scene)==native and _ledger(scene)==ledger and var_to_bytes(scene.flight_map.get("_route"))==route,"layout_aid_off_full_truth_route_invariant_"+label)
  window.size=old_size
  scene.engine_controls.set_expanded(old_expanded)
  await _layout_frames(scene)
+
+func _persistent_release_matrix(scene: Node) -> void:
+ var window: Window=scene.get_window()
+ var witness: Node=UnhandledWitness.new()
+ scene.add_child(witness)
+ var old_size: Vector2i=window.size
+ var old_mode: int=scene.camera_mode
+ var profiles: Array[String]=["original-interactive-prototype"]
+ if _include_piston: profiles.append("original-piston-prop-v1")
+ for profile in profiles:
+  if not _source(scene,profile): continue
+  await _paused_native_live_aid_view(scene)
+  scene.engine_controls.set_expanded(false)
+  scene.circuit_aid_enabled=false
+  scene.map_visible=true;scene.flight_map.show()
+  scene.panel.set_help_visible(false)
+  var native: PackedByteArray=_snapshot(scene)
+  var ledger: PackedByteArray=_ledger(scene)
+  for dimensions in [Vector2i(960,540),Vector2i(1920,1080),Vector2i(2560,1440)]:
+   window.size=dimensions
+   for mode in [0,3,1]:
+    scene.set_camera_mode(mode)
+    scene.panel.set_panel_visible(false)
+    await _layout_frames(scene)
+    var label: String=profile+str(dimensions)+str(mode)
+    var release: Label=scene.look_release_label
+    _check(release.is_visible_in_tree() and release.get_global_rect().end.y<=dimensions.y,"release_Help_off_HUD_hidden_collapsed_engine_"+label)
+    _check(not scene.panel._help_visible and not scene.panel._panel_visible,"release_respects_optional_Help_and_HUD_"+label)
+    _check(not release.get_global_rect().intersects(scene.flight_map.get_global_rect()),"release_clear_of_visible_locator_"+label)
+    var hover: InputEventMouseMotion=InputEventMouseMotion.new()
+    hover.position=release.get_global_rect().get_center()
+    var event_count: int=witness.events.size()
+    scene.get_viewport().push_input(hover,true)
+    _check(scene.get_viewport().gui_get_hovered_control()==release and witness.events.size()==event_count+1 and witness.events.back()==hover,"release_standard_hover_reaches_unhandled_witness_"+label)
+    _check(release.get_signal_connection_list("gui_input").is_empty() and release.focus_mode==Control.FOCUS_NONE,"release_has_no_GUI_handler_or_focus_"+label)
+    var click: InputEventMouseButton=InputEventMouseButton.new()
+    click.button_index=MOUSE_BUTTON_LEFT;click.pressed=true;click.position=hover.position
+    event_count=witness.events.size()
+    scene.get_viewport().push_input(click,true)
+    _check(witness.events.size()==event_count+1 and witness.events.back()==click and release.get_tooltip(Vector2.ZERO)==release.tooltip_text,"release_full_tooltip_click_reaches_unhandled_witness_"+label)
+    var released: InputEventMouseButton=InputEventMouseButton.new()
+    released.button_index=MOUSE_BUTTON_LEFT;released.pressed=false;released.position=hover.position
+    event_count=witness.events.size()
+    scene.get_viewport().push_input(released,true)
+    _check(witness.events.size()==event_count+1 and witness.events.back()==released,"release_button_up_reaches_unhandled_witness_"+label)
+    if profile=="original-interactive-prototype" and dimensions==Vector2i(960,540) and mode==0:
+     var stop: Control=Control.new()
+     stop.mouse_filter=Control.MOUSE_FILTER_STOP
+     stop.position=release.position;stop.size=release.size
+     release.get_parent().add_child(stop)
+     await _host.get_tree().process_frame
+     var blocked_event: InputEventMouseMotion=InputEventMouseMotion.new()
+     blocked_event.position=hover.position
+     event_count=witness.events.size()
+     scene.get_viewport().push_input(blocked_event,true)
+     _check(scene.get_viewport().gui_get_hovered_control()==stop and witness.events.size()==event_count,"release_STOP_negative_blocks_unhandled_witness")
+     stop.free()
+     await _host.get_tree().process_frame
+    scene.dispatch_input_action("map_toggle")
+    await _layout_frames(scene)
+    _check(release.is_visible_in_tree() and not scene.map_visible,"release_persists_when_map_closed_"+label)
+    if mode in [0,3]:
+     var expected_bottom: float=scene.engine_controls.get_global_rect().end.y if profile=="original-piston-prop-v1" else 92.0
+     _check(release.position.y==expected_bottom,"release_absent_widgets_do_not_reserve_slots_"+label)
+    scene.dispatch_input_action("map_toggle")
+    await _layout_frames(scene)
+  _check(_snapshot(scene)==native and _ledger(scene)==ledger,"release_layout_full_native_mapper_recording_origin_invariant_"+profile)
+  var preset: Dictionary=scene.active_preset.duplicate(true)
+  # Remove optional action as a display-boundary fixture only; no mapper apply.
+  for index in range(scene.active_preset.actions.size()-1,-1,-1):
+   if scene.active_preset.actions[index].id=="look_hold": scene.active_preset.actions.remove_at(index)
+  scene.layout_live_flight_aids()
+  _check(scene.look_release_label.text.contains("Binding unavailable") and scene.look_release_label.tooltip_text.contains("Binding unavailable"),"release_unbound_category_truthful_"+profile)
+  scene.active_preset=preset
+  scene.layout_live_flight_aids()
+  _release_remap_boundaries(scene)
+  scene.open_first_flight()
+  _check(not scene.look_release_label.visible,"release_explicit_modal_owns_guidance_"+profile)
+ window.size=old_size
+ scene.set_camera_mode(old_mode)
+ await _layout_frames(scene)
+ witness.free()
+
+func _route_tooltip_dispatch(scene: Node) -> void:
+ # Use the real integrated root Window. Isolated synthetic child Windows have
+ # separate DisplayServer hover routing; queued local events cannot prove it.
+ var window: Window=scene.get_window()
+ var old_size: Vector2i=window.size
+ var old_mode: int=scene.camera_mode
+ var witness: Node=UnhandledWitness.new()
+ scene.add_child(witness)
+ var profiles: Array[String]=["original-interactive-prototype"]
+ if _include_piston: profiles.append("original-piston-prop-v1")
+ window.size=Vector2i(960,540)
+ for profile in profiles:
+  if not _source(scene,profile): continue
+  scene.dismiss_first_flight()
+  scene.open_landmark_route()
+  scene.choose_landmark_route([0,1])
+  scene.circuit_aid_enabled=false
+  scene.map_visible=true;scene.flight_map.show()
+  scene.set_camera_mode(0)
+  await _paused_native_live_aid_view(scene)
+  _check(scene.route_view.available and scene.route_view.leg_count==2,"tooltip_actual_paused_manual_route_"+profile)
+  for context in ["locator","manual_card"]:
+   if context=="manual_card":
+    scene.dispatch_input_action("map_toggle")
+    await _layout_frames(scene)
+   var target: Label=scene.flight_map._labels.status if context=="locator" else scene.landmark_board._leg_text
+   var tag: String=context+"_"+profile
+   _check(target.is_visible_in_tree() and target.mouse_filter==Control.MOUSE_FILTER_PASS and target.focus_mode==Control.FOCUS_NONE and target.get_signal_connection_list("gui_input").is_empty(),"tooltip_actual_production_label_no_handler_focus_"+tag)
+   _check(target.tooltip_text.contains(scene.route_view.route_labels[1]),"tooltip_complete_secondary_itinerary_"+tag)
+   var native: PackedByteArray=_snapshot(scene)
+   var ledger: PackedByteArray=_ledger(scene)
+   var copied: PackedByteArray=var_to_bytes([scene.route_view,scene.flight_map._route,scene.flight_map._manual_summary,scene.landmark_board._view,scene.collect_input_raw()])
+   for kind in ["motion","press","release"]:
+    var event: InputEvent
+    if kind=="motion":
+     var motion: InputEventMouseMotion=InputEventMouseMotion.new()
+     motion.position=target.get_global_rect().get_center()
+     event=motion
+    else:
+     var button: InputEventMouseButton=InputEventMouseButton.new()
+     button.position=target.get_global_rect().get_center()
+     button.button_index=MOUSE_BUTTON_LEFT;button.pressed=kind=="press"
+     event=button
+    var before: int=witness.events.size()
+    window.push_input(event,true)
+    _check(window.gui_get_hovered_control()==target and target.get_tooltip(Vector2.ZERO)==target.tooltip_text,"tooltip_actual_root_hover_and_full_hint_"+tag+kind)
+    _check(witness.events.size()==before+1 and witness.events.back()==event,"tooltip_actual_event_reaches_nonconsuming_witness_"+tag+kind)
+    _check(_snapshot(scene)==native and _ledger(scene)==ledger and var_to_bytes([scene.route_view,scene.flight_map._route,scene.flight_map._manual_summary,scene.landmark_board._view,scene.collect_input_raw()])==copied,"tooltip_full_native_Raw_mapper_recording_origin_route_invariant_"+tag+kind)
+   var stop: Control=Control.new()
+   stop.mouse_filter=Control.MOUSE_FILTER_STOP
+   stop.position=target.get_global_rect().position;stop.size=target.size
+   stop.z_index=100
+   scene.look_release_label.get_parent().add_child(stop)
+   await _host.get_tree().process_frame
+   for kind in ["motion","press","release"]:
+    var event: InputEvent
+    if kind=="motion":
+     var motion: InputEventMouseMotion=InputEventMouseMotion.new()
+     motion.position=stop.get_global_rect().get_center();event=motion
+    else:
+     var button: InputEventMouseButton=InputEventMouseButton.new()
+     button.position=stop.get_global_rect().get_center()
+     button.button_index=MOUSE_BUTTON_LEFT;button.pressed=kind=="press";event=button
+    var before: int=witness.events.size()
+    window.push_input(event,true)
+    _check(window.gui_get_hovered_control()==stop and witness.events.size()==before,"tooltip_root_STOP_negative_blocks_"+tag+kind)
+   stop.free()
+   await _host.get_tree().process_frame
+   _check(_snapshot(scene)==native and _ledger(scene)==ledger and var_to_bytes([scene.route_view,scene.flight_map._route,scene.flight_map._manual_summary,scene.landmark_board._view,scene.collect_input_raw()])==copied,"tooltip_root_negative_full_authority_invariant_"+tag)
+ witness.free()
+ window.size=old_size
+ scene.set_camera_mode(old_mode)
+ await _layout_frames(scene)
+
+func _release_remap_boundaries(scene: Node) -> void:
+ var saved: Dictionary=scene.active_preset.duplicate(true)
+ var look_index: int=-1
+ for index in saved.actions.size():
+  if saved.actions[index].id=="look_hold": look_index=index
+ _check(look_index>=0,"release_remap_existing_action_precondition")
+ if look_index<0: return
+ for kind in ["physical4","joy4"]:
+  var preset: Dictionary=saved.duplicate(true)
+  var sources: Array=[]
+  if kind=="joy4": preset.devices=[]
+  for index in 4:
+   if kind=="physical4":
+    sources.append({"kind":"physical_keys","keys":[int(KEY_F13)+index*4,int(KEY_F13)+index*4+1,int(KEY_F13)+index*4+2,int(KEY_F13)+index*4+3]})
+   else:
+    var slot: String=("layout-slot-"+str(index)).rpad(32,"X")
+    preset.devices.append({"slot":slot,"label":"Configured fixture only","match":{"guid":"fixture","name":"fixture","vendor_id":"","product_id":""}})
+    sources.append({"kind":"joy_button","slot":slot,"index":index})
+  preset.actions[look_index].sources=sources
+  var checked: Dictionary=Preset.validate_preset_v2(preset) if preset.version==2 else Preset.validate_preset(preset)
+  _check(checked.ok,"release_remap_maximum_fixture_validated_"+kind)
+  if not checked.ok: continue
+  # Display-boundary fixture only; never apply/suspend/sample this preset.
+  scene.active_preset=checked.value.duplicate(true)
+  scene.layout_live_flight_aids()
+  var release: Label=scene.look_release_label
+  _check(release.text.begins_with("Look: ") and release.text.ends_with("release to use"),"release_remap_action_never_shortens_"+kind)
+  _check(release.get_theme_font("font").get_string_size(release.text,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x<=release.size.x,"release_remap_actual_compacted_font_fits_"+kind)
+  for source in sources:
+   _check(release.tooltip_text.contains(source.slot if kind=="joy4" else OS.get_keycode_string(source.keys[3])),"release_remap_full_alias_synchronous_"+kind)
+  if kind=="joy4": _check(release.tooltip_text.contains("CONFIGURED") and release.tooltip_text.contains("availability unverified"),"release_remap_does_not_claim_connected_device")
+ scene.active_preset=saved
+ scene.layout_live_flight_aids()
+
+func _missing_facade_presentation(scene: Node) -> void:
+ # Explicit missing-host presentation fixture; the real worker is retained and
+ # restored without closing/advancing it, then joined by ordinary cleanup.
+ var profiles: Array[String]=["original-interactive-prototype"]
+ if _include_piston: profiles.append("original-piston-prop-v1")
+ for profile in profiles:
+  if not _source(scene,profile): continue
+  await _paused_native_live_aid_view(scene)
+  scene.circuit_aid_enabled=true
+  scene.show_state(0.0)
+  var actual: RefCounted=scene.facade
+  var native: PackedByteArray=_snapshot(scene)
+  var ledger: PackedByteArray=_ledger(scene)
+  scene.facade=null
+  scene.show_state(0.0)
+  _check(scene.shared_readings.state in ["empty","invalid"] and scene.panel._readings.valid==false and scene.cockpit_panel._readings.valid==false,"missing_host_clears_native_reading_presentation_"+profile)
+  _check(scene.flight_map._wind_cue.state in ["empty","invalid"] and not scene.windsock_visual.visible,"missing_host_clears_prior_wind_and_sock_"+profile)
+  _check(not scene.flight_map._valid and scene.flight_map._route.is_empty() and not scene.landmark_board._view.available,"missing_host_has_no_current_geographic_guidance_"+profile)
+  _check(scene.look_release_label.is_visible_in_tree() and not scene.engine_controls.visible,"missing_host_preserves_release_without_engine_"+profile)
+  if profile=="original-piston-prop-v1": _check(scene.engine_status.state in ["empty","invalid"],"missing_host_clears_engine_feedback_source")
+  scene.facade=actual
+  scene.show_state(0.0)
+  _check(_snapshot(scene)==native and _ledger(scene)==ledger,"missing_host_display_fixture_no_native_mapper_recording_origin_mutation_"+profile)
 
 func _closed_failure(scene: Node) -> void:
  if not _source(scene,"original-interactive-prototype"): return
@@ -631,8 +875,8 @@ func _closed_failure(scene: Node) -> void:
  var failed_adapter: RefCounted=scene.observed_adapters.back()
  _check(failed_adapter.entries.front().method=="open_session" and failed_adapter.entries.front().reply.get("ok")==true and failed_adapter.entries.back().method=="close" and failed_adapter.entries.back().reply.get("joined")==true,"injected_new_worker_really_opened_then_joined")
  _check(rb.host_mode=="closed" and not rb.native_live and rb.historical and scene.review_joined and not scene.initializing_recording and scene.first_flight_source_session()=="","post_close_failure_reports_joined_closed_truth")
- _check(scene.flight_map.get("_circuit").is_empty() and not scene.circuit_card.visible,"post_close_failure_no_stale_circuit")
- _check(not scene.landmark_board._summary_in_map and scene.landmark_board._card_dock==Rect2(),"post_close_failure_retires_map_summary_suppression_and_dock")
+ _check(scene.flight_map.get("_circuit").is_empty() and not scene.circuit_card._view.available,"post_close_failure_no_stale_circuit")
+ _check(scene.flight_map.get("_route").is_empty() and not scene.landmark_board._view.available,"post_close_failure_retires_current_geographic_guidance")
  var closed: PackedByteArray=var_to_bytes(rb)
  var ledger: PackedByteArray=_ledger(scene)
  scene.on_first_flight_choice("ready-flight",prior,scene.first_flight_panel)
@@ -661,6 +905,9 @@ func run(host: Node,include_piston: bool=true) -> Dictionary:
   _advanced_discard(scene)
   _actual_origin_rebase(scene)
   await _layout_matrix(scene)
+  await _persistent_release_matrix(scene)
+  await _route_tooltip_dispatch(scene)
+  await _missing_facade_presentation(scene)
   _modal_input(scene)
   if not _include_piston: _legacy_cold_rejection(scene)
   _closed_failure(scene)

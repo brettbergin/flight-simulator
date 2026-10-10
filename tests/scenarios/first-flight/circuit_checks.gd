@@ -139,7 +139,7 @@ func _run(observed_readback: Dictionary = {}) -> Dictionary:
 	card.set_compact_unavailable(true)
 	_check(card._view==compact_snapshot and compact_source==compact_snapshot,"compact_flag_preserves_copied_unavailable_truth")
 	_check(card.custom_minimum_size==Vector2(240,84),"compact_unavailable_minimum")
-	for width in [240,260,280]:
+	for width in [240,260,280,389]:
 		for height in [84,96,110]:
 			card.size=Vector2(width,height);card._arrange()
 			var bounds := Rect2(Vector2.ZERO,card.size)
@@ -155,10 +155,54 @@ func _run(observed_readback: Dictionary = {}) -> Dictionary:
 			_check(card._title.get_rect().end.y<=card._reason.position.y,"compact_title_reason_no_collision")
 			_check(card._view==compact_snapshot and base==baseline_snapshot,"compact_resize_preserves_source_truth")
 			_check(card.mouse_filter==Control.MOUSE_FILTER_IGNORE and card._reason.mouse_filter==Control.MOUSE_FILTER_IGNORE,"compact_notice_mouse_ignore")
+	# ADR019 wide unavailable notice: actual source rejection states, exact edge
+	# and source strings, real Label glyph/line bounds rather than rectangle-only
+	# assertions. Available diagrams and original source bytes remain independent.
+	var wide_sources: Array=[Geometry.view({},"calm",36),Geometry.view(base,"crosswind",36),Geometry.view(base,"calm",18),Geometry.unavailable("Circuit reference unavailable for this start"),Geometry.unavailable("Current native publication is faulted or blocked"),Geometry.unavailable("Original circuit fixture missing or changed"),Geometry.unavailable("Aid off")]
+	for width in [390,644,652]:
+		for height in [32,48]:
+			for index in wide_sources.size():
+				var source: Dictionary=wide_sources[index]
+				var source_bytes: PackedByteArray=var_to_bytes(source)
+				card.set_state(source,true)
+				# Width first publishes the new minimum before requesting height.
+				card.size.x=width;card._arrange()
+				card.size=Vector2(width,height);card._arrange()
+				var tag: String="wide_notice_%d_%d_%d" % [width,height,index]
+				var bounds := Rect2(Vector2.ZERO,card.size)
+				_check(card.custom_minimum_size==Vector2(240,32) and card.size==Vector2(width,height),tag+"_minimum_and_requested_size")
+				_clear(card,tag)
+				_check(card._title.text==Card.TITLE and card._reason.text==source.error,tag+"_full_exact_source_text")
+				_check(not card._caption.visible and not card._footer.visible,tag+"_no_scale_or_schematic_footer")
+				_check(card._title.position==Vector2(12,0) and card._reason.position==Vector2(12,17),tag+"_line_positions")
+				for text_label in [card._title,card._reason]:
+					var font: Font=text_label.get_theme_font("font")
+					var pixels: int=text_label.get_theme_font_size("font_size")
+					var glyph: Vector2=font.get_string_size(text_label.text,HORIZONTAL_ALIGNMENT_LEFT,-1,pixels)
+					_check(pixels==10 and text_label.size.y==14 and bounds.encloses(text_label.get_rect()),tag+"_actual_label_font_and_bounds")
+					_check(glyph.x<=text_label.size.x and glyph.y<=text_label.size.y and text_label.get_line_count()==1,tag+"_complete_single_line_glyph_fit")
+					_check(text_label.position.y+font.get_ascent(pixels)==(11 if text_label==card._title else 28) and text_label.position.y+font.get_height(pixels)<=bounds.end.y,tag+"_actual_font_baseline_and_descent")
+				_check(not card._title.get_rect().intersects(card._reason.get_rect()),tag+"_text_lines_disjoint")
+				_check(var_to_bytes(card._view)==source_bytes and var_to_bytes(source)==source_bytes and base==baseline_snapshot,tag+"_exact_copied_truth_unchanged")
+	# Width crosses back below the threshold without changing the source/flag.
+	card.size=Vector2(389,32);card._arrange()
+	_check(card.custom_minimum_size==Vector2(240,84) and card.size.y>=84 and card._title.get_theme_font_size("font_size")==12 and card._reason.get_theme_font_size("font_size")==11,"wide_to_narrow_restores84_and_original_fonts")
+	_check(card._title.autowrap_mode==TextServer.AUTOWRAP_WORD_SMART and card._reason.autowrap_mode==TextServer.AUTOWRAP_WORD_SMART,"wide_to_narrow_restores_wrapping")
+	card.size=Vector2(390,32);card._arrange()
+	card.set_state(snapshot,true)
+	_check(card.size.y>=200 and card.custom_minimum_size==Vector2(240,200) and card._title.get_theme_font_size("font_size")==12 and card._reason.get_theme_font_size("font_size")==12,"wide_to_available_restores_full_height_fonts")
+	_check(card._title.position==Vector2(12,8) and card._title.size.y==40 and card._caption.visible and card._footer.visible and not card._reason.visible,"wide_to_available_restores_original_labels")
+	var available_points: Array[Vector2]=Card.schematic_points(card.schematic_rect())
+	card.set_compact_unavailable(false)
+	_check(card._view==snapshot and Card.schematic_points(card.schematic_rect())==available_points,"wide_flag_off_available_fixed_projection_unchanged")
+	card.set_compact_unavailable(true)
+	for i in 5:
+		_check(card._labels[i].visible and card._labels[i].text=="%d  %s" % [i+1,Geometry.LABELS[i]],"wide_to_available_restores_five_labels_"+str(i))
 	card.set_state(snapshot,true)
 	_check(card.custom_minimum_size==Vector2(240,200) and card.size.y>=200,"available_restores_full_minimum_even_flag_true")
 	_check(card._caption.visible and card._footer.visible and not card._reason.visible,"available_restores_applicable_captions")
 	_check(card._view==snapshot,"available_restore_exact_copied_geometry")
+	card.size.x=280;card._arrange()
 	card.set_state(snapshot,false)
 	_clear(card,"compact_off")
 	_check(card._reason.text=="Aid off" and card.custom_minimum_size==Vector2(240,84),"compact_off_truth_and_minimum")

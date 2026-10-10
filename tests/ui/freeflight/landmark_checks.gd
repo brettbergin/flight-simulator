@@ -159,6 +159,8 @@ func run(host: Node) -> Dictionary:
 	_check(board.observe(fresh).aid_visible,"show_aids_restored_without_route_change")
 	var invalid: Dictionary=board.configure([{"label":"bad","position_eus_m":Vector3(INF,0,0)}])
 	_check(not invalid.ok and board.observe(fresh).route_labels==["East Farm","North Water Tank"],"invalid_configure_atomic_preservation")
+	await _compact_card(host,source)
+	await _hidden_card_settlement(host,source)
 	board.queue_free()
 	await host.get_tree().process_frame
 	await _geometry(host)
@@ -185,3 +187,104 @@ func _geometry(host: Node) -> void:
 
 func _receipt() -> Dictionary:
 	return {"passed":_failures.is_empty(),"checks":_checks,"failures":_failures.duplicate(),"scope":"Synthetic copied Readback / independent anchor geometry / actual paused UI; no native solver, pilot or operational navigation acceptance"}
+
+func _compact_card(host:Node,source:Dictionary)->void:
+	var viewport:=SubViewport.new()
+	viewport.size=Vector2i(960,540)
+	host.add_child(viewport)
+	var board:=Board.new()
+	viewport.add_child(board)
+	board.size=Vector2(960,540)
+	var names:Array=[]
+	for i in 4: names.append({"label":"W".repeat(31)+str(i),"position_eus_m":Vector3(100+i,0,-100)})
+	_check(board.configure(names).ok and board.choose([0,1,2,3],source).ok,"compact_long_route_admitted")
+	var before:Dictionary=board._view.duplicate(true)
+	for width in [250.0,320.0,360.0]:
+		board.set_card_dock(Rect2(14,124,width,188))
+		await host.get_tree().process_frame
+		await host.get_tree().process_frame
+		_check(board._view.duplicate(true)==before and source==_source(),"compact_dock_no_route_or_source_change_"+str(width))
+		_check(board._title.text==names[0].label and board._title.text_overrun_behavior==TextServer.OVERRUN_NO_TRIMMING,"compact_complete_target_"+str(width))
+		_check(board._leg_text.tooltip_text.contains(names[3].label) and board._state.text.contains("Itinerary shortened; full list in tooltip"),"compact_secondary_full_tooltip_and_explanation_"+str(width))
+		_check(board._state.text.begins_with("PAUSED / select Next from the route board") and board._state.text_overrun_behavior==TextServer.OVERRUN_NO_TRIMMING,"compact_complete_paused_footer_"+str(width))
+		var bounds:Rect2=board._card.get_rect()
+		_check(bounds.size.y<=188.0 and bounds.size.x==width,"compact_card188_bounds_"+str(width)+" actual="+str(bounds))
+		for label in [board._card_header,board._title,board._metrics,board._leg_text,board._state]:
+			_check(bounds.encloses(Rect2(label.global_position-board.global_position,label.size)),"compact_child_in_bounds_"+str(width)+label.text.left(12))
+		_check(board._title.get_line_count()<=2 and board._state.get_line_count()<=3,"compact_full_text_rows_"+str(width))
+	var press:=InputEventMouseButton.new()
+	press.button_index=MOUSE_BUTTON_LEFT;press.pressed=true;press.position=board._leg_text.get_global_rect().get_center()
+	viewport.push_input(press,true)
+	_check(not viewport.is_input_handled() and board._view.duplicate(true)==before and board._leg_text.get_signal_connection_list("gui_input").is_empty(),"compact_local_viewport_press_flag_route_and_no_handler_only")
+	_check(board._leg_text.mouse_filter==Control.MOUSE_FILTER_PASS and board._card.mouse_filter==Control.MOUSE_FILTER_IGNORE and board._leg_text.get_tooltip(Vector2.ZERO)==board._leg_text.text,"compact_hover_capable_complete_standard_tooltip")
+	board.set_summary_in_map(true)
+	_check(not board._card.visible and board._view.duplicate(true)==before,"compact_summary_suppression_only")
+	board.set_summary_in_map(false)
+	_check(board._card.visible and board._view.duplicate(true)==before,"compact_summary_restore_only")
+	var retained:Dictionary=source.duplicate(true)
+	retained.host_mode="coverage_blocked";retained.historical=true;retained.native_outcome="coverage_blocked";retained.paused=true
+	board.observe(retained)
+	_check(board._title.text=="Current guidance unavailable" and board._metrics.text=="Range / bearing unavailable" and board._state.text.begins_with("RETAINED / NO CURRENT GUIDANCE"),"compact_honest_noncurrent_summary")
+	board.observe(source)
+	for i in 4: board.next(source)
+	_check(board._title.text=="Manual itinerary ended" and not board._view.duplicate(true).active and board._view.duplicate(true).complete and board._metrics.text=="Range / bearing unavailable","compact_honest_completed_summary")
+	var tall_name:String=("W\n").repeat(15)+"W"
+	_check(board.configure([{"label":tall_name,"position_eus_m":Vector3(100,0,-100)}]).ok and board.choose([0],source).ok,"compact_valid_multiline_name_negative_admitted")
+	board.set_card_dock(Rect2(14,124,250,188))
+	await host.get_tree().process_frame
+	await host.get_tree().process_frame
+	_check(board._card.size.y>188 and board._title.text==tall_name and board._title.text_overrun_behavior==TextServer.OVERRUN_NO_TRIMMING,"compact_unfit_title_remains_visible_failure_not_truncated")
+	board.configure(names);board.choose([0,1,2,3],source)
+	board.set_card_dock(Rect2())
+	_check(board._title.get_theme_font_size("font_size")==20 and board._state.text=="PAUSED / select Next from the route board","compact_reset_default_no_explanation_leak")
+	viewport.queue_free()
+	await host.get_tree().process_frame
+
+func _card_allocation(board: Control) -> Dictionary:
+	var labels: Array=[]
+	for label in [board._card_header,board._title,board._metrics,board._leg_text,board._state]:
+		labels.append({"rect":label.get_rect(),"minimum":label.get_combined_minimum_size(),"text":label.text,"lines":label.get_line_count()})
+	return {"card":board._card.get_rect(),"box":board._card_box.get_rect(),"labels":labels}
+
+func _hidden_card_settlement(host: Node,source: Dictionary) -> void:
+	# A fresh hidden card must shape at its actual dock width even before the
+	# Container ever receives a visible sort. Keep every hidden row in evidence.
+	var board:=Board.new()
+	host.add_child(board)
+	board.size=Vector2(960,540)
+	var landmarks: Array=[{"label":"East Farm","position_eus_m":Vector3(850,0,-650)},{"label":"North Water Tank","position_eus_m":Vector3(600,0,-2500)},{"label":"North Orchard","position_eus_m":Vector3(-650,0,-2800)},{"label":"West Pond","position_eus_m":Vector3(-1050,0,-900)}]
+	var source_before: PackedByteArray=var_to_bytes(source)
+	_check(board.configure(landmarks).ok and board.choose([0,1,2,3],source).ok,"hidden_settlement_actual_route_seed")
+	board.set_summary_in_map(true)
+	for width in [250.0,320.0,360.0]:
+		board.set_card_dock(Rect2(14,124,width,188))
+		for kind in ["empty","retained"]:
+			var supplied: Dictionary={} if kind=="empty" else source.duplicate(true)
+			if kind=="retained":
+				supplied.host_mode="coverage_blocked";supplied.historical=true;supplied.native_outcome="coverage_blocked";supplied.paused=true
+			board.observe(supplied)
+			board.set_summary_in_map(true)
+			var view_before: PackedByteArray=var_to_bytes(board._view)
+			var supplied_before: PackedByteArray=var_to_bytes(supplied)
+			var allocation: PackedByteArray=var_to_bytes(_card_allocation(board))
+			for iteration in 4:
+				board.observe(supplied)
+				board.set_summary_in_map(false)
+				board.set_card_dock(Rect2(14,124,width,188))
+				board.set_summary_in_map(true)
+				await host.get_tree().process_frame
+				await host.get_tree().process_frame
+				_check(var_to_bytes(_card_allocation(board))==allocation,"hidden_all_rows_exact_across_publication_and_draw_"+kind+str(width)+"_"+str(iteration))
+			_check(not board._card.visible and board._card.size==Vector2(width,188),"hidden_card188_not_minimum_overflow_"+kind+str(width))
+			_check(board._card_box.size.x==width-24 and board._state.size.x==width-24 and board._state.size.y<=42 and board._state.get_line_count()<=3,"hidden_footer_actual_width_and_full_rows_"+kind+str(width))
+			_check(var_to_bytes(board._view)==view_before and var_to_bytes(supplied)==supplied_before and var_to_bytes(source)==source_before,"hidden_settlement_all_source_and_route_copies_"+kind+str(width))
+		board.set_summary_in_map(false)
+		await host.get_tree().process_frame
+		await host.get_tree().process_frame
+		_check(board._card.visible and board._card.size==Vector2(width,188),"hidden_restore_visible_same188_"+str(width))
+		var bounds: Rect2=Rect2(Vector2.ZERO,board._card.size)
+		for label in [board._card_header,board._title,board._metrics,board._leg_text,board._state]:
+			_check(bounds.encloses(Rect2(label.global_position-board._card.global_position,label.size)),"hidden_restore_actual_row_bounds_"+str(width)+label.text.left(12))
+		board.set_summary_in_map(true)
+	board.queue_free()
+	await host.get_tree().process_frame
