@@ -70,3 +70,30 @@ test('standalone piston validator rejects coherent register-policy identity drif
   const changed=structuredClone(entry);mutate(changed);assert.throws(()=>validatePistonModelTree(source,changed));
  }
 });
+
+import {stageAcceptedSourceIdentity} from './package.mjs';
+import {createHash} from 'node:crypto';
+test('modified preview stages the exact declared baseline source identity and preserves pristine delivery',()=>{
+ const temporary=fs.mkdtempSync(path.join(root,'source-identity-'));
+ const baseline=path.join(temporary,'baseline'),payload=path.join(temporary,'payload');
+ fs.mkdirSync(path.join(baseline,'evidence'),{recursive:true});fs.mkdirSync(payload);
+ const entry=JSON.parse(fs.readFileSync(path.join(repo,'third_party/licenses/register.json'),'utf8')).entries.find(item=>item.id==='jsbsim-coupled-midpoint-v1');
+ const pin=entry.library_policy.source_identity,file='evidence/jsbsim-coupled-source-identity.json';
+ const raw=fs.readFileSync(path.join(repo,pin.path));
+ const selection={modified:true,component_id:entry.id,source_variant:'jsbsim-1.3.1-event-aware-coupled-midpoint-v1',source_identity:pin};
+ const accepted={id:entry.id,modified:true,source_variant:selection.source_variant,source_identity:file,files:[{path:file,role:'evidence',sha256:pin.sha256}]};
+ fs.writeFileSync(path.join(baseline,file),raw);
+ assert.equal(stageAcceptedSourceIdentity(payload,baseline,accepted,selection),file);
+ assert.deepEqual(fs.readFileSync(path.join(payload,file)),raw);
+ assert.equal(createHash('sha256').update(fs.readFileSync(path.join(payload,file))).digest('hex'),accepted.files[0].sha256);
+ for(const mutate of [c=>{c.files=[];},c=>{c.files.push({...c.files[0]});},c=>{c.files[0].role='source';},c=>{c.files[0].sha256='a'.repeat(64);},c=>{c.source_identity='../outside.json';}]){
+  const bad=structuredClone(accepted);mutate(bad);assert.throws(()=>stageAcceptedSourceIdentity(payload,baseline,bad,selection));
+ }
+ fs.appendFileSync(path.join(baseline,file),'\n');assert.throws(()=>stageAcceptedSourceIdentity(payload,baseline,accepted,selection),/Accepted source identity bytes differ/);
+ fs.unlinkSync(path.join(baseline,file));assert.throws(()=>stageAcceptedSourceIdentity(payload,baseline,accepted,selection));
+ fs.writeFileSync(path.join(baseline,file),raw);fs.appendFileSync(path.join(payload,file),'\n');
+ assert.throws(()=>stageAcceptedSourceIdentity(payload,baseline,accepted,selection),/Existing staged source identity differs/);
+ const pristine=path.join(temporary,'pristine');fs.mkdirSync(pristine);
+ assert.equal(stageAcceptedSourceIdentity(pristine,baseline,{}, {modified:false}),null);
+ assert.deepEqual(fs.readdirSync(pristine),[],'Pristine path stages no modified-library evidence');
+});

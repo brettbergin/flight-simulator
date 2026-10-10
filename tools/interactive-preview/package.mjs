@@ -104,6 +104,30 @@ export function validateResourceReceipt(receipt,resource){
  assert(Number.isSafeInteger(receipt.bytes)&&receipt.bytes>=0);assert.equal(receipt.bytes,resource.bytes);
  assert.equal(typeof receipt.sha256,'string');assert.match(receipt.sha256,/^[a-f0-9]{64}$/);assert.equal(receipt.sha256,resource.sha256);
 }
+export function stageAcceptedSourceIdentity(payload,acceptedPayload,acceptedLibrary,selection){
+ if(selection.modified===false)return null;
+ assert.equal(selection.modified,true);assert.equal(selection.component_id,'jsbsim-coupled-midpoint-v1');
+ assert.equal(acceptedLibrary.id,selection.component_id);assert.equal(acceptedLibrary.modified,true);
+ assert.equal(acceptedLibrary.source_variant,selection.source_variant);
+ const pin=register.entries.find(entry=>entry.id===selection.component_id).library_policy.source_identity;
+ assert.deepEqual(selection.source_identity,pin,'Selected source identity policy differs');
+ const file=acceptedLibrary.source_identity;
+ assert.equal(file,'evidence/jsbsim-coupled-source-identity.json','Accepted source identity evidence path differs');
+ const declarations=acceptedLibrary.files.filter(item=>item.path===file);
+ assert.equal(declarations.length,1,'Accepted source identity evidence declaration required');
+ assert.equal(declarations[0].role,'evidence');assert.equal(declarations[0].sha256,pin.sha256);
+ const source=path.join(acceptedPayload,file);ordinaryAncestors(source);
+ assert(fs.lstatSync(source).isFile(),'Accepted source identity must be an ordinary file');
+ const raw=fs.readFileSync(source),original=fs.readFileSync(path.join(repo,pin.path));
+ assert.equal(sha(raw),pin.sha256,'Accepted source identity bytes differ');
+ assert.equal(sha(original),pin.sha256,'Repository source identity bytes differ');
+ assert(raw.equals(original),'Accepted source identity differs from exact repository bytes');
+ ordinaryAncestors(payload);const target=path.join(payload,file);
+ fs.mkdirSync(path.dirname(target),{recursive:true});ordinaryAncestors(path.dirname(target));
+ if(fs.lstatSync(target,{throwIfNoEntry:false})){ordinaryAncestors(target);assert(fs.readFileSync(target).equals(raw),'Existing staged source identity differs');}
+ fs.writeFileSync(target,raw);
+ return file;
+}
 function audit(root,proof,build,python='python'){
  const payload=path.join(root,'payload'),evidence=path.join(root,'evidence'),replacement=path.join(root,'Replacement space — Δ飛行');
  const baseline=json(path.join(evidence,'smoke-receipt.json')),changed=json(path.join(evidence,'replacement-smoke-receipt.json'));
@@ -270,6 +294,8 @@ function audit(root,proof,build,python='python'){
  }
  stage('microsoft-vc143-crt','evidence/selected-runtime.json',runtime);stage('microsoft-vc143-crt','evidence/native-dependencies.json',dependencies);
  stage(libraryId,'evidence/jsbsim-replacement.json',replacementEvidence);stage(libraryId,'evidence/baseline-modules.json',modules);stage(libraryId,'evidence/replacement-modules.json',replacedModules);
+ const sourceIdentity=stageAcceptedSourceIdentity(payload,path.join(proof,'payload'),acceptedLibrary,selection);
+ if(sourceIdentity!==null)declare(libraryId,sourceIdentity,'evidence');
  assert.equal(sha(fs.readFileSync(path.join(payload,acceptedLibrary.source_archive))),selection.source_archive_sha256);
  const manifest={schema_version:1,components};
  assert.deepEqual(auditRelease(register,manifest,{repoRoot:repo,packageRoot:payload}),[]);
