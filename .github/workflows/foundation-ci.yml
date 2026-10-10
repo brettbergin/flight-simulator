@@ -44,6 +44,8 @@ jobs:
         run: python -m unittest discover -s tests/engine -p test_check_model.py
       - name: Recompute frozen piston references without a solver
         run: python tests/engine/reference/generate.py --check
+      - name: Recompute proposed event-aware shaft references without a solver
+        run: python tests/engine/shaft-method/reference-proposed-v1/generate.py --check
       - name: Bind original piston source to independent references
         run: python tests/engine/check_model.py --model-root native/fdm_jsbsim/models/original-piston-prop --reference-packet tests/engine/reference/expected-v2.json
       - name: Check independent reference algebra and metadata
