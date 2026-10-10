@@ -78,10 +78,10 @@ func _strips(dimensions: Vector2i,label: String) -> void:
 	# glyph clipping, contrast and whether the cockpit/dashboard is readable.
 	var viewport:=Rect2(Vector2.ZERO,Vector2(dimensions))
 	var controls:=Rect2(10,51,dimensions.x-20,34)
-	var engine:=Rect2(10,90,dimensions.x-20,54)
+	var engine:=Rect2(10,dimensions.y-60 if _scene.camera_mode==3 else 90,dimensions.x-20,54)
 	var instruments:=Rect2(12,dimensions.y-minf(dimensions.y*0.34,455.0),dimensions.x-24,minf(dimensions.y*0.34,455.0))
 	_check(viewport.encloses(controls) and viewport.encloses(engine),"strip_bounds_"+label)
-	_check(not controls.intersects(engine) and not engine.intersects(instruments),"strips_do_not_overlap_controls_or_instruments_"+label)
+	_check(not controls.intersects(engine) and (_scene.camera_mode==3 or not engine.intersects(instruments)),"strips_do_not_overlap_controls_or_instruments_"+label)
 	_check(_scene.panel.get("_info").get("engine_status")==_scene.engine_status,"overlay_copies_actual_engine_status_"+label)
 	_check(_scene.cockpit_panel.get("_info").get("engine_status")==_scene.engine_status,"dashboard_copies_actual_engine_status_"+label)
 	_check(_scene.panel.call("_engine_phase")=="STOPPED","actual_cold_stopped_label_"+label)

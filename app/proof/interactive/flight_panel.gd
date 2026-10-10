@@ -234,7 +234,7 @@ func _engine_phase() -> String:
 
 func _draw_piston_strip() -> void:
 	var retained: bool=_info.get("retained",false) or _info.get("blocked",false) or _info.get("stalled",false)
-	var top: float=123.0 if retained else 90.0
+	var top: float=size.y-60.0 if str(_info.get("view_name","")).to_upper()=="PANEL" else 123.0 if retained else 90.0
 	_box(Rect2(10,top,size.x-20,54),Color("14222d"),Color("425162"),6)
 	var scope: String="RETAINED" if retained else "ENGINE"
 	# Two compact rows retain every engine field at the 960x540 viewport.
