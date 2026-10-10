@@ -76,3 +76,7 @@ Active offline mapper tests cover asymmetric ranges, reversal, noise/deadzone/sa
 ## Backend sources
 
 Checked 2026-10-04 against pinned4.7.2. The [Input API](https://docs.godotengine.org/en/stable/classes/class_input.html) exposes device input/connection metadata and notes Windows XInput GUID aliases. The [pinned SDL adapter](https://github.com/godotengine/godot/blob/4.7.2-stable/drivers/sdl/joypad_sdl.cpp) handles raw joystick and mapped gamepad events; the [pinned input enums](https://github.com/godotengine/godot/blob/4.7.2-stable/core/input/input_enums.h) bound accepted indices. Consumer checks bind their actual runtime constants to this pin. Backend exposure is not hardware qualification; unavailable/unobserved controls remain explicitly unavailable.
+
+## Transient pointer extension
+
+The proposed [ADR017](017-frontend-pointer-engine-controls.md), tracked by [#157](https://github.com/brettbergin/flight-simulator/issues/157), adds copied transient pointer gestures through the same mapper for the original piston profile. It preserves complete Raw/device validation, explicit bindings, target-only takeover and native submission authority. It changes no preset format. Qualified #127 delivery and the checked contract merge precede consumers; this crossreference does not authorize implementation.
