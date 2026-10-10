@@ -225,7 +225,7 @@ print('PASS readonly observed reference regeneration:42 cases')
  if($LASTEXITCODE -ne 0){throw 'Readonly observed reference regeneration rejected'}
 }
 function Assert-PreviewFacadeReceipt {
- param([Parameter(Mandatory)]$Receipt,[bool]$IncludePiston=$true,[string]$ExpectedSourceFingerprint='5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5')
+ param([Parameter(Mandatory)]$Receipt,[bool]$IncludePiston=$true,[string]$ExpectedSourceFingerprint='')
  $keys=@('schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive','wind','first_flight')
  if((($Receipt.PSObject.Properties.Name|Sort-Object) -join "`n") -cne (($keys|Sort-Object) -join "`n")){throw 'Facade receipt exact shape rejected'}
  if(($Receipt.schema_version -isnot [long] -and $Receipt.schema_version -isnot [int]) -or $Receipt.schema_version -ne 1 -or $Receipt.scope -isnot [string] -or [string]::IsNullOrWhiteSpace($Receipt.scope) -or $Receipt.scope.Length -gt 1024 -or $Receipt.passed -isnot [bool] -or -not $Receipt.passed -or ($Receipt.checks -isnot [long] -and $Receipt.checks -isnot [int]) -or $Receipt.checks -le 0 -or $Receipt.failures -isnot [array] -or $Receipt.failures.Count -ne 0){throw 'Facade receipt must contain actual passing checks'}
@@ -248,9 +248,8 @@ function Assert-PreviewFacadeReceipt {
  }
  if($Receipt.first_flight.geometry.fixture_sha256 -cne '2a4540d99d4500e326a1b1f0673583bd6f8ea99d430b991fcca1130befbbddcc' -or $Receipt.first_flight.geometry.captured_readback_sha256 -cne '58b1a7b0ec46161357c1268dbaeeaab27f84bbbd4de70def35571fd45ddb67f9'){throw 'First-flight frozen fixture/source identity rejected'}
  $baseline=$Receipt.first_flight.geometry
- $origin=if($IncludePiston){'saved-capture'}else{'observed-upstream'}
+ $origin=if($ExpectedSourceFingerprint -ceq '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'){'saved-capture'}else{'observed-native'}
  if($ExpectedSourceFingerprint -cnotmatch '^[0-9a-f]{64}$' -or $baseline.baseline_origin -cne $origin -or $baseline.baseline_source_fingerprint -cne $ExpectedSourceFingerprint){throw 'First-flight actual selected native baseline binding rejected'}
- if(($IncludePiston -and $ExpectedSourceFingerprint -cne '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5') -or (-not $IncludePiston -and $ExpectedSourceFingerprint -ceq '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5')){throw 'First-flight saved capture cannot be relabeled as another native source'}
  $scene=$Receipt.first_flight.scene
  $routeScope=if($IncludePiston){'coupled: all six same/cross-profile choices and three advanced confirmations'}else{'upstream: four legacy start mappings, two advanced confirmations and explicit cold admission rejection; cold runtime is not qualified'}
  if($scene.include_piston -isnot [bool] -or $scene.include_piston -ne $IncludePiston -or $scene.route_scope -isnot [string] -or $scene.route_scope -cne $routeScope){throw 'First-flight selected-source mode or route coverage rejected'}
@@ -607,7 +606,7 @@ func ground_material_checks() -> void:
  print("GROUND_MATERIALS_CHECKS ",JSON.stringify(report))
  get_tree().quit(0 if result.get("passed",false) else 1)
 func observed_first_flight_baseline() -> Dictionary:
- # Upstream CI observes its own source-qualified truth; never patch a saved
+ # Every native build observes its own source-qualified truth; never patch a saved
  # capture fingerprint to impersonate another native build. No Run is needed.
  var facade=load("res://simulation/session_facade.gd").new()
  var started: Dictionary=facade.start(ProjectSettings.globalize_path("res://models"),"ground-ready","calm","original-interactive-prototype")
@@ -619,9 +618,15 @@ func observed_first_flight_baseline() -> Dictionary:
  check(stopped.ok and not stopped.readback.native_live,"first_flight_observed_baseline_joined")
  var admitted: Dictionary=load("res://world/synthetic/circuit_geometry.gd").view(value,"calm",36)
  check(admitted.available and value.get("tick")=="0" and value.get("debt_quanta")==0,"first_flight_observed_full_paused_source_baseline")
- return value if stopped.ok and admitted.available and value.get("tick")=="0" and value.get("debt_quanta")==0 else {}
+ return value if stopped.ok and not stopped.readback.native_live and admitted.available and value.get("tick")=="0" and value.get("debt_quanta")==0 else {}
 func execute() -> void:
  for argument in OS.get_cmdline_user_args():
+  if argument.begins_with("--first-flight-interaction-output="):
+   var output: String=argument.trim_prefix("--first-flight-interaction-output=")
+   var interaction: Dictionary=await load("res://first_flight_scene_tests/visual_checks.gd").new().run_interaction(self,output)
+   print("FIRST_FLIGHT_INTERACTION ",JSON.stringify({"passed":interaction.get("passed",false),"checks":interaction.get("checks",0),"failures":interaction.get("failures",[]),"views":interaction.get("views",[]).size()}))
+   get_tree().quit(0 if interaction.get("passed")==true else 1)
+   return
   if argument.begins_with("--first-flight-visual-output="):
    var output: String=argument.trim_prefix("--first-flight-visual-output=")
    var visual: Dictionary=await load("res://first_flight_scene_tests/visual_checks.gd").new().run(self,output)
@@ -739,9 +744,12 @@ func execute() -> void:
 $pistonChecks
  var first_flight_checks: Dictionary={}
  var first_flight_sources: Script=load("res://world_tests/synthetic/circuit_checks.gd")
+ var current_first_flight: Dictionary=observed_first_flight_baseline()
+ var captured_first_flight: Dictionary=first_flight_sources.captured_readback()
  var observed_first_flight: Dictionary={}
- if not ${firstFlightPiston}: observed_first_flight=observed_first_flight_baseline()
- var first_flight_baseline: Dictionary=first_flight_sources.reference_readback() if $firstFlightPiston else observed_first_flight.duplicate(true)
+ if not current_first_flight.is_empty() and not captured_first_flight.is_empty() and current_first_flight.native_source_fingerprint!=captured_first_flight.native_source_fingerprint:
+  observed_first_flight=current_first_flight.duplicate(true)
+ var first_flight_baseline: Dictionary=first_flight_sources.reference_readback() if observed_first_flight.is_empty() and not current_first_flight.is_empty() else observed_first_flight.duplicate(true)
  if first_flight_baseline.is_empty():
   push_error("Required first-flight complete source baseline unavailable")
   get_tree().quit(1)

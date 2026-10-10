@@ -279,7 +279,7 @@ function New-FirstFlightReceiptFixture {
   if($name -eq 'geometry'){
    $item|Add-Member -NotePropertyName fixture_sha256 -NotePropertyValue '2a4540d99d4500e326a1b1f0673583bd6f8ea99d430b991fcca1130befbbddcc'
    $item|Add-Member -NotePropertyName captured_readback_sha256 -NotePropertyValue '58b1a7b0ec46161357c1268dbaeeaab27f84bbbd4de70def35571fd45ddb67f9'
-   $item|Add-Member -NotePropertyName baseline_origin -NotePropertyValue $(if($IncludePiston){'saved-capture'}else{'observed-upstream'})
+   $item|Add-Member -NotePropertyName baseline_origin -NotePropertyValue $(if($ExpectedSourceFingerprint -ceq '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'){'saved-capture'}else{'observed-native'})
    $item|Add-Member -NotePropertyName baseline_source_fingerprint -NotePropertyValue $ExpectedSourceFingerprint
   }
   if($name -eq 'scene'){
@@ -304,31 +304,48 @@ function New-FirstFlightReceiptFixture {
  $groups
 }
 $receipt|Add-Member -NotePropertyName first_flight -NotePropertyValue (New-FirstFlightReceiptFixture)
-Assert-PreviewFacadeReceipt $receipt
+Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'
 foreach($name in @('briefing','bindings','geometry','card','map','scene')){
  foreach($wrong in @(0,-1,'1',[double]1)){
   $receipt.first_flight=New-FirstFlightReceiptFixture;$receipt.first_flight.$name.checks=$wrong
-  Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('vacuous or malformed first-flight '+$name)
+  Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} ('vacuous or malformed first-flight '+$name)
  }
  $receipt.first_flight=New-FirstFlightReceiptFixture;$receipt.first_flight.$name.passed=$false
- Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('failed first-flight '+$name)
+ Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} ('failed first-flight '+$name)
  $receipt.first_flight=New-FirstFlightReceiptFixture;$receipt.first_flight.PSObject.Properties.Remove($name)
- Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('missing first-flight '+$name)
+ Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} ('missing first-flight '+$name)
 }
 $receipt.first_flight=New-FirstFlightReceiptFixture
 $receipt.first_flight.geometry.captured_readback_sha256='f'*64
-Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'unbound first-flight capture'
+Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} 'unbound first-flight capture'
 $receipt.first_flight=New-FirstFlightReceiptFixture
 foreach($field in @('baseline_origin','baseline_source_fingerprint')){
  $receipt.first_flight=New-FirstFlightReceiptFixture
  $receipt.first_flight.geometry.$field='unbound'
- Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('unbound first-flight '+$field)
+ Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} ('unbound first-flight '+$field)
 }
-$receipt.first_flight=New-FirstFlightReceiptFixture
-Must-Reject {Assert-PreviewFacadeReceipt $receipt -IncludePiston $false -ExpectedSourceFingerprint ('f'*64)} 'relabeling saved capture as upstream'
-$receipt.first_flight=New-FirstFlightReceiptFixture -IncludePiston $false -ExpectedSourceFingerprint ('f'*64)
-Assert-PreviewFacadeReceipt $receipt -IncludePiston $false -ExpectedSourceFingerprint ('f'*64)
-Must-Reject {Assert-PreviewFacadeReceipt $receipt -IncludePiston $false -ExpectedSourceFingerprint ('e'*64)} 'wrong actual upstream source'
+# Fingerprint selects the capture/observed branch; IncludePiston selects only the route roster.
+$firstFlightSourceNegatives=0
+foreach($mode in @($true,$false)){
+ foreach($sourceFingerprint in @('5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5',('f'*64))){
+  $receipt.first_flight=New-FirstFlightReceiptFixture -IncludePiston $mode -ExpectedSourceFingerprint $sourceFingerprint
+  Assert-PreviewFacadeReceipt $receipt -IncludePiston $mode -ExpectedSourceFingerprint $sourceFingerprint
+  Must-Reject {Assert-PreviewFacadeReceipt $receipt -IncludePiston $mode} 'omitted actual native source'
+  $firstFlightSourceNegatives++
+  foreach($wrongOrigin in @('observed-upstream','',$(if($sourceFingerprint -ceq '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'){'observed-native'}else{'saved-capture'}))){
+   $receipt.first_flight=New-FirstFlightReceiptFixture -IncludePiston $mode -ExpectedSourceFingerprint $sourceFingerprint
+   $receipt.first_flight.geometry.baseline_origin=$wrongOrigin
+   Must-Reject {Assert-PreviewFacadeReceipt $receipt -IncludePiston $mode -ExpectedSourceFingerprint $sourceFingerprint} 'wrong source-derived baseline origin'
+   $firstFlightSourceNegatives++
+  }
+  foreach($wrongSource in @('',('A'*64),('e'*64),('f'*63),('f'*65))){
+   $receipt.first_flight=New-FirstFlightReceiptFixture -IncludePiston $mode -ExpectedSourceFingerprint $sourceFingerprint
+   Must-Reject {Assert-PreviewFacadeReceipt $receipt -IncludePiston $mode -ExpectedSourceFingerprint $wrongSource} 'wrong or malformed actual native source'
+   $firstFlightSourceNegatives++
+  }
+ }
+}
+Write-Output ('PASS four backend/source cross-product positives and '+$firstFlightSourceNegatives+' source/origin negatives')
 $receipt.first_flight=New-FirstFlightReceiptFixture
 # These mutations specifically exercise PS/Node parity, not the implementation
 # of the UI/native tests. Coherent selected-route positives precede both modes.
@@ -388,80 +405,80 @@ Write-Output ('PASS first-flight PS/Node receipt parity, both selected-source ro
 foreach($name in @('bridge','cue','scene')){
  foreach($wrong in @(0,-1,'1',[double]1)){
   $receipt.wind=New-WindReceiptFixture;$receipt.wind.$name.checks=$wrong
-  Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('zero/malformed wind '+$name+' checks')
+  Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} ('zero/malformed wind '+$name+' checks')
  }
  foreach($wrong in @($false,'true')){
   $receipt.wind=New-WindReceiptFixture;$receipt.wind.$name.passed=$wrong
-  Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('failed/coerced wind '+$name+' marker')
+  Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} ('failed/coerced wind '+$name+' marker')
  }
  $receipt.wind=New-WindReceiptFixture;$receipt.wind.$name.failures=@('actual_failure')
- Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('failed wind '+$name+' assertions')
+ Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} ('failed wind '+$name+' assertions')
  $receipt.wind=New-WindReceiptFixture;$receipt.wind.$name.failures=$null
- Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('null wind '+$name+' failure array')
+ Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} ('null wind '+$name+' failure array')
  $receipt.wind=New-WindReceiptFixture;$receipt.wind.$name|Add-Member -NotePropertyName other -NotePropertyValue $true
- Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('extra wind '+$name+' receipt key')
+ Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} ('extra wind '+$name+' receipt key')
  $receipt.wind=New-WindReceiptFixture;$receipt.wind.PSObject.Properties.Remove($name)
- Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('missing wind '+$name+' result')
+ Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} ('missing wind '+$name+' result')
 }
 foreach($name in @('cue','scene')){
  foreach($wrong in @('',1,('x'*1025))){
   $receipt.wind=New-WindReceiptFixture;$receipt.wind.$name.scope=$wrong
-  Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('malformed wind '+$name+' scope')
+  Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} ('malformed wind '+$name+' scope')
  }
 }
 foreach($field in @('reference_cases','runway_expectations')){
  $value=if($field -eq 'reference_cases'){22}else{8}
  foreach($wrong in @(($value-1),[double]$value,([string]$value))){
   $receipt.wind=New-WindReceiptFixture;$receipt.wind.cue.$field=$wrong
-  Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('wind reference count/type '+$field)
+  Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} ('wind reference count/type '+$field)
  }
 }
 $receipt.wind=New-WindReceiptFixture;$receipt.wind.cue.reference_sha256='a'*64
-Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'wind wrong frozen reference identity'
+Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} 'wind wrong frozen reference identity'
 $receipt.wind=[pscustomobject]@{}
-Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'empty wind result group'
+Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} 'empty wind result group'
 $receipt.PSObject.Properties.Remove('wind')
-Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'missing wind top-level group'
+Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} 'missing wind top-level group'
 $receipt|Add-Member -NotePropertyName wind -NotePropertyValue (New-WindReceiptFixture)
-Assert-PreviewFacadeReceipt $receipt
+Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'
 Write-Output 'PASS closed mandatory wind cue/bridge/scene receipts and nonvacuous/failed/type/count/reference negatives.'
 foreach($name in @('codec','files','scene')){
  $receipt.observed_archive.$name.checks=0
- Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('zero archive '+$name+' checks')
+ Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} ('zero archive '+$name+' checks')
  $receipt.observed_archive.$name.checks=1
  $receipt.observed_archive.$name.passed='true'
- Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('string archive '+$name+' passing marker')
+ Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} ('string archive '+$name+' passing marker')
  $receipt.observed_archive.$name.passed=$true
  $receipt.observed_archive.$name.failures=@('failed')
- Must-Reject {Assert-PreviewFacadeReceipt $receipt} ('failed archive '+$name+' result')
+ Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} ('failed archive '+$name+' result')
  $receipt.observed_archive.$name.failures=@()
 }
 $receipt.observed_archive.codec.binary64_cases=25
-Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'archive binary64 case count drift'
+Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} 'archive binary64 case count drift'
 $receipt.observed_archive.codec.binary64_cases=26
 $receipt.observed_archive.codec.reference_sha256='a'*64
-Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'archive reference identity drift'
+Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} 'archive reference identity drift'
 $receipt.observed_archive.codec.reference_sha256='961d8903f702f1d46374998db06b7517a1ca067333b3613bd2adbf3a8c06b15e'
 $fullArchive=$receipt.observed_archive
 $receipt.observed_archive=[pscustomobject]@{}
-Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'missing archive children'
+Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} 'missing archive children'
 $receipt.observed_archive=$fullArchive
 $receipt.observed.scene.checks=0
-Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'zero actual observed scene checks'
+Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} 'zero actual observed scene checks'
 $receipt.observed.scene.checks=1
 $receipt.observed.scene.passed='true'
-Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'String passing observed marker'
+Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} 'String passing observed marker'
 $receipt.observed.scene.passed=$true
 $receipt.observed.scene.failures=@('actual_fixture_failure')
-Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'observed scene failed assertions'
+Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} 'observed scene failed assertions'
 $receipt.observed.scene.failures=@()
 $receipt.observed.recorder.reference_sha256='a'*64
-Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'changed observed frozen reference identity'
+Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} 'changed observed frozen reference identity'
 $receipt.observed.recorder.reference_sha256='a4c3184c46f2eb76c85ff4ba43fc8aac49e772a447576eeec5663fff1ac78844'
 $receipt.observed=[pscustomobject]@{}
-Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'empty observed result group'
+Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} 'empty observed result group'
 $receipt.PSObject.Properties.Remove('observed')
-Must-Reject {Assert-PreviewFacadeReceipt $receipt} 'missing observed result group'
+Must-Reject {Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} 'missing observed result group'
 Write-Output 'PASS fixed mandatory observed receipt groups and vacuous/failed/malformed controls.'
 
 # Synthetic Windows/Linux v2 qualifier and staging negatives; no real build.

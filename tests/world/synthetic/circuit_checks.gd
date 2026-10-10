@@ -260,10 +260,10 @@ func _run(observed_readback: Dictionary = {}) -> Dictionary:
 	_check(reference_readback()==original,"public_reference_readback_exact_owned_loader")
 	var base: Dictionary=original.duplicate(true)
 	if not observed_readback.is_empty():
-		baseline_origin="observed-upstream"
+		baseline_origin="observed-native"
 		base=observed_readback.duplicate(true)
-		_check(original.native_source_fingerprint!=Cue.SUPPORTED_SOURCE,"saved_capture_is_not_upstream_generated_source")
-		_unavailable(Geometry.view(original,"calm",36),"saved_capture_rejected_by_upstream_source")
+		_check(original.native_source_fingerprint!=Cue.SUPPORTED_SOURCE,"saved_capture_is_not_current_generated_source")
+		_unavailable(Geometry.view(original,"calm",36),"saved_capture_rejected_by_current_source")
 	baseline_source_fingerprint=str(base.get("native_source_fingerprint",""))
 	_check(baseline_source_fingerprint==Cue.SUPPORTED_SOURCE,"selected_baseline_matches_generated_source_without_rewrite")
 	_check(Readings.from_readback(base).state=="paused" and Cue.from_readback(base).state=="paused","full_selected_baseline_admission")
@@ -374,4 +374,4 @@ func _run(observed_readback: Dictionary = {}) -> Dictionary:
 	return _result()
 
 func _result() -> Dictionary:
-	return {"passed":failures.is_empty(),"checks":checks,"failures":failures,"fixture_sha256":Geometry.FIXTURE_SHA256,"captured_readback_sha256":CAPTURED_SHA,"baseline_origin":baseline_origin,"baseline_source_fingerprint":baseline_source_fingerprint,"scope":"Pure copied presentation; verified saved capture or supplied observed upstream baseline plus explicitly synthetic mutations; this test performs no native execution or physics qualification"}
+	return {"passed":failures.is_empty(),"checks":checks,"failures":failures,"fixture_sha256":Geometry.FIXTURE_SHA256,"captured_readback_sha256":CAPTURED_SHA,"baseline_origin":baseline_origin,"baseline_source_fingerprint":baseline_source_fingerprint,"scope":"Pure copied presentation; verified saved capture or supplied observed native baseline plus explicitly synthetic mutations; this test performs no native execution or physics qualification"}

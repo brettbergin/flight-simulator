@@ -175,6 +175,15 @@ func zoom(factor: float) -> void:
 func _point(position: Vector2, chart: Rect2) -> Vector2:
 	return chart.get_center() + (position - _position) * chart.size.x / extent_m
 
+static func _inset_contains(chart: Rect2, point: Vector2, margin: float) -> bool:
+	# A small routed chart can have no interior at this margin. Treat that
+	# interior as empty, rather than querying a negative-size Godot rectangle.
+	if not chart.position.is_finite() or not chart.size.is_finite() or not point.is_finite() or not is_finite(margin) or margin<0.0:
+		return false
+	if chart.size.x<=2.0*margin or chart.size.y<=2.0*margin:
+		return false
+	return chart.grow(-margin).has_point(point)
+
 func _text(at: Vector2, value: String, color: Color = INK, pixels: int = 12) -> void:
 	draw_string(_font, at, value, HORIZONTAL_ALIGNMENT_LEFT, -1, pixels, color)
 
@@ -238,12 +247,12 @@ func _draw() -> void:
 	for i in range(12):
 		_rectangle(Rect2(end-inbound*(i*160+160)-Vector2(1.5,0),Vector2(3,70)),chart,Color(1.0,0.77,0.47,0.65))
 	var end_point:=_point(end,chart)
-	if chart.grow(-7).has_point(end_point):
+	if _inset_contains(chart,end_point,7.0):
 		draw_circle(end_point,5,Color("ffc477"))
 	for landmark in _landmarks:
 		var position: Vector3=landmark.position_eus_m
 		var at:=_point(Vector2(position.x,position.z),chart)
-		if chart.grow(-18).has_point(at):
+		if _inset_contains(chart,at,18.0):
 			draw_circle(at,3.5,Color("d2bf83"))
 			var width:=_font.get_string_size(landmark.label,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x
 			_text(Vector2(clampf(at.x+7,chart.position.x+4,chart.end.x-width-4),clampf(at.y-5,chart.position.y+12,chart.end.y-5)),landmark.label,Color("d2bf83"),10)
@@ -260,7 +269,7 @@ func _draw() -> void:
 		var b := _point(_trail[i],chart)
 		if chart.has_point(a) and chart.has_point(b):
 			draw_line(a,b,Color(0.47,0.84,0.89,0.6),1.5,true)
-	if not chart.grow(-24).has_point(end_point):
+	if not _inset_contains(chart,end_point,24.0):
 		var offset := end_point-chart.get_center()
 		var scale := minf((chart.size.x*0.5-15)/maxf(absf(offset.x),0.001),(chart.size.y*0.5-15)/maxf(absf(offset.y),0.001))
 		var at := chart.get_center()+offset*minf(scale,1.0)

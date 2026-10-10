@@ -215,7 +215,7 @@ export function validateFirstFlightSources(repository,project,source){
  assert.equal(source_files['content/world/synthetic/practice-circuit.json'].sha256,circuitFixtureSHA,'Frozen circuit content changed');
  return {source_files};
 }
-export function validateFirstFlightReceipt(value,includePiston,expectedSourceFingerprint=includePiston?circuitCaptureSource:undefined){
+export function validateFirstFlightReceipt(value,includePiston,expectedSourceFingerprint){
  assert.equal(typeof includePiston,'boolean','Actual selected native source mode required');
  assert.equal(typeof expectedSourceFingerprint,'string','Actual selected source fingerprint required');
  assert.match(expectedSourceFingerprint,/^[0-9a-f]{64}$/,'Exact source fingerprint');
@@ -232,10 +232,8 @@ export function validateFirstFlightReceipt(value,includePiston,expectedSourceFin
  }
  assert.equal(value.geometry.fixture_sha256,circuitFixtureSHA,'Actual circuit fixture receipt pin');
  assert.equal(value.geometry.captured_readback_sha256,circuitCaptureSHA,'Actual original capture receipt pin');
- assert.equal(value.geometry.baseline_origin,includePiston?'saved-capture':'observed-upstream','Selected-source baseline origin');
+ assert.equal(value.geometry.baseline_origin,expectedSourceFingerprint===circuitCaptureSource?'saved-capture':'observed-native','Selected-source baseline origin');
  assert.equal(value.geometry.baseline_source_fingerprint,expectedSourceFingerprint,'Actual selected-source baseline binding');
- if(includePiston)assert.equal(expectedSourceFingerprint,circuitCaptureSource,'Saved capture source is immutable');
- else assert.notEqual(expectedSourceFingerprint,circuitCaptureSource,'Upstream must not relabel the saved capture');
  const scene=value.scene;
  assert.equal(scene.include_piston,includePiston,'First-flight scene selected-source mode');
  assert.equal(scene.route_scope,includePiston?'coupled: all six same/cross-profile choices and three advanced confirmations':'upstream: four legacy start mappings, two advanced confirmations and explicit cold admission rejection; cold runtime is not qualified','Honest first-flight route coverage');
@@ -256,7 +254,7 @@ export function validateFirstFlightReceipt(value,includePiston,expectedSourceFin
  }
  return checks;
 }
-export function validateFirstFlightFacadeAdmission(receipt,includePiston,expectedSourceFingerprint=includePiston?circuitCaptureSource:undefined){
+export function validateFirstFlightFacadeAdmission(receipt,includePiston,expectedSourceFingerprint){
  pointerKeys(receipt,facadeReceiptKeys,'Facade receipt');
  return validateFirstFlightReceipt(receipt.first_flight,includePiston,expectedSourceFingerprint);
 }

@@ -50,6 +50,24 @@ func run(observed_readback: Dictionary={}) -> Dictionary:
     for bad in [Rect2(0,0,0,2),Rect2(0,0,2,-1),Rect2(NAN,0,2,2),Rect2(0,0,INF,2)]:
         check(MapView._clip_circuit_segment(Vector2.ZERO,Vector2.ONE,bad).is_empty(),"invalid_chart_rejected")
     check(MapView._clip_circuit_segment(Vector2(NAN,0),Vector2.ONE,chart).is_empty(),"invalid_endpoint_rejected")
+    # Independent minimum-window rectangles: ordinary routed has only37px
+    # chart height, so its24px inset is empty. Other supported charts retain
+    # the original containment result and projected geometry.
+    for row in [["ordinary_routed",Rect2(12,76,196,37),false],
+            ["ordinary_unrouted",Rect2(12,56,196,57),true],
+            ["compact_routed",Rect2(12,62,196,72),true],
+            ["large_routed",Rect2(12,76,400,280),true]]:
+        check(MapView._inset_contains(row[1],row[1].get_center(),24.0)==row[2],row[0]+"_runway_interior")
+        check(MapView._inset_contains(row[1],row[1].get_center(),7.0),row[0]+"_runway_dot_interior")
+        check(MapView._inset_contains(row[1],row[1].get_center(),18.0),row[0]+"_landmark_interior")
+    check(MapView._inset_contains(chart,Vector2(36,80),24.0),"inset_left_top_included")
+    check(not MapView._inset_contains(chart,Vector2(388,332),24.0),"inset_right_bottom_excluded")
+    check(not MapView._inset_contains(chart,Vector2(35,80),24.0),"inset_outside_rejected")
+    for bad in [Rect2(0,0,48,48),Rect2(0,0,47,100),Rect2(0,0,100,47),Rect2(0,0,0,0),Rect2(0,0,-1,100),Rect2(NAN,0,100,100),Rect2(0,0,INF,100)]:
+        check(not MapView._inset_contains(bad,Vector2(24,24),24.0),"empty_invalid_inset_rejected")
+    check(not MapView._inset_contains(chart,Vector2(NAN,0),24.0),"invalid_inset_point_rejected")
+    check(not MapView._inset_contains(chart,chart.get_center(),-1.0),"negative_inset_margin_rejected")
+    check(not MapView._inset_contains(chart,chart.get_center(),INF),"infinite_inset_margin_rejected")
     var map_view: Control=MapView.new()
     map_view.size=Vector2(424,463)
     map_view.extent_m=1000.0

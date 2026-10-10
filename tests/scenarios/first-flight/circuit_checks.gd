@@ -29,8 +29,8 @@ func _run(observed_readback: Dictionary = {}) -> Dictionary:
 	_check(not original.is_empty(),"approved_original_fixture")
 	if original.is_empty(): return _result()
 	if not observed_readback.is_empty():
-		_check(observed_readback.get("native_source_fingerprint")==Sources.Cue.SUPPORTED_SOURCE and original.native_source_fingerprint!=Sources.Cue.SUPPORTED_SOURCE,"supplied_baseline_is_current_upstream_not_saved_capture")
-		_check(not Geometry.view(original,"calm",36).available,"original_capture_unavailable_on_upstream")
+		_check(observed_readback.get("native_source_fingerprint")==Sources.Cue.SUPPORTED_SOURCE and original.native_source_fingerprint!=Sources.Cue.SUPPORTED_SOURCE,"supplied_baseline_is_current_native_not_saved_capture")
+		_check(not Geometry.view(original,"calm",36).available,"original_capture_unavailable_on_current_source")
 	var base: Dictionary=original.duplicate(true) if observed_readback.is_empty() else observed_readback.duplicate(true)
 	var baseline_snapshot: Dictionary=base.duplicate(true)
 	var view: Dictionary=Geometry.view(base,"calm",36)
