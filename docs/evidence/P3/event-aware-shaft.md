@@ -1,6 +1,6 @@
 # Event-aware propeller engineering evidence
 
-Issue: [ORIGINAL-PISTON-FLIGHT #127](https://github.com/brettbergin/flight-simulator/issues/127). Contract: [accepted ADR014](../../decisions/014-event-aware-shaft.md). Status: source package and isolated arithmetic verified; actual native lifecycle, exported player, aircraft and phase acceptance remain open.
+Issue: [ORIGINAL-PISTON-FLIGHT #127](https://github.com/brettbergin/flight-simulator/issues/127). Contract: [accepted ADR014](../../decisions/014-event-aware-shaft.md). Status: source package, isolated arithmetic and actual-library legacy regression verified; the first actual coupled lifecycle trial failed its unchanged convergence gate. Exported player, aircraft and phase acceptance remain open.
 
 The [loader source amendment](original-piston-loader-source.md) merged as PR147, `a3e2fb6d96489eea7af2454f66412f6a1d76f5c0`, at 2026-10-10T03:30:42Z after all four protected checks passed. Its 55 original numerical cases and budgets remain unchanged. This iteration supplies the separately reviewed propeller amendment; it does not retune that model.
 
@@ -8,7 +8,7 @@ The [loader source amendment](original-piston-loader-source.md) merged as PR147,
 
 The original candidate was preserved after source review identified three defects: a tiny progressing original RPM could be lost during conversion; upward crossing lacked its explicit output boundary check; and a C rounding check alone missed SSE FTZ/DAZ controls. The revised source corrects those admission/boundary checks before any new method output. Event equations, expected values and comparison budgets were unchanged.
 
-The [two-file source transport](../../../third_party/patches/jsbsim/event-aware-constant-power-v1/identity.json) binds pristine before-images, complete preferred editable after-images, the exact materializer and original upstream inventory. Only FGPropeller.cpp and FGPropeller.h change. The source retains original notices and dated project modifications. Fresh objects default to legacy Euler; the checked native setter/getter and opt-in method are separate from cockpit controls. Legacy expressions remain in their original order, which still requires actual rebuilt default regression evidence.
+The [two-file source transport](../../../third_party/patches/jsbsim/event-aware-constant-power-v1/identity.json) binds pristine before-images, complete preferred editable after-images, the exact materializer and original upstream inventory. Only FGPropeller.cpp and FGPropeller.h change. The source retains original notices and dated project modifications. Fresh objects default to legacy Euler; the checked native setter/getter and opt-in method are separate from cockpit controls. Legacy expressions remain in their original order. The actual rebuilt default regression below provides bounded unit-fixture evidence for that route.
 
 Independent review inspected exact event predicates, error-free product/sum ranges, fixed expansion capacity, quotient order, admitted normal source exponents [-100,100], rejection-before-RPM-assignment and signed-zero holds/stops. The method requires binary64 x64, round-to-nearest, gradual underflow, strict compiler order and explicit FMA. It observes floating-point settings and rejects unsupported settings without repairing them. The finite 64u criterion and composed partition envelopes remain engineering acceptance criteria, not universal libm error theorems.
 
@@ -35,4 +35,26 @@ python tests/export/test_source_variant.py
 node tools/check-docs.mjs
 ```
 
-Actual shared-library/source selection, matching headers and consumer fingerprints, strict compile commands, default-method guards, the unchanged 12-process lifecycle/convergence schedule, worker environment, new profile controls/status, wind regressions, exported views and real DLL replacement remain required. No new playable package, C172 qualification, pilot acceptance, training credit or phase closure is established here.
+## Actual native first trial: coupled gate failed
+
+The [compact measured receipt](event-aware-shaft/native-first-trial-v1.json) binds the corrected source archive, backend/build-control and consumer fingerprints, exact executables and loaded DLL, authorizations and raw result hashes. A fresh explicit opt-in build completed with MSVC 19.40.33813.0 x64. Independent review checked the unique FGPropeller.cpp configured command and the actual verbose compiler invocation: both apply `/fp:strict` in the `Propulsion` object target, with no conflicting floating-point mode or implicit `CL` flags. The first failed build remains preserved.
+
+Compilation was followed by separate measured-artifact authorization for the actual-library default probe. It passed 270 checks across all 13 original prop-discrete cases and 18 unchanged fields per case, using the original reference and budgets. Actual getters verified fresh legacy defaults, unknown-enum rejection without mutation, reset retention of explicit selection and return to legacy. A separate fresh unset object executed all legacy cases. This is a seeded RPM/held-input unit fixture; five algebraic fields and four conversions are disclosed in the receipt. It executes no Run/RunIC or event-method Calculate and does not qualify coupled behavior.
+
+After that result, a distinct authorization admitted the unchanged 12-process native suite. All 12 children completed with exit 0 and the exact address-resolved loaded DLL identity; no cases or dependent comparisons were skipped. The 120 Hz lifecycle trace and admitted commands were identical on repetition. Nevertheless, CTest correctly failed: 1,618,656 checks included three shaft convergence failures. Each failed check combines the 60 Hz/120 Hz absolute envelopes and refinement condition. The exact numeric values and unchanged limits hash are in the receipt; the table rounds values for readability.
+
+| Time(s) | 60 Hz error/budget(rad/s) | 120 Hz error/budget(rad/s) | Failed constraint |
+| --- | --- | --- | --- |
+|1.1|0.4586895/0.3731891|0.1541221/0.1865946|60 Hz absolute envelope|
+|1.2|0.5851887/0.5434191|0.1929859/0.2717096|60 Hz absolute envelope|
+|53.8|2.1829604/0.3404171|0.8060834/0.1702086|60 Hz and 120 Hz absolute envelopes|
+
+The refinement inequality passes at all three samples. Independent offline review recomputed the frozen observation checks against preserved rows and reproduced exactly these failures and metrics. No budget, expected value, event exclusion or source was changed after observation. Trace completion and the other passing checks do not turn the numerical gate into a pass. The follow-up defect is [#149](https://github.com/brettbergin/flight-simulator/issues/149); issue 127 remains open.
+
+Recorded stages bound the investigation. The 1.1 s/1.2 s failures occur during starter-only cranking, with Running false. At 53.8 s combustion is off at all rates, but their first literal-zero shaft times differ: 53.8 s,53.8083333 s and 53.8125 s at 60/120/240 Hz. The source samples engine-minus-load power before the held-power angular solve. These observations suggest timestep-dependent coupling and stop timing; they do not establish an error-free arithmetic defect or justify extra exclusions. Changing power/load chronology, substeps or state ownership requires a separately reviewed coupling contract. The held-power kernel and the complete coupled engine/airframe have distinct acceptance obligations.
+
+The failed coupled gate, native consumer/profile controls, wind and interactive regressions, exported views and actual DLL replacement remain open. No new playable package, C172 qualification, pilot acceptance, training credit or phase closure is established here.
+
+A separate run of the eight existing native CTests against this build passed seven. Replay reconstruction initially rejected a stale source-fingerprint calculation before its scenario. A separately reviewed correction subsequently passed the fresh standalone reconstruction regression against the same DLL: checkpoint72000,7200 continuation ticks,1939 rejection cases and identical baseline/reconstructed artifacts. The corrected frontend calculation is pending cohesive native/build integration; this does not change the failed coupled gate. This run excluded the separately preserved failed engine lifecycle test and does not establish a full CTest pass.
+
+The prospective [corrective contract](../../decisions/015-source-law-coupled-shaft.md) and [independent reference design](coupled-midpoint-reference-design.md) specify source-law coupling and the finite reference cases before implementation. No new method outputs or adoption evidence are claimed.
