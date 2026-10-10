@@ -13,6 +13,14 @@ class SyntheticScene extends Scene:
  var synthetic_raw: Dictionary={"keys":[],"mouse_buttons":[],"devices":[]}
  var release_fixture: Dictionary={"keys":[],"mouse_buttons":[],"devices":[]}
  var pause_entries: Array[Dictionary]=[]
+ var layout_retirements: Array[Dictionary]=[]
+ func invalidate_engine_pointer(reason: String) -> void:
+  if reason=="Engine controls layout changed":
+   # Observe the real host call before it invalidates ownership or remaps hits.
+   # No native/input mutation is performed by this test-only observer.
+   layout_retirements.append({"reason":reason,"rect":engine_controls.get_rect(),
+    "pointer":mapper.pointer_view(),"raw":synthetic_raw.duplicate(true)})
+  super.invalidate_engine_pointer(reason)
  func collect_input_raw(_preset: Dictionary={}) -> Dictionary:
   return synthetic_raw.duplicate(true)
  func mapper_intent_snapshot() -> Dictionary:
@@ -215,6 +223,117 @@ func _retirement_cases(scene: Node) -> void:
   _button(scene,"engine.starter",false)
   scene.process_input_interval(25000)
   _check(not _actual_starter(scene) and scene.engine_pointer_rearm.is_empty(),"retire_"+transition+"_ordinary_boundary_releases_and_rearms")
+
+func _ordinary_layout_cases(scene: Node) -> void:
+ # Source-supported ordinary layout transitions only; no OS key/mouse claim.
+ # The actual window owns the viewport dimensions. All native Run calls below
+ # go through the existing full-Raw production host; layout itself gets none.
+ var window: Window=scene.get_tree().root
+ var original_size: Vector2i=window.size
+ var original_mode: int=scene.camera_mode
+ var original_gaze: Vector2=scene.look_angles
+ for window_size in [Vector2i(960,540),Vector2i(1920,1080),Vector2i(2560,1440)]:
+  for mode in [0,3,1]:
+   for transition in ["resize","view"]:
+    var label: String="ordinary_layout_%dx%d_mode%d_%s"%[window_size.x,window_size.y,mode,transition]
+    window.size=window_size
+    await scene.get_tree().process_frame
+    scene.set_camera_mode(mode)
+    if not _resume(scene,label): continue
+    scene.show_state()
+    await scene.get_tree().process_frame
+    _check(Vector2i(scene.get_viewport().get_visible_rect().size)==window_size,label+"_actual_requested_viewport")
+    var column: float=clampf(float(window_size.x)/6.0,250.0,360.0)
+    var panel: Control=scene.engine_controls
+    _check(panel.size==Vector2(column,216) and panel.is_expanded() and panel.visible,label+"_expanded216_source_width")
+    var native_before: Dictionary=_retained(scene)
+    var raw_before: PackedByteArray=var_to_bytes(scene.synthetic_raw)
+    var initial_pointer: Dictionary=scene.mapper.pointer_view()
+    var initial_intent: Dictionary=scene.mapper_intent_snapshot()
+    for repeat in 3: scene.layout_live_flight_aids()
+    _check(_retained(scene)==native_before and scene.mapper.pointer_view()==initial_pointer and scene.mapper_intent_snapshot()==initial_intent and var_to_bytes(scene.synthetic_raw)==raw_before,label+"_idle_layout_no_native_Raw_intent_or_generation_change")
+    # Deliberate gaze is a presentation fixture, not admitted simultaneous look
+    # input during a pointer drag. Fixed docks must be independent of the gaze.
+    var fixed_rect: Rect2=panel.get_rect()
+    var prior_gaze: Vector2=scene.look_angles
+    for gaze in [Vector2(0.4,-0.2),Vector2(-1.1,0.15),Vector2.ZERO]:
+     scene.look_angles=gaze
+     scene.layout_live_flight_aids()
+     _check(panel.get_rect()==fixed_rect and scene.mapper.pointer_view()==initial_pointer and _retained(scene)==native_before and scene.mapper_intent_snapshot()==initial_intent,label+"_gaze_does_not_remap_or_sample_"+str(gaze))
+    scene.look_angles=prior_gaze
+    # Unconsumed starter begin proves a passive layout cannot manufacture even
+    # one true native starter tick, command, pilot sequence or hidden submission.
+    _begin(scene,"engine.starter")
+    var captured: Dictionary=scene.mapper.pointer_view()
+    var captured_intent: Dictionary=scene.mapper_intent_snapshot()
+    var before_rect: Rect2=panel.get_rect()
+    var before_log: int=scene.layout_retirements.size()
+    _check(captured.capture!=null and not _actual_starter(scene) and _retained(scene)==native_before,label+"_unsampled_capture_has_no_native_pulse")
+    for repeat in 3: scene.layout_live_flight_aids()
+    scene.look_angles=Vector2(0.3,0.1);scene.layout_live_flight_aids()
+    _check(scene.mapper.pointer_view()==captured and panel.get_rect()==before_rect and scene.mapper_intent_snapshot()==captured_intent and _retained(scene)==native_before and scene.layout_retirements.size()==before_log,label+"_active_capture_repeated_and_gaze_layout_inert")
+    if transition=="resize":
+     window.size=Vector2i(1920,1080) if window_size.x!=1920 else Vector2i(960,540)
+     await scene.get_tree().process_frame
+    else:
+     # These views deliberately change the actual hit mapping. COCKPIT/CHASE
+     # same-left-column transitions are tested separately below as idempotent.
+     scene.set_camera_mode(0 if mode==3 else 3)
+    scene.show_state()
+    await scene.get_tree().process_frame
+    var retired: Dictionary=scene.mapper.pointer_view()
+    _check(panel.get_rect()!=before_rect,label+"_actual_hit_mapping_changed")
+    _check(retired.capture==null and retired.generation==captured.generation+1 and scene.layout_retirements.size()==before_log+1,label+"_capture_retired_exactly_once")
+    if scene.layout_retirements.size()==before_log+1:
+     var observed: Dictionary=scene.layout_retirements[-1]
+     _check(observed.rect==before_rect and observed.pointer==captured and observed.raw.mouse_buttons==[1],label+"_retirement_observed_before_geometry_and_real_release")
+    _check(1 in retired.rearm_buttons and 1 in scene.engine_pointer_rearm and panel._capture.is_empty(),label+"_retirement_requires_actual_left_release")
+    _check(_retained(scene)==native_before and not _actual_starter(scene) and not scene.paused and scene.synthetic_raw.mouse_buttons==[1],label+"_passive_transition_no_starter_pulse_or_submission_Run")
+    for repeat in 3: scene.layout_live_flight_aids()
+    _check(scene.mapper.pointer_view()==retired and scene.layout_retirements.size()==before_log+1 and _retained(scene)==native_before,label+"_post_retirement_identical_layout_inert")
+    # A GUI up by itself is not full Raw release and cannot clear either latch.
+    _button(scene,"engine.starter",false)
+    scene.process_input_interval(0)
+    _button(scene,"engine.starter",true)
+    _check(scene.mapper.pointer_view().capture==null and 1 in scene.mapper.pointer_view().rearm_buttons and 1 in scene.engine_pointer_rearm and _retained(scene)==native_before and not _actual_starter(scene),label+"_GUI_up_and_held_reentry_cannot_rearm_or_pulse")
+    # Only ordinary successful complete Raw-up observation rearms. No elapsed
+    # time or GUI release is needed to invent a solver boundary here.
+    _released(scene)
+    scene.process_input_interval(0)
+    _check(scene.mapper.pointer_view().rearm_buttons.is_empty() and scene.engine_pointer_rearm.is_empty() and scene.pointer_ui_eligible() and _retained(scene)==native_before,label+"_real_Raw_up_rearms_without_native_advance")
+    scene.show_state()
+    var fresh_before: Dictionary=scene.mapper.pointer_view()
+    _begin(scene,"engine.starter")
+    var fresh: Dictionary=scene.mapper.pointer_view()
+    _check(fresh.capture!=null and fresh.generation==fresh_before.generation and fresh.capture.token==fresh_before.last_token+1,label+"_fresh_real_press_after_release")
+    scene.process_input_interval(25000)
+    _check(_actual_starter(scene) and scene.facade.readback().tick!=native_before.tick,label+"_ordinary_due_Run_applies_fresh_starter")
+    var commands: Array=scene.facade.get("_commands").duplicate(true)
+    _check(commands.size()==1 and commands[0].payload=={"kind":"system","control_id":"engine.starter","value":true},label+"_one_ordinary_true_command_only")
+    _released(scene);_button(scene,"engine.starter",false)
+    scene.process_input_interval(25000)
+    commands=scene.facade.get("_commands").duplicate(true)
+    _check(not _actual_starter(scene) and commands.size()==1 and commands[0].payload=={"kind":"system","control_id":"engine.starter","value":false},label+"_ordinary_release_one_false_command")
+ # View name alone does not justify retirement if the hit mapping stays exact.
+ window.size=Vector2i(960,540)
+ await scene.get_tree().process_frame
+ scene.set_camera_mode(0)
+ if _resume(scene,"ordinary_layout_same_column"):
+  scene.show_state()
+  _begin(scene,"engine.starter")
+  var same_column_pointer: Dictionary=scene.mapper.pointer_view()
+  var same_column_rect: Rect2=scene.engine_controls.get_rect()
+  var same_column_native: Dictionary=_retained(scene)
+  var same_column_logs: int=scene.layout_retirements.size()
+  scene.set_camera_mode(1);scene.show_state()
+  _check(scene.engine_controls.get_rect()==same_column_rect and scene.mapper.pointer_view()==same_column_pointer and scene.layout_retirements.size()==same_column_logs and _retained(scene)==same_column_native,"ordinary_layout_same_hit_mapping_view_keeps_capture_no_generation")
+  _released(scene);scene.process_input_interval(25000)
+  _check(not _actual_starter(scene),"ordinary_layout_same_mapping_Raw_up_before_sample_no_true_pulse")
+ window.size=original_size
+ await scene.get_tree().process_frame
+ scene.set_camera_mode(original_mode);scene.look_angles=original_gaze
+ scene.show_state()
+ _check(window.size==original_size,"ordinary_layout_original_viewport_restored")
 
 func _assert_modal_motion_blocked(scene: Node,label: String) -> void:
  var before: Vector2=scene.look_angles
@@ -537,6 +656,7 @@ func run(host: Node) -> Dictionary:
    _check(scene.mapper.pointer_view().capture==null,"normal_fault_pause_retires_capture")
   _device_release_cases(scene)
   _retirement_cases(scene)
+  await _ordinary_layout_cases(scene)
   _modal_cases(scene)
   _outside_and_lifecycle_cases(scene)
   _legacy_modal_cases(scene)

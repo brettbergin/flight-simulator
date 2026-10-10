@@ -9,9 +9,9 @@ signal expansion_changed(expanded: bool)
 # binding/fixed paint. hit_control supports host preflight before complete Raw.
 # Queue exact gesture signals into mapper; denied_press requests normal host pause.
 # On lifecycle use retire(); invalidate_local() clears local state without signals.
-# Host assigns width before expanded_height(): <600px uses a 300px sidebar;
+# Host assigns width before expanded_height(): <600px uses an ADR019 216px sidebar;
 # 600..899px uses a 156px strip; >=900px retains the original 140px strip.
-# Collapsed height is always30px; this widget never chooses its host position.
+# Collapsed height is always 30px; this widget never chooses its host position.
 const AXES: Array[String]=["throttle","mixture"]
 const SWITCHES: Array[String]=["engine.ignition_left","engine.ignition_right","fuel.feed","engine.starter"]
 const LABELS: Dictionary={"throttle":"THROTTLE","mixture":"MIXTURE","engine.ignition_left":"IGN LEFT","engine.ignition_right":"IGN RIGHT","fuel.feed":"FUEL FEED","engine.starter":"HOLD STARTER"}
@@ -33,6 +33,17 @@ var _preview: Variant=null
 var _terminal: bool=false
 var _await_release: bool=false
 var _font: Font=ThemeDB.fallback_font
+var _status_label: Label
+
+func _init() -> void:
+	_status_label=Label.new()
+	_status_label.visible=false
+	_status_label.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	_status_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	_status_label.text_overrun_behavior=TextServer.OVERRUN_NO_TRIMMING
+	_status_label.add_theme_font_size_override("font_size",10)
+	_status_label.add_theme_color_override("font_color",MUTED)
+	add_child(_status_label)
 
 func _ready() -> void:
 	mouse_filter=Control.MOUSE_FILTER_STOP
@@ -66,8 +77,8 @@ func _compact_look_text() -> String:
 	# The host supplies its current remapped look binding. Reserve release guidance
 	# even when that binding needs an explicit ellipsis; the full hint stays in the
 	# tooltip. Captured mouse look cannot rely on hover to discover its release.
-	if _look_hint.is_empty(): return _fit_text("Look binding unavailable · open Controls",size.x-24,9)
-	if not _look_hint.begins_with("Look: "): return _fit_text(_look_hint,size.x-24,9)
+	if _look_hint.is_empty(): return "Look unavailable · open Controls"
+	if not _look_hint.begins_with("Look: "): return "Release mouse look · open Controls"
 	var binding: String=_look_hint.trim_prefix("Look: ")
 	var release_at: int=binding.find(" · release")
 	if release_at>=0: binding=binding.left(release_at)
@@ -76,25 +87,28 @@ func _compact_look_text() -> String:
 		if extra_at>=0: binding=binding.left(extra_at)
 	var prefix: String="Look: "
 	var suffix: String=" · release to use"
-	if _font.get_string_size(prefix+binding+suffix,HORIZONTAL_ALIGNMENT_LEFT,-1,9).x<=size.x-24: return prefix+binding+suffix
+	if _font.get_string_size(prefix+binding+suffix,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x<=size.x-16: return prefix+binding+suffix
 	while not binding.is_empty():
 		binding=binding.left(binding.length()-1)
-		if _font.get_string_size(prefix+binding+"…"+suffix,HORIZONTAL_ALIGNMENT_LEFT,-1,9).x<=size.x-24: return prefix+binding+"…"+suffix
-	return _fit_text(prefix+"…"+suffix,size.x-24,9)
+		if _font.get_string_size(prefix+binding+"…"+suffix,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x<=size.x-16: return prefix+binding+"…"+suffix
+	# Below the supported minimum, keep the action intact; a bounds check must
+	# reject the presentation rather than trim the release instruction.
+	return prefix+"…"+suffix
 
 func _layout_resized() -> void:
+	if not _capture.is_empty(): retire("Engine controls resized")
 	if custom_minimum_size.y!=expanded_height(): custom_minimum_size.y=expanded_height()
 	_refresh_presentation()
 
 func expanded_height() -> float:
-	return (300.0 if _compact() else (156.0 if _medium() else 140.0)) if _expanded else 30.0
+	return (216.0 if _compact() else (156.0 if _medium() else 140.0)) if _expanded else 30.0
 
 func _header_text() -> String:
 	if _compact(): return ("▾" if _expanded else "▸")+" ENGINE CONTROLS · PROTOTYPE"
 	return ("▾ COLLAPSE" if _expanded else "▸ EXPAND")+" ENGINE CONTROLS · PROTOTYPE"
 
 func _legend_text() -> String:
-	return "A actual · R request · P preview" if _compact() else "ACTUAL cyan · REQUEST gold · PREVIEW orange"
+	return "A actual · R request · orange P preview" if _compact() else "ACTUAL cyan · REQUEST gold · PREVIEW orange"
 
 func is_expanded() -> bool:
 	return _expanded
@@ -149,10 +163,10 @@ func set_state(pointer_view: Dictionary, engine_status: Dictionary, active_prese
 func _rects() -> Dictionary:
 	var w: float=maxf(size.x,1.0)
 	if _compact():
-		var column_w: float=maxf((w-32.0)*0.5,1.0)
+		var column_w: float=maxf((w-24.0)*0.5,1.0)
 		var compact_rects: Dictionary={}
-		for i in AXES.size(): compact_rects[AXES[i]]=Rect2(12.0+i*(column_w+8.0),62.0,column_w,54.0)
-		for i in SWITCHES.size(): compact_rects[SWITCHES[i]]=Rect2(12.0+(i%2)*(column_w+8.0),146.0+floorf(float(i)/2.0)*72.0,column_w,54.0)
+		for i in AXES.size(): compact_rects[AXES[i]]=Rect2(8.0+i*(column_w+8.0),32.0,column_w,58.0)
+		for i in SWITCHES.size(): compact_rects[SWITCHES[i]]=Rect2(8.0+(i%2)*(column_w+8.0),92.0+floorf(float(i)/2.0)*38.0,column_w,34.0)
 		return compact_rects
 	var available: float=maxf(w-24.0,1.0)
 	var lever_w: float=available*(0.24 if _medium() else 0.245)
@@ -228,6 +242,7 @@ func _control_reason(control: String) -> String:
 
 func _track(control: String) -> Rect2:
 	var rect: Rect2=_rects()[control]
+	if _compact(): return Rect2(rect.position.x+10.0,73.0,rect.size.x-20.0,10.0)
 	return Rect2(rect.position+Vector2(10,29),Vector2(rect.size.x-20,12))
 
 func _axis_value(control: String, x: float) -> float:
@@ -334,10 +349,75 @@ func _pending_text() -> String:
 func _refresh_presentation() -> void:
 	# Hover and accessibility guidance must not depend on a GPU draw callback.
 	tooltip_text=_pending_text()+" · "+(_binding_hint(_capture.control)+" · " if not _capture.is_empty() else "")+_look_hint
+	_status_label.visible=_compact() and _expanded
+	_status_label.position=Vector2(8,168)
+	_status_label.size=Vector2(maxf(1,size.x-16),31)
+	_status_label.text=_compact_status_text()
 	queue_redraw()
+
+func _compact_denial_category() -> String:
+	var lower: String=_reason.to_lower()
+	if "input" in lower or "preset" in lower or "device" in lower or "binding" in lower: return "Input unavailable · open Controls"
+	if "look" in lower: return "Release mouse look to use controls"
+	if "release left button" in lower: return "Release left button before a fresh press"
+	if _engine.get("state")=="historical": return "Retained · no current control"
+	if _engine.get("state")=="paused": return "Paused · resume explicitly"
+	if lower=="paused / retained / unavailable · resume explicitly": return "Unavailable · resume explicitly"
+	if "retained" in lower or "historical" in lower: return "Retained · no current control"
+	if "paused" in lower: return "Paused · resume explicitly"
+	return "Controls unavailable · see full reason"
+
+func _compact_status_text() -> String:
+	var rearm: bool=_await_release or (_pointer.get("rearm_buttons") is Array and 1 in _pointer.rearm_buttons)
+	var conflict: String=_button_binding(_preset)
+	var status: String="Live · left pointer · hover for guidance"
+	if not _eligible: status=_compact_denial_category()
+	elif not conflict.is_empty(): status="Left bound · release / remap in Controls"
+	elif _terminal: status="Release queued · awaiting sample"
+	elif _preview!=null: status="Preview queued · not native-applied"
+	elif not _capture.is_empty(): status="Capture active · A actual / R requested"
+	elif not _hover.is_empty() and not _control_reason(_hover).is_empty(): status=_control_reason(_hover)
+	elif rearm: return "Release left button before a fresh press"
+	if rearm:
+		# Two complete category/action rows, never a fake button-up or a clipped
+		# reason. Detailed source reason and aliases remain synchronous tooltip.
+		if status=="Release left button before a fresh press": return status
+		if not conflict.is_empty() and _eligible: status="Left bound · remap in Controls"
+		status+="\nRelease left button before a fresh press"
+	return status
+
+func _compact_values(control: String) -> Array:
+	var result: Array=[["A "+_display(_actual(control)),ACTUAL],["R "+_display(_requested(control)),REQUESTED]]
+	if control not in AXES and _capture.get("control")==control and _preview!=null: result.append(["P "+_display(_preview),PREVIEW])
+	return result
+
+func _draw_compact() -> void:
+	_text(Vector2(8,20 if not _expanded else 13),_header_text(),INK,11,size.x-16)
+	if not _expanded: return
+	_text(Vector2(8,29),_legend_text(),MUTED,10,size.x-16)
+	for control in _rects():
+		var rect: Rect2=_rects()[control]
+		var color: Color=INK if _control_reason(control).is_empty() else MUTED
+		if control not in AXES: draw_style_box(_background(),rect)
+		_text(rect.position+Vector2(0,12),LABELS[control],color,11,rect.size.x)
+		var x: float=rect.position.x
+		for part in _compact_values(control):
+			_text(Vector2(x,rect.position.y+(29 if control in AXES else 28)),part[0],part[1],11)
+			x+=_font.get_string_size(part[0]+("  " if control in AXES else " "),HORIZONTAL_ALIGNMENT_LEFT,-1,11).x
+		if control in AXES:
+			var track: Rect2=_track(control)
+			draw_style_box(_background(),track)
+			var actual: Variant=_actual(control);var requested: Variant=_requested(control)
+			if actual!=null: draw_line(Vector2(track.position.x+float(actual)*track.size.x,track.position.y-5),Vector2(track.position.x+float(actual)*track.size.x,track.end.y+5),ACTUAL,3)
+			if requested!=null: draw_circle(Vector2(track.position.x+float(requested)*track.size.x,track.get_center().y),5,REQUESTED)
+			if _capture.get("control")==control and _preview!=null: draw_circle(Vector2(track.position.x+float(_preview)*track.size.x,track.get_center().y),3,PREVIEW)
+	_text(Vector2(8,212),_compact_look_text(),INK,10,size.x-16)
 
 func _draw() -> void:
 	draw_style_box(_background(),Rect2(Vector2.ZERO,Vector2(size.x,expanded_height())))
+	if _compact():
+		_draw_compact()
+		return
 	_text(Vector2(12,20),_header_text(),INK,10 if _compact() else 12,size.x-24)
 	if _expanded or (not _compact() and not _medium()):
 		var legend_at: Vector2=Vector2(12,42) if _compact() else (Vector2(12,36) if _medium() else Vector2(maxf(350,size.x-365),20))

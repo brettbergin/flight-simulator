@@ -183,7 +183,7 @@ export const firstFlightSourceGroups=[
  ['tests/scenarios/first-flight','scenario_tests/first-flight',['briefing_checks.gd','circuit_checks.gd']],
  ['tests/ui/first_flight','first_flight_ui_tests',['briefing_checks.gd']],
  ['tests/world/synthetic','world_tests/synthetic',['circuit_checks.gd']],
- ['tests/integration/first_flight','first_flight_scene_tests',['scene_checks.gd','map_checks.gd','visual_checks.gd']],
+ ['tests/integration/first_flight','first_flight_scene_tests',['scene_checks.gd','map_checks.gd','visual_checks.gd','layout_visual_checks.gd']],
 ];
 const circuitFixtureSHA='2a4540d99d4500e326a1b1f0673583bd6f8ea99d430b991fcca1130befbbddcc';
 const circuitCaptureSHA='58b1a7b0ec46161357c1268dbaeeaab27f84bbbd4de70def35571fd45ddb67f9';

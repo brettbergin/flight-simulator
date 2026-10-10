@@ -627,7 +627,7 @@ Write-Output 'PASS generated pointer harness source-pair shape and self-hash'
 
 # ADR018 resources must survive authoring/staged/corresponding source intact.
 $firstFlightGroups=@(Get-FirstFlightSourceGroups -RepoRoot $repo)
-if($firstFlightGroups.Count -ne 8 -or @($firstFlightGroups|ForEach-Object {$_.snapshot}).Count -ne 13){throw 'Complete first-flight resource roster required'}
+if($firstFlightGroups.Count -ne 8 -or @($firstFlightGroups|ForEach-Object {$_.snapshot}).Count -ne 14){throw 'Complete first-flight resource roster required'}
 $firstFlightStage=Join-Path $testRoot 'first-flight-stage'
 $firstFlightSource=Join-Path $testRoot 'first-flight-source'
 Copy-FirstFlightSourceGroups -RepoRoot $repo -DestinationRoot $firstFlightStage -Groups $firstFlightGroups
@@ -649,6 +649,11 @@ Must-Reject {Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -
 Must-Reject {Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -Groups $firstFlightGroups -AllowGeneratedUIDs} 'malformed first-flight UID'
 Remove-Item -LiteralPath $firstFlightUid
 $firstFlightVisual=Join-Path $firstFlightStage 'first_flight_scene_tests/visual_checks.gd'
+$firstFlightLayoutVisual=Join-Path $firstFlightStage 'first_flight_scene_tests/layout_visual_checks.gd'
+$firstFlightLayoutBytes=[IO.File]::ReadAllBytes($firstFlightLayoutVisual)
+Remove-Item -LiteralPath $firstFlightLayoutVisual
+Must-Reject {Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -Groups $firstFlightGroups -AllowGeneratedUIDs} 'omitted ordinary-flight layout visual driver'
+[IO.File]::WriteAllBytes($firstFlightLayoutVisual,$firstFlightLayoutBytes)
 Remove-Item -LiteralPath $firstFlightVisual
 Must-Reject {Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -Groups $firstFlightGroups -AllowGeneratedUIDs} 'omitted first-flight visual driver'
 Write-Output 'PASS first-flight full resource staging, exact capture/source tampering, missing visual and generated UID negatives'

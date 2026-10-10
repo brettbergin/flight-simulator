@@ -24,6 +24,8 @@ var _aids: CheckBox
 var _draft: Array[int] = []
 var _chooser: PanelContainer
 var _card: PanelContainer
+var _card_box: VBoxContainer
+var _card_header: Label
 var _title: Label
 var _metrics: Label
 var _state: Label
@@ -258,18 +260,20 @@ func _surface() -> PanelContainer:
 func _build() -> void:
 	_card=_surface()
 	_card.mouse_filter=Control.MOUSE_FILTER_IGNORE
-	var card_box:=VBoxContainer.new()
-	card_box.mouse_filter=Control.MOUSE_FILTER_IGNORE
-	_card.add_child(card_box)
-	card_box.add_child(_label("SYNTHETIC LANDMARKS / OPTIONAL AID",11,CYAN))
+	_card_box=VBoxContainer.new()
+	_card_box.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	_card.add_child(_card_box)
+	_card_box.minimum_size_changed.connect(func(): _settle_card_dock.call_deferred())
+	_card_header=_label("SYNTHETIC LANDMARKS / OPTIONAL AID",11,CYAN)
+	_card_box.add_child(_card_header)
 	_title=_label("Choose a local flying goal",20,Color("edf4f8"))
-	card_box.add_child(_title)
+	_card_box.add_child(_title)
 	_metrics=_label("",16,Color("edf4f8"))
-	card_box.add_child(_metrics)
+	_card_box.add_child(_metrics)
 	_leg_text=_label("",12)
-	card_box.add_child(_leg_text)
+	_card_box.add_child(_leg_text)
 	_state=_label("",11)
-	card_box.add_child(_state)
+	_card_box.add_child(_state)
 	_chooser=_surface()
 	var box:=VBoxContainer.new()
 	box.add_theme_constant_override("separation",5)
@@ -354,8 +358,8 @@ func _refresh_choices() -> void:
 	_stop.disabled=_route.is_empty() or not _view.paused or not _view.available
 
 func set_summary_in_map(value: bool) -> void:
-	# Presentation only: the locator shows the same current manual leg and
-	# geometric range/bearing. Route selection and the Show aids flag stay owned
+	# Presentation only: the visible locator renders the complete equivalent
+	# current/noncurrent manual summary (ADR019). Selection/Show aids stay owned
 	# by this board, including when the locator is closed again.
 	_summary_in_map=value
 	if _card!=null:
@@ -364,6 +368,7 @@ func set_summary_in_map(value: bool) -> void:
 func set_card_dock(bounds: Rect2) -> void:
 	# Empty bounds restore the accepted ordinary presentation. No route or
 	# aid selection is changed when the optional reference reserves a column.
+	if bounds==_card_dock: return
 	_card_dock=bounds
 	_layout()
 
@@ -382,17 +387,64 @@ func _refresh() -> void:
 func _layout() -> void:
 	if _card==null:
 		return
-	_card.position=Vector2(14,110)
-	_card.size=Vector2(minf(380,size.x-28),0)
 	var docked: bool=_card_dock.size.x>0.0
-	_title.add_theme_font_size_override("font_size",18 if docked else 20)
-	_metrics.add_theme_font_size_override("font_size",14 if docked else 16)
-	_state.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART if docked else TextServer.AUTOWRAP_OFF
-	# Wrapped labels report a one-pixel minimum before container width settles.
-	# Reserve actual font rows in the narrow aid column so the state stays drawn.
-	_state.custom_minimum_size.y=3.0*(_state.get_theme_font("font").get_height(_state.get_theme_font_size("font_size"))+_state.get_theme_constant("line_spacing")) if docked else 0.0
+	if not docked:
+		_card.position=Vector2(14,110)
+		_card.size=Vector2(minf(380,size.x-28),0)
+	_card_header.add_theme_font_size_override("font_size",10 if docked else 11)
+	_title.add_theme_font_size_override("font_size",12 if docked else 20)
+	_metrics.add_theme_font_size_override("font_size",11 if docked else 16)
+	_leg_text.add_theme_font_size_override("font_size",10 if docked else 12)
+	_state.add_theme_font_size_override("font_size",10 if docked else 11)
+	_card_box.add_theme_constant_override("separation",3 if docked else 4)
+	var style: StyleBoxFlat=_card.get_theme_stylebox("panel").duplicate()
+	style.content_margin_left=12 if docked else 16
+	style.content_margin_right=12 if docked else 16
+	style.content_margin_top=8 if docked else 12
+	style.content_margin_bottom=8 if docked else 12
+	_card.add_theme_stylebox_override("panel",style)
+	for label in [_title,_metrics,_state]:
+		label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART if docked else TextServer.AUTOWRAP_OFF
+		label.text_overrun_behavior=TextServer.OVERRUN_NO_TRIMMING if docked else TextServer.OVERRUN_TRIM_ELLIPSIS
+		label.clip_text=false
+		label.custom_minimum_size.y=0
+	_leg_text.mouse_filter=Control.MOUSE_FILTER_PASS if docked else Control.MOUSE_FILTER_IGNORE
+	_leg_text.tooltip_text=_leg_text.text
+	var footer: String="RETAINED / NO CURRENT GUIDANCE" if _view.historical else "PAUSED / select Next from the route board" if _view.paused else "SYNTHETIC ANCHOR BEARING / MANUAL LEGS"
+	_state.text=footer
 	if docked:
-		_card.position=_card_dock.position
-		_card.size=Vector2(_card_dock.size.x,0)
+		var width: float=maxf(1.0,_card_dock.size.x-24.0)
+		# Only the secondary itinerary may shorten; the full original list stays
+		# synchronous in the tooltip and the visible footer explains shortening.
+		var font: Font=_leg_text.get_theme_font("font")
+		if font.get_string_size(_leg_text.text,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x>width:
+			_state.text+="\nItinerary shortened; full list in tooltip"
+		_title.custom_minimum_size.y=2.0*_title.get_theme_font("font").get_height(12)
+		_metrics.custom_minimum_size.y=2.0*_metrics.get_theme_font("font").get_height(11)
+		_state.custom_minimum_size.y=3.0*_state.get_theme_font("font").get_height(10)
+	_card.tooltip_text=_title.text+"\n"+_metrics.text+"\n"+_leg_text.text+"\n"+footer
+	if docked: _settle_card_dock()
+
 	_chooser.size=Vector2(minf(580,size.x-28),0)
 	_chooser.position=Vector2((size.x-_chooser.size.x)*0.5,maxf(14,(size.y-_chooser.get_combined_minimum_size().y)*0.5))
+
+func _settle_card_dock() -> void:
+	# Hidden Containers do not sort their children. A wrapped Label left at the
+	# old one-pixel width can otherwise grow the hidden card on later draws.
+	# Allocate the same VBox rows synchronously, including while hidden, before
+	# asking the card for its minimum. Real oversized text remains oversized.
+	if _card==null or _card_dock.size.x<=0.0: return
+	var width: float=maxf(1.0,_card_dock.size.x-24.0)
+	var y: float=0.0
+	var separation: float=_card_box.get_theme_constant("separation")
+	for label in [_card_header,_title,_metrics,_leg_text,_state]:
+		label.size.x=width
+		var height: float=label.get_combined_minimum_size().y
+		label.position=Vector2(0,y)
+		label.size=Vector2(width,height)
+		y+=height+separation
+	y-=separation
+	_card_box.position=Vector2(12,8)
+	_card_box.size=Vector2(width,maxf(172.0,y))
+	_card.position=_card_dock.position
+	_card.size=Vector2(_card_dock.size.x,maxf(188.0,y+16.0))

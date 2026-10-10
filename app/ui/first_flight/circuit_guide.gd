@@ -66,18 +66,24 @@ func schematic_rect() -> Rect2:
 func _arrange() -> void:
 	if _title==null: return
 	var compact: bool=_compact_unavailable and not _view.available
-	custom_minimum_size=Vector2(240,84 if compact else 200)
+	var wide: bool=compact and size.x>=390.0
+	custom_minimum_size=Vector2(240,32 if wide else (84 if compact else 200))
 	if size.x<custom_minimum_size.x or size.y<custom_minimum_size.y:
 		size=Vector2(maxf(size.x,custom_minimum_size.x),maxf(size.y,custom_minimum_size.y))
 	_caption.visible=not compact
 	_footer.visible=not compact
-	_reason.add_theme_font_size_override("font_size",11 if compact else 12)
-	_title.position=Vector2(12,8)
-	_title.size=Vector2(maxf(1.0,size.x-24),40)
+	# The wide notice uses two complete font10 lines, baselines11 and28.
+	# It never changes source availability or the available schematic layout.
+	_title.add_theme_font_size_override("font_size",10 if wide else 12)
+	_title.autowrap_mode=TextServer.AUTOWRAP_OFF if wide else TextServer.AUTOWRAP_WORD_SMART
+	_reason.add_theme_font_size_override("font_size",10 if wide else (11 if compact else 12))
+	_reason.autowrap_mode=TextServer.AUTOWRAP_OFF if wide else TextServer.AUTOWRAP_WORD_SMART
+	_title.position=Vector2(12,0 if wide else 8)
+	_title.size=Vector2(maxf(1.0,size.x-24),14 if wide else 40)
 	_caption.position=Vector2(12,50)
 	_caption.size=Vector2(maxf(1.0,size.x-24),16)
-	_reason.position=Vector2(8 if compact else 14,50 if compact else 70)
-	_reason.size=Vector2(maxf(1.0,size.x-(16 if compact else 28)),maxf(1.0,size.y-(56 if compact else 102)))
+	_reason.position=Vector2(12 if wide else (8 if compact else 14),17 if wide else (50 if compact else 70))
+	_reason.size=Vector2(maxf(1.0,size.x-(24 if wide else (16 if compact else 28))),14 if wide else maxf(1.0,size.y-(56 if compact else 102)))
 	_reason.text=_view.error
 	_reason.visible=not _view.available
 	_footer.position=Vector2(12,maxf(0.0,size.y-24))

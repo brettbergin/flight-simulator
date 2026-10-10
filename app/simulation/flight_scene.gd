@@ -30,6 +30,7 @@ var current_wind_profile: String="calm"
 var wind_panel: Control
 var wind_label: Label
 var wind_card: Panel
+var look_release_label: Label
 var windsock_visual: MeshInstance3D
 var archive_files: RefCounted=ArchiveFiles.new()
 var archive_dialog: FileDialog
@@ -555,7 +556,7 @@ func make_menu(canvas: CanvasLayer) -> void:
 	engine_controls.gesture_requested.connect(on_engine_gesture.bind(engine_controls))
 	engine_controls.capture_invalidated.connect(on_engine_retired.bind(engine_controls))
 	engine_controls.denied_press.connect(on_engine_denied.bind(engine_controls))
-	engine_controls.expansion_changed.connect(func(_expanded: bool): update_engine_controls())
+	engine_controls.expansion_changed.connect(func(_expanded: bool): layout_live_flight_aids())
 	engine_controls.hide()
 	var box: VBoxContainer=menu.get_child(0)
 	# Calibration replaces the old global sensitivity and implicit pad picker.
@@ -656,6 +657,16 @@ func make_menu(canvas: CanvasLayer) -> void:
 	wind_label.add_theme_constant_override("shadow_offset_x",1)
 	wind_label.add_theme_constant_override("shadow_offset_y",1)
 	wind_card.add_child(wind_label)
+	look_release_label=Label.new()
+	# PASS permits standard full-alias tooltip hover without consuming input.
+	look_release_label.mouse_filter=Control.MOUSE_FILTER_PASS
+	look_release_label.add_theme_font_size_override("font_size",10)
+	look_release_label.add_theme_color_override("font_color",Color("d1e9ec"))
+	look_release_label.add_theme_color_override("font_shadow_color",Color.BLACK)
+	look_release_label.add_theme_constant_override("shadow_offset_x",1)
+	look_release_label.add_theme_constant_override("shadow_offset_y",1)
+	look_release_label.hide()
+	canvas.add_child(look_release_label)
 	first_flight_panel=FirstFlightPanel.new()
 	canvas.add_child(first_flight_panel)
 	first_flight_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -679,6 +690,9 @@ func make_menu(canvas: CanvasLayer) -> void:
 	menu.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	menu.custom_minimum_size=Vector2(560,490)
 	layout_flight_menu()
+	for page in [menu,first_flight_panel,controls_panel,wind_panel,observed_panel,discard_layer,scan_panel]:
+		page.visibility_changed.connect(func():
+			if look_release_label!=null and not pointer_modal_free(): look_release_label.hide())
 
 func layout_flight_menu() -> void:
 	if menu==null:
@@ -1035,17 +1049,7 @@ func update_wind_presentation(readback: Dictionary) -> void:
 		cue=WindCue.from_readback({})
 	if wind_label!=null:
 		wind_label.text="SYNTHETIC STEADY WIND / NATIVE TRUTH\n"+WindPanel.describe(cue)
-		# Reserve the lower cockpit for its actual instrument faces. Wrapping
-		# prevents a long wind description from growing over the heading dial.
-		var available: Vector2=get_viewport().get_visible_rect().size
-		# Manual bounded geometry avoids the first-frame wrapped-container
-		# minimum-size race; no deferred sort can cover the instrument panel.
-		wind_card.size=Vector2(minf(300.0,available.x*0.31),92.0)
-		wind_label.position=Vector2(6,6)
-		wind_label.size=wind_card.size-Vector2(12,12)
-		var stopped: bool=readback.get("host_mode") in ["coverage_blocked","stalled","discarded","closed"] or readback.get("native_outcome") in ["discarded","error","coverage_blocked"]
-		wind_card.position=Vector2(16,92.0+(58.0 if piston_mode() else 0.0)+(32.0 if stopped else 0.0))
-		wind_card.visible=not menu_open and camera_mode!=3
+		# Geometry is assigned once, after final map/current-state publication.
 	if wind_panel!=null and wind_panel.visible:
 		wind_panel.set_context(wind_draft,current_wind_profile,cue,review_boundary() and archive_operation.is_empty() and pending_discard.is_empty())
 	flight_map.call("set_wind_cue",cue)
@@ -1213,7 +1217,9 @@ func clear_circuit_reference(reason: String) -> void:
 		circuit_card.hide()
 	if landmark_board!=null:
 		landmark_board.set_summary_in_map(false)
-		landmark_board.set_card_dock(Rect2())
+		# ADR019 assigns the dock once from the final ordinary layout. Toggling
+		# wrapped labels through the old undocked size on every unavailable draw
+		# repeatedly invalidates their deferred minimum-size calculation.
 
 func publish_circuit_reference() -> void:
 	if circuit_card==null or flight_map==null: return
@@ -1230,68 +1236,125 @@ func publish_circuit_reference() -> void:
 	layout_live_flight_aids()
 
 func layout_live_flight_aids() -> void:
-	# Reserve the sides of the existing cockpit views instead of covering the
-	# physical six-pack. The chase overlay needs its entire lower instrument
-	# panel. Layout changes never select a route, runway, extent or camera pose.
-	flight_map.compact_aid_layout=circuit_aid_enabled
-	if not circuit_aid_enabled:
+	# ADR019: one final layout per publication, independent of gaze/physics.
+	if legacy_proof or flight_map==null or circuit_card==null: return
+	update_engine_controls()
+	var viewport_size: Vector2=get_viewport().get_visible_rect().size
+	var width: float=clampf(viewport_size.x/6.0,250.0,360.0)
+	var current: bool=flight_map.get("_valid") and not flight_map.get("_retained")
+	var top: float=92.0 if current else 124.0
+	var side_x: float=viewport_size.x-width-14.0 if camera_mode==3 else 14.0
+	var ordinary: bool=pointer_modal_free()
+	var stack_bottom: float=top
+	var left_bottom: float=top
+	var outside: bool=camera_mode not in [0,3]
+	flight_map.compact_aid_layout=true
+	if engine_controls!=null and engine_controls.visible:
+		var engine_height: float=216.0 if engine_controls.is_expanded() else 30.0
+		var target: Rect2=Rect2(side_x,top,width,engine_height)
+		# Geometry retirement precedes mapping changes and preserves real Raw rearm.
+		# Repeated layouts cannot change mapper generations or manufacture release.
+		if engine_controls.get_rect()!=target and mapper!=null and mapper.pointer_view().get("capture")!=null:
+			invalidate_engine_pointer("Engine controls layout changed")
+			update_engine_controls()
+		engine_controls.size.x=width
+		engine_controls.position=target.position
+		engine_controls.size=target.size
+		stack_bottom=target.end.y
+		left_bottom=stack_bottom
+	var available_circuit: bool=circuit_aid_enabled and circuit_card.get("_view").get("available")==true
+	circuit_card.visible=circuit_aid_enabled and ordinary
+	if available_circuit and circuit_card.visible:
 		circuit_card.set_compact_unavailable(false)
-		if landmark_board!=null:
-			landmark_board.set_summary_in_map(false)
-			landmark_board.set_card_dock(Rect2())
-		return
-	var available: Vector2=get_viewport().get_visible_rect().size
-	if piston_mode():
-		# This profile has no circuit geometry. Preserve ordinary engine controls
-		# and locator state; reserve a notice slot with bounded wind/map placement.
-		flight_map.compact_aid_layout=false
+		var circuit_y: float=(left_bottom+8.0 if left_bottom>top else top) if outside else (stack_bottom+8.0 if stack_bottom>top else top)
+		circuit_card.position=Vector2(side_x,circuit_y)
+		circuit_card.size.x=width
+		circuit_card.size=Vector2(width,206.0)
+		if outside: left_bottom=circuit_y+206.0
+		else: stack_bottom=circuit_y+206.0
+	elif circuit_card.visible:
 		circuit_card.set_compact_unavailable(true)
-		circuit_card.size=Vector2(260.0 if camera_mode==3 else 240.0 if camera_mode==0 else 280.0,84.0)
-		circuit_card.position=Vector2(available.x-270.0,92.0) if camera_mode==3 else Vector2(302.0,150.0) if camera_mode==0 else Vector2(14.0,250.0)
+		var notice: Rect2
 		if camera_mode==0:
-			wind_card.position.x=14.0
-			wind_card.size.x=280.0
-			wind_label.size=wind_card.size-Vector2(12,12)
-			var cue: Dictionary=flight_map.get("_wind_cue")
-			if cue.get("state") not in ["live","paused"]:
-				wind_label.text="SYNTHETIC WIND / UNAVAILABLE\n"+str(cue.get("error","Current wind aid unavailable"))
+			notice=Rect2(width+28.0,224.0 if current else 250.0,viewport_size.x-width-42.0,32.0)
 		elif camera_mode==3:
-			flight_map.position.y=maxf(flight_map.position.y,circuit_card.position.y+circuit_card.size.y+8.0)
-			flight_map.size.y=minf(flight_map.size.y,available.y-flight_map.position.y-14.0)
-		if landmark_board!=null:
-			landmark_board.set_summary_in_map(false)
-			landmark_board.set_card_dock(Rect2())
-		return
-	circuit_card.set_compact_unavailable(false)
-	var top: float=124.0 if snapshot.is_empty() or blocked or stalled or native_outcome in ["discarded","error","coverage_blocked"] else 92.0
-	if piston_mode(): top+=58.0
-	var gap: float=8.0
-	var card_height: float=206.0 if available.y<900.0 else 230.0
-	var width: float=clampf(available.x*0.26,240.0 if camera_mode==3 else 280.0,420.0)
-	var left: float=14.0 if camera_mode==0 else available.x-width-14.0
-	var bottom: float=available.y-14.0
-	if camera_mode not in [0,3]: bottom=minf(bottom,available.y-minf(available.y*0.34,455.0)-14.0)
-	var map_height: float=minf(500.0,bottom-top)
-	if camera_mode in [0,3] and circuit_aid_enabled:
-		map_height=minf(500.0,maxf(220.0,bottom-top-card_height-gap))
-	flight_map.position=Vector2(left,top)
+			notice=Rect2(14.0,viewport_size.y-93.0,viewport_size.x-width-38.0,32.0)
+		else:
+			notice=Rect2(width+22.0,top+152.0,viewport_size.x-2.0*width-44.0,32.0)
+		# Publish width first: Godot's previous narrow minimum may be84 high.
+		circuit_card.size.x=notice.size.x
+		circuit_card.position=notice.position
+		circuit_card.size=notice.size
+	var map_x: float=viewport_size.x-width-14.0 if outside else side_x
+	var map_y: float=top if outside else (stack_bottom+8.0 if stack_bottom>top else top)
+	var map_height: float=220.0 if current else 188.0
+	flight_map.position=Vector2(map_x,map_y)
 	flight_map.size=Vector2(width,map_height)
-	circuit_card.size=Vector2(width,card_height)
-	circuit_card.position=Vector2(left,top+map_height+gap)
-	if camera_mode not in [0,3]:
-		circuit_card.position=Vector2(14.0,top)
-		circuit_card.size=Vector2(width,minf(300.0,bottom-top))
-	# The map now includes the current manual leg, its progress and anchor
-	# range/bearing. Suppress only the duplicate card while that summary exists.
+	flight_map.queue_redraw()
+	var summary_visible: bool=map_visible and flight_map.is_visible_in_tree() and flight_map.renders_manual_summary()
 	if landmark_board!=null:
-		landmark_board.set_card_dock(Rect2(flight_map.position,flight_map.size))
-		landmark_board.set_summary_in_map(map_visible and flight_map.size.x>=220.0 and flight_map.size.y>=220.0 and flight_map.get("_valid") and not flight_map.get("_retained") and not flight_map.get("_route").is_empty())
-	if wind_card!=null and camera_mode!=3:
-		var cue: Dictionary=flight_map.get("_wind_cue")
-		if cue.get("state") in ["live","paused"] and cue.get("speed_mps")==0.0:
-			wind_card.size.y=62.0
-			wind_label.size=wind_card.size-Vector2(12,12)
-		wind_card.position=Vector2(width+28.0,top) if camera_mode==0 else Vector2((available.x-wind_card.size.x)*0.5,top)
+		landmark_board.set_card_dock(Rect2(map_x,map_y,width,188.0))
+		landmark_board.set_summary_in_map(summary_visible)
+	if map_visible and flight_map.is_visible_in_tree():
+		if not outside: stack_bottom=map_y+map_height
+	elif landmark_board!=null and landmark_board.get("_card").is_visible_in_tree():
+		if not outside: stack_bottom=map_y+188.0
+	if wind_card!=null:
+		wind_card.visible=ordinary and camera_mode!=3
+		wind_card.position=Vector2(width+28.0,top) if camera_mode==0 else Vector2(width+22.0,top)
+		wind_card.size=Vector2(viewport_size.x-width-42.0,62.0) if camera_mode==0 else Vector2(viewport_size.x-2.0*width-44.0,50.0)
+		wind_label.position=Vector2(6,6)
+		wind_label.size=wind_card.size-Vector2(12,12)
+	if panel!=null:
+		var feedback: Rect2=Rect2()
+		if piston_mode():
+			if camera_mode==0: feedback=Rect2(width+28.0,162.0 if current else 194.0,viewport_size.x-width-42.0,54.0)
+			elif camera_mode==3: feedback=Rect2(10.0,viewport_size.y-60.0,viewport_size.x-width-34.0,54.0)
+			else: feedback=Rect2(width+22.0,top+58.0,viewport_size.x-2.0*width-44.0,86.0)
+		panel.set_engine_feedback_bounds(feedback)
+	# The cockpit texture has a different viewport; keep its existing fallback.
+	if cockpit_panel!=null: cockpit_panel.set_engine_feedback_bounds(Rect2())
+	if look_release_label!=null:
+		var engine_footer: bool=engine_controls!=null and engine_controls.is_visible_in_tree() and engine_controls.is_expanded()
+		look_release_label.visible=ordinary and not engine_footer
+		look_release_label.position=Vector2(width+34.0,top+192.0) if outside else Vector2(side_x+8.0,stack_bottom)
+		look_release_label.size=Vector2(viewport_size.x-2.0*width-68.0,14.0) if outside else Vector2(width-16.0,14.0)
+		look_release_label.tooltip_text=look_release_hint()
+		look_release_label.text=compact_look_release(look_release_label.size.x)
+
+func configured_action_hint(id: String) -> Dictionary:
+	# Copied configured aliases, never a connected-device/availability assertion.
+	var short_sources: Array[String]=[]
+	var full_sources: Array[String]=[]
+	for action in active_preset.get("actions",[]):
+		if action.get("id")!=id: continue
+		for source in action.get("sources",[]):
+			if source.get("kind")=="joy_button":
+				short_sources.append("cfg %s:%s"%[source.get("slot"),source.get("index")])
+				full_sources.append("CONFIGURED %s button %s (availability unverified; open Controls)"%[source.get("slot"),source.get("index")])
+			else:
+				var alias: String=pointer_source_hint(source)
+				short_sources.append(alias)
+				full_sources.append(alias)
+	return {"short":short_sources[0]+(" +%d"%(short_sources.size()-1) if short_sources.size()>1 else "") if not short_sources.is_empty() else "unbound",
+		"full":" / ".join(full_sources) if not full_sources.is_empty() else "Binding unavailable; open Controls"}
+
+func locator_binding_hints() -> Dictionary:
+	return {"zoom_in":configured_action_hint("map_zoom_in"),"zoom_out":configured_action_hint("map_zoom_out"),"close":configured_action_hint("map_toggle")}
+
+func look_release_hint() -> String:
+	return "Look: "+configured_action_hint("look_hold").full+" · release to expose pointer; Escape pauses/menu; Controls: "+configured_action_hint("controls_panel").full
+
+func compact_look_release(width: float) -> String:
+	var alias: String=configured_action_hint("look_hold").full
+	var prefix: String="Look: "
+	var suffix: String=" · release to use"
+	var font: Font=ThemeDB.fallback_font
+	if font.get_string_size(prefix+alias+suffix,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x<=width: return prefix+alias+suffix
+	while not alias.is_empty():
+		alias=alias.left(alias.length()-1)
+		if font.get_string_size(prefix+alias+"…"+suffix,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x<=width: return prefix+alias+"…"+suffix
+	return prefix+"…"+suffix
 
 func update_canonical_scene_sources() -> void:
 	var visual_ecef: Variant=facade.call("_visual_ecef")
@@ -1321,15 +1384,16 @@ func show_state(seconds: float=0.0) -> void:
 		return
 	if facade==null:
 		clear_circuit_reference("Current flight unavailable")
+		suppress_geometry()
+		var closed_info: Dictionary={"blocked":true,"paused":true,"outcome":"discarded","locator_binding_hints":locator_binding_hints()}
+		if panel!=null: publish_readings({},closed_info)
+		update_wind_presentation({})
+		if flight_map!=null:
+			flight_map.set_state({},Vector3.ZERO,Basis.IDENTITY,closed_info)
+		layout_live_flight_aids()
 		return
 	layout_flight_menu()
-	var map_top: float=124.0 if snapshot.is_empty() or blocked or stalled or native_outcome in ["discarded","error","coverage_blocked"] else 92.0
-	if piston_mode():
-		map_top+=58.0
-	flight_map.size=Vector2(minf(420,get_viewport().get_visible_rect().size.x*0.42),minf(500,get_viewport().get_visible_rect().size.y-map_top-14))
-	flight_map.position=Vector2(get_viewport().get_visible_rect().size.x-flight_map.size.x-14,map_top)
 	var current: Dictionary=facade.readback()
-	update_engine_controls()
 	update_wind_presentation(current)
 	if snapshot.is_empty() or current.aircraft==null or current.canonical==null:
 		clear_circuit_reference("Current flight unavailable")
@@ -1338,8 +1402,10 @@ func show_state(seconds: float=0.0) -> void:
 			var fault_info: Dictionary={"status":status,"outcome":"error","blocked":blocked,"stalled":stalled,"paused":paused,"input_name":active_preset.get("name","Controls")}
 			fault_info.blocked=true
 			fault_info.paused=true
+			fault_info.locator_binding_hints=locator_binding_hints()
 			publish_readings(current,fault_info)
 			flight_map.call("set_state",snapshot,Vector3.ZERO,Basis.IDENTITY,fault_info)
+		layout_live_flight_aids()
 		return
 	var truth: Dictionary=current
 	var canonical: Dictionary=truth.canonical
@@ -1355,8 +1421,10 @@ func show_state(seconds: float=0.0) -> void:
 		light_root.hide()
 		status="PRESENTATION PAUSED | "+rendered.error+" | R resets"
 		var fault_info: Dictionary={"status":status,"outcome":native_outcome,"historical":current.historical,"blocked":true,"stalled":stalled,"paused":true,"input_name":active_preset.get("name","Controls"),"clearance_m":plane_clearance,"ground_valid":ground_valid}
+		fault_info.locator_binding_hints=locator_binding_hints()
 		publish_readings(current,fault_info)
 		flight_map.call("set_state",snapshot,native_position,native_basis,fault_info)
+		layout_live_flight_aids()
 		return
 	world_root.show()
 	light_root.show()
@@ -1417,6 +1485,7 @@ func show_state(seconds: float=0.0) -> void:
 	if not input_problem.is_empty():
 		input_name+=" / "+input_problem
 	var display_info: Dictionary={"status":status,"outcome":native_outcome,"historical":current.historical,"blocked":blocked,"stalled":stalled,"paused":paused,"brake_hold":brake_hold,"view_name":view_names[camera_mode],"clearance_m":plane_clearance,"ground_valid":ground_valid,"input_name":input_name,"input_label":"CONTROLS","audio_enabled":audio_enabled}
+	display_info.locator_binding_hints=locator_binding_hints()
 	publish_readings(current,display_info)
 	flight_map.call("set_state",snapshot,native_position,native_basis,display_info)
 	publish_circuit_reference()
@@ -1719,7 +1788,18 @@ func restart_failed(message: String) -> bool:
 		adopt_result(stopped)
 		if not stopped.ok: message+="; failed setup worker join unconfirmed"
 	initializing_recording=false
-	return fail(message)
+	var failed: bool=fail(message)
+	# Publish the actual joined failure immediately. Waiting for the next draw
+	# would leave the previous session's route card and map looking current.
+	if panel!=null and flight_map!=null:
+		var current: Dictionary=facade.readback() if facade!=null else {}
+		var info: Dictionary={"status":status,"blocked":true,"paused":true,"historical":current.get("historical",false),"outcome":"error","locator_binding_hints":locator_binding_hints()}
+		publish_readings(current,info)
+		update_wind_presentation(current)
+		flight_map.set_state({},Vector3.ZERO,Basis.IDENTITY,info)
+		suppress_geometry()
+		layout_live_flight_aids()
+	return failed
 
 func flight_model_root(profile_id: Variant=null) -> String:
 	var profile: Variant=selected_profile if profile_id==null else profile_id
@@ -2245,6 +2325,10 @@ func on_engine_retired(reason: String, widget: Control) -> void:
 	# An old widget/session must never retire a newer mapper capture.
 	if quitting or widget!=engine_controls or mapper==null: return
 	if engine_controls_session!=mapper.pointer_view().session_id: return
+	# An already-paused, capture-free briefing may hide the copied widget. The
+	# pause/lifecycle owner has already retired input; this paint transition is
+	# not another input generation. Real captures always take the retirement path.
+	if reason=="Engine controls hidden" and paused and mapper.pointer_view().capture==null: return
 	invalidate_engine_pointer(reason)
 
 func on_engine_denied(_control: String, reason: String, widget: Control) -> void:
@@ -2300,20 +2384,7 @@ func update_engine_controls() -> void:
 		engine_pointer_terminal.clear()
 	engine_controls_session=str(view.get("session_id",""))
 	var reason: String=input_problem if input_blocked else str(view.get("error")) if not str(view.get("error","")).is_empty() else "Release left button before a fresh press" if not engine_pointer_rearm.is_empty() else "Release mouse look to use engine controls" if engine_pointer_look_active or Input.mouse_mode==Input.MOUSE_MODE_CAPTURED else "Paused / retained / unavailable · resume explicitly" if not pointer_ui_eligible() else ""
-	var hints: PackedStringArray=[]
-	for action in active_preset.get("actions",[]):
-		if action.id=="look_hold":
-			for source in action.sources: hints.append(pointer_source_hint(source))
-	engine_controls.set_state(view,engine_status,active_preset,pointer_ui_eligible(),reason,"Look: "+" / ".join(hints)+" · release to expose pointer; P pauses · F7 Controls")
-	var available: Vector2=get_viewport().get_visible_rect().size
-	# Sidebars leave the physical six-pack exposed in cockpit and PANEL views.
-	# Outside views use the clear band between engine feedback and the HUD;
-	# leave the wind card's upper-left rectangle unobscured at the minimum size.
-	var width: float=260.0 if camera_mode in [0,3] else minf(940.0,available.x-340.0)
-	engine_controls.size.x=width
-	var height: float=engine_controls.expanded_height()
-	engine_controls.size=Vector2(width,height)
-	engine_controls.position=Vector2(10.0 if camera_mode==0 else available.x-width-10.0,maxf(148.0,available.y-height-(60.0 if camera_mode==3 else 0.0)) if camera_mode in [0,3] else 148.0)
+	engine_controls.set_state(view,engine_status,active_preset,pointer_ui_eligible(),reason,look_release_hint())
 
 func pointer_source_hint(source: Dictionary) -> String:
 	match source.get("kind"):

@@ -23,6 +23,7 @@ var _help_visible := false
 var _panel_visible := true
 var _cockpit_surface := false
 var _font: Font = ThemeDB.fallback_font
+var _engine_feedback_bounds := Rect2()
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -37,6 +38,18 @@ func set_state(snapshot: Dictionary, atmosphere: Dictionary, held: Dictionary, i
 	_info = info.duplicate(true)
 	_readings = _derive_readings(_snapshot, _atmosphere)
 	queue_redraw()
+
+# Copied presentation bounds only. Scene owns placement; native values/visibility
+# and the viewport-based font breakpoint remain unchanged (ADR019).
+func set_engine_feedback_bounds(bounds: Rect2) -> bool:
+	if bounds != Rect2():
+		if not bounds.position.is_finite() or not bounds.size.is_finite() or bounds.size.x<=0.0 or bounds.size.y<=0.0 or bounds.position.x<0.0 or bounds.position.y<0.0 or bounds.end.x>size.x or bounds.end.y>size.y:
+			return false
+	if bounds==_engine_feedback_bounds:
+		return true
+	_engine_feedback_bounds=bounds
+	queue_redraw()
+	return true
 
 func set_help_visible(value: bool) -> void:
 	_help_visible = value
@@ -235,17 +248,51 @@ func _engine_phase() -> String:
 	if starter: return "CRANKING"
 	return "STOPPED" if shaft==0.0 else "COASTING" if shaft>0.0 else "UNAVAILABLE"
 
-func _draw_piston_strip() -> void:
+func _wrap_engine_feedback(value: String, width: float, pixels: int) -> Array[String]:
+	var lines: Array[String]=[]
+	var line: String=""
+	for word in value.split(" ",false):
+		var candidate: String=word if line.is_empty() else line+" "+word
+		if not line.is_empty() and _font.get_string_size(candidate,HORIZONTAL_ALIGNMENT_LEFT,-1,pixels).x>width:
+			lines.append(line)
+			line=word
+		else:
+			line=candidate
+	if not line.is_empty(): lines.append(line)
+	return lines
+
+func _engine_feedback_layout() -> Dictionary:
 	var retained: bool=_info.get("retained",false) or _info.get("blocked",false) or _info.get("stalled",false)
 	var top: float=size.y-60.0 if str(_info.get("view_name","")).to_upper()=="PANEL" else 123.0 if retained else 90.0
-	_box(Rect2(10,top,size.x-20,54),Color("14222d"),Color("425162"),6)
+	var bounds: Rect2=_engine_feedback_bounds if _engine_feedback_bounds!=Rect2() else Rect2(10,top,size.x-20,54)
 	var scope: String="RETAINED" if retained else "ENGINE"
-	# Two compact rows retain every engine field at the 960x540 viewport.
+	# These are the original complete source rows/formatters. Wrapping changes
+	# presentation only; unfit rows remain explicit failures, never ellipsized.
 	var first: String="%s %s · %s RPM · MIX %s%% · FUEL %s kg · NATIVE RUN %s" % [scope,_engine_phase(),_engine_number("propeller.angular_speed",60.0/TAU),_engine_number("engine.mixture",100.0),_engine_number("fuel.total",1.0,1),_engine_switch("engine.running")]
 	var second: String="IGN L %s / R %s · START %s · FEED %s · STARVED %s · IDEALIZED STARTER SUPPLY" % [_engine_switch("engine.ignition_left"),_engine_switch("engine.ignition_right"),_engine_switch("engine.starter"),_engine_switch("fuel.feed"),_engine_switch("engine.starved")]
 	var pixels: int=12 if size.x<1100.0 else 14
-	_text(Vector2(23,top+21),_bounded_text(first,size.x-46,pixels),pixels,AMBER if retained else CYAN)
-	_text(Vector2(23,top+43),_bounded_text(second,size.x-46,pixels),pixels,MUTED)
+	var line_height: float=_font.get_height(pixels)
+	var row_height: float=(bounds.size.y-12.0)*0.5
+	var rows: Array=[]
+	var fits: bool=bounds.size.x>24.0 and row_height>0.0 and Rect2(Vector2.ZERO,size).encloses(bounds)
+	for text in [first,second]:
+		var lines: Array[String]=_wrap_engine_feedback(text,maxf(1.0,bounds.size.x-24.0),pixels)
+		for line in lines:
+			fits=fits and _font.get_string_size(line,HORIZONTAL_ALIGNMENT_LEFT,-1,pixels).x<=bounds.size.x-24.0
+		fits=fits and lines.size()*line_height<=row_height
+		rows.append(lines)
+	return {"bounds":bounds,"texts":[first,second],"rows":rows,"pixels":pixels,"line_height":line_height,"row_height":row_height,"fits":fits,"retained":retained}
+
+func _draw_piston_strip() -> void:
+	var layout: Dictionary=_engine_feedback_layout()
+	var bounds: Rect2=layout.bounds
+	_box(bounds,Color("14222d"),Color("425162") if layout.fits else RED,6)
+	# Render every complete row, even for an unfit caller rectangle: the red
+	# boundary makes that composition failure visible instead of hiding truth.
+	for row in 2:
+		for line in layout.rows[row].size():
+			var baseline: float=bounds.position.y+6.0+row*layout.row_height+_font.get_ascent(layout.pixels)+line*layout.line_height
+			_text(Vector2(bounds.position.x+12.0,baseline),layout.rows[row][line],layout.pixels,(AMBER if layout.retained else CYAN) if row==0 else MUTED)
 
 func _draw_classic_panel(top: float, height: float) -> void:
 	var slot := (height - 44.0) * 0.5
