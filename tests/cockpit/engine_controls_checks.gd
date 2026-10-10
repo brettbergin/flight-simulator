@@ -175,7 +175,9 @@ func run(host: Node) -> Dictionary:
 		_check(_events.size()==2 and _events[0].value==true and _events[1].phase=="end" and _events[1].value==false,"compact_gui_starter_leave_"+str(narrow_width))
 		_button(panel,compact_starter,false)
 		view.generation+=1;panel.set_state(view,engine,preset,true,"","Look: Mouse 2 · release to expose pointer; P pauses · F7 Controls")
-		_motion(panel,narrow["mixture"].get_center());await host.get_tree().process_frame
+		_motion(panel,narrow["mixture"].get_center())
+		_check("Axis synthetic-fixture:2" in panel.tooltip_text and "release arms .03 pickup" in panel.tooltip_text and "Mouse 2" in panel.tooltip_text and "F7 Controls" in panel.tooltip_text,"compact_tooltip_updates_before_any_draw_"+str(narrow_width))
+		await host.get_tree().process_frame
 		_check("Axis synthetic-fixture:2" in panel.tooltip_text and "release arms .03 pickup" in panel.tooltip_text and "Mouse 2" in panel.tooltip_text and "F7 Controls" in panel.tooltip_text,"compact_full_remap_tooltip_"+str(narrow_width))
 		var narrow_invalidations: int=_invalidations.size()
 		_button(panel,Vector2(20,15),true);_button(panel,Vector2(20,15),false)

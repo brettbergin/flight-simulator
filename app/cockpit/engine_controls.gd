@@ -84,7 +84,7 @@ func _compact_look_text() -> String:
 
 func _layout_resized() -> void:
 	if custom_minimum_size.y!=expanded_height(): custom_minimum_size.y=expanded_height()
-	queue_redraw()
+	_refresh_presentation()
 
 func expanded_height() -> float:
 	return (300.0 if _compact() else (156.0 if _medium() else 140.0)) if _expanded else 30.0
@@ -105,11 +105,11 @@ func set_expanded(value: bool) -> void:
 	_expanded=value
 	custom_minimum_size.y=expanded_height()
 	expansion_changed.emit(value)
-	queue_redraw()
+	_refresh_presentation()
 
 func invalidate_local(_reason_value: String="") -> void:
 	_capture.clear();_preview=null;_terminal=false;_await_release=true
-	queue_redraw()
+	_refresh_presentation()
 
 func retire(reason: String) -> void:
 	# The host invalidates mapper metadata/rearm. Actual feedback is never cleared.
@@ -144,7 +144,7 @@ func set_state(pointer_view: Dictionary, engine_status: Dictionary, active_prese
 			_capture.clear();_preview=null;_terminal=false
 		elif _preview!=null and _requested(_capture.control)==_preview:
 			_preview=null
-	queue_redraw()
+	_refresh_presentation()
 
 func _rects() -> Dictionary:
 	var w: float=maxf(size.x,1.0)
@@ -254,7 +254,7 @@ func _begin(control: String, position_value: Vector2) -> void:
 	_capture={"session_id":_pointer.session_id,"generation":int(_pointer.generation),"token":token,"control":control,"button":1}
 	_terminal=false;_preview=value
 	_emit("begin",value)
-	queue_redraw()
+	_refresh_presentation()
 
 func _end(cancel: bool=false) -> void:
 	if _capture.is_empty() or _terminal: return
@@ -267,12 +267,12 @@ func _end(cancel: bool=false) -> void:
 	if cancel: _preview=null
 	if control=="engine.starter": _await_release=true
 	_emit("cancel" if cancel else "end",value)
-	queue_redraw()
+	_refresh_presentation()
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		_hover=hit_control(event.position)
-		queue_redraw()
+		_refresh_presentation()
 	if event is InputEventMouseButton:
 		if event.button_index!=MOUSE_BUTTON_LEFT: return
 		if not event.pressed:
@@ -287,7 +287,7 @@ func _gui_input(event: InputEvent) -> void:
 		elif _capture.control in AXES:
 			_preview=_axis_value(_capture.control,event.position.x)
 			_emit("move",_preview)
-		queue_redraw();accept_event()
+		_refresh_presentation();accept_event()
 
 func _text(at: Vector2,value: String,color: Color=INK,pixels: int=12,max_width: float=-1) -> void:
 	draw_string(_font,at,value,HORIZONTAL_ALIGNMENT_LEFT,max_width,pixels,color)
@@ -321,6 +321,21 @@ func _binding_hint(control: String) -> String:
 			for source in binding.get("sources",[]): sources.append(_source_hint(source))
 	return ("Hold · leave releases" if control=="engine.starter" else "Desired click")+" · "+(" / ".join(sources) if not sources.is_empty() else "no physical alias")
 
+func _pending_text() -> String:
+	var pending: String=_reason
+	var conflict: String=_button_binding(_preset)
+	if _eligible and not conflict.is_empty(): pending="Left bound: "+_binding_caption(conflict)+" · release / remap in Controls"
+	elif _terminal: pending="Release queued · waiting for ordinary sample"
+	elif _preview!=null: pending="Orange preview queued · not yet sampled or native-applied"
+	elif not _capture.is_empty(): pending="Capture active · gold is sampled request; cyan is actual native"
+	elif not _hover.is_empty(): pending=LABELS[_hover]+" · "+(_control_reason(_hover) if not _control_reason(_hover).is_empty() else _binding_hint(_hover))
+	return pending
+
+func _refresh_presentation() -> void:
+	# Hover and accessibility guidance must not depend on a GPU draw callback.
+	tooltip_text=_pending_text()+" · "+(_binding_hint(_capture.control)+" · " if not _capture.is_empty() else "")+_look_hint
+	queue_redraw()
+
 func _draw() -> void:
 	draw_style_box(_background(),Rect2(Vector2.ZERO,Vector2(size.x,expanded_height())))
 	_text(Vector2(12,20),_header_text(),INK,10 if _compact() else 12,size.x-24)
@@ -349,14 +364,8 @@ func _draw() -> void:
 		if not _compact():
 			_text(rect.position+Vector2(0,68),reason if not reason.is_empty() else _binding_hint(control),MUTED,10,rect.size.x)
 	if _compact(): _text(Vector2(12,125),"Hover for bindings / release guidance",MUTED,10,size.x-24)
-	var pending: String=_reason
+	var pending: String=_pending_text()
 	var conflict: String=_button_binding(_preset)
-	if _eligible and not conflict.is_empty(): pending="Left bound: "+_binding_caption(conflict)+" · release / remap in Controls"
-	elif _terminal: pending="Release queued · waiting for ordinary sample"
-	elif _preview!=null: pending="Orange preview queued · not yet sampled or native-applied"
-	elif not _capture.is_empty(): pending="Capture active · gold is sampled request; cyan is actual native"
-	elif not _hover.is_empty(): pending=LABELS[_hover]+" · "+(_control_reason(_hover) if not _control_reason(_hover).is_empty() else _binding_hint(_hover))
-	tooltip_text=pending+" · "+(_binding_hint(_capture.control)+" · " if not _capture.is_empty() else "")+_look_hint
 	# Keep the full state, denial path, release guidance and remapped look hint in
 	# tooltip_text. Compact visible status names the condition without suggesting
 	# an unsampled request or local preview has already changed native feedback.
