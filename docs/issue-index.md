@@ -70,6 +70,7 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 
 | POINTER-ENGINE-CONTRACT | [#157 Ratify pointer ownership for original engine controls](https://github.com/brettbergin/flight-simulator/issues/157) | ORIGINAL-PISTON-FLIGHT, SIM-LOOP-CONTRACT, INPUT-CONTROLS-CONTRACT, COCKPIT-READINGS-CONTRACT, ORIGINAL-PISTON-CONTRACT |
 | POINTER-ENGINE-CONTROLS | [#158 Add mouse-operable original engine controls](https://github.com/brettbergin/flight-simulator/issues/158) | POINTER-ENGINE-CONTRACT, ORIGINAL-PISTON-FLIGHT, SIM-LOOP-CONTRACT, INPUT-CONTROLS-CONTRACT, COCKPIT-READINGS-CONTRACT |
+| COCKPIT-PRESENTATION | [#159 Improve the original cockpit finish and physical-panel readability](https://github.com/brettbergin/flight-simulator/issues/159) | ORIGINAL-PISTON-FLIGHT, COCKPIT-READINGS-CONTRACT, INPUT-CONTROLS-CONTRACT, LICENSE-REGISTER, RENDER-PROOF |
 
 ## P3 — Complete circuit and durable progress
 

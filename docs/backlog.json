@@ -5240,6 +5240,82 @@
         "Bound Windows editor/portable/source-replacement package/module/resource/model/rights and real viewport/pointer-operation evidence with owner review status stated explicitly.",
         "No automatic start, extra flight axes, electrical/sensed systems, procedure scoring, calibrated aircraft/sound, broad cockpit geometry or durable pointer settings."
       ]
+    },
+    {
+      "key": "COCKPIT-PRESENTATION",
+      "title": "Improve the original cockpit finish and physical-panel readability",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "One bounded original procedural cockpit pass supporting #23: six shallow open bezels, matte glare shield/material finish, clearer physical engine rows and a cockpit-only2x target. Preserve camera/sight-picture choices, native reading arithmetic and existing controls. No new shared contract or source-supported aircraft claim; broad #23 and phase/hardware/pilot gates remain open.",
+      "depends_on": [
+        "ORIGINAL-PISTON-FLIGHT",
+        "COCKPIT-READINGS-CONTRACT",
+        "INPUT-CONTROLS-CONTRACT",
+        "LICENSE-REGISTER",
+        "RENDER-PROOF"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:cockpit",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "app/proof/interactive/flight_cockpit.gd",
+        "app/proof/interactive/flight_panel.gd",
+        "app/proof/interactive/preview.gd",
+        "content/aircraft/prototype/cockpit-presentation.json",
+        "tests/instruments/cockpit_geometry_checks.gd",
+        "tests/instruments/adapter_checks.gd",
+        "tests/instruments/scene_checks.gd",
+        "tools/interactive-preview/simulation-staging.ps1",
+        "app/simulation/flight_scene.gd",
+        "docs/evidence/P2/cockpit-readability.md",
+        "docs/README.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/phases/p2-first-flight.md",
+        "docs/evidence/P1/gate-review.md",
+        "docs/decisions/009-cockpit-readings.md",
+        "docs/decisions/010-original-piston-profile.md",
+        "docs/evidence/P2/cockpit-readability.md",
+        "docs/evidence/P3/original-piston-player.md",
+        "docs/agent-operations.md",
+        "tools/interactive-preview/README.md"
+      ],
+      "requirements": [
+        "REAL-019",
+        "REAL-021",
+        "PRD-015",
+        "UX-009",
+        "UX-010",
+        "UX-011"
+      ],
+      "acceptance": [
+        "Use original procedural source only. Add exactly six shallow open annular bezels aligned to the existing dial centers outside every tick/needle footprint; prefer48 segments and approximately4mm visible depth, matte opaque material, no disks/glass/sorting. Keep live texture and trim planes ordered without z-fighting or global depth bias. Bound mesh/material counts and test normals/winding/positive triangles.",
+        "Reduce metallic panel emphasis, use dark glare shield roughness>=0.85 and restrained warm fabric/satin hardware. Preserve open windshield/side apertures, existing control node names/home positions and copied-held animation. No decorative unsupported switches, colliders/input nodes, downloaded assets or C172 dimensional/sight-picture claims.",
+        "Improve physical-surface face hierarchy, major marks and small text; separate piston RPM/mixture into two rows in the existing upper engine area while retaining throttle/fuel/brakes/trim/contact/clearance and paused/retained/prototype notices. Existing graduation values, nine-channel formulas, EngineStatus and invalid/unavailable/digital fallback remain unchanged; overlay and enlarged scan still agree with copied values.",
+        "Freeze local axes right/up/aft, eye(-0.27,0.67,-0.92)m, focus(-0.08,0.255,-1.535)m, normalized forward(0,-0.268,-1), default FOV72/panel58, supported FOV35..90 and near0.1m. New rings face the eye at+Z and clear tick/needle endpoints; actual look/zoom views must remain unclipped. Do not move camera, shrink near plane, add stabilization or change authoritative transforms.",
+        "Root alone changes the cockpit-only SubViewport to2048x1024 with explicit1024x512 logical Control size and2x scale, avoiding full-rect/double-size errors. Ordinary overlay remains unchanged; target updates stay disabled outside cockpit/panel. Record actual attachment format/allocation;8MiB is only an RGBA8 color-plane calculation, not a total GPU-memory claim.",
+        "Update the existing non-loader presentation provenance with original version/materials/bounds/counts/texture pixels and unchanged eye/axes. Add real-builder geometry checks and focused adapter/scene cases, preserving immutable nine-channel/EngineStatus/reference arithmetic and all existing #127 fixtures. Root owns shared staging/visual registration; one presentation owner owns geometry and panel cosmetics together.",
+        "Run focused source/geometry/presentation/headless integration checks. Before/after every view-only sequence compare full native readback, held axes/systems, session/tick, debt/sequence, mapper/filter/latch and origin/map state. No Run, control submission, hidden crank/RPM injection or new piston airborne recipe solely for capture; native/models/schemas/source policies remain unchanged.",
+        "Independently inspect actual Windows editor/portable/source-replacement GPU cockpit/whole-panel views at960x540,1920x1080,2560x1440; include FOV35/90 at960 and1440p, existing look extremes, legacy runway/airborne horizon and cold tick0, plus paused/retained/invalid presentation fixtures. Bind raw images/source/resource/module/model identities and check six dial openings, units/qualifiers, no HUD occlusion, runway/horizon, clipping/seams, text aliasing and access to scan/menu/status. Independent exported pixel review is engineering evidence; record owner feedback separately without inventing human-before-leaf-merge approval.",
+        "Freeze a short same-PC before/after view-only render-measurement procedure and review criterion before observing results; bound it to at most30seconds per fixed cockpit/panel/outside view at1440p for each build. Retain available frame-time/render/material/triangle/target-allocation counters with hardware/pins and observations; no full benchmark or repeat flight-physics research is warranted. Record any unresolved cost/readability finding honestly.",
+        "Obtain independent final source/package/pixel review, appropriate docs and current protected checks before merge. Append fresh dated evidence without rewriting historical results. Close only this leaf; keep #23 GLB/manufacturer/hardware/pilot/phase acceptance open. Existing native CI continues its gates but no physics expectations/tolerances are retuned."
+      ],
+      "evidence": [
+        "Bound real-builder geometry results and unchanged reading/control/state comparisons; original presentation provenance, exact file/mesh/material/texture counts and source review.",
+        "Actual Windows three-context GPU images at declared sizes/FOVs, independent exported pixel review and short before/after render measurement; owner feedback status and remaining limits recorded separately.",
+        "No manufacturer asset/GLB completion, new input gesture/aircraft system, calibrated indication, physics performance or phase acceptance inferred."
+      ]
     }
   ]
 }

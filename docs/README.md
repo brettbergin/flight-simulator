@@ -52,6 +52,8 @@ The [original cold-engine player](evidence/P3/original-piston-player.md) adds de
 
 The proposed [pointer engine-control contract](decisions/017-frontend-pointer-engine-controls.md) prepares mouse-operated throttle, mixture, ignition, fuel feed and momentary starter. The existing mapper retains pilot intent and conflict handling; UI requests cannot bypass bindings or change native truth. [Issue158](https://github.com/brettbergin/flight-simulator/issues/158) consumers wait for qualified issue127 delivery and the checked contract merge.
 
+[Issue159](https://github.com/brettbergin/flight-simulator/issues/159) separately schedules original cockpit bezels, matte materials and physical-panel readability after qualified startup delivery. It preserves the current eye point, camera limits, native readings and controls, and does not claim manufacturer geometry or broad cockpit acceptance.
+
 The accepted [observed flight review contract](decisions/011-observed-flight-review.md) defines a bounded paused review of sampled flight path, instruments and held controls. The [player implementation evidence](evidence/P2/observed-flight-review.md) tracks its source, lifecycle and exported verification separately; this iteration establishes neither durable saves nor physics replay.
 
 The accepted [recorded-review interchange contract](decisions/012-observed-review-interchange.md) defines explicit new-file Save/Open of historical path and instrument observations. [Issue138 implementation evidence](evidence/P2/observed-review-interchange.md) tracks its codec, file creation and paused UI consumers; automatic profiles, physics continuation and pilot/phase acceptance remain separate.
