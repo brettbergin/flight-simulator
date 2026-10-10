@@ -557,13 +557,16 @@ func make_world() -> void:
 	canvas.add_child(panel)
 	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	panel_viewport=SubViewport.new()
-	panel_viewport.size=Vector2i(1024,512)
+	panel_viewport.size=Vector2i(2048,1024)
 	panel_viewport.disable_3d=true
 	panel_viewport.render_target_update_mode=SubViewport.UPDATE_ALWAYS
 	add_child(panel_viewport)
 	cockpit_panel=load("res://interactive/flight_panel.gd").new()
 	panel_viewport.add_child(cockpit_panel)
-	cockpit_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	# Keep the authored panel in logical pixels; only its texture is sampled at2x.
+	# Full-rect anchors would double the layout as well as the render target.
+	cockpit_panel.size=Vector2(1024,512)
+	cockpit_panel.scale=Vector2(2,2)
 	cockpit_panel.call("set_cockpit_surface",true)
 	cockpit_builder=load("res://interactive/flight_cockpit.gd").new()
 	cockpit=cockpit_builder.call("build",self,panel_viewport.get_texture())

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "original-conventional-cockpit-presentation",
-  "version": "0.1.0-prototype",
+  "version": "0.2.0-prototype",
   "kind": "original-presentation-provenance",
   "status": "generic procedural engineering cockpit; no manufacturer dimensions or sight-picture qualification",
   "author": "Flight Simulator contributors",
@@ -63,7 +63,53 @@
       -0.08,
       0.255,
       -1.535
-    ]
+    ],
+    "dial_bezels": {
+      "count": 6,
+      "segments_per_ring": 48,
+      "triangles_per_ring": 384,
+      "shared_mesh_resources": 1,
+      "added_material_resources": 1,
+      "inner_radius_m": 0.10408481445312501,
+      "outer_radius_m": 0.109529150390625,
+      "rear_z_m": -1.534,
+      "front_z_m": -1.53,
+      "logical_centers_px": [
+        [
+          130.5,
+          145.59
+        ],
+        [
+          351.5,
+          145.59
+        ],
+        [
+          572.5,
+          145.59
+        ],
+        [
+          130.5,
+          364.59000000000003
+        ],
+        [
+          351.5,
+          364.59000000000003
+        ],
+        [
+          572.5,
+          364.59000000000003
+        ]
+      ],
+      "opening": "opaque annulus only; no disk, glazing, input or collider",
+      "clockwise_front_faces": true,
+      "front_normal_local": [
+        0,
+        0,
+        1
+      ],
+      "total_mesh_instances": 81,
+      "total_material_resources": 9
+    }
   },
   "views": {
     "forward_fov_deg": 72,
@@ -82,8 +128,8 @@
     "instrument_focus": "view-only; selection and dismissal while paused; no mapped input suppression"
   },
   "panel_texture_px": [
-    1024,
-    512
+    2048,
+    1024
   ],
   "readings_status": "Native truth / prototype; TAS, WGS84 ellipsoid height, true heading, kinematic VSI and body yaw are distinct from sensed instruments.",
   "limitations": [
@@ -91,5 +137,29 @@
     "No IAS, MSL/barometric altitude, magnetic compass, powered instrument, sensor failure or lag is established by this manifest.",
     "Geometry has no aircraft collider or flight-authority role; animated controls copy native-held fractions.",
     "Physical controller walkthrough, pilot review and phase acceptance remain separate."
-  ]
+  ],
+  "materials": {
+    "glare_shield_roughness": 0.92,
+    "panel_hardware_roughness": 0.78,
+    "panel_hardware_metallic": 0.12,
+    "bezel_roughness": 0.9,
+    "bezel_metallic": 0.08,
+    "upholstery_roughness": 0.92,
+    "status": "original opaque matte/satin choices; no manufacturer materials"
+  },
+  "panel_logical_px": [
+    1024,
+    512
+  ],
+  "panel_control_scale": [
+    2,
+    2
+  ],
+  "physical_engine_rows": {
+    "rpm_baseline_y_px": 176,
+    "mixture_baseline_y_px": 193,
+    "upper_divider_y_px": 199,
+    "status": "copied native EngineStatus; same unit conversion and unavailable labels"
+  },
+  "texture_allocation_note": "8 MiB calculated RGBA8 color plane only; actual exposed format/dimensions and global rendering counters are qualified separately; exact driver allocation is unobserved."
 }

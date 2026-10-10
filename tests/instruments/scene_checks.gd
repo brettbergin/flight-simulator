@@ -27,6 +27,10 @@ func _properties(object: Object,names: Array)->Dictionary:
 func _capture(scene: Node)->Dictionary:
  return {"readback":scene.facade.readback(),"mapper":_properties(scene.mapper,["_preset","_values","_start","_pins","_edges","_takeover","_configured","_live","_brake_hold"]),"map":_properties(scene.flight_map,["_session","_sample_tick","_trail","_position","_direction","_valid","_heading_valid","_paused","_retained","_clearance_valid","_clearance_m","_runway","extent_m","_landmarks"]),"origin":scene.facade.render_origin.read_origin(),"camera":scene.camera.transform,"camera_fov":scene.camera.fov,"camera_mode":scene.camera_mode,"submitted":scene.submitted_count}
 func _shared(scene: Node,label: String)->void:
+ _check(scene.panel_viewport.size==Vector2i(2048,1024),label+"_physical_target_2x_pixels")
+ _check(scene.cockpit_panel.size==Vector2(1024,512) and scene.cockpit_panel.scale==Vector2(2,2),label+"_physical_logical_layout_preserved")
+ _check(scene.cockpit_panel.anchor_left==0.0 and scene.cockpit_panel.anchor_top==0.0 and scene.cockpit_panel.anchor_right==0.0 and scene.cockpit_panel.anchor_bottom==0.0,label+"_physical_fixed_layout_anchors")
+ _check(scene.panel_viewport.render_target_update_mode==(SubViewport.UPDATE_ALWAYS if scene.camera_mode in [0,3] else SubViewport.UPDATE_DISABLED),label+"_physical_target_only_updates_in_cockpit")
  var native: Dictionary=scene.facade.readback()
  var expected: Dictionary=Readings.from_readback(native)
  _check(scene.shared_readings==expected,label+"_one_native_truth_readingset")
