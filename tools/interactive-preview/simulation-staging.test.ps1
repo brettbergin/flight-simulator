@@ -449,3 +449,47 @@ Remove-Item -LiteralPath (Join-Path $groundFolder 'extra.gd')
 Remove-Item -LiteralPath (Join-Path $groundFolder 'checks.gd')
 Must-Reject {Get-GroundMaterialSourceGroups -RepoRoot $groundFixture} 'missing ground check entry point'
 Write-Output 'PASS dedicated ground-material source staging, byte/set drift and destination-only UID policy.'
+
+# Pointer namespaces are selective and closed; no native/Godot execution here.
+$pointerAuthor=Join-Path $testRoot 'pointer-author'
+foreach($entry in Get-PointerSourceDefinitions){
+ $file=Join-Path $pointerAuthor $entry.source
+ New-Item -ItemType Directory -Force -Path (Split-Path -Parent $file)|Out-Null
+ [IO.File]::WriteAllText($file,('original pointer fixture '+$entry.source))
+}
+$pointerSnapshot=@(Get-PointerSourceGroups -RepoRoot $pointerAuthor)
+$pointerProject=Join-Path $testRoot 'pointer-stage'
+New-Item -ItemType Directory -Force -Path $pointerProject|Out-Null
+Copy-PointerSourceGroups -RepoRoot $pointerAuthor -DestinationRoot $pointerProject -Groups $pointerSnapshot
+Assert-PointerSourceGroups -Root $pointerProject -Groups $pointerSnapshot
+if($pointerSnapshot.Count -ne 5 -or @($pointerSnapshot.destination) -cnotcontains 'pointer_scene_tests/pointer_visual.gd' -or @($pointerSnapshot.destination) -cnotcontains 'pointer_scene_tests/native-limits.json'){throw 'Mandatory pointer fixture/visual/frozen-limits roster incomplete'}
+Must-Reject {Assert-PointerSourceGroups -Root $pointerProject -Groups @($pointerSnapshot[0])} 'omitted pointer suites'
+$badPointer=@($pointerSnapshot|ForEach-Object {[pscustomobject]@{source=$_.source;destination=$_.destination;bytes=$_.bytes;sha256=$_.sha256}})
+$badPointer[0].destination='pointer_scene_tests/../unbound.gd'
+Must-Reject {Assert-PointerSourceGroups -Root $pointerProject -Groups $badPointer} 'pointer destination traversal/substitution'
+$pointerTestFile=Join-Path $pointerProject 'pointer_scene_tests/pointer_engine_scene_checks.gd'
+$pointerBefore=[IO.File]::ReadAllText($pointerTestFile)
+[IO.File]::WriteAllText($pointerTestFile,('X'+$pointerBefore.Substring(1)))
+Must-Reject {Assert-PointerSourceGroups -Root $pointerProject -Groups $pointerSnapshot} 'same-length pointer fixture tampering'
+[IO.File]::WriteAllText($pointerTestFile,$pointerBefore)
+[IO.File]::WriteAllText((Join-Path $pointerProject 'pointer_scene_tests/orphan.gd.uid'),"uid://123abc`n")
+Must-Reject {Assert-PointerSourceGroups -Root $pointerProject -Groups $pointerSnapshot -AllowGeneratedUIDs} 'orphan pointer generated UID'
+Remove-Item -LiteralPath (Join-Path $pointerProject 'pointer_scene_tests/orphan.gd.uid')
+[IO.File]::WriteAllText(($pointerTestFile+'.uid'),"uid://123abc`n")
+Assert-PointerSourceGroups -Root $pointerProject -Groups $pointerSnapshot -AllowGeneratedUIDs
+Must-Reject {Assert-PointerSourceGroups -Root $pointerProject -Groups $pointerSnapshot} 'unapproved pointer UID in corresponding source'
+[IO.File]::WriteAllText((Join-Path $pointerProject 'pointer_scene_tests/unbound.gd'),'extends RefCounted')
+Must-Reject {Assert-PointerSourceGroups -Root $pointerProject -Groups $pointerSnapshot -AllowGeneratedUIDs} 'unbound pointer source addition'
+$pointerMissingAuthor=Join-Path $pointerAuthor 'tests/integration/input/pointer_visual.gd'
+Remove-Item -LiteralPath $pointerMissingAuthor
+Must-Reject {Get-PointerSourceGroups -RepoRoot $pointerAuthor} 'missing pointer visual compiler fixture'
+Write-Output 'PASS closed pointer source roster, byte drift, traversal, omissions and generated UID policy'
+$harnessFixture=Join-Path $testRoot 'pointer-harness'
+New-Item -ItemType Directory -Force -Path $harnessFixture|Out-Null
+Write-PointerCheckHarness -ProjectRoot $harnessFixture
+$harnessText=[IO.File]::ReadAllText((Join-Path $harnessFixture 'pointer_checks.gd'))
+$harnessPairs=([regex]::Match($harnessText,'(?m)^ var source_paths: Array=(.*)$')).Groups[1].Value|ConvertFrom-Json -NoEnumerate
+if($harnessPairs.Count -ne 20){throw 'Generated pointer runtime source roster incomplete'}
+foreach($pair in $harnessPairs){if($pair.Count -ne 2 -or $pair[0] -isnot [string] -or $pair[1] -isnot [string] -or -not $pair[1].StartsWith('res://')){throw 'Generated pointer source/runtime pair malformed'}}
+if(@($harnessPairs|Where-Object {$_[0] -ceq 'generated/pointer_checks.gd' -and $_[1] -ceq 'res://pointer_checks.gd'}).Count -ne 1){throw 'Generated harness actual self-hash missing'}
+Write-Output 'PASS generated pointer harness source-pair shape and self-hash'

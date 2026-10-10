@@ -127,3 +127,35 @@ test('ground material package binds actual resources and all three independent r
  const folder=path.join(source,'ground_material_tests'),outside=path.join(temporary,'outside');fs.renameSync(folder,outside);fs.symlinkSync(outside,folder,process.platform==='win32'?'junction':'dir');
  assert.throws(()=>validateGroundMaterialSources(authored,project,source),/link/);
 });
+
+import {validatePointerSummary,validatePointerFlight,pointerSourcePaths} from './package.mjs';
+const pointerLimitsPin='9b667d4b61e47e94af1eed20701119bd72d6de63e6eac28b8597ab44ae6d9feb';
+function syntheticPointerSummary(){
+ const basic=()=>({passed:true,checks:2,failures:[],scope:'Synthetic closed receipt admission only'});
+ return {schema:'PointerEngineChecks/v1',passed:true,checks:8,failures:[],scope:'Synthetic closed receipt admission only',source_files:{fixture:{bytes:1,sha256:'a'.repeat(64)}},native_identity:{schema:'PreviewNativeResource/v1',path:'build/native_identity.gd',bytes:3,sha256:'b'.repeat(64)},groups:{mapper:basic(),panel:basic(),host:{...basic(),physical_capture_observed:false,display_backend:'headless'},flight:{...basic(),rows:13321,initialized:true,native_joined:true,audio_joined:true,limits_sha256:pointerLimitsPin,first_running_tick:10,first_stopped_tick:5000,trace:{path:'pointer-flight-trace.json',bytes:100,sha256:'c'.repeat(64)}}}};
+}
+test('pointer summary requires four real groups exact counts source identity and bounded external trace',()=>{
+ const expected=syntheticPointerSummary(),resource={bytes:3,sha256:'b'.repeat(64)};
+ assert.equal(validatePointerSummary(expected,expected.source_files,resource),8);
+ const bads=[
+  r=>delete r.groups.mapper,r=>delete r.groups.panel,r=>delete r.groups.host,r=>delete r.groups.flight,
+  r=>r.groups.host.physical_capture_observed=true,r=>r.groups.host.display_backend='',
+  r=>r.groups.flight.rows=13320,r=>r.groups.flight.native_joined=false,r=>r.groups.flight.audio_joined=false,
+  r=>r.groups.flight.initialized=false,r=>r.groups.flight.limits_sha256='d'.repeat(64),
+  r=>r.groups.flight.trace.path='../pointer-flight-trace.json',r=>r.groups.flight.trace.bytes=0,
+  r=>r.groups.flight.trace.bytes=129*1024*1024,r=>r.groups.flight.trace.sha256='unbound',
+  r=>r.checks+=1,r=>r.groups.mapper.checks=0,r=>r.groups.panel.passed=false,
+  r=>r.source_files.fixture.sha256='e'.repeat(64),r=>delete r.source_files.fixture,
+  r=>r.native_identity.sha256='f'.repeat(64),r=>r.groups.flight.rows_embedded=[],r=>r.extra=true,
+ ];
+ for(const mutate of bads){const receipt=structuredClone(expected);mutate(receipt);assert.throws(()=>validatePointerSummary(receipt,expected.source_files,resource));}
+});
+test('pointer full trace cannot be replaced by passing labels or missing native rows',()=>{
+ const summary=syntheticPointerSummary().groups.flight;
+ const trace={schema:'PointerEngineFlight/v1',passed:true,checks:2,failures:[],scene_failures:[],initialized:true,limits_sha256:pointerLimitsPin,initial_readback:{},first_running_tick:10,first_stopped_tick:5000,gestures:[],lever_values:[],denied:[],rows:[],native_joined:true,audio_joined:true,scope:summary.scope};
+ assert.throws(()=>validatePointerFlight(trace,summary,{},'a'.repeat(64)));
+ const extra=structuredClone(trace);extra.driver_failures=[];assert.throws(()=>validatePointerFlight(extra,summary,{},'a'.repeat(64)));
+ assert.equal(pointerSourcePaths['tests/integration/input/pointer_visual.gd'],'pointer_scene_tests/pointer_visual.gd');
+ assert.equal(pointerSourcePaths['tests/engine/native-limits.json'],'pointer_scene_tests/native-limits.json');
+ assert.equal(pointerSourcePaths['generated/pointer_checks.gd'],'pointer_checks.gd');
+});
