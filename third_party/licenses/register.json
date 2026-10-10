@@ -839,7 +839,7 @@
           }
         ],
         "immutable_vendor_models_allowed": false,
-        "audit_note": "Generic register audit validates notice integrity, not this exact content_policy. Static checker adaptation to implicit Kelvin, additive v3 reference publication and independent source review remain unfinished on this branch; see docs/handoffs/2026-10-04-wrap-up.md. The preserved historical v3 reference changes source bindings, not the 55 numerical cases/budgets. Historical private one-suite authorization is not source merge, engine behavior, DLL loader, realism or phase acceptance; native/export admission must enforce separately reviewed exact source identities. No runtime pin header, backend execution or simulator executable is provided by this source preparation."
+        "audit_note": "Generic register audit validates notice integrity, not this exact content_policy. The source-only amendment publishes the implicit-Kelvin checker guard and additive v3 reference binding; independent final source review and protected CI are prerequisites to merge. See docs/evidence/P3/original-piston-loader-source.md. The preserved v3 reference changes source bindings, not the 55 numerical cases/budgets. Historical private one-suite authorization is not source merge, engine behavior, DLL loader, realism or phase acceptance; native/export admission must enforce separately reviewed exact source identities. No runtime pin header, backend execution or simulator executable is provided by this source amendment."
       }
     }
   ]

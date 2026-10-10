@@ -1,5 +1,7 @@
 # Original piston source and reference evidence
 
+This record describes the historical issue125 source revision. Its exact seven-file model is preserved under `tests/engine/reference/loader-rejected-v2-model/`; the active model's subsequent format correction and source-only admission are recorded in the [loader amendment](original-piston-loader-source.md). The historical hashes and verification below are retained as chronology, not claims that the original XML initialized successfully in JSBSim.
+
 Issue [#125](https://github.com/brettbergin/flight-simulator/issues/125), following accepted [ADR010](../../decisions/010-original-piston-profile.md) in PR123/main `50d0b104659768c7ac6a837250af791fd9c42ba6`. This leaf supplies source prerequisites. It does not implement a session, expose engine controls or run JSBSim.
 
 ## Frozen artifacts

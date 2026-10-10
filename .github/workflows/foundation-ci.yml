@@ -42,12 +42,14 @@ jobs:
         run: python -m unittest discover -s tools/benchmark/pipeline -p test_fixture.py
       - name: Check original piston source closure and corruption cases
         run: python -m unittest discover -s tests/engine -p test_check_model.py
-      - name: Recompute frozen piston references without a solver
-        run: python tests/engine/reference/generate.py --check
+      - name: Recompute historical piston references against archived loader source
+        run: python tests/engine/reference/generate.py --check --model-pack tests/engine/reference/loader-rejected-v2-model
+      - name: Recompute corrected-loader piston references without a solver
+        run: python tests/engine/reference/generate_loader_v1.py --check
       - name: Recompute proposed event-aware shaft references without a solver
         run: python tests/engine/shaft-method/reference-proposed-v1/generate.py --check
-      - name: Bind original piston source to independent references
-        run: python tests/engine/check_model.py --model-root native/fdm_jsbsim/models/original-piston-prop --reference-packet tests/engine/reference/expected-v2.json
+      - name: Bind corrected piston source to independent references
+        run: python tests/engine/check_model.py --model-root native/fdm_jsbsim/models/original-piston-prop --reference-packet tests/engine/reference/expected-v3.json
       - name: Check independent reference algebra and metadata
         if: ${{ hashFiles('tests/reference/reference.test.mjs') != '' }}
         run: node --test tests/reference/reference.test.mjs
