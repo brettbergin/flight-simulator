@@ -18,6 +18,8 @@ var _session := ""
 var _view: Dictionary = _empty()
 var _open := false
 var _aids_visible := true
+var _summary_in_map := false
+var _card_dock := Rect2()
 var _aids: CheckBox
 var _draft: Array[int] = []
 var _chooser: PanelContainer
@@ -351,11 +353,25 @@ func _refresh_choices() -> void:
 	_next.disabled=not _view.active or not _view.paused or not _view.available
 	_stop.disabled=_route.is_empty() or not _view.paused or not _view.available
 
+func set_summary_in_map(value: bool) -> void:
+	# Presentation only: the locator shows the same current manual leg and
+	# geometric range/bearing. Route selection and the Show aids flag stay owned
+	# by this board, including when the locator is closed again.
+	_summary_in_map=value
+	if _card!=null:
+		_card.visible=not _route.is_empty() and not _open and _aids_visible and not _summary_in_map
+
+func set_card_dock(bounds: Rect2) -> void:
+	# Empty bounds restore the accepted ordinary presentation. No route or
+	# aid selection is changed when the optional reference reserves a column.
+	_card_dock=bounds
+	_layout()
+
 func _refresh() -> void:
 	if _card==null:
 		return
 	_chooser.visible=_open
-	_card.visible=not _route.is_empty() and not _open and _aids_visible
+	_card.visible=not _route.is_empty() and not _open and _aids_visible and not _summary_in_map
 	_title.text=_view.target_label if _view.target_label!=null else "Manual itinerary ended" if _complete else "Current guidance unavailable"
 	_metrics.text=("%.2f km / anchor %03d deg"%[_view.planar_range_m/1000.0,int(roundf(_view.bearing_deg))%360] if _view.bearing_deg!=null else "%.2f km / bearing unavailable"%(_view.planar_range_m/1000.0)) if _view.planar_range_m!=null else "Range / bearing unavailable"
 	_leg_text.text="Leg %d / %d: %s"%[_leg+1,_route.size()," -> ".join(_view.route_labels)]
@@ -368,5 +384,15 @@ func _layout() -> void:
 		return
 	_card.position=Vector2(14,110)
 	_card.size=Vector2(minf(380,size.x-28),0)
+	var docked: bool=_card_dock.size.x>0.0
+	_title.add_theme_font_size_override("font_size",18 if docked else 20)
+	_metrics.add_theme_font_size_override("font_size",14 if docked else 16)
+	_state.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART if docked else TextServer.AUTOWRAP_OFF
+	# Wrapped labels report a one-pixel minimum before container width settles.
+	# Reserve actual font rows in the narrow aid column so the state stays drawn.
+	_state.custom_minimum_size.y=3.0*(_state.get_theme_font("font").get_height(_state.get_theme_font_size("font_size"))+_state.get_theme_constant("line_spacing")) if docked else 0.0
+	if docked:
+		_card.position=_card_dock.position
+		_card.size=Vector2(_card_dock.size.x,0)
 	_chooser.size=Vector2(minf(580,size.x-28),0)
 	_chooser.position=Vector2((size.x-_chooser.size.x)*0.5,maxf(14,(size.y-_chooser.get_combined_minimum_size().y)*0.5))

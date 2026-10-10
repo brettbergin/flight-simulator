@@ -1,0 +1,1408 @@
+{
+  "schema_version": 1,
+  "document_kind": "metadata-only-c172p-applicability-source-dossier",
+  "issue": 171,
+  "date": "2026-10-10",
+  "status": "research-complete-review-pending-aircraft-source-blocked",
+  "candidate": {
+    "repository": "https://github.com/c172p-team/c172p",
+    "commit": "ee9bc21137cc2f96c5f86886fe908f337923389a",
+    "release": "version/2024.1.3",
+    "role": "Implementation provenance only, not certified/reference truth"
+  },
+  "selected_runtime_profile": null,
+  "identity_rules": {
+    "response_sha256": "Exact HTTP body bytes acquired in memory on recorded date; HTML hashes never stand for PDFs",
+    "pdf_sha256": "Only non-null for bytes parsed as actual PDF",
+    "web_view_pdf_pages": "Semantic primary web view only; not proof of acquired PDF bytes",
+    "locators": "One-based PDF pages and separately stated printed locators",
+    "uncertainty": "Null means not quantified, never zero error or pass",
+    "raw_retained": false,
+    "profile_values": "All null; historical_fact cannot be consumed as approved runtime data"
+  },
+  "source_records": [
+    {
+      "id": "faa_discovery",
+      "url": "https://www.faa.gov/faq/how-can-i-locate-type-certificate-data-sheet-tcds-aircraft",
+      "retrieved_date": "2026-10-10",
+      "raw_retained": false,
+      "http_status": 200,
+      "final_url": "https://www.faa.gov/faq/how-can-i-locate-type-certificate-data-sheet-tcds-aircraft",
+      "content_type": "text/html; charset=UTF-8",
+      "response_bytes": 97901,
+      "response_sha256": "a3649a399d51e4decbe7ea81891d5dc5eb8a4386d3849db184d3c1740924dea2",
+      "publisher": "FAA",
+      "title": "TCDS discovery FAQ",
+      "publication_revision": null,
+      "publication_date": null,
+      "evidence_status": "discovery-route",
+      "read_scope": "HTML FAQ and DRS target link",
+      "locators": [],
+      "rights_status": "US government discovery metadata; no certificate retrieved",
+      "pdf_sha256": null,
+      "web_view_pdf_pages": null
+    },
+    {
+      "id": "faa_drs",
+      "url": "https://drs.faa.gov/browse",
+      "retrieved_date": "2026-10-10",
+      "raw_retained": false,
+      "http_status": 200,
+      "final_url": "https://drs.faa.gov/browse",
+      "content_type": "text/html; charset=UTF-8",
+      "response_bytes": 22877,
+      "response_sha256": "eccf764065d165b6b14e445350054c6f60b5daeeb5ebf371505ce46fc0ccb1d8",
+      "publisher": "FAA",
+      "title": "Dynamic Regulatory System browse",
+      "publication_revision": null,
+      "publication_date": null,
+      "evidence_status": "current-document-not-retrieved",
+      "read_scope": "HTTP200 HTML application shell; web extraction returned zero readable lines",
+      "locators": [],
+      "rights_status": "Discovery only; no current3A12, E-274 or P-910 bytes",
+      "pdf_sha256": null,
+      "web_view_pdf_pages": null
+    },
+    {
+      "id": "faa_3a12_historical",
+      "url": "https://data.ntsb.gov/Docket/Document/docBLOB?FileExtension=.PDF&FileName=FAA+Type+Certificate+Data+Sheet+No.+3A12-Master.PDF&ID=40338401",
+      "retrieved_date": "2026-10-10",
+      "raw_retained": false,
+      "http_status": 200,
+      "final_url": "https://data.ntsb.gov/Docket/Document/docBLOB?FileExtension=.PDF&FileName=FAA+Type+Certificate+Data+Sheet+No.+3A12-Master.PDF&ID=40338401",
+      "content_type": "application/pdf",
+      "response_bytes": 107849,
+      "response_sha256": "22ac73a3922dcede234df614a07c781c10a7f0437e6f0d908362a3a2df4cf26a",
+      "pdf_pages": 31,
+      "publisher": "FAA; official historical NTSB docket holding",
+      "title": "Type Certificate Data Sheet3A12",
+      "publication_revision": "80",
+      "publication_date": "2010-05-26",
+      "evidence_status": "historical-certificate",
+      "read_scope": "Targeted text read of IX and applicable shared notes; PDF14 additionally rendered and visually inspected in a private temporary image, then discarded",
+      "locators": [
+        {
+          "pdf_page": 1,
+          "printed_page": "1",
+          "scope": "cover revision/date and page revision roster"
+        },
+        {
+          "pdf_page": 13,
+          "printed_page": "13",
+          "scope": "IX172P installation and limitation headings"
+        },
+        {
+          "pdf_page": 14,
+          "printed_page": "14",
+          "scope": "IX loading/fuel/oil/serial interval; visually confirmed printed contradictions"
+        },
+        {
+          "pdf_page": 15,
+          "printed_page": "15",
+          "scope": "shared datum/leveling/certification basis, not172Q installation values"
+        },
+        {
+          "pdf_page": 16,
+          "printed_page": "16",
+          "scope": "equipment, Note1 selected172P interval"
+        },
+        {
+          "pdf_page": 23,
+          "printed_page": "23",
+          "scope": "Note4 manual/calibration applicability; Note5 electrical interval"
+        }
+      ],
+      "rights_status": "Authored isolated facts and locators only; no operational/current approval inferred. No PDF/table redistribution in this dossier",
+      "pdf_sha256": "22ac73a3922dcede234df614a07c781c10a7f0437e6f0d908362a3a2df4cf26a",
+      "web_view_pdf_pages": null
+    },
+    {
+      "id": "lycoming_o320_page",
+      "url": "https://www.lycoming.com/content/operator%27s-manual-O-320-60297-30",
+      "retrieved_date": "2026-10-10",
+      "raw_retained": false,
+      "http_status": 200,
+      "final_url": "https://www.lycoming.com/content/operator%27s-manual-O-320-60297-30",
+      "content_type": "text/html; charset=utf-8",
+      "response_bytes": 58023,
+      "response_sha256": "17ef898e245a184c19be48d342640adc528837618d3ddcd6d13a59334070788b",
+      "publisher": "Lycoming",
+      "title": "O-320 operator manual landing page",
+      "publication_revision": null,
+      "publication_date": null,
+      "evidence_status": "official-public-model-list",
+      "read_scope": "Title, D2J model list and actual linked manual",
+      "locators": [],
+      "rights_status": "Manufacturer public read access; terms retain copyright; bibliographic facts only",
+      "pdf_sha256": null,
+      "web_view_pdf_pages": null
+    },
+    {
+      "id": "lycoming_o320_manual",
+      "url": "https://www.lycoming.com/sites/default/files/attachments/O-320%2520Operator%2520Manual%252060297-30.pdf",
+      "retrieved_date": "2026-10-10",
+      "raw_retained": false,
+      "http_status": 200,
+      "final_url": "https://www.lycoming.com/sites/default/files/attachments/O-320%2520Operator%2520Manual%252060297-30.pdf",
+      "content_type": "application/pdf",
+      "response_bytes": 6581219,
+      "response_sha256": "78512ef5f9b61f01a50044dd53548248d99b61d20b29717b04fd77c0b33a6288",
+      "pdf_pages": 82,
+      "publisher": "Lycoming",
+      "title": "O-320 Series Operator Manual60297-30",
+      "publication_revision": "3rd edition",
+      "publication_date": "2006-10",
+      "evidence_status": "official-public-engine-reference",
+      "read_scope": "Cover/copyright/later-information warning; targeted description and figure titles/exclusions, not digitized numerical curves",
+      "locators": [
+        {
+          "pdf_page": 1,
+          "printed_page": null,
+          "scope": "title60297-30 third edition October2006; cover says FAA approved"
+        },
+        {
+          "pdf_page": 2,
+          "printed_page": null,
+          "scope": "copyright notice"
+        },
+        {
+          "pdf_page": 3,
+          "printed_page": null,
+          "scope": "later-information warning"
+        },
+        {
+          "pdf_page": 9,
+          "printed_page": "1-1",
+          "scope": "engine-family description"
+        },
+        {
+          "pdf_page": 11,
+          "printed_page": "1-3",
+          "scope": "model-application heading, not adopted configuration"
+        },
+        {
+          "pdf_page": 27,
+          "printed_page": "3-7",
+          "scope": "fuel/oil operating-data headings; no values admitted"
+        },
+        {
+          "pdf_page": 28,
+          "printed_page": "3-8",
+          "scope": "operating-condition model groups/footnote; no values admitted"
+        },
+        {
+          "pdf_page": 33,
+          "printed_page": "3-13",
+          "scope": "Figure3-5 power curve title"
+        },
+        {
+          "pdf_page": 35,
+          "printed_page": "3-15",
+          "scope": "Figure3-7 explicitly excludesD2J"
+        },
+        {
+          "pdf_page": 37,
+          "printed_page": "3-17",
+          "scope": "Figure3-9 includesB2E/D2J"
+        },
+        {
+          "pdf_page": 38,
+          "printed_page": "3-18",
+          "scope": "Figure3-10 fuel-flow title is B2E, not a D2J installed-aircraft fuel baseline"
+        }
+      ],
+      "rights_status": "Copyright2006 retained; Lycoming terms section2; no manual/table/curve/procedure reproduction or implementation-data permission claimed",
+      "pdf_sha256": "78512ef5f9b61f01a50044dd53548248d99b61d20b29717b04fd77c0b33a6288",
+      "web_view_pdf_pages": null
+    },
+    {
+      "id": "lycoming_publications",
+      "url": "https://www.lycoming.com/sites/default/files/file/2026-01/SL%20L114BL%20Technical%20Publications.pdf",
+      "retrieved_date": "2026-10-10",
+      "raw_retained": false,
+      "http_status": 200,
+      "final_url": "https://www.lycoming.com/sites/default/files/file/2026-01/SL%20L114BL%20Technical%20Publications.pdf",
+      "content_type": "application/pdf",
+      "response_bytes": 526257,
+      "response_sha256": "1b5035d5e5948dbf95009244513228db6b303ecd14940614b3169e8d3121a685",
+      "pdf_pages": 24,
+      "publisher": "Lycoming",
+      "title": "Technical Publications service letterL114BL",
+      "publication_revision": "L114BL",
+      "publication_date": "2026-01-15",
+      "evidence_status": "official-public-publication-list",
+      "read_scope": "Cover and Table1 O-320/D2J publication identities only",
+      "locators": [
+        {
+          "pdf_page": 1,
+          "printed_page": "1",
+          "scope": "revision/date"
+        },
+        {
+          "pdf_page": 3,
+          "printed_page": "3",
+          "scope": "O-320 operator/parts bibliography"
+        }
+      ],
+      "rights_status": "Bibliographic facts only; list is not proof every superseding instruction was reviewed",
+      "pdf_sha256": "1b5035d5e5948dbf95009244513228db6b303ecd14940614b3169e8d3121a685",
+      "web_view_pdf_pages": null
+    },
+    {
+      "id": "ntsb_1982_excerpt",
+      "url": "https://data.ntsb.gov/Docket/Document/docBLOB?FileExtension=.PDF&FileName=Airplane+Manual+Excerpt-Master.PDF&ID=40467372",
+      "retrieved_date": "2026-10-10",
+      "raw_retained": false,
+      "http_status": 200,
+      "final_url": "https://data.ntsb.gov/Docket/Document/docBLOB?FileExtension=.PDF&FileName=Airplane+Manual+Excerpt-Master.PDF&ID=40467372",
+      "content_type": "application/pdf",
+      "response_bytes": 48588,
+      "response_sha256": "9302906658e9eacd081399db165839df73b6ae297d84c6accd35b810f97ece96",
+      "pdf_pages": 2,
+      "publisher": "Cessna; official NTSB docket holding",
+      "title": "1982 Skyhawk Model172P Information Manual excerpt",
+      "publication_revision": null,
+      "publication_date": "1981-05-12",
+      "evidence_status": "partial-manual-unbound",
+      "read_scope": "Two pages: cover title and printed4-3 date; no procedure/speed extraction",
+      "locators": [
+        {
+          "pdf_page": 1,
+          "printed_page": null,
+          "scope": "1982 Information Manual cover; no verifiedD1212 identifier/serial/approved-AFM assignment"
+        },
+        {
+          "pdf_page": 2,
+          "printed_page": "4-3",
+          "scope": "page date only"
+        }
+      ],
+      "rights_status": "Cessna material in government docket; NTSB publication does not clear copyrighted inclusions. Link and bibliographic facts only",
+      "pdf_sha256": "9302906658e9eacd081399db165839df73b6ae297d84c6accd35b810f97ece96",
+      "web_view_pdf_pages": null
+    },
+    {
+      "id": "nzcaa_catalog",
+      "url": "https://www.aviation.govt.nz/assets/aircraft/type-acceptance-reports/cessna-172-series.pdf",
+      "retrieved_date": "2026-10-10",
+      "raw_retained": false,
+      "http_status": 200,
+      "final_url": "https://www.aviation.govt.nz/assets/aircraft/type-acceptance-reports/cessna-172-series.pdf",
+      "content_type": "text/html",
+      "response_bytes": 212,
+      "response_sha256": "d02032286070b4dd9d8fbd985a7bdca8af8edf52b89ff177db3bfcb2c8a9c43d",
+      "publisher": "CAA New Zealand",
+      "title": "TAR96/15 Cessna172 Series",
+      "publication_revision": "3",
+      "publication_date": "2018-09-28",
+      "evidence_status": "web-extracted-catalog-not-byte-acquired",
+      "read_scope": "Web PDF extraction identifiedAIR2182/D1212-13PH; directHTTP returned212-byte HTML, not PDF",
+      "locators": [
+        {
+          "pdf_page": 12,
+          "printed_page": "8",
+          "scope": "manual identity only, not acquired handbook"
+        }
+      ],
+      "rights_status": "Catalog metadata only; foreign acceptance report is not current FAA approval",
+      "pdf_sha256": null,
+      "web_view_pdf_pages": 16
+    },
+    {
+      "id": "nzcaa_prop_catalog",
+      "url": "https://www.aviation.govt.nz/assets/rules/advisory-circulars/ac021-1-appendix-2.pdf",
+      "retrieved_date": "2026-10-10",
+      "raw_retained": false,
+      "http_status": 200,
+      "final_url": "https://www.aviation.govt.nz/assets/rules/advisory-circulars/ac021-1-appendix-2.pdf",
+      "content_type": "text/html",
+      "response_bytes": 212,
+      "response_sha256": "d02032286070b4dd9d8fbd985a7bdca8af8edf52b89ff177db3bfcb2c8a9c43d",
+      "publisher": "CAA New Zealand",
+      "title": "AC21-1 Appendix2",
+      "publication_revision": "7",
+      "publication_date": "2025-01-23",
+      "evidence_status": "web-extracted-catalog-not-byte-acquired",
+      "read_scope": "Web PDF extraction identifies1C160 series underFAA P-910; directHTTP returned212-byte HTML, not PDF",
+      "locators": [
+        {
+          "pdf_page": 33,
+          "printed_page": "33",
+          "scope": "propeller-series certificate discovery identity only"
+        }
+      ],
+      "rights_status": "Government catalog metadata only; not the current FAA certificate or exactDTM7557 configuration",
+      "pdf_sha256": null,
+      "web_view_pdf_pages": 36
+    },
+    {
+      "id": "easa_engine_catalog",
+      "url": "https://www.easa.europa.eu/en/downloads/136203/en",
+      "retrieved_date": "2026-10-10",
+      "raw_retained": false,
+      "http_status": 200,
+      "final_url": "https://www.easa.europa.eu/en/downloads/136203/en",
+      "content_type": "application/pdf",
+      "response_bytes": 554271,
+      "response_sha256": "ce3a81014d1c6d365750c793f0de4359a35fc25571be18b33f7e960f24c67306",
+      "pdf_pages": 43,
+      "publisher": "EASA",
+      "title": "EASA Product List: Engines",
+      "publication_revision": null,
+      "publication_date": "2023-09-18",
+      "evidence_status": "historical-official-catalog",
+      "read_scope": "PDF cover and O-320-D2J row plus dated footer",
+      "locators": [
+        {
+          "pdf_page": 1,
+          "printed_page": null,
+          "scope": "title and list date"
+        },
+        {
+          "pdf_page": 27,
+          "printed_page": "26 /42",
+          "scope": "O-320-D2J /US E-274 discovery identity"
+        }
+      ],
+      "rights_status": "Catalog metadata only; not E-274 certificate bytes/current revision or installed-aircraft approval",
+      "pdf_sha256": "ce3a81014d1c6d365750c793f0de4359a35fc25571be18b33f7e960f24c67306",
+      "web_view_pdf_pages": null
+    },
+    {
+      "id": "ntsb_policy",
+      "url": "https://www.ntsb.gov/about/Pages/Website-Policies.aspx",
+      "retrieved_date": "2026-10-10",
+      "raw_retained": false,
+      "http_status": 200,
+      "final_url": "https://www.ntsb.gov/about/Pages/Website-Policies.aspx",
+      "content_type": "text/html; charset=utf-8",
+      "response_bytes": 64985,
+      "response_sha256": "c1121e0bbee4d3eac78d6c87f5b1d678c6bf0cce4123683fb6ed60436a8c46b4",
+      "publisher": "NTSB",
+      "title": "Website Policies",
+      "publication_revision": null,
+      "publication_date": null,
+      "evidence_status": "rights-policy",
+      "read_scope": "Reproduction of Materials section",
+      "locators": [],
+      "rights_status": "Distinguishes staff government works from copyrighted docket inclusions; no blanket manufacturer grant",
+      "pdf_sha256": null,
+      "web_view_pdf_pages": null
+    },
+    {
+      "id": "lycoming_terms",
+      "url": "https://www.lycoming.com/use",
+      "retrieved_date": "2026-10-10",
+      "raw_retained": false,
+      "http_status": 200,
+      "final_url": "https://www.lycoming.com/use",
+      "content_type": "text/html; charset=utf-8",
+      "response_bytes": 71532,
+      "response_sha256": "7bd82eb1f75b464f02c800278e0ffeb85524cb8e3698976f400d0383138d910a",
+      "publisher": "Lycoming",
+      "title": "Terms of Use",
+      "publication_revision": null,
+      "publication_date": null,
+      "evidence_status": "rights-policy",
+      "read_scope": "Sections2/3 site access and ownership",
+      "locators": [],
+      "rights_status": "Public access does not clear distribution or derived performance datasets; no per-fact permission requirement invented",
+      "pdf_sha256": null,
+      "web_view_pdf_pages": null
+    },
+    {
+      "id": "textron_terms",
+      "url": "https://txtav.com/terms-of-use",
+      "retrieved_date": "2026-10-10",
+      "raw_retained": false,
+      "http_status": 200,
+      "final_url": "https://txtav.com/terms-of-use",
+      "content_type": "text/html; charset=utf-8",
+      "response_bytes": 78158,
+      "response_sha256": "4016d2c9a6d16ec3b4dc5ecdefcad2db93173e81537ff50e665695704125dbc2",
+      "publisher": "Textron Aviation",
+      "title": "Terms of Use",
+      "publication_revision": null,
+      "publication_date": null,
+      "evidence_status": "rights-policy",
+      "read_scope": "Sections2/19 and additional product terms priority",
+      "locators": [],
+      "rights_status": "Public access does not clear copying/redistribution; no manufacturer endorsement or per-fact permission requirement claimed",
+      "pdf_sha256": null,
+      "web_view_pdf_pages": null
+    },
+    {
+      "id": "cessna_publications",
+      "url": "https://ww2.txtav.com/TechnicalPublications/",
+      "retrieved_date": "2026-10-10",
+      "raw_retained": false,
+      "http_status": 200,
+      "final_url": "https://ww2.txtav.com/TechnicalPublications/",
+      "content_type": "text/html; charset=utf-8",
+      "response_bytes": 373993,
+      "response_sha256": "42d9996f032645cb3c67719de74debbb4f199954200dd03a6582366024f30345",
+      "publisher": "Textron Aviation",
+      "title": "Technical Publications",
+      "publication_revision": null,
+      "publication_date": null,
+      "evidence_status": "discovery-route",
+      "read_scope": "Public navigation page; no exact approved manual received",
+      "locators": [],
+      "rights_status": "No account/payment/contact; no publication rights inferred",
+      "pdf_sha256": null,
+      "web_view_pdf_pages": null
+    },
+    {
+      "id": "cessna_supplements",
+      "url": "https://ww2.txtav.com/TechnicalPublications/Downloads/SupplementList?Make=Cessna",
+      "retrieved_date": "2026-10-10",
+      "raw_retained": false,
+      "http_status": 200,
+      "final_url": "https://ww2.txtav.com/Account/Login?ReturnUrl=%2FTechnicalPublications%2FDownloads%2FSupplementList%3FMake%3DCessna",
+      "content_type": "text/html; charset=utf-8",
+      "response_bytes": 44053,
+      "response_sha256": "83eff9d7e48383d5e4a9f8299a2b7d0b5e6e512138fe0720d66b4d40230f1b0a",
+      "publisher": "Textron Aviation",
+      "title": "Cessna supplement list request",
+      "publication_revision": null,
+      "publication_date": null,
+      "evidence_status": "login-required-response",
+      "read_scope": "Actual redirect to Account/Login; no authentication attempted",
+      "locators": [],
+      "rights_status": "No supplement set acquired; no account or access-control bypass",
+      "pdf_sha256": null,
+      "web_view_pdf_pages": null
+    },
+    {
+      "id": "lycoming_d2j_parts",
+      "url": "https://www.lycoming.com/sites/default/files/attachments/O-320-D2J%2520Parts%2520Catalog%2520PC-O-320-D2J.pdf",
+      "retrieved_date": "2026-10-10",
+      "raw_retained": false,
+      "http_status": 200,
+      "final_url": "https://www.lycoming.com/sites/default/files/attachments/O-320-D2J%2520Parts%2520Catalog%2520PC-O-320-D2J.pdf",
+      "content_type": "application/pdf",
+      "response_bytes": 4178509,
+      "response_sha256": "4629e1012ac7dc34eec638fbb43c1a928d537d8fa7fc2af9df74302dc8780e01",
+      "pdf_pages": 66,
+      "publisher": "Lycoming",
+      "title": "O-320-D2J Illustrated Parts CatalogPC-O-320-D2J",
+      "publication_revision": null,
+      "publication_date": "2016-10-21",
+      "evidence_status": "official-public-model-specific-reference",
+      "read_scope": "Cover and Figure20 title/effectivity/date only; no parts table copied",
+      "locators": [
+        {
+          "pdf_page": 1,
+          "printed_page": null,
+          "scope": "PC-O-320-D2J; supersedes part ofPC-203-9"
+        },
+        {
+          "pdf_page": 52,
+          "printed_page": "73-10 p38",
+          "scope": "Figure20 Carburetor Assembly title and D2J effectivity"
+        },
+        {
+          "pdf_page": 53,
+          "printed_page": "73-10 p39",
+          "scope": "same figure heading/effectivity/date; no part-number configuration selected"
+        }
+      ],
+      "rights_status": "Copyright2016 retained; bibliography/isolated model fact only, no parts table or illustration redistribution",
+      "pdf_sha256": "4629e1012ac7dc34eec638fbb43c1a928d537d8fa7fc2af9df74302dc8780e01",
+      "web_view_pdf_pages": null
+    },
+    {
+      "id": "lycoming_d2j_product",
+      "url": "https://www.lycoming.com/engines/9796",
+      "retrieved_date": "2026-10-10",
+      "raw_retained": false,
+      "http_status": 200,
+      "final_url": "https://www.lycoming.com/engines/9796",
+      "content_type": "text/html; charset=utf-8",
+      "response_bytes": 62641,
+      "response_sha256": "571a66afb67900c58130cf1b297653ffe3068c9beb85eecba3288c4e95b6188f",
+      "publisher": "Lycoming",
+      "title": "O-320-D2J engine finder part9796",
+      "publication_revision": null,
+      "publication_date": null,
+      "evidence_status": "official-product-page-not-certified-installation",
+      "read_scope": "D2J model, carburetor field and C-172 marketing application; not a1982 installation record",
+      "locators": [],
+      "rights_status": "Public model discovery only; do not impose later part9796 equipment/voltage on1982 airframe",
+      "pdf_sha256": null,
+      "web_view_pdf_pages": null
+    },
+    {
+      "id": "nzcaa_catalog_legacy_domain",
+      "url": "https://www.caa.govt.nz/assets/aircraft/type-acceptance-reports/cessna-172-series.pdf",
+      "retrieved_date": "2026-10-10",
+      "raw_retained": false,
+      "http_status": 200,
+      "final_url": "https://www.caa.govt.nz/assets/aircraft/type-acceptance-reports/cessna-172-series.pdf",
+      "content_type": "text/html",
+      "response_bytes": 212,
+      "response_sha256": "d02032286070b4dd9d8fbd985a7bdca8af8edf52b89ff177db3bfcb2c8a9c43d",
+      "publisher": "CAA New Zealand",
+      "title": "Legacy-domain TAR96/15 request",
+      "publication_revision": "3",
+      "publication_date": "2018-09-28",
+      "evidence_status": "html-not-pdf",
+      "read_scope": "Official alternate hostname also returned212-byte HTML",
+      "locators": [],
+      "rights_status": "No acquired PDF digest; catalog semantic read recorded separately",
+      "pdf_sha256": null,
+      "web_view_pdf_pages": null
+    },
+    {
+      "id": "nzcaa_prop_catalog_legacy_domain",
+      "url": "https://www.caa.govt.nz/assets/rules/advisory-circulars/ac021-1-appendix-2.pdf",
+      "retrieved_date": "2026-10-10",
+      "raw_retained": false,
+      "http_status": 200,
+      "final_url": "https://www.caa.govt.nz/assets/rules/advisory-circulars/ac021-1-appendix-2.pdf",
+      "content_type": "text/html",
+      "response_bytes": 212,
+      "response_sha256": "d02032286070b4dd9d8fbd985a7bdca8af8edf52b89ff177db3bfcb2c8a9c43d",
+      "publisher": "CAA New Zealand",
+      "title": "Legacy-domain AC21-1 Appendix2 request",
+      "publication_revision": "7",
+      "publication_date": "2025-01-23",
+      "evidence_status": "html-not-pdf",
+      "read_scope": "Official alternate hostname also returned212-byte HTML",
+      "locators": [],
+      "rights_status": "No acquired PDF digest; no certificate acquired",
+      "pdf_sha256": null,
+      "web_view_pdf_pages": null
+    },
+    {
+      "id": "ntsb_cruise_excerpt",
+      "url": "https://data.ntsb.gov/Docket/Document/docBLOB?ID=40333527&FileExtension=.PDF&FileName=Excerpt%20from%20C172P%20POH%20(Cruise%20Performance)-Master.PDF",
+      "retrieved_date": "2026-10-10",
+      "raw_retained": false,
+      "http_status": 200,
+      "final_url": "https://data.ntsb.gov/Docket/Document/docBLOB?ID=40333527&FileExtension=.PDF&FileName=Excerpt%20from%20C172P%20POH%20(Cruise%20Performance)-Master.PDF",
+      "content_type": "application/pdf",
+      "response_bytes": 52945,
+      "response_sha256": "0b83b27a9797ffc3b1b512aeaa3afacd756dd885aac208e4a0cafd84145632bc",
+      "pdf_pages": 1,
+      "publisher": "Cessna; official NTSB docket holding",
+      "title": "Excerpt from C172P POH (Cruise Performance)",
+      "publication_revision": null,
+      "publication_date": null,
+      "evidence_status": "partial-chart-unbound",
+      "read_scope": "One-page image-only PDF acquired in memory and hashed; title from official attachment URL, text extraction empty. Chart pixels/conditions/edition not verified; no values copied",
+      "locators": [
+        {
+          "pdf_page": 1,
+          "printed_page": null,
+          "scope": "one-page attachment presence only; no numerical/chart reading claimed"
+        }
+      ],
+      "rights_status": "Public read holding, not cleared chart redistribution or proof of applicable1982D1212 edition",
+      "pdf_sha256": "0b83b27a9797ffc3b1b512aeaa3afacd756dd885aac208e4a0cafd84145632bc",
+      "web_view_pdf_pages": null
+    }
+  ],
+  "field_ledger": [
+    {
+      "id": "model_year_and_interval",
+      "historical_fact": {
+        "model": "172P",
+        "year": 1982,
+        "serial_first": "17275035",
+        "serial_last": "17275759"
+      },
+      "selected_profile_value": null,
+      "source_units": null,
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "historical-fact",
+      "uncertainty": null,
+      "uncertainty_note": "Current applicability and representative installed configuration not verified",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 14,
+          "printed_locator": "IX Serial Numbers Eligible"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "actual_aircraft_serial",
+      "historical_fact": null,
+      "selected_profile_value": null,
+      "source_units": null,
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "unverified",
+      "uncertainty": null,
+      "uncertainty_note": "No individual aircraft selected; interval is not an invented actual serial",
+      "source_refs": [],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "engine_model",
+      "historical_fact": "Lycoming O-320-D2J",
+      "selected_profile_value": null,
+      "source_units": null,
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "historical-fact",
+      "uncertainty": null,
+      "uncertainty_note": "Current applicability and representative installed configuration not verified",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 13,
+          "printed_locator": "IX Engine"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "engine_rating",
+      "historical_fact": {
+        "power": 160,
+        "speed": 2700
+      },
+      "selected_profile_value": null,
+      "source_units": {
+        "power": "source hp",
+        "speed": "rpm"
+      },
+      "source_frame": "shaft",
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "historical-certified-limit",
+      "uncertainty": null,
+      "uncertainty_note": "No present-aircraft rating or engine curve calibration admitted",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 13,
+          "printed_locator": "IX Engine Limits"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "engine_induction",
+      "historical_fact": "carburetor assembly",
+      "selected_profile_value": null,
+      "source_units": null,
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "model-specific-component-evidence",
+      "uncertainty": null,
+      "uncertainty_note": "Parts-catalog model effectivity does not select actual installed component/revisions",
+      "source_refs": [
+        {
+          "source_id": "lycoming_d2j_parts",
+          "pdf_page": 52,
+          "printed_locator": "73-10 p38 Figure20"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "engine_current_certificate",
+      "historical_fact": null,
+      "selected_profile_value": null,
+      "source_units": null,
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "discovery-only",
+      "uncertainty": null,
+      "uncertainty_note": "US E-274 identity found; current FAA certificate/revision/notes not retrieved",
+      "source_refs": [
+        {
+          "source_id": "easa_engine_catalog",
+          "pdf_page": 27,
+          "printed_locator": "26/42 D2J row"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "land_propeller",
+      "historical_fact": "McCauley1C160/DTM7557",
+      "selected_profile_value": null,
+      "source_units": null,
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "historical-installation",
+      "uncertainty": null,
+      "uncertainty_note": "Exact installed serial, alteration, repair/diameter and current prop certificate unknown",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 13,
+          "printed_locator": "IX propeller1"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "propeller_current_certificate",
+      "historical_fact": null,
+      "selected_profile_value": null,
+      "source_units": null,
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "web-discovery-only",
+      "uncertainty": null,
+      "uncertainty_note": "FAA P-910 series identity in official catalog; exact certificate/revision/notes not acquired",
+      "source_refs": [
+        {
+          "source_id": "nzcaa_prop_catalog",
+          "pdf_page": 33,
+          "printed_locator": "33 1C160 series"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "propeller_static_rpm_and_diameter",
+      "historical_fact": null,
+      "selected_profile_value": null,
+      "source_units": {
+        "speed": "rpm",
+        "diameter": "in"
+      },
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "historical-locator-not-admitted",
+      "uncertainty": null,
+      "uncertainty_note": "Source limit exists; current applicability and complete installation unresolved; no simulator tolerance derived",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 13,
+          "printed_locator": "IX Propeller Limits"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "landing_configuration",
+      "historical_fact": "landplane branch",
+      "selected_profile_value": null,
+      "source_units": null,
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "proposed-configuration",
+      "uncertainty": null,
+      "uncertainty_note": "No floats/amphibious/skis/bush/STC branches selected",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 13,
+          "printed_locator": "IX land versus float installation"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "gear_tire_brake_installation",
+      "historical_fact": null,
+      "selected_profile_value": null,
+      "source_units": null,
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "unverified",
+      "uncertainty": null,
+      "uncertainty_note": "Exact conventional gear, tire sizes/pressures, brakes, fairings and approved modifications require applicable equipment/POH evidence",
+      "source_refs": [],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "conventional_panel",
+      "historical_fact": null,
+      "selected_profile_value": null,
+      "source_units": null,
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "design-intent-only",
+      "uncertainty": null,
+      "uncertainty_note": "Analog/conventional panel requested; exact instruments, pitot/static, vacuum/electrical equipment not established by year or model name",
+      "source_refs": [],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "electrical_system",
+      "historical_fact": 28,
+      "selected_profile_value": null,
+      "source_units": "V",
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "historical-fact",
+      "uncertainty": null,
+      "uncertainty_note": "Target interval lies in28V airframe group; do not substitute product-page24V component label for bus architecture",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 23,
+          "printed_locator": "Note5"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "fuel_grade",
+      "historical_fact": "100LL/100 minimum aviation gasoline",
+      "selected_profile_value": null,
+      "source_units": null,
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "historical-fact",
+      "uncertainty": null,
+      "uncertainty_note": "Current applicability and representative installed configuration not verified",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 13,
+          "printed_locator": "IX Fuel"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "fuel_capacity_total_usable",
+      "historical_fact": null,
+      "selected_profile_value": null,
+      "source_units": "source gal",
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "source-conflict",
+      "uncertainty": null,
+      "uncertainty_note": "Printed total disagrees with sum of printed tank capacities; no correction from memory or another variant",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 14,
+          "printed_locator": "IX Fuel Capacity"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "fuel_tank_station",
+      "historical_fact": null,
+      "selected_profile_value": null,
+      "source_units": "in",
+      "source_frame": "longitudinal station relative to applicable firewall datum",
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "historical-locator-not-admitted",
+      "uncertainty": null,
+      "uncertainty_note": "Resolve complete tank/options/usable accounting with applicable POH before selecting quantities/stations",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 14,
+          "printed_locator": "IX Fuel Capacity"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "oil_capacity_usable",
+      "historical_fact": null,
+      "selected_profile_value": null,
+      "source_units": "source gal",
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "source-conflict",
+      "uncertainty": null,
+      "uncertainty_note": "Printed usable quantity exceeds printed total; actual page visually verified, not merely OCR ambiguity",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 14,
+          "printed_locator": "IX Oil Capacity"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "empty_weight_fuel_oil_accounting",
+      "historical_fact": null,
+      "selected_profile_value": null,
+      "source_units": {
+        "mass": "lb",
+        "station": "in"
+      },
+      "source_frame": "longitudinal station relative to firewall datum",
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "historical-locator-not-admitted",
+      "uncertainty": null,
+      "uncertainty_note": "Note1 distinguishes unusable fuel/full oil in certificated empty weight; do not double-count or borrow pre172P rules",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 16,
+          "printed_locator": "Note1 Model172P interval"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "maximum_normal_weight",
+      "historical_fact": 2400,
+      "selected_profile_value": null,
+      "source_units": "lb",
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "historical-certified-limit",
+      "uncertainty": null,
+      "uncertainty_note": "Current applicability and representative installed configuration not verified",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 14,
+          "printed_locator": "IX Maximum Weight landplane"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "maximum_utility_weight",
+      "historical_fact": 2100,
+      "selected_profile_value": null,
+      "source_units": "lb",
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "historical-certified-limit",
+      "uncertainty": null,
+      "uncertainty_note": "Utility maneuvers/loading and current approval unresolved; not a curriculum admission",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 14,
+          "printed_locator": "IX Maximum Weight landplane"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "ramp_takeoff_landing_weight_differences",
+      "historical_fact": null,
+      "selected_profile_value": null,
+      "source_units": "lb",
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "unverified",
+      "uncertainty": null,
+      "uncertainty_note": "Do not relabel one historical Maximum Weight entry as a complete ramp/takeoff/landing schedule",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 14,
+          "printed_locator": "IX Maximum Weight"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "normal_cg_envelope",
+      "historical_fact": null,
+      "selected_profile_value": null,
+      "source_units": {
+        "mass": "lb",
+        "station": "in"
+      },
+      "source_frame": "aft-positive longitudinal station",
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "historical-locator-not-admitted",
+      "uncertainty": null,
+      "uncertainty_note": "Current envelope and loading basis missing; source endpoints not copied as an executable table",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 13,
+          "printed_locator": "IX CG Range landplane normal"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "utility_cg_envelope",
+      "historical_fact": null,
+      "selected_profile_value": null,
+      "source_units": {
+        "mass": "lb",
+        "station": "in"
+      },
+      "source_frame": "aft-positive longitudinal station",
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "historical-locator-not-admitted",
+      "uncertainty": null,
+      "uncertainty_note": "Current applicability and representative installed configuration not verified",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 13,
+          "printed_locator": "IX CG Range landplane utility"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "datum",
+      "historical_fact": "lower front face of firewall",
+      "selected_profile_value": null,
+      "source_units": null,
+      "source_frame": "longitudinal aircraft station; not instantaneous CG-relative body frame",
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "historical-fact",
+      "uncertainty": null,
+      "uncertainty_note": "Current applicability and representative installed configuration not verified",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 15,
+          "printed_locator": "shared Datum serial17247747-17276654"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "leveling_means",
+      "historical_fact": "upper doorsill",
+      "selected_profile_value": null,
+      "source_units": null,
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "historical-fact",
+      "uncertainty": null,
+      "uncertainty_note": "Current applicability and representative installed configuration not verified",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 15,
+          "printed_locator": "shared Leveling Means"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "seat_and_baggage_stations",
+      "historical_fact": null,
+      "selected_profile_value": null,
+      "source_units": {
+        "mass": "lb",
+        "station": "in"
+      },
+      "source_frame": "longitudinal station from applicable datum",
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "historical-locator-not-admitted",
+      "uncertainty": null,
+      "uncertainty_note": "Actual seat positions/optional seats/baggage restrictions/equipment moments not selected",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 14,
+          "printed_locator": "IX seats and baggage"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "empty_mass_moment_equipment",
+      "historical_fact": null,
+      "selected_profile_value": null,
+      "source_units": {
+        "mass": "lb",
+        "moment": "lb in"
+      },
+      "source_frame": "applicable datum",
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "unverified",
+      "uncertainty": null,
+      "uncertainty_note": "Individual/representative equipment and weight-and-balance basis not obtained; no generic model empty mass admitted",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 16,
+          "printed_locator": "Note1 required report"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "airspeed_limit_definition",
+      "historical_fact": "CAS",
+      "selected_profile_value": null,
+      "source_units": "knots CAS",
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "historical-definition",
+      "uncertainty": null,
+      "uncertainty_note": "Not an IAS/CAS conversion curve; no IAS==CAS identity assumed",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 13,
+          "printed_locator": "IX Airspeed Limits and Note4 p23"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "airspeed_limits",
+      "historical_fact": null,
+      "selected_profile_value": null,
+      "source_units": "knots CAS",
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "historical-locator-not-admitted",
+      "uncertainty": null,
+      "uncertainty_note": "Current approved limits/markings and calibrated indications remain unresolved",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 13,
+          "printed_locator": "IX Airspeed Limits"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "control_and_flap_travel",
+      "historical_fact": null,
+      "selected_profile_value": null,
+      "source_units": "deg",
+      "source_frame": "source hinge/neutral conventions; no project sign mapping selected",
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "historical-locator-not-admitted",
+      "uncertainty": null,
+      "uncertainty_note": "Not aerodynamic coefficients or ground-steering geometry; no control-contract adoption",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 14,
+          "printed_locator": "IX Control Surface Movements"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "poh_identity",
+      "historical_fact": "D1212-13PH",
+      "selected_profile_value": null,
+      "source_units": null,
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "historical-publication-identity",
+      "uncertainty": null,
+      "uncertainty_note": "Full approved manual/revisions/assignment not acquired; not interchangeable with1982InformationManual excerpt",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 23,
+          "printed_locator": "Note4 selected serial interval"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "poh_effective_pages_and_supplements",
+      "historical_fact": null,
+      "selected_profile_value": null,
+      "source_units": null,
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "unverified",
+      "uncertainty": null,
+      "uncertainty_note": "No complete effective-page log, revisions, Section9 supplements, AFM approvals or equipment applicability acquired",
+      "source_refs": [
+        {
+          "source_id": "cessna_supplements",
+          "pdf_page": null,
+          "printed_locator": "actual login redirect"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "modifications_stcs_ads",
+      "historical_fact": null,
+      "selected_profile_value": null,
+      "source_units": null,
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "unverified",
+      "uncertainty": null,
+      "uncertainty_note": "No actual alteration/AD applicability disposition; absence of found modifications is not proof of stock configuration",
+      "source_refs": [],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "dimensions_and_inertia",
+      "historical_fact": null,
+      "selected_profile_value": null,
+      "source_units": {
+        "length": "m",
+        "area": "m^2",
+        "inertia": "kg m^2"
+      },
+      "source_frame": "future fixed aircraft datum/body conventions unresolved",
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "unverified",
+      "uncertainty": null,
+      "uncertainty_note": "No applicable dimension drawing/mass distribution/inertia admitted; upstream geometry is implementation provenance only",
+      "source_refs": [],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "certification_basis",
+      "historical_fact": null,
+      "selected_profile_value": null,
+      "source_units": null,
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "historical-locator-not-admitted",
+      "uncertainty": null,
+      "uncertainty_note": "Read applicable shared paragraph, not172Q/172R/172S basis; current certificate notes still required",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 15,
+          "printed_locator": "shared Certification Basis Models172 through172P"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    },
+    {
+      "id": "required_equipment",
+      "historical_fact": null,
+      "selected_profile_value": null,
+      "source_units": null,
+      "source_frame": null,
+      "applicability": "Proposed1982 land172P, serial interval17275035-17275759; no actual serial selected",
+      "status": "historical-locator-not-admitted",
+      "uncertainty": null,
+      "uncertainty_note": "Current AFM and applicable equipment/loading report required; type sheet is not a complete representative equipment list",
+      "source_refs": [
+        {
+          "source_id": "faa_3a12_historical",
+          "pdf_page": 16,
+          "printed_locator": "Equipment and Note1"
+        }
+      ],
+      "permitted_use": "Authored factual/bibliographic assessment only; not executable data, operational guidance or source-package redistribution",
+      "admitted_for_profile": false
+    }
+  ],
+  "route_attempts": [
+    {
+      "date": "2026-10-10",
+      "route": "FAA FAQ -> https://drs.faa.gov/browse",
+      "result": "FAQ linked DRS; actualHTTP200 shell acquired, zero readable web-extracted lines. No current certificate. No authentication/bypass/API guessed."
+    },
+    {
+      "date": "2026-10-10",
+      "queries": [
+        "site.faa.gov \"3A12\" \"172P\"",
+        "site.data.ntsb.gov \"E-274\" Lycoming",
+        "site.faa.gov \"P-910\"",
+        "site.data.ntsb.gov \"D1212-13PH\" \"Handbook\"",
+        "site.txtav.com \"D1212-13PH\""
+      ],
+      "result": "Historical/docket/discovery sources and unrelated results; no current FAA certificate or exact full applicable POH acquired. Third-party manual mirrors not opened or relied on."
+    },
+    {
+      "date": "2026-10-10",
+      "route": "Textron public TechnicalPublications page -> Cessna supplement list",
+      "result": "Public navigation acquired; supplement request redirected to login. Stopped without account/payment/contact."
+    },
+    {
+      "date": "2026-10-10",
+      "route": "Official NZCAA catalog URLs on aviation.govt.nz and caa.govt.nz",
+      "result": "Web tool extracted government PDFs; direct responses were212-byte HTML. PDF digest remains null; no access workaround."
+    },
+    {
+      "date": "2026-10-10",
+      "route": "Official NTSB1982 InformationManual and cruise attachment",
+      "result": "Partial public primary bytes acquired; neither establishes exact approved fullD1212 revision/effective pages/installation. No reconstructed manual from fragments."
+    }
+  ],
+  "conflicts": [
+    {
+      "id": "fuel_oil_printed_conflicts",
+      "source_id": "faa_3a12_historical",
+      "pdf_page": 14,
+      "actual_pixels_checked": true,
+      "temporary_render_sha256": "9286c767b626d628c9f0df1bd7b05108ba717a08ff6df9a839a07d35437035bf",
+      "render_retained": false,
+      "resolution": "Unresolved; preserve null capacities and obtain current certificate plus applicable POH; do not silently repair printed source"
+    },
+    {
+      "id": "certificate_page_revision_presentation",
+      "source_id": "faa_3a12_historical",
+      "pdf_page": 1,
+      "resolution": "Cover identifiesRev80; page revision roster differs from page footers. Record archive-levelRev80 identity only; no claim every page independently amended2010."
+    },
+    {
+      "id": "engine_figure_applicability",
+      "source_id": "lycoming_o320_manual",
+      "resolution": "Figure3-7 excludesD2J;3-9 includesD2J;3-10 fuel-flow titleB2E-only. Do not borrow adjacent chart or infer installed fuel use."
+    },
+    {
+      "id": "component_voltage_vs_airframe",
+      "source_id": "lycoming_d2j_product",
+      "resolution": "Later engine product part9796 voltage/component fields are not1982 airframe installation facts. Historical airframe28V remains distinct."
+    }
+  ],
+  "preserved_issues": [
+    28,
+    76
+  ],
+  "authorization_limits": [
+    "No model/source/assets/manual/table import",
+    "No runtime identity/profile/interface/port or executable rights-register update",
+    "No normal-flight numeric reference/tolerance or observed fitting",
+    "No fidelity/procedure/training-credit/pilot/hardware/phase acceptance",
+    "No adoption or packaging decision; sibling172 and separate contract/rights review remain required"
+  ],
+  "review": {
+    "independent_review_status": "pending",
+    "reviewer": null,
+    "reviewed_revision": null,
+    "limits": "Author targeted bibliography/identity/selected source inspection only; no exhaustive AD/supplement/current-status review"
+  }
+}

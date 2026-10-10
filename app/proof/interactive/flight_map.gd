@@ -7,6 +7,7 @@ const SAMPLE_TICKS := 120
 const INK := Color("e8edf3")
 const MUTED := Color("98afbb")
 const CYAN := Color("79d7e4")
+const CircuitGeometry = preload("res://world/synthetic/circuit_geometry.gd")
 var extent_m := 8000.0
 var _session := ""
 var _sample_tick := -SAMPLE_TICKS
@@ -24,6 +25,52 @@ var _landmarks: Array[Dictionary] = []
 var _route: Dictionary={}
 var _font: Font = ThemeDB.fallback_font
 var _wind_cue: Dictionary={}
+var _circuit: Dictionary={}
+var compact_aid_layout: bool=false
+
+func set_circuit_reference(view: Dictionary) -> void:
+	# The pure geometry leaf owns admission. This draw layer keeps a complete
+	# copied view only; it never selects a route, runway, zoom or aircraft state.
+	_circuit.clear()
+	if CircuitGeometry.valid_view(view) and view.available:
+		_circuit=view.duplicate(true)
+	queue_redraw()
+
+static func _clip_circuit_segment(a: Vector2, b: Vector2, chart: Rect2) -> Array:
+	# Intersect the full parameter interval, including crossings with both
+	# endpoints outside. Final draw vectors are presentation precision only.
+	if not a.is_finite() or not b.is_finite() or not chart.position.is_finite() or not chart.size.is_finite() or chart.size.x<=0.0 or chart.size.y<=0.0:
+		return []
+	var low: float=0.0
+	var high: float=1.0
+	for axis in 2:
+		var delta: float=float(b[axis])-float(a[axis])
+		if delta==0.0:
+			if a[axis]<chart.position[axis] or a[axis]>chart.end[axis]: return []
+		else:
+			var first: float=(float(chart.position[axis])-float(a[axis]))/delta
+			var last: float=(float(chart.end[axis])-float(a[axis]))/delta
+			low=maxf(low,minf(first,last))
+			high=minf(high,maxf(first,last))
+			if low>high: return []
+	return [a+(b-a)*low,a+(b-a)*high]
+
+func _draw_circuit(chart: Rect2) -> void:
+	if _circuit.is_empty() or not _valid or _retained or _runway!=36 or _circuit.session_id!=_session:
+		return
+	var points: Array=_circuit.points_anchor_eus_m
+	var color:=Color("f0cf8c")
+	for i in 5:
+		var a: Vector2=_point(Vector2(points[i][0],points[i][2]),chart)
+		var b: Vector2=_point(Vector2(points[i+1][0],points[i+1][2]),chart)
+		# Inset the stroke half-width so antialiasing cannot bleed into captions.
+		var segment: Array=_clip_circuit_segment(a,b,chart.grow(-1.5))
+		if segment.size()==2: draw_line(segment[0],segment[1],color,1.5,true)
+		var text: String=_circuit.leg_labels[i]
+		var at: Vector2=(a+b)*0.5+Vector2(5,-5)
+		var width: float=_font.get_string_size(text,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x
+		if chart.grow(-5).encloses(Rect2(at-Vector2(0,11),Vector2(width,14))):
+			_text(at,text,color,10)
 
 func set_wind_cue(value: Dictionary) -> void:
 	_wind_cue=value.duplicate(true)
@@ -68,7 +115,8 @@ func set_route(view: Dictionary) -> void:
 	if absf(float(target[0]))>20000.0 or absf(float(target[2]))>20000.0 or float(target[1])!=0.0:
 		queue_redraw()
 		return
-	_route={"target":Vector2(target[0],target[2]),"label":label}
+	_route={"target":Vector2(target[0],target[2]),"label":label,
+		"leg_number":int(view.get("leg_index",0))+1,"leg_count":int(view.get("leg_count",1))}
 	queue_redraw()
 
 func toggle_runway() -> void:
@@ -127,6 +175,15 @@ func zoom(factor: float) -> void:
 func _point(position: Vector2, chart: Rect2) -> Vector2:
 	return chart.get_center() + (position - _position) * chart.size.x / extent_m
 
+static func _inset_contains(chart: Rect2, point: Vector2, margin: float) -> bool:
+	# A small routed chart can have no interior at this margin. Treat that
+	# interior as empty, rather than querying a negative-size Godot rectangle.
+	if not chart.position.is_finite() or not chart.size.is_finite() or not point.is_finite() or not is_finite(margin) or margin<0.0:
+		return false
+	if chart.size.x<=2.0*margin or chart.size.y<=2.0*margin:
+		return false
+	return chart.grow(-margin).has_point(point)
+
 func _text(at: Vector2, value: String, color: Color = INK, pixels: int = 12) -> void:
 	draw_string(_font, at, value, HORIZONTAL_ALIGNMENT_LEFT, -1, pixels, color)
 
@@ -138,6 +195,12 @@ func _polygon(points: PackedVector2Array, chart: Rect2, color: Color) -> void:
 func _rectangle(bounds: Rect2, chart: Rect2, color: Color) -> void:
 	_polygon(PackedVector2Array([_point(bounds.position,chart),_point(Vector2(bounds.end.x,bounds.position.y),chart),_point(bounds.end,chart),_point(Vector2(bounds.position.x,bounds.end.y),chart)]),chart,color)
 
+func _route_metrics() -> Dictionary:
+	if _route.is_empty() or not _valid or _retained: return {}
+	var delta: Vector2=_route.target-_position
+	return {"range_m":delta.length(),"bearing_valid":delta.length()>0.01,
+		"bearing_deg":fposmod(rad_to_deg(atan2(delta.x,-delta.y)),360.0) if delta.length()>0.01 else 0.0}
+
 func _draw() -> void:
 	if size.x < 220 or size.y < 220:
 		return
@@ -147,14 +210,20 @@ func _draw() -> void:
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(9)
 	draw_style_box(style,Rect2(Vector2.ZERO,size))
-	_text(Vector2(14,23),"AIRFIELD LOCATOR",CYAN,14)
-	_text(Vector2(size.x-100,23),"T · RWY %02d" % _runway,Color("ffc477"),12)
-	_text(Vector2(14,43),"SYNTHETIC · OPTIONAL AID · "+("STOPPED" if _retained else "PAUSED" if _paused else "LIVE" if _valid else "UNAVAILABLE"),MUTED,10)
+	var compact: bool=compact_aid_layout and (size.x<330.0 or size.y<330.0)
+	var status: String="STOPPED" if _retained else "PAUSED" if _paused else "LIVE" if _valid else "UNAVAILABLE"
+	_text(Vector2(14,21 if compact else 23),"AIRFIELD LOCATOR",CYAN,12 if compact else 14)
+	if compact:
+		_text(Vector2(14,37),"SYNTHETIC AID · "+status+" · RWY %02d" % _runway,MUTED,10)
+	else:
+		_text(Vector2(size.x-100,23),"T · RWY %02d" % _runway,Color("ffc477"),12)
+		_text(Vector2(14,43),"SYNTHETIC · OPTIONAL AID · "+status,MUTED,10)
 	var route_shown: bool=not _route.is_empty() and _valid and not _retained
 	var extra: float=20.0 if route_shown else 0.0
 	if route_shown:
-		_text(Vector2(14,62),"MANUAL LEG: "+_route.label,Color("c9b8ff"),11)
-	var chart := Rect2(12,56+extra,size.x-24,size.y-163-extra)
+		var route_title: String="MANUAL %d/%d: " % [_route.leg_number,_route.leg_count] if compact_aid_layout else "MANUAL LEG: "
+		_text(Vector2(14,53 if compact else 62),route_title+_route.label,Color("c9b8ff"),10 if compact else 11)
+	var chart := Rect2(12,(42 if compact else 56)+extra,size.x-24,size.y-(128 if compact else 183 if compact_aid_layout and route_shown else 163)-extra)
 	draw_rect(chart,Color("162c2b"))
 	_rectangle(Rect2(-20000,-20000,40000,40000),chart,Color("223c32"))
 	var spacing := extent_m / 4.0
@@ -178,12 +247,12 @@ func _draw() -> void:
 	for i in range(12):
 		_rectangle(Rect2(end-inbound*(i*160+160)-Vector2(1.5,0),Vector2(3,70)),chart,Color(1.0,0.77,0.47,0.65))
 	var end_point:=_point(end,chart)
-	if chart.grow(-7).has_point(end_point):
+	if _inset_contains(chart,end_point,7.0):
 		draw_circle(end_point,5,Color("ffc477"))
 	for landmark in _landmarks:
 		var position: Vector3=landmark.position_eus_m
 		var at:=_point(Vector2(position.x,position.z),chart)
-		if chart.grow(-18).has_point(at):
+		if _inset_contains(chart,at,18.0):
 			draw_circle(at,3.5,Color("d2bf83"))
 			var width:=_font.get_string_size(landmark.label,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x
 			_text(Vector2(clampf(at.x+7,chart.position.x+4,chart.end.x-width-4),clampf(at.y-5,chart.position.y+12,chart.end.y-5)),landmark.label,Color("d2bf83"),10)
@@ -194,12 +263,13 @@ func _draw() -> void:
 		var visible_target: Vector2=chart.get_center()+offset*minf(clip_scale,1.0)
 		draw_line(chart.get_center(),visible_target,Color("c9b8ff"),1.5,true)
 		draw_arc(visible_target,7,0,TAU,24,Color("c9b8ff"),2.0,true)
+	_draw_circuit(chart)
 	for i in range(1,_trail.size() if _valid and not _retained else 0):
 		var a := _point(_trail[i-1],chart)
 		var b := _point(_trail[i],chart)
 		if chart.has_point(a) and chart.has_point(b):
 			draw_line(a,b,Color(0.47,0.84,0.89,0.6),1.5,true)
-	if not chart.grow(-24).has_point(end_point):
+	if not _inset_contains(chart,end_point,24.0):
 		var offset := end_point-chart.get_center()
 		var scale := minf((chart.size.x*0.5-15)/maxf(absf(offset.x),0.001),(chart.size.y*0.5-15)/maxf(absf(offset.y),0.001))
 		var at := chart.get_center()+offset*minf(scale,1.0)
@@ -231,6 +301,20 @@ func _draw() -> void:
 		_text(at+Vector2(-20,35),"WIND TO",CYAN,10)
 	var metrics:=_runway_metrics()
 	var line:=chart.end.y+19
+	if compact:
+		line=chart.end.y+15
+		if metrics.is_empty():
+			_text(Vector2(14,line),"RWY %02d · CURRENT STATE UNAVAILABLE" % _runway,MUTED,10)
+		else:
+			var bearing: String="%03d°T" % (int(roundf(metrics.bearing_deg))%360) if metrics.bearing_valid else "—"
+			_text(Vector2(14,line),"RWY %02d · %.2f km · %s" % [_runway,metrics.range_m/1000.0,bearing],CYAN,10)
+			_text(Vector2(14,line+15),"%s %.0fm · %s %.0fm" % ["BEFORE" if metrics.along_m<0 else "PAST",absf(metrics.along_m),"RIGHT" if metrics.cross_m>0.01 else "LEFT" if metrics.cross_m< -0.01 else "AXIS",absf(metrics.cross_m)],INK,10)
+			_text(Vector2(14,line+30),"CG H %s · NOT MSL / WHEELS" % ("%.0fft" % (metrics.clearance_m*3.280839895) if metrics.clearance_valid else "—"),MUTED,10)
+		if route_shown:
+			var route_metrics: Dictionary=_route_metrics()
+			_text(Vector2(14,line+45),"LEG %.2f km · %s · ANCHOR" % [route_metrics.range_m/1000.0,"%03d°" % (int(roundf(route_metrics.bearing_deg))%360) if route_metrics.bearing_valid else "—"],Color("c9b8ff"),10)
+		_text(Vector2(14,size.y-12),"SPAN %.1f km · +/− · TAB CLOSE" % (extent_m/1000.0),MUTED,10)
+		return
 	_text(Vector2(14,line),"RWY %02d END · GEOMETRY / NATIVE TRUTH" % _runway,CYAN,11)
 	if metrics.is_empty():
 		_text(Vector2(14,line+18),"RANGE —   BEARING —   AXIS —",MUTED,12)
@@ -242,4 +326,7 @@ func _draw() -> void:
 		var side: String="RIGHT" if metrics.cross_m>0.01 else "LEFT" if metrics.cross_m< -0.01 else "ON AXIS"
 		_text(Vector2(14,line+36),"%s %.0f m · %s %.0f m" % [along,absf(metrics.along_m),side,absf(metrics.cross_m)],INK,11)
 		_text(Vector2(14,line+53),"PLANE CG H %s · NOT MSL / WHEEL CLEARANCE" % ("%.0f ft" % (metrics.clearance_m*3.280839895) if metrics.clearance_valid else "—"),MUTED,10)
+	if compact_aid_layout and route_shown:
+		var route_metrics: Dictionary=_route_metrics()
+		_text(Vector2(14,line+71),"MANUAL LEG %.2f km · ANCHOR %s" % [route_metrics.range_m/1000.0,"%03d°" % (int(roundf(route_metrics.bearing_deg))%360) if route_metrics.bearing_valid else "—"],Color("c9b8ff"),11)
 	_text(Vector2(14,size.y-12),"SPAN %.1f km · + / − ZOOM · TAB CLOSE" % (extent_m/1000.0),MUTED,11)

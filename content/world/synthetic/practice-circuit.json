@@ -1,0 +1,57 @@
+{
+  "id": "original-practice-circuit",
+  "revision": 1,
+  "license": "MIT",
+  "license_source": "LICENSE",
+  "author": "Flight Simulator contributors",
+  "kind": "original-horizontal-illustration",
+  "world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+  "selected_runway": 36,
+  "frame": "fixed accepted anchor east/up/south metres",
+  "points_anchor_eus_m": [
+    [
+      0,
+      0,
+      100
+    ],
+    [
+      0,
+      0,
+      -2700
+    ],
+    [
+      -1400,
+      0,
+      -2700
+    ],
+    [
+      -1400,
+      0,
+      1300
+    ],
+    [
+      0,
+      0,
+      1300
+    ],
+    [
+      0,
+      0,
+      100
+    ]
+  ],
+  "leg_labels": [
+    "Departure",
+    "Crosswind",
+    "Downwind",
+    "Base",
+    "Final"
+  ],
+  "provenance": "Original diagram authored for ADR018; not derived from an airport chart, aircraft manual or real traffic pattern.",
+  "endpoint": "Existing synthetic runway36 pavement end [0,0,100]; not an operational threshold.",
+  "limits": [
+    "Horizontal illustration dimensions are not a flight procedure or recommended spacing.",
+    "Every y=0 denotes the drawing plane, never a target altitude.",
+    "No speed, altitude, safe path, turn-now, current-leg, automatic advancement or evaluation."
+  ]
+}

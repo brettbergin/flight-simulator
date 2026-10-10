@@ -174,6 +174,91 @@ export function validateGroundMaterialSources(repository,project,source){
  }
  return expected;
 }
+// ADR018 delivery is mandatory; a skipped/partial child cannot admit a player.
+export const firstFlightSourceGroups=[
+ ['app/ui/first_flight','ui/first_flight',['briefing_panel.gd','binding_help.gd','circuit_guide.gd']],
+ ['app/world/synthetic','world/synthetic',['circuit_geometry.gd']],
+ ['content/scenarios/first-flight','content/scenarios/first-flight',['briefing.json']],
+ ['content/world/synthetic','content/world/synthetic',['practice-circuit.json']],
+ ['tests/scenarios/first-flight','scenario_tests/first-flight',['briefing_checks.gd','circuit_checks.gd']],
+ ['tests/ui/first_flight','first_flight_ui_tests',['briefing_checks.gd']],
+ ['tests/world/synthetic','world_tests/synthetic',['circuit_checks.gd']],
+ ['tests/integration/first_flight','first_flight_scene_tests',['scene_checks.gd','map_checks.gd','visual_checks.gd']],
+];
+const circuitFixtureSHA='2a4540d99d4500e326a1b1f0673583bd6f8ea99d430b991fcca1130befbbddcc';
+const circuitCaptureSHA='58b1a7b0ec46161357c1268dbaeeaab27f84bbbd4de70def35571fd45ddb67f9';
+const circuitCaptureSource='5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5';
+const firstFlightNames=['briefing','bindings','geometry','card','map','scene'];
+const facadeReceiptKeys=['schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive','wind','first_flight'];
+const firstFlightChoices=[
+ {id:'cold-familiarization',start:'piston-cold-ground',model_identity:{id:'original-piston-prop-v1',version:'0.1.0-prototype',backend_model:'original-piston-prop'}},
+ {id:'ready-flight',start:'ground-ready',model_identity:{id:'original-interactive-prototype',version:'0.1.0-prototype',backend_model:'original-interactive'}},
+ {id:'airborne-orientation',start:'airborne-prepared',model_identity:{id:'original-interactive-prototype',version:'0.1.0-prototype',backend_model:'original-interactive'}},
+];
+export function validateFirstFlightSources(repository,project,source){
+ const source_files={};
+ for(const [authored,mapped,required] of firstFlightSourceGroups){
+  const expected=[...required].sort();
+  for(const [base,folder] of [[repository,authored],[source,mapped]])assert.deepEqual(ordinaryFiles(path.join(base,folder)).sort(),expected,'Closed first-flight source roster/'+folder);
+  const staged=ordinaryFiles(path.join(project,mapped));
+  for(const name of staged.filter(name=>!expected.includes(name))){
+   assert(name.endsWith('.gd.uid')&&expected.includes(name.slice(0,-4)),'Only bound generated first-flight UID allowed');
+   const raw=fs.readFileSync(path.join(project,mapped,name));assert(raw.length<=64);assert.match(raw.toString('utf8'),/^uid:\/\/[a-z0-9]{1,20}\r?\n?$/);
+  }
+  assert.deepEqual(staged.filter(name=>expected.includes(name)).sort(),expected,'Complete first-flight staged roster/'+mapped);
+  for(const name of expected){
+   const relative=authored+'/'+name,raw=fs.readFileSync(path.join(repository,relative));
+   source_files[relative]={bytes:raw.length,sha256:sha(raw)};
+   for(const base of [project,source])assert(fs.readFileSync(path.join(base,mapped,name)).equals(raw),'First-flight actual corresponding bytes/'+mapped+'/'+name);
+  }
+ }
+ assert.equal(source_files['content/world/synthetic/practice-circuit.json'].sha256,circuitFixtureSHA,'Frozen circuit content changed');
+ return {source_files};
+}
+export function validateFirstFlightReceipt(value,includePiston,expectedSourceFingerprint){
+ assert.equal(typeof includePiston,'boolean','Actual selected native source mode required');
+ assert.equal(typeof expectedSourceFingerprint,'string','Actual selected source fingerprint required');
+ assert.match(expectedSourceFingerprint,/^[0-9a-f]{64}$/,'Exact source fingerprint');
+ pointerKeys(value,firstFlightNames,'First-flight groups');
+ let checks=0;
+ for(const name of firstFlightNames){
+  const group=value[name];assert(plain(group),'Actual first-flight result required/'+name);
+  const diagnostic=Object.hasOwn(group,'scope')?'scope':'limits';
+  const extras=name==='geometry'?['fixture_sha256','captured_readback_sha256','baseline_origin','baseline_source_fingerprint']:name==='scene'?['adoptions','include_piston','route_scope']:[];
+  pointerKeys(group,['passed','checks','failures',diagnostic,...extras],'First-flight child/'+name);
+  assert.equal(group.passed,true);assert(Number.isSafeInteger(group.checks)&&group.checks>0,'Active first-flight count/'+name);assert.deepEqual(group.failures,[]);
+  assert.equal(typeof group[diagnostic],'string');assert(group[diagnostic].trim().length>0&&group[diagnostic].length<=1024,'Bounded first-flight scope/'+name);
+  checks+=group.checks;assert(Number.isSafeInteger(checks));
+ }
+ assert.equal(value.geometry.fixture_sha256,circuitFixtureSHA,'Actual circuit fixture receipt pin');
+ assert.equal(value.geometry.captured_readback_sha256,circuitCaptureSHA,'Actual original capture receipt pin');
+ assert.equal(value.geometry.baseline_origin,expectedSourceFingerprint===circuitCaptureSource?'saved-capture':'observed-native','Selected-source baseline origin');
+ assert.equal(value.geometry.baseline_source_fingerprint,expectedSourceFingerprint,'Actual selected-source baseline binding');
+ const scene=value.scene;
+ assert.equal(scene.include_piston,includePiston,'First-flight scene selected-source mode');
+ assert.equal(scene.route_scope,includePiston?'coupled: all six same/cross-profile choices and three advanced confirmations':'upstream: four legacy start mappings, two advanced confirmations and explicit cold admission rejection; cold runtime is not qualified','Honest first-flight route coverage');
+ const choices=includePiston?firstFlightChoices:firstFlightChoices.slice(1);
+ const oldSources=includePiston?[['original-interactive-prototype','ground-ready'],['original-piston-prop-v1','piston-cold-ground']]:[['original-interactive-prototype','ground-ready'],['original-interactive-prototype','airborne-prepared']];
+ const expected=new Map();
+ for(const [profile,start] of oldSources)for(const choice of choices)expected.set('immediate_'+profile+'_'+start+'_'+choice.id,choice);
+ for(const choice of choices)expected.set('confirmed_'+choice.id,choice);
+ expected.set('joined_failure_explicit_recovery',firstFlightChoices[1]);
+ assert(Array.isArray(scene.adoptions));assert.equal(scene.adoptions.length,expected.size,'All actual first-flight adoptions required');
+ const seen=new Set();
+ for(const row of scene.adoptions){
+  pointerKeys(row,['label','model_identity','start','tick','pause_attempts','native_calls','completed'],'First-flight adoption');
+  assert.equal(typeof row.label,'string');assert(expected.has(row.label)&&!seen.has(row.label),'Missing/unknown/duplicate first-flight mapping');seen.add(row.label);
+  const choice=expected.get(row.label);assert.deepEqual(row.model_identity,choice.model_identity,'Exact adopted first-flight profile');assert.equal(row.start,choice.start);assert.equal(row.tick,'0');
+  assert(Array.isArray(row.pause_attempts)&&row.pause_attempts.length>0&&row.pause_attempts.length<=128);for(const paused of row.pause_attempts)assert.equal(paused,true,'No hidden first-flight Resume');
+  assert(Number.isSafeInteger(row.native_calls)&&row.native_calls>0);assert.equal(row.completed,0);
+ }
+ return checks;
+}
+export function validateFirstFlightFacadeAdmission(receipt,includePiston,expectedSourceFingerprint){
+ pointerKeys(receipt,facadeReceiptKeys,'Facade receipt');
+ return validateFirstFlightReceipt(receipt.first_flight,includePiston,expectedSourceFingerprint);
+}
+
 function audit(root,proof,build,python='python'){
  const payload=path.join(root,'payload'),evidence=path.join(root,'evidence'),replacement=path.join(root,'Replacement space — Δ飛行');
  const baseline=json(path.join(evidence,'smoke-receipt.json')),changed=json(path.join(evidence,'replacement-smoke-receipt.json'));
@@ -224,6 +309,7 @@ function audit(root,proof,build,python='python'){
  const pointerEnabled=nativeIdentity.source_variant==='jsbsim-1.3.1-event-aware-coupled-midpoint-v1';
  const pointerReceipts=[];
  if(pointerEnabled){validatePointerSources(repo,path.join(root,'project'),reconstructionRoot);for(const context of ['editor','portable','replacement'])pointerReceipts.push({context,...validatePointerEvidence(path.join(evidence,context+'-pointer-check-receipt.json'),path.join(evidence,context+'-pointer-flight-trace.json'),repo,path.join(root,'project'),nativeIdentity)});}
+ const firstFlightIdentity=validateFirstFlightSources(repo,path.join(root,'project'),reconstructionRoot);
  const groundIdentity=validateGroundMaterialSources(repo,path.join(root,'project'),reconstructionRoot);
  const groundReceipts=['editor','portable','replacement'].map(context=>{
   const file=path.join(evidence,context+'-ground-receipt.json');ordinaryAncestors(file);const raw=fs.readFileSync(file);
@@ -234,7 +320,7 @@ function audit(root,proof,build,python='python'){
  const uiReceipts=['editor','portable','replacement'].map(name=>json(path.join(evidence,name+'-facade-receipt.json')));
  for(const receipt of uiReceipts){
   assert.equal(receipt.passed,true);assert.deepEqual(receipt.failures,[]);
-  assert.deepEqual(Object.keys(receipt).sort(),['schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive','wind'].sort(),'Facade receipt closed shape');
+  validateFirstFlightFacadeAdmission(receipt,pointerEnabled,nativeIdentity.declared_source_fingerprint);
   assert.deepEqual(Object.keys(receipt.wind).sort(),['bridge','cue','scene']);
   for(const [name,item] of Object.entries(receipt.wind)){
    const keys=name==='bridge'?['passed','checks','failures']:name==='cue'?['passed','checks','failures','scope','reference_cases','reference_sha256','runway_expectations']:['passed','checks','failures','scope'];
@@ -361,7 +447,7 @@ function audit(root,proof,build,python='python'){
  assert.deepEqual(auditRelease(register,manifest,{repoRoot:repo,packageRoot:payload}),[]);
  assert.deepEqual(auditDependencyLock(register,json(path.join(repo,'third_party/dependencies.lock.json'))),[]);
  write(path.join(evidence,'package-inventory.json'),manifest);
- write(path.join(evidence,'package-audit.json'),{schema_version:1,rights_integrity_passed:true,actual_combined_replacement_passed:true,model_pins_verified:true,actual_seven_modules_inside_payload:true,exact_editor_portable_repeat:true,observed_editor_portable_replacement_checks_passed:true,observed_source_closure_verified:true,observed_archive_checks_passed:true,pointer_checks_enabled:pointerEnabled,...(pointerEnabled?{pointer_checks_passed:true,pointer_contexts:pointerReceipts.map(({context,raw,traceRaw,receipt,rows,commands})=>({context,checks:receipt.checks,rows,commands,summary:{bytes:raw.length,sha256:sha(raw)},trace:{path:context+'-pointer-flight-trace.json',bytes:traceRaw.length,sha256:sha(traceRaw)}}))}:{}),ground_material_checks_passed:true,ground_material_contexts:groundReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)})),...(pistonEnabled?{piston_model_pins_verified:true,piston_editor_portable_replacement_checks_passed:true,piston_contexts:coldReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)}))}:{}),runtime_verification:runtime,trace_records_compared:traces[0].length,selected_library:selection,native_build_identity:nativeIdentity});
+ write(path.join(evidence,'package-audit.json'),{schema_version:1,rights_integrity_passed:true,actual_combined_replacement_passed:true,model_pins_verified:true,actual_seven_modules_inside_payload:true,exact_editor_portable_repeat:true,observed_editor_portable_replacement_checks_passed:true,observed_source_closure_verified:true,first_flight_checks_passed:true,first_flight_source_closure_verified:true,first_flight_source_files:firstFlightIdentity.source_files,first_flight_contexts:uiReceipts.map((receipt,index)=>({context:['editor','portable','replacement'][index],checks:validateFirstFlightReceipt(receipt.first_flight,pointerEnabled,nativeIdentity.declared_source_fingerprint),route_scope:receipt.first_flight.scene.route_scope})),observed_archive_checks_passed:true,pointer_checks_enabled:pointerEnabled,...(pointerEnabled?{pointer_checks_passed:true,pointer_contexts:pointerReceipts.map(({context,raw,traceRaw,receipt,rows,commands})=>({context,checks:receipt.checks,rows,commands,summary:{bytes:raw.length,sha256:sha(raw)},trace:{path:context+'-pointer-flight-trace.json',bytes:traceRaw.length,sha256:sha(traceRaw)}}))}:{}),ground_material_checks_passed:true,ground_material_contexts:groundReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)})),...(pistonEnabled?{piston_model_pins_verified:true,piston_editor_portable_replacement_checks_passed:true,piston_contexts:coldReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)}))}:{}),runtime_verification:runtime,trace_records_compared:traces[0].length,selected_library:selection,native_build_identity:nativeIdentity});
  console.log('PASS combined package model/source/notices/full PE+CRT closure and actual replacement loop');
 }
 
