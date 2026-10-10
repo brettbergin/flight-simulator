@@ -169,7 +169,7 @@ jobs:
       - name: Prove one-executive ground-to-flight loop and fail-closed boundaries
         if: steps.scope.outputs.docs_only != 'true'
         run: |
-          node --test tests/interactive/verify.test.mjs
+          node --test tests/interactive/source-fingerprint.test.mjs tests/interactive/verify.test.mjs
           if ($LASTEXITCODE -ne 0) { throw "Interactive ground-to-flight repeat, v1 records or boundary checks failed" }
       - name: Prove actual typed native bridge in Godot editor
         if: steps.scope.outputs.docs_only != 'true'

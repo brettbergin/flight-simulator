@@ -7,21 +7,15 @@ import {fileURLToPath} from 'node:url';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {validateContract,contractSetSha256} from '../../schemas/validate.mjs';
+import {currentInteractiveIdentity} from './source-fingerprint.mjs';
 
 const root=fileURLToPath(new URL('../../',import.meta.url));
 const models=join(root,'native/fdm_jsbsim/models/original-interactive');
 const output=join(root,'.local/interactive-proof');
 const binary=join(root,'.local/build/native-release/bin',process.platform==='win32'?'interactive_tests.exe':'interactive_tests');
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
-const sourcePaths=[
-  'native/fdm_jsbsim/interactive/src/session.cpp',
-  'native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp',
-  'native/fdm_jsbsim/interactive/include/flight/interactive/surface.hpp',
-  'tests/interactive/native.cpp','tests/interactive/negatives.hpp',
-  'native/fdm_jsbsim/interactive/src/model-pins.hpp'];
-const sources=[];let fingerprintText='';
-for(const path of sourcePaths){const bytes=await readFile(join(root,path));const normalized=Buffer.from(bytes.toString('utf8').replaceAll('\r\n','\n'));const hash=sha(normalized);sources.push({path,normalized_sha256:hash});fingerprintText+=`${path}:${hash}\n`;}
-const fingerprint=sha(Buffer.from(fingerprintText));
+const sourceIdentity=await currentInteractiveIdentity(binary);
+const {fingerprint,sources}=sourceIdentity;
 const inventory=JSON.parse(await readFile(join(models,'inventory.json')));
 const run=(prefix,mode,modelRoot=models)=>execFileSync(binary,[modelRoot,join(output,prefix),...(mode?[mode]:[])],{encoding:'utf8',env:{...process.env,JSBSIM_DEBUG:'0'},timeout:120000});
 const json=async name=>JSON.parse(await readFile(join(output,name),'utf8'));
@@ -31,7 +25,7 @@ await mkdir(output,{recursive:true});
 test('actual one-executive ground→flight→touchdown→all-WOW stop, strict v1 and exact same-build repeat',async()=>{
   run('ground');run('repeat');run('checks','negatives');
   const ground=await json('ground.json'),repeat=await json('repeat.json'),negative=await json('checks.json');
-  for(const receipt of [ground,repeat,negative]){assert.equal(receipt.passed,true);assert.equal(receipt.compiled_source_fingerprint,fingerprint,'Public compiled source matches normalized source bytes');}
+  for(const receipt of [ground,repeat,negative]){assert.equal(receipt.passed,true);assert.equal(receipt.compiled_source_fingerprint,fingerprint,'Public compiled source matches selected backend, build controls and ordered normalized source bytes');}
   assert.equal(ground.engineering_prototype,true);assert.equal(ground.stopped_all_wow,true);assert.ok(negative.checks>=1281);
   assert.equal(ground.prepared_surface_sha256,'04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5');
   assert.ok(ground.takeoff_tick>0&&ground.touchdown_tick>ground.takeoff_tick&&ground.final_tick>ground.touchdown_tick);
@@ -64,7 +58,8 @@ test('actual one-executive ground→flight→touchdown→all-WOW stop, strict v1
   for(const file of inventory.lineage)assert.equal(sha(await readFile(join(root,file.path))),file.sha256,'Historical source lineage unchanged');
   const inventoryHash=sha(await readFile(join(models,'inventory.json')));assert.equal(inventoryHash,'98b30b5641ce86cc6f0af6298424606aa96a1e4a35ef3e9fcaf377bebb3f00cd');
   const register=JSON.parse(await readFile(join(root,'third_party/licenses/register.json')));assert.equal(register.entries.find(x=>x.id===inventory.id).content_policy.inventory_sha256,inventoryHash);
-  await writeFile(join(output,'public-source-receipt.json'),JSON.stringify({classification:'Original scripted engineering prototype; no human/Cessna/phase/export acceptance',source_fingerprint:fingerprint,sources,verifier_sha256:sha(await readFile(fileURLToPath(import.meta.url))),contract_set_sha256:contractSetSha256,dependency_lock_sha256:sha(await readFile(join(root,'third_party/dependencies.lock.json'))),inventory_sha256:inventoryHash,executable_sha256:sha(await readFile(binary)),schema_records_validated:records,native_checks:negative.checks,exact_same_build_repeat:true,ground,artifacts},null,2)+'\n');
+  assert.deepEqual(await currentInteractiveIdentity(binary),sourceIdentity,'Declared build and ordered source inputs stayed unchanged');
+  await writeFile(join(output,'public-source-receipt.json'),JSON.stringify({classification:'Original scripted engineering prototype; no human/Cessna/phase/export acceptance',source_fingerprint:fingerprint,sources,build_identity:sourceIdentity,verifier_sha256:sha(await readFile(fileURLToPath(import.meta.url))),contract_set_sha256:contractSetSha256,dependency_lock_sha256:sha(await readFile(join(root,'third_party/dependencies.lock.json'))),inventory_sha256:inventoryHash,executable_sha256:sha(await readFile(binary)),schema_records_validated:records,native_checks:negative.checks,exact_same_build_repeat:true,ground,artifacts},null,2)+'\n');
 });
 
 test('changed inventory or airframe bytes fail closed before backend model parsing',async()=>{

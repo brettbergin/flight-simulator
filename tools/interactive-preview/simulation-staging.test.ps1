@@ -384,6 +384,40 @@ Remove-Item -LiteralPath (Join-Path $identityStage 'build/extra.gd')
 Must-Reject {Assert-PreviewNativeIdentityResource $identity $identityStage} 'changed generated resource'
 Write-Output 'PASS separately bound generated resource staging and exact-byte/set/receipt/UID negatives.'
 
+# Dot directories are hidden on Unix; Windows uses the Hidden attribute.
+# Exercise both ancestor traversal and direct resource lookups without relaxing
+# ordinary-path/reparse or exact bytes/set checks.
+$hiddenAncestor=Join-Path $testRoot '.hidden-identity'
+$hiddenBuild=Join-Path $hiddenAncestor '.build-source'
+$hiddenStage=Join-Path $hiddenAncestor '.project'
+New-Item -ItemType Directory -Path $hiddenBuild,$hiddenStage -Force|Out-Null
+if($IsWindows){
+ foreach($path in @($hiddenAncestor,$hiddenBuild,$hiddenStage)){
+  [IO.File]::SetAttributes($path,[IO.File]::GetAttributes($path) -bor [IO.FileAttributes]::Hidden)
+ }
+}
+if(-not ((Get-Item -Force -LiteralPath $hiddenAncestor).Attributes -band [IO.FileAttributes]::Hidden)){throw 'Hidden-path regression fixture is not hidden'}
+[IO.File]::WriteAllText((Join-Path $hiddenBuild 'native-identity.gd'),$identityRaw,[Text.UTF8Encoding]::new($false))
+$hiddenIdentity=[pscustomobject]@{schema=$identity.schema;root=$hiddenBuild;resource=$identity.resource}
+Assert-PreviewOrdinaryAncestors -Path $hiddenAncestor
+Copy-PreviewNativeIdentityResource $hiddenIdentity $hiddenStage
+$hiddenFolder=Join-Path $hiddenStage 'build'
+$hiddenResource=Join-Path $hiddenFolder 'native_identity.gd'
+if($IsWindows){
+ foreach($path in @($hiddenFolder,$hiddenResource)){
+  [IO.File]::SetAttributes($path,[IO.File]::GetAttributes($path) -bor [IO.FileAttributes]::Hidden)
+ }
+}
+Assert-PreviewNativeIdentityResource $hiddenIdentity $hiddenStage
+$stream=[IO.File]::Open($hiddenResource,[IO.FileMode]::Open,[IO.FileAccess]::Write,[IO.FileShare]::None)
+try{
+ $bytes=[Text.Encoding]::UTF8.GetBytes('tampered hidden resource')
+ $stream.SetLength(0);$stream.Write($bytes,0,$bytes.Length)
+}finally{$stream.Dispose()}
+Must-Reject {Assert-PreviewNativeIdentityResource $hiddenIdentity $hiddenStage} 'hidden generated resource tampering'
+Write-Output 'PASS hidden native identity ancestors/source/destination/build/resource and exact-byte rejection.'
+
+
 $runnerText=[IO.File]::ReadAllText((Join-Path $PSScriptRoot 'run.ps1'))
 if($runnerText -notmatch 'exclude_filter="[^"\r\n]*landmark\*\.png,landmark\*-receipt\.json,observed\*\.png,observed\*-receipt\.json,wind\*\.png,wind\*-receipt\.json"'){throw 'Landmark/observed/wind observer output must be excluded from PCK authoring'}
 Write-Output 'PASS bounded landmark/observed/wind visual observer output exclusion; source/reference groups remain exact.'

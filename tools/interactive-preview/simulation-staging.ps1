@@ -275,12 +275,12 @@ function Get-PreviewNativeBuildIdentity {
 }
 function Assert-PreviewOrdinaryAncestors {
  param([Parameter(Mandatory)][string]$Path)
- $item=Get-Item -LiteralPath $Path -ErrorAction Stop
+ $item=Get-Item -Force -LiteralPath $Path -ErrorAction Stop
  while($null -ne $item){
   if($item.Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'Generated resource path contains reparse point'}
   $parent=Split-Path -Parent $item.FullName
   if([string]::IsNullOrEmpty($parent) -or $parent -ceq $item.FullName){break}
-  $item=Get-Item -LiteralPath $parent -ErrorAction Stop
+  $item=Get-Item -Force -LiteralPath $parent -ErrorAction Stop
  }
 }
 function Assert-PreviewNativeIdentityResource {
@@ -289,8 +289,8 @@ function Assert-PreviewNativeIdentityResource {
     ($Identity.resource.bytes -isnot [int] -and $Identity.resource.bytes -isnot [long]) -or $Identity.resource.bytes -lt 0 -or
     $Identity.resource.sha256 -isnot [string] -or $Identity.resource.sha256 -cnotmatch '^[a-f0-9]{64}$'){throw 'Generated resource declaration rejected'}
  Assert-PreviewOrdinaryAncestors -Path $DestinationRoot
- $root=Get-Item -LiteralPath $DestinationRoot -ErrorAction Stop
- $folder=Get-Item -LiteralPath (Join-Path $root.FullName 'build') -ErrorAction Stop
+ $root=Get-Item -Force -LiteralPath $DestinationRoot -ErrorAction Stop
+ $folder=Get-Item -Force -LiteralPath (Join-Path $root.FullName 'build') -ErrorAction Stop
  foreach($item in @($root,$folder)+@(Get-ChildItem -LiteralPath $folder.FullName -Recurse -Force)){
   if($item.Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'Generated resource path contains reparse point'}
  }
@@ -301,12 +301,12 @@ function Assert-PreviewNativeIdentityResource {
   if($AllowGeneratedUIDs -and $name -ceq 'native_identity.gd.uid' -and -not $file.PSIsContainer -and $file.Length -le 64 -and [IO.File]::ReadAllText($file.FullName) -cmatch '^uid://[a-z0-9]{1,20}\r?\n?$'){continue}
   throw 'Undeclared generated build resource'
  }
- $resource=Get-Item -LiteralPath (Join-Path $folder.FullName 'native_identity.gd') -ErrorAction Stop
+ $resource=Get-Item -Force -LiteralPath (Join-Path $folder.FullName 'native_identity.gd') -ErrorAction Stop
  if($resource.Length -ne $Identity.resource.bytes -or (Get-FileHash -LiteralPath $resource.FullName).Hash.ToLowerInvariant() -cne $Identity.resource.sha256){throw 'Generated resource bytes changed'}
 }
 function Copy-PreviewNativeIdentityResource {
  param([Parameter(Mandatory)]$Identity,[Parameter(Mandatory)][string]$DestinationRoot)
- $root=Get-Item -LiteralPath $DestinationRoot -ErrorAction Stop
+ $root=Get-Item -Force -LiteralPath $DestinationRoot -ErrorAction Stop
  Assert-PreviewOrdinaryAncestors -Path $DestinationRoot
  Assert-PreviewOrdinaryAncestors -Path (Join-Path $Identity.root 'native-identity.gd')
  if(-not $root.PSIsContainer -or $root.Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'Generated resource destination must be an ordinary directory'}
