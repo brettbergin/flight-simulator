@@ -9,6 +9,21 @@ $repo=(Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 function Assert-PreviewProcessResult($Result,[string]$Label){
  if($Result.exit_code -ne 0 -or $Result.text -match 'ERROR:|SCRIPT ERROR:|FATAL|ObjectDB instances? (?:(?:was|were) )?leaked|RID allocations leaked|resources still in use|Assertion failed'){throw "Preview $Label failed; raw evidence retained"}
 }
+function Save-PreviewGroundObservation {
+ param([string]$TargetPath,[string]$Evidence,[string]$Name)
+ $raw=Join-Path $TargetPath 'ground-material-receipt.json'
+ if(Test-Path -LiteralPath $raw -PathType Leaf){Copy-Item -LiteralPath $raw -Destination (Join-Path $Evidence ($Name+'-ground-observed-receipt.json'))}
+}
+function Assert-PreviewGroundResult {
+ param($Result,[string]$TargetPath,[string]$Evidence,[string]$Name)
+ Save-PreviewGroundObservation -TargetPath $TargetPath -Evidence $Evidence -Name $Name
+ Assert-PreviewProcessResult $Result ($Name+'-ground')
+ if($Result.text -notmatch 'GROUND_MATERIALS_CHECKS'){throw 'Ground-material checks completion marker missing'}
+ $raw=Join-Path $TargetPath 'ground-material-receipt.json'
+ & node (Join-Path $PSScriptRoot 'package.mjs') ground-receipt $raw $repo
+ if($LASTEXITCODE -ne 0){throw 'Actual ground-material receipt/source identity rejected'}
+ Move-Item -LiteralPath $raw -Destination (Join-Path $Evidence ($Name+'-ground-receipt.json'))
+}
 function Save-PreviewFacadeObservation {
  param([string]$TargetPath,[string]$Evidence,[string]$Name)
  $coldRaw=Join-Path $TargetPath 'piston-check-receipt.json'
@@ -79,6 +94,7 @@ $cockpitGroups=@(Get-CockpitSourceGroups -RepoRoot $repo)
 $freeflightGroups=@(Get-FreeflightSourceGroups -RepoRoot $repo)
 $observedGroups=@(Get-ObservedReviewSourceGroups -RepoRoot $repo)
 $windGroups=@(Get-WindSourceGroups -RepoRoot $repo)
+$groundGroups=@(Get-GroundMaterialSourceGroups -RepoRoot $repo)
 $pistonSnapshot=@()
 if($includePiston){$pistonSnapshot=@(Get-PistonSourceSnapshot -RepoRoot $repo)}
 Assert-WindReferences -RepoRoot $repo -Python $environment.python_executable
@@ -86,7 +102,7 @@ Assert-ObservedReviewReferences -RepoRoot $repo -Python $environment.python_exec
 & $environment.python_executable (Join-Path $repo 'tests/ui/freeflight/reference-generator.py') --check
 if($LASTEXITCODE -ne 0){throw 'Frozen landmark reference reproduction rejected'}
 $inputs=@()
-foreach($directory in @('app/proof/interactive','app/simulation','app/input','app/ui/controls','app/ui/freeflight','tests/ui/freeflight','app/replay/observed','app/ui/debrief/observed','tests/debrief/observed','app/replay/observed_archive','tests/debrief/observed_archive','tests/input','app/cockpit','tests/instruments','content/aircraft/prototype','tests/integration/sim_loop','app/world/wind','app/ui/wind','tests/world/wind','tests/integration/wind','tools/interactive-preview','native/godot_bridge','native/fdm_jsbsim/interactive','native/fdm_jsbsim/models/original-interactive')){
+foreach($directory in @('app/proof/interactive','app/simulation','app/input','app/ui/controls','app/ui/freeflight','tests/ui/freeflight','app/replay/observed','app/ui/debrief/observed','tests/debrief/observed','app/replay/observed_archive','tests/debrief/observed_archive','tests/input','app/cockpit','tests/instruments','content/aircraft/prototype','tests/integration/sim_loop','app/world/wind','app/ui/wind','tests/world/wind','tests/integration/wind','tests/world/ground-materials','tools/interactive-preview','native/godot_bridge','native/fdm_jsbsim/interactive','native/fdm_jsbsim/models/original-interactive')){
  foreach($file in Get-ChildItem -LiteralPath (Join-Path $repo $directory) -Recurse -File){
   $relative=[IO.Path]::GetRelativePath($repo,$file.FullName).Replace([char]92,[char]47)
   # Cache hygiene applies only to repository reconstruction input collection.
@@ -107,6 +123,7 @@ Copy-CockpitSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $cock
 Copy-FreeflightSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $freeflightGroups
 Copy-ObservedReviewSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $observedGroups
 Copy-WindSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $windGroups
+Copy-GroundMaterialSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $groundGroups
 if($includePiston){Copy-PistonSourceSnapshot -RepoRoot $repo -DestinationRoot $project -Snapshot $pistonSnapshot}
 Copy-Item -LiteralPath (Join-Path $repo 'app/proof/interactive/project-settings.cfg') -Destination (Join-Path $project 'project.godot')
 Set-SimulationMainScene -ProjectFile (Join-Path $project 'project.godot')
@@ -127,7 +144,7 @@ if(([regex]::Matches($preset,'(?m)^script_export_mode=2\r?$')).Count -ne 1){thro
 # Raw generated GDScript bytes must survive the PCK; authored preset stays exact.
 $preset=$preset.Replace('script_export_mode=2','script_export_mode=0')
 $preset=$preset.Replace('include_filter="*.bin"','include_filter="*.bin,*.ps1"')
-$preset=$preset.Replace('custom_template/release=""','custom_template/release="'+$template.Replace('\','/')+'"').Replace('exclude_filter=""','exclude_filter="native-identity-receipt.json,piston-check-receipt.json,smoke-receipt.json,loop.records.ndjson,compile-all.gd,facade-check-receipt.json,controls*-receipt.json,controls*-preset.json,controls*.png,landmark*.png,landmark*-receipt.json,observed*.png,observed*-receipt.json,wind*.png,wind*-receipt.json"')
+$preset=$preset.Replace('custom_template/release=""','custom_template/release="'+$template.Replace('\','/')+'"').Replace('exclude_filter=""','exclude_filter="ground-material-receipt.json,native-identity-receipt.json,piston-check-receipt.json,smoke-receipt.json,loop.records.ndjson,compile-all.gd,facade-check-receipt.json,controls*-receipt.json,controls*-preset.json,controls*.png,landmark*.png,landmark*-receipt.json,observed*.png,observed*-receipt.json,wind*.png,wind*-receipt.json"')
 $preset | Set-Content -Encoding utf8 (Join-Path $project 'export_presets.cfg')
 # Keep engine/profile/cache writes within this fresh run even during authoring.
 $prior=@{}
@@ -146,7 +163,7 @@ extends SceneTree
 func _initialize() -> void:
  var script=load("res://interactive/preview.gd") as Script
  var scene=load("res://interactive/preview.tscn") as PackedScene
- for path in ["res://simulation/session_facade.gd","res://simulation/render_origin.gd","res://simulation/origin_participant.gd","res://simulation/wire_validation.gd","res://simulation/flight_scene.gd","res://sim_loop_tests/facade_checks.gd","res://sim_loop_checks.gd","res://input/input_mapper.gd","res://input/input_preset.gd","res://ui/controls/controls_panel.gd","res://input_tests/input_checks.gd","res://input_tests/scene_checks.gd","res://cockpit/instruments/native_readings.gd","res://cockpit/instruments/scan_panel.gd","res://instrument_tests/instrument_checks.gd","res://instrument_tests/adapter_checks.gd","res://instrument_tests/scan_checks.gd","res://instrument_tests/scene_checks.gd","res://ui/freeflight/landmark_board.gd","res://freeflight_tests/landmark_checks.gd","res://freeflight_tests/scene_checks.gd","res://replay/observed/recorder.gd","res://replay/observed/review.gd","res://replay/observed/tick_math.gd","res://replay/observed/values.gd","res://ui/debrief/observed/panel.gd","res://observed_tests/recorder_checks.gd","res://observed_tests/scene_checks.gd","res://replay/observed_archive/strict_json.gd","res://replay/observed_archive/codec.gd","res://replay/observed_archive/files.gd","res://observed_archive_tests/archive_checks.gd","res://observed_archive_tests/file_checks.gd","res://observed_archive_tests/scene_checks.gd","res://world/wind/wind_cue.gd","res://ui/wind/panel.gd","res://wind_tests/wind_checks.gd","res://wind_scene_tests/scene_checks.gd","res://wind_scene_tests/visual_checks.gd","res://cockpit/instruments/engine_status.gd","res://input_tests/piston_checks.gd","res://input_tests/piston_panel_checks.gd","res://instrument_tests/engine_status_checks.gd"$pistonCompileResources]:
+ for path in ["res://simulation/session_facade.gd","res://simulation/render_origin.gd","res://simulation/origin_participant.gd","res://simulation/wire_validation.gd","res://simulation/flight_scene.gd","res://sim_loop_tests/facade_checks.gd","res://sim_loop_checks.gd","res://input/input_mapper.gd","res://input/input_preset.gd","res://ui/controls/controls_panel.gd","res://input_tests/input_checks.gd","res://input_tests/scene_checks.gd","res://cockpit/instruments/native_readings.gd","res://cockpit/instruments/scan_panel.gd","res://instrument_tests/instrument_checks.gd","res://instrument_tests/adapter_checks.gd","res://instrument_tests/scan_checks.gd","res://instrument_tests/scene_checks.gd","res://ui/freeflight/landmark_board.gd","res://freeflight_tests/landmark_checks.gd","res://freeflight_tests/scene_checks.gd","res://replay/observed/recorder.gd","res://replay/observed/review.gd","res://replay/observed/tick_math.gd","res://replay/observed/values.gd","res://ui/debrief/observed/panel.gd","res://observed_tests/recorder_checks.gd","res://observed_tests/scene_checks.gd","res://replay/observed_archive/strict_json.gd","res://replay/observed_archive/codec.gd","res://replay/observed_archive/files.gd","res://observed_archive_tests/archive_checks.gd","res://observed_archive_tests/file_checks.gd","res://observed_archive_tests/scene_checks.gd","res://world/wind/wind_cue.gd","res://ui/wind/panel.gd","res://wind_tests/wind_checks.gd","res://wind_scene_tests/scene_checks.gd","res://wind_scene_tests/visual_checks.gd","res://cockpit/instruments/engine_status.gd","res://input_tests/piston_checks.gd","res://input_tests/piston_panel_checks.gd","res://instrument_tests/engine_status_checks.gd","res://ground_material_tests/checks.gd"$pistonCompileResources]:
   var dependency=load(path) as Script
   if dependency==null or not dependency.can_instantiate():
    push_error("Simulation resource compile rejected: "+path)
@@ -162,14 +179,17 @@ func _initialize() -> void:
  foreach($operation in @(
   @{name='import';args=@('--headless','--path',$project,'--editor','--quit-after','120','--frame-delay','100')},
   @{name='compile';args=@('--headless','--path',$project,'--script','res://compile-all.gd')},
+  @{name='ground-checks';args=@('--headless','--path',$project,'res://sim_loop_checks.tscn','--','--ground-material-checks')},
   @{name='facade-checks';args=@('--headless','--path',$project,'res://sim_loop_checks.tscn')},
   @{name='editor-smoke';args=@('--headless','--path',$project,'--','--smoke')},
   @{name='export';args=@('--headless','--path',$project,'--export-release','Windows Proof',(Join-Path $payload 'WholeFlightPreview.exe'))}
  )){
   $deadline=if($operation.name -eq 'facade-checks'){$FacadeCheckTimeoutSeconds}else{120}
   $result=Invoke-ProofProcess -Executable $godot -Arguments $operation.args -WorkingDirectory $root -Log (Join-Path $evidence ($operation.name+'.log')) -TimeoutSeconds $deadline
+  if($operation.name -eq 'ground-checks'){Save-PreviewGroundObservation -TargetPath $project -Evidence $evidence -Name 'editor'}
   if($operation.name -eq 'facade-checks'){Save-PreviewFacadeObservation -TargetPath $project -Evidence $evidence -Name 'editor'}
   Assert-PreviewProcessResult $result $operation.name
+  if($operation.name -eq 'ground-checks'){Assert-PreviewGroundResult -Result $result -TargetPath $project -Evidence $evidence -Name 'editor'}
   if($operation.name -eq 'facade-checks'){
    $receipt=Get-Content (Join-Path $project 'facade-check-receipt.json') -Raw | ConvertFrom-Json
    if($result.text -notmatch 'SIM_LOOP_CHECKS_PASSED'){throw 'Actual facade checks failed'}
@@ -212,6 +232,7 @@ Copy-CockpitSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $cockp
 Copy-FreeflightSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $freeflightGroups
 Copy-ObservedReviewSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $observedGroups
 Copy-WindSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $windGroups
+Copy-GroundMaterialSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $groundGroups
 if($includePiston){Copy-PistonSourceSnapshot -RepoRoot $repo -DestinationRoot $source -Snapshot $pistonSnapshot}
 Copy-Item -LiteralPath (Join-Path $project 'wire_fixtures'),(Join-Path $project 'sim_loop_checks.gd'),(Join-Path $project 'sim_loop_checks.tscn') -Destination $source -Recurse
 Copy-PreviewNativeIdentityResource -Identity $nativeIdentity -DestinationRoot $source
@@ -230,6 +251,8 @@ Copy-Item -LiteralPath (Join-Path $replacement 'smoke-receipt.json') -Destinatio
 Copy-Item -LiteralPath (Join-Path $replacement 'loop.records.ndjson') -Destination (Join-Path $evidence 'replacement.records.ndjson')
 Copy-Item -LiteralPath (Join-Path $replacement 'portable-smoke.log') -Destination (Join-Path $evidence 'replacement.log')
 foreach($target in @(@{name='portable';path=$payload},@{name='replacement';path=$replacement})){
+ $groundResult=Invoke-ProofProcess -Executable (Join-Path $target.path 'WholeFlightPreview.exe') -Arguments @('--headless','--','--facade-checks','--ground-material-checks') -WorkingDirectory $root -Log (Join-Path $evidence ($target.name+'-ground.log')) -CleanEnvironment -ProfileRoot (Join-Path $root ('ground-userdata-'+$target.name)) -TimeoutSeconds 120
+ Assert-PreviewGroundResult -Result $groundResult -TargetPath $target.path -Evidence $evidence -Name $target.name
  $result=Invoke-ProofProcess -Executable (Join-Path $target.path 'WholeFlightPreview.exe') -Arguments @('--headless','--','--facade-checks') -WorkingDirectory $root -Log (Join-Path $evidence ($target.name+'-facade.log')) -CleanEnvironment -ProfileRoot (Join-Path $root ('facade-userdata-'+$target.name)) -TimeoutSeconds $FacadeCheckTimeoutSeconds
  Save-PreviewFacadeObservation -TargetPath $target.path -Evidence $evidence -Name $target.name
  Assert-PreviewProcessResult $result ($target.name+'-facade')
@@ -271,6 +294,9 @@ Assert-ObservedReviewSourceGroups -DestinationRoot $source -Groups $observedGrou
 Assert-WindSourceGroups -DestinationRoot $repo -Groups $windGroups -Authoring
 Assert-WindSourceGroups -DestinationRoot $project -Groups $windGroups -AllowGeneratedUIDs
 Assert-WindSourceGroups -DestinationRoot $source -Groups $windGroups
+Assert-GroundMaterialSourceGroups -DestinationRoot $repo -Groups $groundGroups -Authoring
+Assert-GroundMaterialSourceGroups -DestinationRoot $project -Groups $groundGroups -AllowGeneratedUIDs
+Assert-GroundMaterialSourceGroups -DestinationRoot $source -Groups $groundGroups
 if($includePiston){
  Assert-PistonSourceSnapshot -Root $repo -Snapshot $pistonSnapshot -Authoring
  Assert-PistonSourceSnapshot -Root $project -Snapshot $pistonSnapshot -AllowGeneratedUIDs
@@ -289,8 +315,9 @@ if($LASTEXITCODE -ne 0){throw 'Toolchain drift detected'}
 if((Get-FileHash (Join-Path $evidence 'tool-pins.json')).Hash -ne (Get-FileHash (Join-Path $evidence 'tool-pins-final.json')).Hash){throw 'Selected tool identities changed during proof'}
 $inventory=@(Get-ChildItem -LiteralPath $payload -Recurse -File | ForEach-Object {@{path=[IO.Path]::GetRelativePath($payload,$_.FullName).Replace('\','/');bytes=$_.Length;sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}} | Sort-Object {$_.path})
 $uidRoots=@((Join-Path $project 'simulation'),(Join-Path $project 'sim_loop_tests'),(Join-Path $project 'input'),(Join-Path $project 'ui/controls'),(Join-Path $project 'input_tests'),(Join-Path $project 'cockpit'),(Join-Path $project 'instrument_tests'),(Join-Path $project 'ui/freeflight'),(Join-Path $project 'freeflight_tests'),(Join-Path $project 'replay/observed'),(Join-Path $project 'ui/debrief/observed'),(Join-Path $project 'observed_tests'),(Join-Path $project 'replay/observed_archive'),(Join-Path $project 'observed_archive_tests'),(Join-Path $project 'world/wind'),(Join-Path $project 'ui/wind'),(Join-Path $project 'wind_tests'),(Join-Path $project 'wind_scene_tests'))
+$uidRoots+=Join-Path $project 'ground_material_tests'
 if($includePiston){$uidRoots+=Join-Path $project 'engine_tests'}
-$manifest=@{schema_version=1;kind='original-whole-flight-preview';passed=$true;scope='Windows original model, actual functional headless proof; GPU/human acceptance separate';git_head=(& git -c "safe.directory=$repo" -C $repo rev-parse HEAD);powershell=$PSVersionTable.PSVersion.ToString();authoring_sources=$inputs;observed_sources=$observedGroups;wind_sources=$windGroups;piston_sources=$pistonSnapshot;piston_checks_enabled=$includePiston;native_build_identity=$nativeIdentity;selected_library=$selectedLibrary;staged_compile_sha256=(Get-FileHash (Join-Path $project 'compile-all.gd')).Hash.ToLowerInvariant();staged_generated_uid_metadata=@(Get-ChildItem -LiteralPath $uidRoots -Recurse -File -Filter '*.gd.uid'|ForEach-Object {@{path=[IO.Path]::GetRelativePath($project,$_.FullName).Replace([char]92,[char]47);sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}});staged_facade_harness_sha256=(Get-FileHash (Join-Path $project 'sim_loop_checks.gd')).Hash.ToLowerInvariant();staged_project_sha256=(Get-FileHash (Join-Path $project 'project.godot')).Hash.ToLowerInvariant();tool_pins=$pins;godot_version=$version.text.Trim();accepted_native_export_root=$proof;accepted_package_inventory_sha256=(Get-FileHash (Join-Path $proof 'evidence/package-inventory.json')).Hash.ToLowerInvariant();files=$inventory}
+$manifest=@{schema_version=1;kind='original-whole-flight-preview';passed=$true;scope='Windows original model, actual functional headless proof; GPU/human acceptance separate';git_head=(& git -c "safe.directory=$repo" -C $repo rev-parse HEAD);powershell=$PSVersionTable.PSVersion.ToString();authoring_sources=$inputs;observed_sources=$observedGroups;wind_sources=$windGroups;ground_sources=$groundGroups;piston_sources=$pistonSnapshot;piston_checks_enabled=$includePiston;native_build_identity=$nativeIdentity;selected_library=$selectedLibrary;staged_compile_sha256=(Get-FileHash (Join-Path $project 'compile-all.gd')).Hash.ToLowerInvariant();staged_generated_uid_metadata=@(Get-ChildItem -LiteralPath $uidRoots -Recurse -File -Filter '*.gd.uid'|ForEach-Object {@{path=[IO.Path]::GetRelativePath($project,$_.FullName).Replace([char]92,[char]47);sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}});staged_facade_harness_sha256=(Get-FileHash (Join-Path $project 'sim_loop_checks.gd')).Hash.ToLowerInvariant();staged_project_sha256=(Get-FileHash (Join-Path $project 'project.godot')).Hash.ToLowerInvariant();tool_pins=$pins;godot_version=$version.text.Trim();accepted_native_export_root=$proof;accepted_package_inventory_sha256=(Get-FileHash (Join-Path $proof 'evidence/package-inventory.json')).Hash.ToLowerInvariant();files=$inventory}
 $manifest | ConvertTo-Json -Depth 10 | Set-Content -Encoding utf8 (Join-Path $evidence 'manifest.json')
 @{root=$root;project=$project;payload=$payload;evidence=$evidence;passed=$true} | ConvertTo-Json | Set-Content -Encoding utf8 (Join-Path $repo '.local/interactive-preview/latest-run.json')
 Write-Output $root

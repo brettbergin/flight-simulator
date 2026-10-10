@@ -128,6 +128,52 @@ export function stageAcceptedSourceIdentity(payload,acceptedPayload,acceptedLibr
  fs.writeFileSync(target,raw);
  return file;
 }
+const groundSourcePaths={
+ 'app/proof/interactive/flight_world.gd':'interactive/flight_world.gd',
+ 'tests/world/ground-materials/checks.gd':'ground_material_tests/checks.gd',
+ 'content/aircraft/prototype/ground-presentation.json':'content/aircraft/prototype/ground-presentation.json',
+};
+export function groundMaterialIdentity(repository){
+ const source_files={};
+ for(const name of Object.keys(groundSourcePaths)){
+  const file=path.join(repository,name);ordinaryAncestors(file);const raw=fs.readFileSync(file);
+  source_files[name]={bytes:raw.length,sha256:sha(raw)};
+ }
+ const text=fs.readFileSync(path.join(repository,'app/proof/interactive/flight_world.gd'),'utf8').replace(/\r\n/g,'\n');
+ const shader=text.match(/const GROUND_SHADER := """([\s\S]*?)"""/);assert(shader,'Actual ground shader source missing');
+ return {source_files,shader_code_utf8_sha256:sha(Buffer.from(shader[1],'utf8'))};
+}
+export function validateGroundMaterialReceipt(receipt,expected){
+ assert.deepEqual(Object.keys(receipt).sort(),['result','source_files','shader_code_utf8_sha256'].sort());
+ assert.deepEqual(Object.keys(receipt.result).sort(),['passed','checks','failures','scope'].sort());
+ assert.equal(receipt.result.passed,true);assert.equal(receipt.result.checks,371);
+ assert.deepEqual(receipt.result.failures,[]);assert.equal(typeof receipt.result.scope,'string');
+ assert(receipt.result.scope.length>0&&receipt.result.scope.length<=1024);
+ assert.deepEqual(receipt.source_files,expected.source_files,'Actual ground resource bytes differ');
+ assert.equal(receipt.shader_code_utf8_sha256,expected.shader_code_utf8_sha256,'Actual ground shader string differs');
+ return receipt.result.checks;
+}
+export function validateGroundMaterialSources(repository,project,source){
+ const expected=groundMaterialIdentity(repository);
+ for(const root of [repository,source]){
+  const folder=path.join(root,root===repository?'tests/world/ground-materials':'ground_material_tests');
+  assert.deepEqual(ordinaryFiles(folder).sort(),['checks.gd'],'Exact ground-material source roster');
+ }
+ const stagedFolder=path.join(project,'ground_material_tests');const staged=ordinaryFiles(stagedFolder).sort();
+ for(const name of staged){
+  if(name==='checks.gd')continue;
+  assert.equal(name,'checks.gd.uid','Only bound generated ground UID allowed');
+  const raw=fs.readFileSync(path.join(stagedFolder,name));assert(raw.length<=64);assert.match(raw.toString('utf8'),/^uid:\/\/[a-z0-9]{1,20}\r?\n?$/);
+ }
+ assert(staged.includes('checks.gd'));
+ for(const [authored,mapped] of Object.entries(groundSourcePaths)){
+  for(const root of [project,source]){
+   const file=path.join(root,mapped);ordinaryAncestors(file);const raw=fs.readFileSync(file);
+   assert.deepEqual({bytes:raw.length,sha256:sha(raw)},expected.source_files[authored],'Ground corresponding source/'+mapped);
+  }
+ }
+ return expected;
+}
 function audit(root,proof,build,python='python'){
  const payload=path.join(root,'payload'),evidence=path.join(root,'evidence'),replacement=path.join(root,'Replacement space — Δ飛行');
  const baseline=json(path.join(evidence,'smoke-receipt.json')),changed=json(path.join(evidence,'replacement-smoke-receipt.json'));
@@ -175,6 +221,12 @@ function audit(root,proof,build,python='python'){
  const bridgeIdentity=nativeIdentity.build_witnesses.find(item=>item.path==='bin/flight_godot_bridge.dll');
  assert.equal(bridgeIdentity.sha256,modules.find(item=>item.name==='flight_godot_bridge.dll').sha256);
  assert.equal(bridgeIdentity.sha256,replacedModules.find(item=>item.name==='flight_godot_bridge.dll').sha256);
+ const groundIdentity=validateGroundMaterialSources(repo,path.join(root,'project'),reconstructionRoot);
+ const groundReceipts=['editor','portable','replacement'].map(context=>{
+  const file=path.join(evidence,context+'-ground-receipt.json');ordinaryAncestors(file);const raw=fs.readFileSync(file);
+  const checks=validateGroundMaterialReceipt(JSON.parse(raw.toString('utf8')),groundIdentity);
+  return {context,raw,checks};
+ });
  // Current UI drivers must execute in editor, portable and replacement contexts.
  const uiReceipts=['editor','portable','replacement'].map(name=>json(path.join(evidence,name+'-facade-receipt.json')));
  for(const receipt of uiReceipts){
@@ -292,6 +344,10 @@ function audit(root,proof,build,python='python'){
    fs.writeFileSync(path.join(payload,target),raw);declare('native-export-proof',target,'evidence');
   }
  }
+ for(const {context,raw} of groundReceipts){
+  const target='evidence/'+context+'-ground-receipt.json';fs.mkdirSync(path.dirname(path.join(payload,target)),{recursive:true});
+  fs.writeFileSync(path.join(payload,target),raw);declare('native-export-proof',target,'evidence');
+ }
  stage('microsoft-vc143-crt','evidence/selected-runtime.json',runtime);stage('microsoft-vc143-crt','evidence/native-dependencies.json',dependencies);
  stage(libraryId,'evidence/jsbsim-replacement.json',replacementEvidence);stage(libraryId,'evidence/baseline-modules.json',modules);stage(libraryId,'evidence/replacement-modules.json',replacedModules);
  const sourceIdentity=stageAcceptedSourceIdentity(payload,path.join(proof,'payload'),acceptedLibrary,selection);
@@ -301,10 +357,10 @@ function audit(root,proof,build,python='python'){
  assert.deepEqual(auditRelease(register,manifest,{repoRoot:repo,packageRoot:payload}),[]);
  assert.deepEqual(auditDependencyLock(register,json(path.join(repo,'third_party/dependencies.lock.json'))),[]);
  write(path.join(evidence,'package-inventory.json'),manifest);
- write(path.join(evidence,'package-audit.json'),{schema_version:1,rights_integrity_passed:true,actual_combined_replacement_passed:true,model_pins_verified:true,actual_seven_modules_inside_payload:true,exact_editor_portable_repeat:true,observed_editor_portable_replacement_checks_passed:true,observed_source_closure_verified:true,observed_archive_checks_passed:true,...(pistonEnabled?{piston_model_pins_verified:true,piston_editor_portable_replacement_checks_passed:true,piston_contexts:coldReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)}))}:{}),runtime_verification:runtime,trace_records_compared:traces[0].length,selected_library:selection,native_build_identity:nativeIdentity});
+ write(path.join(evidence,'package-audit.json'),{schema_version:1,rights_integrity_passed:true,actual_combined_replacement_passed:true,model_pins_verified:true,actual_seven_modules_inside_payload:true,exact_editor_portable_repeat:true,observed_editor_portable_replacement_checks_passed:true,observed_source_closure_verified:true,observed_archive_checks_passed:true,ground_material_checks_passed:true,ground_material_contexts:groundReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)})),...(pistonEnabled?{piston_model_pins_verified:true,piston_editor_portable_replacement_checks_passed:true,piston_contexts:coldReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)}))}:{}),runtime_verification:runtime,trace_records_compared:traces[0].length,selected_library:selection,native_build_identity:nativeIdentity});
  console.log('PASS combined package model/source/notices/full PE+CRT closure and actual replacement loop');
 }
 const [mode,...args]=process.argv.slice(2);
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
-if(mode==='models')models(...args);else if(mode==='audit')audit(...args);else throw new Error('Expected models or audit');
+if(mode==='models')models(...args);else if(mode==='audit')audit(...args);else if(mode==='ground-receipt'){assert.equal(args.length,2);ordinaryAncestors(args[0]);validateGroundMaterialReceipt(json(args[0]),groundMaterialIdentity(args[1]));console.log('PASS actual ground-material receipt/source identity');}else throw new Error('Expected models, audit or ground-receipt');
 }

@@ -97,3 +97,33 @@ test('modified preview stages the exact declared baseline source identity and pr
  assert.equal(stageAcceptedSourceIdentity(pristine,baseline,{}, {modified:false}),null);
  assert.deepEqual(fs.readdirSync(pristine),[],'Pristine path stages no modified-library evidence');
 });
+
+// Pure source/receipt admission: no Godot/compiler/native or GPU execution.
+import {groundMaterialIdentity,validateGroundMaterialReceipt,validateGroundMaterialSources} from './package.mjs';
+test('ground material package binds actual resources and all three independent receipts',()=>{
+ const temporary=fs.mkdtempSync(path.join(root,'ground-'));
+ const authored=path.join(temporary,'repo'),project=path.join(temporary,'project'),source=path.join(temporary,'source');
+ const mapping={'app/proof/interactive/flight_world.gd':'interactive/flight_world.gd','tests/world/ground-materials/checks.gd':'ground_material_tests/checks.gd','content/aircraft/prototype/ground-presentation.json':'content/aircraft/prototype/ground-presentation.json'};
+ for(const [name,mapped] of Object.entries(mapping)){
+  const bytes=fs.readFileSync(path.join(repo,name));
+  for(const [base,relative] of [[authored,name],[project,mapped],[source,mapped]]){const file=path.join(base,relative);fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,bytes);}
+ }
+ const expected=validateGroundMaterialSources(authored,project,source);
+ assert.deepEqual(expected,groundMaterialIdentity(authored));
+ const good={result:{passed:true,checks:371,failures:[],scope:'Synthetic admission only; not GPU evidence'},...expected};
+ assert.equal(validateGroundMaterialReceipt(good,expected),371);
+ for(const mutate of [r=>{r.result.checks=0;},r=>{r.result.checks=370;},r=>{r.result.checks='371';},r=>{r.result.passed=false;},r=>{r.result.failures=['failed'];},r=>{r.result.extra=true;},r=>{r.extra=true;},r=>{delete r.source_files['tests/world/ground-materials/checks.gd'];},r=>{r.source_files['app/proof/interactive/flight_world.gd'].sha256='a'.repeat(64);},r=>{r.source_files['content/aircraft/prototype/ground-presentation.json'].bytes++;},r=>{r.shader_code_utf8_sha256='b'.repeat(64);}]){
+  const bad=structuredClone(good);mutate(bad);assert.throws(()=>validateGroundMaterialReceipt(bad,expected));
+ }
+ for(const [name,mapped] of Object.entries(mapping)){
+  for(const base of [project,source]){const file=path.join(base,mapped),old=fs.readFileSync(file);fs.appendFileSync(file,'\n');assert.throws(()=>validateGroundMaterialSources(authored,project,source));fs.writeFileSync(file,old);}
+ }
+ const uid=path.join(project,'ground_material_tests/checks.gd.uid');fs.writeFileSync(uid,'uid://groundfixture\n');
+ assert.doesNotThrow(()=>validateGroundMaterialSources(authored,project,source));fs.writeFileSync(uid,'invalid');assert.throws(()=>validateGroundMaterialSources(authored,project,source));fs.unlinkSync(uid);
+ for(const [base,folder] of [[authored,'tests/world/ground-materials'],[project,'ground_material_tests'],[source,'ground_material_tests']]){
+  const extra=path.join(base,folder,'extra.gd');fs.writeFileSync(extra,'extends Node');assert.throws(()=>validateGroundMaterialSources(authored,project,source));fs.unlinkSync(extra);
+ }
+ const check=path.join(project,'ground_material_tests/checks.gd'),saved=fs.readFileSync(check);fs.unlinkSync(check);assert.throws(()=>validateGroundMaterialSources(authored,project,source));fs.writeFileSync(check,saved);
+ const folder=path.join(source,'ground_material_tests'),outside=path.join(temporary,'outside');fs.renameSync(folder,outside);fs.symlinkSync(outside,folder,process.platform==='win32'?'junction':'dir');
+ assert.throws(()=>validateGroundMaterialSources(authored,project,source),/link/);
+});

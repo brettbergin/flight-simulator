@@ -239,6 +239,12 @@ float digit(vec2 p, int n, vec2 aa) {
     if ((bits & 64) != 0) { mask = max(mask, rect_coverage(p, vec2(0.0), vec2(1.65, 0.35), aa)); }
     return mask;
 }
+// Conservative diagonal pixel footprint, never distance/camera thresholds.
+// Detail reaches its neutral mean by two pixels per cell, before subpixel use.
+float material_noise(vec2 p, float cell_m, float footprint_m) {
+    float visible = 1.0 - smoothstep(cell_m * 0.125, cell_m * 0.5, footprint_m);
+    return mix(0.5, value_noise(p / cell_m), visible);
+}
 void fragment() {
     vec2 p = anchor_xz;
     vec2 aa = max(fwidth(p) * 0.5, vec2(0.0001));
@@ -246,8 +252,18 @@ void fragment() {
     float broad = mix(value_noise(p / 260.0), 0.5, smoothstep(65.0, 260.0, pixel_m));
     float middle = mix(value_noise(p / 75.0), 0.5, smoothstep(18.75, 75.0, pixel_m));
     float detail = (value_noise(p / 6.0) - 0.5) * (1.0 - smoothstep(1.0, 6.0, pixel_m));
-    vec3 color = mix(vec3(0.14, 0.225, 0.085), vec3(0.21, 0.29, 0.12), broad);
-    color += (middle - 0.5) * vec3(0.028, 0.032, 0.013) + detail * vec3(0.014, 0.019, 0.009);
+    // Original dry meadow: broad growth, exposed earth and small blade clumps.
+    // The anisotropic tufts use the matching worst-axis footprint multiplier.
+    float material_pixel_m = length(aa * 2.0);
+    float dry_patches = material_noise(p + vec2(41.0, 97.0), 18.0, material_pixel_m);
+    float earth_grain = material_noise(p + vec2(-23.0, 8.0), 1.8, material_pixel_m) - 0.5;
+    float tufts = material_noise(p * vec2(1.0, 2.0), 0.45, material_pixel_m * 2.0) - 0.5;
+    vec3 meadow = mix(vec3(0.145, 0.225, 0.085), vec3(0.235, 0.315, 0.135), broad);
+    meadow += (middle - 0.5) * vec3(0.035, 0.037, 0.014);
+    vec3 soil = vec3(0.32, 0.275, 0.175) + earth_grain * vec3(0.035, 0.030, 0.020);
+    float dry_cover = smoothstep(0.38, 0.78, dry_patches) * 0.38;
+    vec3 color = mix(meadow, soil, dry_cover);
+    color += tufts * vec3(0.045, 0.036, 0.014) + detail * vec3(0.014, 0.019, 0.009);
     // Finite synthetic countryside: fields, roads and water are colors only.
     // No displacement, extra depth faces or changes to native surface material.
     float country = rect_coverage(p, vec2(0.0, -500.0), vec2(6500.0, 6000.0), aa);
@@ -285,7 +301,11 @@ void fragment() {
         float z = i == 0 ? 30.0 : (i == 1 ? -800.0 : -1630.0);
         paving = max(paving, rect_coverage(p, vec2(49.0, z), vec2(32.5, 7.5), aa));
     }
-    vec3 asphalt = vec3(0.105, 0.13, 0.15) + detail * 0.010;
+    // Material-only asphalt weathering/aggregate; unchanged analytic pavement.
+    float weathering = material_noise(p + vec2(17.0, -63.0), 22.0, material_pixel_m) - 0.5;
+    float aggregate = material_noise(p + vec2(-9.0, 31.0), 0.12, material_pixel_m) - 0.5;
+    vec3 asphalt = vec3(0.125, 0.137, 0.145) + weathering * vec3(0.022, 0.024, 0.025);
+    asphalt += aggregate * vec3(0.028, 0.027, 0.025) + detail * 0.010;
     color = mix(color, asphalt, paving);
     // Skip the detailed marking work over the large uninterrupted grass area.
     if (p.x > -22.0 - aa.x && p.x < 200.0 + aa.x && p.y > -1720.0 - aa.y && p.y < 125.0 + aa.y) {
