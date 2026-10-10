@@ -25,3 +25,5 @@ The actual exported PCK renders with Godot4.7.2 Compatibility/OpenGL3.3 on the r
 ## Remaining issue and phase gates
 
 #23 retains GLB/material/animation/source-specific geometry and calibrated sight-picture requirements. #24 retains InstrumentSnapshot sensing, power, lag, failures and engine indication requirements; no IAS, barometric/MSL altitude, magnetic compass, RPM or suction is fabricated. Physical controller/pilot exercises, exact C172 source/fidelity review and P1/P2 owner gates remain open. This delivery does not close either issue or an epic.
+
+The later [2026-10-10 cockpit finish and physical-panel iteration](cockpit-presentation.md) records its higher-resolution target, original bezel materials, full captions, unchanged reading semantics and separate Windows package/visual evidence. It does not revise the historical build or qualification scope above.

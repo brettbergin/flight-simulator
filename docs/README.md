@@ -52,6 +52,8 @@ The [original cold-engine player](evidence/P3/original-piston-player.md) adds de
 
 The [filtered original ground materials](evidence/P2/ground-materials.md) add modest grass, soil and asphalt detail with distance filtering over the same synthetic flat contact plane. Actual Windows editor, portable and rebuilt-library resources passed the focused material and existing flight checks; terrain, airport and pilot qualification remain separate.
 
+The [original cockpit finish and physical-panel iteration](evidence/P2/cockpit-presentation.md) adds open bezel rings, matte materials and a higher-resolution panel with full captions. Three-context Windows checks preserve native readings and flight behavior; bounded visual evidence and remaining readability limits are recorded separately from pilot and aircraft acceptance.
+
 The accepted [observed flight review contract](decisions/011-observed-flight-review.md) defines a bounded paused review of sampled flight path, instruments and held controls. The [player implementation evidence](evidence/P2/observed-flight-review.md) tracks its source, lifecycle and exported verification separately; this iteration establishes neither durable saves nor physics replay.
 
 The accepted [recorded-review interchange contract](decisions/012-observed-review-interchange.md) defines explicit new-file Save/Open of historical path and instrument observations. [Issue138 implementation evidence](evidence/P2/observed-review-interchange.md) tracks its codec, file creation and paused UI consumers; automatic profiles, physics continuation and pilot/phase acceptance remain separate.
