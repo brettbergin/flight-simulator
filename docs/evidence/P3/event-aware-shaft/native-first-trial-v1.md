@@ -1,3 +1,8 @@
+# Native first-trial receipt v1
+
+This historical receipt preserves the original failed coupled trial and passing default probe. It is documentation, not runtime configuration or acceptance of the corrective method.
+
+```json
 {
   "actual_default_regression": {
     "actual_loaded_module_same_file_pre_post_hash_verified": true,
@@ -360,3 +365,4 @@
   },
   "status": "COUPLED_GATE_FAILED"
 }
+```
