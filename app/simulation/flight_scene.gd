@@ -17,6 +17,14 @@ const ArchiveCodec = preload("res://replay/observed_archive/codec.gd")
 const ArchiveFiles = preload("res://replay/observed_archive/files.gd")
 const WindCue = preload("res://world/wind/wind_cue.gd")
 const WindPanel = preload("res://ui/wind/panel.gd")
+const FirstFlightPanel = preload("res://ui/first_flight/briefing_panel.gd")
+const CircuitGeometry = preload("res://world/synthetic/circuit_geometry.gd")
+const CircuitReferenceCard = preload("res://ui/first_flight/circuit_guide.gd")
+var first_flight_panel: Control
+var first_flight_open: bool=false
+var circuit_card: Control
+var circuit_aid_enabled: bool=false
+var circuit_checkbox: CheckBox
 var wind_draft: String="calm"
 var current_wind_profile: String="calm"
 var wind_panel: Control
@@ -169,6 +177,8 @@ func close_session() -> bool:
 	if legacy_proof:
 		return super.close_session()
 	if not archive_operation.is_empty(): return false
+	retire_first_flight()
+	clear_circuit_reference("Session closing")
 	if facade!=null: invalidate_engine_pointer("Session closing")
 	render_pose.clear()
 	if facade==null:
@@ -189,6 +199,11 @@ func close_session() -> bool:
 	else:
 		adopt_result(result)
 	return result.ok
+
+func _make_facade() -> RefCounted:
+	# Internal construction seam: tests can observe the real native adapter from
+	# its first open through the existing Facade callable factory.
+	return Facade.new()
 
 func restart(replace_confirmed: bool=false, selected_wind: Variant=null, requested_profile: Variant=null, requested_start: Variant=null) -> bool:
 	if legacy_proof:
@@ -222,7 +237,9 @@ func restart(replace_confirmed: bool=false, selected_wind: Variant=null, request
 	held_systems.clear()
 	pending_systems.clear()
 	engine_status.clear()
-	facade=Facade.new()
+	facade=_make_facade()
+	if facade==null:
+		return restart_failed("Flight session construction failed")
 	# The inherited view reference never owns a native executive.
 	bridge=facade
 	var result: Dictionary=facade.start(model_root,next_start,requested_wind,next_profile)
@@ -305,6 +322,7 @@ func restart(replace_confirmed: bool=false, selected_wind: Variant=null, request
 	adopted_session_id=result.readback.session_id
 	review_joined=false
 	current_wind_profile=requested_wind
+	circuit_aid_enabled=false
 	return true
 
 func piston_mode() -> bool:
@@ -552,13 +570,15 @@ func make_menu(canvas: CanvasLayer) -> void:
 	var route_button: Button=add_menu_button(box,"Landmark route",open_landmark_route)
 	var review_button: Button=add_menu_button(box,"Flight review",open_observed_review)
 	var wind_button: Button=add_menu_button(box,"Wind",open_wind)
+	var first_button: Button=add_menu_button(box,"First flight",open_first_flight)
+	first_button.tooltip_text="Supported starts, current controls and optional synthetic circuit reference"
 	controls_button.text="Controls (F7)"
 	controls_button.tooltip_text="Controls and calibration"
 	var cockpit_row:=HBoxContainer.new()
 	cockpit_row.add_theme_constant_override("separation",8)
 	box.add_child(cockpit_row)
 	box.move_child(cockpit_row,5)
-	for button in [controls_button,scan_button,route_button,review_button,wind_button]:
+	for button in [first_button,controls_button,scan_button,route_button,review_button,wind_button]:
 		button.reparent(cockpit_row)
 		button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 		button.add_theme_font_size_override("font_size",15)
@@ -611,6 +631,7 @@ func make_menu(canvas: CanvasLayer) -> void:
 	# not its delete shortcut. Keep file management outside this guest chooser.
 	archive_dialog.set_process_shortcut_input(false)
 	make_discard_confirmation(canvas)
+	discard_layer.z_index=4
 	wind_panel=WindPanel.new()
 	canvas.add_child(wind_panel)
 	wind_panel.draft_selected.connect(select_wind_draft)
@@ -635,6 +656,26 @@ func make_menu(canvas: CanvasLayer) -> void:
 	wind_label.add_theme_constant_override("shadow_offset_x",1)
 	wind_label.add_theme_constant_override("shadow_offset_y",1)
 	wind_card.add_child(wind_label)
+	first_flight_panel=FirstFlightPanel.new()
+	canvas.add_child(first_flight_panel)
+	first_flight_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	first_flight_panel.z_index=3
+	first_flight_panel.hide()
+	first_flight_panel.choice_requested.connect(on_first_flight_choice.bind(first_flight_panel))
+	first_flight_panel.controls_requested.connect(on_first_flight_controls.bind(first_flight_panel))
+	first_flight_panel.back_requested.connect(on_first_flight_back.bind(first_flight_panel))
+	circuit_checkbox=CheckBox.new()
+	circuit_checkbox.text="Show optional synthetic circuit reference (not evaluated)"
+	circuit_checkbox.add_theme_font_size_override("font_size",16)
+	circuit_checkbox.custom_minimum_size.y=36
+	first_flight_panel.circuit_slot.add_child(circuit_checkbox)
+	circuit_checkbox.toggled.connect(func(enabled: bool) -> void:
+		on_circuit_enabled(enabled,first_flight_panel._source_session(),first_flight_panel))
+	circuit_card=CircuitReferenceCard.new()
+	canvas.add_child(circuit_card)
+	circuit_card.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	circuit_card.enabled_requested.connect(on_circuit_enabled.bind(circuit_card))
+	circuit_card.hide()
 	menu.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	menu.custom_minimum_size=Vector2(560,490)
 	layout_flight_menu()
@@ -701,6 +742,15 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not archive_operation.is_empty(): return
 	if controls_panel!=null and controls_panel.visible:
 		return
+	if first_flight_open:
+		if event is InputEventJoypadButton and event.pressed:
+			var raw: Dictionary=collect_input_raw()
+			if Preset.validate_raw(raw).ok and Mapper.action_pressed(active_preset,raw,"pause_menu"):
+				dismiss_first_flight()
+			elif Preset.validate_raw(raw).ok and Mapper.action_pressed(active_preset,raw,"controls_panel"):
+				on_first_flight_controls(first_flight_source_session(),first_flight_panel)
+		get_viewport().set_input_as_handled()
+		return
 	if route_open or review_open or not pending_discard.is_empty():
 		return
 	if event is InputEventMouseMotion and not paused and pointer_modal_free() and engine_pointer_look_active and Input.mouse_mode==Input.MOUSE_MODE_CAPTURED:
@@ -724,6 +774,14 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		return
 	if not pending_discard.is_empty():
 		if event.physical_keycode==KEY_ESCAPE: cancel_discard()
+		get_viewport().set_input_as_handled()
+		return
+	if first_flight_open:
+		var raw: Dictionary=collect_input_raw()
+		if event.physical_keycode==KEY_ESCAPE or (Preset.validate_raw(raw).ok and Mapper.action_pressed(active_preset,raw,"pause_menu")):
+			dismiss_first_flight()
+		elif Preset.validate_raw(raw).ok and Mapper.action_pressed(active_preset,raw,"controls_panel"):
+			on_first_flight_controls(first_flight_source_session(),first_flight_panel)
 		get_viewport().set_input_as_handled()
 		return
 	if wind_panel!=null and wind_panel.visible:
@@ -765,6 +823,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
 
 func dispatch_input_action(action: String) -> void:
 	if not archive_operation.is_empty(): return
+	if first_flight_open:
+		if action=="pause_menu": dismiss_first_flight()
+		elif action=="controls_panel": on_first_flight_controls(first_flight_source_session(),first_flight_panel)
+		return
 	match action:
 		"pause_menu": open_menu("Flight paused")
 		"restart": start_flight(named_start)
@@ -780,6 +842,7 @@ func dispatch_input_action(action: String) -> void:
 			flight_map.visible=map_visible
 		"runway_toggle":
 			if map_visible: flight_map.call("toggle_runway")
+			publish_circuit_reference()
 		"map_zoom_in":
 			if map_visible: flight_map.call("zoom",0.5)
 		"map_zoom_out":
@@ -919,6 +982,7 @@ func open_controls() -> void:
 		return
 	if facade.readback().host_mode!="paused":
 		return
+	retire_first_flight()
 	if not controls_panel.visible: invalidate_engine_pointer("Controls opened")
 	menu_open=true
 	menu.hide()
@@ -1041,7 +1105,7 @@ func start_flight(start: String) -> void:
 		if start=="ground-ready": start="piston-cold-ground"
 	request_discard("restart",start,wind_draft,selected_profile)
 
-func perform_start(start: String, selected_wind: Variant=null, requested_profile: Variant=null) -> void:
+func perform_start(start: String, selected_wind: Variant=null, requested_profile: Variant=null, first_flight_continuation: bool=false) -> void:
 	if not archive_operation.is_empty(): return
 	var next_profile: Variant=selected_profile if requested_profile==null else requested_profile
 	var profile_changed: bool=next_profile!=selected_profile
@@ -1053,10 +1117,181 @@ func perform_start(start: String, selected_wind: Variant=null, requested_profile
 		review_open=false
 		clear_imported_review()
 		open_menu("Fresh flight · confirm controls")
+		if first_flight_continuation:
+			open_first_flight()
+			return
 		# A new profile requires an explicit paused Controls/Resume decision.
 		if not profile_changed: close_menu()
 	else:
-		open_menu("Restart failed · recorded flight retained")
+		if first_flight_continuation:
+			# A failure after close cannot truthfully retain the old live flight.
+			var failure: String=status
+			open_menu("Flight setup failed · inspect current state")
+			menu_message.text=failure.left(1024)
+			open_first_flight()
+		else:
+			open_menu("Restart failed · recorded flight retained")
+
+func first_flight_source_session() -> String:
+	if facade==null: return ""
+	var current: Dictionary=facade.readback()
+	var readings: Dictionary=NativeReadings.from_readback(current)
+	if readings.state not in ["live","paused"] or readings.session_id!=adopted_session_id: return ""
+	return readings.session_id
+
+func first_flight_request_valid(widget: Object, source_session: String) -> bool:
+	if widget!=first_flight_panel and widget!=circuit_card: return false
+	if first_flight_panel==null or not first_flight_panel.visible or not first_flight_open or not menu_open: return false
+	if not archive_operation.is_empty() or initializing_recording or not pending_discard.is_empty(): return false
+	if not review_boundary(): return false
+	var current: Dictionary=facade.readback() if facade!=null else {}
+	var readings: Dictionary=NativeReadings.from_readback(current)
+	if readings.state in ["live","paused"]:
+		return readings.session_id==adopted_session_id and source_session==readings.session_id
+	# A failed post-close replacement may expose joined closed truth, never
+	# a retained/historical or malformed publication masquerading as no session.
+	return NativeReadings._validate(current).is_empty() and current.host_mode=="closed" and not current.native_live and review_joined and source_session.is_empty()
+
+func retire_first_flight() -> void:
+	first_flight_open=false
+	if first_flight_panel!=null: first_flight_panel.hide()
+
+func open_first_flight() -> void:
+	if legacy_proof or first_flight_panel==null or initializing_recording or not archive_operation.is_empty() or not pending_discard.is_empty(): return
+	if review_open or scan_open or route_open or (controls_panel!=null and controls_panel.visible) or (wind_panel!=null and wind_panel.visible): return
+	if not ensure_review_boundary(): return
+	# Already-paused opening never reseeds the mapper or emits another pause.
+	# Ordinary live-to-pause already retires captures. Do not increment the
+	# pointer generation again merely by opening an already-paused display.
+	if mapper!=null and mapper.pointer_view().capture!=null: invalidate_engine_pointer("First flight opened")
+	menu_open=true
+	menu.hide()
+	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
+	first_flight_open=true
+	var current: Dictionary=facade.readback() if facade!=null else {}
+	first_flight_panel.set_state(current.duplicate(true),active_preset.duplicate(true),current_wind_profile)
+	if circuit_checkbox!=null: circuit_checkbox.set_pressed_no_signal(circuit_aid_enabled)
+	first_flight_panel.show()
+	first_flight_panel.focus_back()
+
+func dismiss_first_flight() -> void:
+	if not first_flight_open or not archive_operation.is_empty() or not pending_discard.is_empty(): return
+	retire_first_flight()
+	# Return to the existing explicit Resume control, without any lifecycle call.
+	menu_open=true
+	menu_title.text="Flight paused"
+	menu.show()
+	resume_button.grab_focus()
+
+func on_first_flight_back(source_session: String, widget: Object) -> void:
+	if widget==first_flight_panel and first_flight_request_valid(widget,source_session): dismiss_first_flight()
+
+func on_first_flight_controls(source_session: String, widget: Object) -> void:
+	if widget==first_flight_panel and first_flight_request_valid(widget,source_session): open_controls()
+
+func on_first_flight_choice(choice_id: String, source_session: String, widget: Object) -> void:
+	if widget!=first_flight_panel or not first_flight_request_valid(widget,source_session): return
+	var choice: Dictionary=FirstFlightPanel.choice_for(choice_id)
+	if choice.is_empty(): return
+	var profile: Variant=choice.get("model_identity")
+	if profile!=Facade.LEGACY_PROFILE and profile!=Facade.PISTON_PROFILE: return
+	if choice.get("wind")!="calm": return
+	# The normal admission/discard/replacement spine validates before close.
+	request_discard("restart",choice.named_start,"calm",profile.id,true)
+
+func on_circuit_enabled(enabled: bool, source_session: String, widget: Object) -> void:
+	if not first_flight_request_valid(widget,source_session): return
+	circuit_aid_enabled=enabled
+	if circuit_checkbox!=null: circuit_checkbox.set_pressed_no_signal(enabled)
+	publish_circuit_reference()
+
+func clear_circuit_reference(reason: String) -> void:
+	var view: Dictionary=CircuitGeometry.unavailable(reason)
+	if flight_map!=null: flight_map.set_circuit_reference(view)
+	if circuit_card!=null:
+		circuit_card.set_state(view,circuit_aid_enabled)
+		circuit_card.hide()
+	if landmark_board!=null:
+		landmark_board.set_summary_in_map(false)
+		landmark_board.set_card_dock(Rect2())
+
+func publish_circuit_reference() -> void:
+	if circuit_card==null or flight_map==null: return
+	var view: Dictionary=CircuitGeometry.unavailable("Aid off")
+	if circuit_aid_enabled:
+		if facade==null or adopted_session_id.is_empty():
+			view=CircuitGeometry.unavailable("Current flight unavailable")
+		else:
+			var current: Dictionary=facade.readback()
+			view=CircuitGeometry.view(current,current_wind_profile,int(flight_map.get("_runway"))) if current.get("session_id")==adopted_session_id and not blocked and not stalled else CircuitGeometry.unavailable("Current flight unavailable")
+	flight_map.set_circuit_reference(view)
+	circuit_card.set_state(view,circuit_aid_enabled)
+	circuit_card.visible=circuit_aid_enabled and not menu_open
+	layout_live_flight_aids()
+
+func layout_live_flight_aids() -> void:
+	# Reserve the sides of the existing cockpit views instead of covering the
+	# physical six-pack. The chase overlay needs its entire lower instrument
+	# panel. Layout changes never select a route, runway, extent or camera pose.
+	flight_map.compact_aid_layout=circuit_aid_enabled
+	if not circuit_aid_enabled:
+		circuit_card.set_compact_unavailable(false)
+		if landmark_board!=null:
+			landmark_board.set_summary_in_map(false)
+			landmark_board.set_card_dock(Rect2())
+		return
+	var available: Vector2=get_viewport().get_visible_rect().size
+	if piston_mode():
+		# This profile has no circuit geometry. Preserve ordinary engine controls
+		# and locator state; reserve a notice slot with bounded wind/map placement.
+		flight_map.compact_aid_layout=false
+		circuit_card.set_compact_unavailable(true)
+		circuit_card.size=Vector2(260.0 if camera_mode==3 else 240.0 if camera_mode==0 else 280.0,84.0)
+		circuit_card.position=Vector2(available.x-270.0,92.0) if camera_mode==3 else Vector2(302.0,150.0) if camera_mode==0 else Vector2(14.0,250.0)
+		if camera_mode==0:
+			wind_card.position.x=14.0
+			wind_card.size.x=280.0
+			wind_label.size=wind_card.size-Vector2(12,12)
+			var cue: Dictionary=flight_map.get("_wind_cue")
+			if cue.get("state") not in ["live","paused"]:
+				wind_label.text="SYNTHETIC WIND / UNAVAILABLE\n"+str(cue.get("error","Current wind aid unavailable"))
+		elif camera_mode==3:
+			flight_map.position.y=maxf(flight_map.position.y,circuit_card.position.y+circuit_card.size.y+8.0)
+			flight_map.size.y=minf(flight_map.size.y,available.y-flight_map.position.y-14.0)
+		if landmark_board!=null:
+			landmark_board.set_summary_in_map(false)
+			landmark_board.set_card_dock(Rect2())
+		return
+	circuit_card.set_compact_unavailable(false)
+	var top: float=124.0 if snapshot.is_empty() or blocked or stalled or native_outcome in ["discarded","error","coverage_blocked"] else 92.0
+	if piston_mode(): top+=58.0
+	var gap: float=8.0
+	var card_height: float=206.0 if available.y<900.0 else 230.0
+	var width: float=clampf(available.x*0.26,240.0 if camera_mode==3 else 280.0,420.0)
+	var left: float=14.0 if camera_mode==0 else available.x-width-14.0
+	var bottom: float=available.y-14.0
+	if camera_mode not in [0,3]: bottom=minf(bottom,available.y-minf(available.y*0.34,455.0)-14.0)
+	var map_height: float=minf(500.0,bottom-top)
+	if camera_mode in [0,3] and circuit_aid_enabled:
+		map_height=minf(500.0,maxf(220.0,bottom-top-card_height-gap))
+	flight_map.position=Vector2(left,top)
+	flight_map.size=Vector2(width,map_height)
+	circuit_card.size=Vector2(width,card_height)
+	circuit_card.position=Vector2(left,top+map_height+gap)
+	if camera_mode not in [0,3]:
+		circuit_card.position=Vector2(14.0,top)
+		circuit_card.size=Vector2(width,minf(300.0,bottom-top))
+	# The map now includes the current manual leg, its progress and anchor
+	# range/bearing. Suppress only the duplicate card while that summary exists.
+	if landmark_board!=null:
+		landmark_board.set_card_dock(Rect2(flight_map.position,flight_map.size))
+		landmark_board.set_summary_in_map(map_visible and flight_map.size.x>=220.0 and flight_map.size.y>=220.0 and flight_map.get("_valid") and not flight_map.get("_retained") and not flight_map.get("_route").is_empty())
+	if wind_card!=null and camera_mode!=3:
+		var cue: Dictionary=flight_map.get("_wind_cue")
+		if cue.get("state") in ["live","paused"] and cue.get("speed_mps")==0.0:
+			wind_card.size.y=62.0
+			wind_label.size=wind_card.size-Vector2(12,12)
+		wind_card.position=Vector2(width+28.0,top) if camera_mode==0 else Vector2((available.x-wind_card.size.x)*0.5,top)
 
 func update_canonical_scene_sources() -> void:
 	var visual_ecef: Variant=facade.call("_visual_ecef")
@@ -1085,6 +1320,7 @@ func show_state(seconds: float=0.0) -> void:
 		super.show_state(seconds)
 		return
 	if facade==null:
+		clear_circuit_reference("Current flight unavailable")
 		return
 	layout_flight_menu()
 	var map_top: float=124.0 if snapshot.is_empty() or blocked or stalled or native_outcome in ["discarded","error","coverage_blocked"] else 92.0
@@ -1096,6 +1332,7 @@ func show_state(seconds: float=0.0) -> void:
 	update_engine_controls()
 	update_wind_presentation(current)
 	if snapshot.is_empty() or current.aircraft==null or current.canonical==null:
+		clear_circuit_reference("Current flight unavailable")
 		suppress_geometry()
 		if panel != null:
 			var fault_info: Dictionary={"status":status,"outcome":"error","blocked":blocked,"stalled":stalled,"paused":paused,"input_name":active_preset.get("name","Controls")}
@@ -1111,6 +1348,7 @@ func show_state(seconds: float=0.0) -> void:
 	var native_position:=Vector3(raw[0],raw[1],raw[2])
 	var rendered: Dictionary=facade.visual_pose()
 	if not rendered.valid:
+		clear_circuit_reference("Current presentation unavailable")
 		airplane.hide()
 		cockpit.root.hide()
 		world_root.hide()
@@ -1181,6 +1419,7 @@ func show_state(seconds: float=0.0) -> void:
 	var display_info: Dictionary={"status":status,"outcome":native_outcome,"historical":current.historical,"blocked":blocked,"stalled":stalled,"paused":paused,"brake_hold":brake_hold,"view_name":view_names[camera_mode],"clearance_m":plane_clearance,"ground_valid":ground_valid,"input_name":input_name,"input_label":"CONTROLS","audio_enabled":audio_enabled}
 	publish_readings(current,display_info)
 	flight_map.call("set_state",snapshot,native_position,native_basis,display_info)
+	publish_circuit_reference()
 	update_canonical_scene_sources()
 
 func run_facade_visual() -> void:
@@ -1436,6 +1675,7 @@ func open_menu(title: String="Flight paused") -> void:
 	if not legacy_proof:
 		if review_open: return
 		if not pending_discard.is_empty(): return
+		retire_first_flight()
 		scan_open=false
 		route_open=false
 		if landmark_board!=null:
@@ -1450,6 +1690,9 @@ func close_menu() -> void:
 	if not archive_operation.is_empty(): return
 	if not legacy_proof and not pending_discard.is_empty():
 		cancel_discard()
+		return
+	if not legacy_proof and first_flight_open:
+		dismiss_first_flight()
 		return
 	if not legacy_proof and wind_panel!=null and wind_panel.visible:
 		dismiss_wind()
@@ -1468,8 +1711,12 @@ func close_menu() -> void:
 	super.close_menu()
 
 func restart_failed(message: String) -> bool:
+	retire_first_flight()
+	clear_circuit_reference("Flight setup failed")
 	if facade!=null:
 		var stopped: Dictionary=facade.close()
+		review_joined=stopped.ok and not stopped.readback.native_live
+		adopt_result(stopped)
 		if not stopped.ok: message+="; failed setup worker join unconfirmed"
 	initializing_recording=false
 	return fail(message)
@@ -1668,7 +1915,7 @@ func make_discard_confirmation(canvas: CanvasLayer) -> void:
 		card.position=(discard_layer.size-card.size)*0.5)
 	discard_layer.hide()
 
-func request_discard(action: String, start: String="", selected_wind: Variant=null, requested_profile: Variant=null) -> void:
+func request_discard(action: String, start: String="", selected_wind: Variant=null, requested_profile: Variant=null, first_flight_continuation: bool=false) -> void:
 	if not archive_operation.is_empty(): return
 	if not pending_discard.is_empty() or not action in ["restart","quit"]: return
 	var next_profile: Variant=selected_profile if requested_profile==null else requested_profile
@@ -1682,14 +1929,17 @@ func request_discard(action: String, start: String="", selected_wind: Variant=nu
 			status=selection_error+"; flight unchanged"
 			return
 	if not recorded_flight_advanced():
-		if action=="restart": perform_start(start,requested_wind,next_profile)
+		if action=="restart": perform_start(start,requested_wind,next_profile,first_flight_continuation)
 		else: await perform_quit()
 		return
 	if not ensure_review_boundary():
 		status="Cannot discard until native flight is paused or its worker has joined"
 		return
-	invalidate_engine_pointer("Discard confirmation opened")
+	if not first_flight_continuation: invalidate_engine_pointer("Discard confirmation opened")
 	pending_discard={"action":action,"start":start,"session_id":adopted_session_id,"wind_profile":requested_wind,"profile_id":next_profile}
+	# This continuation belongs to this decision only. Cancel/stale/quit clears
+	# it with the dictionary; ordinary restart behavior remains unchanged.
+	if first_flight_continuation and action=="restart": pending_discard["first_flight"]=true
 	menu_open=true
 	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
 	discard_message.text="This flight has %d recorded observations. %s discards its in-memory review. Cancel keeps the flight paused and the review available. Only explicitly saved review files remain on disk."%[observed_status.sample_count,"Restarting" if action=="restart" else "Quitting"]
@@ -1702,7 +1952,9 @@ func cancel_discard() -> void:
 	if pending_discard.is_empty(): return
 	pending_discard.clear()
 	discard_layer.hide()
-	if review_open:
+	if first_flight_open:
+		first_flight_panel.focus_back()
+	elif review_open:
 		observed_panel.get("_back").grab_focus()
 	elif controls_panel!=null and controls_panel.visible:
 		pass
@@ -1722,7 +1974,7 @@ func confirm_discard() -> void:
 	var decision: Dictionary=pending_discard.duplicate(true)
 	pending_discard.clear()
 	discard_layer.hide()
-	if decision.action=="restart": perform_start(decision.start,decision.wind_profile,decision.profile_id)
+	if decision.action=="restart": perform_start(decision.start,decision.wind_profile,decision.profile_id,decision.get("first_flight")==true)
 	else: await perform_quit()
 
 func quit_flight() -> void:
@@ -1733,6 +1985,8 @@ func quit_flight() -> void:
 
 func perform_quit() -> void:
 	if not archive_operation.is_empty(): return
+	retire_first_flight()
+	clear_circuit_reference("Flight closing")
 	await super.quit_flight()
 
 func _exit_tree() -> void:
@@ -1963,7 +2217,7 @@ func pointer_session_live() -> bool:
 	return source.get("host_mode")=="live" and source.get("native_live")==true and source.get("paused")==false and source.get("session_id")==adopted_session_id and mapper.pointer_view().session_id==adopted_session_id and pointer_modal_free()
 
 func pointer_modal_free() -> bool:
-	return not menu_open and not scan_open and not route_open and not review_open and archive_operation.is_empty() and pending_discard.is_empty() and (controls_panel==null or not controls_panel.visible) and (wind_panel==null or not wind_panel.visible)
+	return not menu_open and not first_flight_open and not scan_open and not route_open and not review_open and archive_operation.is_empty() and pending_discard.is_empty() and (controls_panel==null or not controls_panel.visible) and (wind_panel==null or not wind_panel.visible)
 
 func pointer_ui_eligible() -> bool:
 	return pointer_session_live() and engine_pointer_rearm.is_empty() and not engine_pointer_look_active and Input.mouse_mode==Input.MOUSE_MODE_VISIBLE

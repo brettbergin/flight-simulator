@@ -225,10 +225,59 @@ print('PASS readonly observed reference regeneration:42 cases')
  if($LASTEXITCODE -ne 0){throw 'Readonly observed reference regeneration rejected'}
 }
 function Assert-PreviewFacadeReceipt {
- param([Parameter(Mandatory)]$Receipt)
- $keys=@('schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive','wind')
+ param([Parameter(Mandatory)]$Receipt,[bool]$IncludePiston=$true,[string]$ExpectedSourceFingerprint='')
+ $keys=@('schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive','wind','first_flight')
  if((($Receipt.PSObject.Properties.Name|Sort-Object) -join "`n") -cne (($keys|Sort-Object) -join "`n")){throw 'Facade receipt exact shape rejected'}
  if(($Receipt.schema_version -isnot [long] -and $Receipt.schema_version -isnot [int]) -or $Receipt.schema_version -ne 1 -or $Receipt.scope -isnot [string] -or [string]::IsNullOrWhiteSpace($Receipt.scope) -or $Receipt.scope.Length -gt 1024 -or $Receipt.passed -isnot [bool] -or -not $Receipt.passed -or ($Receipt.checks -isnot [long] -and $Receipt.checks -isnot [int]) -or $Receipt.checks -le 0 -or $Receipt.failures -isnot [array] -or $Receipt.failures.Count -ne 0){throw 'Facade receipt must contain actual passing checks'}
+ if((($Receipt.first_flight.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "bindings`nbriefing`ncard`ngeometry`nmap`nscene"){throw 'All six first-flight test groups are mandatory'}
+ # Match the package validator: selected-source groups and lifecycle evidence
+ # are closed, typed and nonvacuous on upstream CI as well as the coupled route.
+ $firstFlightTotal=[long]0
+ foreach($name in @('briefing','bindings','geometry','card','map','scene')){
+  $item=$Receipt.first_flight.$name
+  $diagnostic=if(@($item.PSObject.Properties.Name) -ccontains 'scope'){'scope'}else{'limits'}
+  $childKeys=@('passed','checks','failures',$diagnostic)
+  if($name -eq 'geometry'){$childKeys+=@('fixture_sha256','captured_readback_sha256','baseline_origin','baseline_source_fingerprint')}
+  if($name -eq 'scene'){$childKeys+=@('adoptions','include_piston','route_scope')}
+  if((($item.PSObject.Properties.Name|Sort-Object) -join "`n") -cne (($childKeys|Sort-Object) -join "`n")){throw "First-flight $name exact shape rejected"}
+  if($item.passed -isnot [bool] -or -not $item.passed -or ($item.checks -isnot [long] -and $item.checks -isnot [int]) -or $item.checks -le 0 -or $item.checks -gt 9007199254740991 -or $item.failures -isnot [array] -or $item.failures.Count -ne 0){throw "First-flight $name checks missing, vacuous or failed"}
+  $firstFlightTotal+=$item.checks
+  if($firstFlightTotal -gt 9007199254740991){throw 'First-flight check total exceeds safe integer range'}
+  $description=$item.$diagnostic
+  if($description -isnot [string] -or [string]::IsNullOrWhiteSpace($description) -or $description.Length -gt 1024){throw "First-flight $name evidence scope missing or malformed"}
+ }
+ if($Receipt.first_flight.geometry.fixture_sha256 -cne '2a4540d99d4500e326a1b1f0673583bd6f8ea99d430b991fcca1130befbbddcc' -or $Receipt.first_flight.geometry.captured_readback_sha256 -cne '58b1a7b0ec46161357c1268dbaeeaab27f84bbbd4de70def35571fd45ddb67f9'){throw 'First-flight frozen fixture/source identity rejected'}
+ $baseline=$Receipt.first_flight.geometry
+ $origin=if($ExpectedSourceFingerprint -ceq '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'){'saved-capture'}else{'observed-native'}
+ if($ExpectedSourceFingerprint -cnotmatch '^[0-9a-f]{64}$' -or $baseline.baseline_origin -cne $origin -or $baseline.baseline_source_fingerprint -cne $ExpectedSourceFingerprint){throw 'First-flight actual selected native baseline binding rejected'}
+ $scene=$Receipt.first_flight.scene
+ $routeScope=if($IncludePiston){'coupled: all six same/cross-profile choices and three advanced confirmations'}else{'upstream: four legacy start mappings, two advanced confirmations and explicit cold admission rejection; cold runtime is not qualified'}
+ if($scene.include_piston -isnot [bool] -or $scene.include_piston -ne $IncludePiston -or $scene.route_scope -isnot [string] -or $scene.route_scope -cne $routeScope){throw 'First-flight selected-source mode or route coverage rejected'}
+ $choices=@(
+  @{id='cold-familiarization';start='piston-cold-ground';profile=@{id='original-piston-prop-v1';version='0.1.0-prototype';backend_model='original-piston-prop'}},
+  @{id='ready-flight';start='ground-ready';profile=@{id='original-interactive-prototype';version='0.1.0-prototype';backend_model='original-interactive'}},
+  @{id='airborne-orientation';start='airborne-prepared';profile=@{id='original-interactive-prototype';version='0.1.0-prototype';backend_model='original-interactive'}}
+ )
+ $selected=if($IncludePiston){$choices}else{@($choices[1],$choices[2])}
+ $oldSources=if($IncludePiston){@(@{profile='original-interactive-prototype';start='ground-ready'},@{profile='original-piston-prop-v1';start='piston-cold-ground'})}else{@(@{profile='original-interactive-prototype';start='ground-ready'},@{profile='original-interactive-prototype';start='airborne-prepared'})}
+ $expected=[System.Collections.Generic.Dictionary[string,object]]::new([StringComparer]::Ordinal)
+ foreach($old in $oldSources){foreach($choice in $selected){$expected.Add(('immediate_'+$old.profile+'_'+$old.start+'_'+$choice.id),$choice)}}
+ foreach($choice in $selected){$expected.Add(('confirmed_'+$choice.id),$choice)}
+ $expected.Add('joined_failure_explicit_recovery',$choices[1])
+ if($scene.adoptions -isnot [array] -or $scene.adoptions.Count -ne $expected.Count){throw 'All actual first-flight adoptions required'}
+ $seen=[System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+ foreach($row in $scene.adoptions){
+  $rowKeys=@('label','model_identity','start','tick','pause_attempts','native_calls','completed')
+  if((($row.PSObject.Properties.Name|Sort-Object) -join "`n") -cne (($rowKeys|Sort-Object) -join "`n")){throw 'First-flight adoption exact shape rejected'}
+  if($row.label -isnot [string] -or -not $expected.ContainsKey($row.label) -or -not $seen.Add($row.label)){throw 'Missing, unknown or duplicate first-flight mapping'}
+  $choice=$expected[$row.label]
+  if((($row.model_identity.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "backend_model`nid`nversion"){throw 'First-flight complete profile shape rejected'}
+  foreach($key in @('id','version','backend_model')){if($row.model_identity.$key -isnot [string] -or $row.model_identity.$key -cne $choice.profile[$key]){throw 'Exact adopted first-flight profile rejected'}}
+  if($row.start -isnot [string] -or $row.start -cne $choice.start -or $row.tick -isnot [string] -or $row.tick -cne '0'){throw 'First-flight adopted start or paused tick0 rejected'}
+  if($row.pause_attempts -isnot [array] -or $row.pause_attempts.Count -le 0 -or $row.pause_attempts.Count -gt 128){throw 'First-flight pause attempts must be nonempty and bounded'}
+  foreach($paused in $row.pause_attempts){if($paused -isnot [bool] -or -not $paused){throw 'No hidden first-flight Resume is allowed'}}
+  if(($row.native_calls -isnot [long] -and $row.native_calls -isnot [int]) -or $row.native_calls -le 0 -or $row.native_calls -gt 9007199254740991 -or ($row.completed -isnot [long] -and $row.completed -isnot [int]) -or $row.completed -ne 0){throw 'First-flight native calls or completed count rejected'}
+ }
  if((($Receipt.observed.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "recorder`nscene"){throw 'Both observed recorder and scene results are mandatory'}
  foreach($name in @('recorder','scene')){
   $item=$Receipt.observed.$name
@@ -442,6 +491,31 @@ function Assert-GroundMaterialSourceGroups {
   Assert-SimulationSourceSnapshot (Join-Path $DestinationRoot $path) $group.snapshot -RequiredEntries $group.required -AllowGeneratedUIDs:$AllowGeneratedUIDs
  }
 }
+# ADR018 leaves and integrated checks travel with every staged player.
+function Get-FirstFlightSourceGroups {
+ param([Parameter(Mandatory)][string]$RepoRoot)
+ @(
+  @{source='app/ui/first_flight';destination='ui/first_flight';required=@('briefing_panel.gd','binding_help.gd','circuit_guide.gd')},
+  @{source='app/world/synthetic';destination='world/synthetic';required=@('circuit_geometry.gd')},
+  @{source='content/scenarios/first-flight';destination='content/scenarios/first-flight';required=@('briefing.json')},
+  @{source='content/world/synthetic';destination='content/world/synthetic';required=@('practice-circuit.json')},
+  @{source='tests/scenarios/first-flight';destination='scenario_tests/first-flight';required=@('briefing_checks.gd','circuit_checks.gd')},
+  @{source='tests/ui/first_flight';destination='first_flight_ui_tests';required=@('briefing_checks.gd')},
+  @{source='tests/world/synthetic';destination='world_tests/synthetic';required=@('circuit_checks.gd')},
+  @{source='tests/integration/first_flight';destination='first_flight_scene_tests';required=@('scene_checks.gd','map_checks.gd','visual_checks.gd')}
+ )|ForEach-Object {$_.snapshot=@(Get-SimulationSourceSnapshot (Join-Path $RepoRoot $_.source) -RequiredEntries $_.required);$_}
+}
+function Copy-FirstFlightSourceGroups {
+ param([Parameter(Mandatory)][string]$RepoRoot,[Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Groups)
+ foreach($group in $Groups){Copy-SimulationSourceSnapshot (Join-Path $RepoRoot $group.source) (Join-Path $DestinationRoot $group.destination) $group.snapshot -RequiredEntries $group.required}
+}
+function Assert-FirstFlightSourceGroups {
+ param([Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Groups,[switch]$Authoring,[switch]$AllowGeneratedUIDs)
+ foreach($group in $Groups){
+  $path=if($Authoring){$group.source}else{$group.destination}
+  Assert-SimulationSourceSnapshot (Join-Path $DestinationRoot $path) $group.snapshot -RequiredEntries $group.required -AllowGeneratedUIDs:$AllowGeneratedUIDs
+ }
+}
 function Write-SimulationCheckHarness {
  param([Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)][string]$RepoRoot,[switch]$IncludePiston)
  $pistonChecks=if($IncludePiston){@'
@@ -481,6 +555,7 @@ function Write-SimulationCheckHarness {
 
 '@}else{''}
  $pistonCompileFolder=if($IncludePiston){',"res://engine_tests"'}else{''}
+ $firstFlightPiston=if($IncludePiston){'true'}else{'false'}
  $fixtures=Join-Path $ProjectRoot 'wire_fixtures'
  New-Item -ItemType Directory -Path $fixtures -Force|Out-Null
  foreach($name in @('AircraftSnapshot','AtmosphereSample','ControlCommand','OperationalEvent')){
@@ -530,7 +605,34 @@ func ground_material_checks() -> void:
  file.store_string(JSON.stringify(report,"  "));file.close()
  print("GROUND_MATERIALS_CHECKS ",JSON.stringify(report))
  get_tree().quit(0 if result.get("passed",false) else 1)
+func observed_first_flight_baseline() -> Dictionary:
+ # Every native build observes its own source-qualified truth; never patch a saved
+ # capture fingerprint to impersonate another native build. No Run is needed.
+ var facade=load("res://simulation/session_facade.gd").new()
+ var started: Dictionary=facade.start(ProjectSettings.globalize_path("res://models"),"ground-ready","calm","original-interactive-prototype")
+ var value: Dictionary={}
+ if started.ok:
+  var paused: Dictionary=facade.set_paused(true)
+  if paused.ok: value=facade.readback().duplicate(true)
+ var stopped: Dictionary=facade.close()
+ check(stopped.ok and not stopped.readback.native_live,"first_flight_observed_baseline_joined")
+ var admitted: Dictionary=load("res://world/synthetic/circuit_geometry.gd").view(value,"calm",36)
+ check(admitted.available and value.get("tick")=="0" and value.get("debt_quanta")==0,"first_flight_observed_full_paused_source_baseline")
+ return value if stopped.ok and not stopped.readback.native_live and admitted.available and value.get("tick")=="0" and value.get("debt_quanta")==0 else {}
 func execute() -> void:
+ for argument in OS.get_cmdline_user_args():
+  if argument.begins_with("--first-flight-interaction-output="):
+   var output: String=argument.trim_prefix("--first-flight-interaction-output=")
+   var interaction: Dictionary=await load("res://first_flight_scene_tests/visual_checks.gd").new().run_interaction(self,output)
+   print("FIRST_FLIGHT_INTERACTION ",JSON.stringify({"passed":interaction.get("passed",false),"checks":interaction.get("checks",0),"failures":interaction.get("failures",[]),"views":interaction.get("views",[]).size()}))
+   get_tree().quit(0 if interaction.get("passed")==true else 1)
+   return
+  if argument.begins_with("--first-flight-visual-output="):
+   var output: String=argument.trim_prefix("--first-flight-visual-output=")
+   var visual: Dictionary=await load("res://first_flight_scene_tests/visual_checks.gd").new().run(self,output)
+   print("FIRST_FLIGHT_VISUAL ",JSON.stringify({"passed":visual.get("passed",false),"checks":visual.get("checks",0),"failures":visual.get("failures",[]),"views":visual.get("views",[]).size()}))
+   get_tree().quit(0 if visual.get("passed")==true else 1)
+   return
  if "--ground-material-checks" in OS.get_cmdline_user_args():
   ground_material_checks()
   return
@@ -545,7 +647,7 @@ func execute() -> void:
   return
  identity_file.store_string(JSON.stringify(identity_receipt))
  identity_file.close()
- for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests","res://world/wind","res://ui/wind","res://wind_tests","res://wind_scene_tests"$pistonCompileFolder]:
+ for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests","res://world/wind","res://ui/wind","res://wind_tests","res://wind_scene_tests","res://ui/first_flight","res://world/synthetic","res://scenario_tests/first-flight","res://first_flight_ui_tests","res://world_tests/synthetic","res://first_flight_scene_tests"$pistonCompileFolder]:
   for name in DirAccess.get_files_at(folder):
    if name.ends_with(".gd"):
     var script=load(folder.path_join(name)) as Script
@@ -640,7 +742,32 @@ func execute() -> void:
  var scene: Dictionary=await load("res://sim_loop_tests/scene_checks.gd").new().run(self)
  stage("end","simulation.scene")
 $pistonChecks
- var report: Dictionary={"schema_version":1,"scope":"Headless actual-native facade and synthetic wire/render fixtures; GPU and pilot qualification separate","passed":failures.is_empty(),"checks":checks,"failures":failures.duplicate(),"facade":facade,"origin":origin,"participants":participants,"wire":wire,"scene":scene,"input":input,"input_scene":input_scene,"instruments":instruments,"cockpit":cockpit_checks,"freeflight":freeflight_checks,"observed":observed_checks,"observed_archive":archive_checks,"wind":wind_checks}
+ var first_flight_checks: Dictionary={}
+ var first_flight_sources: Script=load("res://world_tests/synthetic/circuit_checks.gd")
+ var current_first_flight: Dictionary=observed_first_flight_baseline()
+ var captured_first_flight: Dictionary=first_flight_sources.captured_readback()
+ var observed_first_flight: Dictionary={}
+ if not current_first_flight.is_empty() and not captured_first_flight.is_empty() and current_first_flight.native_source_fingerprint!=captured_first_flight.native_source_fingerprint:
+  observed_first_flight=current_first_flight.duplicate(true)
+ var first_flight_baseline: Dictionary=first_flight_sources.reference_readback() if observed_first_flight.is_empty() and not current_first_flight.is_empty() else observed_first_flight.duplicate(true)
+ if first_flight_baseline.is_empty():
+  push_error("Required first-flight complete source baseline unavailable")
+  get_tree().quit(1)
+  return
+ for name in ["briefing","bindings","geometry","card","map","scene"]:
+  stage("begin","first_flight."+name)
+  var result: Dictionary
+  match name:
+   "briefing": result=load("res://scenario_tests/first-flight/briefing_checks.gd").new().run(self,first_flight_baseline)
+   "bindings": result=await load("res://first_flight_ui_tests/briefing_checks.gd").new().run(self,first_flight_baseline)
+   "geometry": result=first_flight_sources.run(observed_first_flight)
+   "card": result=load("res://scenario_tests/first-flight/circuit_checks.gd").run(observed_first_flight)
+   "map": result=load("res://first_flight_scene_tests/map_checks.gd").new().run(observed_first_flight)
+   "scene": result=await load("res://first_flight_scene_tests/scene_checks.gd").new().run(self,$firstFlightPiston)
+  stage("end","first_flight."+name)
+  check(result.get("passed")==true and typeof(result.get("checks"))==TYPE_INT and result.checks>0 and result.get("failures") is Array and result.failures.is_empty(),"actual_first_flight_"+name+"_checks")
+  first_flight_checks[name]=result
+ var report: Dictionary={"schema_version":1,"scope":"Headless actual-native facade and synthetic wire/render fixtures; GPU and pilot qualification separate","passed":failures.is_empty(),"checks":checks,"failures":failures.duplicate(),"facade":facade,"origin":origin,"participants":participants,"wire":wire,"scene":scene,"input":input,"input_scene":input_scene,"instruments":instruments,"cockpit":cockpit_checks,"freeflight":freeflight_checks,"observed":observed_checks,"observed_archive":archive_checks,"wind":wind_checks,"first_flight":first_flight_checks}
  var output: String=ProjectSettings.globalize_path("res://facade-check-receipt.json") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("facade-check-receipt.json")
  for argument in OS.get_cmdline_user_args():
   if argument.begins_with("--facade-receipt="): output=argument.trim_prefix("--facade-receipt=")

@@ -22,6 +22,12 @@ third_party/patches/jsbsim/**/FGPiston* -whitespace
 tests/export/*.py text eol=lf
 native/godot_bridge/** text eol=lf
 app/proof/** text eol=lf
+app/ui/first_flight/** text eol=lf
+app/world/synthetic/** text eol=lf
+tests/scenarios/first-flight/** text eol=lf
+tests/ui/first_flight/** text eol=lf
+tests/world/synthetic/** text eol=lf
+tests/integration/first_flight/** text eol=lf
 third_party/licenses/notices/*.txt text eol=lf
 third_party/licenses/notices/*.docx binary
 third_party/licenses/notices/Microsoft-VS2022-Community-Terms.txt whitespace=-trailing-space
