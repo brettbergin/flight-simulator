@@ -258,7 +258,6 @@ jobs:
           $windGroups=@(Get-WindSourceGroups -RepoRoot $PWD)
           Copy-WindSourceGroups -RepoRoot $PWD -DestinationRoot $project -Groups $windGroups
           $cameraGroups=@(Get-CameraSourceGroups -RepoRoot $PWD)
-          Copy-CameraSourceGroups -RepoRoot $PWD -DestinationRoot $project -Groups $cameraGroups
           python tests/ui/freeflight/reference-generator.py --check
           if ($LASTEXITCODE -ne 0) { throw 'Landmark reference reproduction failed' }
           node tools/interactive-preview/package.mjs models native/fdm_jsbsim/models/original-interactive (Join-Path $project 'models')
