@@ -1,0 +1,166 @@
+{
+  "schema": "ProposedLocalPlayersServiceReferenceBindings/v1",
+  "status": "PROPOSED_UNRATIFIED_NOT_EXECUTED",
+  "license": "Original MIT",
+  "case_count": 66,
+  "groups": {
+    "admission": 14,
+    "queue": 7,
+    "revision": 9,
+    "practice": 15,
+    "paging": 5,
+    "uncertainty": 4,
+    "recovery": 4,
+    "export": 5,
+    "lifetime": 3
+  },
+  "inputs": [
+    {
+      "path": "docs/decisions/026-durable-local-players-and-practice-history.md",
+      "role": "reviewed proposed contract, no consumer acceptance",
+      "bytes": 4575,
+      "raw_sha256": "00d0a0b404ab8dc15881fe0d7ad1e25986c33d50369caefad5e2b7ea7f35eed6",
+      "lf_sha256": "00d0a0b404ab8dc15881fe0d7ad1e25986c33d50369caefad5e2b7ea7f35eed6",
+      "normalization": "CRLF to LF only; original bytes untouched"
+    },
+    {
+      "path": "docs/contracts/local-players/records-and-lifetimes-v1.md",
+      "role": "reviewed proposed contract, no consumer acceptance",
+      "bytes": 47338,
+      "raw_sha256": "e29b1a9fc563ae58105a7b99c6ed158ada347cf506a5565e68c8f7a051d322e0",
+      "lf_sha256": "e29b1a9fc563ae58105a7b99c6ed158ada347cf506a5565e68c8f7a051d322e0",
+      "normalization": "CRLF to LF only; original bytes untouched"
+    },
+    {
+      "path": "docs/contracts/local-players/protocol-v1.md",
+      "role": "reviewed proposed contract, no consumer acceptance",
+      "bytes": 23240,
+      "raw_sha256": "d7a5bc7ee7820df6a3ce8addbc72c66b57b86db91355ad18555f53da6c152d36",
+      "lf_sha256": "d7a5bc7ee7820df6a3ce8addbc72c66b57b86db91355ad18555f53da6c152d36",
+      "normalization": "CRLF to LF only; original bytes untouched"
+    },
+    {
+      "path": "docs/contracts/local-players/recovery-v1.md",
+      "role": "reviewed proposed contract, no consumer acceptance",
+      "bytes": 6598,
+      "raw_sha256": "d7349a672519a9c7e3d367d5f756adbcc0507a9138b800500805687782f90859",
+      "lf_sha256": "d7349a672519a9c7e3d367d5f756adbcc0507a9138b800500805687782f90859",
+      "normalization": "CRLF to LF only; original bytes untouched"
+    },
+    {
+      "path": "schemas/save/local-players/v1/schema-v1.sql",
+      "role": "reviewed proposed contract, no consumer acceptance",
+      "bytes": 3860,
+      "raw_sha256": "cbd00b3fe47b400e79635ed901d195abfe133a4131d5001feac8e3eedeb0562f",
+      "lf_sha256": "cbd00b3fe47b400e79635ed901d195abfe133a4131d5001feac8e3eedeb0562f",
+      "normalization": "CRLF to LF only; original bytes untouched"
+    },
+    {
+      "path": "schemas/save/local-players/v1/preferences-codec-v1.json",
+      "role": "reviewed proposed contract, no consumer acceptance",
+      "bytes": 6986,
+      "raw_sha256": "47711d41be89e233efe3c42e8f2cedd33f729e6e0e2c9a78a6026454022b0538",
+      "lf_sha256": "47711d41be89e233efe3c42e8f2cedd33f729e6e0e2c9a78a6026454022b0538",
+      "normalization": "CRLF to LF only; original bytes untouched"
+    },
+    {
+      "path": "schemas/save/local-players/v1/schema-binding-v1.json",
+      "role": "reviewed proposed contract, no consumer acceptance",
+      "bytes": 1647,
+      "raw_sha256": "9353c034edafdb1bcc3984452bd9c2d4fcdbf283342e99bb5a5dd2d27792f049",
+      "lf_sha256": "9353c034edafdb1bcc3984452bd9c2d4fcdbf283342e99bb5a5dd2d27792f049",
+      "normalization": "CRLF to LF only; original bytes untouched"
+    },
+    {
+      "path": "schemas/save/local-players/v1/design-fixtures-v2.json",
+      "role": "reviewed proposed contract, no consumer acceptance",
+      "bytes": 14985,
+      "raw_sha256": "8969d0dd4bee47432606f54e1bb8f2b4ff805062e2ba4015a23ef0288973fb77",
+      "lf_sha256": "8969d0dd4bee47432606f54e1bb8f2b4ff805062e2ba4015a23ef0288973fb77",
+      "normalization": "CRLF to LF only; original bytes untouched"
+    },
+    {
+      "path": "schemas/save/local-players/v1/source-bindings-v1.json",
+      "role": "reviewed proposed contract, no consumer acceptance",
+      "bytes": 8636,
+      "raw_sha256": "fb2da0531f71f8cdd3f0949145b3b35febf97422e4a44d7cdf60c14c09e65fb9",
+      "lf_sha256": "fb2da0531f71f8cdd3f0949145b3b35febf97422e4a44d7cdf60c14c09e65fb9",
+      "normalization": "CRLF to LF only; original bytes untouched"
+    },
+    {
+      "path": "schemas/save/local-players/v1/README.md",
+      "role": "reviewed proposed contract, no consumer acceptance",
+      "bytes": 2640,
+      "raw_sha256": "4f5e8b13945f546a66338e13c2dd2574589dd699e12bda9b5ef2fe54e250f706",
+      "lf_sha256": "4f5e8b13945f546a66338e13c2dd2574589dd699e12bda9b5ef2fe54e250f706",
+      "normalization": "CRLF to LF only; original bytes untouched"
+    },
+    {
+      "path": "docs/contracts/local-players/compiled-source-allocation-v1.json",
+      "role": "reviewed allocation-v2, proposed",
+      "bytes": 43168,
+      "raw_sha256": "8b0ff9e40450e277a6e73e4208a5e096c38dfc2a8d38784837a0006770dc2f75",
+      "lf_sha256": "8b0ff9e40450e277a6e73e4208a5e096c38dfc2a8d38784837a0006770dc2f75",
+      "normalization": "CRLF to LF only; original bytes untouched"
+    },
+    {
+      "path": "docs/contracts/local-players/test-capability-v1.md",
+      "role": "reviewed allocation-v2, proposed",
+      "bytes": 12368,
+      "raw_sha256": "ed0506a4634f7b7e2b5d293a9ae49f00e284320dd8e0bd31b9359e16e2cc81d7",
+      "lf_sha256": "ed0506a4634f7b7e2b5d293a9ae49f00e284320dd8e0bd31b9359e16e2cc81d7",
+      "normalization": "CRLF to LF only; original bytes untouched"
+    },
+    {
+      "path": "tests/persistence/local_players/reference/expected-v1.json",
+      "role": "unchanged independent 114 value references",
+      "bytes": 54200,
+      "raw_sha256": "1ffaa82ae54a18dc5c9ec3d6c49760ed3b2d6c27abf77783572c6a9b3902d962",
+      "lf_sha256": "1ffaa82ae54a18dc5c9ec3d6c49760ed3b2d6c27abf77783572c6a9b3902d962",
+      "normalization": "CRLF to LF only; original bytes untouched"
+    },
+    {
+      "path": "tests/persistence/local_players/reference/generate.py",
+      "role": "unchanged independent 114 value references",
+      "bytes": 17972,
+      "raw_sha256": "a695fa0d06a8b91bed3b3117789c09b2fdb3df0e5e0afe7aa4bd9069d63374ed",
+      "lf_sha256": "a695fa0d06a8b91bed3b3117789c09b2fdb3df0e5e0afe7aa4bd9069d63374ed",
+      "normalization": "CRLF to LF only; original bytes untouched"
+    },
+    {
+      "path": "tests/persistence/local_players/reference/source-binding-v1.json",
+      "role": "unchanged independent 114 value references",
+      "bytes": 5128,
+      "raw_sha256": "37d551c29b6e14c51f6d0c0ca37893680a57520b06ffa9f2f046919820eeaa95",
+      "lf_sha256": "37d551c29b6e14c51f6d0c0ca37893680a57520b06ffa9f2f046919820eeaa95",
+      "normalization": "CRLF to LF only; original bytes untouched"
+    },
+    {
+      "path": "tests/persistence/local_players/reference/README.md",
+      "role": "unchanged independent 114 value references",
+      "bytes": 4554,
+      "raw_sha256": "70507f04f9fdaadd5677e5ff5636c9cc30fbacc0bd9de788c0d7f8234635ec72",
+      "lf_sha256": "70507f04f9fdaadd5677e5ff5636c9cc30fbacc0bd9de788c0d7f8234635ec72",
+      "normalization": "CRLF to LF only; original bytes untouched"
+    }
+  ],
+  "packet": [
+    {
+      "path": "tests/persistence/local_players/service_reference/expected-v1.json",
+      "bytes": 468270,
+      "sha256": "61078c6aea80de7d15b2d0fe8a94a796a24086ea270f64e98fa9074aa8aa7860"
+    },
+    {
+      "path": "tests/persistence/local_players/service_reference/generate.py",
+      "bytes": 28357,
+      "sha256": "ecc26633c8f1569b4d5e854915c371f53aaee558e5bb22f6249d7e8440c86efd"
+    },
+    {
+      "path": "tests/persistence/local_players/service_reference/README.md",
+      "bytes": 3245,
+      "sha256": "a6446d658d5d4b8def14cd77e87f2ec3f9c591091b8335b132db94ecdbacb783"
+    }
+  ],
+  "acceptance": "No accepted contract/head or actual source/runtime identity is invented. Root must approve new four-path allocation and independent review before publication/consumer use.",
+  "preservation": "114/generator/source bindings and all72 design recipes remain exact raw bytes; no tolerance, DDL, numeric-path or existing expected value changed."
+}

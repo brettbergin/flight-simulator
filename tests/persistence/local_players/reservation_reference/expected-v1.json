@@ -1,0 +1,669 @@
+{
+  "schema": "IndependentLocalPlayersReservationReferences/v1",
+  "status": "PROPOSED_PRECONSUMER_UNRATIFIED",
+  "license": "Original MIT",
+  "arithmetic_case_count": 16,
+  "conditional_case_count": 13,
+  "arithmetic_cases": [
+    {
+      "id": "L01_empty_ready_after_start_polled",
+      "request_charges": [],
+      "shared_export_credit": false,
+      "expected_reserved_bytes": 2097152,
+      "expected_free_bytes": 31457280
+    },
+    {
+      "id": "L02_sixteen_maximum",
+      "request_charges": [
+        655360,
+        655360,
+        655360,
+        655360,
+        655360,
+        655360,
+        655360,
+        655360,
+        655360,
+        655360,
+        655360,
+        655360,
+        655360,
+        655360,
+        655360,
+        655360
+      ],
+      "shared_export_credit": false,
+      "expected_reserved_bytes": 33554432,
+      "expected_free_bytes": 0,
+      "incoming": {
+        "request_charge": 4096,
+        "export": false
+      },
+      "expected_admission": {
+        "accepted": false,
+        "error_code": "queue_full",
+        "additional_reservation_bytes": 0
+      },
+      "premise": "Owner/ready/type/caps/codec lease already valid; actual capacity test still future."
+    },
+    {
+      "id": "L03_fifteen_maximum_accept_last",
+      "request_charges": [
+        655360,
+        655360,
+        655360,
+        655360,
+        655360,
+        655360,
+        655360,
+        655360,
+        655360,
+        655360,
+        655360,
+        655360,
+        655360,
+        655360,
+        655360
+      ],
+      "shared_export_credit": false,
+      "expected_reserved_bytes": 31588352,
+      "expected_free_bytes": 1966080,
+      "incoming": {
+        "request_charge": 655360,
+        "export": false
+      },
+      "expected_admission": {
+        "accepted": true,
+        "error_code": "",
+        "additional_reservation_bytes": 1966080
+      },
+      "premise": "Owner/ready/type/caps/codec lease already valid; actual capacity test still future."
+    },
+    {
+      "id": "L04_sixteen_small_count_precedes_space",
+      "request_charges": [
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096
+      ],
+      "shared_export_credit": false,
+      "expected_reserved_bytes": 23134208,
+      "expected_free_bytes": 10420224,
+      "incoming": {
+        "request_charge": 4096,
+        "export": false
+      },
+      "expected_admission": {
+        "accepted": false,
+        "error_code": "queue_full",
+        "additional_reservation_bytes": 0
+      },
+      "premise": "Owner/ready/type/caps/codec lease already valid; actual capacity test still future."
+    },
+    {
+      "id": "L05_fifteen_small_first_export_refused",
+      "request_charges": [
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096
+      ],
+      "shared_export_credit": false,
+      "expected_reserved_bytes": 21819392,
+      "expected_free_bytes": 11735040,
+      "incoming": {
+        "request_charge": 4096,
+        "export": true
+      },
+      "expected_admission": {
+        "accepted": false,
+        "error_code": "out_of_memory",
+        "additional_reservation_bytes": 0
+      },
+      "premise": "Owner/ready/type/caps/codec lease already valid; actual capacity test still future."
+    },
+    {
+      "id": "L06_first_large_export",
+      "request_charges": [],
+      "shared_export_credit": false,
+      "expected_reserved_bytes": 2097152,
+      "expected_free_bytes": 31457280,
+      "incoming": {
+        "request_charge": 655360,
+        "export": true
+      },
+      "expected_admission": {
+        "accepted": true,
+        "error_code": "",
+        "additional_reservation_bytes": 20840448
+      },
+      "premise": "Owner/ready/type/caps/codec lease already valid; actual capacity test still future."
+    },
+    {
+      "id": "L07_six_large_shared_exports",
+      "request_charges": [
+        655360,
+        655360,
+        655360,
+        655360,
+        655360,
+        655360
+      ],
+      "shared_export_credit": true,
+      "expected_reserved_bytes": 32768000,
+      "expected_free_bytes": 786432,
+      "incoming": {
+        "request_charge": 655360,
+        "export": true
+      },
+      "expected_admission": {
+        "accepted": false,
+        "error_code": "out_of_memory",
+        "additional_reservation_bytes": 0
+      },
+      "premise": "Owner/ready/type/caps/codec lease already valid; actual capacity test still future."
+    },
+    {
+      "id": "L08_nine_small_shared_exports",
+      "request_charges": [
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096
+      ],
+      "shared_export_credit": true,
+      "expected_reserved_bytes": 32804864,
+      "expected_free_bytes": 749568,
+      "incoming": {
+        "request_charge": 4096,
+        "export": true
+      },
+      "expected_admission": {
+        "accepted": false,
+        "error_code": "out_of_memory",
+        "additional_reservation_bytes": 0
+      },
+      "premise": "Owner/ready/type/caps/codec lease already valid; actual capacity test still future."
+    },
+    {
+      "id": "L09_five_large_export_pending_accept_sixth",
+      "request_charges": [
+        655360,
+        655360,
+        655360,
+        655360,
+        655360
+      ],
+      "shared_export_credit": true,
+      "expected_reserved_bytes": 30801920,
+      "expected_free_bytes": 2752512,
+      "incoming": {
+        "request_charge": 655360,
+        "export": true
+      },
+      "expected_admission": {
+        "accepted": true,
+        "error_code": "",
+        "additional_reservation_bytes": 1966080
+      },
+      "premise": "Owner/ready/type/caps/codec lease already valid; actual capacity test still future."
+    },
+    {
+      "id": "L10_export_credit_released_six_undelivered",
+      "request_charges": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shared_export_credit": false,
+      "expected_reserved_bytes": 9961472,
+      "expected_free_bytes": 23592960,
+      "incoming": {
+        "request_charge": 655360,
+        "export": false
+      },
+      "expected_admission": {
+        "accepted": true,
+        "error_code": "",
+        "additional_reservation_bytes": 1966080
+      },
+      "premise": "Owner/ready/type/caps/codec lease already valid; actual capacity test still future."
+    },
+    {
+      "id": "L11_page_rounding_header_included",
+      "input": {
+        "capacity_with_header": [
+          128,
+          4096,
+          4097,
+          655360,
+          655361
+        ]
+      },
+      "expected": {
+        "page_charge": [
+          4096,
+          4096,
+          8192,
+          655360,
+          null
+        ],
+        "last_error": "payload_limit"
+      },
+      "premise": "Native owned request total, not bare wire payload; all earlier validations pass."
+    },
+    {
+      "id": "L12_two_exports_hold_shared_credit",
+      "input": {
+        "pending_exports": 2,
+        "active_exports": 1
+      },
+      "expected": {
+        "shared_credit_bytes": 18874368,
+        "second_spool_allowed": false,
+        "after_first_terminal_credit_bytes": 18874368,
+        "after_last_terminal_and_no_borrower_credit_bytes": 0
+      },
+      "premise": "Sole writer FIFO and both exports already admitted; results retain their own T/D."
+    },
+    {
+      "id": "L13_poll_overlap",
+      "input": {
+        "request_charge": 655360
+      },
+      "expected": {
+        "initial_R_T_D": 1966080,
+        "after_last_request_borrower_T_D": 1310720,
+        "during_poll_T_D": 1310720,
+        "after_successful_transfer_native_slot_bytes": 0
+      },
+      "premise": "No export credit; caller-owned output remains independent and outside native arena."
+    },
+    {
+      "id": "L14_spool_conservative_integer_bound",
+      "input": {
+        "players": 1,
+        "practice_rows": 2000
+      },
+      "expected": {
+        "inner_upper_bytes": 17044688,
+        "spool_capacity": 18874368,
+        "margin_bytes": 1829680
+      },
+      "premise": "Each stated canonical SQL/codec bound and summary encoding premise must be independently proven; not actual encoded output."
+    },
+    {
+      "id": "L15_outer_stream_cap",
+      "input": {
+        "counted_outer_bytes": [
+          33554432,
+          33554433
+        ]
+      },
+      "expected": [
+        {
+          "encoding_cap_admitted": true
+        },
+        {
+          "terminal_state": "failed",
+          "error_code": "storage_full",
+          "phase": "encode",
+          "installed": false,
+          "target_IO_calls": 0
+        }
+      ],
+      "premise": "Hypothetical exact stream counts before any target IO; no saved/hash/path observation inferred."
+    },
+    {
+      "id": "L16_actor_record_bound",
+      "input": {
+        "recovery_set_bytes": 352321536,
+        "chunk_bytes": 65536,
+        "operations": 16,
+        "events_per_full_read_write_chunk": 4
+      },
+      "expected": {
+        "chunks_per_operation": 5376,
+        "bracket_records": 344064,
+        "record_capacity": 524288,
+        "remaining_for_independently_counted_other_events": 180224
+      },
+      "premise": "Declared full64KiB successful read+write chunk has four actual events. Checked actual plan also bounds ALL other events and partial-call/chunk multiplicity before launch; overflow fails, never silently drops."
+    }
+  ],
+  "conditional_runtime_recipes": [
+    {
+      "id": "S01_full_copy_two_chunks",
+      "input": {
+        "actual_calls": [
+          {
+            "io_kind": "read",
+            "chunk_index": 0
+          },
+          {
+            "io_kind": "write",
+            "chunk_index": 0
+          },
+          {
+            "io_kind": "read",
+            "chunk_index": 1
+          },
+          {
+            "io_kind": "write",
+            "chunk_index": 1
+          }
+        ]
+      },
+      "premises": [
+        "Each actual read/write completed one full65536-byte call",
+        "Root-bound source sites/actor/nonce/handles and plan validated"
+      ],
+      "expected": {
+        "occurrences": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "edges_each": [
+          "before",
+          "after"
+        ],
+        "actual_event_count": 8
+      }
+    },
+    {
+      "id": "S02_partial_write_retry_no_parity",
+      "input": {
+        "actual_calls": [
+          {
+            "io_kind": "read",
+            "chunk_index": 0,
+            "completed_bytes": 65536
+          },
+          {
+            "io_kind": "write",
+            "chunk_index": 0,
+            "completed_bytes": 32768
+          },
+          {
+            "io_kind": "write",
+            "chunk_index": 0,
+            "completed_bytes": 32768
+          },
+          {
+            "io_kind": "read",
+            "chunk_index": 1,
+            "completed_bytes": 65536
+          }
+        ]
+      },
+      "premises": [
+        "Fixture actually induces this permitted bounded partial-call sequence",
+        "Source writer records EACH actual call and advances only observed completed bytes"
+      ],
+      "expected": {
+        "occurrences": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "io_kinds": [
+          "read",
+          "write",
+          "write",
+          "read"
+        ],
+        "edges_each": [
+          "before",
+          "after"
+        ],
+        "actual_event_count": 8,
+        "odd_even_rule_allowed": false
+      }
+    },
+    {
+      "id": "S03_actual_failed_read_no_write",
+      "input": {
+        "actual_calls": [
+          {
+            "io_kind": "read",
+            "chunk_index": 0,
+            "succeeded": false
+          }
+        ]
+      },
+      "premises": [
+        "Real selected read failed; actual Win32 result retained, not a fabricated return"
+      ],
+      "expected": {
+        "occurrences": [
+          1
+        ],
+        "edges_each": [
+          "before",
+          "after"
+        ],
+        "actual_event_count": 2,
+        "write_calls": 0
+      }
+    },
+    {
+      "id": "S04_unknown_selector_key",
+      "input": {
+        "selector": {
+          "service_ordinal": 1,
+          "request_ordinal": 1,
+          "kind": "start",
+          "scope": "qualification_copy",
+          "phase": "recovery_copy",
+          "edge": "before",
+          "occurrence": 1,
+          "extra": true
+        },
+        "action": "hold"
+      },
+      "premises": [
+        "Only stated violation; trusted supervisor validates closed plan before launching actor"
+      ],
+      "expected": {
+        "plan_admitted": false,
+        "actor_launches": 0,
+        "worker_or_IO_calls": 0
+      }
+    },
+    {
+      "id": "S05_duplicate_selector",
+      "input": {
+        "repeat_identical_action_count": 2,
+        "selector": {
+          "service_ordinal": 1,
+          "request_ordinal": 1,
+          "kind": "start",
+          "scope": "qualification_copy",
+          "phase": "recovery_copy",
+          "edge": "before",
+          "occurrence": 1
+        },
+        "action": "hold"
+      },
+      "premises": [
+        "Each selector may match once; duplicate plan rejected before launch"
+      ],
+      "expected": {
+        "plan_admitted": false,
+        "actor_launches": 0
+      }
+    },
+    {
+      "id": "S06_exact_plan_record_bound",
+      "input": {
+        "checked_max_actual_events": 524288
+      },
+      "premises": [
+        "All actual call/partial retry/SQL/allocator/lifecycle overhead included, valid finite plan otherwise"
+      ],
+      "expected": {
+        "capacity_preflight_admitted": true,
+        "overflow_may_drop_events": false
+      }
+    },
+    {
+      "id": "S07_plan_bound_plus_one",
+      "input": {
+        "checked_max_actual_events": 524289
+      },
+      "premises": [
+        "Same finite-capacity preflight; no runtime output observed"
+      ],
+      "expected": {
+        "capacity_preflight_admitted": false,
+        "actor_launches": 0
+      }
+    },
+    {
+      "id": "S08_terminal_reservation_failure",
+      "input": {
+        "allocation_selector": {
+          "service_ordinal": 1,
+          "request_ordinal": 1,
+          "category": "terminal",
+          "ordinal": 1
+        },
+        "action": "fail_allocation"
+      },
+      "premises": [
+        "Exact first terminal reservation selected BEFORE admission and effects",
+        "Real arena fail-before-claim hook, not revocation of accepted memory"
+      ],
+      "expected": {
+        "accepted": false,
+        "error_code": "out_of_memory",
+        "request_id": null,
+        "slot_count_delta": 0,
+        "BEGIN_calls": 0,
+        "export_IO_calls": 0
+      }
+    },
+    {
+      "id": "S09_codec_lease_busy",
+      "input": {
+        "codec_lease": "owned_by_worker",
+        "outstanding_before": 3
+      },
+      "premises": [
+        "Otherwise valid owner/ready/type/caps request",
+        "No queue saturation; nonblocking admission cannot borrow codec workspace"
+      ],
+      "expected": {
+        "accepted": false,
+        "error_code": "out_of_memory",
+        "request_id": null,
+        "outstanding_after": 3,
+        "wait_on_worker_or_IO": false
+      }
+    },
+    {
+      "id": "S10_foreign_nonce_ready",
+      "input": {
+        "ready_nonce_matches": false,
+        "ready_pid_matches": true,
+        "process_alive": true
+      },
+      "premises": [
+        "Actual actor/received frame observations, not assumed from marker existence"
+      ],
+      "expected": {
+        "readiness_qualified": false,
+        "held_lock_proof": false,
+        "failure_retained": true
+      }
+    },
+    {
+      "id": "S11_expired_holder",
+      "input": {
+        "closed_reason": "lease_expired",
+        "handles_closed": true,
+        "actual_exit_observed": true
+      },
+      "premises": [
+        "Correct actual nonce/PID and parsed frame; lease expiry is real failure"
+      ],
+      "expected": {
+        "normal_disposal_passed": false,
+        "failure_retained": true,
+        "cleanup_does_not_erase_failure": true
+      }
+    },
+    {
+      "id": "S12_closed_frame_without_exit",
+      "input": {
+        "closed_reason": "released",
+        "handles_closed": true,
+        "actual_exit_observed": false
+      },
+      "premises": [
+        "Correct actual nonce/PID; claimed CLOSED alone is not process retirement"
+      ],
+      "expected": {
+        "normal_disposal_passed": false,
+        "actual_join_or_exit_proven": false
+      }
+    },
+    {
+      "id": "S13_real_held_lock_readiness",
+      "input": {
+        "ready_nonce_matches": true,
+        "ready_pid_matches": true,
+        "actual_executable_matches": true,
+        "actual_capability_matches": true,
+        "actual_handle_identity_matches": true,
+        "holder_alive_during_competing_call": true,
+        "actual_competing_access_rejected": true,
+        "closed_before_held_assertion": false
+      },
+      "premises": [
+        "Every true input must come from Root-bound ACTUAL NTFS/process/handle operations",
+        "A JSON dict with these values is not runtime evidence"
+      ],
+      "expected": {
+        "held_lock_proof": true,
+        "normal_disposal_still_requires_released_and_actual_exit": true
+      }
+    }
+  ],
+  "authority": "Conditional premises must be ACTUALLY witnessed; no dict/recipe supplies IO/PID/native/SQLite/worker authority."
+}
