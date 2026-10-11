@@ -1,0 +1,83 @@
+{
+  "schema": "coupled-probe-source-manifest-local-window-v2",
+  "files": {
+    "chronology-probe.cpp": {
+      "bytes": 5446,
+      "sha256": "c84e395a0d880874c4c60289c82ca861a5d0b4aee3ac649d8d02ebecba2f1d68"
+    },
+    "CMakeLists.txt": {
+      "bytes": 5501,
+      "sha256": "6d131a6e81633129c6eee77ad41ca248dff3cf984fc9fefc327e5148fa269f79"
+    },
+    "driver.template.cpp": {
+      "bytes": 9484,
+      "sha256": "f9dac92a12bc7b924a33d78c70d305f36312f6b0686ea53cef39deb697f5b669"
+    },
+    "legacy_compare.py": {
+      "bytes": 3732,
+      "sha256": "1c7fa1731f8742a1e8e9a71a5ffe341861d2af69f7f20cdaa05b0594ad8f5b91"
+    },
+    "library-probe.cpp": {
+      "bytes": 9588,
+      "sha256": "c6bddb9d35cc33db192ca73e5324369705be79002fec752342068cd04b77cabf"
+    },
+    "prepare.py": {
+      "bytes": 8016,
+      "sha256": "d378c0690d87581bf76e728abecbf7978b6ac793773dd278b9129690013bda8e"
+    },
+    "README.md": {
+      "bytes": 5993,
+      "sha256": "da4a46b5629a0be1db57cdd73c1e257af67665b70ae356e2699b8a55bcd8fcbc"
+    },
+    "run.py": {
+      "bytes": 21663,
+      "sha256": "04b79ed8c2b8ce4f0420918efb77507f101ec884f84c83fd38d39346dc13aca2"
+    },
+    "source-chronology.py": {
+      "bytes": 2924,
+      "sha256": "9a4544f32dca16c7bc931d42cb16173b27f1ab5e79b6cb87c079f7608e8fefd8"
+    },
+    "terminal-retention.cpp": {
+      "bytes": 7031,
+      "sha256": "69fdb6cd2c7f97979651a7368c984f979e918e0c397fa079f3027a9f880a5f53"
+    },
+    "test_portable.py": {
+      "bytes": 16156,
+      "sha256": "349075e283457cf848932fefa0163fac86e921b2a0fd5f9f2e389af1f9af2a31"
+    },
+    "test_validate.py": {
+      "bytes": 3700,
+      "sha256": "8fbd27eacbe4010bab819bea12ec9fc2fd72968820a8ddec7a61a09b47abdbbc"
+    },
+    "validate.py": {
+      "bytes": 27809,
+      "sha256": "9b76ea7aaa2798c06415b4e97292f67adacb8158bcf78175a1f8425503e35f20"
+    }
+  },
+  "shared_sources": {
+    "tests/engine/loaded-library.hpp": {
+      "sha256": "3911b0601260fcb581f95515d267b3bc02ac351144801923737fa0776ac15019",
+      "bytes": 2300
+    },
+    "tests/engine/reference/expected-v3.json": {
+      "sha256": "36aac20d85e841743d7eb9a357be8a0d40d8f103c1cbc60e084dde9ef23db63b",
+      "bytes": 37399
+    },
+    "tests/engine/CMakeLists.txt": {
+      "sha256": "88f939609a52c00f6e511f2d68bca1ad2a7b93b94caa2793d52d97eb38d37a80",
+      "bytes": 2232
+    },
+    "tools/bootstrap/build.ps1": {
+      "sha256": "40c4725cb5e7b8a87bad2843e8fe6730556ff6cc50f32cdfa3b7dd2ea94d76ea",
+      "bytes": 19725
+    },
+    "tests/engine/local-window-v2/CMakeLists.txt": {
+      "sha256": "e2d1c3b24416674679943576720d44002f0e8485e6f317d866997aa519ca0610",
+      "bytes": 2738
+    },
+    "tools/bootstrap/build-local-window.ps1": {
+      "sha256": "4eea9db6fa076adf91dcd5124e469c1c824dc04e24465af05d8808b500f26cf0",
+      "bytes": 20161
+    }
+  }
+}

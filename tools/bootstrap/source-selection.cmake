@@ -1,8 +1,8 @@
 # Verified source selection. Root includes this after
 # the ordinary pristine dependency receipt loop and before JSBSim add_subdirectory.
 option(FLIGHT_USE_EVENT_AWARE_JSBSIM "Compatibility selection of ADR014 held-power source" OFF)
-set(FLIGHT_JSBSIM_VARIANT "" CACHE STRING "Explicit JSBSim source: upstream, event-aware-constant-power-v1, event-aware-coupled-midpoint-v1; empty preserves the legacy selector")
-set_property(CACHE FLIGHT_JSBSIM_VARIANT PROPERTY STRINGS "" upstream event-aware-constant-power-v1 event-aware-coupled-midpoint-v1)
+set(FLIGHT_JSBSIM_VARIANT "" CACHE STRING "Explicit JSBSim source: upstream, event-aware-constant-power-v1, event-aware-coupled-midpoint-v1, event-aware-coupled-midpoint-local-window-v2; empty preserves the legacy selector")
+set_property(CACHE FLIGHT_JSBSIM_VARIANT PROPERTY STRINGS "" upstream event-aware-constant-power-v1 event-aware-coupled-midpoint-v1 event-aware-coupled-midpoint-local-window-v2)
 set(FLIGHT_JSBSIM_SOURCE_BUNDLE_ROOT "" CACHE PATH "Complete reviewed corresponding-source bundle root (contains vendor)")
 set(selected_variant "${FLIGHT_JSBSIM_VARIANT}")
 if(selected_variant STREQUAL "")
@@ -11,7 +11,7 @@ if(selected_variant STREQUAL "")
   else()
     set(selected_variant upstream)
   endif()
-elseif(NOT selected_variant MATCHES "^(upstream|event-aware-constant-power-v1|event-aware-coupled-midpoint-v1)$")
+elseif(NOT selected_variant MATCHES "^(upstream|event-aware-constant-power-v1|event-aware-coupled-midpoint-v1|event-aware-coupled-midpoint-local-window-v2)$")
   message(FATAL_ERROR "Unknown closed JSBSim source variant")
 elseif(FLIGHT_USE_EVENT_AWARE_JSBSIM AND NOT selected_variant STREQUAL "event-aware-constant-power-v1")
   message(FATAL_ERROR "Conflicting JSBSim source variant and legacy held-power selector")
@@ -32,6 +32,10 @@ if(NOT selected_variant STREQUAL "upstream")
     set(FLIGHT_JSBSIM_HAS_COUPLED_API ON)
     set(JSBSIM_SOURCE_SELECTOR_SCRIPT "${CMAKE_SOURCE_DIR}/tools/bootstrap/coupled-source-variant.py")
     set(JSBSIM_SOURCE_SELECTOR_ARGUMENTS --coupled-midpoint --source-root "${FLIGHT_JSBSIM_SOURCE_ROOT}")
+  elseif(selected_variant STREQUAL "event-aware-coupled-midpoint-local-window-v2")
+    set(FLIGHT_JSBSIM_HAS_COUPLED_API ON)
+    set(JSBSIM_SOURCE_SELECTOR_SCRIPT "${CMAKE_SOURCE_DIR}/tools/bootstrap/coupled-local-window-source-variant.py")
+    set(JSBSIM_SOURCE_SELECTOR_ARGUMENTS --coupled-local-window --source-root "${FLIGHT_JSBSIM_SOURCE_ROOT}")
   else()
     set(JSBSIM_SOURCE_SELECTOR_ARGUMENTS --event-aware --source-root "${FLIGHT_JSBSIM_SOURCE_ROOT}")
   endif()
@@ -62,10 +66,18 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
   "${CMAKE_SOURCE_DIR}/tools/export/jsbsim-event-aware/verify.py"
   ${JSBSIM_SELECTED_SOURCE_INPUTS})
 if(FLIGHT_JSBSIM_HAS_COUPLED_API)
-  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
-    "${CMAKE_SOURCE_DIR}/third_party/patches/jsbsim/event-aware-coupled-midpoint-v1/identity.json"
-    "${CMAKE_SOURCE_DIR}/tools/export/jsbsim-coupled-midpoint/materialize.py"
-    "${CMAKE_SOURCE_DIR}/tools/export/jsbsim-coupled-midpoint/verify.py")
+  if(selected_variant STREQUAL "event-aware-coupled-midpoint-local-window-v2")
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+      "${CMAKE_SOURCE_DIR}/tools/bootstrap/coupled-local-window-source-variant.py"
+      "${CMAKE_SOURCE_DIR}/third_party/patches/jsbsim/event-aware-coupled-midpoint-local-window-v2/identity.json"
+      "${CMAKE_SOURCE_DIR}/tools/export/jsbsim-coupled-midpoint-local-window/materialize.py"
+      "${CMAKE_SOURCE_DIR}/tools/export/jsbsim-coupled-midpoint-local-window/verify.py")
+  else()
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+      "${CMAKE_SOURCE_DIR}/third_party/patches/jsbsim/event-aware-coupled-midpoint-v1/identity.json"
+      "${CMAKE_SOURCE_DIR}/tools/export/jsbsim-coupled-midpoint/materialize.py"
+      "${CMAKE_SOURCE_DIR}/tools/export/jsbsim-coupled-midpoint/verify.py")
+  endif()
   add_compile_definitions(FLIGHT_JSBSIM_COUPLED_MIDPOINT_SHAFT=1)
 endif()
 if(FLIGHT_JSBSIM_HAS_EVENT_API)
@@ -99,7 +111,10 @@ set(JSBSIM_BUILD_CONTROL_PATHS
   native/fdm_jsbsim/interactive/CMakeLists.txt tests/fdm/CMakeLists.txt
   native/fdm_jsbsim/interactive/native_identity.gd.in
   native/godot_bridge/CMakeLists.txt
-  tests/wire_codec/CMakeLists.txt)
+  tests/wire_codec/CMakeLists.txt
+  tools/bootstrap/coupled-local-window-source-variant.py
+  tools/bootstrap/build-local-window.ps1
+  tests/engine/local-window-v2/CMakeLists.txt)
 set(JSBSIM_BUILD_CONTROL_TEXT "")
 foreach(relative_path IN LISTS JSBSIM_BUILD_CONTROL_PATHS)
   set(control_path "${CMAKE_SOURCE_DIR}/${relative_path}")

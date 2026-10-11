@@ -26,6 +26,7 @@ export function backendIdentities(identityBytes, inventoryBytes) {
   const variants = new Map([
     ['jsbsim-1.3.1-event-aware-constant-power-v1', {schema: 2, files: 291, modified: 2}],
     ['jsbsim-1.3.1-event-aware-coupled-midpoint-v1', {schema: 3, files: 293, modified: 4}],
+    ['jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2', {schema: 3, files: 293, modified: 4}],
   ]);
   const variant = variants.get(identity?.source_variant);
   if (!variant) throw new Error('Unsupported public backend source variant');
@@ -91,8 +92,8 @@ export async function currentSourceFingerprint(executable, { adapterRoot = defau
   // Native targets are emitted to <build>/bin, including standalone CLI defaults.
   const manifest = join(dirname(resolve(executable)), '..', 'jsbsim-source-build-manifest.txt');
   const identity = parseBuildIdentity(await readFile(manifest, 'utf8'));
-  const transport = identity.variant === 'jsbsim-1.3.1-event-aware-coupled-midpoint-v1'
-    ? 'event-aware-coupled-midpoint-v1' : 'event-aware-constant-power-v1';
+  const transport = identity.variant === 'jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2' ? 'event-aware-coupled-midpoint-local-window-v2'
+    : identity.variant === 'jsbsim-1.3.1-event-aware-coupled-midpoint-v1' ? 'event-aware-coupled-midpoint-v1' : 'event-aware-constant-power-v1';
   const [identityBytes, inventoryBytes] = await Promise.all([
     readFile(join(repositoryRoot, `third_party/patches/jsbsim/${transport}/identity.json`)),
     readFile(join(repositoryRoot, 'tools/export/jsbsim/upstream-file-inventory.json')),

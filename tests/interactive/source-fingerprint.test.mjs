@@ -48,7 +48,7 @@ async function fixture(t) {
   const inventory = await readFile(new URL('../../tools/export/jsbsim/upstream-file-inventory.json', import.meta.url));
   await put('tools/export/jsbsim/upstream-file-inventory.json', inventory);
   const accepted = new Map();
-  for (const transport of ['event-aware-constant-power-v1', 'event-aware-coupled-midpoint-v1']) {
+  for (const transport of ['event-aware-constant-power-v1', 'event-aware-coupled-midpoint-v1', 'event-aware-coupled-midpoint-local-window-v2']) {
     const raw = await readFile(new URL(`../../third_party/patches/jsbsim/${transport}/identity.json`, import.meta.url));
     await put(`third_party/patches/jsbsim/${transport}/identity.json`, raw);
     for (const row of backendIdentities(raw, inventory)) accepted.set(...row);

@@ -61,7 +61,7 @@ func _init(adapter_factory: Callable = Callable()) -> void:
 	_owner_thread=OS.get_thread_caller_id()
 
 static func _native_identity_valid() -> bool:
-	if NativeIdentity.SCHEMA!="flight-native-build-identity-v1" or NativeIdentity.SOURCE_VARIANT not in ["jsbsim-1.3.1-upstream","jsbsim-1.3.1-event-aware-constant-power-v1","jsbsim-1.3.1-event-aware-coupled-midpoint-v1"]:
+	if NativeIdentity.SCHEMA!="flight-native-build-identity-v1" or NativeIdentity.SOURCE_VARIANT not in ["jsbsim-1.3.1-upstream","jsbsim-1.3.1-event-aware-constant-power-v1","jsbsim-1.3.1-event-aware-coupled-midpoint-v1","jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2"]:
 		return false
 	for value in [NativeIdentity.BACKEND_IDENTITY_SHA256,NativeIdentity.BUILD_CONTROL_SHA256,NativeIdentity.SOURCE_FINGERPRINT]:
 		if not value is String or value.length()!=64:

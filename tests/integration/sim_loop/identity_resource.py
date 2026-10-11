@@ -54,7 +54,7 @@ def main():
             'BUILD_CONTROL_SHA256': 'b'*64,
             'SOURCE_FINGERPRINT': 'c'*64}
     cases = []
-    for variant in ('upstream', 'event-aware-constant-power-v1', 'event-aware-coupled-midpoint-v1'):
+    for variant in ('upstream', 'event-aware-constant-power-v1', 'event-aware-coupled-midpoint-v1', 'event-aware-coupled-midpoint-local-window-v2'):
         values = dict(base, SOURCE_VARIANT='jsbsim-1.3.1-'+variant)
         cases.append(('shape-'+variant, values, 1))
     for name, key, value in [('bad-schema', 'SCHEMA', 'flight-native-build-identity-v2'),

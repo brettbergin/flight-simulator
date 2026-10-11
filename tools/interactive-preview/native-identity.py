@@ -18,7 +18,8 @@ import tempfile
 SCHEMA = 'PreviewNativeBuildIdentity/v2'
 SCOPE = 'Qualified declared source/build/resource identity; actual loaded facade and library identity require runtime evidence'
 VARIANTS = ('jsbsim-1.3.1-upstream', 'jsbsim-1.3.1-event-aware-constant-power-v1',
-            'jsbsim-1.3.1-event-aware-coupled-midpoint-v1')
+            'jsbsim-1.3.1-event-aware-coupled-midpoint-v1',
+            'jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2')
 SOURCES = (
     'native/fdm_jsbsim/interactive/src/session.cpp',
     'native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp',
@@ -48,7 +49,9 @@ CONTROLS = (
     'tools/bootstrap/bootstrap.py', 'native/fdm_jsbsim/CMakeLists.txt',
     'native/fdm_jsbsim/ground/CMakeLists.txt',
     'native/fdm_jsbsim/interactive/CMakeLists.txt', 'tests/fdm/CMakeLists.txt', TEMPLATE,
-    'native/godot_bridge/CMakeLists.txt', 'tests/wire_codec/CMakeLists.txt')
+    'native/godot_bridge/CMakeLists.txt', 'tests/wire_codec/CMakeLists.txt',
+    'tools/bootstrap/coupled-local-window-source-variant.py', 'tools/bootstrap/build-local-window.ps1',
+    'tests/engine/local-window-v2/CMakeLists.txt')
 BUILD_PATH = 'native-identity.gd'
 STAGED_PATH = 'build/native_identity.gd'
 TOP = ('schema', 'root', 'source_variant', 'backend_identity_sha256',
@@ -140,7 +143,7 @@ def route(values):
     legacy = values.get('FLIGHT_USE_EVENT_AWARE_JSBSIM')
     require(legacy in ('ON', 'OFF'), 'Missing/unknown legacy source selector')
     require(selected in ('', 'upstream', 'event-aware-constant-power-v1',
-                         'event-aware-coupled-midpoint-v1'), 'Unknown source selector')
+                         'event-aware-coupled-midpoint-v1', 'event-aware-coupled-midpoint-local-window-v2'), 'Unknown source selector')
     if selected:
         require(legacy == 'OFF' or selected == 'event-aware-constant-power-v1',
                 'Conflicting source selectors')
@@ -156,8 +159,12 @@ def selected_source(repo, build, values):
         script, args = 'tools/bootstrap/source-variant.py', []
     else:
         source = ordinary(Path(values['FLIGHT_JSBSIM_SOURCE_BUNDLE_ROOT']) / 'vendor', True)
-        script, args = ('tools/bootstrap/coupled-source-variant.py', ['--coupled-midpoint']) if variant == VARIANTS[2] else (
-            'tools/bootstrap/source-variant.py', ['--event-aware'])
+        if variant == VARIANTS[3]:
+            script, args = 'tools/bootstrap/coupled-local-window-source-variant.py', ['--coupled-local-window']
+        elif variant == VARIANTS[2]:
+            script, args = 'tools/bootstrap/coupled-source-variant.py', ['--coupled-midpoint']
+        else:
+            script, args = 'tools/bootstrap/source-variant.py', ['--event-aware']
     # Isolated workspace scratch, including nested verifier subprocesses. No
     # global environment changes and no reuse of an owner's existing proof.
     scratch_parent = repo / '.local/native-identity-scratch'

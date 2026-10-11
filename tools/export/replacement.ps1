@@ -15,7 +15,7 @@ foreach($module in @('JSBSim.dll','flight_godot_bridge.dll')){
  if((Get-FileHash -LiteralPath (Join-Path $currentNative.root ('bin/'+$module))).Hash -cne (Get-FileHash -LiteralPath (Join-Path $run.payload ('bin/'+$module))).Hash){throw 'Export baseline changed before source rebuild'}
 }
 $selection=$rawSelection|ConvertFrom-Json -ErrorAction Stop
-if($null -eq $selection -or $selection.schema -cne 'SelectedLibraryRelease/v1' -or $selection.source_variant -cnotin @('jsbsim-1.3.1-upstream','jsbsim-1.3.1-event-aware-coupled-midpoint-v1')){throw 'Require a freshly source-qualified export baseline'}
+if($null -eq $selection -or $selection.schema -cne 'SelectedLibraryRelease/v1' -or $selection.source_variant -cnotin @('jsbsim-1.3.1-upstream','jsbsim-1.3.1-event-aware-coupled-midpoint-v1','jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2')){throw 'Require a freshly source-qualified export baseline'}
 if($SourceSHA256 -cne $selection.source_archive_sha256 -or ($selection.modified -and (Get-Item -LiteralPath $SourceArchive).Length -ne $selection.source_archive_bytes)){throw 'Replacement archive differs from selected baseline source'}
 $root=Join-Path $run.root 'source-rebuild'
 $source=Join-Path $root 'fresh-source'

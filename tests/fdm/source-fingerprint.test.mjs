@@ -135,3 +135,52 @@ test('synthetic schema3 metadata uses its separate public identity and closed fo
   await writeFile(manifestPath, manifest(expectedBackend).replace('synthetic-test', 'jsbsim-1.3.1-event-aware-coupled-midpoint-v2'));
   await assert.rejects(() => currentSourceFingerprint(executable, { adapterRoot, repositoryRoot: root }));
 });
+
+test('synthetic local-window schema3 uses its distinct public route and closed four-file verification', async t => {
+  const root = await mkdtemp(join(tmpdir(), 'flight-schema3-fingerprint-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const inventoryBytes = await readFile(new URL('../../tools/export/jsbsim/upstream-file-inventory.json', import.meta.url));
+  const oldBytes = await readFile(new URL('../../third_party/patches/jsbsim/event-aware-constant-power-v1/identity.json', import.meta.url));
+  // Synthetic metadata tests the transport route only; it is not a qualified
+  // source bundle, production identity, actual DLL or numerical-method result.
+  const identity = JSON.parse(oldBytes);
+  identity.source_variant = 'jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2';
+  identity.bundle_files = 293;
+  identity.modified_vendor_files = 4;
+  identity.changes = [...identity.changes, ...identity.changes.map(row => ({ ...row }))];
+  const identityBytes = Buffer.from(JSON.stringify(identity) + '\n');
+  const accepted = backendIdentities(identityBytes, inventoryBytes);
+  assert.equal(accepted.size, 2);
+  assert.equal(accepted.get('jsbsim-1.3.1-upstream'), backendIdentities(oldBytes, inventoryBytes).get('jsbsim-1.3.1-upstream'));
+  const verification = { schema_version: 3, source_variant: identity.source_variant,
+    bundle_files: 293, vendor_files: 279, unchanged_vendor_files: 275,
+    modified_vendor_files: 4, provenance_reconstructed: true,
+    recipe_sha256: identity.recipe_sha256, vendor_tree_sha256: identity.vendor_tree_sha256,
+    materializer_sha256: identity.materializer_sha256 };
+  const declaration = { schema_version: 1, identity_file_sha256: hash(identityBytes), identity, verification };
+  const keys = new Set();
+  JSON.stringify(declaration, (key, value) => { if (key) keys.add(key); return value; });
+  const expectedBackend = hash(JSON.stringify(declaration, [...keys].sort()));
+  assert.equal(accepted.get(identity.source_variant), expectedBackend);
+  for (const mutate of [row => row.bundle_files = 291, row => row.modified_vendor_files = 2,
+    row => row.changes.pop(), row => row.source_variant = 'jsbsim-1.3.1-event-aware-coupled-midpoint-v2']) {
+    const invalid = structuredClone(identity); mutate(invalid);
+    assert.throws(() => backendIdentities(Buffer.from(JSON.stringify(invalid)), inventoryBytes));
+  }
+  const transport = join(root, 'third_party/patches/jsbsim/event-aware-coupled-midpoint-local-window-v2');
+  await mkdir(transport, { recursive: true });
+  await mkdir(join(root, 'tools/export/jsbsim'), { recursive: true });
+  await writeFile(join(transport, 'identity.json'), identityBytes);
+  await writeFile(join(root, 'tools/export/jsbsim/upstream-file-inventory.json'), inventoryBytes);
+  const adapterRoot = join(root, 'adapter');
+  await mkdir(join(adapterRoot, 'src'), { recursive: true });
+  await mkdir(join(adapterRoot, 'include'), { recursive: true });
+  await mkdir(join(root, 'build/bin'), { recursive: true });
+  const executable = join(root, 'build/bin/synthetic.exe');
+  const manifestPath = join(root, 'build/jsbsim-source-build-manifest.txt');
+  await writeFile(manifestPath, manifest(expectedBackend).replace('synthetic-test', identity.source_variant));
+  assert.equal(await currentSourceFingerprint(executable, { adapterRoot, repositoryRoot: root }),
+    hash(`jsbsim-backend:${expectedBackend}\njsbsim-build-controls:${buildControls}\n`));
+  await writeFile(manifestPath, manifest(expectedBackend).replace('synthetic-test', 'jsbsim-1.3.1-event-aware-coupled-midpoint-v2'));
+  await assert.rejects(() => currentSourceFingerprint(executable, { adapterRoot, repositoryRoot: root }));
+});
