@@ -34,6 +34,8 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | THIRD-PERSON-STABILITY | [#110 Smooth third-person aircraft motion and keep camera tracking in the same frame](https://github.com/brettbergin/flight-simulator/issues/110) | AIRCRAFT-GROUND-UX |
 | DOCS-NATIVE-CI-SCOPE | [#124 Bound native CI work for documentation-only PRs](https://github.com/brettbergin/flight-simulator/issues/124) | CORE-CONTRACTS, TOOLCHAIN, NATIVE-EXPORT |
 
+| NASA-MEASURED-TRACES | [#231 Extract two independently checked C172M flight-test candidates](https://github.com/brettbergin/flight-simulator/issues/231) | CORE-CONTRACTS, LICENSE-REGISTER, VALIDATION-CORPUS |
+
 ## P2 — First cockpit and synthetic airfield
 
 | Key | Issue | Dependencies |
