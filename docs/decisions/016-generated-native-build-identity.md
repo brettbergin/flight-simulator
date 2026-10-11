@@ -126,6 +126,27 @@ Consumer integration must update each explicit closed variant/control consumer c
 
 Source allocation does not prove repaired behavior. Require actual strict Windows/Linux compilation, the frozen17 scalar references **and** unchanged137/library/270-default/12-chronology/12-process physical criteria, original298-call replay, fresh editor/portable/rebuilt-replacement actual-module evidence and joined shutdown. Qualification must bind the scalar target's actual executable hash and exact CTest command rather than only discover its name. No model, coefficient, public schema/session method, profile selector, clock, wind domain, tolerance, default-source adoption, aircraft claim or phase gate changes through this documentation merge.
 
+## Successor source-only allocation for issue202
+
+The initial allocation above remains historical. A fresh source-only renewal for [issue202](https://github.com/brettbergin/flight-simulator/issues/202) changes exactly one FGPropeller.cpp rejection message: when the requested remaining time is not strictly inside the certified local window, retain the historical `coupled shaft: decay continuation uncertified` category. The exact comparison, fatal rejection, split and evaluation budgets, solver expressions, chronology, model data and frozen 17/137 reference bytes remain unchanged. This is a diagnostic-text correction, not evidence of repaired flight behavior.
+
+The companion scalar test now derives the expected first floating-point guard from caller `fegetround()` after installing each unsupported SSE mask, requires that mask to be installed and requires unchanged rounding and full MXCSR after rejection. It does not infer an expected answer from candidate output or broaden accepted failure categories. The retained b66 compilation and failed CTest outputs are not relabelled as this new source.
+
+| Renewed source-only item | Exact allocated value |
+|---|---|
+| Identity file raw SHA256 | `73000fbab720fe8361d65de049a027b6e280e5f835eedaab92df0bdd1746d770` |
+| Derived selected-backend digest | `2d633139c38d27ec445ca8357ede0fae526f95da80808b3ef45e1708be4189ea` |
+| Corresponding-source archive SHA256 | `7341b8d797082efb2107f12511ac0ecab09fde66423c8bb3b6cd329ddff28177` |
+| Archive byte count | `3926768` |
+| Materializer SHA256 | `645fe299d160137b1e7dd4ace2d077ca26389253fa9242c4be5182451d01f42a` |
+| Source recipe SHA256 | `603c3f042d8225a32ce067eaaa1deca00ac327240eef6538e7a9e340df3cbe4c` |
+| Materialized vendor-tree SHA256 | `97652c3d57537b5eede8216b3f696a60e260f3a8a15672f4b65b4d93a887c237` |
+| FGPropeller.cpp SHA256 | `bc8414bfd86d482e32c7c3edd5e73352ffa7209b9daec74cf6ac19f1421a6d17` |
+
+The deterministic source archive still contains 293 regular files: 279 library files with 275 pristine and four reviewed replacements, plus 14 wrapper/provenance members. Relative to the initial archive, only FGPropeller.cpp, its exact recipe and the derived manifest change. The four-target recipe order, before-images, other three after-images, canonical LF MIT notice and source-tool bytes stay exact.
+
+This successor allocation requires explicit contract review before consumer pins are adopted. Preserve the same 25 ordered consumer-source records, 18 unconditional build controls, seven witnesses and closed identity/resource grammars. No compiled fingerprint, build-control digest or executable identity is allocated here. Require a fresh independently measured strict build, 13 CTests, unchanged 137/library/default/chronology and 12-process physical criteria, original 298-call replay and all three editor/portable/rebuilt-library delivery contexts before claiming the defect repaired. No aircraft, pilot, phase, default-profile or replacement-rights gate changes.
+
 ## PreviewNativeBuildIdentity/v2 evidence
 
 New staging evidence uses this exact closed top-level shape. All SHA256 values are lowercase64hex; byte counts are nonnegative integers. This is build-side provenance, not a native self-report or persistent flight format.

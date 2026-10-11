@@ -6629,7 +6629,8 @@
         "docs/backlog.json",
         "docs/issue-index.md",
         "docs/requirements.md",
-        "docs/phases/p3-complete-circuit.md"
+        "docs/phases/p3-complete-circuit.md",
+        "docs/decisions/016-generated-native-build-identity.md"
       ],
       "docs": [
         "docs/decisions/010-original-piston-profile.md",
