@@ -75,6 +75,8 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | PISTON-OBSERVED-REVIEW | [#197 Record cold-engine flights and save historical engine review](https://github.com/brettbergin/flight-simulator/issues/197) | PISTON-OBSERVED-REVIEW-CONTRACT, OBSERVED-FLIGHT-REVIEW, OBSERVED-REVIEW-FILES, ORIGINAL-PISTON-FLIGHT, LICENSE-REGISTER |
 | FLIGHT-SETUP-PRESENTATION | [#199 Make First flight setup clear and compact](https://github.com/brettbergin/flight-simulator/issues/199) | FIRST-FLIGHT-FRONTEND-CONTRACT, FIRST-FLIGHT-BRIEFING, SYNTHETIC-CIRCUIT-REFERENCE, PISTON-OBSERVED-REVIEW |
 | PISTON-PROPELLER-PRESENTATION | [#201 Make piston propeller presentation follow accepted simulation progress](https://github.com/brettbergin/flight-simulator/issues/201) | SIM-LOOP-CONTRACT, ORIGINAL-PISTON-CONTRACT, ORIGINAL-PISTON-FLIGHT, THIRD-PERSON-STABILITY |
+| PISTON-READINGS-DECIMAL-ADMISSION | [#204 Correct piston readings decimal admission while preserving exact control authority](https://github.com/brettbergin/flight-simulator/issues/204) | COCKPIT-READINGS-CONTRACT, ORIGINAL-PISTON-CONTRACT, ORIGINAL-PISTON-FLIGHT, SIM-LOOP-CONTRACT, NATIVE-WIRE-NUMBER-CONTRACT |
+| NATIVE-WIRE-NUMBER-CONTRACT | [#205 Ratify exact binary64 native wire decoding before decimal repair](https://github.com/brettbergin/flight-simulator/issues/205) | INTERACTIVE-CONTRACT, SIM-LOOP-CONTRACT, COCKPIT-READINGS-CONTRACT, ORIGINAL-PISTON-CONTRACT |
 
 ## P3 — Complete circuit and durable progress
 
