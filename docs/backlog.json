@@ -7635,6 +7635,7 @@
       "owned_paths": [
         "app/input/input_preset.gd",
         "tests/input/input_checks.gd",
+        "tools/input-controls/check.py",
         "docs/backlog.json",
         "docs/issue-index.md",
         "docs/requirements.md",

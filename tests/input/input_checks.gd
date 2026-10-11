@@ -478,7 +478,11 @@ func _locked_replacement(target: String, prior_preset: Dictionary) -> Dictionary
 	var ready_ps := ready.replace("'","''")
 	var release_ps := release.replace("'","''")
 	var done_ps := done.replace("'","''")
-	var script := "$ErrorActionPreference='Stop'; $heldFile=[IO.File]::Open('%s',[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::Read); try { [IO.File]::WriteAllText('%s','LOCKED'); $timer=[Diagnostics.Stopwatch]::StartNew(); while(-not [IO.File]::Exists('%s') -and $timer.Elapsed.TotalSeconds -lt 15){ [Threading.Thread]::Sleep(20) } } finally { $heldFile.Dispose(); [IO.File]::WriteAllText('%s','CLOSED') }; [Environment]::Exit(0)" % [target_ps,ready_ps,release_ps,done_ps]
+	var script := "$ErrorActionPreference='Stop'; $parentProcess=[Diagnostics.Process]::GetProcessById(%d); $null=$parentProcess.Handle; $released=$false; $release='%s'; $heldFile=[IO.File]::Open('%s',[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::Read); try { if($parentProcess.HasExited){throw 'Fixture parent exited before READY'}; [IO.File]::WriteAllText('%s','LOCKED'); while(-not $released){ if($parentProcess.HasExited){throw 'Fixture parent exited before release'}; if([IO.File]::Exists($release)){if([IO.File]::ReadAllText($release) -cne 'RELEASE'){throw 'Invalid fixture release'}; $released=$true}else{[Threading.Thread]::Sleep(20)} } } finally { $heldFile.Dispose(); $parentProcess.Dispose(); $completion=if($released){'CLOSED'}else{'ABORTED'}; [IO.File]::WriteAllText('%s',$completion) }; [Environment]::Exit(0)" % [OS.get_process_id(),release_ps,target_ps,ready_ps,done_ps]
+	# No wall-clock lease can release a held lock during a synchronous save.
+	# The captured parent handle anchors liveness; only exact RELEASE permits CLOSED.
+	# Parent death/invalid release closes the owned handle but cannot pass retirement.
+	# Existing readiness/retirement deadlines and outer supervisor bound remain.
 	# End only this owned fixture process after finally closes the handle and marker.
 	# Environment.Exit is outside try/finally so cleanup always precedes exit:
 	# https://learn.microsoft.com/en-us/dotnet/api/system.environment.exit
@@ -498,10 +502,12 @@ func _locked_replacement(target: String, prior_preset: Dictionary) -> Dictionary
 	var preserved := false
 	var retained := false
 	var save_error: String = ""
+	var held_through_save: bool = false
 	if locked:
 		var replacement := prior_preset.duplicate(true)
 		replacement.name = "Must not replace externally locked original"
 		var result: Dictionary = Preset.save(target,replacement)
+		held_through_save = OS.is_process_running(pid) and not FileAccess.file_exists(done) and not FileAccess.file_exists(release)
 		save_error = result.error
 		rejected = not result.ok and not result.error.is_empty()
 		preserved = FileAccess.get_file_as_bytes(target) == old_bytes
@@ -509,7 +515,7 @@ func _locked_replacement(target: String, prior_preset: Dictionary) -> Dictionary
 		for filename in DirAccess.get_files_at(target.get_base_dir()):
 			if filename.begins_with(target.get_file()+".tmp-") and not filename in temporary_before:
 				retained = retained or FileAccess.get_file_as_bytes(target.get_base_dir().path_join(filename)) == encoded_replacement.value
-		_check(OS.is_process_running(pid),"codec_lock_remained_held_during_save")
+		_check(held_through_save,"codec_lock_remained_held_during_save")
 		_check(rejected,"codec_share_locked_replace_reports_failure")
 		_check(save_error.begins_with("Preset not saved:") and save_error.contains("original target preserved, temporary retained"),"codec_share_locked_error_clear_preservation")
 		_check(save_error.length()<=4352,"codec_share_locked_error_bounded")
@@ -534,11 +540,20 @@ func _locked_replacement(target: String, prior_preset: Dictionary) -> Dictionary
 		_check(not save_error.contains(target) and not save_error.contains(target.get_base_dir()) and not save_error.contains(target.get_base_dir().replace("/","\\")) and not save_error.contains(".tmp-"),"codec_share_locked_error_excludes_target_temporary_paths")
 		_check(preserved,"codec_share_locked_original_bytes_preserved")
 		_check(retained,"codec_share_locked_temporary_bytes_retained")
-	var signal_file := FileAccess.open(release,FileAccess.WRITE)
+	var held_before_release: bool = OS.is_process_running(pid) and not FileAccess.file_exists(done)
+	# Publish only a complete closed signal; the child never reads this sibling pending file.
+	var release_pending: String = release+".pending"
+	var fresh_signal: bool = not FileAccess.file_exists(release) and not DirAccess.dir_exists_absolute(release) and not FileAccess.file_exists(release_pending) and not DirAccess.dir_exists_absolute(release_pending)
+	var signal_file = FileAccess.open(release_pending,FileAccess.WRITE) if fresh_signal else null
+	var signal_rename: int = ERR_CANT_CREATE
 	if signal_file != null:
 		signal_file.store_string("RELEASE")
+		signal_file.flush()
+		var signal_error: int = signal_file.get_error()
 		signal_file.close()
-	var release_written := FileAccess.file_exists(release) and FileAccess.get_file_as_string(release)=="RELEASE"
+		if signal_error==OK and not FileAccess.file_exists(release) and not DirAccess.dir_exists_absolute(release):
+			signal_rename=DirAccess.rename_absolute(release_pending,release)
+	var release_written := held_before_release and signal_rename==OK and FileAccess.file_exists(release) and FileAccess.get_file_as_string(release)=="RELEASE"
 	_check(release_written,"codec_lock_release_signal_written")
 	deadline = Time.get_ticks_msec()+5000
 	while OS.is_process_running(pid) and Time.get_ticks_msec()<deadline:
@@ -547,7 +562,7 @@ func _locked_replacement(target: String, prior_preset: Dictionary) -> Dictionary
 	var close_marker := FileAccess.file_exists(done) and FileAccess.get_file_as_string(done)=="CLOSED"
 	if not joined: OS.kill(pid) # Only the PID just created by this fixture; timeout still fails.
 	_check(joined and close_marker,"codec_owned_lock_child_retired")
-	return {"tested":locked,"save_error":save_error,"rejected":rejected,"old_bytes_preserved":preserved,"temporary_retained":retained,"release_signal_written":release_written,"close_marker_observed":close_marker,"fixture_child_retired":joined}
+	return {"tested":locked,"held_through_save":held_through_save,"held_before_release":held_before_release,"save_error":save_error,"rejected":rejected,"old_bytes_preserved":preserved,"temporary_retained":retained,"release_signal_written":release_written,"close_marker_observed":close_marker,"fixture_child_retired":joined}
 
 func _run() -> Dictionary:
 	var decoded = JSON.parse_string(FileAccess.get_file_as_string("res://input_tests/reference.json"))

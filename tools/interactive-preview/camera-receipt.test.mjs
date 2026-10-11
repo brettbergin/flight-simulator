@@ -95,8 +95,8 @@ function syntheticCurrentIdentity(variant='jsbsim-1.3.1-event-aware-coupled-midp
   const pin=apronStartSourcePins[name];return {path:name,bytes:pin?.bytes??1,raw_sha256:pin?.sha256??'b'.repeat(64),lf_sha256:pin?.sha256??'b'.repeat(64)};
  })};
 }
-test('current source-qualified coupled35 and upstream21 retain all prior rows',()=>{
- for(const [variant,count,cold] of [['jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2',35,true],['jsbsim-1.3.1-upstream',21,false]]){
+test('current source-qualified coupled-v1/v2 35 and upstream21 retain all prior rows',()=>{
+ for(const [variant,count,cold] of [['jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2',35,true],['jsbsim-1.3.1-event-aware-coupled-midpoint-v1',35,true],['jsbsim-1.3.1-upstream',21,false]]){
   const identity=syntheticCurrentIdentity(variant);assert(apronStartsSupported(identity));
   const value=receipt(identity),result=validateCameraReceipt(value,{nativeIdentity:identity,sourceFiles,harnessFiles,requireFullSupported:cold});
   assert.equal(result.coverage,count);assert.equal(result.full_supported,cold);

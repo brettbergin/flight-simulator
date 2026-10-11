@@ -77,7 +77,7 @@ function Save-ValidatedTaxiReceipt {
  $raw=Join-Path $TargetPath 'taxi-check-receipt.json'
  & node (Join-Path $PSScriptRoot 'package.mjs') taxi-receipt $raw $repo $project $(if($Name -ceq 'editor'){$project}else{$source}) (Join-Path $evidence 'native-build-identity.json') $requireFullTaxi.ToString().ToLowerInvariant()
  if($LASTEXITCODE -ne 0){throw 'Actual taxi receipt/source/full-start gate rejected; raw observation retained'}
- Copy-Item -LiteralPath $raw -Destination (Join-Path $evidence ($Name+'-taxi-receipt.json'))
+ Move-Item -LiteralPath $raw -Destination (Join-Path $evidence ($Name+'-taxi-receipt.json'))
 }
 function Save-ValidatedLocalWindowReplayReceipt {
  param([string]$TargetPath,[string]$Name)

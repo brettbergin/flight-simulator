@@ -96,7 +96,7 @@ texture_format/s3tc=true
             raise RuntimeError(label+' failed; raw evidence retained at '+str(run))
         if receipt:
             data = observed.get('receipt', {})
-            if data.get('passed') is not True or data.get('checks')!=310 or data.get('failures')!=[] or 'INPUT_PREFLIGHT_PASSED' not in text:
+            if data.get('passed') is not True or type(data.get('checks')) is not int or data.get('checks')!=355 or data.get('failures')!=[] or 'INPUT_PREFLIGHT_PASSED' not in text:
                 raise RuntimeError(label+' assertions failed; raw evidence retained at '+str(run))
     execute('import',[str(godot),'--headless','--editor','--path',str(project),'--import','--quit'])
     execute('editor',[str(godot),'--headless','--path',str(project)],project/'receipt.json')

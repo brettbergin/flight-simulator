@@ -141,7 +141,7 @@ export function validateCameraReceipt(value,{nativeIdentity,sourceFiles,harnessF
  const normalize=rows=>rows.map(row=>JSON.stringify([row.profile,row.start,row.preset])).sort();
  const expected=expectedCoverage(nativeIdentity);assert.deepEqual(normalize(coverage),normalize(expected),'Every actual supported start and preset exactly once');
  assert.equal(value.groups.scene.cold_rejection,!coupled(nativeIdentity.source_variant),'Honest upstream cold-admission rejection');
- if(requireFullSupported)assert(coupled(nativeIdentity.source_variant)&&expected.length===(nativeIdentity.source_variant===variants[3]?35:21),'Full delivery requires actual source-qualified supported starts');
+ if(requireFullSupported)assert(coupled(nativeIdentity.source_variant)&&expected.length===(apronStartsSupported(nativeIdentity)?35:21),'Full delivery requires actual source-qualified supported starts');
  return {checks,coverage:expected.length,full_supported:coupled(nativeIdentity.source_variant)};
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
