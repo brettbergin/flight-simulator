@@ -1,5 +1,6 @@
 #Requires -Version 7.0
 . (Join-Path $PSScriptRoot 'wire-codec-staging.ps1')
+. (Join-Path $PSScriptRoot 'camera-staging.ps1')
 . (Join-Path $PSScriptRoot 'local-window-replay-staging.ps1')
 # Recursive authoring snapshot shared by project staging and corresponding source.
 function Get-SimulationSourceSnapshot {
@@ -600,6 +601,9 @@ function Assert-FirstFlightSourceGroups {
 }
 function Write-SimulationCheckHarness {
  param([Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)][string]$RepoRoot,[switch]$IncludePiston)
+ $cameraGroups=@(Get-CameraSourceGroups -RepoRoot $RepoRoot)
+ Copy-CameraSourceGroups -RepoRoot $RepoRoot -DestinationRoot $ProjectRoot -Groups $cameraGroups
+ Write-PreviewCameraCheckHarness -ProjectRoot $ProjectRoot -Groups $cameraGroups -IncludePiston ([bool]$IncludePiston)
  $wireGroups=@(Get-WireCodecSourceGroups -RepoRoot $RepoRoot)
  Copy-WireCodecSourceGroups -RepoRoot $RepoRoot -DestinationRoot $ProjectRoot -Groups $wireGroups
  # Staging applicability follows the already verified generated identity resource.
@@ -808,12 +812,14 @@ func execute() -> void:
   return
  identity_file.store_string(JSON.stringify(identity_receipt))
  identity_file.close()
- for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests","res://world/wind","res://ui/wind","res://wind_tests","res://wind_scene_tests","res://audio","res://ui/audio","res://audio_tests","res://ui/first_flight","res://world/synthetic","res://scenario_tests/first-flight","res://first_flight_ui_tests","res://world_tests/synthetic","res://first_flight_scene_tests","res://wire_codec_tests"$pistonCompileFolder$localWindowReplayCompileFolder]:
+ for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests","res://world/wind","res://ui/wind","res://wind_tests","res://wind_scene_tests","res://audio","res://ui/audio","res://audio_tests","res://ui/first_flight","res://world/synthetic","res://scenario_tests/first-flight","res://first_flight_ui_tests","res://world_tests/synthetic","res://first_flight_scene_tests","res://wire_codec_tests","res://camera","res://ui/camera","res://camera_tests"$pistonCompileFolder$localWindowReplayCompileFolder]:
   for name in DirAccess.get_files_at(folder):
    if name.ends_with(".gd"):
     var script=load(folder.path_join(name)) as Script
     check(script!=null and script.can_instantiate(),"explicit_compile_"+folder.path_join(name))
- for path in ["res://simulation/flight_scene.tscn","res://interactive/preview.tscn"]:
+ var camera_compile: Script=load("res://camera_checks.gd") as Script
+ check(camera_compile!=null and camera_compile.can_instantiate(),"explicit_compile_camera_checks")
+ for path in ["res://camera_checks.tscn","res://simulation/flight_scene.tscn","res://interactive/preview.tscn"]:
   check(load(path) is PackedScene,"explicit_scene_compile_"+path)
  if not failures.is_empty():
   push_error("Simulation resource compilation rejected")

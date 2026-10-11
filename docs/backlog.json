@@ -7069,7 +7069,7 @@
         "phase:P2",
         "area:ui",
         "priority:P1",
-        "status:ready"
+        "status:in-progress"
       ],
       "owned_paths": [
         "app/camera/view_policy.gd",
@@ -7087,7 +7087,12 @@
         "docs/backlog.json",
         "docs/issue-index.md",
         "docs/requirements.md",
-        "docs/phases/p2-first-flight.md"
+        "docs/phases/p2-first-flight.md",
+        "tools/interactive-preview/camera-staging.ps1",
+        "tools/interactive-preview/camera-receipt.mjs",
+        "tools/interactive-preview/camera-receipt.test.mjs",
+        ".github/workflows/coupled-ci.yml",
+        ".github/workflows/coupled-local-window-ci.yml"
       ],
       "docs": [
         "docs/README.md",

@@ -114,6 +114,26 @@ jobs:
           Assert-WindReferences -RepoRoot $PWD -Python python
           python tests/debrief/observed_archive/generate.py
           if ($LASTEXITCODE -ne 0) { throw "Frozen archive reference drift" }
+      - name: Verify readonly independently frozen camera references
+        run: |
+          $cameraPins = @{
+            'tests/camera/.gitattributes' = 'a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9'
+            'tests/camera/README.md' = 'a598e765421507aff4b9476be97f1131c36812d1a3c465b640cd56b102776cf9'
+            'tests/camera/expected-v1.json' = 'd3ee38b2a2455e7a21c61ae46f01461dd901663c3743581059e19c5193f513cd'
+            'tests/camera/generate.py' = 'bb35c60914aaab18f0226bdbc20e5c0801db9fd6c8c11c42ee93554d3dc0a358'
+            'tests/camera/root-ratification-v1.json' = '31175acf5717e62df4456bad80a8da9ed3e116c1b0110c28bf6e6112c1f9c9f1'
+            'tests/camera/source-binding-v1.json' = 'c8d817b250ed3e9d31e0ac0bb067fb7d55b2c142f5c667e7d1820c80719740df'
+          }
+          foreach ($name in $cameraPins.Keys) {
+            if ((Get-FileHash -LiteralPath $name -Algorithm SHA256).Hash.ToLowerInvariant() -cne $cameraPins[$name]) { throw 'Frozen camera reference source changed' }
+          }
+          python -B tests/camera/generate.py --check
+          if ($LASTEXITCODE -ne 0) { throw 'Frozen132 camera reference reproduction failed' }
+          foreach ($name in $cameraPins.Keys) {
+            if ((Get-FileHash -LiteralPath $name -Algorithm SHA256).Hash.ToLowerInvariant() -cne $cameraPins[$name]) { throw 'Readonly camera reference generator changed inputs' }
+          }
+          node --test tools/interactive-preview/camera-receipt.test.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Camera receipt/source/start coverage negatives failed' }
       - name: Validate dependency download integrity
         run: python tools/bootstrap/test_bootstrap.py
       - name: Pin headless Linux compiler family
@@ -237,6 +257,8 @@ jobs:
           Copy-AudioSourceGroups -RepoRoot $PWD -DestinationRoot $project -Groups $audioGroups
           $windGroups=@(Get-WindSourceGroups -RepoRoot $PWD)
           Copy-WindSourceGroups -RepoRoot $PWD -DestinationRoot $project -Groups $windGroups
+          $cameraGroups=@(Get-CameraSourceGroups -RepoRoot $PWD)
+          Copy-CameraSourceGroups -RepoRoot $PWD -DestinationRoot $project -Groups $cameraGroups
           python tests/ui/freeflight/reference-generator.py --check
           if ($LASTEXITCODE -ne 0) { throw 'Landmark reference reproduction failed' }
           node tools/interactive-preview/package.mjs models native/fdm_jsbsim/models/original-interactive (Join-Path $project 'models')
@@ -245,6 +267,8 @@ jobs:
           Write-SimulationCheckHarness -ProjectRoot $project -RepoRoot $PWD
           Assert-WireCodecSourceGroups -Root $PWD -Groups $wireCodecGroups -Authoring
           Assert-WireCodecSourceGroups -Root $project -Groups $wireCodecGroups
+          Assert-CameraSourceGroups -Root $PWD -Groups $cameraGroups -Authoring
+          Assert-CameraSourceGroups -Root $project -Groups $cameraGroups
           $env:FLIGHT_PREVIEW_PROFILE_ROOT=Join-Path $root 'userdata'
           foreach($name in @('APPDATA','LOCALAPPDATA','TEMP','TMP','XDG_DATA_HOME','XDG_CONFIG_HOME')){
             $directory=Join-Path $root ('userdata/'+$name)
@@ -265,6 +289,11 @@ jobs:
           Assert-PreviewFacadeReceipt -Receipt $receipt -IncludePiston $false -ExpectedSourceFingerprint $nativeIdentity.declared_source_fingerprint
           $wireReceipt=Get-Content -LiteralPath (Join-Path $project 'wire-codec-receipt.json') -Raw | ConvertFrom-Json
           Assert-PreviewWireCodecReceipt -Receipt $wireReceipt -IncludePiston $false -ExpectedSourceFingerprint $nativeIdentity.declared_source_fingerprint
+          if($IsWindows){
+            Invoke-PreviewGraphicalCameraChecks -Executable $environment.tools.godot -Arguments @('--path',$project,'--rendering-method','gl_compatibility','--rendering-driver','opengl3_angle','res://camera_checks.tscn') -Root $root -TargetPath $project -Evidence $evidence -Name 'active' -RepoRoot $PWD -ProjectRoot $project -NativeIdentityPath (Join-Path $evidence 'native-build-identity.json') -TimeoutSeconds 600 -RequireFullSupported $false
+          } else {
+            'Camera graphical gate: not executed on Linux; Windows job must qualify actual capture. Source/pure/headless checks are not camera runtime acceptance.' | Set-Content (Join-Path $evidence 'camera-graphical-gate-unavailable.txt')
+          }
           $resourceReceipt=Get-Content (Join-Path $project 'native-identity-receipt.json') -Raw | ConvertFrom-Json
           Assert-PreviewNativeResourceReceipt -Receipt $resourceReceipt -Identity $nativeIdentity
           Copy-Item (Join-Path $project 'native-identity-receipt.json') -Destination $evidence
@@ -275,6 +304,10 @@ jobs:
           Assert-WireCodecSourceGroups -Root $PWD -Groups $wireCodecGroups -Authoring
           Assert-WireCodecSourceGroups -Root $project -Groups $wireCodecGroups -AllowGeneratedUIDs
           $wireCodecGroups | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $evidence 'wire-codec-resources.json')
+          Assert-CameraSourceGroups -Root $PWD -Groups $cameraGroups -Authoring
+          Assert-CameraSourceGroups -Root $project -Groups $cameraGroups -AllowGeneratedUIDs
+          Assert-PreviewCameraHarnessFiles -ProjectRoot $project
+          $cameraGroups | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $evidence 'camera-resources.json')
           Assert-SimulationSourceSnapshot app/simulation $snapshot -RequiredEntries $entries
           Assert-SimulationSourceSnapshot (Join-Path $project 'simulation') $snapshot -RequiredEntries $entries -AllowGeneratedUIDs
           Assert-SimulationSourceSnapshot tests/integration/sim_loop $tests -RequiredEntries @('facade_checks.gd','independent-reference.json','scene_checks.gd')
@@ -293,7 +326,7 @@ jobs:
           Assert-FirstFlightSourceGroups -DestinationRoot $project -Groups $firstFlightGroups -AllowGeneratedUIDs
           Assert-AudioSourceGroups -DestinationRoot $PWD -Groups $audioGroups -Authoring
           Assert-AudioSourceGroups -DestinationRoot $project -Groups $audioGroups -AllowGeneratedUIDs
-          @{source=$snapshot;tests=$tests;wire_codec_sources=$wireCodecGroups;input_sources=$inputGroups;cockpit_sources=$cockpitGroups;freeflight_sources=$freeflightGroups;observed_sources=$observedGroups;wind_sources=$windGroups;first_flight_sources=$firstFlightGroups;audio_sources=$audioGroups;generated_uid_metadata=@(Get-ChildItem (Join-Path $project 'wire_codec_tests'),(Join-Path $project 'simulation'),(Join-Path $project 'sim_loop_tests'),(Join-Path $project 'input'),(Join-Path $project 'ui/controls'),(Join-Path $project 'input_tests'),(Join-Path $project 'cockpit'),(Join-Path $project 'instrument_tests'),(Join-Path $project 'ui/freeflight'),(Join-Path $project 'freeflight_tests'),(Join-Path $project 'replay/observed'),(Join-Path $project 'ui/debrief/observed'),(Join-Path $project 'observed_tests'),(Join-Path $project 'replay/observed_archive'),(Join-Path $project 'observed_archive_tests'),(Join-Path $project 'world/wind'),(Join-Path $project 'ui/wind'),(Join-Path $project 'wind_tests'),(Join-Path $project 'wind_scene_tests'),(Join-Path $project 'ui/first_flight'),(Join-Path $project 'world/synthetic'),(Join-Path $project 'content/scenarios/first-flight'),(Join-Path $project 'content/world/synthetic'),(Join-Path $project 'scenario_tests/first-flight'),(Join-Path $project 'first_flight_ui_tests'),(Join-Path $project 'world_tests/synthetic'),(Join-Path $project 'first_flight_scene_tests'),(Join-Path $project 'audio'),(Join-Path $project 'ui/audio'),(Join-Path $project 'audio_tests') -Recurse -File -Filter '*.gd.uid'|ForEach-Object {@{path=[IO.Path]::GetRelativePath($project,$_.FullName).Replace([char]92,[char]47);sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}});godot_sha256=(Get-FileHash $environment.tools.godot).Hash.ToLowerInvariant();project_sha256=(Get-FileHash (Join-Path $project 'project.godot')).Hash.ToLowerInvariant();harness_sha256=(Get-FileHash (Join-Path $project 'sim_loop_checks.gd')).Hash.ToLowerInvariant();modules=@(Get-ChildItem (Join-Path $project 'bin') -File | ForEach-Object {@{name=$_.Name;sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}})} | ConvertTo-Json -Depth 12 | Set-Content (Join-Path $evidence 'source-binding.json')
+          @{source=$snapshot;tests=$tests;wire_codec_sources=$wireCodecGroups;input_sources=$inputGroups;cockpit_sources=$cockpitGroups;freeflight_sources=$freeflightGroups;observed_sources=$observedGroups;wind_sources=$windGroups;first_flight_sources=$firstFlightGroups;audio_sources=$audioGroups;camera_sources=$cameraGroups;camera_generated_harness=@(foreach($name in @('camera_checks.gd','camera_checks.tscn')){@{path=$name;bytes=(Get-Item (Join-Path $project $name)).Length;sha256=(Get-FileHash (Join-Path $project $name)).Hash.ToLowerInvariant()}});generated_uid_metadata=@(Get-ChildItem (Join-Path $project 'wire_codec_tests'),(Join-Path $project 'simulation'),(Join-Path $project 'sim_loop_tests'),(Join-Path $project 'input'),(Join-Path $project 'ui/controls'),(Join-Path $project 'input_tests'),(Join-Path $project 'cockpit'),(Join-Path $project 'instrument_tests'),(Join-Path $project 'ui/freeflight'),(Join-Path $project 'freeflight_tests'),(Join-Path $project 'replay/observed'),(Join-Path $project 'ui/debrief/observed'),(Join-Path $project 'observed_tests'),(Join-Path $project 'replay/observed_archive'),(Join-Path $project 'observed_archive_tests'),(Join-Path $project 'world/wind'),(Join-Path $project 'ui/wind'),(Join-Path $project 'wind_tests'),(Join-Path $project 'wind_scene_tests'),(Join-Path $project 'ui/first_flight'),(Join-Path $project 'world/synthetic'),(Join-Path $project 'content/scenarios/first-flight'),(Join-Path $project 'content/world/synthetic'),(Join-Path $project 'scenario_tests/first-flight'),(Join-Path $project 'first_flight_ui_tests'),(Join-Path $project 'world_tests/synthetic'),(Join-Path $project 'first_flight_scene_tests'),(Join-Path $project 'audio'),(Join-Path $project 'ui/audio'),(Join-Path $project 'audio_tests'),(Join-Path $project 'camera'),(Join-Path $project 'ui/camera'),(Join-Path $project 'camera_tests') -Recurse -File -Filter '*.gd.uid'|ForEach-Object {@{path=[IO.Path]::GetRelativePath($project,$_.FullName).Replace([char]92,[char]47);sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}});godot_sha256=(Get-FileHash $environment.tools.godot).Hash.ToLowerInvariant();project_sha256=(Get-FileHash (Join-Path $project 'project.godot')).Hash.ToLowerInvariant();harness_sha256=(Get-FileHash (Join-Path $project 'sim_loop_checks.gd')).Hash.ToLowerInvariant();modules=@(Get-ChildItem (Join-Path $project 'bin') -File | ForEach-Object {@{name=$_.Name;sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}})} | ConvertTo-Json -Depth 12 | Set-Content (Join-Path $evidence 'source-binding.json')
       - name: Prove Windows corresponding source and actual DLL replacement
         if: steps.scope.outputs.docs_only != 'true' && (runner.os == 'Windows')
         run: |
@@ -358,6 +391,11 @@ jobs:
             .local/sim-loop-ci/run-*/evidence/*.json
             .local/sim-loop-ci/run-*/evidence/wire-codec-receipt.json
             .local/sim-loop-ci/run-*/evidence/wire-codec-resources.json
+            .local/sim-loop-ci/run-*/evidence/*-camera-observed-receipt.json
+            .local/sim-loop-ci/run-*/evidence/*-camera-receipt.json
+            .local/sim-loop-ci/run-*/evidence/camera-resources.json
+            .local/sim-loop-ci/run-*/evidence/active-camera.log
+            .local/sim-loop-ci/run-*/evidence/camera-graphical-gate-unavailable.txt
             .local/sim-loop-ci/run-*/evidence/*.log
             .local/pipeline-proof/ci/**
             .local/render-geodesy/ci/**
@@ -365,6 +403,8 @@ jobs:
             .local/preview/run-*/evidence/*.json
             .local/preview/run-*/evidence/*.log
             .local/interactive-preview/run-*/evidence/*.json
+            .local/interactive-preview/run-*/evidence/*-camera-observed-receipt.json
+            .local/interactive-preview/run-*/evidence/*-camera-receipt.json
             .local/interactive-preview/run-*/evidence/*-wire-codec-receipt.json
             .local/interactive-preview/run-*/evidence/*.log
             .local/interactive-preview/run-*/evidence/*.ndjson

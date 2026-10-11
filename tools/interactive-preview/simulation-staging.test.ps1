@@ -802,3 +802,88 @@ Write-SimulationCheckHarness -ProjectRoot $audioHarness -RepoRoot $repo
 $generated=[IO.File]::ReadAllText((Join-Path $audioHarness 'sim_loop_checks.gd'))
 foreach($required in @('res://audio','res://ui/audio','res://audio_tests','audio_cues_checks.gd','audio_options_checks.gd','sample_renderer_checks.gd','audio_panel_checks.gd','await audio_lifecycle_checks()','owner.set_paused(false)','run_sound(self,source)','owner.close()','"audio":audio_checks')){if(-not $generated.Contains($required)){throw 'Generated audio harness omitted '+$required}}
 Write-Output 'PASS audio exact recursive project/corresponding source, byte/set/descriptor/UID drift and actual lifecycle harness inclusion.'
+
+# Closed camera source and generated-harness admission, with synthetic bytes only.
+& {
+param([string]$hostRepo,[string]$sourceTools)
+$fixture=Join-Path $hostRepo ('.local/camera-staging-test/'+[Guid]::NewGuid().ToString('N'))
+$tools=Join-Path $fixture 'tools'
+New-Item -ItemType Directory -Path $tools|Out-Null
+foreach($name in @('camera-staging.ps1','simulation-staging.ps1','wire-codec-staging.ps1','local-window-replay-staging.ps1')){
+ Copy-Item -LiteralPath (Join-Path $sourceTools $name) -Destination $tools
+}
+. (Join-Path $tools 'simulation-staging.ps1')
+$repo=Join-Path $fixture 'authored'
+foreach($group in @(Get-CameraSourceDefinitions)){
+ foreach($name in $group.required){
+  $dest=Join-Path $repo ($group.source+'/'+$name)
+  New-Item -ItemType Directory -Force -Path (Split-Path $dest -Parent)|Out-Null
+  [IO.File]::WriteAllText($dest,"# Synthetic staging fixture`nextends RefCounted`n",[Text.UTF8Encoding]::new($false))
+ }
+}
+$checks=[Collections.Generic.List[string]]::new()
+function Pass([string]$name){$checks.Add($name)}
+function Reject([scriptblock]$Action,[string]$Name){$rejected=$false;try{& $Action}catch{$rejected=$true};if(-not $rejected){throw "Expected fixture rejection: $Name"};Pass $Name}
+$groups=@(Get-CameraSourceGroups -RepoRoot $repo)
+$project=Join-Path $fixture 'project'
+Copy-CameraSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $groups
+Assert-CameraSourceGroups -Root $project -Groups $groups
+Pass 'actual_snapshot_copy_and_exact_roster'
+Reject {Copy-CameraSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $groups} 'existing_destination_rejected'
+$policy=Join-Path $project 'camera/view_policy.gd'
+$old=[IO.File]::ReadAllBytes($policy)
+[IO.File]::AppendAllText($policy,'# drift')
+Reject {Assert-CameraSourceGroups -Root $project -Groups $groups} 'staged_hash_drift_rejected'
+[IO.File]::WriteAllBytes($policy,$old)
+$extra=Join-Path $project 'camera/extra.gd'
+[IO.File]::WriteAllText($extra,'extends RefCounted')
+Reject {Assert-CameraSourceGroups -Root $project -Groups $groups} 'extra_staged_script_rejected'
+Remove-Item -LiteralPath $extra
+$uid=$policy+'.uid'
+[IO.File]::WriteAllText($uid,"uid://abc123`n")
+Assert-CameraSourceGroups -Root $project -Groups $groups -AllowGeneratedUIDs
+Pass 'bound_import_uid_admitted_only_when_requested'
+Reject {Assert-CameraSourceGroups -Root $project -Groups $groups} 'uid_rejected_in_exact_corresponding_mode'
+[IO.File]::WriteAllText($uid,'not-a-uid')
+Reject {Assert-CameraSourceGroups -Root $project -Groups $groups -AllowGeneratedUIDs} 'malformed_import_uid_rejected'
+Remove-Item -LiteralPath $uid
+$reference=Join-Path $project 'camera_tests/expected-v1.json'
+$refbytes=[IO.File]::ReadAllBytes($reference)
+Remove-Item -LiteralPath $reference
+Reject {Assert-CameraSourceGroups -Root $project -Groups $groups} 'missing_reference_rejected'
+[IO.File]::WriteAllBytes($reference,$refbytes)
+$author=Join-Path $repo 'app/camera/view_policy.gd'
+[IO.File]::AppendAllText($author,'# author drift')
+Reject {Assert-CameraSourceGroups -Root $repo -Groups $groups -Authoring} 'author_drift_rejected'
+$generated=Get-PreviewCameraHarnessChecks -Groups $groups -IncludePiston $true
+if($generated -notmatch 'JSON.stringify\(camera_report,"  ",false,true\)' -or $generated -notmatch 'camera_host,true' -or $generated -notmatch 'scene_checks.gd' -or $generated -notmatch '132'){throw 'Required additive harness source absent'}
+Pass 'fullprecision_three_actual_groups_generated_without_simulator_execution'
+Write-PreviewCameraCheckHarness -ProjectRoot $project -Groups $groups -IncludePiston $true
+Assert-PreviewCameraHarnessFiles -ProjectRoot $project
+Pass 'exact_two_generated_resources_admitted'
+Reject {Write-PreviewCameraCheckHarness -ProjectRoot $project -Groups $groups -IncludePiston $true} 'generated_destination_overwrite_refused'
+$cameraCode=[IO.File]::ReadAllText((Join-Path $project 'camera_checks.gd'))
+if($cameraCode -notmatch 'capture_observed=Input.mouse_mode==Input.MOUSE_MODE_CAPTURED' -or $cameraCode -notmatch 'DisplayServer.get_name\(\)=="headless"' -or $cameraCode -notmatch 'CAMERA_CHECKS_PASSED' -or $cameraCode -notmatch '"camera_checks.tscn"' -or $cameraCode -notmatch 'await load\("res://camera_tests/scene_checks.gd"\).new\(\).run\(camera_host,true\)'){throw 'Required graphical/capture/child/generated source absent'}
+Pass 'actual_capture_and_three_checks_mandatory_in_graphical_source'
+if($cameraCode -notmatch 'RenderingServer.get_current_rendering_driver_name' -or $cameraCode -notmatch 'actual_driver!=camera_args' -or $cameraCode -notmatch 'CAMERA_RENDERING_DRIVER_MISMATCH' -or $cameraCode -notmatch 'CAMERA_RENDERING method='){throw 'Actual driver/fallback rejection missing'}
+Pass 'actual_driver_and_method_match_required_before_capture'
+$copy=Join-Path $fixture 'corresponding'
+New-Item -ItemType Directory $copy|Out-Null
+Copy-Item -LiteralPath (Join-Path $project 'camera_checks.gd'),(Join-Path $project 'camera_checks.tscn') -Destination $copy
+Assert-PreviewCameraHarnessFiles -ProjectRoot $project -SourceRoot $copy
+Pass 'generated_exact_corresponding_sources'
+$uid=Join-Path $project 'camera_checks.gd.uid'
+[IO.File]::WriteAllText($uid,'invalid')
+Reject {Assert-PreviewCameraHarnessFiles -ProjectRoot $project -SourceRoot $copy} 'generated_invalid_UID_rejected'
+[IO.File]::WriteAllText($uid,('uid://abc123'+[char]10))
+Assert-PreviewCameraHarnessFiles -ProjectRoot $project -SourceRoot $copy
+Pass 'generated_bound_UID_admitted'
+Copy-Item -LiteralPath $uid -Destination $copy
+Reject {Assert-PreviewCameraHarnessFiles -ProjectRoot $project -SourceRoot $copy} 'generated_UID_source_rejected'
+Remove-Item -LiteralPath (Join-Path $copy 'camera_checks.gd.uid')
+[IO.File]::AppendAllText((Join-Path $copy 'camera_checks.gd'),'# drift')
+Reject {Assert-PreviewCameraHarnessFiles -ProjectRoot $project -SourceRoot $copy} 'generated_corresponding_drift_rejected'
+Remove-Item -LiteralPath (Join-Path $project 'camera_checks.tscn')
+Reject {Assert-PreviewCameraHarnessFiles -ProjectRoot $project} 'generated_missing_scene_rejected'
+@{passed=$true;scope='Offline source/staging fixtures only; no Godot/native/graphical runtime';checks=$checks.Count;names=@($checks);fixture=$fixture}|ConvertTo-Json -Depth 5
+} $repo $PSScriptRoot
