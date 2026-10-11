@@ -1,4 +1,5 @@
 extends RefCounted
+const NativeWireDecoder = preload("res://simulation/native_wire_decoder.gd")
 # Original MIT. Direct actual GDExtension producer checks, not a facade mock.
 # Coordinator runs this only against the reviewed new native source closure.
 const PROFILES: Array[String] = ["calm", "from-north", "from-west", "from-east"]
@@ -22,8 +23,8 @@ func _weather(reply: Dictionary, nominal: Array) -> void:
 	_check(reply.get("ok") == true, "Actual wind producer reply rejected")
 	if reply.get("ok") != true:
 		return
-	var aircraft: Variant = JSON.parse_string(reply.aircraft_json)
-	var weather: Variant = JSON.parse_string(reply.atmosphere_json)
+	var aircraft: Variant = _native_value(reply.aircraft_json)
+	var weather: Variant = _native_value(reply.atmosphere_json)
 	_check(aircraft is Dictionary and weather is Dictionary, "Actual wire pair unavailable")
 	if not aircraft is Dictionary or not weather is Dictionary:
 		return
@@ -83,3 +84,7 @@ func run(model_root: String) -> Dictionary:
 		_check(rejected.get("ok") == false and ("Wind profile" in rejected.get("error", "") or "steady-wind profile" in rejected.get("error", "")), "Profile rejection did not precede model allocation")
 	_check(fresh.call("close").get("joined") == true, "Rejected fresh worker close not joined")
 	return {"passed": _failures.is_empty(), "checks": _checks, "failures": _failures.duplicate()}
+
+static func _native_value(encoded: Variant) -> Variant:
+	var decoded: Dictionary=NativeWireDecoder.decode(encoded)
+	return decoded.value if decoded.ok else null

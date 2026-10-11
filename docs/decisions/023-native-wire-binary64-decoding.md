@@ -1,6 +1,6 @@
 # ADR023: Exact binary64 native wire decoding
 
-Status: **proposed for [contract #205](https://github.com/brettbergin/flight-simulator/issues/205)**. P2 publication correctness; partial support for PRD-002/004/015/033. ADR023 was unallocated in the inspected source. Root must verify allocation and integrate the canonical maps before acceptance. The subsequent [repair #204](https://github.com/brettbergin/flight-simulator/issues/204) waits for this contract. Aircraft, pilot and phase acceptance remain separate.
+Status: **accepted contract for [#205](https://github.com/brettbergin/flight-simulator/issues/205)** through [PR206](https://github.com/brettbergin/flight-simulator/pull/206), accepted main `f68d243623a697a6a500052f926cc6f8e203c240`. P2 publication correctness; partial support for PRD-002/004/015/033. Contract acceptance authorizes the bounded [repair #204](https://github.com/brettbergin/flight-simulator/issues/204); its [implementation evidence](../evidence/P2/piston-readings-decimal-admission.md) and delivery acceptance remain separate. Aircraft, pilot and phase acceptance remain separate.
 
 ## Problem and authority
 

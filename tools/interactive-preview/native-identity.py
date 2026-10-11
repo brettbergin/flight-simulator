@@ -29,7 +29,17 @@ SOURCES = (
     'tests/engine/CMakeLists.txt', 'tests/engine/loaded-library.hpp',
     'tests/engine/native.cpp', 'tests/engine/native-mechanism.cpp',
     'tests/engine/native-validate.py', 'tests/engine/native-generate.py',
-    'tests/engine/native-limits.hpp', 'tests/engine/native-limits.json')
+    'tests/engine/native-limits.hpp', 'tests/engine/native-limits.json',
+    'native/godot_bridge/src/bridge.cpp',
+    'native/godot_bridge/src/codec.hpp',
+    'native/godot_bridge/src/codec.cpp',
+    'native/godot_bridge/src/worker.hpp',
+    'native/godot_bridge/src/worker.cpp',
+    'native/godot_bridge/src/interactive_worker.hpp',
+    'native/godot_bridge/src/interactive_worker.cpp',
+    'native/godot_bridge/src/interactive_bridge.cpp',
+    'native/godot_bridge/src/wire_numbers.hpp',
+    'native/godot_bridge/src/wire_numbers.cpp')
 TEMPLATE = 'native/fdm_jsbsim/interactive/native_identity.gd.in'
 CONTROLS = (
     'CMakeLists.txt', 'CMakePresets.json', 'third_party/dependencies.lock.json',
@@ -37,7 +47,8 @@ CONTROLS = (
     'tools/bootstrap/coupled-source-variant.py', 'tools/bootstrap/build.ps1',
     'tools/bootstrap/bootstrap.py', 'native/fdm_jsbsim/CMakeLists.txt',
     'native/fdm_jsbsim/ground/CMakeLists.txt',
-    'native/fdm_jsbsim/interactive/CMakeLists.txt', 'tests/fdm/CMakeLists.txt', TEMPLATE)
+    'native/fdm_jsbsim/interactive/CMakeLists.txt', 'tests/fdm/CMakeLists.txt', TEMPLATE,
+    'native/godot_bridge/CMakeLists.txt', 'tests/wire_codec/CMakeLists.txt')
 BUILD_PATH = 'native-identity.gd'
 STAGED_PATH = 'build/native_identity.gd'
 TOP = ('schema', 'root', 'source_variant', 'backend_identity_sha256',
@@ -411,7 +422,7 @@ def reconstruction(repo, destination):
         'Check out exact commit ' + head + ' (git checkout --detach ' + head + ').\n'
         'Verify every repository/ overlay against native-reconstruction.json, then copy\n'
         'those repository-relative files over that checkout. These overlays bind all\n'
-        '15 interactive inputs, the closed build controls/template, and current native,\n'
+        '25 interactive inputs, the closed build controls/template, and current native,\n'
         'engine-test, interactive-test and bootstrap source additions. Keep build/\n'
         'native_identity.gd as historical package evidence; do not copy it into a new\n'
         'build. Follow tools/bootstrap/README.md to acquire pinned dependencies and\n'

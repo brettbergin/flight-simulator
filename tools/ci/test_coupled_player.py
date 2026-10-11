@@ -39,9 +39,9 @@ class AdmissionTests(unittest.TestCase):
         # Duplicate real invocations remain two rows: the measure gate rejects them.
         self.assertEqual(len(q.actual_compile_rows(slash+'\n'+dash,selected)),2)
 
-    def test_all_eleven_actual_pass_rows_and_full_summary_are_required(self):
-        rows='\n'.join(f'{i}/11 Test #{i}: {name} ........ Passed 0.01 sec' for i,name in enumerate(q.CTESTS,1))
-        text=rows+'\n100% tests passed, 0 tests failed out of 11\n';q.ctest_complete(text)
+    def test_all_twelve_actual_pass_rows_and_full_summary_are_required(self):
+        rows='\n'.join(f'{i}/12 Test #{i}: {name} ........ Passed 0.01 sec' for i,name in enumerate(q.CTESTS,1))
+        text=rows+'\n100% tests passed, 0 tests failed out of 12\n';q.ctest_complete(text)
         for bad in (text.replace('100% tests passed','99% tests passed'),text.replace('Passed','Skipped',1),text.replace(q.CTESTS[-1],q.CTESTS[0]),'\n'.join(text.splitlines()[1:]),text+'\n'+text.splitlines()[0]):
             with self.assertRaises(ValueError):q.ctest_complete(bad)
 
@@ -76,7 +76,7 @@ class AdmissionTests(unittest.TestCase):
     def test_closed_bridge_roster_and_hosted_helper_pins(self):
         with tempfile.TemporaryDirectory() as directory:
             repo=Path(directory);work=repo/'.local/player';work.mkdir(parents=True)
-            names={'native/godot_bridge/'+name for name in q.GODOT_FILES}|{'tools/interactive-preview/native-identity.py','tools/ci/coupled-player.py','tools/ci/test_coupled_player.py','.local/player/source-gates.json','.github/workflows/coupled-ci.yml'}
+            names={'native/godot_bridge/'+name for name in q.GODOT_FILES}|q.WIRE_CODEC_FILES|{'tools/interactive-preview/native-identity.py','tools/ci/coupled-player.py','tools/ci/test_coupled_player.py','.local/player/source-gates.json','.github/workflows/coupled-ci.yml'}
             for name in names:
                 file=repo/name;file.parent.mkdir(parents=True,exist_ok=True);file.write_text('synthetic source '+name)
             ci=SimpleNamespace(source_inputs=lambda repo:{'.github/workflows/coupled-ci.yml':{'sha256':q.digest(repo/'.github/workflows/coupled-ci.yml'),'bytes':(repo/'.github/workflows/coupled-ci.yml').stat().st_size}})
@@ -84,7 +84,11 @@ class AdmissionTests(unittest.TestCase):
             self.assertEqual(set(q.source_inputs(repo,work,ci,identity)),names)
             extra=repo/'native/godot_bridge/extra.cpp';extra.write_text('extra')
             with self.assertRaises(ValueError):q.source_inputs(repo,work,ci,identity)
-            extra.unlink();(repo/'native/godot_bridge/src/interactive_bridge.cpp').unlink()
+            extra.unlink()
+            missing_wire=repo/'tests/wire_codec/native.cpp';saved_wire=missing_wire.read_bytes();missing_wire.unlink()
+            with self.assertRaises(ValueError):q.source_inputs(repo,work,ci,identity)
+            missing_wire.write_bytes(saved_wire)
+            (repo/'native/godot_bridge/src/interactive_bridge.cpp').unlink()
             with self.assertRaises(ValueError):q.source_inputs(repo,work,ci,identity)
 
     def measurement_fixture(self,work):

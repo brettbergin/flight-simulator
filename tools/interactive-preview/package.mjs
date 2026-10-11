@@ -477,6 +477,7 @@ function audit(root,proof,build,python='python'){
   assert.equal(receipt.observed.recorder.reference_sha256,'a4c3184c46f2eb76c85ff4ba43fc8aac49e772a447576eeec5663fff1ac78844');
  }
  const pistonEnabled=nativeIdentity.source_variant==='jsbsim-1.3.1-event-aware-coupled-midpoint-v1';
+ const wireCodecContexts=['editor','portable','replacement'].map(context=>({context,checks:validateWireCodecReceipt(json(path.join(evidence,context+'-wire-codec-receipt.json')),pistonEnabled,nativeIdentity.declared_source_fingerprint)}));
  const coldReceipts=[];
  if(pistonEnabled){
   for(const modelRoot of [path.join(repo,pistonModel.content_policy.root),path.join(root,'project/piston-models'),path.join(payload,'piston-models'),path.join(replacement,'piston-models'),path.join(payload,'source/whole-flight-preview/piston-models')])validatePistonModelTree(modelRoot);
@@ -494,6 +495,7 @@ function audit(root,proof,build,python='python'){
   assert.deepEqual(walk(staged).filter(x=>!x.endsWith('.gd.uid')).sort(),originals.filter(x=>!x.endsWith('.gd.uid')).sort());
   for(const file of originals)assert.equal(sha(fs.readFileSync(path.join(source,file))),sha(fs.readFileSync(path.join(staged,file))),'freeflight corresponding source/'+folder+'/'+file);
  }
+ validateWireCodecSources(repo,path.join(root,'project'),path.join(payload,'source/whole-flight-preview'),nativeIdentity);
  validateObservedSources(repo,path.join(root,'project'),path.join(payload,'source/whole-flight-preview'));
  const windGroups=[['app/world/wind','world/wind',['wind_cue.gd']],['app/ui/wind','ui/wind',['panel.gd']],['tests/world/wind','wind_tests',['wind_checks.gd','ratification-v1.json','reference/expected-v1.json','reference/generate.py','reference/manifest-v1.json','reference/NOTICE-MIT.txt']],['tests/integration/wind','wind_scene_tests',['scene_checks.gd','visual_checks.gd']]];
  for(const [authored,folder,required] of windGroups){
@@ -583,7 +585,7 @@ function audit(root,proof,build,python='python'){
  assert.deepEqual(auditRelease(register,manifest,{repoRoot:repo,packageRoot:payload}),[]);
  assert.deepEqual(auditDependencyLock(register,json(path.join(repo,'third_party/dependencies.lock.json'))),[]);
  write(path.join(evidence,'package-inventory.json'),manifest);
- write(path.join(evidence,'package-audit.json'),{schema_version:1,rights_integrity_passed:true,actual_combined_replacement_passed:true,model_pins_verified:true,actual_seven_modules_inside_payload:true,exact_editor_portable_repeat:true,observed_editor_portable_replacement_checks_passed:true,observed_source_closure_verified:true,audio_checks_passed:true,audio_source_closure_verified:true,audio_source_files:audioIdentity.source_files,audio_contexts:uiReceipts.map((receipt,index)=>({context:['editor','portable','replacement'][index],checks:validateAudioReceipt(receipt.audio)})),first_flight_checks_passed:true,first_flight_source_closure_verified:true,first_flight_source_files:firstFlightIdentity.source_files,first_flight_contexts:uiReceipts.map((receipt,index)=>({context:['editor','portable','replacement'][index],checks:validateFirstFlightReceipt(receipt.first_flight,pointerEnabled,nativeIdentity.declared_source_fingerprint),route_scope:receipt.first_flight.scene.route_scope})),observed_archive_checks_passed:true,pointer_checks_enabled:pointerEnabled,...(pointerEnabled?{pointer_checks_passed:true,pointer_contexts:pointerReceipts.map(({context,raw,traceRaw,receipt,rows,commands})=>({context,checks:receipt.checks,rows,commands,summary:{bytes:raw.length,sha256:sha(raw)},trace:{path:context+'-pointer-flight-trace.json',bytes:traceRaw.length,sha256:sha(traceRaw)}}))}:{}),ground_material_checks_passed:true,ground_material_contexts:groundReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)})),...(pistonEnabled?{piston_model_pins_verified:true,piston_editor_portable_replacement_checks_passed:true,piston_contexts:coldReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)}))}:{}),runtime_verification:runtime,trace_records_compared:traces[0].length,selected_library:selection,native_build_identity:nativeIdentity});
+ write(path.join(evidence,'package-audit.json'),{schema_version:1,rights_integrity_passed:true,actual_combined_replacement_passed:true,wire_codec_checks_passed:true,wire_codec_source_closure_verified:true,wire_codec_contexts:wireCodecContexts,model_pins_verified:true,actual_seven_modules_inside_payload:true,exact_editor_portable_repeat:true,observed_editor_portable_replacement_checks_passed:true,observed_source_closure_verified:true,audio_checks_passed:true,audio_source_closure_verified:true,audio_source_files:audioIdentity.source_files,audio_contexts:uiReceipts.map((receipt,index)=>({context:['editor','portable','replacement'][index],checks:validateAudioReceipt(receipt.audio)})),first_flight_checks_passed:true,first_flight_source_closure_verified:true,first_flight_source_files:firstFlightIdentity.source_files,first_flight_contexts:uiReceipts.map((receipt,index)=>({context:['editor','portable','replacement'][index],checks:validateFirstFlightReceipt(receipt.first_flight,pointerEnabled,nativeIdentity.declared_source_fingerprint),route_scope:receipt.first_flight.scene.route_scope})),observed_archive_checks_passed:true,pointer_checks_enabled:pointerEnabled,...(pointerEnabled?{pointer_checks_passed:true,pointer_contexts:pointerReceipts.map(({context,raw,traceRaw,receipt,rows,commands})=>({context,checks:receipt.checks,rows,commands,summary:{bytes:raw.length,sha256:sha(raw)},trace:{path:context+'-pointer-flight-trace.json',bytes:traceRaw.length,sha256:sha(traceRaw)}}))}:{}),ground_material_checks_passed:true,ground_material_contexts:groundReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)})),...(pistonEnabled?{piston_model_pins_verified:true,piston_editor_portable_replacement_checks_passed:true,piston_contexts:coldReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)}))}:{}),runtime_verification:runtime,trace_records_compared:traces[0].length,selected_library:selection,native_build_identity:nativeIdentity});
  console.log('PASS combined package model/source/notices/full PE+CRT closure and actual replacement loop');
 }
 
@@ -704,6 +706,62 @@ function validatePointerSources(repository,project,reconstruction){
   const files=ordinaryFiles(path.join(project,folder));
   for(const file of files.filter(item=>!expected.includes(item))){assert(file.endsWith('.gd.uid')&&expected.includes(file.slice(0,-4)));const raw=fs.readFileSync(path.join(project,folder,file));assert(raw.length<=64);assert.match(raw.toString('utf8'),/^uid:\/\/[a-z0-9]{1,20}\r?\n?$/);}
   assert.deepEqual(files.filter(item=>expected.includes(item)).sort(),expected);
+ }
+}
+
+
+export function validateWireCodecReceipt(receipt,includePiston,expectedFingerprint){
+ pointerKeys(receipt,['passed','checks','failures','evidence','scope'],'Wire codec receipt');
+ assert.equal(receipt.passed,true);assert(Number.isSafeInteger(receipt.checks)&&receipt.checks>0);assert.deepEqual(receipt.failures,[]);
+ assert.equal(typeof receipt.scope,'string');assert(receipt.scope.length>0&&receipt.scope.length<=1024);
+ assert(plain(receipt.evidence));
+ pointerKeys(receipt.evidence.oracle,['cases','sha256','actual_classdb'],'Wire oracle');
+ assert.deepEqual(receipt.evidence.oracle,{cases:49,sha256:'1cab52841eb0cb063d547bf90e7a50f04a1871a5293bdfee4e0a78ddb8940ff6',actual_classdb:true});
+ if(includePiston){
+  const actual=receipt.evidence.native;
+  pointerKeys(actual,['aircraft_json','atmosphere_json','applied_commands_json','events_json','typed_held_axes','source_fingerprint','tick'],'Actual cold wire witness');
+  assert.equal(actual.source_fingerprint,expectedFingerprint);assert.equal(actual.tick,'1');
+  assert.equal(actual.typed_held_axes.mixture,0.06);assert.equal(actual.typed_held_axes.throttle,0.06);assert.equal(actual.typed_held_axes.trim,-0.06);
+  const aircraft=JSON.parse(actual.aircraft_json);assert.equal(aircraft.tick,'1');
+  const mixture=aircraft.systems.filter(row=>row.id==='engine.mixture');assert.equal(mixture.length,1);
+  assert.equal(mixture[0].value,actual.typed_held_axes.mixture);
+  assert.equal(typeof receipt.evidence.actual_mixture_token,'string');assert.equal(Number(receipt.evidence.actual_mixture_token),0.06);
+  assert(Array.isArray(actual.applied_commands_json)&&actual.applied_commands_json.length>0);
+  assert(Array.isArray(actual.events_json));
+  assert(Array.isArray(receipt.evidence.native_calls)&&receipt.evidence.native_calls.at(-1).method==='close');
+  assert.equal(receipt.evidence.adjacent_fault.mutated,true);
+  assert(Array.isArray(receipt.evidence.adjacent_fault.actual_calls)&&receipt.evidence.adjacent_fault.actual_calls.at(-1).method==='close');
+ }else{
+  assert.equal(typeof receipt.evidence.native_witness,'string');assert(receipt.evidence.native_witness.length>0);
+  assert(!Object.hasOwn(receipt.evidence,'native'),'No cold qualification in upstream codec receipt');
+ }
+ return receipt.checks;
+}
+export function validateWireCodecSources(repository,project,source,nativeIdentity){
+ const definitions=[['tests/wire_codec/checks.gd','wire_codec_tests/checks.gd'],['docs/evidence/P2/native-wire-number-reference.json','wire_codec_tests/reference.json']];
+ for(const [authored,mapped] of definitions){
+  const original=path.join(repository,authored);ordinaryAncestors(original);
+  const bytes=fs.readFileSync(original);
+  for(const base of [project,source]){const file=path.join(base,mapped);ordinaryAncestors(file);assert(fs.readFileSync(file).equals(bytes),'Exact wire resource/'+mapped);}
+ }
+ assert.equal(sha(fs.readFileSync(path.join(project,'wire_codec_tests/reference.json'))),'1cab52841eb0cb063d547bf90e7a50f04a1871a5293bdfee4e0a78ddb8940ff6');
+ const expected=['checks.gd','reference.json'];
+ assert.deepEqual(ordinaryFiles(path.join(source,'wire_codec_tests')).sort(),expected);
+ const staged=ordinaryFiles(path.join(project,'wire_codec_tests'));
+ for(const file of staged.filter(file=>!expected.includes(file))){
+  assert.equal(file,'checks.gd.uid');const raw=fs.readFileSync(path.join(project,'wire_codec_tests',file));assert(raw.length<=64);assert.match(raw.toString('utf8'),/^uid:\/\/[a-z0-9]{1,20}\r?\n?$/);
+ }
+ assert.deepEqual(staged.filter(file=>expected.includes(file)).sort(),expected);
+ const authors=ordinaryFiles(path.join(repository,'tests/wire_codec')).sort();
+ assert.deepEqual(ordinaryFiles(path.join(source,'tests/wire_codec')).sort(),authors);
+ for(const file of authors)assert(fs.readFileSync(path.join(repository,'tests/wire_codec',file)).equals(fs.readFileSync(path.join(source,'tests/wire_codec',file))),'Exact corresponding wire test source/'+file);
+ for(const [file,pin] of [['native-wire-number-reference.py','3783367f8bc110c8f4122187083aeef0e7ef8db49ec27c93b2a67732b65430d1'],['native-wire-number-reference.json','1cab52841eb0cb063d547bf90e7a50f04a1871a5293bdfee4e0a78ddb8940ff6']]){
+  const relative='docs/evidence/P2/'+file;
+  for(const base of [repository,source]){const artifact=path.join(base,relative);ordinaryAncestors(artifact);assert.equal(sha(fs.readFileSync(artifact)),pin,'Frozen numeric reference and corresponding generator/'+file);}
+ }
+ for(const name of ['native/godot_bridge/src/wire_numbers.hpp','native/godot_bridge/src/wire_numbers.cpp','native/godot_bridge/src/bridge.cpp']){
+  const binding=nativeIdentity.source_bindings.find(row=>row.path===name);assert(binding,'Numeric helper/registration must enter actual native fingerprint');
+  assert.equal(binding.lf_sha256,sha(fs.readFileSync(path.join(repository,name)).toString('utf8').replaceAll('\r\n','\n')));
  }
 }
 

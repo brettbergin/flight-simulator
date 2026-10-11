@@ -36,3 +36,5 @@ tests/export/*.bin binary
 docs/evidence/P2/native-wire-number-reference.py text eol=lf
 
 docs/evidence/P3/piston-local-window-reference/generate.py text eol=lf
+
+tests/wire_codec/** text eol=lf

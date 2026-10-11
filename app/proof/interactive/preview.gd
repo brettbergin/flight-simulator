@@ -1,4 +1,5 @@
 extends Node3D
+const NativeWireDecoder = preload("res://simulation/native_wire_decoder.gd")
 
 const AircraftChecks = preload("res://interactive/flight_aircraft_checks.gd")
 const RenderPose = preload("res://interactive/flight_render_pose.gd")
@@ -120,7 +121,8 @@ func restart() -> bool:
 	if reply.prepared_world_sha256 != "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5":
 		return fail("Prepared world identity mismatch")
 	initial = {"solved_controls":reply.held_axes.duplicate(true)}
-	accept_reply(reply)
+	if not accept_reply(reply):
+		return false
 	initial["accepted_aircraft"] = snapshot.duplicate(true)
 	controls = held_controls.duplicate(true)
 	last_submitted = controls.duplicate(true)
@@ -153,15 +155,20 @@ func restart() -> bool:
 	evidence["user_data_directory"] = OS.get_user_data_dir()
 	return true
 
-func accept_reply(reply: Dictionary) -> void:
+func accept_reply(reply: Dictionary) -> bool:
+	var next_aircraft: Variant=_native_value(reply.aircraft_json)
+	var next_atmosphere: Variant=_native_value(reply.atmosphere_json)
+	if not next_aircraft is Dictionary or not next_atmosphere is Dictionary:
+		return fail("Native publication decoding rejected")
 	last_aircraft_json = reply.aircraft_json
 	last_atmosphere_json = reply.atmosphere_json
-	snapshot = JSON.parse_string(last_aircraft_json)
-	atmosphere = JSON.parse_string(last_atmosphere_json)
+	snapshot = next_aircraft
+	atmosphere = next_atmosphere
 	held_controls = reply.held_axes.duplicate(true)
 	ground_valid = reply.ground_query_valid
 	plane_clearance = float(reply.plane_clearance_m)
 	native_outcome = reply.outcome
+	return true
 
 func fail(message: String) -> bool:
 	render_pose.clear()
@@ -218,7 +225,8 @@ func step_ticks(count: int, retain_adjacent: bool=true) -> bool:
 	var reply: Dictionary = bridge.call("step_fixed", count)
 	if not reply.get("ok", false):
 		return fail("Native interactive worker stopped: " + str(reply))
-	accept_reply(reply)
+	if not accept_reply(reply):
+		return false
 	var completed: int = int(reply.completed)
 	if completed<0 or completed>count or snapshot.validity!="valid" or int(snapshot.tick)!=old_tick+completed:
 		return fail("Invalid copied state or actual completed tick count")
@@ -668,7 +676,7 @@ func run_smoke() -> void:
 	check(pause_session(true),"native_ground_pause")
 	var saved: String = JSON.stringify(snapshot)
 	var stopped: Dictionary = bridge.call("step_fixed",32)
-	check(stopped.get("ok",false) and stopped.completed==0 and stopped.outcome=="paused" and JSON.stringify(JSON.parse_string(stopped.aircraft_json))==saved,"paused_batch_actual_zero_ticks")
+	check(stopped.get("ok",false) and stopped.completed==0 and stopped.outcome=="paused" and JSON.stringify(_native_value(stopped.aircraft_json))==saved,"paused_batch_actual_zero_ticks")
 	check(pause_session(false),"native_ground_resume")
 	check(not bridge.call("step_fixed",33).get("ok",true),"batch_over_32_rejected")
 	named_start="airborne-prepared"
@@ -1200,3 +1208,7 @@ func _exit_tree() -> void:
 
 
 
+
+static func _native_value(encoded: Variant) -> Variant:
+	var decoded: Dictionary=NativeWireDecoder.decode(encoded)
+	return decoded.value if decoded.ok else null

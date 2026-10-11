@@ -42,6 +42,8 @@ function Assert-PreviewPointerResult {
 }
 function Save-PreviewFacadeObservation {
  param([string]$TargetPath,[string]$Evidence,[string]$Name)
+ $wireRaw=Join-Path $TargetPath 'wire-codec-receipt.json'
+ if(Test-Path -LiteralPath $wireRaw -PathType Leaf){Copy-Item -LiteralPath $wireRaw -Destination (Join-Path $Evidence ($Name+'-wire-codec-observed-receipt.json'))}
  $coldRaw=Join-Path $TargetPath 'piston-check-receipt.json'
  if(Test-Path -LiteralPath $coldRaw -PathType Leaf){Copy-Item -LiteralPath $coldRaw -Destination (Join-Path $Evidence ($Name+'-piston-observed-receipt.json'))}
  $raw=Join-Path $TargetPath 'facade-check-receipt.json'
@@ -100,7 +102,7 @@ foreach($module in @('JSBSim.dll','flight_godot_bridge.dll')){
  if((Get-FileHash -LiteralPath (Join-Path $build ('bin/'+$module))).Hash -cne (Get-FileHash -LiteralPath (Join-Path $proof ('payload/bin/'+$module))).Hash){throw 'Selected native source/consumer and accepted export bytes differ'}
 }
 $simulationRoot=Join-Path $repo 'app/simulation'
-$simulationEntries=@('session_facade.gd','render_origin.gd','origin_participant.gd','wire_validation.gd','flight_scene.gd','flight_scene.tscn')
+$simulationEntries=@('session_facade.gd','render_origin.gd','origin_participant.gd','wire_validation.gd','native_wire_decoder.gd','flight_scene.gd','flight_scene.tscn')
 $simulationSnapshot=@(Get-SimulationSourceSnapshot -SourceRoot $simulationRoot -RequiredEntries $simulationEntries)
 $facadeTestRoot=Join-Path $repo 'tests/integration/sim_loop'
 $facadeTestEntries=@('facade_checks.gd','independent-reference.json','scene_checks.gd')
@@ -120,8 +122,11 @@ Assert-WindReferences -RepoRoot $repo -Python $environment.python_executable
 Assert-ObservedReviewReferences -RepoRoot $repo -Python $environment.python_executable
 & $environment.python_executable (Join-Path $repo 'tests/ui/freeflight/reference-generator.py') --check
 if($LASTEXITCODE -ne 0){throw 'Frozen landmark reference reproduction rejected'}
+$wireGroups=@(Get-WireCodecSourceGroups -RepoRoot $repo)
+$wireAuthoringRoot=Join-Path $repo 'tests/wire_codec'
+$wireAuthoringSnapshot=@(Get-SimulationSourceSnapshot -SourceRoot $wireAuthoringRoot -RequiredEntries @('checks.gd','native.cpp','reference_cases.hpp','emit_reference.py','reference.json','CMakeLists.txt'))
 $inputs=@()
-foreach($directory in @('app/audio','app/ui/audio','tests/audio','app/ui/first_flight','app/world/synthetic','content/scenarios/first-flight','content/world/synthetic','tests/scenarios/first-flight','tests/ui/first_flight','tests/world/synthetic','tests/integration/first_flight','app/proof/interactive','app/simulation','app/input','app/ui/controls','app/ui/freeflight','tests/ui/freeflight','app/replay/observed','app/ui/debrief/observed','tests/debrief/observed','app/replay/observed_archive','tests/debrief/observed_archive','tests/input','tests/cockpit','tests/integration/input','app/cockpit','tests/instruments','content/aircraft/prototype','tests/integration/sim_loop','app/world/wind','app/ui/wind','tests/world/wind','tests/integration/wind','tests/world/ground-materials','tools/interactive-preview','native/godot_bridge','native/fdm_jsbsim/interactive','native/fdm_jsbsim/models/original-interactive')){
+foreach($directory in @('app/audio','app/ui/audio','tests/audio','tests/wire_codec','app/ui/first_flight','app/world/synthetic','content/scenarios/first-flight','content/world/synthetic','tests/scenarios/first-flight','tests/ui/first_flight','tests/world/synthetic','tests/integration/first_flight','app/proof/interactive','app/simulation','app/input','app/ui/controls','app/ui/freeflight','tests/ui/freeflight','app/replay/observed','app/ui/debrief/observed','tests/debrief/observed','app/replay/observed_archive','tests/debrief/observed_archive','tests/input','tests/cockpit','tests/integration/input','app/cockpit','tests/instruments','content/aircraft/prototype','tests/integration/sim_loop','app/world/wind','app/ui/wind','tests/world/wind','tests/integration/wind','tests/world/ground-materials','tools/interactive-preview','native/godot_bridge','native/fdm_jsbsim/interactive','native/fdm_jsbsim/models/original-interactive')){
  foreach($file in Get-ChildItem -LiteralPath (Join-Path $repo $directory) -Recurse -File){
   $relative=[IO.Path]::GetRelativePath($repo,$file.FullName).Replace([char]92,[char]47)
   # Cache hygiene applies only to repository reconstruction input collection.
@@ -129,6 +134,10 @@ foreach($directory in @('app/audio','app/ui/audio','tests/audio','app/ui/first_f
   if($relative.Split('/') -ccontains '__pycache__' -or $relative.EndsWith('.pyc',[StringComparison]::Ordinal)){continue}
   $inputs+=@{path=$relative;sha256=(Get-FileHash $file.FullName).Hash.ToLowerInvariant();bytes=$file.Length}
  }
+}
+foreach($wireSource in @('docs/evidence/P2/native-wire-number-reference.py','docs/evidence/P2/native-wire-number-reference.json')){
+ $file=Get-Item -LiteralPath (Join-Path $repo $wireSource)
+ $inputs+=@{path=$wireSource;sha256=(Get-FileHash -LiteralPath $file.FullName).Hash.ToLowerInvariant();bytes=$file.Length}
 }
 foreach($pointerFile in $pointerGroups){if(@($inputs.path) -cnotcontains $pointerFile.source){$inputs+=@{path=$pointerFile.source;bytes=$pointerFile.bytes;sha256=$pointerFile.sha256}}}
 foreach($kind in @('AircraftSnapshot','AtmosphereSample','ControlCommand','OperationalEvent')){
@@ -168,7 +177,7 @@ if(([regex]::Matches($preset,'(?m)^script_export_mode=2\r?$')).Count -ne 1){thro
 # Raw generated GDScript bytes must survive the PCK; authored preset stays exact.
 $preset=$preset.Replace('script_export_mode=2','script_export_mode=0')
 $preset=$preset.Replace('include_filter="*.bin"','include_filter="*.bin,*.ps1"')
-$preset=$preset.Replace('custom_template/release=""','custom_template/release="'+$template.Replace('\','/')+'"').Replace('exclude_filter=""','exclude_filter="pointer-check-receipt.json,pointer-flight-trace.json,pointer-visual-captures/*,ground-material-receipt.json,native-identity-receipt.json,piston-check-receipt.json,smoke-receipt.json,loop.records.ndjson,compile-all.gd,facade-check-receipt.json,controls*-receipt.json,controls*-preset.json,controls*.png,landmark*.png,landmark*-receipt.json,observed*.png,observed*-receipt.json,wind*.png,wind*-receipt.json"')
+$preset=$preset.Replace('custom_template/release=""','custom_template/release="'+$template.Replace('\','/')+'"').Replace('exclude_filter=""','exclude_filter="wire-codec-receipt.json,pointer-check-receipt.json,pointer-flight-trace.json,pointer-visual-captures/*,ground-material-receipt.json,native-identity-receipt.json,piston-check-receipt.json,smoke-receipt.json,loop.records.ndjson,compile-all.gd,facade-check-receipt.json,controls*-receipt.json,controls*-preset.json,controls*.png,landmark*.png,landmark*-receipt.json,observed*.png,observed*-receipt.json,wind*.png,wind*-receipt.json"')
 $preset | Set-Content -Encoding utf8 (Join-Path $project 'export_presets.cfg')
 # Keep engine/profile/cache writes within this fresh run even during authoring.
 $prior=@{}
@@ -187,7 +196,7 @@ extends SceneTree
 func _initialize() -> void:
  var script=load("res://interactive/preview.gd") as Script
  var scene=load("res://interactive/preview.tscn") as PackedScene
- for path in ["res://audio/audio_cues.gd","res://audio/audio_options.gd","res://audio/sample_renderer.gd","res://ui/audio/audio_panel.gd","res://audio_tests/audio_cues_checks.gd","res://audio_tests/audio_options_checks.gd","res://audio_tests/audio_panel_checks.gd","res://audio_tests/sample_renderer_checks.gd","res://simulation/session_facade.gd","res://simulation/render_origin.gd","res://simulation/origin_participant.gd","res://simulation/wire_validation.gd","res://simulation/flight_scene.gd","res://sim_loop_tests/facade_checks.gd","res://sim_loop_checks.gd","res://input/input_mapper.gd","res://input/input_preset.gd","res://ui/controls/controls_panel.gd","res://input_tests/input_checks.gd","res://input_tests/scene_checks.gd","res://cockpit/instruments/native_readings.gd","res://cockpit/instruments/scan_panel.gd","res://instrument_tests/instrument_checks.gd","res://instrument_tests/adapter_checks.gd","res://instrument_tests/cockpit_geometry_checks.gd","res://instrument_tests/cockpit_visual.gd","res://instrument_tests/scan_checks.gd","res://instrument_tests/scene_checks.gd","res://instrument_tests/hud_caption_checks.gd","res://ui/freeflight/landmark_board.gd","res://freeflight_tests/landmark_checks.gd","res://freeflight_tests/scene_checks.gd","res://replay/observed/recorder.gd","res://replay/observed/review.gd","res://replay/observed/tick_math.gd","res://replay/observed/values.gd","res://ui/debrief/observed/panel.gd","res://observed_tests/recorder_checks.gd","res://observed_tests/scene_checks.gd","res://replay/observed_archive/strict_json.gd","res://replay/observed_archive/codec.gd","res://replay/observed_archive/files.gd","res://observed_archive_tests/archive_checks.gd","res://observed_archive_tests/file_checks.gd","res://observed_archive_tests/scene_checks.gd","res://world/wind/wind_cue.gd","res://ui/wind/panel.gd","res://wind_tests/wind_checks.gd","res://wind_scene_tests/scene_checks.gd","res://wind_scene_tests/visual_checks.gd","res://cockpit/instruments/engine_status.gd","res://input_tests/piston_checks.gd","res://input_tests/piston_panel_checks.gd","res://instrument_tests/engine_status_checks.gd","res://ground_material_tests/checks.gd","res://pointer_checks.gd","res://cockpit/engine_controls.gd","res://input_tests/pointer_engine_checks.gd","res://cockpit_tests/engine_controls_checks.gd","res://pointer_scene_tests/pointer_engine_scene_checks.gd","res://pointer_scene_tests/pointer_flight_checks.gd","res://pointer_scene_tests/pointer_visual.gd","res://ui/first_flight/briefing_panel.gd","res://ui/first_flight/binding_help.gd","res://ui/first_flight/circuit_guide.gd","res://world/synthetic/circuit_geometry.gd","res://scenario_tests/first-flight/briefing_checks.gd","res://scenario_tests/first-flight/circuit_checks.gd","res://first_flight_ui_tests/briefing_checks.gd","res://world_tests/synthetic/circuit_checks.gd","res://first_flight_scene_tests/scene_checks.gd","res://first_flight_scene_tests/map_checks.gd","res://first_flight_scene_tests/visual_checks.gd","res://first_flight_scene_tests/hud_caption_visual_checks.gd"$pistonCompileResources]:
+ for path in ["res://audio/audio_cues.gd","res://audio/audio_options.gd","res://audio/sample_renderer.gd","res://ui/audio/audio_panel.gd","res://audio_tests/audio_cues_checks.gd","res://audio_tests/audio_options_checks.gd","res://audio_tests/audio_panel_checks.gd","res://audio_tests/sample_renderer_checks.gd","res://simulation/session_facade.gd","res://simulation/render_origin.gd","res://simulation/origin_participant.gd","res://simulation/wire_validation.gd","res://simulation/native_wire_decoder.gd","res://simulation/flight_scene.gd","res://sim_loop_tests/facade_checks.gd","res://sim_loop_checks.gd","res://input/input_mapper.gd","res://input/input_preset.gd","res://ui/controls/controls_panel.gd","res://input_tests/input_checks.gd","res://input_tests/scene_checks.gd","res://cockpit/instruments/native_readings.gd","res://cockpit/instruments/scan_panel.gd","res://instrument_tests/instrument_checks.gd","res://instrument_tests/adapter_checks.gd","res://instrument_tests/cockpit_geometry_checks.gd","res://instrument_tests/cockpit_visual.gd","res://instrument_tests/scan_checks.gd","res://instrument_tests/scene_checks.gd","res://instrument_tests/hud_caption_checks.gd","res://ui/freeflight/landmark_board.gd","res://freeflight_tests/landmark_checks.gd","res://freeflight_tests/scene_checks.gd","res://replay/observed/recorder.gd","res://replay/observed/review.gd","res://replay/observed/tick_math.gd","res://replay/observed/values.gd","res://ui/debrief/observed/panel.gd","res://observed_tests/recorder_checks.gd","res://observed_tests/scene_checks.gd","res://replay/observed_archive/strict_json.gd","res://replay/observed_archive/codec.gd","res://replay/observed_archive/files.gd","res://observed_archive_tests/archive_checks.gd","res://observed_archive_tests/file_checks.gd","res://observed_archive_tests/scene_checks.gd","res://world/wind/wind_cue.gd","res://ui/wind/panel.gd","res://wind_tests/wind_checks.gd","res://wind_scene_tests/scene_checks.gd","res://wind_scene_tests/visual_checks.gd","res://cockpit/instruments/engine_status.gd","res://input_tests/piston_checks.gd","res://input_tests/piston_panel_checks.gd","res://instrument_tests/engine_status_checks.gd","res://ground_material_tests/checks.gd","res://pointer_checks.gd","res://cockpit/engine_controls.gd","res://input_tests/pointer_engine_checks.gd","res://cockpit_tests/engine_controls_checks.gd","res://pointer_scene_tests/pointer_engine_scene_checks.gd","res://pointer_scene_tests/pointer_flight_checks.gd","res://pointer_scene_tests/pointer_visual.gd","res://ui/first_flight/briefing_panel.gd","res://ui/first_flight/binding_help.gd","res://ui/first_flight/circuit_guide.gd","res://world/synthetic/circuit_geometry.gd","res://scenario_tests/first-flight/briefing_checks.gd","res://scenario_tests/first-flight/circuit_checks.gd","res://first_flight_ui_tests/briefing_checks.gd","res://world_tests/synthetic/circuit_checks.gd","res://first_flight_scene_tests/scene_checks.gd","res://first_flight_scene_tests/map_checks.gd","res://first_flight_scene_tests/visual_checks.gd","res://first_flight_scene_tests/hud_caption_visual_checks.gd"$pistonCompileResources]:
   var dependency=load(path) as Script
   if dependency==null or not dependency.can_instantiate():
    push_error("Simulation resource compile rejected: "+path)
@@ -223,6 +232,9 @@ func _initialize() -> void:
    $receipt=Get-Content (Join-Path $project 'facade-check-receipt.json') -Raw | ConvertFrom-Json
    if($result.text -notmatch 'SIM_LOOP_CHECKS_PASSED'){throw 'Actual facade checks failed'}
    Assert-PreviewFacadeReceipt -Receipt $receipt -IncludePiston $includePiston -ExpectedSourceFingerprint $nativeIdentity.declared_source_fingerprint
+   $wireReceipt=Get-Content -LiteralPath (Join-Path $project 'wire-codec-receipt.json') -Raw|ConvertFrom-Json
+   Assert-PreviewWireCodecReceipt -Receipt $wireReceipt -IncludePiston $includePiston -ExpectedSourceFingerprint $nativeIdentity.declared_source_fingerprint
+   Move-Item -LiteralPath (Join-Path $project 'wire-codec-receipt.json') -Destination (Join-Path $evidence 'editor-wire-codec-receipt.json')
    $identityReceipt=Get-Content -LiteralPath (Join-Path $project 'native-identity-receipt.json') -Raw | ConvertFrom-Json
    Assert-PreviewNativeResourceReceipt -Receipt $identityReceipt -Identity $nativeIdentity
    Copy-Item -LiteralPath (Join-Path $project 'native-identity-receipt.json') -Destination (Join-Path $evidence 'editor-native-identity-receipt.json')
@@ -267,21 +279,35 @@ Copy-FirstFlightSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $f
 Copy-AudioSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $audioGroups
 if($includePiston){Copy-PistonSourceSnapshot -RepoRoot $repo -DestinationRoot $source -Snapshot $pistonSnapshot}
 Copy-Item -LiteralPath (Join-Path $project 'wire_fixtures'),(Join-Path $project 'sim_loop_checks.gd'),(Join-Path $project 'sim_loop_checks.tscn'),(Join-Path $project 'pointer_checks.gd') -Destination $source -Recurse
+Copy-WireCodecSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $wireGroups
+Copy-SimulationSourceSnapshot -SourceRoot $wireAuthoringRoot -DestinationRoot (Join-Path $source 'tests/wire_codec') -Snapshot $wireAuthoringSnapshot -RequiredEntries @('checks.gd','native.cpp','reference_cases.hpp','emit_reference.py','reference.json','CMakeLists.txt')
+New-Item -ItemType Directory -Force -Path (Join-Path $source 'docs/evidence/P2')|Out-Null
+foreach($wireSource in @('docs/evidence/P2/native-wire-number-reference.py','docs/evidence/P2/native-wire-number-reference.json')){
+ Copy-Item -LiteralPath (Join-Path $repo $wireSource) -Destination (Join-Path $source $wireSource)
+}
 Copy-PreviewNativeIdentityResource -Identity $nativeIdentity -DestinationRoot $source
 & $environment.python_executable -B (Join-Path $PSScriptRoot 'native-identity.py') --repository-root $repo --build-root $build --evidence (Join-Path $evidence 'native-build-identity.json') --staged-root $project --staged-root $source --reconstruction-root $source
 if($LASTEXITCODE -ne 0){throw 'Corresponding-source identity reconstruction rejected'}
-& (Join-Path $payload 'launch.ps1') -HeadlessSmoke
-Copy-Item -LiteralPath (Join-Path $payload 'smoke-receipt.json'),(Join-Path $payload 'portable-smoke.log'),(Join-Path $payload 'loop.records.ndjson') -Destination $evidence
+try { & (Join-Path $payload 'launch.ps1') -HeadlessSmoke }
+finally {
+ foreach($name in @('smoke-receipt.json','portable-smoke.log','loop.records.ndjson')){
+  $observation=Join-Path $payload $name
+  if(Test-Path -LiteralPath $observation -PathType Leaf){Copy-Item -LiteralPath $observation -Destination $evidence}
+ }
+}
 $replacement=Join-Path $root 'Replacement space — Δ飛行'
 Copy-Item -LiteralPath $payload -Destination $replacement -Recurse
 $oldReplacement=Get-Content (Join-Path $proof 'evidence/replacement-evidence.json') -Raw | ConvertFrom-Json
 $rebuilt=Join-Path $proof 'Replaced DLL — Δ飛行/bin/JSBSim.dll'
 if((Get-FileHash $rebuilt).Hash.ToLowerInvariant() -ne $oldReplacement.replaced_library_sha256){throw 'Source rebuilt JSBSim identity changed'}
 foreach($relative in @('JSBSim.dll','bin/JSBSim.dll')){Copy-Item -LiteralPath $rebuilt -Destination (Join-Path $replacement $relative) -Force}
-& (Join-Path $replacement 'launch.ps1') -HeadlessSmoke
-Copy-Item -LiteralPath (Join-Path $replacement 'smoke-receipt.json') -Destination (Join-Path $evidence 'replacement-smoke-receipt.json')
-Copy-Item -LiteralPath (Join-Path $replacement 'loop.records.ndjson') -Destination (Join-Path $evidence 'replacement.records.ndjson')
-Copy-Item -LiteralPath (Join-Path $replacement 'portable-smoke.log') -Destination (Join-Path $evidence 'replacement.log')
+try { & (Join-Path $replacement 'launch.ps1') -HeadlessSmoke }
+finally {
+ foreach($observation in @(@{source='smoke-receipt.json';destination='replacement-smoke-receipt.json'},@{source='loop.records.ndjson';destination='replacement.records.ndjson'},@{source='portable-smoke.log';destination='replacement.log'})){
+  $file=Join-Path $replacement $observation.source
+  if(Test-Path -LiteralPath $file -PathType Leaf){Copy-Item -LiteralPath $file -Destination (Join-Path $evidence $observation.destination)}
+ }
+}
 foreach($target in @(@{name='portable';path=$payload},@{name='replacement';path=$replacement})){
  if($includePiston){
   $pointerResult=Invoke-ProofProcess -Executable (Join-Path $target.path 'WholeFlightPreview.exe') -Arguments @('--headless','--','--pointer-checks') -WorkingDirectory $root -Log (Join-Path $evidence ($target.name+'-pointer.log')) -CleanEnvironment -ProfileRoot (Join-Path $root ('pointer-userdata-'+$target.name)) -TimeoutSeconds $FacadeCheckTimeoutSeconds
@@ -295,6 +321,9 @@ foreach($target in @(@{name='portable';path=$payload},@{name='replacement';path=
  if($result.text -notmatch 'SIM_LOOP_CHECKS_PASSED' -or $result.text -notmatch 'FLIGHT_BRIDGE_TERMINATED_JOINED'){throw 'Exported actual facade checks failed'}
  $receipt=Get-Content (Join-Path $target.path 'facade-check-receipt.json') -Raw | ConvertFrom-Json
  Assert-PreviewFacadeReceipt -Receipt $receipt -IncludePiston $includePiston -ExpectedSourceFingerprint $nativeIdentity.declared_source_fingerprint
+ $wireReceipt=Get-Content -LiteralPath (Join-Path $target.path 'wire-codec-receipt.json') -Raw|ConvertFrom-Json
+ Assert-PreviewWireCodecReceipt -Receipt $wireReceipt -IncludePiston $includePiston -ExpectedSourceFingerprint $nativeIdentity.declared_source_fingerprint
+ Move-Item -LiteralPath (Join-Path $target.path 'wire-codec-receipt.json') -Destination (Join-Path $evidence ($target.name+'-wire-codec-receipt.json'))
  $identityReceipt=Get-Content -LiteralPath (Join-Path $target.path 'native-identity-receipt.json') -Raw | ConvertFrom-Json
  Assert-PreviewNativeResourceReceipt -Receipt $identityReceipt -Identity $nativeIdentity
  Move-Item -LiteralPath (Join-Path $target.path 'native-identity-receipt.json') -Destination (Join-Path $evidence ($target.name+'-native-identity-receipt.json'))
@@ -310,6 +339,10 @@ $audioGroups | ConvertTo-Json -Depth 10 -AsArray | Set-Content -Encoding utf8 (J
 & node (Join-Path $PSScriptRoot 'package.mjs') audit $root $proof $build $environment.python_executable
 if($LASTEXITCODE -ne 0){throw 'Whole-flight package integrity failed'}
 # Detect concurrent source/toolchain drift before publishing a successful receipt.
+Assert-WireCodecSourceGroups -Root $repo -Groups $wireGroups -Authoring
+Assert-WireCodecSourceGroups -Root $project -Groups $wireGroups -AllowGeneratedUIDs
+Assert-WireCodecSourceGroups -Root $source -Groups $wireGroups
+Assert-SimulationSourceSnapshot -SourceRoot $wireAuthoringRoot -Snapshot $wireAuthoringSnapshot -RequiredEntries @('checks.gd','native.cpp','reference_cases.hpp','emit_reference.py','reference.json','CMakeLists.txt')
 Assert-SimulationSourceSnapshot -SourceRoot $simulationRoot -Snapshot $simulationSnapshot -RequiredEntries $simulationEntries
 Assert-SimulationSourceSnapshot -SourceRoot (Join-Path $project 'simulation') -Snapshot $simulationSnapshot -RequiredEntries $simulationEntries -AllowGeneratedUIDs
 Assert-SimulationSourceSnapshot -SourceRoot (Join-Path $source 'simulation') -Snapshot $simulationSnapshot -RequiredEntries $simulationEntries
@@ -365,9 +398,10 @@ $uidRoots+=@($firstFlightGroups|ForEach-Object {Join-Path $project $_.destinatio
 $uidRoots+=@($audioGroups|ForEach-Object {Join-Path $project $_.destination})
 $uidRoots+=Join-Path $project 'ground_material_tests'
 $uidRoots+=Join-Path $project 'cockpit_tests'
+$uidRoots+=Join-Path $project 'wire_codec_tests'
 $uidRoots+=Join-Path $project 'pointer_scene_tests'
 if($includePiston){$uidRoots+=Join-Path $project 'engine_tests'}
-$manifest=@{schema_version=1;kind='original-whole-flight-preview';passed=$true;scope='Windows original model, actual functional headless proof; GPU/human acceptance separate';git_head=(& git -c "safe.directory=$repo" -C $repo rev-parse HEAD);powershell=$PSVersionTable.PSVersion.ToString();authoring_sources=$inputs;observed_sources=$observedGroups;wind_sources=$windGroups;ground_sources=$groundGroups;pointer_sources=$pointerGroups;first_flight_sources=$firstFlightGroups;audio_sources=$audioGroups;audio_source_groups_sha256=(Get-FileHash (Join-Path $evidence 'audio-source-groups.json')).Hash.ToLowerInvariant();pointer_checks_enabled=$includePiston;staged_pointer_harness_sha256=(Get-FileHash (Join-Path $project 'pointer_checks.gd')).Hash.ToLowerInvariant();piston_sources=$pistonSnapshot;piston_checks_enabled=$includePiston;native_build_identity=$nativeIdentity;selected_library=$selectedLibrary;staged_compile_sha256=(Get-FileHash (Join-Path $project 'compile-all.gd')).Hash.ToLowerInvariant();staged_generated_uid_metadata=@(Get-ChildItem -LiteralPath $uidRoots -Recurse -File -Filter '*.gd.uid'|ForEach-Object {@{path=[IO.Path]::GetRelativePath($project,$_.FullName).Replace([char]92,[char]47);sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}});staged_facade_harness_sha256=(Get-FileHash (Join-Path $project 'sim_loop_checks.gd')).Hash.ToLowerInvariant();staged_project_sha256=(Get-FileHash (Join-Path $project 'project.godot')).Hash.ToLowerInvariant();tool_pins=$pins;godot_version=$version.text.Trim();accepted_native_export_root=$proof;accepted_package_inventory_sha256=(Get-FileHash (Join-Path $proof 'evidence/package-inventory.json')).Hash.ToLowerInvariant();files=$inventory}
+$manifest=@{schema_version=1;kind='original-whole-flight-preview';passed=$true;scope='Windows original model, actual functional headless proof; GPU/human acceptance separate';git_head=(& git -c "safe.directory=$repo" -C $repo rev-parse HEAD);powershell=$PSVersionTable.PSVersion.ToString();authoring_sources=$inputs;observed_sources=$observedGroups;wind_sources=$windGroups;ground_sources=$groundGroups;wire_codec_sources=$wireGroups;pointer_sources=$pointerGroups;first_flight_sources=$firstFlightGroups;audio_sources=$audioGroups;audio_source_groups_sha256=(Get-FileHash (Join-Path $evidence 'audio-source-groups.json')).Hash.ToLowerInvariant();pointer_checks_enabled=$includePiston;staged_pointer_harness_sha256=(Get-FileHash (Join-Path $project 'pointer_checks.gd')).Hash.ToLowerInvariant();piston_sources=$pistonSnapshot;piston_checks_enabled=$includePiston;native_build_identity=$nativeIdentity;selected_library=$selectedLibrary;staged_compile_sha256=(Get-FileHash (Join-Path $project 'compile-all.gd')).Hash.ToLowerInvariant();staged_generated_uid_metadata=@(Get-ChildItem -LiteralPath $uidRoots -Recurse -File -Filter '*.gd.uid'|ForEach-Object {@{path=[IO.Path]::GetRelativePath($project,$_.FullName).Replace([char]92,[char]47);sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}});staged_facade_harness_sha256=(Get-FileHash (Join-Path $project 'sim_loop_checks.gd')).Hash.ToLowerInvariant();staged_project_sha256=(Get-FileHash (Join-Path $project 'project.godot')).Hash.ToLowerInvariant();tool_pins=$pins;godot_version=$version.text.Trim();accepted_native_export_root=$proof;accepted_package_inventory_sha256=(Get-FileHash (Join-Path $proof 'evidence/package-inventory.json')).Hash.ToLowerInvariant();files=$inventory}
 $manifest | ConvertTo-Json -Depth 10 | Set-Content -Encoding utf8 (Join-Path $evidence 'manifest.json')
 @{root=$root;project=$project;payload=$payload;evidence=$evidence;passed=$true} | ConvertTo-Json | Set-Content -Encoding utf8 (Join-Path $repo '.local/interactive-preview/latest-run.json')
 Write-Output $root

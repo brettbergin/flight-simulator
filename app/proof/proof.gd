@@ -1,4 +1,5 @@
 extends Node
+const NativeWireDecoder = preload("res://simulation/native_wire_decoder.gd")
 # This scene proves boundary/loading/lifetime only. The original synthetic model
 # is uncalibrated and provides no C172S or pilot-training qualification.
 var bridge: RefCounted
@@ -53,13 +54,18 @@ func run_proof() -> void:
 		return
 	if not require(opened.get("ok", false), "Initialization rejected: " + str(opened.get("error", ""))):
 		return
-	record("initialization", JSON.parse_string(opened["initialization_json"]))
+	var initialization: Variant=_native_value(opened["initialization_json"])
+	if not require(initialization is Dictionary, "Initialization publication decoding rejected"):
+		return
+	record("initialization", initialization)
 	record("runtime_modules", opened.get("runtime_modules", {}))
 	if not require(not bridge.call("open_session", model_root, initializer).get("ok", true), "Duplicate open must reject without closing session"):
 		return
 	if not require(not bridge.call("step_fixed", 33).get("ok", true), "Unbounded step batch accepted"):
 		return
-	var initial: Dictionary = JSON.parse_string(opened["aircraft_json"])
+	var initial: Variant = _native_value(opened["aircraft_json"])
+	if not require(initial is Dictionary, "Native initial decoding rejected"):
+		return
 	record("initial_aircraft", initial)
 	var controls: Dictionary = {"type":"ControlCommand", "schema_version":1,
 		"tick":"1", "session_id":initial["session_id"], "sequence":"9007199254740993",
@@ -91,7 +97,9 @@ func run_proof() -> void:
 	var applied: Array = stepped["applied_commands_json"]
 	if not require(applied.size() == 1, "Applied command evidence missing"):
 		return
-	var applied_command: Dictionary = JSON.parse_string(applied[0])
+	var applied_command: Variant = _native_value(applied[0])
+	if not require(applied_command is Dictionary, "Native applied_command decoding rejected"):
+		return
 	if not require(applied_command["sequence"] == "9007199254740993", "uint64 precision lost"):
 		return
 	record("applied_command", applied_command)
@@ -99,11 +107,16 @@ func run_proof() -> void:
 		stepped = bridge.call("step_fixed", 30)
 		if not require(stepped.get("ok", false), "Fixed batch rejected"):
 			return
-	var snapshot: Dictionary = JSON.parse_string(stepped["aircraft_json"])
+	var snapshot: Variant = _native_value(stepped["aircraft_json"])
+	if not require(snapshot is Dictionary, "Native snapshot decoding rejected"):
+		return
 	if not require(snapshot["tick"] == "121", "Unexpected fixed-step tick"):
 		return
 	record("aircraft", snapshot)
-	record("atmosphere", JSON.parse_string(stepped["atmosphere_json"]))
+	var weather: Variant=_native_value(stepped["atmosphere_json"])
+	if not require(weather is Dictionary, "Atmosphere publication decoding rejected"):
+		return
+	record("atmosphere", weather)
 	var pause: Dictionary = {"type":"SessionControl", "schema_version":1,
 		"tick":"121", "session_id":snapshot["session_id"], "sequence":"1",
 		"source_id":"session.owner", "payload":{"kind":"pause", "paused":true}}
@@ -111,10 +124,14 @@ func run_proof() -> void:
 	if not require(paused.get("ok", false) and paused["rejection"] == 0, "Boundary pause rejected"):
 		return
 	var held: Dictionary = bridge.call("step_fixed", 1)
-	if not require(not held["stepped"] and JSON.parse_string(held["aircraft_json"])["tick"] == "121", "Pause advanced physics"):
+	var held_aircraft: Variant=_native_value(held["aircraft_json"])
+	if not require(held_aircraft is Dictionary and not held["stepped"] and held_aircraft["tick"] == "121", "Pause advanced physics or publication rejected"):
 		return
 	for event_json: String in held["events_json"]:
-		record("event", JSON.parse_string(event_json))
+		var event: Variant=_native_value(event_json)
+		if not require(event is Dictionary, "Event publication decoding rejected"):
+			return
+		record("event", event)
 	if mode == "destructor":
 		bridge = null # Destructor must join without an explicit close call.
 	else:
@@ -136,3 +153,7 @@ func _exit_tree() -> void:
 	if bridge != null:
 		bridge.call("close")
 		bridge = null
+
+static func _native_value(encoded: Variant) -> Variant:
+	var decoded: Dictionary=NativeWireDecoder.decode(encoded)
+	return decoded.value if decoded.ok else null

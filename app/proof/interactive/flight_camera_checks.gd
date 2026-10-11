@@ -1,9 +1,12 @@
 extends RefCounted
+const NativeWireDecoder = preload("res://simulation/native_wire_decoder.gd")
 # Original MIT bounded diagnostics. Native fixture schedules are identical;
 # synthetic observer poses never overwrite aircraft/weather or issue commands.
 
 func _normalise_wire(text: String) -> String:
-	var record: Dictionary=JSON.parse_string(text)
+	var record: Variant=_native_value(text)
+	if not record is Dictionary or typeof(record.get("session_id"))!=TYPE_STRING:
+		return ""
 	# Replace only the flat session-id token, preserving native numerical bytes.
 	return text.replace('"session_id":'+JSON.stringify(record.session_id),'"session_id":"camera-equivalence"')
 
@@ -16,7 +19,9 @@ func _cadence(hz: int) -> Array[int]:
 	return values
 
 func _same_native(a: Dictionary, b: Dictionary) -> bool:
-	if _normalise_wire(a.aircraft_json)!=_normalise_wire(b.aircraft_json) or _normalise_wire(a.atmosphere_json)!=_normalise_wire(b.atmosphere_json):
+	var aircraft: String=_normalise_wire(a.aircraft_json)
+	var weather: String=_normalise_wire(a.atmosphere_json)
+	if aircraft.is_empty() or weather.is_empty() or aircraft!=_normalise_wire(b.aircraft_json) or weather!=_normalise_wire(b.atmosphere_json):
 		return false
 	for key in ["schema_version","held_axes","outcome","completed","live","historical","paused","time_scale","fault","queued","rejection","ground_query_valid","surface_height_m","plane_clearance_m","applied_commands_json","events_json"]:
 		if a.get(key)!=b.get(key):
@@ -72,7 +77,11 @@ func run(host: Node) -> void:
 	axes.pitch=clampf(float(axes.pitch)+0.01,-1,1)
 	axes.throttle=clampf(float(axes.throttle)+0.03,0,1)
 	axes.trim=0.015
-	var initial: Dictionary=JSON.parse_string(opened.aircraft_json)
+	var initial: Variant=_native_value(opened.aircraft_json)
+	host.check(initial is Dictionary,"camera_baseline_initial_publication_decoded")
+	if not initial is Dictionary:
+		reference.call("close")
+		return
 	var command: Dictionary={"type":"ControlCommand","schema_version":1,"tick":"1","session_id":initial.session_id,"sequence":"1","source_id":"pilot.controls","authority":"pilot","assistance":{"profile_id":"unassisted","active":[]},"payload":axes}
 	var admitted: Dictionary=reference.call("submit",command)
 	host.check(admitted.get("ok",false) and admitted.get("queued",false),"camera_baseline_identical_typed_command_queued")
@@ -87,7 +96,11 @@ func run(host: Node) -> void:
 		completed=reply.get("ok",false) and reply.get("completed",0)==count and reply.get("outcome","")=="completed" and completed
 	var applied_matches: bool=applied.size()==1
 	if applied_matches:
-		var actual: Dictionary=JSON.parse_string(applied[0])
+		var actual: Variant=_native_value(applied[0])
+		host.check(actual is Dictionary,"camera_baseline_applied_publication_decoded")
+		if not actual is Dictionary:
+			reference.call("close")
+			return
 		for key in ["type","schema_version","tick","sequence","source_id","authority","assistance"]:
 			applied_matches=applied_matches and actual.get(key)==command.get(key)
 		applied_matches=applied_matches and actual.payload.kind=="axes" and actual.session_id=="camera-equivalence"
@@ -95,7 +108,8 @@ func run(host: Node) -> void:
 			applied_matches=applied_matches and absf(float(actual.payload[key])-float(axes[key]))<1e-12
 	host.check(applied_matches,"camera_baseline_actual_command_applied_once")
 	var baseline: Dictionary=reference.call("read_state")
-	host.check(completed and JSON.parse_string(baseline.aircraft_json).tick=="120","camera_baseline_actual_120_ticks")
+	var baseline_aircraft: Variant=_native_value(baseline.aircraft_json)
+	host.check(completed and baseline_aircraft is Dictionary and baseline_aircraft.tick=="120","camera_baseline_actual_120_ticks")
 	var closed: Dictionary=reference.call("close")
 	host.check(closed.get("ok",false) and closed.get("joined",false),"camera_baseline_worker_joined")
 	var profiles: Dictionary={}
@@ -184,3 +198,7 @@ func capture(host: Node) -> void:
 	host.set_camera_mode(saved_mode)
 	host.show_state()
 
+
+static func _native_value(encoded: Variant) -> Variant:
+	var decoded: Dictionary=NativeWireDecoder.decode(encoded)
+	return decoded.value if decoded.ok else null

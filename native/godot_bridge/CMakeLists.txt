@@ -1,4 +1,4 @@
-add_library(flight_godot_bridge SHARED src/bridge.cpp src/codec.cpp src/worker.cpp)
+add_library(flight_godot_bridge SHARED src/bridge.cpp src/codec.cpp src/worker.cpp src/wire_numbers.cpp)
 target_include_directories(flight_godot_bridge PRIVATE src)
 target_link_libraries(flight_godot_bridge PRIVATE godot::cpp flight::fdm_jsbsim)
 target_compile_features(flight_godot_bridge PRIVATE cxx_std_20)
@@ -11,4 +11,11 @@ if(TARGET flight::interactive)
   target_sources(flight_godot_bridge PRIVATE src/interactive_bridge.cpp src/interactive_worker.cpp)
   target_link_libraries(flight_godot_bridge PRIVATE flight::interactive)
   target_compile_definitions(flight_godot_bridge PRIVATE FLIGHT_HAS_INTERACTIVE=1)
+endif()
+
+# Converter qualification must preserve the caller floating-point environment.
+if(MSVC)
+  set_source_files_properties(src/wire_numbers.cpp PROPERTIES COMPILE_OPTIONS /fp:strict)
+else()
+  set_source_files_properties(src/wire_numbers.cpp PROPERTIES COMPILE_OPTIONS "-fno-fast-math;-ffp-contract=off;-frounding-math")
 endif()
