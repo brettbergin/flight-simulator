@@ -6913,6 +6913,70 @@
         "Exact baseline/candidate source and geometry bindings, focused mesh negative checks and preserved authority/handle comparisons.",
         "Frozen editor/portable/rebuilt-library package/module/model/source/notices closure plus paired original images/receipts with independent visual review; verification remains pending until actually run."
       ]
+    },
+    {
+      "key": "PAUSED-VIEWS-CONTRACT",
+      "title": "Ratify paused lookout views and camera comfort",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Freeze seven fixed original-aircraft camera presets, copied session-local FOV/response settings and paused draft adoption before consumers; partial HUD-CAMERA #26 work, with no runtime, input, physics or gaze-layout change.",
+      "depends_on": [
+        "SIM-LOOP-CONTRACT",
+        "INPUT-CONTROLS-CONTRACT",
+        "COCKPIT-READINGS-CONTRACT",
+        "THIRD-PERSON-STABILITY",
+        "POINTER-ENGINE-CONTRACT",
+        "POINTER-ENGINE-CONTROLS",
+        "ORDINARY-FLIGHT-LAYOUT"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:ui",
+        "priority:P1",
+        "status:needs-review"
+      ],
+      "owned_paths": [
+        "docs/decisions/025-paused-view-presets-and-comfort.md",
+        "docs/contracts.md",
+        "docs/README.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/phases/p2-first-flight.md",
+        "docs/agent-operations.md",
+        "docs/contracts.md",
+        "docs/experience-and-progress.md",
+        "docs/decisions/007-sim-loop-facade.md",
+        "docs/decisions/008-input-presets.md",
+        "docs/decisions/017-frontend-pointer-engine-controls.md",
+        "docs/decisions/019-ordinary-flight-overlay-layout.md",
+        "docs/decisions/021-manual-flight-overlay-dock.md",
+        "docs/evidence/P2/gaze-overlay-layout-design.md",
+        "docs/evidence/P2/manual-flight-overlay-dock-contract.md"
+      ],
+      "requirements": [
+        "PRD-015",
+        "UX-010",
+        "UX-011",
+        "UX-013"
+      ],
+      "acceptance": [
+        "Ratify ADR025 seven exact preset IDs and copied three-key settings, existing eye/FOV bounds and exact traditional Cockpit/Panel transforms; fix side-local pitch and signed yaw composition explicitly before consumer references.",
+        "Define already-paused session-bound draft Apply/Cancel/defaults, successful-adoption-only session reset, existing mapped view/cycle/recenter/zoom behavior and real-release rearm without Facade/Mapper/native mutation.",
+        "Retain same presented ownship/camera phase and offset-only smooth/immediate external response; distinguish inherited traditional-mode aid visibility/dock transitions from forbidden same-mode gaze/FOV relocation and redundant capture retirement.",
+        "Independent exact-source design review, canonical requirement/dependency mapping, documentation/schema checks and every current protected check precede contract merge. Consumers additionally wait for independently frozen direction/filter/lifecycle references and explicit coordinator dispatch.",
+        "Record a separate consumer acceptance plan for actual paused invariance, both original profiles and supported starts, source/package/replacement closure, original three-size views and moving comfort evidence; keep #26, #179/#192, aircraft/hardware/pilot and phase gates open."
+      ],
+      "evidence": [
+        "Reviewed ADR025 exact UTF-8 source and preserved v1 side-pitch finding; source-bound v2 correction and canonical 127th-entry mapping. Design review establishes no implemented camera, actual readability, runtime comfort or pilot/phase acceptance."
+      ]
     }
   ]
 }

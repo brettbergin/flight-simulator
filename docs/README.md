@@ -78,6 +78,8 @@ The [maintained C172P source assessment](evidence/P3/c172p-candidate-assessment.
 
 The accepted assessment now has two parallel source-only prerequisites: [C172P applicability and normal-reference dossier #171](https://github.com/brettbergin/flight-simulator/issues/171) and [recursive host/rights closure #172](https://github.com/brettbergin/flight-simulator/issues/172). Both depend on accepted #169/#13/#19 and join before any separately reviewed candidate profile/interface/package decision. They publish metadata and explicit unresolved cells; they import no aircraft source and preserve selected C172S #28/#76, original profiles and pilot/phase gates.
 
+The proposed [paused lookout-view contract](decisions/025-paused-view-presets-and-comfort.md), [#213](https://github.com/brettbergin/flight-simulator/issues/213), prepares Forward horizon and Left/Right window presets, existing traditional views and bounded camera comfort through a paused Views page. It changes no current player. Checked contract acceptance and independent reference preparation precede consumers; this is partial #26 work and preserves current gaze, aircraft and phase limits.
+
 ## Read in this order
 
 1. [Product scope and requirements](product.md): expected pilot experience and initial boundaries.

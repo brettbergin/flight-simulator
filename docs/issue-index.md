@@ -78,6 +78,7 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | ORIGINAL-AIRFRAME-FINISH | [#209 Refine the original exterior cabin finish without changing aircraft geometry](https://github.com/brettbergin/flight-simulator/issues/209) | AIRCRAFT-GROUND-UX, PISTON-PROPELLER-PRESENTATION, LICENSE-REGISTER, RENDER-PROOF |
 | PISTON-READINGS-DECIMAL-ADMISSION | [#204 Correct piston readings decimal admission while preserving exact control authority](https://github.com/brettbergin/flight-simulator/issues/204) | COCKPIT-READINGS-CONTRACT, ORIGINAL-PISTON-CONTRACT, ORIGINAL-PISTON-FLIGHT, SIM-LOOP-CONTRACT, NATIVE-WIRE-NUMBER-CONTRACT |
 | NATIVE-WIRE-NUMBER-CONTRACT | [#205 Ratify exact binary64 native wire decoding before decimal repair](https://github.com/brettbergin/flight-simulator/issues/205) | INTERACTIVE-CONTRACT, SIM-LOOP-CONTRACT, COCKPIT-READINGS-CONTRACT, ORIGINAL-PISTON-CONTRACT |
+| PAUSED-VIEWS-CONTRACT | [#213 Ratify paused lookout views and camera comfort](https://github.com/brettbergin/flight-simulator/issues/213) | SIM-LOOP-CONTRACT, INPUT-CONTROLS-CONTRACT, COCKPIT-READINGS-CONTRACT, THIRD-PERSON-STABILITY, POINTER-ENGINE-CONTRACT, POINTER-ENGINE-CONTROLS, ORDINARY-FLIGHT-LAYOUT |
 
 ## P3 — Complete circuit and durable progress
 
