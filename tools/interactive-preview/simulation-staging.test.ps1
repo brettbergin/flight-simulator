@@ -702,13 +702,27 @@ Write-Output 'PASS generated pointer harness source-pair shape and self-hash'
 
 # ADR018 resources must survive authoring/staged/corresponding source intact.
 $firstFlightGroups=@(Get-FirstFlightSourceGroups -RepoRoot $repo)
-if($firstFlightGroups.Count -ne 8 -or @($firstFlightGroups|ForEach-Object {$_.snapshot}).Count -ne 15){throw 'Complete first-flight resource roster required'}
+if($firstFlightGroups.Count -ne 8 -or @($firstFlightGroups|ForEach-Object {$_.snapshot}).Count -ne 16){throw 'Complete first-flight resource roster including original taxi layout required'}
 $firstFlightStage=Join-Path $testRoot 'first-flight-stage'
 $firstFlightSource=Join-Path $testRoot 'first-flight-source'
 Copy-FirstFlightSourceGroups -RepoRoot $repo -DestinationRoot $firstFlightStage -Groups $firstFlightGroups
 Copy-FirstFlightSourceGroups -RepoRoot $repo -DestinationRoot $firstFlightSource -Groups $firstFlightGroups
 Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -Groups $firstFlightGroups
 Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightSource -Groups $firstFlightGroups
+# ADR027 fixed content shares this recursive world-content staging group.
+# Require its exact bytes, and retain omission/drift rejection for this new leaf.
+$taxiStaged=Join-Path $firstFlightStage 'content/world/synthetic/taxi-layout-v1.json'
+if((Get-FileHash -LiteralPath $taxiStaged -Algorithm SHA256).Hash.ToLowerInvariant() -cne 'd8668af407885949a4eb05fbe170d41fe6c6752d3ce15670f9879a36063d355c'){throw 'Original taxi content bytes required in recursive stage'}
+$taxiStagedBytes=[IO.File]::ReadAllBytes($taxiStaged)
+$taxiStagedChanged=[byte[]]$taxiStagedBytes.Clone()
+$taxiStagedChanged[0]=$taxiStagedChanged[0] -bxor 1
+[IO.File]::WriteAllBytes($taxiStaged,$taxiStagedChanged)
+Must-Reject {Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -Groups $firstFlightGroups} 'original taxi layout same-length staging drift'
+[IO.File]::WriteAllBytes($taxiStaged,$taxiStagedBytes)
+Remove-Item -LiteralPath $taxiStaged
+Must-Reject {Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -Groups $firstFlightGroups} 'omitted original taxi layout from shared world-content stage'
+[IO.File]::WriteAllBytes($taxiStaged,$taxiStagedBytes)
+Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -Groups $firstFlightGroups
 $firstFlightBound=Join-Path $firstFlightStage 'world_tests/synthetic/circuit_checks.gd'
 $firstFlightBytes=[IO.File]::ReadAllBytes($firstFlightBound)
 $firstFlightChanged=[byte[]]$firstFlightBytes.Clone()

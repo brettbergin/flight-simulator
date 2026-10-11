@@ -7446,6 +7446,181 @@
       "evidence": [
         "Future source-bound independent real native/SQLite/Win32/process or UI/journey qualification with retained failures, exact module/resource/rights closure and joined ownership. No evidence is claimed by this plan amendment."
       ]
+    },
+    {
+      "key": "SYNTHETIC-TAXI-CONTRACT",
+      "title": "Define original apron starts and shared taxi navigation",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Define two real original apron starts plus shared synthetic signs, layout and manual taxi navigation. Bounded #22 contribution; complete checked #215/#218 and this contract precede consumers, with original phase/aircraft/pilot gates retained.",
+      "depends_on": [
+        "CORE-CONTRACTS",
+        "GROUND-PROOF",
+        "SIM-LOOP",
+        "ORIGINAL-PISTON-FLIGHT",
+        "STEADY-WIND-FLIGHT",
+        "OBSERVED-REVIEW-FILES",
+        "PISTON-OBSERVED-REVIEW",
+        "PAUSED-VIEWS",
+        "LOCAL-PLAYERS-CONTRACT"
+      ],
+      "owned_paths": [
+        ".gitattributes",
+        ".github/workflows/foundation-ci.yml",
+        "docs/decisions/027-synthetic-taxi-navigation.md",
+        "docs/decisions/006-interactive-prototype.md",
+        "docs/decisions/010-original-piston-profile.md",
+        "docs/decisions/011-observed-flight-review.md",
+        "docs/decisions/012-observed-review-interchange.md",
+        "docs/decisions/013-steady-wind-starts.md",
+        "docs/decisions/016-generated-native-build-identity.md",
+        "docs/decisions/018-first-flight-briefing-and-circuit-aid.md",
+        "docs/decisions/022-piston-observed-review.md",
+        "docs/decisions/025-paused-view-presets-and-comfort.md",
+        "docs/decisions/026-durable-local-players-and-practice-history.md",
+        "docs/contracts/local-players/records-and-lifetimes-v1.md",
+        "docs/contracts/local-players/protocol-v1.md",
+        "docs/contracts/local-players/compiled-source-allocation-v1.json",
+        "schemas/world/synthetic-taxi-layout-v1.schema.json",
+        "content/world/synthetic/taxi-layout-v1.json",
+        "tests/world/taxi/reference/",
+        "tests/world/taxi/start-reference/",
+        "docs/README.md",
+        "docs/contracts.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/roadmap.md",
+        "docs/backlog.md",
+        "docs/phases/p2-first-flight.md"
+      ],
+      "acceptance": [
+        "Publish closed original layout/schema, complete shared result/UI/lifecycle contracts, exact original signs and six-rectangle manual itinerary relationships; independent read-only geometry and pose references precede consumer output.",
+        "Ratify calm-only apron-ready and piston-cold-apron at fixed-anchor CG EUS [108,1.05,18], north-facing query-local NED, full brakes and existing ready/cold states; preserve old3 starts, prepared plane, model bytes, method and ordered25-source/18-control membership.",
+        "Explicitly amend full Readback, Recording/archive1+2 and PracticeSource/v1 named-start admission, retaining old fixtures and older-reader rejection semantics; freeze additive reference coverage and honest changed contract/source hashes.",
+        "Preserve132 camera references and old21 rows; define source-qualified new14 rows and35 full coupled coverage without relabeling historical evidence or identifying recipe capability from variant alone.",
+        "Register one cohesive dependent implementation child with exact ownership and source/delivery qualification. Run appropriate docs/schema/contract/read-only reference checks and obtain independent source/math review; no native, pilot, aircraft or phase acceptance from this contract."
+      ],
+      "evidence": [
+        "Checked public source/data/reference contract and independently reviewed mathematical/source provenance, with unresolved runtime/contact/journey/human gates explicitly retained."
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:world",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/phases/p2-first-flight.md",
+        "docs/agent-operations.md",
+        "docs/contracts.md",
+        "docs/decisions/027-synthetic-taxi-navigation.md",
+        "tests/world/taxi/reference/README.md",
+        "tests/world/taxi/start-reference/README.md"
+      ],
+      "requirements": [
+        "PRD-006",
+        "PRD-011",
+        "UX-010",
+        "UX-013",
+        "WORLD-001",
+        "WORLD-010",
+        "WORLD-014",
+        "WORLD-015",
+        "WORLD-017"
+      ]
+    },
+    {
+      "key": "SYNTHETIC-TAXI-NAVIGATION",
+      "title": "Fly from the original apron and navigate back to parking",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Deliver actual ready/cold apron initialization, readable original signs and optional manual runway36/18 stop-reference/return-to-parking navigation over the same native plane. Complete native-to-recorder-to-world/map/UI journey, not a rendered relocation or manual Next-only demonstration.",
+      "depends_on": [
+        "SYNTHETIC-TAXI-CONTRACT",
+        "PAUSED-VIEWS",
+        "LOCAL-PLAYERS-CONTRACT"
+      ],
+      "owned_paths": [
+        "native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp",
+        "native/fdm_jsbsim/interactive/src/session.cpp",
+        "native/godot_bridge/src/interactive_bridge.cpp",
+        "tests/interactive/native.cpp",
+        "tests/interactive/negatives.hpp",
+        "app/world/taxi/",
+        "app/ui/taxi/",
+        "tests/world/taxi/",
+        "app/proof/interactive/flight_world.gd",
+        "app/proof/interactive/flight_map.gd",
+        "app/simulation/session_facade.gd",
+        "app/simulation/flight_scene.gd",
+        "app/cockpit/instruments/native_readings.gd",
+        "app/replay/observed/values.gd",
+        "app/ui/first_flight/briefing_panel.gd",
+        "tests/camera/scene_checks.gd",
+        "tools/interactive-preview/native-identity.py",
+        "tools/interactive-preview/test_native_identity.py",
+        "tools/interactive-preview/simulation-staging.ps1",
+        "tools/interactive-preview/simulation-staging.test.ps1",
+        "tools/interactive-preview/camera-receipt.mjs",
+        "tools/interactive-preview/camera-receipt.test.mjs",
+        "tools/interactive-preview/run.ps1",
+        "tools/interactive-preview/package.mjs",
+        ".github/workflows/native-ci.yml",
+        ".github/workflows/coupled-ci.yml",
+        ".github/workflows/coupled-local-window-ci.yml",
+        "docs/evidence/P2/synthetic-taxi-navigation.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/roadmap.md",
+        "docs/backlog.md",
+        "docs/phases/p2-first-flight.md"
+      ],
+      "acceptance": [
+        "Start only after complete checked #224/#215/#218 and final source/path allocation. Implement exact new tuples before allocation/replacement; qualify new native source/binaries and actual IC/gear/cold-ready truth against the independent references while preserving old operations and physics budgets.",
+        "Adopt complete qualified Readback and recorder/archive source for both new starts; preserve old reference bytes and older-reader rejection rather than hiding recorder failures or inventing actual-source identities.",
+        "Use the one validated layout for original paving/bar correction/signs/map/manual navigation, preserving prepared contact/friction/extent and shared origin. Reject invalid/stale/historical sources and suppress unavailable guidance.",
+        "Show actual ready and cold-start taxi journeys from the apron to both runway-end stop references, deliberate pilot runway entry/flight and manually selected returns through all3 links to parking using existing controls and actual canonical positions. No teleport, automatic route progress, clearance or scored arrival.",
+        "Preserve paused native/input/recorder authority, stale-opening/failure semantics, default Back focus and optional aids. Verify readable cockpit/sign/map/page views at960x540,1920x1080,2560x1440 and existing circuit/landmark/wind/Views/audio/controls behavior.",
+        "Pass source-qualified35-row camera coverage, editor/portable/rebuilt-library package/rights checks, independent source/visual review and current protected CI. Preserve failures and remaining source, aircraft, hardware/pilot and phase gates."
+      ],
+      "evidence": [
+        "Future actual source/build-bound initialization, movement, recorder/source, origin/map/sign/UI, three-context package and independent visual evidence. This plan claims no new runtime result."
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:world",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/phases/p2-first-flight.md",
+        "docs/agent-operations.md",
+        "docs/contracts.md",
+        "docs/decisions/027-synthetic-taxi-navigation.md",
+        "tests/world/taxi/reference/README.md",
+        "tests/world/taxi/start-reference/README.md"
+      ],
+      "requirements": [
+        "PRD-006",
+        "PRD-011",
+        "UX-010",
+        "UX-013",
+        "WORLD-001",
+        "WORLD-010",
+        "WORLD-014",
+        "WORLD-015",
+        "WORLD-017"
+      ]
     }
   ]
 }

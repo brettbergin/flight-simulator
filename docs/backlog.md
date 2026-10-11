@@ -24,3 +24,9 @@ Every task names its parent phase, area, priority, dependency keys, owned paths,
 Start with plan review, then P1 contract/toolchain/dynamics proof work. Parallel leaf work becomes useful after module contracts land. P8 is deliberately deferred expansion; it is not part of the initial realistic Cessna acceptance promise.
 
 `priority:P0` means a prerequisite or critical correctness gate, not a fabricated deadline. `P1` is normal current-phase work and `P2` is deferred expansion. Keep status labels accurate as dependency states change; publication does not automatically recalculate the live queue.
+
+## Original apron and taxi journey
+
+**Bounded original apron and taxi allocation.** [Contract #224](https://github.com/brettbergin/flight-simulator/issues/224) and [implementation #225](https://github.com/brettbergin/flight-simulator/issues/225) contribute to SYNTHETIC-AIRFIELD #22 while its broad P1/P2 gates stay open. Source-only contract/reference preparation may proceed; complete checked #215/#218 and public ADR027 definitions, independent references and exact source allocation precede #225 consumers. The cohesive journey starts on the real native apron in ready or cold state, uses original signs and optional manual navigation to either stop reference, permits deliberate pilot runway entry/flight, then manually selects a return to parking. Preserve old starts, plane/model/physics budgets, recorder truth and source qualification. This allocation grants no operational clearance, C172, hardware/pilot or phase acceptance.
+
+Both new issues include self-contained agent handoff comments. Canonical parent is EPIC-P2; completing this bounded pair does not close #22, change sibling dependencies or stand in for actual journey and pilot evidence.

@@ -1,0 +1,112 @@
+{
+  "schema": "SyntheticTaxiContentSourceBinding/v1",
+  "status": "PROPOSED before checked #224 acceptance; mathematical/source publication only",
+  "license": "Original MIT references/content/schema; FAA factual convention paraphrase with no copied chart/image/text",
+  "content_path": "content/world/synthetic/taxi-layout-v1.json",
+  "content_sha256": "d8668af407885949a4eb05fbe170d41fe6c6752d3ce15670f9879a36063d355c",
+  "schema_path": "schemas/world/synthetic-taxi-layout-v1.schema.json",
+  "schema_sha256": "14d7a2d7836c76d7a1adb5841d153e6c1e06a101992ab94bc4363d50db581a36",
+  "generator_sha256": "799fbcc5fc2144e713d295559e961d1614e245b7bf2a003135ce1234eedec558",
+  "expected_sha256": "9b9579b18c38ba3c1393af76798fa39b8683229fdf2eff553b1c12e0fd3ae37c",
+  "source_head": "b1325a1be0f4da53b77a2f77dcaed1af490be6de",
+  "sources": [
+    {
+      "path": "app/proof/interactive/flight_world.gd",
+      "git_lf_bytes": 35736,
+      "git_lf_sha256": "ebcca950eb3ea7bebd17c3538d1ab6792fcfd3af06f5a5d1719725bb162ae7a3",
+      "role": "source observation, not a generated native output"
+    },
+    {
+      "path": "app/proof/interactive/flight_map.gd",
+      "git_lf_bytes": 31823,
+      "git_lf_sha256": "3843ffdf83fe7846a0e476437c0874b7066d3a81cd6f5714de25356f6d43dfd7",
+      "role": "source observation, not a generated native output"
+    },
+    {
+      "path": "native/fdm_jsbsim/interactive/include/flight/interactive/surface.hpp",
+      "git_lf_bytes": 5906,
+      "git_lf_sha256": "8c5d74cda3828b90d3da7c84aa25064c6e7b2223de4fa045764f5582bb280694",
+      "role": "source observation, not a generated native output"
+    },
+    {
+      "path": "native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp",
+      "git_lf_bytes": 3796,
+      "git_lf_sha256": "a2759511a9e767de41e892da3aeb04533d54eb78027af1f5485a0ed1e29b9cba",
+      "role": "source observation, not a generated native output"
+    },
+    {
+      "path": "native/fdm_jsbsim/interactive/src/session.cpp",
+      "git_lf_bytes": 43278,
+      "git_lf_sha256": "14f494c7e7c3caa62f710fdca0d327269f5892bd0d77c7f878987d90feb9df16",
+      "role": "source observation, not a generated native output"
+    },
+    {
+      "path": "native/fdm_jsbsim/models/original-piston-prop/aircraft/original-piston-prop/original-piston-prop.xml",
+      "git_lf_bytes": 6784,
+      "git_lf_sha256": "b9a41861fcbca1917978312d73a192cbe2c2ea0e6ef0e13512c76148a6c9d4c5",
+      "role": "source observation, not a generated native output"
+    },
+    {
+      "path": "native/fdm_jsbsim/models/original-piston-prop/engine/original-fixed-prop.xml",
+      "git_lf_bytes": 826,
+      "git_lf_sha256": "b4f3f376f062d869a338bb2757466c9ba23d6320d895d3fc5921e351748bb0af",
+      "role": "source observation, not a generated native output"
+    }
+  ],
+  "companion_files": [
+    {
+      "path": "tests/world/taxi/start-reference/expected-v1.json",
+      "bytes": 28502,
+      "sha256": "fb543ddd1681c3cb040cdfd1c65ff404eb9409e73bb6f613c225a3a501f2e333",
+      "role": "unchanged independently authored pose/start reference"
+    },
+    {
+      "path": "tests/world/taxi/start-reference/generate.py",
+      "bytes": 8693,
+      "sha256": "da0e7b91bd3a3ea7df60f80b01b75df209bc4271950f6458fa462da4efba2645",
+      "role": "unchanged independently authored pose/start reference"
+    },
+    {
+      "path": "tests/world/taxi/start-reference/source-binding-v1.json",
+      "bytes": 7709,
+      "sha256": "5b097ee7c6b727e0f19fe4079913c1e0c4ad6453de9628d01a9bc9588c08c230",
+      "role": "unchanged independently authored pose/start reference"
+    },
+    {
+      "path": "tests/world/taxi/start-reference/README.md",
+      "bytes": 7167,
+      "sha256": "4eb067f2cf2d7bae258984704685578a672be0cae697b6af0b1212bca980eeb6",
+      "role": "unchanged independently authored pose/start reference"
+    },
+    {
+      "path": "tests/world/taxi/start-reference/prop-disk-v1.json",
+      "bytes": 11005,
+      "sha256": "545c0dc04dfa8e5d10eebaef0458dbfb46bb12f53d2d5ab05cf02004bcfe6537",
+      "role": "distinct original source-derived ideal physical disk reference"
+    },
+    {
+      "path": "tests/world/taxi/start-reference/generate-prop-disk.py",
+      "bytes": 7840,
+      "sha256": "dd9aa4014416a2871cb13239fc74c29b1ff21c7d6f26e158ff0ad8bfcc02d8ff",
+      "role": "distinct original source-derived ideal physical disk reference"
+    }
+  ],
+  "faa": {
+    "url": "https://www.faa.gov/AIR_TRAFFIC/PUBLICATIONS/atpubs/aim_html/chap2_section_3.html",
+    "accessed": "2026-10-11",
+    "sections": [
+      "2-3-5",
+      "2-3-8",
+      "2-3-9",
+      "2-3-10"
+    ],
+    "use": "Original factual paraphrase; original site/dimensions/labels; no compliance or operational authority"
+  },
+  "references_are_not": [
+    "complete Readback/record/archive examples",
+    "actual RunIC/contact/wind/engine output",
+    "aircraft fidelity or turning clearance",
+    "physical native/source/package qualification"
+  ],
+  "consumer_gate": "#225 must freeze distinct complete hypothetical typed Readback/record/archive/PracticeSource/export fixtures independently before the corresponding consumers; runtime authorship follows actual qualified producer separately."
+}

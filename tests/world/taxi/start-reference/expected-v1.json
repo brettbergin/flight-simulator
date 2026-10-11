@@ -1,0 +1,910 @@
+{
+  "schema": "ProspectiveApronPoseReference/v1",
+  "status": "proposed independent preconsumer mathematical references, no native observations",
+  "tuple_matrix": [
+    {
+      "named_start": "ground-ready",
+      "profile_id": "original-interactive-prototype",
+      "wind_profile": "calm",
+      "seed": "42",
+      "accepted_old": true,
+      "proposed_accepted": true
+    },
+    {
+      "named_start": "ground-ready",
+      "profile_id": "original-interactive-prototype",
+      "wind_profile": "from-north",
+      "seed": "42",
+      "accepted_old": true,
+      "proposed_accepted": true
+    },
+    {
+      "named_start": "ground-ready",
+      "profile_id": "original-interactive-prototype",
+      "wind_profile": "from-west",
+      "seed": "42",
+      "accepted_old": true,
+      "proposed_accepted": true
+    },
+    {
+      "named_start": "ground-ready",
+      "profile_id": "original-interactive-prototype",
+      "wind_profile": "from-east",
+      "seed": "42",
+      "accepted_old": true,
+      "proposed_accepted": true
+    },
+    {
+      "named_start": "ground-ready",
+      "profile_id": "original-piston-prop-v1",
+      "wind_profile": "calm",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "ground-ready",
+      "profile_id": "original-piston-prop-v1",
+      "wind_profile": "from-north",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "ground-ready",
+      "profile_id": "original-piston-prop-v1",
+      "wind_profile": "from-west",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "ground-ready",
+      "profile_id": "original-piston-prop-v1",
+      "wind_profile": "from-east",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "airborne-prepared",
+      "profile_id": "original-interactive-prototype",
+      "wind_profile": "calm",
+      "seed": "42",
+      "accepted_old": true,
+      "proposed_accepted": true
+    },
+    {
+      "named_start": "airborne-prepared",
+      "profile_id": "original-interactive-prototype",
+      "wind_profile": "from-north",
+      "seed": "42",
+      "accepted_old": true,
+      "proposed_accepted": true
+    },
+    {
+      "named_start": "airborne-prepared",
+      "profile_id": "original-interactive-prototype",
+      "wind_profile": "from-west",
+      "seed": "42",
+      "accepted_old": true,
+      "proposed_accepted": true
+    },
+    {
+      "named_start": "airborne-prepared",
+      "profile_id": "original-interactive-prototype",
+      "wind_profile": "from-east",
+      "seed": "42",
+      "accepted_old": true,
+      "proposed_accepted": true
+    },
+    {
+      "named_start": "airborne-prepared",
+      "profile_id": "original-piston-prop-v1",
+      "wind_profile": "calm",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "airborne-prepared",
+      "profile_id": "original-piston-prop-v1",
+      "wind_profile": "from-north",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "airborne-prepared",
+      "profile_id": "original-piston-prop-v1",
+      "wind_profile": "from-west",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "airborne-prepared",
+      "profile_id": "original-piston-prop-v1",
+      "wind_profile": "from-east",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "piston-cold-ground",
+      "profile_id": "original-interactive-prototype",
+      "wind_profile": "calm",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "piston-cold-ground",
+      "profile_id": "original-interactive-prototype",
+      "wind_profile": "from-north",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "piston-cold-ground",
+      "profile_id": "original-interactive-prototype",
+      "wind_profile": "from-west",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "piston-cold-ground",
+      "profile_id": "original-interactive-prototype",
+      "wind_profile": "from-east",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "piston-cold-ground",
+      "profile_id": "original-piston-prop-v1",
+      "wind_profile": "calm",
+      "seed": "42",
+      "accepted_old": true,
+      "proposed_accepted": true
+    },
+    {
+      "named_start": "piston-cold-ground",
+      "profile_id": "original-piston-prop-v1",
+      "wind_profile": "from-north",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "piston-cold-ground",
+      "profile_id": "original-piston-prop-v1",
+      "wind_profile": "from-west",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "piston-cold-ground",
+      "profile_id": "original-piston-prop-v1",
+      "wind_profile": "from-east",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "apron-ready",
+      "profile_id": "original-interactive-prototype",
+      "wind_profile": "calm",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": true
+    },
+    {
+      "named_start": "apron-ready",
+      "profile_id": "original-interactive-prototype",
+      "wind_profile": "from-north",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "apron-ready",
+      "profile_id": "original-interactive-prototype",
+      "wind_profile": "from-west",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "apron-ready",
+      "profile_id": "original-interactive-prototype",
+      "wind_profile": "from-east",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "apron-ready",
+      "profile_id": "original-piston-prop-v1",
+      "wind_profile": "calm",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "apron-ready",
+      "profile_id": "original-piston-prop-v1",
+      "wind_profile": "from-north",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "apron-ready",
+      "profile_id": "original-piston-prop-v1",
+      "wind_profile": "from-west",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "apron-ready",
+      "profile_id": "original-piston-prop-v1",
+      "wind_profile": "from-east",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "piston-cold-apron",
+      "profile_id": "original-interactive-prototype",
+      "wind_profile": "calm",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "piston-cold-apron",
+      "profile_id": "original-interactive-prototype",
+      "wind_profile": "from-north",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "piston-cold-apron",
+      "profile_id": "original-interactive-prototype",
+      "wind_profile": "from-west",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "piston-cold-apron",
+      "profile_id": "original-interactive-prototype",
+      "wind_profile": "from-east",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "piston-cold-apron",
+      "profile_id": "original-piston-prop-v1",
+      "wind_profile": "calm",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": true
+    },
+    {
+      "named_start": "piston-cold-apron",
+      "profile_id": "original-piston-prop-v1",
+      "wind_profile": "from-north",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "piston-cold-apron",
+      "profile_id": "original-piston-prop-v1",
+      "wind_profile": "from-west",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    },
+    {
+      "named_start": "piston-cold-apron",
+      "profile_id": "original-piston-prop-v1",
+      "wind_profile": "from-east",
+      "seed": "42",
+      "accepted_old": false,
+      "proposed_accepted": false
+    }
+  ],
+  "old_admitted_count": 9,
+  "proposed_new_count": 2,
+  "anchor": {
+    "latitude_rad": {
+      "decimal": "0.8000000000000000444089209850062616169452667236328125",
+      "nearest_binary64_hex": "0x1.999999999999ap-1",
+      "binary64_le": "9a9999999999e93f"
+    },
+    "longitude_rad": {
+      "decimal": "-2",
+      "nearest_binary64_hex": "-0x1.0000000000000p+1",
+      "binary64_le": "00000000000000c0"
+    },
+    "ellipsoid_height_m": "0",
+    "ecef_m": [
+      {
+        "decimal": "-1852421.36637181828402629966927748414840655137611446618040202",
+        "nearest_binary64_hex": "-0x1.c44055dca8b22p+20",
+        "binary64_le": "228bca5d05443cc1"
+      },
+      {
+        "decimal": "-4047614.52907979399822179413527216912825261729303536491519098",
+        "nearest_binary64_hex": "-0x1.ee17f43b8e2fep+21",
+        "binary64_le": "fee2b8437fe14ec1"
+      },
+      {
+        "decimal": "4552614.46589845609171975650290246029617955861026098497822972",
+        "nearest_binary64_hex": "0x1.15de99dd147c2p+22",
+        "binary64_le": "c247d19de95d5141"
+      }
+    ],
+    "north_ecef": [
+      {
+        "decimal": "0.298525467905660727938720636492799609894454181421841857870480",
+        "nearest_binary64_hex": "0x1.31b0a906b62e2p-2",
+        "binary64_le": "e2626b900a1bd33f"
+      },
+      {
+        "decimal": "0.652290047572665893246236943916118325453328050378902798930958",
+        "nearest_binary64_hex": "0x1.4df8f60ba969ap-1",
+        "binary64_le": "9a96ba608fdfe43f"
+      },
+      {
+        "decimal": "0.696706709347165389063740022772448534731175194315379799283401",
+        "nearest_binary64_hex": "0x1.64b6bde719865p-1",
+        "binary64_le": "659871de6b4be63f"
+      }
+    ],
+    "east_ecef": [
+      {
+        "decimal": "0.909297426825681695396019865911744842702254971447890268378973",
+        "nearest_binary64_hex": "0x1.d18f6ead1b446p-1",
+        "binary64_le": "46b4d1eaf618ed3f"
+      },
+      {
+        "decimal": "-0.416146836547142386997568229500762189766000771075544890755150",
+        "nearest_binary64_hex": "-0x1.aa22657537205p-2",
+        "binary64_le": "0572535726a2dabf"
+      },
+      {
+        "decimal": "0",
+        "nearest_binary64_hex": "0x0.0p+0",
+        "binary64_le": "0000000000000000"
+      }
+    ],
+    "up_ecef": [
+      {
+        "decimal": "-0.289932293095992274217013464637029328580388774410610050061049",
+        "nearest_binary64_hex": "-0x1.28e402d39b361p-2",
+        "binary64_le": "61b3392d408ed2bf"
+      },
+      {
+        "decimal": "-0.633513618061565605639496912143129586023654892896505171180595",
+        "nearest_binary64_hex": "-0x1.445be59e4a453p-1",
+        "binary64_le": "53a4e459be45e4bf"
+      },
+      {
+        "decimal": "0.717356090899522792567167815703377280756047307512554947663950",
+        "nearest_binary64_hex": "0x1.6f494c2bffecdp-1",
+        "binary64_le": "cdfebfc294f4e63f"
+      }
+    ]
+  },
+  "selected": {
+    "cg_anchor_eus_m": [
+      "108",
+      "binary64(1.05)",
+      "18"
+    ],
+    "height_binary64_minus_21_over_20": "4.44089209850062616169452667236328125E-17",
+    "rpy_local_ned_rad": [
+      "0",
+      "0",
+      "0"
+    ],
+    "body_to_local_ned_quaternion_wxyz": [
+      "1",
+      "0",
+      "0",
+      "0"
+    ],
+    "body_velocity_mps": [
+      "0",
+      "0",
+      "0"
+    ],
+    "seed": "42",
+    "brakes_left_right": [
+      "1",
+      "1"
+    ],
+    "wind_ned_mps": [
+      "0",
+      "0",
+      "0"
+    ],
+    "unrounded_binary_input_ecef_m": [
+      {
+        "decimal": "-1852328.84013705116308820059954785552083468347539462580978474",
+        "nearest_binary64_hex": "-0x1.c43a8d71338c7p+20",
+        "binary64_le": "c73813d7a8433cc1"
+      },
+      {
+        "decimal": "-4047671.87934829636222958236003391087248770134986148225449582",
+        "nearest_binary64_hex": "-0x1.ee19bf08e7c27p+21",
+        "binary64_le": "277c8ef09be14ec1"
+      },
+      {
+        "decimal": "4552602.67840158328724171740811821575052915661942474102883708",
+        "nearest_binary64_hex": "0x1.15de6ab6aee79p+22",
+        "binary64_le": "79ee6aabe65d5141"
+      }
+    ],
+    "rounded_order_ecef_m": [
+      {
+        "decimal": "-1852328.84013705118559300899505615234375",
+        "nearest_binary64_hex": "-0x1.c43a8d71338c7p+20",
+        "binary64_le": "c73813d7a8433cc1"
+      },
+      {
+        "decimal": "-4047671.8793482962064445018768310546875",
+        "nearest_binary64_hex": "-0x1.ee19bf08e7c27p+21",
+        "binary64_le": "277c8ef09be14ec1"
+      },
+      {
+        "decimal": "4552602.678401582874357700347900390625",
+        "nearest_binary64_hex": "0x1.15de6ab6aee79p+22",
+        "binary64_le": "79ee6aabe65d5141"
+      }
+    ],
+    "reprojected_anchor_eus_m": [
+      {
+        "decimal": "107.999999999914706967210432466844979699566745300185236385200",
+        "nearest_binary64_hex": "0x1.affffffffe88ep+6",
+        "binary64_le": "8ee8ffffffff5a40"
+      },
+      {
+        "decimal": "1.04999999961164808066258087405141500752200699589831166299637",
+        "nearest_binary64_hex": "0x1.0ccccccb21cd7p+0",
+        "binary64_le": "d71cb2ccccccf03f"
+      },
+      {
+        "decimal": "18.0000000001927602657649596363114980661182554885437215737046",
+        "nearest_binary64_hex": "0x1.200000000d3f1p+4",
+        "binary64_le": "f1d3000000003240"
+      }
+    ],
+    "geodetic_rad_m": [
+      {
+        "decimal": "0.799997173361070807448551505250070369264769052341170276141613",
+        "nearest_binary64_hex": "0x1.99993ac0f4dc1p-1",
+        "binary64_le": "c14d0fac9399e93f"
+      },
+      {
+        "decimal": "-1.99997573785241501277261969523964514930624299530102138189441",
+        "nearest_binary64_hex": "-0x1.fffe68f2de9d9p+0",
+        "binary64_le": "d9e92d8fe6ffffbf"
+      },
+      {
+        "decimal": "1.05093823514454494206237644320623939508590552961202063419690",
+        "nearest_binary64_hex": "0x1.0d0a49c60fd0bp+0",
+        "binary64_le": "0bfd609ca4d0f03f"
+      }
+    ],
+    "surface_ellipsoid_height_m": {
+      "decimal": "0.000938235378692577191246839818911283213471282406438746858625355",
+      "nearest_binary64_hex": "0x1.ebe7d223b4da8p-11",
+      "binary64_le": "a84d3b227dbe4e3f"
+    },
+    "geodetic_ray_agl_m": {
+      "decimal": "1.04999999976585236487112960338732811187243424720558188733828",
+      "nearest_binary64_hex": "0x1.0ccccccbcb5a2p+0",
+      "binary64_le": "a2b5bcccccccf03f"
+    },
+    "anchor_plane_normal_clearance_m": {
+      "decimal": "1.04999999961164808066258087405141500752200699589831166299637",
+      "nearest_binary64_hex": "0x1.0ccccccb21cd7p+0",
+      "binary64_le": "d71cb2ccccccf03f"
+    },
+    "body_to_anchor_eus_columns": [
+      [
+        {
+          "decimal": "-0.0000174045515662400209583541838810940514955310533571579520561445",
+          "nearest_binary64_hex": "-0x1.23fffad2c44e6p-16",
+          "binary64_le": "e6442cadff3ff2be"
+        },
+        {
+          "decimal": "0.00000282678602903088232948727682207108217235095519660563474158461",
+          "nearest_binary64_hex": "0x1.7b67a0dd7ff31p-19",
+          "binary64_le": "31ffd70d7ab6c73e"
+        },
+        {
+          "decimal": "-0.999999999844545432750000863277894725325646144536377957009682",
+          "nearest_binary64_hex": "-0x1.fffffffeaa26ep-1",
+          "binary64_le": "6ea2eaffffffefbf"
+        }
+      ],
+      [
+        {
+          "decimal": "0.999999999705674097296587181239755895820425378774373554808228",
+          "nearest_binary64_hex": "0x1.fffffffd78c54p-1",
+          "binary64_le": "548cd7ffffffef3f"
+        },
+        {
+          "decimal": "-0.0000169036010039733376926912934933875744188577042395442850993533",
+          "nearest_binary64_hex": "-0x1.1b9869daeb6c0p-16",
+          "binary64_le": "c0b6ae9d86b9f1be"
+        },
+        {
+          "decimal": "-0.0000174045993466861934112982661058696857156386863808574417311942",
+          "nearest_binary64_hex": "-0x1.24002f5bc44cbp-16",
+          "binary64_le": "cb44bcf50240f2be"
+        }
+      ],
+      [
+        {
+          "decimal": "-0.0000169036502004238698062055212125325476436934477900377783688000",
+          "nearest_binary64_hex": "-0x1.1b989ff27d485p-16",
+          "binary64_le": "85d427ff89b9f1be"
+        },
+        {
+          "decimal": "-0.999999999853138776911489583415027354158950670334822634441500",
+          "nearest_binary64_hex": "-0x1.fffffffebd0c8p-1",
+          "binary64_le": "c8d0ebffffffefbf"
+        },
+        {
+          "decimal": "-0.00000282649182860355717919809247837193564923724236985000837402113",
+          "nearest_binary64_hex": "-0x1.7b5d850d08492p-19",
+          "binary64_le": "9284d050d8b5c7be"
+        }
+      ]
+    ]
+  },
+  "nominal_gears": [
+    {
+      "id": "gear.nose",
+      "nominal_body_frd_m": [
+        "2",
+        "0",
+        "1"
+      ],
+      "ecef_m": [
+        {
+          "decimal": "-1852327.95320164006052837752446251751995542357004356132638797",
+          "nearest_binary64_hex": "-0x1.c43a7f40505cfp+20",
+          "binary64_le": "cf0505f4a7433cc1"
+        },
+        {
+          "decimal": "-4047669.94123480111908012892799696604601771034363582984932611",
+          "nearest_binary64_hex": "-0x1.ee19af87a61c8p+21",
+          "binary64_le": "c8617af89ae14ec1"
+        },
+        {
+          "decimal": "4552603.35446493541807709179816343076559237036441700413152851",
+          "nearest_binary64_hex": "0x1.15de6d6af8db2p+22",
+          "binary64_le": "b28dafd6e65d5141"
+        }
+      ],
+      "anchor_eus_m": [
+        {
+          "decimal": "107.999948287161374063298709552956004978916110544630732031518",
+          "nearest_binary64_hex": "0x1.affff2719c328p+6",
+          "binary64_le": "28c31927ffff5a40"
+        },
+        {
+          "decimal": "0.0500056533305673655157502651900317955274010274738822398243547",
+          "nearest_binary64_hex": "0x1.99a574b56fd2cp-5",
+          "binary64_le": "2cfd564b579aa93f"
+        },
+        {
+          "decimal": "15.9999971740118407967077787116632302435313139622285958096769",
+          "nearest_binary64_hex": "0x1.fffffa12cf251p+3",
+          "binary64_le": "51f22ca1ffff2f40"
+        }
+      ],
+      "plane_signed_clearance_m": {
+        "decimal": "0.0500056533305673655157502651900317955274010274738822398243547",
+        "nearest_binary64_hex": "0x1.99a574b56fd2cp-5",
+        "binary64_le": "2cfd564b579aa93f"
+      },
+      "geodetic_ray_agl_m": {
+        "decimal": "0.0500056533378693296798003313739282643903350495538264524386368",
+        "nearest_binary64_hex": "0x1.99a574b670bd0p-5",
+        "binary64_le": "d00b674b579aa93f"
+      }
+    },
+    {
+      "id": "gear.left",
+      "nominal_body_frd_m": [
+        "-1",
+        "-1.3",
+        "1"
+      ],
+      "ecef_m": [
+        {
+          "decimal": "-1852330.03082788729298106886363408379331251266371841439973690",
+          "nearest_binary64_hex": "-0x1.c43aa07e45620p+20",
+          "binary64_le": "2056e407aa433cc1"
+        },
+        {
+          "decimal": "-4047671.35715909226658512936651799338519337907943015018077585",
+          "nearest_binary64_hex": "-0x1.ee19badb7639ep+21",
+          "binary64_le": "9e63b7ad9be14ec1"
+        },
+        {
+          "decimal": "4552601.26433872426497285967604707041001581520313137747551361",
+          "nearest_binary64_hex": "0x1.15de650eaecf8p+22",
+          "binary64_le": "f8ecea50e65d5141"
+        }
+      ],
+      "anchor_eus_m": [
+        {
+          "decimal": "106.700000501198696456876021279895965596504044145384117884123",
+          "nearest_binary64_hex": "0x1.aaccccee6f540p+6",
+          "binary64_le": "40f5e6ceccac5a40"
+        },
+        {
+          "decimal": "0.0500191476537854382077623020411069861276284896238038304907591",
+          "nearest_binary64_hex": "0x1.99c1c16b1903dp-5",
+          "binary64_le": "3d90b1161c9ca93f"
+        },
+        {
+          "decimal": "19.0000197995246277870092159892428520500996827261300247953801",
+          "nearest_binary64_hex": "0x1.300014c2e4f8dp+4",
+          "binary64_le": "8d4f2e4c01003340"
+        }
+      ],
+      "plane_signed_clearance_m": {
+        "decimal": "0.0500191476537854382077623020411069861276284896238038304907591",
+        "nearest_binary64_hex": "0x1.99c1c16b1903dp-5",
+        "binary64_le": "3d90b1161c9ca93f"
+      },
+      "geodetic_ray_agl_m": {
+        "decimal": "0.0500191476609831315621763457630714464823453052291525748950968",
+        "nearest_binary64_hex": "0x1.99c1c16c1642ep-5",
+        "binary64_le": "2e64c1161c9ca93f"
+      }
+    },
+    {
+      "id": "gear.right",
+      "nominal_body_frd_m": [
+        "-1",
+        "1.3",
+        "1"
+      ],
+      "ecef_m": [
+        {
+          "decimal": "-1852327.66662832704053881579673665669112000677708909295697079",
+          "nearest_binary64_hex": "-0x1.c43a7aaa8276fp+20",
+          "binary64_le": "6f27a8aaa7433cc1"
+        },
+        {
+          "decimal": "-4047672.43908350704894813650716559249006038299086055346726792",
+          "nearest_binary64_hex": "-0x1.ee19c3833e36bp+21",
+          "binary64_le": "6be333389ce14ec1"
+        },
+        {
+          "decimal": "4552601.26433872426497285967604707041001581520313137747551361",
+          "nearest_binary64_hex": "0x1.15de650eaecf8p+22",
+          "binary64_le": "f8ecea50e65d5141"
+        }
+      ],
+      "anchor_eus_m": [
+        {
+          "decimal": "109.300000500433449109847147951119330925637150130197489126625",
+          "nearest_binary64_hex": "0x1.b5333354c894dp+6",
+          "binary64_le": "4d894c3533535b40"
+        },
+        {
+          "decimal": "0.0499751982911751075297613046780241784341394595927810153495008",
+          "nearest_binary64_hex": "0x1.99659648b1ddcp-5",
+          "binary64_le": "dc1d8b645996a93f"
+        },
+        {
+          "decimal": "18.9999745475663264029063466137509767889168220655454345660316",
+          "nearest_binary64_hex": "0x1.2fffe54faa138p+4",
+          "binary64_le": "38a1fa54feff3240"
+        }
+      ],
+      "plane_signed_clearance_m": {
+        "decimal": "0.0499751982911751075297613046780241784341394595927810153495008",
+        "nearest_binary64_hex": "0x1.99659648b1ddcp-5",
+        "binary64_le": "dc1d8b645996a93f"
+      },
+      "geodetic_ray_agl_m": {
+        "decimal": "0.0499751982987102434137123695536802165400452869411532908324825",
+        "nearest_binary64_hex": "0x1.99659649bafc3p-5",
+        "binary64_le": "c3af9b645996a93f"
+      }
+    }
+  ],
+  "visual": {
+    "paint_stand_x": "108",
+    "paint_center_z": "34",
+    "paint_cap_z": "16",
+    "paint_cap_half_width_m": "5",
+    "conservative_model_right_up_aft_min": [
+      "-4.54",
+      "-1.10",
+      "-3.40"
+    ],
+    "conservative_model_right_up_aft_max": [
+      "4.54",
+      "1.55",
+      "3.61"
+    ],
+    "anchor_eus_bbox_min_m": [
+      {
+        "decimal": "103.459922231760400883155881433717958426964521212175597067778",
+        "nearest_binary64_hex": "0x1.9dd6f5da80750p+6",
+        "binary64_le": "5007a85d6fdd5940"
+      },
+      {
+        "decimal": "-0.0500869472729274143783919352469027382473425423955005122850466",
+        "nearest_binary64_hex": "-0x1.9a4ff10fcc633p-5",
+        "binary64_le": "33c6fc10ffa4a9bf"
+      },
+      {
+        "decimal": "14.5999178746992603751839722891368091425086954365172605920770",
+        "nearest_binary64_hex": "0x1.d33286f883d01p+3",
+        "binary64_le": "013d886f28332d40"
+      }
+    ],
+    "anchor_eus_bbox_max_m": [
+      {
+        "decimal": "112.540089029667432152410797546835161641566223111767586222793",
+        "nearest_binary64_hex": "0x1.c2290d193d666p+6",
+        "binary64_le": "66d693d190225c40"
+      },
+      {
+        "decimal": "2.60008635280506992882843480355836242773562814214220273659317",
+        "nearest_binary64_hex": "0x1.4ccfa12e096ecp+1",
+        "binary64_le": "ec96e012facc0440"
+      },
+      {
+        "decimal": "21.6100833975749375688241778039161601494172433876818883588080",
+        "nearest_binary64_hex": "0x1.59c2e6cf06abbp+4",
+        "binary64_le": "bb6af06c2e9c3540"
+      }
+    ],
+    "apron_paving_xz_min": [
+      "67",
+      "-70"
+    ],
+    "apron_paving_xz_max": [
+      "197",
+      "120"
+    ],
+    "hangar_front_z": "95.5",
+    "entire_nominal_visual_box_inside_apron": true,
+    "nominal_box_separated_from_hangar_front": true
+  },
+  "axis_anchor_negatives": [
+    {
+      "id": "north_sign",
+      "wrong_anchor_eus_m": [
+        "108",
+        "1.0500000000000000444089209850062616169452667236328125",
+        "-18"
+      ],
+      "distance_from_selected_cg_m": {
+        "decimal": "36.0000000001927602657671553606057652106937614050455515700555",
+        "nearest_binary64_hex": "0x1.20000000069f9p+5",
+        "binary64_le": "f969000000004240"
+      },
+      "matches_selected_pose": false
+    },
+    {
+      "id": "east_sign",
+      "wrong_anchor_eus_m": [
+        "-108",
+        "1.0500000000000000444089209850062616169452667236328125",
+        "18"
+      ],
+      "distance_from_selected_cg_m": {
+        "decimal": "215.999999999914706967210867591307487780029804568833835176837",
+        "nearest_binary64_hex": "0x1.afffffffff447p+7",
+        "binary64_le": "47f4ffffffff6a40"
+      },
+      "matches_selected_pose": false
+    },
+    {
+      "id": "eus_swap",
+      "wrong_anchor_eus_m": [
+        "18",
+        "1.0500000000000000444089209850062616169452667236328125",
+        "108"
+      ],
+      "distance_from_selected_cg_m": {
+        "decimal": "127.279220613381941019213406515484139473232139368920747811002",
+        "nearest_binary64_hex": "0x1.fd1dec022b60cp+6",
+        "binary64_le": "0cb622c0ded15f40"
+      },
+      "matches_selected_pose": false
+    },
+    {
+      "id": "paint_center_as_cg",
+      "wrong_anchor_eus_m": [
+        "108",
+        "1.0500000000000000444089209850062616169452667236328125",
+        "34"
+      ],
+      "distance_from_selected_cg_m": {
+        "decimal": "15.9999999998072397342399807433506889815075804921456013418681",
+        "nearest_binary64_hex": "0x1.ffffffffe581ep+3",
+        "binary64_le": "1e58feffffff2f40"
+      },
+      "matches_selected_pose": false
+    },
+    {
+      "id": "anchor_ellipsoid_height_only",
+      "wrong_anchor_eus_m": [
+        "0",
+        "1.0500000000000000444089209850062616169452667236328125",
+        "0"
+      ],
+      "distance_from_selected_cg_m": {
+        "decimal": "109.489725545315511465190821165512624472744576407660756793824",
+        "nearest_binary64_hex": "0x1.b5f57a9d04956p+6",
+        "binary64_le": "5649d0a9575f5b40"
+      },
+      "matches_selected_pose": false
+    },
+    {
+      "id": "plane_height_as_ellipsoid_height",
+      "wrong_ellipsoid_height_m": {
+        "decimal": "1.0500000000000000444089209850062616169452667236328125",
+        "nearest_binary64_hex": "0x1.0cccccccccccdp+0",
+        "binary64_le": "cdccccccccccf03f"
+      },
+      "miss_distance_m": {
+        "decimal": "0.000938235144544897653455458199977778140638805979208134196904992",
+        "nearest_binary64_hex": "0x1.ebe7ca181f270p-11",
+        "binary64_le": "70f281a17cbe4e3f"
+      },
+      "matches_selected_pose": false
+    }
+  ],
+  "admission_negatives": [
+    {
+      "id": "new_seed_41",
+      "admitted": false
+    },
+    {
+      "id": "new_seed_uint64_max",
+      "admitted": false
+    },
+    {
+      "id": "unknown_start",
+      "admitted": false
+    },
+    {
+      "id": "nonzero_rpy_or_velocity",
+      "admitted": false
+    }
+  ],
+  "comparators": {
+    "pure_geodesy_and_plane_abs_m": "1e-7",
+    "local_rotation_abs_component": "1e-12",
+    "actual_nominal_gear_source_conversion_abs_m": "1e-4",
+    "existing_native_tickzero_ellipsoid_abs_m": "1e-5",
+    "presentation_local_float32_abs_m": "1e-4",
+    "enum_seed_and_input_binary64_bits": "exact"
+  }
+}

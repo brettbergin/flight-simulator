@@ -1,0 +1,303 @@
+{
+  "schema": "ProspectiveApronPhysicalPropDiskReference/v1",
+  "status": "proposed independent source-derived mathematics; no native, contact, collision, blade-motion or fidelity observation",
+  "license": "Original reference code and fixtures MIT; pinned JSBSim source cited for frame/unit semantics, no vendor source redistributed here",
+  "pose_expected_sha256": "fb543ddd1681c3cb040cdfd1c65ff404eb9409e73bb6f613c225a3a501f2e333",
+  "pose_generator_sha256": "da0e7b91bd3a3ea7df60f80b01b75df209bc4271950f6458fa462da4efba2645",
+  "sources": [
+    {
+      "path": "native/fdm_jsbsim/models/original-piston-prop/aircraft/original-piston-prop/original-piston-prop.xml",
+      "sha256": "b9a41861fcbca1917978312d73a192cbe2c2ea0e6ef0e13512c76148a6c9d4c5",
+      "bytes": 6784,
+      "role": "lines6,12-14: zero CG, structural location[-2,0,0]m, zero orientation, p_factor0"
+    },
+    {
+      "path": "native/fdm_jsbsim/models/original-piston-prop/engine/original-fixed-prop.xml",
+      "sha256": "b4f3f376f062d869a338bb2757466c9ba23d6320d895d3fc5921e351748bb0af",
+      "bytes": 826,
+      "role": "line5: diameter6FT; original MIT numerical fixture"
+    },
+    {
+      "path": "native/fdm_jsbsim/models/original-piston-prop/inventory.json",
+      "sha256": "f7766fda173d8ee83d4c4a8c02f6333124175a1f7064d3f4d8e78df3d17da12a",
+      "bytes": 3307,
+      "role": "immutable original MIT model inventory"
+    }
+  ],
+  "primary_source_semantics": [
+    {
+      "path": "vendor/src/models/FGMassBalance.cpp",
+      "bytes": 19792,
+      "sha256": "85c766aecd92fd4a416a9a625a967d19ed69fba39db2fb5bdfeb59d765652fbd",
+      "lines": "363-391",
+      "role": "StructuralToBody: structural aft/right/up -> body forward/right/down, CG-relative"
+    },
+    {
+      "path": "vendor/src/models/propulsion/FGThruster.cpp",
+      "bytes": 7737,
+      "sha256": "d949f8b5b8da196ce6ae865abb62083e30f63cf56a1122cf32d2085f898772c3",
+      "lines": "53-113",
+      "role": "location and zero orient loaded from aircraft thruster element"
+    },
+    {
+      "path": "vendor/src/models/propulsion/FGPropeller.cpp",
+      "bytes": 54782,
+      "sha256": "e0ff11682070f2fa5a40ed7f14dbfcf56719a186089eb03185af8cdf9227d9f4",
+      "lines": "789-790",
+      "role": "diameter read in feet; archived coupled-midpoint-v1 source, geometry premise only, not current solver identity"
+    }
+  ],
+  "domain": {
+    "profile_id": "original-piston-prop-v1",
+    "named_start": "piston-cold-apron",
+    "seed": "42",
+    "cg_anchor_eus_m": [
+      "108",
+      "binary64(1.05)",
+      "18"
+    ],
+    "body_to_query_local_ned_rpy_rad": [
+      "0",
+      "0",
+      "0"
+    ],
+    "structural_location_m": [
+      "-2",
+      "0",
+      "0"
+    ],
+    "cg_structural_m": [
+      "0",
+      "0",
+      "0"
+    ],
+    "body_frd_center_m": [
+      "2",
+      "0",
+      "0"
+    ],
+    "diameter_ft": "6",
+    "metres_per_foot_exact": "0.3048",
+    "radius_m_exact": "0.9144"
+  },
+  "definition": {
+    "point": "P+2*N_query+r*(cos(theta)*E_query+sin(theta)*D_query), all theta",
+    "support": "for each unit anchor axis a, halfspan=r*sqrt((a dot E_query)^2+(a dot D_query)^2)",
+    "frame": "fixed anchor EUS=[E_anchor,U_anchor,-N_anchor]; D_query=-U_query",
+    "arithmetic": "90-digit Decimal analytical support; P is exact decoded binary64 declared pose result; no native unit-conversion rounding implied"
+  },
+  "query_local_ned_axes_in_anchor_eus": [
+    [
+      {
+        "decimal": "-0.0000174045515662400209583541838810940514955310533571579520561445",
+        "nearest_binary64_hex": "-0x1.23fffad2c44e6p-16",
+        "binary64_le": "e6442cadff3ff2be"
+      },
+      {
+        "decimal": "0.00000282678602903088232948727682207108217235095519660563474158461",
+        "nearest_binary64_hex": "0x1.7b67a0dd7ff31p-19",
+        "binary64_le": "31ffd70d7ab6c73e"
+      },
+      {
+        "decimal": "-0.999999999844545432750000863277894725325646144536377957009682",
+        "nearest_binary64_hex": "-0x1.fffffffeaa26ep-1",
+        "binary64_le": "6ea2eaffffffefbf"
+      }
+    ],
+    [
+      {
+        "decimal": "0.999999999705674097296587181239755895820425378774373554808228",
+        "nearest_binary64_hex": "0x1.fffffffd78c54p-1",
+        "binary64_le": "548cd7ffffffef3f"
+      },
+      {
+        "decimal": "-0.0000169036010039733376926912934933875744188577042395442850993533",
+        "nearest_binary64_hex": "-0x1.1b9869daeb6c0p-16",
+        "binary64_le": "c0b6ae9d86b9f1be"
+      },
+      {
+        "decimal": "-0.0000174045993466861934112982661058696857156386863808574417311942",
+        "nearest_binary64_hex": "-0x1.24002f5bc44cbp-16",
+        "binary64_le": "cb44bcf50240f2be"
+      }
+    ],
+    [
+      {
+        "decimal": "-0.0000169036502004238698062055212125325476436934477900377783688000",
+        "nearest_binary64_hex": "-0x1.1b989ff27d485p-16",
+        "binary64_le": "85d427ff89b9f1be"
+      },
+      {
+        "decimal": "-0.999999999853138776911489583415027354158950670334822634441500",
+        "nearest_binary64_hex": "-0x1.fffffffebd0c8p-1",
+        "binary64_le": "c8d0ebffffffefbf"
+      },
+      {
+        "decimal": "-0.00000282649182860355717919809247837193564923724236985000837402113",
+        "nearest_binary64_hex": "-0x1.7b5d850d08492p-19",
+        "binary64_le": "9284d050d8b5c7be"
+      }
+    ]
+  ],
+  "center_ecef_m": [
+    {
+      "decimal": "-1852328.24311940644810529912457425052890944256642653843202275",
+      "nearest_binary64_hex": "-0x1.c43a83e3d12ccp+20",
+      "binary64_le": "cc123d3ea8433cc1"
+    },
+    {
+      "decimal": "-4047670.57475729718065349920426783675976055287232698535020282",
+      "nearest_binary64_hex": "-0x1.ee19b4991a5a9p+21",
+      "binary64_le": "a9a591499be14ec1"
+    },
+    {
+      "decimal": "4552604.07181905697642718842931129752871770344085708443734327",
+      "nearest_binary64_hex": "0x1.15de70498aef5p+22",
+      "binary64_le": "f5ae9804e75d5141"
+    }
+  ],
+  "center_anchor_eus_m": [
+    {
+      "decimal": "107.999965190811574487168515758477217511463754238078522069296",
+      "nearest_binary64_hex": "0x1.affff6dffeb25p+6",
+      "binary64_le": "25ebff6dffff5a40"
+    },
+    {
+      "decimal": "1.05000565318370614242723984860505914968635169780870487426585",
+      "nearest_binary64_hex": "0x1.0ccd2ba50a04dp+0",
+      "binary64_le": "4da050bad2ccf03f"
+    },
+    {
+      "decimal": "16.0000000005036694002649579097557086154669631994709656596852",
+      "nearest_binary64_hex": "0x1.00000000229cap+4",
+      "binary64_le": "ca29020000003040"
+    }
+  ],
+  "axis_support_halfspan_m": [
+    {
+      "decimal": "0.914399999861505700550055559220507314107559922738290938374539",
+      "nearest_binary64_hex": "0x1.d42c3c9dbc325p-1",
+      "binary64_le": "25c3dbc9c342ed3f"
+    },
+    {
+      "decimal": "0.914399999996346643157098564693473452801825192976313351330269",
+      "nearest_binary64_hex": "0x1.d42c3c9ee4b71p-1",
+      "binary64_le": "714beec9c342ed3f"
+    },
+    {
+      "decimal": "0.0000161232637455684672611685408695950746999204081915216559987347",
+      "nearest_binary64_hex": "0x1.0e80e3f7489d3p-16",
+      "binary64_le": "d389743f0ee8f03e"
+    }
+  ],
+  "support_min_anchor_eus_m": [
+    {
+      "decimal": "107.085565190950068786618460199256710197356194315340231130922",
+      "nearest_binary64_hex": "0x1.ac579e66c339ep+6",
+      "binary64_le": "9e336ce679c55a40"
+    },
+    {
+      "decimal": "0.135605653187359499270141283911585696884526504832391522935586",
+      "nearest_binary64_hex": "0x1.15b86aacbd4a8p-3",
+      "binary64_le": "a8d4cbaa865bc13f"
+    },
+    {
+      "decimal": "15.9999838772399238317976967412148390203922632790627741380292",
+      "nearest_binary64_hex": "0x1.ffffde3028ba6p+3",
+      "binary64_le": "a68b02e3fdff2f40"
+    }
+  ],
+  "support_max_anchor_eus_m": [
+    {
+      "decimal": "108.914365190673080187718571317697724825571314160816813007671",
+      "nearest_binary64_hex": "0x1.b3a84f593a2abp+6",
+      "binary64_le": "aba293f5843a5b40"
+    },
+    {
+      "decimal": "1.96440565318005278558433841329853260248817689078501822559612",
+      "nearest_binary64_hex": "0x1.f6e349f47c606p+0",
+      "binary64_le": "06c6479f346eff3f"
+    },
+    {
+      "decimal": "16.0000161237674149687322190782965782105416631198791571813412",
+      "nearest_binary64_hex": "0x1.000010e830dc2p+4",
+      "binary64_le": "c20d830e01003040"
+    }
+  ],
+  "anchor_plane_normal_min_clearance_m": {
+    "decimal": "0.135605653187359499270141283911585696884526504832391522935586",
+    "nearest_binary64_hex": "0x1.15b86aacbd4a8p-3",
+    "binary64_le": "a8d4cbaa865bc13f"
+  },
+  "apron_paving_xz_bounds_m": {
+    "min": [
+      "67",
+      "-70"
+    ],
+    "max": [
+      "197",
+      "120"
+    ]
+  },
+  "apron_margin_m": {
+    "west": {
+      "decimal": "40.0855651909500687866184601992567101973561943153402311309216",
+      "nearest_binary64_hex": "0x1.40af3ccd8673dp+5",
+      "binary64_le": "3d67d8ccf30a4440"
+    },
+    "east": {
+      "decimal": "88.0856348093269198122814286823022751744286858391831869923293",
+      "nearest_binary64_hex": "0x1.6057b0a6c5d55p+6",
+      "binary64_le": "555d6c0a7b055640"
+    },
+    "north": {
+      "decimal": "85.9999838772399238317976967412148390203922632790627741380292",
+      "nearest_binary64_hex": "0x1.57fffbc605175p+6",
+      "binary64_le": "755160bcff7f5540"
+    },
+    "south": {
+      "decimal": "103.999983876232585031267780921703421789458336880120842818659",
+      "nearest_binary64_hex": "0x1.9ffffbc5f3c90p+6",
+      "binary64_le": "903c5fbcffff5940"
+    }
+  },
+  "entire_ideal_disk_within_apron_xz": true,
+  "distinctions": [
+    "Physical authored fixed-pitch disk differs from visual propeller plane at model aft -3.18m and visual radial tips; neither is substituted for the other.",
+    "Plane clearance is support along fixed anchor normal, not ellipsoid height or geodetic-ray AGL.",
+    "CG/mass distribution is nominal authored CG0; runtime CG, attitude, compression and blade geometry require actual qualification.",
+    "The paint cap at z16 is paint, not a collision or containment boundary; center z need not equal16 after query-local basis conversion."
+  ],
+  "negative_interpretations": [
+    {
+      "id": "structural_x_used_as_body_forward",
+      "wrong_body_center_m": [
+        "-2",
+        "0",
+        "0"
+      ],
+      "center_displacement_m": "4"
+    },
+    {
+      "id": "diameter_used_as_radius",
+      "wrong_radius_m": "1.8288",
+      "matches_source": false
+    },
+    {
+      "id": "anchor_N_instead_of_query_N",
+      "matches_query_local_basis": false
+    },
+    {
+      "id": "visual_rotor_center_substituted",
+      "wrong_body_forward_m": "3.18",
+      "matches_native_thruster": false
+    }
+  ],
+  "comparators": {
+    "analytical_support_abs_m": "1e-7",
+    "actual_native_geometry_source_conversion_abs_m": "1e-4",
+    "basis_component_abs": "1e-12",
+    "source_and_pose_bits": "exact",
+    "scope": "Existing source-derived geometry/geodesy budgets; no new solver or physics budget; actual geometry only if future qualified observer exposes it."
+  }
+}

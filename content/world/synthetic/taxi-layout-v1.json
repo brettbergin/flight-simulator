@@ -1,0 +1,901 @@
+{
+  "schema": "SyntheticTaxiLayout/v1",
+  "id": "original-taxi-navigation",
+  "revision": 1,
+  "license": "MIT",
+  "provenance": "Original synthetic geometry and labels; FAA AIM factual sign and marking conventions paraphrased in ADR027; no operational chart.",
+  "world": {
+    "id": "original.interactive-plane",
+    "version": "1.0.0",
+    "prepared_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5"
+  },
+  "frame": "fixed-anchor-east-up-south-metres",
+  "pavement": [
+    {
+      "id": "runway",
+      "label": "Synthetic runway 36/18",
+      "center_xz_m": [
+        0,
+        -800
+      ],
+      "half_extent_xz_m": [
+        20,
+        900
+      ],
+      "ends": [
+        {
+          "designator": 36,
+          "point_eus_m": [
+            0,
+            0,
+            100
+          ]
+        },
+        {
+          "designator": 18,
+          "point_eus_m": [
+            0,
+            0,
+            -1700
+          ]
+        }
+      ]
+    },
+    {
+      "id": "parallel",
+      "label": "A - Parallel",
+      "center_xz_m": [
+        82,
+        -800
+      ],
+      "half_extent_xz_m": [
+        7.5,
+        920
+      ]
+    },
+    {
+      "id": "apron",
+      "label": "Apron",
+      "center_xz_m": [
+        132,
+        25
+      ],
+      "half_extent_xz_m": [
+        65,
+        95
+      ]
+    }
+  ],
+  "links": [
+    {
+      "id": "south-link",
+      "label": "A1",
+      "z_m": 30,
+      "center_xz_m": [
+        49,
+        30
+      ],
+      "half_extent_xz_m": [
+        32.5,
+        7.5
+      ],
+      "bar_center_x_m": 30,
+      "bar_offsets_x_m": [
+        -1.3,
+        -0.7,
+        0.7,
+        1.3
+      ],
+      "bar_half_extent_xz_m": [
+        0.1,
+        7
+      ],
+      "bar_styles": [
+        "dashed",
+        "dashed",
+        "solid",
+        "solid"
+      ],
+      "dash_pattern_m": {
+        "length": 1,
+        "gap": 1,
+        "origin_relative_z": -7
+      },
+      "stop_point_eus_m": [
+        40,
+        0,
+        30
+      ]
+    },
+    {
+      "id": "middle-link",
+      "label": "A2",
+      "z_m": -800,
+      "center_xz_m": [
+        49,
+        -800
+      ],
+      "half_extent_xz_m": [
+        32.5,
+        7.5
+      ],
+      "bar_center_x_m": 30,
+      "bar_offsets_x_m": [
+        -1.3,
+        -0.7,
+        0.7,
+        1.3
+      ],
+      "bar_half_extent_xz_m": [
+        0.1,
+        7
+      ],
+      "bar_styles": [
+        "dashed",
+        "dashed",
+        "solid",
+        "solid"
+      ],
+      "dash_pattern_m": {
+        "length": 1,
+        "gap": 1,
+        "origin_relative_z": -7
+      },
+      "stop_point_eus_m": [
+        40,
+        0,
+        -800
+      ]
+    },
+    {
+      "id": "north-link",
+      "label": "A3",
+      "z_m": -1630,
+      "center_xz_m": [
+        49,
+        -1630
+      ],
+      "half_extent_xz_m": [
+        32.5,
+        7.5
+      ],
+      "bar_center_x_m": 30,
+      "bar_offsets_x_m": [
+        -1.3,
+        -0.7,
+        0.7,
+        1.3
+      ],
+      "bar_half_extent_xz_m": [
+        0.1,
+        7
+      ],
+      "bar_styles": [
+        "dashed",
+        "dashed",
+        "solid",
+        "solid"
+      ],
+      "dash_pattern_m": {
+        "length": 1,
+        "gap": 1,
+        "origin_relative_z": -7
+      },
+      "stop_point_eus_m": [
+        40,
+        0,
+        -1630
+      ]
+    }
+  ],
+  "parking": [
+    {
+      "id": "park-1",
+      "label": "PARK1",
+      "stripe_center_eus_m": [
+        108,
+        0,
+        34
+      ],
+      "stripe_half_length_m": 18,
+      "cap_half_width_m": 5,
+      "cap_z_m": 16,
+      "stand_point_eus_m": [
+        108,
+        0,
+        18
+      ]
+    },
+    {
+      "id": "park-2",
+      "label": "PARK2",
+      "stripe_center_eus_m": [
+        127,
+        0,
+        34
+      ],
+      "stripe_half_length_m": 18,
+      "cap_half_width_m": 5,
+      "cap_z_m": 16,
+      "stand_point_eus_m": [
+        127,
+        0,
+        18
+      ]
+    },
+    {
+      "id": "park-3",
+      "label": "PARK3",
+      "stripe_center_eus_m": [
+        146,
+        0,
+        34
+      ],
+      "stripe_half_length_m": 18,
+      "cap_half_width_m": 5,
+      "cap_z_m": 16,
+      "stand_point_eus_m": [
+        146,
+        0,
+        18
+      ]
+    },
+    {
+      "id": "park-4",
+      "label": "PARK4",
+      "stripe_center_eus_m": [
+        165,
+        0,
+        34
+      ],
+      "stripe_half_length_m": 18,
+      "cap_half_width_m": 5,
+      "cap_z_m": 16,
+      "stand_point_eus_m": [
+        165,
+        0,
+        18
+      ]
+    },
+    {
+      "id": "park-5",
+      "label": "PARK5",
+      "stripe_center_eus_m": [
+        184,
+        0,
+        34
+      ],
+      "stripe_half_length_m": 18,
+      "cap_half_width_m": 5,
+      "cap_z_m": 16,
+      "stand_point_eus_m": [
+        184,
+        0,
+        18
+      ]
+    }
+  ],
+  "signs": [
+    {
+      "id": "junction-south",
+      "point_eus_m": [
+        95,
+        1.2,
+        42
+      ],
+      "faces": [
+        {
+          "normal_xz": [
+            0,
+            -1
+          ],
+          "panels": [
+            {
+              "role": "location",
+              "label": "A",
+              "direction_xz": null
+            },
+            {
+              "role": "direction",
+              "label": "A1",
+              "direction_xz": [
+                -1,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "normal_xz": [
+            0,
+            1
+          ],
+          "panels": [
+            {
+              "role": "direction",
+              "label": "A1",
+              "direction_xz": [
+                -1,
+                0
+              ]
+            },
+            {
+              "role": "location",
+              "label": "A",
+              "direction_xz": null
+            }
+          ]
+        }
+      ],
+      "reference_id": "south-link"
+    },
+    {
+      "id": "hold-south",
+      "point_eus_m": [
+        30,
+        1.2,
+        20
+      ],
+      "faces": [
+        {
+          "normal_xz": [
+            1,
+            0
+          ],
+          "panels": [
+            {
+              "role": "runway-holding",
+              "label": "36-18",
+              "direction_xz": null
+            }
+          ]
+        }
+      ],
+      "reference_id": "south-link"
+    },
+    {
+      "id": "junction-middle",
+      "point_eus_m": [
+        95,
+        1.2,
+        -788
+      ],
+      "faces": [
+        {
+          "normal_xz": [
+            0,
+            -1
+          ],
+          "panels": [
+            {
+              "role": "location",
+              "label": "A",
+              "direction_xz": null
+            },
+            {
+              "role": "direction",
+              "label": "A2",
+              "direction_xz": [
+                -1,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "normal_xz": [
+            0,
+            1
+          ],
+          "panels": [
+            {
+              "role": "direction",
+              "label": "A2",
+              "direction_xz": [
+                -1,
+                0
+              ]
+            },
+            {
+              "role": "location",
+              "label": "A",
+              "direction_xz": null
+            }
+          ]
+        }
+      ],
+      "reference_id": "middle-link"
+    },
+    {
+      "id": "hold-middle",
+      "point_eus_m": [
+        30,
+        1.2,
+        -810
+      ],
+      "faces": [
+        {
+          "normal_xz": [
+            1,
+            0
+          ],
+          "panels": [
+            {
+              "role": "runway-holding",
+              "label": "36-18",
+              "direction_xz": null
+            }
+          ]
+        }
+      ],
+      "reference_id": "middle-link"
+    },
+    {
+      "id": "junction-north",
+      "point_eus_m": [
+        95,
+        1.2,
+        -1618
+      ],
+      "faces": [
+        {
+          "normal_xz": [
+            0,
+            -1
+          ],
+          "panels": [
+            {
+              "role": "location",
+              "label": "A",
+              "direction_xz": null
+            },
+            {
+              "role": "direction",
+              "label": "A3",
+              "direction_xz": [
+                -1,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "normal_xz": [
+            0,
+            1
+          ],
+          "panels": [
+            {
+              "role": "direction",
+              "label": "A3",
+              "direction_xz": [
+                -1,
+                0
+              ]
+            },
+            {
+              "role": "location",
+              "label": "A",
+              "direction_xz": null
+            }
+          ]
+        }
+      ],
+      "reference_id": "north-link"
+    },
+    {
+      "id": "hold-north",
+      "point_eus_m": [
+        30,
+        1.2,
+        -1640
+      ],
+      "faces": [
+        {
+          "normal_xz": [
+            1,
+            0
+          ],
+          "panels": [
+            {
+              "role": "runway-holding",
+              "label": "36-18",
+              "direction_xz": null
+            }
+          ]
+        }
+      ],
+      "reference_id": "north-link"
+    },
+    {
+      "id": "apron-parking",
+      "point_eus_m": [
+        100,
+        1.2,
+        64
+      ],
+      "faces": [
+        {
+          "normal_xz": [
+            0,
+            1
+          ],
+          "panels": [
+            {
+              "role": "original-information",
+              "label": "PARK1..5",
+              "direction_xz": null
+            }
+          ]
+        }
+      ],
+      "reference_id": "apron"
+    }
+  ],
+  "itineraries": [
+    {
+      "id": "locate-parking",
+      "label": "Locate PARK1",
+      "purpose": "to-parking",
+      "runway": null,
+      "link": "south-link",
+      "parking": "park-1",
+      "points": [
+        {
+          "id": "locate-parking-p1",
+          "label": "Locate PARK1 reference 1",
+          "point_eus_m": [
+            0,
+            0,
+            30
+          ]
+        },
+        {
+          "id": "locate-parking-p2",
+          "label": "Locate PARK1 reference 2",
+          "point_eus_m": [
+            40,
+            0,
+            30
+          ]
+        },
+        {
+          "id": "locate-parking-p3",
+          "label": "Locate PARK1 reference 3",
+          "point_eus_m": [
+            82,
+            0,
+            30
+          ]
+        },
+        {
+          "id": "locate-parking-p4",
+          "label": "Locate PARK1 reference 4",
+          "point_eus_m": [
+            108,
+            0,
+            30
+          ]
+        },
+        {
+          "id": "locate-parking-p5",
+          "label": "Locate PARK1 reference 5",
+          "point_eus_m": [
+            108,
+            0,
+            18
+          ]
+        }
+      ]
+    },
+    {
+      "id": "outbound-36",
+      "label": "To south stop - runway 36",
+      "purpose": "to-stop-reference",
+      "runway": 36,
+      "link": "south-link",
+      "parking": "park-1",
+      "points": [
+        {
+          "id": "outbound-36-p1",
+          "label": "To south stop - runway 36 reference 1",
+          "point_eus_m": [
+            108,
+            0,
+            18
+          ]
+        },
+        {
+          "id": "outbound-36-p2",
+          "label": "To south stop - runway 36 reference 2",
+          "point_eus_m": [
+            108,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "outbound-36-p3",
+          "label": "To south stop - runway 36 reference 3",
+          "point_eus_m": [
+            82,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "outbound-36-p4",
+          "label": "To south stop - runway 36 reference 4",
+          "point_eus_m": [
+            82,
+            0,
+            30
+          ]
+        },
+        {
+          "id": "outbound-36-p5",
+          "label": "To south stop - runway 36 reference 5",
+          "point_eus_m": [
+            40,
+            0,
+            30
+          ]
+        }
+      ]
+    },
+    {
+      "id": "outbound-18",
+      "label": "To north stop - runway 18",
+      "purpose": "to-stop-reference",
+      "runway": 18,
+      "link": "north-link",
+      "parking": "park-1",
+      "points": [
+        {
+          "id": "outbound-18-p1",
+          "label": "To north stop - runway 18 reference 1",
+          "point_eus_m": [
+            108,
+            0,
+            18
+          ]
+        },
+        {
+          "id": "outbound-18-p2",
+          "label": "To north stop - runway 18 reference 2",
+          "point_eus_m": [
+            108,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "outbound-18-p3",
+          "label": "To north stop - runway 18 reference 3",
+          "point_eus_m": [
+            82,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "outbound-18-p4",
+          "label": "To north stop - runway 18 reference 4",
+          "point_eus_m": [
+            82,
+            0,
+            -1630
+          ]
+        },
+        {
+          "id": "outbound-18-p5",
+          "label": "To north stop - runway 18 reference 5",
+          "point_eus_m": [
+            40,
+            0,
+            -1630
+          ]
+        }
+      ]
+    },
+    {
+      "id": "return-south",
+      "label": "Return via south link",
+      "purpose": "to-parking",
+      "runway": null,
+      "link": "south-link",
+      "parking": "park-1",
+      "points": [
+        {
+          "id": "return-south-p1",
+          "label": "Return via south link reference 1",
+          "point_eus_m": [
+            40,
+            0,
+            30
+          ]
+        },
+        {
+          "id": "return-south-p2",
+          "label": "Return via south link reference 2",
+          "point_eus_m": [
+            82,
+            0,
+            30
+          ]
+        },
+        {
+          "id": "return-south-p3",
+          "label": "Return via south link reference 3",
+          "point_eus_m": [
+            82,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "return-south-p4",
+          "label": "Return via south link reference 4",
+          "point_eus_m": [
+            108,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "return-south-p5",
+          "label": "Return via south link reference 5",
+          "point_eus_m": [
+            108,
+            0,
+            18
+          ]
+        }
+      ]
+    },
+    {
+      "id": "return-middle",
+      "label": "Return via middle link",
+      "purpose": "to-parking",
+      "runway": null,
+      "link": "middle-link",
+      "parking": "park-1",
+      "points": [
+        {
+          "id": "return-middle-p1",
+          "label": "Return via middle link reference 1",
+          "point_eus_m": [
+            40,
+            0,
+            -800
+          ]
+        },
+        {
+          "id": "return-middle-p2",
+          "label": "Return via middle link reference 2",
+          "point_eus_m": [
+            82,
+            0,
+            -800
+          ]
+        },
+        {
+          "id": "return-middle-p3",
+          "label": "Return via middle link reference 3",
+          "point_eus_m": [
+            82,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "return-middle-p4",
+          "label": "Return via middle link reference 4",
+          "point_eus_m": [
+            108,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "return-middle-p5",
+          "label": "Return via middle link reference 5",
+          "point_eus_m": [
+            108,
+            0,
+            18
+          ]
+        }
+      ]
+    },
+    {
+      "id": "return-north",
+      "label": "Return via north link",
+      "purpose": "to-parking",
+      "runway": null,
+      "link": "north-link",
+      "parking": "park-1",
+      "points": [
+        {
+          "id": "return-north-p1",
+          "label": "Return via north link reference 1",
+          "point_eus_m": [
+            40,
+            0,
+            -1630
+          ]
+        },
+        {
+          "id": "return-north-p2",
+          "label": "Return via north link reference 2",
+          "point_eus_m": [
+            82,
+            0,
+            -1630
+          ]
+        },
+        {
+          "id": "return-north-p3",
+          "label": "Return via north link reference 3",
+          "point_eus_m": [
+            82,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "return-north-p4",
+          "label": "Return via north link reference 4",
+          "point_eus_m": [
+            108,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "return-north-p5",
+          "label": "Return via north link reference 5",
+          "point_eus_m": [
+            108,
+            0,
+            18
+          ]
+        }
+      ]
+    }
+  ],
+  "starts": [
+    {
+      "named_start": "apron-ready",
+      "profile_id": "original-interactive-prototype",
+      "parking_id": "park-1",
+      "requested_cg_eus_m": [
+        108,
+        1.05,
+        18
+      ],
+      "roll_pitch_yaw_rad": [
+        0,
+        0,
+        0
+      ],
+      "wind_profile": "calm"
+    },
+    {
+      "named_start": "piston-cold-apron",
+      "profile_id": "original-piston-prop-v1",
+      "parking_id": "park-1",
+      "requested_cg_eus_m": [
+        108,
+        1.05,
+        18
+      ],
+      "roll_pitch_yaw_rad": [
+        0,
+        0,
+        0
+      ],
+      "wind_profile": "calm"
+    }
+  ]
+}

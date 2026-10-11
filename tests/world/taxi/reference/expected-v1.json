@@ -1,0 +1,921 @@
+{
+  "schema": "SyntheticTaxiContentReference/v1",
+  "status": "proposed original source/math; no consumer or backend outputs",
+  "rectangles": [
+    {
+      "id": "runway",
+      "minimum_xz_m": [
+        "-20",
+        "-1700"
+      ],
+      "maximum_xz_m": [
+        "20",
+        "100"
+      ]
+    },
+    {
+      "id": "parallel",
+      "minimum_xz_m": [
+        "149/2",
+        "-1720"
+      ],
+      "maximum_xz_m": [
+        "179/2",
+        "120"
+      ]
+    },
+    {
+      "id": "apron",
+      "minimum_xz_m": [
+        "67",
+        "-70"
+      ],
+      "maximum_xz_m": [
+        "197",
+        "120"
+      ]
+    },
+    {
+      "id": "south-link",
+      "minimum_xz_m": [
+        "33/2",
+        "45/2"
+      ],
+      "maximum_xz_m": [
+        "163/2",
+        "75/2"
+      ]
+    },
+    {
+      "id": "middle-link",
+      "minimum_xz_m": [
+        "33/2",
+        "-1615/2"
+      ],
+      "maximum_xz_m": [
+        "163/2",
+        "-1585/2"
+      ]
+    },
+    {
+      "id": "north-link",
+      "minimum_xz_m": [
+        "33/2",
+        "-3275/2"
+      ],
+      "maximum_xz_m": [
+        "163/2",
+        "-3245/2"
+      ]
+    }
+  ],
+  "route_segments": [
+    {
+      "itinerary": "locate-parking",
+      "segment": 0,
+      "from_xz_m": [
+        0,
+        30
+      ],
+      "to_xz_m": [
+        40,
+        30
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "locate-parking",
+      "segment": 1,
+      "from_xz_m": [
+        40,
+        30
+      ],
+      "to_xz_m": [
+        82,
+        30
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "locate-parking",
+      "segment": 2,
+      "from_xz_m": [
+        82,
+        30
+      ],
+      "to_xz_m": [
+        108,
+        30
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "locate-parking",
+      "segment": 3,
+      "from_xz_m": [
+        108,
+        30
+      ],
+      "to_xz_m": [
+        108,
+        18
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "outbound-36",
+      "segment": 0,
+      "from_xz_m": [
+        108,
+        18
+      ],
+      "to_xz_m": [
+        108,
+        0
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "outbound-36",
+      "segment": 1,
+      "from_xz_m": [
+        108,
+        0
+      ],
+      "to_xz_m": [
+        82,
+        0
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "outbound-36",
+      "segment": 2,
+      "from_xz_m": [
+        82,
+        0
+      ],
+      "to_xz_m": [
+        82,
+        30
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "outbound-36",
+      "segment": 3,
+      "from_xz_m": [
+        82,
+        30
+      ],
+      "to_xz_m": [
+        40,
+        30
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "outbound-18",
+      "segment": 0,
+      "from_xz_m": [
+        108,
+        18
+      ],
+      "to_xz_m": [
+        108,
+        0
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "outbound-18",
+      "segment": 1,
+      "from_xz_m": [
+        108,
+        0
+      ],
+      "to_xz_m": [
+        82,
+        0
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "outbound-18",
+      "segment": 2,
+      "from_xz_m": [
+        82,
+        0
+      ],
+      "to_xz_m": [
+        82,
+        -1630
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "outbound-18",
+      "segment": 3,
+      "from_xz_m": [
+        82,
+        -1630
+      ],
+      "to_xz_m": [
+        40,
+        -1630
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "return-south",
+      "segment": 0,
+      "from_xz_m": [
+        40,
+        30
+      ],
+      "to_xz_m": [
+        82,
+        30
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "return-south",
+      "segment": 1,
+      "from_xz_m": [
+        82,
+        30
+      ],
+      "to_xz_m": [
+        82,
+        0
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "return-south",
+      "segment": 2,
+      "from_xz_m": [
+        82,
+        0
+      ],
+      "to_xz_m": [
+        108,
+        0
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "return-south",
+      "segment": 3,
+      "from_xz_m": [
+        108,
+        0
+      ],
+      "to_xz_m": [
+        108,
+        18
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "return-middle",
+      "segment": 0,
+      "from_xz_m": [
+        40,
+        -800
+      ],
+      "to_xz_m": [
+        82,
+        -800
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "return-middle",
+      "segment": 1,
+      "from_xz_m": [
+        82,
+        -800
+      ],
+      "to_xz_m": [
+        82,
+        0
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "return-middle",
+      "segment": 2,
+      "from_xz_m": [
+        82,
+        0
+      ],
+      "to_xz_m": [
+        108,
+        0
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "return-middle",
+      "segment": 3,
+      "from_xz_m": [
+        108,
+        0
+      ],
+      "to_xz_m": [
+        108,
+        18
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "return-north",
+      "segment": 0,
+      "from_xz_m": [
+        40,
+        -1630
+      ],
+      "to_xz_m": [
+        82,
+        -1630
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "return-north",
+      "segment": 1,
+      "from_xz_m": [
+        82,
+        -1630
+      ],
+      "to_xz_m": [
+        82,
+        0
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "return-north",
+      "segment": 2,
+      "from_xz_m": [
+        82,
+        0
+      ],
+      "to_xz_m": [
+        108,
+        0
+      ],
+      "inside_six_rectangle_union": true
+    },
+    {
+      "itinerary": "return-north",
+      "segment": 3,
+      "from_xz_m": [
+        108,
+        0
+      ],
+      "to_xz_m": [
+        108,
+        18
+      ],
+      "inside_six_rectangle_union": true
+    }
+  ],
+  "segment_counterexamples": [
+    {
+      "id": "connected_link_crossing",
+      "p": [
+        0,
+        30
+      ],
+      "q": [
+        82,
+        30
+      ],
+      "inside": true
+    },
+    {
+      "id": "gap_between_main_strips",
+      "p": [
+        0,
+        0
+      ],
+      "q": [
+        82,
+        0
+      ],
+      "inside": false
+    },
+    {
+      "id": "outside_apron",
+      "p": [
+        108,
+        18
+      ],
+      "q": [
+        250,
+        18
+      ],
+      "inside": false
+    }
+  ],
+  "parking": [
+    {
+      "id": "park-1",
+      "stripe_center_eus_m": [
+        108,
+        0,
+        34
+      ],
+      "stripe_z_bounds_m": [
+        16,
+        52
+      ],
+      "cap_z_m": 16,
+      "cap_half_width_m": 5,
+      "stand_point_eus_m": [
+        108,
+        0,
+        18
+      ]
+    },
+    {
+      "id": "park-2",
+      "stripe_center_eus_m": [
+        127,
+        0,
+        34
+      ],
+      "stripe_z_bounds_m": [
+        16,
+        52
+      ],
+      "cap_z_m": 16,
+      "cap_half_width_m": 5,
+      "stand_point_eus_m": [
+        127,
+        0,
+        18
+      ]
+    },
+    {
+      "id": "park-3",
+      "stripe_center_eus_m": [
+        146,
+        0,
+        34
+      ],
+      "stripe_z_bounds_m": [
+        16,
+        52
+      ],
+      "cap_z_m": 16,
+      "cap_half_width_m": 5,
+      "stand_point_eus_m": [
+        146,
+        0,
+        18
+      ]
+    },
+    {
+      "id": "park-4",
+      "stripe_center_eus_m": [
+        165,
+        0,
+        34
+      ],
+      "stripe_z_bounds_m": [
+        16,
+        52
+      ],
+      "cap_z_m": 16,
+      "cap_half_width_m": 5,
+      "stand_point_eus_m": [
+        165,
+        0,
+        18
+      ]
+    },
+    {
+      "id": "park-5",
+      "stripe_center_eus_m": [
+        184,
+        0,
+        34
+      ],
+      "stripe_z_bounds_m": [
+        16,
+        52
+      ],
+      "cap_z_m": 16,
+      "cap_half_width_m": 5,
+      "stand_point_eus_m": [
+        184,
+        0,
+        18
+      ]
+    }
+  ],
+  "junction_faces": [
+    {
+      "site": "junction-south",
+      "site_eus_m": [
+        95,
+        "6/5",
+        42
+      ],
+      "normal_xz": [
+        0,
+        -1
+      ],
+      "screen_right_xz": [
+        -1,
+        0
+      ],
+      "direction_world_xz": [
+        -1,
+        0
+      ],
+      "arrow_screen": "right",
+      "panel_labels_left_to_right": [
+        "A",
+        "A1"
+      ],
+      "panel_width_m": "6/5",
+      "panel_height_m": "3/5",
+      "panel_center_screen_offsets_m": [
+        "-3/5",
+        "3/5"
+      ]
+    },
+    {
+      "site": "junction-south",
+      "site_eus_m": [
+        95,
+        "6/5",
+        42
+      ],
+      "normal_xz": [
+        0,
+        1
+      ],
+      "screen_right_xz": [
+        1,
+        0
+      ],
+      "direction_world_xz": [
+        -1,
+        0
+      ],
+      "arrow_screen": "left",
+      "panel_labels_left_to_right": [
+        "A1",
+        "A"
+      ],
+      "panel_width_m": "6/5",
+      "panel_height_m": "3/5",
+      "panel_center_screen_offsets_m": [
+        "-3/5",
+        "3/5"
+      ]
+    },
+    {
+      "site": "junction-middle",
+      "site_eus_m": [
+        95,
+        "6/5",
+        -788
+      ],
+      "normal_xz": [
+        0,
+        -1
+      ],
+      "screen_right_xz": [
+        -1,
+        0
+      ],
+      "direction_world_xz": [
+        -1,
+        0
+      ],
+      "arrow_screen": "right",
+      "panel_labels_left_to_right": [
+        "A",
+        "A2"
+      ],
+      "panel_width_m": "6/5",
+      "panel_height_m": "3/5",
+      "panel_center_screen_offsets_m": [
+        "-3/5",
+        "3/5"
+      ]
+    },
+    {
+      "site": "junction-middle",
+      "site_eus_m": [
+        95,
+        "6/5",
+        -788
+      ],
+      "normal_xz": [
+        0,
+        1
+      ],
+      "screen_right_xz": [
+        1,
+        0
+      ],
+      "direction_world_xz": [
+        -1,
+        0
+      ],
+      "arrow_screen": "left",
+      "panel_labels_left_to_right": [
+        "A2",
+        "A"
+      ],
+      "panel_width_m": "6/5",
+      "panel_height_m": "3/5",
+      "panel_center_screen_offsets_m": [
+        "-3/5",
+        "3/5"
+      ]
+    },
+    {
+      "site": "junction-north",
+      "site_eus_m": [
+        95,
+        "6/5",
+        -1618
+      ],
+      "normal_xz": [
+        0,
+        -1
+      ],
+      "screen_right_xz": [
+        -1,
+        0
+      ],
+      "direction_world_xz": [
+        -1,
+        0
+      ],
+      "arrow_screen": "right",
+      "panel_labels_left_to_right": [
+        "A",
+        "A3"
+      ],
+      "panel_width_m": "6/5",
+      "panel_height_m": "3/5",
+      "panel_center_screen_offsets_m": [
+        "-3/5",
+        "3/5"
+      ]
+    },
+    {
+      "site": "junction-north",
+      "site_eus_m": [
+        95,
+        "6/5",
+        -1618
+      ],
+      "normal_xz": [
+        0,
+        1
+      ],
+      "screen_right_xz": [
+        1,
+        0
+      ],
+      "direction_world_xz": [
+        -1,
+        0
+      ],
+      "arrow_screen": "left",
+      "panel_labels_left_to_right": [
+        "A3",
+        "A"
+      ],
+      "panel_width_m": "6/5",
+      "panel_height_m": "3/5",
+      "panel_center_screen_offsets_m": [
+        "-3/5",
+        "3/5"
+      ]
+    }
+  ],
+  "holding": {
+    "offsets_x_m": [
+      "-13/10",
+      "-7/10",
+      "7/10",
+      "13/10"
+    ],
+    "styles": [
+      "dashed",
+      "dashed",
+      "solid",
+      "solid"
+    ],
+    "relative_on_z_intervals_m": [
+      [
+        -7,
+        -6
+      ],
+      [
+        -5,
+        -4
+      ],
+      [
+        -3,
+        -2
+      ],
+      [
+        -1,
+        0
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        5,
+        6
+      ]
+    ],
+    "approach": "east-to-west",
+    "holding_side": "east",
+    "east_face_label": "36-18"
+  },
+  "metrics": [
+    {
+      "id": "north",
+      "delta_x_binary64_le": "0000000000000000",
+      "delta_z_binary64_le": "00000000000014c0",
+      "range_binary64_le": "0000000000001440",
+      "anchor_bearing_deg_binary64_le": "0000000000000000"
+    },
+    {
+      "id": "east",
+      "delta_x_binary64_le": "0000000000001440",
+      "delta_z_binary64_le": "0000000000000000",
+      "range_binary64_le": "0000000000001440",
+      "anchor_bearing_deg_binary64_le": "0000000000805640"
+    },
+    {
+      "id": "south",
+      "delta_x_binary64_le": "0000000000000000",
+      "delta_z_binary64_le": "0000000000001440",
+      "range_binary64_le": "0000000000001440",
+      "anchor_bearing_deg_binary64_le": "0000000000806640"
+    },
+    {
+      "id": "west",
+      "delta_x_binary64_le": "00000000000014c0",
+      "delta_z_binary64_le": "0000000000000000",
+      "range_binary64_le": "0000000000001440",
+      "anchor_bearing_deg_binary64_le": "0000000000e07040"
+    },
+    {
+      "id": "coincident",
+      "delta_x_binary64_le": "0000000000000000",
+      "delta_z_binary64_le": "0000000000000000",
+      "range_binary64_le": "0000000000000000",
+      "anchor_bearing_deg_binary64_le": null
+    },
+    {
+      "id": "ne_345",
+      "delta_x_binary64_le": "0000000000000840",
+      "delta_z_binary64_le": "00000000000010c0",
+      "range_binary64_le": "0000000000001440",
+      "anchor_bearing_deg_binary64_le": "3ce259ce586f4240"
+    },
+    {
+      "id": "se_345",
+      "delta_x_binary64_le": "0000000000000840",
+      "delta_z_binary64_le": "0000000000001040",
+      "range_binary64_le": "0000000000001440",
+      "anchor_bearing_deg_binary64_le": "718769cc29e46140"
+    },
+    {
+      "id": "sw_345",
+      "delta_x_binary64_le": "00000000000008c0",
+      "delta_z_binary64_le": "0000000000001040",
+      "range_binary64_le": "0000000000001440",
+      "anchor_bearing_deg_binary64_le": "8f789633d61b6b40"
+    },
+    {
+      "id": "nw_345",
+      "delta_x_binary64_le": "00000000000008c0",
+      "delta_z_binary64_le": "00000000000010c0",
+      "range_binary64_le": "0000000000001440",
+      "anchor_bearing_deg_binary64_le": "b8c334e614327440"
+    },
+    {
+      "id": "near_north",
+      "delta_x_binary64_le": "0000000000001c40",
+      "delta_z_binary64_le": "00000000000038c0",
+      "range_binary64_le": "0000000000003940",
+      "anchor_bearing_deg_binary64_le": "0f7798c69c423040"
+    },
+    {
+      "id": "tiny_east",
+      "delta_x_binary64_le": "0100000000000000",
+      "delta_z_binary64_le": "0000000000000000",
+      "range_binary64_le": "0100000000000000",
+      "anchor_bearing_deg_binary64_le": "0000000000805640"
+    }
+  ],
+  "revision_admission_recipes": [
+    {
+      "id": "revision_int1",
+      "value": 1,
+      "accepted": true
+    },
+    {
+      "id": "revision_float1",
+      "value": 1.0,
+      "accepted": true
+    },
+    {
+      "id": "revision_bool",
+      "value": true,
+      "accepted": false
+    },
+    {
+      "id": "revision_string",
+      "value": "1",
+      "accepted": false
+    },
+    {
+      "id": "revision_fractional",
+      "value": 1.5,
+      "accepted": false
+    }
+  ],
+  "record_archive_domain_recipes": [
+    {
+      "profile": "original-interactive-prototype",
+      "recording_version": 1,
+      "archive_version": 1,
+      "named_start": "ground-ready",
+      "accepted_domain": true
+    },
+    {
+      "profile": "original-interactive-prototype",
+      "recording_version": 1,
+      "archive_version": 1,
+      "named_start": "airborne-prepared",
+      "accepted_domain": true
+    },
+    {
+      "profile": "original-interactive-prototype",
+      "recording_version": 1,
+      "archive_version": 1,
+      "named_start": "apron-ready",
+      "accepted_domain": true
+    },
+    {
+      "profile": "original-piston-prop-v1",
+      "recording_version": 2,
+      "archive_version": 2,
+      "named_start": "piston-cold-ground",
+      "accepted_domain": true
+    },
+    {
+      "profile": "original-piston-prop-v1",
+      "recording_version": 2,
+      "archive_version": 2,
+      "named_start": "piston-cold-apron",
+      "accepted_domain": true
+    },
+    {
+      "profile": "original-interactive-prototype",
+      "recording_version": 1,
+      "archive_version": 1,
+      "named_start": "piston-cold-apron",
+      "accepted_domain": false
+    },
+    {
+      "profile": "original-piston-prop-v1",
+      "recording_version": 2,
+      "archive_version": 2,
+      "named_start": "apron-ready",
+      "accepted_domain": false
+    }
+  ],
+  "criteria": {
+    "exact": "IDs, counts, rectangle/segment rationals, arrows, domains, integer admission and transported reference bits",
+    "range_abs_m": "1e-7",
+    "bearing_abs_deg": "1e-7",
+    "coincident_range": "exact +0 and no bearing",
+    "tiny_cardinal": "exact min positive binary64 range, exact90deg bearing; not rounded zero",
+    "scope": "predeclared bounded presentation comparisons, no physics/solver/RunIC or universal rounding theorem"
+  }
+}

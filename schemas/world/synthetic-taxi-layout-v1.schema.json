@@ -1,0 +1,663 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://flight-simulator.local/schemas/world/synthetic-taxi-layout-v1.schema.json",
+  "title": "Original synthetic taxi layout, local packaged content",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "id",
+    "revision",
+    "license",
+    "provenance",
+    "world",
+    "frame",
+    "pavement",
+    "links",
+    "parking",
+    "signs",
+    "itineraries",
+    "starts"
+  ],
+  "properties": {
+    "schema": {
+      "const": "SyntheticTaxiLayout/v1"
+    },
+    "id": {
+      "const": "original-taxi-navigation"
+    },
+    "revision": {
+      "type": "integer",
+      "const": 1
+    },
+    "license": {
+      "const": "MIT"
+    },
+    "provenance": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "world": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "prepared_sha256"
+      ],
+      "properties": {
+        "id": {
+          "const": "original.interactive-plane"
+        },
+        "version": {
+          "const": "1.0.0"
+        },
+        "prepared_sha256": {
+          "const": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5"
+        }
+      }
+    },
+    "frame": {
+      "const": "fixed-anchor-east-up-south-metres"
+    },
+    "pavement": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "label",
+              "center_xz_m",
+              "half_extent_xz_m"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+                "minLength": 1,
+                "maxLength": 48
+              },
+              "label": {
+                "type": "string",
+                "pattern": "^[ -~]+$",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              "center_xz_m": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "number",
+                  "minimum": -2000,
+                  "maximum": 2000
+                }
+              },
+              "half_extent_xz_m": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 2000
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "label",
+              "center_xz_m",
+              "half_extent_xz_m",
+              "ends"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+                "minLength": 1,
+                "maxLength": 48
+              },
+              "label": {
+                "type": "string",
+                "pattern": "^[ -~]+$",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              "center_xz_m": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "number",
+                  "minimum": -2000,
+                  "maximum": 2000
+                }
+              },
+              "half_extent_xz_m": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 2000
+                }
+              },
+              "ends": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "designator",
+                    "point_eus_m"
+                  ],
+                  "properties": {
+                    "designator": {
+                      "enum": [
+                        36,
+                        18
+                      ]
+                    },
+                    "point_eus_m": {
+                      "type": "array",
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "items": {
+                        "type": "number",
+                        "minimum": -2000,
+                        "maximum": 2000
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "links": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label",
+          "z_m",
+          "center_xz_m",
+          "half_extent_xz_m",
+          "bar_center_x_m",
+          "bar_offsets_x_m",
+          "bar_half_extent_xz_m",
+          "bar_styles",
+          "dash_pattern_m",
+          "stop_point_eus_m"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "minLength": 1,
+            "maxLength": 48
+          },
+          "label": {
+            "type": "string",
+            "pattern": "^[ -~]+$",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "z_m": {
+            "type": "number",
+            "minimum": -2000,
+            "maximum": 2000
+          },
+          "center_xz_m": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "number",
+              "minimum": -2000,
+              "maximum": 2000
+            }
+          },
+          "half_extent_xz_m": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 2000
+            }
+          },
+          "bar_center_x_m": {
+            "type": "number",
+            "minimum": -2000,
+            "maximum": 2000
+          },
+          "bar_offsets_x_m": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": {
+              "type": "number",
+              "minimum": -2000,
+              "maximum": 2000
+            }
+          },
+          "bar_half_extent_xz_m": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 2000
+            }
+          },
+          "bar_styles": {
+            "const": [
+              "dashed",
+              "dashed",
+              "solid",
+              "solid"
+            ]
+          },
+          "dash_pattern_m": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "length",
+              "gap",
+              "origin_relative_z"
+            ],
+            "properties": {
+              "length": {
+                "const": 1
+              },
+              "gap": {
+                "const": 1
+              },
+              "origin_relative_z": {
+                "const": -7
+              }
+            }
+          },
+          "stop_point_eus_m": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number",
+              "minimum": -2000,
+              "maximum": 2000
+            }
+          }
+        }
+      }
+    },
+    "parking": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label",
+          "stripe_center_eus_m",
+          "stripe_half_length_m",
+          "cap_half_width_m",
+          "cap_z_m",
+          "stand_point_eus_m"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "minLength": 1,
+            "maxLength": 48
+          },
+          "label": {
+            "type": "string",
+            "pattern": "^[ -~]+$",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "stripe_center_eus_m": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number",
+              "minimum": -2000,
+              "maximum": 2000
+            }
+          },
+          "stripe_half_length_m": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 100
+          },
+          "cap_half_width_m": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 20
+          },
+          "cap_z_m": {
+            "type": "number",
+            "minimum": -2000,
+            "maximum": 2000
+          },
+          "stand_point_eus_m": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number",
+              "minimum": -2000,
+              "maximum": 2000
+            }
+          }
+        }
+      }
+    },
+    "signs": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "point_eus_m",
+          "faces",
+          "reference_id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "minLength": 1,
+            "maxLength": 48
+          },
+          "point_eus_m": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number",
+              "minimum": -2000,
+              "maximum": 2000
+            }
+          },
+          "faces": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 2,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "normal_xz",
+                "panels"
+              ],
+              "properties": {
+                "normal_xz": {
+                  "enum": [
+                    [
+                      1,
+                      0
+                    ],
+                    [
+                      -1,
+                      0
+                    ],
+                    [
+                      0,
+                      1
+                    ],
+                    [
+                      0,
+                      -1
+                    ]
+                  ]
+                },
+                "panels": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 2,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "role",
+                      "label",
+                      "direction_xz"
+                    ],
+                    "properties": {
+                      "role": {
+                        "enum": [
+                          "location",
+                          "direction",
+                          "runway-holding",
+                          "original-information"
+                        ]
+                      },
+                      "label": {
+                        "type": "string",
+                        "pattern": "^[ -~]+$",
+                        "minLength": 1,
+                        "maxLength": 80
+                      },
+                      "direction_xz": {
+                        "anyOf": [
+                          {
+                            "enum": [
+                              [
+                                1,
+                                0
+                              ],
+                              [
+                                -1,
+                                0
+                              ],
+                              [
+                                0,
+                                1
+                              ],
+                              [
+                                0,
+                                -1
+                              ]
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "reference_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "minLength": 1,
+            "maxLength": 48
+          }
+        }
+      }
+    },
+    "itineraries": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label",
+          "purpose",
+          "runway",
+          "link",
+          "parking",
+          "points"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "minLength": 1,
+            "maxLength": 48
+          },
+          "label": {
+            "type": "string",
+            "pattern": "^[ -~]+$",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "purpose": {
+            "enum": [
+              "to-parking",
+              "to-stop-reference"
+            ]
+          },
+          "runway": {
+            "enum": [
+              36,
+              18,
+              null
+            ]
+          },
+          "link": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "minLength": 1,
+            "maxLength": 48
+          },
+          "parking": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "minLength": 1,
+            "maxLength": 48
+          },
+          "points": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 8,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "label",
+                "point_eus_m"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+                  "minLength": 1,
+                  "maxLength": 48
+                },
+                "label": {
+                  "type": "string",
+                  "pattern": "^[ -~]+$",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "point_eus_m": {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "number",
+                    "minimum": -2000,
+                    "maximum": 2000
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "starts": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "named_start",
+          "profile_id",
+          "parking_id",
+          "requested_cg_eus_m",
+          "roll_pitch_yaw_rad",
+          "wind_profile"
+        ],
+        "properties": {
+          "named_start": {
+            "enum": [
+              "apron-ready",
+              "piston-cold-apron"
+            ]
+          },
+          "profile_id": {
+            "enum": [
+              "original-interactive-prototype",
+              "original-piston-prop-v1"
+            ]
+          },
+          "parking_id": {
+            "const": "park-1"
+          },
+          "requested_cg_eus_m": {
+            "const": [
+              108,
+              1.05,
+              18
+            ]
+          },
+          "roll_pitch_yaw_rad": {
+            "const": [
+              0,
+              0,
+              0
+            ]
+          },
+          "wind_profile": {
+            "const": "calm"
+          }
+        }
+      }
+    }
+  },
+  "$comment": "JSON Schema integer means mathematical integer (1.0 is valid); runtime requires exact finite numeric1, rejects BOOL/String. Closed relational validation and exact fixture SHA are additionally required by ADR027. This is not a wire schema."
+}

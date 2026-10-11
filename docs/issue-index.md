@@ -81,6 +81,8 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | PAUSED-VIEWS-CONTRACT | [#213 Ratify paused lookout views and camera comfort](https://github.com/brettbergin/flight-simulator/issues/213) | SIM-LOOP-CONTRACT, INPUT-CONTROLS-CONTRACT, COCKPIT-READINGS-CONTRACT, THIRD-PERSON-STABILITY, POINTER-ENGINE-CONTRACT, POINTER-ENGINE-CONTROLS, ORDINARY-FLIGHT-LAYOUT |
 
 | PAUSED-VIEWS | [#215 Add paused cockpit lookout presets and external camera response](https://github.com/brettbergin/flight-simulator/issues/215) | PAUSED-VIEWS-CONTRACT, PISTON-READINGS-DECIMAL-ADMISSION |
+| SYNTHETIC-TAXI-CONTRACT | [#224 Define original apron starts and shared taxi navigation](https://github.com/brettbergin/flight-simulator/issues/224) | CORE-CONTRACTS, GROUND-PROOF, SIM-LOOP, ORIGINAL-PISTON-FLIGHT, STEADY-WIND-FLIGHT, OBSERVED-REVIEW-FILES, PISTON-OBSERVED-REVIEW, PAUSED-VIEWS, LOCAL-PLAYERS-CONTRACT |
+| SYNTHETIC-TAXI-NAVIGATION | [#225 Fly from the original apron and navigate back to parking](https://github.com/brettbergin/flight-simulator/issues/225) | SYNTHETIC-TAXI-CONTRACT, PAUSED-VIEWS, LOCAL-PLAYERS-CONTRACT |
 
 ## P3 — Complete circuit and durable progress
 

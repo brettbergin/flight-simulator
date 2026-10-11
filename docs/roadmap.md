@@ -70,6 +70,8 @@ UI concepts, legal/source investigation, data provenance, test fixture design, a
 
 **Primary requirements:** PRD-003, PRD-006–007, PRD-015–020, PRD-033; UX-001–002, UX-009–015.
 
+**Bounded original apron and taxi allocation.** [Contract #224](https://github.com/brettbergin/flight-simulator/issues/224) and [implementation #225](https://github.com/brettbergin/flight-simulator/issues/225) contribute to SYNTHETIC-AIRFIELD #22 while its broad P1/P2 gates stay open. Source-only contract/reference preparation may proceed; complete checked #215/#218 and public ADR027 definitions, independent references and exact source allocation precede #225 consumers. The cohesive journey starts on the real native apron in ready or cold state, uses original signs and optional manual navigation to either stop reference, permits deliberate pilot runway entry/flight, then manually selects a return to parking. Preserve old starts, plane/model/physics budgets, recorder truth and source qualification. This allocation grants no operational clearance, C172, hardware/pilot or phase acceptance.
+
 ## P3 — Complete normal circuit and durable local progress
 
 **Outcome:** father and student can each complete and review a full normal flight in a defined aircraft configuration.
