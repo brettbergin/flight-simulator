@@ -222,7 +222,21 @@ func _resume() -> bool:
 
 func _negative_cases() -> void:
  _scene.synthetic_raw={"keys":[],"mouse_buttons":[],"devices":[]}
- if not _check(_scene.restart(true,"calm",Facade.PISTON_PROFILE.id,"piston-cold-ground"),"negative_fresh_session"): return
+ var previous: Dictionary=_retained()
+ var prior_facade: RefCounted=_scene.facade
+ var record_before: PackedByteArray=var_to_bytes(_scene.observed_recorder.recording())
+ _check(_scene.recorded_flight_advanced(),"negative_restart_has_advanced_cold_record")
+ _scene.request_discard("restart","piston-cold-ground","calm",Facade.PISTON_PROFILE.id)
+ _check(_scene.pending_discard.get("session_id")==previous.session and _scene.discard_layer.visible and _scene.paused and _scene.review_boundary(),"negative_restart_actual_discard_confirmation_owner")
+ _check(_scene.facade==prior_facade and _retained()==previous and var_to_bytes(_scene.observed_recorder.recording())==record_before,"negative_restart_pending_preserves_native_commands_and_record")
+ if _scene.pending_discard.is_empty(): return
+ _scene.confirm_discard()
+ _check(_scene.pending_discard.is_empty() and not _scene.discard_layer.visible,"negative_restart_confirmation_completed")
+ # Ordinary same-profile confirmation may Resume through close_menu. The
+ # fixture has automatic processing disabled; explicitly pause its tick0 owner
+ # before the unchanged deliberate Resume and malformed/primary negative cases.
+ _check(_scene.pause_session(true),"negative_restart_explicit_fresh_pause")
+ if not _check(_scene.facade!=prior_facade and _scene.adopted_session_id!=previous.session and _scene.facade.readback().tick=="0" and _scene.paused and _scene.submitted_count==0,"negative_fresh_session"): return
  if not _resume(): return
  var before: Dictionary=_retained()
  if _press("engine.starter"):

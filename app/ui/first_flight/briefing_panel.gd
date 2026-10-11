@@ -4,7 +4,7 @@ const Readings = preload("res://cockpit/instruments/native_readings.gd")
 const EngineStatus = preload("res://cockpit/instruments/engine_status.gd")
 const BindingHelp = preload("res://ui/first_flight/binding_help.gd")
 const FIXTURE_PATH = "res://content/scenarios/first-flight/briefing.json"
-const FIXTURE_SHA256 = "461ded9adf22b5265c6b487c23590efe30acb929f3c056356742a93206d400df"
+const FIXTURE_SHA256 = "d75704a7aa6b50724561202bf817e1b74a0d7693ec2043347300cba8a29492c4"
 const CHOICE_IDS = ["cold-familiarization","ready-flight","airborne-orientation"]
 const CHOICE_TITLES = {"cold-familiarization":"Engine-off familiarization","ready-flight":"On the runway, engine running","airborne-orientation":"Already airborne"}
 signal choice_requested(choice_id: String, source_session: String)
@@ -41,7 +41,7 @@ static func validate_fixture_bytes(bytes: PackedByteArray) -> Dictionary:
 	if parser.parse(bytes.get_string_from_utf8()) != OK or not parser.data is Dictionary:
 		return {"ok":false,"error":"Briefing unavailable: invalid original fixture","value":{}}
 	var value: Dictionary = parser.data
-	if value.get("id") != "original-first-flight-briefing" or value.get("revision") != 1:
+	if value.get("id") != "original-first-flight-briefing" or value.get("revision") != 2:
 		return {"ok":false,"error":"Briefing unavailable: unknown fixture identity/revision","value":{}}
 	return {"ok":true,"error":"","value":value.duplicate(true)}
 

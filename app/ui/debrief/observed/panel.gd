@@ -23,6 +23,8 @@ var _title: Label
 var _summary: Label
 var _instant: Label
 var _controls: Label
+var _engine: Label
+var _scroll: ScrollContainer
 var _cursor: HSlider
 var _back: Button
 var _graph_choice: OptionButton
@@ -37,6 +39,8 @@ var _current_file: Button
 var _details_button: Button
 var _details: AcceptDialog
 var _details_text: TextEdit
+var _context_message := ""
+var _busy := false
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -54,10 +58,13 @@ func _ready() -> void:
 	var box:=VBoxContainer.new()
 	box.add_theme_constant_override("separation",8)
 	margin.add_child(box)
-	var header:=HBoxContainer.new()
+	# Natural wrapping keeps every existing action reachable with imported-file
+	# qualifiers/Details at the minimum window; the header never scrolls away.
+	var header:=HFlowContainer.new()
+	header.add_theme_constant_override("h_separation",8)
+	header.add_theme_constant_override("v_separation",8)
 	box.add_child(header)
 	_title=_label("Recorded flight review",21)
-	_title.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	header.add_child(_title)
 	_save_file=_button("Save new review",func():save_requested.emit())
 	_save_file.tooltip_text="Save the current paused flight as a new file. Existing files are never overwritten."
@@ -72,12 +79,26 @@ func _ready() -> void:
 	header.add_child(_details_button)
 	_back=_button("Back to paused flight",func():dismissed.emit())
 	header.add_child(_back)
+	_scroll=ScrollContainer.new()
+	_scroll.name="RecordedContentScroll"
+	_scroll.size_flags_vertical=Control.SIZE_EXPAND_FILL
+	_scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
+	_scroll.vertical_scroll_mode=ScrollContainer.SCROLL_MODE_AUTO
+	_scroll.follow_focus=true
+	box.add_child(_scroll)
+	_scroll.get_v_scroll_bar().focus_mode=Control.FOCUS_ALL
+	var content:=VBoxContainer.new()
+	content.name="RecordedContent"
+	content.add_theme_constant_override("separation",8)
+	content.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	content.size_flags_vertical=Control.SIZE_EXPAND_FILL
+	_scroll.add_child(content)
 	_file_message=_label("",12)
 	_file_message.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	_file_message.hide()
-	box.add_child(_file_message)
+	content.add_child(_file_message)
 	_details=AcceptDialog.new()
-	_details.title="Recorded review file details"
+	_details.title="Recorded review details"
 	_details.exclusive=true
 	_details_text=TextEdit.new()
 	_details_text.editable=false
@@ -88,13 +109,13 @@ func _ready() -> void:
 	add_child(_details)
 	_summary=_label("RECORDED OBSERVATIONS / ORIGINAL PROTOTYPE",13)
 	_summary.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-	box.add_child(_summary)
+	content.add_child(_summary)
 	var wind_warning:=_label("Saved reviews do not retain wind setup or resume a flight",12)
 	wind_warning.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-	box.add_child(wind_warning)
+	content.add_child(wind_warning)
 	var tools:=HBoxContainer.new()
 	tools.add_theme_constant_override("separation",8)
-	box.add_child(tools)
+	content.add_child(tools)
 	tools.add_child(_button("First",func():select_sample(0)))
 	tools.add_child(_button("Previous",func():select_sample(_index-1)))
 	_cursor=HSlider.new()
@@ -110,7 +131,7 @@ func _ready() -> void:
 	_body=Control.new()
 	_body.custom_minimum_size=Vector2(0,130)
 	_body.size_flags_vertical=Control.SIZE_EXPAND_FILL
-	box.add_child(_body)
+	content.add_child(_body)
 	_painting=Control.new()
 	_painting.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_painting.mouse_filter=Control.MOUSE_FILTER_IGNORE
@@ -126,13 +147,18 @@ func _ready() -> void:
 	_body.resized.connect(func():_graph_choice.position=Vector2(_body.size.x*0.52+12,8))
 	_instant=_label("No captured sample",14)
 	_instant.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-	box.add_child(_instant)
+	content.add_child(_instant)
+	_engine=_label("",13)
+	_engine.name="RecordedEngineFacts"
+	_engine.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	_engine.hide()
+	content.add_child(_engine)
 	_controls=_label("",13)
 	_controls.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-	box.add_child(_controls)
+	content.add_child(_controls)
 	var legend:=_label("N ↑  •  Fixed-anchor recorded path  •  Amber: late observation  •  Red: missing target  •  Lines break at gaps",12)
 	legend.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-	box.add_child(legend)
+	content.add_child(legend)
 	_update_text()
 	set_open(_open)
 
@@ -166,19 +192,26 @@ func set_recording(recording: Variant) -> bool:
 
 func set_file_context(imported: bool, message: String="", busy: bool=false) -> void:
 	_imported=imported
-	if _title==null: return
-	_title.text="Opened recorded review" if imported else "Recorded flight review"
-	_current_file.visible=imported
-	for button in [_save_file,_open_file,_current_file,_details_button,_back]: button.disabled=busy
+	_context_message=message
+	_busy=busy
+	_update_text()
+
+func _refresh_context(sample_details: String="") -> void:
+	_title.text="Opened recorded review" if _imported else "Recorded flight review"
+	_current_file.visible=_imported
+	for button in [_save_file,_open_file,_current_file,_details_button,_back]: button.disabled=_busy
 	# Recovery paths can be long. Keep the graph and controls inside the smallest
 	# viewport; full local details remain selectable/copyable in a scrollable view.
-	_file_message.text=message.substr(0,160).replace("\n"," · ")+(" … (Details)" if message.length()>160 else "")
-	_file_message.visible=not message.is_empty()
+	_file_message.text=_context_message.substr(0,160).replace("\n"," · ")+(" … (Details)" if _context_message.length()>160 else "")
+	_file_message.visible=not _context_message.is_empty()
 	_file_message.tooltip_text="Open Details to select/copy the complete local message and recovery paths."
-	_details_button.visible=not message.is_empty()
-	_details_text.text=message
-	_summary.tooltip_text=("OPENED FILE / HISTORICAL. File authorship is unverified; the digest detects corruption only.\n" if imported else "")+_metadata_text()
-	_update_text()
+	_details_button.visible=not _context_message.is_empty() or not sample_details.is_empty()
+	_details_text.text=_context_message
+	if not sample_details.is_empty():
+		_details_text.text+=("\n\n" if not _context_message.is_empty() else "")+_metadata_text()+"\n\n"+sample_details
+	_summary.tooltip_text=("OPENED FILE / HISTORICAL. File authorship is unverified; the digest detects corruption only.\n" if _imported else "")+_metadata_text()
+	if _imported and not sample_details.is_empty():
+		_details_text.text="OPENED FILE / HISTORICAL. File authorship is unverified; the digest detects corruption only.\n\n"+_details_text.text
 
 func _metadata_text() -> String:
 	if _record.get("metadata")==null: return ""
@@ -206,7 +239,7 @@ func selection() -> Dictionary:
 
 static func _number(value: Variant) -> String:
 	if value==null: return "unavailable"
-	return "%.3g"%float(value) if absf(float(value))>=10000000.0 else "%.2f"%float(value)
+	return String.num_scientific(float(value)) if absf(float(value))>=10000000.0 else "%.2f"%float(value)
 
 func _relative(tick: String) -> Variant:
 	# Only a proven bounded difference enters presentation time.
@@ -223,6 +256,24 @@ func _value(sample: Dictionary, channel: String) -> Variant:
 	var value: float=reading.value*factor
 	return value if is_finite(value) else null
 
+func _engine_fact(sample: Dictionary, id: String) -> String:
+	# This receives only an owned sample admitted by Review/Values. Invalid
+	# channels retain the producer reason; false and zero remain genuine facts.
+	var reading: Dictionary=sample.engine_status.readings[id]
+	if not reading.valid: return "unavailable: "+reading.error
+	if typeof(reading.value)==TYPE_BOOL: return "ON" if reading.value else "OFF"
+	if id=="propeller.angular_speed":
+		var rpm: float=reading.value*60.0/TAU
+		if not is_finite(rpm): return "unavailable (display conversion overflow); captured %s rad/s"%_number(reading.value)
+		return _number(rpm)
+	return _number(reading.value)
+
+func _engine_text(sample: Dictionary) -> String:
+	return ("OPENED FILE / HISTORICAL · " if _imported else "")+"RECORDED ENGINE FACTS / ORIGINAL PISTON PROTOTYPE · tick %s\nFuel (kg) %s · Shaft (RPM) %s · Engine running %s\nActual throttle (fraction) %s · Actual mixture (fraction) %s\nIgnition L %s / R %s · Starter %s · Feed %s · Starved %s"%[sample.tick,
+		_engine_fact(sample,"fuel.total"),_engine_fact(sample,"propeller.angular_speed"),_engine_fact(sample,"engine.running"),
+		_engine_fact(sample,"engine.throttle"),_engine_fact(sample,"engine.mixture"),
+		_engine_fact(sample,"engine.ignition_left"),_engine_fact(sample,"engine.ignition_right"),_engine_fact(sample,"engine.starter"),_engine_fact(sample,"fuel.feed"),_engine_fact(sample,"engine.starved")]
+
 func _update_text() -> void:
 	if _title==null: return
 	var samples: Array=_record.get("samples",[])
@@ -234,8 +285,14 @@ func _update_text() -> void:
 	_changing=false
 	if samples.is_empty() or not _selection.get("available",false):
 		_summary.text="RECORDED OBSERVATIONS / ORIGINAL PROTOTYPE · No qualified captured flight"
+		if _imported: _summary.text="OPENED FILE / HISTORICAL · "+_summary.text
 		_instant.text=_selection.get("error","No captured sample")
+		_instant.tooltip_text=""
 		_controls.text=""
+		_controls.tooltip_text=""
+		_engine.text=""
+		_engine.hide()
+		_refresh_context()
 		_painting.queue_redraw()
 		return
 	var first: Dictionary=samples[0]
@@ -260,6 +317,13 @@ func _update_text() -> void:
 	var axes: Dictionary=sample.held_axes
 	_controls.text="RECORDED held controls · Roll %s · Pitch %s · Yaw %s · Trim %s · Throttle %s%% · L/R brake %s%% / %s%%"%[_number(axes.roll),_number(axes.pitch),_number(axes.yaw),_number(axes.trim),_number(axes.throttle*100.0),_number(axes.left_brake*100.0),_number(axes.right_brake*100.0)]
 	_controls.tooltip_text="Held native axes at this captured instant, not the complete pilot command history. Mixture is fixed at 1 in this original profile."
+	_engine.visible=_record.contract_version==2
+	_engine.text=_engine_text(sample) if _engine.visible else ""
+	if _engine.visible:
+		_controls.text+=" · Mixture %s%%"%_number(axes.mixture*100.0)
+		_controls.tooltip_text="Held native axes at this captured instant, including mixture; not the complete pilot command history or queued UI requests."
+		_refresh_context(_instant.text+"\n\n"+_engine.text+"\n\n"+_controls.text)
+	else: _refresh_context()
 	_painting.queue_redraw()
 
 func _track_length() -> Variant:
