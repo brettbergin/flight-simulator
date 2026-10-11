@@ -432,10 +432,19 @@ func _outside_and_lifecycle_cases(scene: Node) -> void:
   _begin(scene,"engine.starter")
   var old_facade: RefCounted=scene.facade
   var old_session: String=scene.adopted_session_id
-  # Pointer true is sampled locally, but the ordinary restart action replaces
-  # its session before submission. Raw remains held across the new mapper.
+  # Pointer true is sampled locally, but ordinary Restart now must preserve
+  # advanced Recording2 until explicit confirmation. Raw stays held throughout.
+  var prior: Dictionary=_retained(scene)
+  var record_before: PackedByteArray=var_to_bytes(scene.observed_recorder.recording())
+  _check(scene.recorded_flight_advanced(),"same_interval_restart_actual_cold_record_advanced")
   scene.synthetic_raw.keys=[KEY_R]
   scene.process_input_interval(25000)
+  _check(scene.facade==old_facade and scene.adopted_session_id==old_session and scene.pending_discard.get("session_id")==old_session and scene.discard_layer.visible and scene.paused and scene.review_boundary(),"same_interval_restart_waits_for_actual_discard_confirmation")
+  _check(_retained(scene)==prior and var_to_bytes(scene.observed_recorder.recording())==record_before,"same_interval_restart_pending_preserves_native_commands_and_record")
+  _check(scene.mapper.pointer_view().capture==null and 1 in scene.engine_pointer_rearm,"same_interval_restart_pending_retires_capture_and_keeps_real_held_rearm")
+  if scene.pending_discard.is_empty(): return
+  scene.confirm_discard()
+  _check(scene.pending_discard.is_empty() and not scene.discard_layer.visible,"same_interval_restart_confirmed_decision_cleared")
   _check(scene.facade!=old_facade and scene.adopted_session_id!=old_session,"same_interval_restart_actual_facade_and_session_changed")
   _check(scene.facade.readback().tick=="0" and scene.paused and not _actual_starter(scene) and scene.submitted_count==0,"same_interval_restart_no_old_intent_or_Run_in_new_session")
   _check(scene.mapper.pointer_view().capture==null and 1 in scene.engine_pointer_rearm,"same_interval_restart_retires_old_capture_keeps_held_rearm")
@@ -611,8 +620,16 @@ func run(host: Node) -> Dictionary:
     if _resume(scene,"reset"):
      var reset_terminal: Dictionary=_begin(scene,"engine.starter")
      var prior_session: String=scene.facade.readback().session_id
-     # Raw stays physically held across creation of a genuinely new mapper.
-     _check(scene.restart(true),"explicit_reset_joins_old_session")
+     # Raw stays physically held through the real confirmation and new mapper.
+     var prior_facade: RefCounted=scene.facade
+     var prior_reset: Dictionary=_retained(scene)
+     var reset_record: PackedByteArray=var_to_bytes(scene.observed_recorder.recording())
+     _check(scene.recorded_flight_advanced(),"explicit_reset_has_advanced_cold_record")
+     scene.request_discard("restart",scene.named_start,scene.current_wind_profile,scene.selected_profile)
+     _check(scene.pending_discard.get("session_id")==prior_session and scene.discard_layer.visible and scene.paused and scene.review_boundary(),"explicit_reset_actual_discard_confirmation_owner")
+     _check(scene.facade==prior_facade and _retained(scene)==prior_reset and var_to_bytes(scene.observed_recorder.recording())==reset_record,"explicit_reset_pending_preserves_native_and_record")
+     if not scene.pending_discard.is_empty(): scene.confirm_discard()
+     _check(scene.facade!=prior_facade and scene.pending_discard.is_empty() and not scene.discard_layer.visible,"explicit_reset_joins_old_session")
      var fresh: Dictionary=scene.mapper.pointer_view()
      _check(fresh.session_id!=prior_session and fresh.capture==null and scene.facade.readback().tick=="0" and scene.paused,"reset_new_bound_identity_paused_tick_zero")
      var reset_before: Dictionary=_retained(scene)

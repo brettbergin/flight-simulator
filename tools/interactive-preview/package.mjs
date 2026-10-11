@@ -80,6 +80,45 @@ export function validatePistonReceipt(receipt){
  }
  const scene=receipt.groups.scene;assert(scene.checks>=2,'Scene host assertions plus initialized assertion required');
  assert.equal(scene.result.initialized,true);assert.equal(scene.result.cold_initial_tick,'0');assert.equal(scene.result.cold_reset_tick,'0');
+ validateActiveObservedResult(scene.result.observed_review,'Actual native piston observed review');
+}
+function validateActiveObservedResult(value,label){
+ pointerKeys(value,['passed','checks','failures','scope'],label);
+ assert.equal(value.passed,true,label+' passed');
+ assert(Number.isSafeInteger(value.checks)&&value.checks>0,label+' active checks');
+ assert.deepEqual(value.failures,[],label+' no failures');
+ assert.equal(typeof value.scope,'string');assert(value.scope.trim().length>0&&value.scope.length<=1024,label+' bounded scope');
+ return value.checks;
+}
+export function validateObservedPistonReceipt(value){
+ const names=['archive','panel','recorder'];pointerKeys(value,names,'Observed piston mandatory groups');
+ let total=0;
+ for(const name of names){total+=validateActiveObservedResult(value[name],'Observed piston/'+name);assert(Number.isSafeInteger(total),'Observed piston aggregate safe integer');}
+ return total;
+}
+export const observedSourceGroups=[['app/replay/observed','replay/observed',['recorder.gd','review.gd','tick_math.gd','values.gd']],['app/ui/debrief/observed','ui/debrief/observed',['panel.gd']],['tests/debrief/observed','observed_tests',['recorder_checks.gd','scene_checks.gd','piston_checks.gd','piston_panel_checks.gd','piston_scene_checks.gd','expected-v1.json','generate.py','preparation-binding-v2.json','root-ratification-v1.json','README.md','.gitattributes']],['app/replay/observed_archive','replay/observed_archive',['codec.gd','strict_json.gd','files.gd','windows_io.ps1']],['tests/debrief/observed_archive','observed_archive_tests',['archive_checks.gd','piston_checks.gd','file_checks.gd','scene_checks.gd','visual_checks.gd','windows_fixture.ps1','generate.py','source-binding-v1.json','root-ratification-v1.json','README.md','.gitattributes','reference/expected-text-v1.json','reference/expected-binary64-v1.json','reference/piston-small.fsreview.json']]];
+export function validateObservedSources(repository,project,corresponding){
+ for(const [authored,folder,required] of observedSourceGroups){
+  const author=path.join(repository,authored),staged=path.join(project,folder),source=path.join(corresponding,folder);
+  const originals=walk(author).sort();
+  for(const entry of required)assert(originals.includes(entry),'Required observed source missing/'+entry);
+  assert.deepEqual(walk(source).sort(),originals,'Observed corresponding-source resource set/'+folder);
+  const authoredUIDs=new Set(originals.filter(file=>file.endsWith('.gd.uid')));
+  const stagedFiles=walk(staged);
+  for(const file of stagedFiles.filter(file=>file.endsWith('.gd.uid')&&!authoredUIDs.has(file))){
+   assert(originals.includes(file.slice(0,-4)),'Orphan observed generated UID/'+file);
+   const bytes=fs.readFileSync(path.join(staged,file));assert(bytes.length<=64);assert.match(bytes.toString('utf8'),/^uid:\/\/[a-z0-9]{1,20}\r?\n?$/);
+  }
+  assert.deepEqual(stagedFiles.filter(file=>!file.endsWith('.gd.uid')||authoredUIDs.has(file)).sort(),originals,'Observed staged resource set/'+folder);
+  for(const file of originals){
+   const expected=sha(fs.readFileSync(path.join(author,file)));
+   assert.equal(sha(fs.readFileSync(path.join(source,file))),expected,'Observed corresponding source/'+folder+'/'+file);
+   assert.equal(sha(fs.readFileSync(path.join(staged,file))),expected,'Observed staged source/'+folder+'/'+file);
+  }
+ }
+ assert.equal(sha(fs.readFileSync(path.join(repository,'tests/debrief/observed/expected-v1.json'))),'a4c3184c46f2eb76c85ff4ba43fc8aac49e772a447576eeec5663fff1ac78844');
+ assert.equal(sha(fs.readFileSync(path.join(repository,'tests/debrief/observed_archive/reference/piston-small.fsreview.json'))),'b9b55515115d02b2eb6f4aa9426882b5cbe4633747f4d4e8788b4e5e3223a34b','Frozen small piston reference changed');
+ return true;
 }
 function models(source,destination){
  assert.equal(sha(fs.readFileSync(path.join(source,'inventory.json'))),policy.inventory_sha256,'Frozen model inventory changed');
@@ -327,6 +366,8 @@ export function validateFirstFlightReceipt(value,includePiston,expectedSourceFin
 }
 export function validateFirstFlightFacadeAdmission(receipt,includePiston,expectedSourceFingerprint){
  pointerKeys(receipt,facadeReceiptKeys,'Facade receipt');
+ pointerKeys(receipt.observed,['piston','recorder','scene'],'Observed mandatory groups');
+ validateObservedPistonReceipt(receipt.observed.piston);
  validateAudioReceipt(receipt.audio);
  validateHudCaptionReceipt(receipt.cockpit?.hud_caption);
  return validateFirstFlightReceipt(receipt.first_flight,includePiston,expectedSourceFingerprint);
@@ -418,8 +459,9 @@ function audit(root,proof,build,python='python'){
   assert.equal(receipt.schema_version,1);assert(Number.isSafeInteger(receipt.checks)&&receipt.checks>0);assert.equal(typeof receipt.scope,'string');assert(receipt.scope.length>0&&receipt.scope.length<=1024);
   assert.deepEqual(Object.keys(receipt.freeflight).sort(),['geometry','scene']);
   for(const item of Object.values(receipt.freeflight)){assert.equal(item.passed,true);assert(item.checks>0);assert.deepEqual(item.failures,[]);}
-  assert.deepEqual(Object.keys(receipt.observed).sort(),['recorder','scene'],'Both observed checks must execute');
-  for(const [name,item] of Object.entries(receipt.observed)){
+  assert.deepEqual(Object.keys(receipt.observed).sort(),['piston','recorder','scene'],'All observed groups must execute');
+  for(const name of ['recorder','scene']){
+   const item=receipt.observed[name];
    assert.deepEqual(Object.keys(item).sort(),(name==='recorder'?['passed','checks','failures','reference_cases','reference_sha256','scope']:['passed','checks','failures','scope']).sort(),'Observed receipt closed shape/'+name);
    assert.equal(item.passed,true);assert(Number.isSafeInteger(item.checks)&&item.checks>0);assert.deepEqual(item.failures,[]);assert.equal(typeof item.scope,'string');assert(item.scope.length>0&&item.scope.length<=1024);
   }
@@ -452,9 +494,9 @@ function audit(root,proof,build,python='python'){
   assert.deepEqual(walk(staged).filter(x=>!x.endsWith('.gd.uid')).sort(),originals.filter(x=>!x.endsWith('.gd.uid')).sort());
   for(const file of originals)assert.equal(sha(fs.readFileSync(path.join(source,file))),sha(fs.readFileSync(path.join(staged,file))),'freeflight corresponding source/'+folder+'/'+file);
  }
- const observedGroups=[['app/replay/observed','replay/observed',['recorder.gd','review.gd','tick_math.gd','values.gd']],['app/ui/debrief/observed','ui/debrief/observed',['panel.gd']],['tests/debrief/observed','observed_tests',['recorder_checks.gd','scene_checks.gd','expected-v1.json','generate.py','preparation-binding-v2.json','root-ratification-v1.json','README.md','.gitattributes']],['app/replay/observed_archive','replay/observed_archive',['codec.gd','strict_json.gd','files.gd','windows_io.ps1']],['tests/debrief/observed_archive','observed_archive_tests',['archive_checks.gd','file_checks.gd','scene_checks.gd','visual_checks.gd','windows_fixture.ps1','generate.py','source-binding-v1.json','root-ratification-v1.json','README.md','.gitattributes','reference/expected-text-v1.json','reference/expected-binary64-v1.json']]];
+ validateObservedSources(repo,path.join(root,'project'),path.join(payload,'source/whole-flight-preview'));
  const windGroups=[['app/world/wind','world/wind',['wind_cue.gd']],['app/ui/wind','ui/wind',['panel.gd']],['tests/world/wind','wind_tests',['wind_checks.gd','ratification-v1.json','reference/expected-v1.json','reference/generate.py','reference/manifest-v1.json','reference/NOTICE-MIT.txt']],['tests/integration/wind','wind_scene_tests',['scene_checks.gd','visual_checks.gd']]];
- for(const [authored,folder,required] of [...observedGroups,...windGroups]){
+ for(const [authored,folder,required] of windGroups){
   const author=path.join(repo,authored),staged=path.join(root,'project',folder),source=path.join(payload,'source/whole-flight-preview',folder);
   const originals=walk(author).sort();
   for(const entry of required)assert(originals.includes(entry),'Required observed source missing/'+entry);

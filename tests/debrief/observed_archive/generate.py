@@ -21,7 +21,11 @@ def main():
         module['generate'].__globals__['HERE']=ScratchOutput(scratch)
         module['generate']()
         emitted={p.name for p in pathlib.Path(scratch).iterdir()}
-        expected={p.name for p in REFERENCE.iterdir() if p.name!='expected-binary64-v1.json'}
+        # ADR022 original v2 supplement is separate from the frozen v1 oracle.
+        supplemental='piston-small.fsreview.json'
+        assert (REFERENCE/supplemental).is_file(),supplemental
+        assert sha((REFERENCE/supplemental).read_bytes())=='b9b55515115d02b2eb6f4aa9426882b5cbe4633747f4d4e8788b4e5e3223a34b',supplemental
+        expected={p.name for p in REFERENCE.iterdir() if p.name not in {'expected-binary64-v1.json',supplemental}}
         assert emitted==expected
         for name in emitted:
             assert (pathlib.Path(scratch)/name).read_bytes()==(REFERENCE/name).read_bytes(),name

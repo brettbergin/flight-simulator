@@ -1,6 +1,6 @@
 {
   "id": "original-first-flight-briefing",
-  "revision": 1,
+  "revision": 2,
   "provenance": {
     "author": "Flight Simulator contributors",
     "license": "MIT",
@@ -20,7 +20,7 @@
         "Original cold piston",
         "Idealized starter supply",
         "No aircraft-specific checklist",
-        "Recorded review unavailable"
+        "Recorded flight and engine review available"
       ],
       "circuit_available": false
     },

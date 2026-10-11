@@ -2,13 +2,25 @@ extends RefCounted
 # Original MIT. ADR012 byte admission before the deliberately relaxed engine parser.
 const MAX_BYTES: int = 8388608
 const MAX_VALUES: int = 250000
+const MAX_PISTON_VALUES: int = 400000
 var data: PackedByteArray
 var cursor: int = 0
 var values: int = 0
 var error: String = ""
 var outer: bool = false
+var _max_values: int = MAX_VALUES
 
 static func scan(bytes: Variant, is_outer: bool = false) -> Dictionary:
+	return _scan(bytes,is_outer,false)
+
+# ADR022: only an already admitted archive2 envelope selects this fixed policy.
+# The ordinary scan entry and every outer envelope retain the v1 node limit.
+static func scan_piston_payload(bytes: Variant) -> Dictionary:
+	return _scan(bytes,false,true)
+
+static func _scan(bytes: Variant, is_outer: bool, piston_payload: bool) -> Dictionary:
+	if is_outer and piston_payload:
+		return {"ok":false,"error":"Piston payload policy cannot scan an outer envelope"}
 	if typeof(bytes)!=TYPE_PACKED_BYTE_ARRAY or bytes.is_empty() or bytes.size()>MAX_BYTES:
 		return {"ok":false,"error":"Archive byte bound or type rejected"}
 	if not valid_utf8(bytes):
@@ -16,6 +28,7 @@ static func scan(bytes: Variant, is_outer: bool = false) -> Dictionary:
 	var reader = new()
 	reader.data=bytes
 	reader.outer=is_outer
+	reader._max_values=MAX_PISTON_VALUES if piston_payload else MAX_VALUES
 	reader._space()
 	reader._value(0,false)
 	reader._space()
@@ -66,7 +79,7 @@ func _take(character: int) -> bool:
 func _value(depth: int, large_string: bool) -> void:
 	if not error.is_empty(): return
 	values+=1
-	if values>MAX_VALUES: _fail("Archive value bound exceeded"); return
+	if values>_max_values: _fail("Archive value bound exceeded"); return
 	if cursor>=data.size(): _fail("Truncated JSON value"); return
 	var character: int = data[cursor]
 	if character==123 or character==91:

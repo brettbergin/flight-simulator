@@ -26,7 +26,7 @@ function PassingReceipt {
   @{cadence=$cadence;scale=$scale;completed_profile=$true;final_tick='120';final_debt_quanta=0}
  }})
  $groups.pacing.result.native_profiles=$profiles
- $groups.scene=@{passed=$true;checks=2;failures=@();result=@{initialized=$true;cold_initial_tick='0';cold_reset_tick='0'}}
+ $groups.scene=@{passed=$true;checks=2;failures=@();result=@{initialized=$true;cold_initial_tick='0';cold_reset_tick='0';observed_review=@{passed=$true;checks=1;failures=@();scope='Synthetic native-review admission fixture'}}}
  Clone @{schema='PistonFlightChecks/v1';passed=$true;checks=23;failures=@();scope='Synthetic receipt admission test only';groups=$groups}
 }
 $root=Join-Path $RepoRoot ('.local/resume/issue127-staging-test-'+[Guid]::NewGuid().ToString('N'))
@@ -69,6 +69,10 @@ try{
  $receipt=PassingReceipt
  Assert-PreviewPistonReceipt -Receipt $receipt
  Check $true 'complete_eight_group_receipt_admitted'
+ $bad=Clone $receipt;$bad.groups.scene.result.PSObject.Properties.Remove('observed_review')
+ Reject {Assert-PreviewPistonReceipt -Receipt $bad} 'omitted_actual_observed_review_rejected'
+ $bad=Clone $receipt;$bad.groups.scene.result.observed_review.passed=$false
+ Reject {Assert-PreviewPistonReceipt -Receipt $bad} 'failed_actual_observed_review_rejected'
  $bad=Clone $receipt;$bad.groups.PSObject.Properties.Remove('wind')
  Reject {Assert-PreviewPistonReceipt -Receipt $bad} 'omitted_group_rejected'
  $bad=Clone $receipt;$bad.checks++

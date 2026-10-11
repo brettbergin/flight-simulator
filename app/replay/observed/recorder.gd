@@ -1,5 +1,5 @@
 extends RefCounted
-# Original MIT. ObservedFlightRecorder (ADR011); construction/main-thread owned.
+# Original MIT. ObservedFlightRecorder (ADR011/022); construction/main-thread owned.
 const Tick = preload("res://replay/observed/tick_math.gd")
 const Values = preload("res://replay/observed/values.gd")
 const U64 = preload("res://simulation/uint64.gd")
@@ -22,7 +22,7 @@ func status() -> Variant:
 	if _foreign():
 		return null
 	var metadata: Variant = _record.metadata
-	return {"contract_version":1,"state":_record.state,
+	return {"contract_version":_record.contract_version,"state":_record.state,
 		"session_id":metadata.session_id if metadata!=null else null,
 		"first_tick":metadata.first_tick if metadata!=null else null,
 		"last_observed_tick":_record.last_observed_tick,
@@ -57,13 +57,16 @@ func seal(reason: String) -> Dictionary:
 func begin(readback: Variant, replace_confirmed: bool = false) -> Dictionary:
 	if _foreign():
 		return _foreign_result()
+	# Own a single complete publication before deriving either view.
+	readback=readback.duplicate(true) if readback is Dictionary else readback
 	var qualified: Dictionary = Values.qualify(readback)
 	if not qualified.ok or qualified.kind!="current":
 		return _result(false,qualified.error if not qualified.ok else "Begin requires current qualified truth")
 	if _record.state!="empty":
 		if not replace_confirmed or readback.session_id==_record.metadata.session_id:
 			return _result(false,"Replacement requires a confirmed different session")
-	_record=Values.empty_recording()
+	# Qualification above admits only the exact legacy and piston identities.
+	_record=Values.empty_recording(1 if readback.model_identity==Values.MODEL else 2)
 	_record.state="recording"
 	_record.metadata=Values.metadata(readback)
 	_record.last_observed_tick=readback.tick
@@ -79,6 +82,8 @@ func observe(readback: Variant) -> Dictionary:
 		return _foreign_result()
 	if _record.state=="sealed":
 		return _result(false,"Recording is sealed")
+	# Own a single complete publication before deriving either view.
+	readback=readback.duplicate(true) if readback is Dictionary else readback
 	var qualified: Dictionary = Values.qualify(readback)
 	if not qualified.ok:
 		_finish("identity_changed" if Values.changed_identity(readback,_record.metadata) else "invalid_observation",qualified.error)

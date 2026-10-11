@@ -163,7 +163,7 @@ func run(scene: Node,output_directory: String="") -> void:
 		_scene.show_state(0.0)
 		var before: Dictionary=_truth()
 		_check(before.readback.tick=="0" and before.readback.native_live and before.readback.paused and not before.readback.historical,"actual_live_paused_tick0_"+prefix)
-		_check(before.profile==Facade.PISTON_PROFILE.id and before.wind=="calm" and before.recording.state=="empty" and before.recording.samples.is_empty(),"cold_profile_no_recording_"+prefix)
+		_check(before.profile==Facade.PISTON_PROFILE.id and before.wind=="calm" and before.recording.contract_version==2 and before.recording.state=="recording" and before.recording.samples.size()==1 and before.recording.samples[0].tick=="0","cold_profile_initial_version2_recording_"+prefix)
 		for camera in [{"id":1,"name":"exterior-overlay"},{"id":2,"name":"exterior-clear"},{"id":0,"name":"cockpit"},{"id":3,"name":"dashboard"}]:
 			_scene.set_camera_mode(camera.id)
 			_scene.map_visible=camera.id==1;_scene.flight_map.visible=_scene.map_visible
@@ -178,7 +178,7 @@ func run(scene: Node,output_directory: String="") -> void:
 		_bounds(_scene.profile_button,prefix+"_aircraft_button")
 		_bounds(_scene.resume_button,prefix+"_resume_button")
 		_check(_scene.profile_button.text.contains("cold piston prototype"),"actual_selected_profile_label_"+prefix)
-		# At tick0 there is no legacy recording to discard; pressing Aircraft
+		# At tick0 there is no advanced recording to discard; pressing Aircraft
 		# commits a fresh profile immediately. Observe its real label, do not click
 		# it or fabricate a confirmation panel over this unchanged cold session.
 		_scene.open_controls()
@@ -215,10 +215,13 @@ func run(scene: Node,output_directory: String="") -> void:
 				if index==3: await _shot(prefix+"-controls-engine-bottom",dimensions,before)
 		_scene.dismiss_controls()
 		_scene.open_observed_review()
-		_check(_scene.review_open and _scene.observed_panel.get("_file_message").text.contains("Cold-engine flight recording is unavailable"),"actual_current_review_unavailable_"+prefix)
-		await _shot(prefix+"-review-unavailable",dimensions,before)
-		_bounds(_scene.observed_panel.get("_file_message"),prefix+"_recording_limit")
-		_check(not _scene.begin_archive_operation("save",false),"actual_cold_save_rejected_"+prefix)
+		_check(_scene.review_open and not _scene.archive_imported and _scene.observed_panel.get("_record")==before.recording and _scene.observed_panel.get("_engine").text.contains("RECORDED ENGINE FACTS"),"actual_current_cold_recording_selected_"+prefix)
+		await _shot(prefix+"-review-current",dimensions,before)
+		for key in ["_title","_back","_open_file","_save_file"]: _bounds(_scene.observed_panel.get(key),prefix+"_current"+key)
+		_check(_scene.begin_archive_operation("save",false),"actual_cold_save_gate_"+prefix)
+		_check(not _scene.archive_operation.get("bytes",PackedByteArray()).is_empty(),"actual_current_save_bytes_"+prefix)
+		_scene.cancel_archive_operation()
+		_check(_scene.archive_operation.is_empty() and _truth()==before,"actual_save_cancel_preserves_current_truth_"+prefix)
 		_check(not _history_path.is_empty() and _scene.begin_archive_operation("open",false),"actual_historical_open_gate_"+prefix)
 		if not _history_path.is_empty() and not _scene.archive_operation.is_empty():
 			var opened: Dictionary=_scene.finish_archive_operation(_history_path)
@@ -244,7 +247,7 @@ func _finish() -> void:
 	var path: String=_output.path_join("piston-visual-receipt.json")
 	_check(not FileAccess.file_exists(path),"fresh_receipt")
 	var result: Dictionary={"schema":"PistonVisualChecks/v1","passed":_failures.is_empty() and _scene.failures.is_empty(),"checks":_checks,"failures":_failures.duplicate(),"host_failures":_scene.failures.duplicate(),
-		"scope":"33 actual Windows GPU views, fresh calm paused cold tick0 only, real Aircraft menu/version2 scroll controls/unavailable current review and staged historical file. No native advancement, calibration, pilot, hardware or phase acceptance. PNG legibility requires independent visual review.",
+		"scope":"33 actual Windows GPU views, fresh calm paused cold tick0 only, real Aircraft menu/version2 scroll controls/current Recording2 engine review and staged historical file. Save admission/cancel only; no selected-file Save, native advancement, calibration, pilot, hardware or phase acceptance. PNG legibility requires independent visual review.",
 		"context":"editor" if OS.has_feature("editor") else "exported","display_server":DisplayServer.get_name(),"video_adapter":RenderingServer.get_video_adapter_name(),
 		"windows":[[960,540],[1920,1080],[2560,1440]],"views":_views.duplicate(true),"bounds":_bounds_seen.duplicate(true),"staged_historical_fixture_sha256":_history_sha,"native_and_audio_joined":joined}
 	if not FileAccess.file_exists(path):

@@ -1,5 +1,5 @@
 extends RefCounted
-# Original MIT. ObservedReview: copied historical selection; no native references.
+# Original MIT. ADR011/022 ObservedReview: copied v1/v2 historical selection; no native references.
 const Values = preload("res://replay/observed/values.gd")
 const FOREIGN: String = "Observed flight review belongs to its main-thread owner"
 var _owner: int = OS.get_thread_caller_id()

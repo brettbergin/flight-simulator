@@ -29,7 +29,7 @@ test('export resource receipts bind exact independently expected canonical bytes
 
 
 // Pure fixed-policy model and receipt admission; no engine or Godot execution.
-import {validatePistonModelTree,validatePistonReceipt} from './package.mjs';
+import {validatePistonModelTree,validatePistonReceipt,validateObservedPistonReceipt,observedSourceGroups,validateObservedSources} from './package.mjs';
 test('piston delivery binds exactly seven ordinary model and provenance files',()=>{
  const temporary=fs.mkdtempSync(path.join(root,'piston-'));
  const source=path.join(temporary,'source');fs.cpSync(path.join(repo,'native/fdm_jsbsim/models/original-piston-prop'),source,{recursive:true});
@@ -44,10 +44,23 @@ test('piston delivery binds exactly seven ordinary model and provenance files',(
  const engine=path.join(source,'engine'),outside=path.join(temporary,'outside');fs.renameSync(engine,outside);fs.symlinkSync(outside,engine,process.platform==='win32'?'junction':'dir');
  assert.throws(()=>validatePistonModelTree(source),/link/);
 });
+function scopedObserved(){return {passed:true,checks:3,failures:[],scope:'Synthetic receipt admission only; not runtime or aircraft qualification'};}
+function observedPistonReceipt(){return Object.fromEntries(['archive','panel','recorder'].map(name=>[name,scopedObserved()]));}
+function observedReceipt(){return {piston:observedPistonReceipt(),recorder:{...scopedObserved(),reference_cases:42,reference_sha256:'a4c3184c46f2eb76c85ff4ba43fc8aac49e772a447576eeec5663fff1ac78844'},scene:scopedObserved()};}
+function invalidObservedLeaves(){
+ const base=scopedObserved();
+ return [null,[],{},
+  ...Object.keys(base).map(key=>{const bad=structuredClone(base);delete bad[key];return bad;}),
+  ...[false,'true',1,null].map(passed=>({...base,passed})),
+  ...[0,-1,0.5,'3',true,null,NaN,Infinity,Number.MAX_SAFE_INTEGER+1].map(checks=>({...base,checks})),
+  ...[null,{},['failed']].map(failures=>({...base,failures})),
+  ...[null,1,'','  ','x'.repeat(1025)].map(scope=>({...base,scope})),
+  {...base,skipped:true}, {...base,extra:true}];
+}
 function coldReceipt(){
  const groups=Object.fromEntries(['bridge','facade','pacing','input','panel','status','wind'].map(name=>[name,{passed:true,checks:3,failures:[],result:{passed:true,checks:2,failures:[]}}]));
  groups.pacing.result.native_profiles=['30','60','144','240','jitter'].flatMap(cadence=>['1/4','1/2','1','2','4'].map(scale=>({cadence,scale,completed_profile:true,final_tick:'120',final_debt_quanta:0})));
- groups.scene={passed:true,checks:2,failures:[],result:{initialized:true,cold_initial_tick:'0',cold_reset_tick:'0'}};
+ groups.scene={passed:true,checks:2,failures:[],result:{initialized:true,cold_initial_tick:'0',cold_reset_tick:'0',observed_review:scopedObserved()}};
  return {schema:'PistonFlightChecks/v1',passed:true,checks:23,failures:[],scope:'Synthetic package receipt admission',groups};
 }
 test('cold package receipt requires actual counts all eight groups and twenty-five pacing completions',()=>{
@@ -61,6 +74,57 @@ test('cold package receipt requires actual counts all eight groups and twenty-fi
   r=>{r.groups.scene.result.cold_initial_tick=0;},r=>{r.groups.scene.result.cold_reset_tick='1';},r=>{r.scope='x'.repeat(1025);},
  ];
  for(const mutate of mutations){const bad=coldReceipt();mutate(bad);assert.throws(()=>validatePistonReceipt(bad));}
+});
+
+test('observed piston admission requires all three closed active typed children',()=>{
+ assert.equal(validateObservedPistonReceipt(observedPistonReceipt()),9);
+ for(const value of [null,[],{}, {...observedPistonReceipt(),runtime_skip:true}])assert.throws(()=>validateObservedPistonReceipt(value));
+ for(const name of ['archive','panel','recorder']){
+  const missing=observedPistonReceipt();delete missing[name];assert.throws(()=>validateObservedPistonReceipt(missing));
+  for(const leaf of invalidObservedLeaves()){
+   const bad=observedPistonReceipt();bad[name]=leaf;assert.throws(()=>validateObservedPistonReceipt(bad),name);
+  }
+ }
+ const overflow=observedPistonReceipt();overflow.archive.checks=Number.MAX_SAFE_INTEGER;assert.throws(()=>validateObservedPistonReceipt(overflow));
+});
+test('native cold scene cannot admit omitted or skipped observed review',()=>{
+ for(const leaf of invalidObservedLeaves()){
+  const bad=coldReceipt();bad.groups.scene.result.observed_review=leaf;assert.throws(()=>validatePistonReceipt(bad));
+ }
+ const missing=coldReceipt();delete missing.groups.scene.result.observed_review;assert.throws(()=>validatePistonReceipt(missing));
+ assert.doesNotThrow(()=>validatePistonReceipt(coldReceipt()));
+});
+test('observed source closure requires new piston tests and frozen small reference in all trees',()=>{
+ const temporary=fs.mkdtempSync(path.join(root,'observed-'));
+ const authored=path.join(temporary,'repo'),project=path.join(temporary,'project'),source=path.join(temporary,'source');
+ const mapping=observedSourceGroups.flatMap(([a,b,names])=>names.map(name=>[a+'/'+name,b+'/'+name]));
+ const required=[
+  ['tests/debrief/observed/piston_checks.gd','observed_tests/piston_checks.gd'],
+  ['tests/debrief/observed/piston_panel_checks.gd','observed_tests/piston_panel_checks.gd'],
+  ['tests/debrief/observed/piston_scene_checks.gd','observed_tests/piston_scene_checks.gd'],
+  ['tests/debrief/observed_archive/piston_checks.gd','observed_archive_tests/piston_checks.gd'],
+  ['tests/debrief/observed_archive/reference/piston-small.fsreview.json','observed_archive_tests/reference/piston-small.fsreview.json'],
+ ];
+ for(const pair of required)assert(mapping.some(row=>row[0]===pair[0]&&row[1]===pair[1]),'Required explicit mapping/'+pair[0]);
+ for(const [name,mapped] of mapping){
+  const raw=name.endsWith('/expected-v1.json')||name.endsWith('/piston-small.fsreview.json')?fs.readFileSync(path.join(repo,name)):Buffer.from('Synthetic recursive source fixture '+name+'\n');
+  for(const [base,relative] of [[authored,name],[project,mapped],[source,mapped]]){const target=path.join(base,relative);fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,raw);}
+ }
+ assert.equal(validateObservedSources(authored,project,source),true);
+ for(const [name,mapped] of required)for(const [base,relative] of [[authored,name],[project,mapped],[source,mapped]]){
+  const file=path.join(base,relative),raw=fs.readFileSync(file);fs.unlinkSync(file);assert.throws(()=>validateObservedSources(authored,project,source),'Missing/'+relative);fs.writeFileSync(file,raw);
+  fs.appendFileSync(file,'drift');assert.throws(()=>validateObservedSources(authored,project,source),'Drift/'+relative);fs.writeFileSync(file,raw);
+ }
+ // Coherent replacement of all three copies still cannot replace the independent reference.
+ for(const [name,mapped] of [required[4]]){
+  const raw=fs.readFileSync(path.join(authored,name));
+  for(const [base,relative] of [[authored,name],[project,mapped],[source,mapped]])fs.appendFileSync(path.join(base,relative),' ');
+  assert.throws(()=>validateObservedSources(authored,project,source),/Frozen small piston reference/);
+  for(const [base,relative] of [[authored,name],[project,mapped],[source,mapped]])fs.writeFileSync(path.join(base,relative),raw);
+ }
+ const uid=path.join(project,'observed_tests/piston_checks.gd.uid');fs.writeFileSync(uid,'uid://pistonfixture\n');assert.equal(validateObservedSources(authored,project,source),true);
+ fs.writeFileSync(uid,'invalid');assert.throws(()=>validateObservedSources(authored,project,source));fs.unlinkSync(uid);
+ const orphan=path.join(project,'observed_tests/orphan.gd.uid');fs.writeFileSync(orphan,'uid://orphan\n');assert.throws(()=>validateObservedSources(authored,project,source),/Orphan/);fs.unlinkSync(orphan);
 });
 
 test('standalone piston validator rejects coherent register-policy identity drift',()=>{
@@ -230,11 +294,14 @@ test('facade closed shape makes first-flight mandatory without dropping previous
  const keys=['schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive','wind','audio'];
  const good=Object.fromEntries(keys.map(name=>[name,null]));good.first_flight=firstFlightReceipt();
  good.cockpit={hud_caption:{passed:true,checks:1,failures:[],scope:'Synthetic receipt admission fixture'}};
- good.audio=audioReceipt();
+ good.audio=audioReceipt();good.observed=observedReceipt();
  assert.equal(validateFirstFlightFacadeAdmission(good,true,savedFirstFlightSource),18);
  for(const mode of [true,false])for(const source of [savedFirstFlightSource,observedFirstFlightSource]){
   const coherent=structuredClone(good);coherent.first_flight=firstFlightReceipt(mode,source);
   assert.equal(validateFirstFlightFacadeAdmission(coherent,mode,source),18);
+  for(const mutate of [r=>delete r.observed.piston,r=>r.observed.piston={},r=>r.observed.piston.archive.checks=0,r=>r.observed.piston.recorder.skipped=true,r=>r.observed.extra=true]){
+   const bad=structuredClone(coherent);mutate(bad);assert.throws(()=>validateFirstFlightFacadeAdmission(bad,mode,source),'Mandatory piston review in either source mode');
+  }
   assert.throws(()=>validateFirstFlightFacadeAdmission(coherent,mode));
  }
  const upstream=structuredClone(good);upstream.first_flight=firstFlightReceipt(false);
@@ -310,7 +377,7 @@ test('audio admission requires all five executed closed typed nonvacuous groups'
  for(const scope of [null,1,'','  ','x'.repeat(1025)]){const bad=audioReceipt();bad.panel.scope=scope;assert.throws(()=>validateAudioReceipt(bad));}
  for(const change of [r=>delete r.panel.scope,r=>r.cues.scope='unexpected',r=>r.runtime_skip=true,r=>r.cues.checks=Number.MAX_SAFE_INTEGER]){const bad=audioReceipt();change(bad);assert.throws(()=>validateAudioReceipt(bad));}
  const keys=['schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive','wind','first_flight'];
- const good=Object.fromEntries(keys.map(name=>[name,null]));good.first_flight=firstFlightReceipt();good.cockpit={hud_caption:{passed:true,checks:1,failures:[],scope:'Fixture'}};good.audio=audioReceipt();
+ const good=Object.fromEntries(keys.map(name=>[name,null]));good.first_flight=firstFlightReceipt();good.cockpit={hud_caption:{passed:true,checks:1,failures:[],scope:'Fixture'}};good.audio=audioReceipt();good.observed=observedReceipt();
  assert.doesNotThrow(()=>validateFirstFlightFacadeAdmission(good,true,savedFirstFlightSource));
  for(const change of [r=>delete r.audio,r=>r.audio={},r=>r.audio=null,r=>r.audio.lifecycle.checks=0,r=>r.audio.lifecycle.skipped=true]){const bad=structuredClone(good);change(bad);assert.throws(()=>validateFirstFlightFacadeAdmission(bad,true,savedFirstFlightSource));}
 });

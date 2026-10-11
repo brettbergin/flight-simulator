@@ -205,7 +205,7 @@ func close_session() -> bool:
 	_observe_audio(result.readback)
 	# Retain the old prefix when replacement fails, but still label its actual
 	# confirmed stop. New-session publications remain held until begin succeeds.
-	if initializing_recording and not piston_mode() and not observed_status.is_empty():
+	if initializing_recording and not observed_status.is_empty():
 		var ended: Dictionary=observed_recorder.observe(result.readback)
 		if ended.status!=null: observed_status=ended.status
 	else:
@@ -321,16 +321,12 @@ func restart(replace_confirmed: bool=false, selected_wind: Variant=null, request
 	attempt+=1
 	status="PAUSED | %s | fresh attempt %d | confirm controls"%[next_start,attempt]
 	last_wall_us=Time.get_ticks_usec()
-	if piston_mode():
-		# ADR011/012 records support only the legacy profile. Clear its history
-		# only after explicit replacement and successful cold scene adoption.
-		observed_recorder=ObservedRecorder.new()
-		observed_status=observed_recorder.status()
-	else:
-		var begun: Dictionary=observed_recorder.begin(facade.readback(),true)
-		if not begun.ok:
-			return restart_failed("Flight observation recording unavailable: "+begun.error)
-		observed_status=begun.status
+	# ADR022 chooses the recording revision from this complete adopted source.
+	# Failed qualification retains the previous profile's observed history.
+	var begun: Dictionary=observed_recorder.begin(facade.readback(),true)
+	if not begun.ok:
+		return restart_failed("Flight observation recording unavailable: "+begun.error)
+	observed_status=begun.status
 	initializing_recording=false
 	active_preset=next_preset.duplicate(true)
 	profile_presets=next_presets
@@ -1959,7 +1955,7 @@ func flight_model_root(profile_id: Variant=null) -> String:
 	return ProjectSettings.globalize_path("res://"+folder) if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join(folder)
 
 func observe_flight(readback: Dictionary) -> void:
-	if legacy_proof or initializing_recording or piston_mode() or observed_status.is_empty(): return
+	if legacy_proof or initializing_recording or observed_status.is_empty(): return
 	var result: Dictionary=observed_recorder.observe(readback)
 	if result.status!=null: observed_status=result.status
 
@@ -1995,9 +1991,11 @@ func open_observed_review() -> void:
 	if not observed_panel.set_recording(record):
 		status="Recorded flight cannot be qualified for review"
 		return
-	if not review_open: invalidate_engine_pointer("Flight review opened")
+	# The verified pause already retired input. Retire only a real remaining
+	# capture; opening a historical display cannot consume another generation.
+	if mapper!=null and mapper.pointer_view().capture!=null: invalidate_engine_pointer("Flight review opened")
 	archive_imported=false
-	archive_message="Cold-engine flight recording is unavailable. Open may display a saved legacy flight; it never resumes or records this airplane." if selected_profile==Facade.PISTON_PROFILE.id else ""
+	archive_message=""
 	observed_panel.set_file_context(false,archive_message)
 	scan_open=false
 	route_open=false
@@ -2028,7 +2026,7 @@ func show_current_review() -> void:
 	var current: Variant=observed_recorder.recording()
 	if observed_panel.set_recording(current):
 		archive_imported=false
-		archive_message="Cold-engine flight recording is unavailable. Opened legacy history stays separate; Save cannot record this cold flight." if selected_profile==Facade.PISTON_PROFILE.id else "Current paused flight. Save new review always saves this flight."
+		archive_message="Current paused flight. Save new review always saves this flight."
 		observed_panel.set_file_context(false,archive_message)
 
 func begin_archive_operation(action: String, show_dialog: bool=true) -> bool:
@@ -2039,16 +2037,13 @@ func begin_archive_operation(action: String, show_dialog: bool=true) -> bool:
 		return false
 	var bytes:=PackedByteArray()
 	if action=="save":
-		if selected_profile==Facade.PISTON_PROFILE.id:
-			archive_feedback("Review not saved: cold-engine flight recording is unsupported; an opened legacy file is historical only.")
-			return false
 		# Exactly one current snapshot, even while an imported file is displayed.
 		var encoded: Dictionary=ArchiveCodec.encode(observed_recorder.recording())
 		if not encoded.ok:
 			archive_feedback("Review not saved: "+encoded.error)
 			return false
 		bytes=encoded.value.duplicate()
-	invalidate_engine_pointer("Archive chooser opened")
+	if mapper!=null and mapper.pointer_view().capture!=null: invalidate_engine_pointer("Archive chooser opened")
 	archive_operation={"action":action,"session_id":adopted_session_id,"bytes":bytes,"prior_message":archive_message,"prior_recent":FileDialog.get_recent_list()}
 	observed_panel.set_file_context(archive_imported,"Choose a new file." if action=="save" else "Choose a historical review file.",true)
 	if show_dialog:
