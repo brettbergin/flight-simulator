@@ -1,0 +1,90 @@
+{
+  "schema": "IndependentLocalPlayersValueSourceBinding/v1",
+  "status": "PROPOSED_PRECONSUMER_UNRATIFIED",
+  "license": "Original MIT",
+  "public_reference_directory": "tests/persistence/local_players/reference",
+  "expected_sha256": "1ffaa82ae54a18dc5c9ec3d6c49760ed3b2d6c27abf77783572c6a9b3902d962",
+  "generator_sha256": "a695fa0d06a8b91bed3b3117789c09b2fdb3df0e5e0afe7aa4bd9069d63374ed",
+  "sources": [
+    {
+      "path": "docs/contracts/local-players/records-and-lifetimes-v1.md",
+      "sha256": "e29b1a9fc563ae58105a7b99c6ed158ada347cf506a5565e68c8f7a051d322e0",
+      "bytes": 47338,
+      "role": "Exact reviewed PROPOSED public contract afterimage; not yet accepted"
+    },
+    {
+      "path": "docs/contracts/local-players/protocol-v1.md",
+      "sha256": "d7a5bc7ee7820df6a3ce8addbc72c66b57b86db91355ad18555f53da6c152d36",
+      "bytes": 23240,
+      "role": "Exact reviewed PROPOSED public contract afterimage; not yet accepted"
+    },
+    {
+      "path": "schemas/save/local-players/v1/preferences-codec-v1.json",
+      "sha256": "47711d41be89e233efe3c42e8f2cedd33f729e6e0e2c9a78a6026454022b0538",
+      "bytes": 6986,
+      "role": "Exact reviewed PROPOSED public contract afterimage; not yet accepted"
+    },
+    {
+      "path": "schemas/save/local-players/v1/schema-v1.sql",
+      "sha256": "cbd00b3fe47b400e79635ed901d195abfe133a4131d5001feac8e3eedeb0562f",
+      "bytes": 3860,
+      "role": "Exact reviewed PROPOSED public contract afterimage; not yet accepted"
+    },
+    {
+      "path": "schemas/save/local-players/v1/schema-binding-v1.json",
+      "sha256": "9353c034edafdb1bcc3984452bd9c2d4fcdbf283342e99bb5a5dd2d27792f049",
+      "bytes": 1647,
+      "role": "Exact reviewed PROPOSED public contract afterimage; not yet accepted"
+    },
+    {
+      "path": "app/input/input_preset.gd",
+      "git_lf_sha256": "c07b20eb9f876228ca00196103822ab1e4c5001c0d1384f33c42635e3c5727d9",
+      "role": "Accepted source read-only; no consumer imported or executed"
+    },
+    {
+      "path": "app/audio/audio_options.gd",
+      "git_lf_sha256": "d6d3125d28ed47db967d12a8613911b0358f32632e6503bdcbc76817d58af4e4",
+      "role": "Accepted source read-only; no consumer imported or executed"
+    },
+    {
+      "path": "app/simulation/uint64.gd",
+      "git_lf_sha256": "e3584ed14e560eb6e17c9a0a6ab0e6795c2941042d140bb5e7eee406af8eb844",
+      "role": "Accepted source read-only; no consumer imported or executed"
+    },
+    {
+      "path": "docs/decisions/020-original-audio-cues.md",
+      "git_lf_sha256": "e07ffe6dbb91a40bb8149e64ac06ea3743ffbfa89db3141c74db518107e6624b",
+      "role": "Accepted source read-only; no consumer imported or executed"
+    },
+    {
+      "path": "docs/decisions/025-paused-view-presets-and-comfort.md",
+      "git_lf_sha256": "2cd89a17541d574559be6a1892e7229e544f94ce1eb142f7f415662abc51ad36",
+      "role": "Accepted source read-only; no consumer imported or executed"
+    }
+  ],
+  "historical_independent_inputs": [
+    {
+      "description": "Independent twenty-family numeric path audit authored before Ground codec table",
+      "sha256": "61efd739c77c7c33926bbcf470a544c9ae63e84333399a80163811500f765227"
+    },
+    {
+      "description": "Reviewed public12 contract afterimage packet; historical provenance, not runtime prerequisite",
+      "sha256": "3b2225c994446157388a243e81d897246073165892b369ed20282979089af1b9"
+    }
+  ],
+  "derivation": {
+    "binary64": "Fixed IEEE754 binary64 hex words; exact signed significand*2^exponent interpreted using Python Fraction; expected little-endian hex is integer.to_bytes, not any candidate encoder.",
+    "canonical_bytes": "Original fixed fixture values serialized with ASCII lexical keys, exact lowercase C0 escapes and literal scalar Unicode. Whole preference fixtures deliberately use null preset slots; no duplicate implementation of full preset admission.",
+    "u64": "Unbounded Python integer exact sums/differences/comparisons supply canonical decimal expected strings with explicit uint64 range rejection.",
+    "paging": "Hand-authored immutable creation keys and independent integer sorting; mutable commit fields intentionally disagree.",
+    "types": "Explicit Godot type descriptors; future driver must instantiate actual INT/FLOAT/String/StringName/BOOL types, never rely on JSON parser inferred types.",
+    "logical": "Revision and copied-boundary recipes are predeclared logical requirements, not observed executions."
+  },
+  "budgets": "Exact bytes/types/bits/decimal strings/row IDs; no approximate float tolerance or fitted native outputs.",
+  "limits": [
+    "No SQLite, Win32, DB/queue/thread/service, Godot/native/physics execution or consumer imports.",
+    "Full presets require source-validator parity, actual physical-key OS roundtrip and complete closed shape/conflict/cap checks. Field witnesses alone never establish complete record validity.",
+    "Existing72 design recipes remain untouched and unexecuted; these references supplement exact value semantics.",
+    "Root ratification, independent review and checked contract/source-allocation acceptance must precede production consumers."
+  ]
+}

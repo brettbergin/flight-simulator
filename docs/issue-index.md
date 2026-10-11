@@ -80,6 +80,8 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | NATIVE-WIRE-NUMBER-CONTRACT | [#205 Ratify exact binary64 native wire decoding before decimal repair](https://github.com/brettbergin/flight-simulator/issues/205) | INTERACTIVE-CONTRACT, SIM-LOOP-CONTRACT, COCKPIT-READINGS-CONTRACT, ORIGINAL-PISTON-CONTRACT |
 | PAUSED-VIEWS-CONTRACT | [#213 Ratify paused lookout views and camera comfort](https://github.com/brettbergin/flight-simulator/issues/213) | SIM-LOOP-CONTRACT, INPUT-CONTROLS-CONTRACT, COCKPIT-READINGS-CONTRACT, THIRD-PERSON-STABILITY, POINTER-ENGINE-CONTRACT, POINTER-ENGINE-CONTROLS, ORDINARY-FLIGHT-LAYOUT |
 
+| PAUSED-VIEWS | [#215 Add paused cockpit lookout presets and external camera response](https://github.com/brettbergin/flight-simulator/issues/215) | PAUSED-VIEWS-CONTRACT, PISTON-READINGS-DECIMAL-ADMISSION |
+
 ## P3 — Complete circuit and durable progress
 
 | Key | Issue | Dependencies |
@@ -108,6 +110,10 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 
 | PISTON-MIXTURE-DECAY-COVERAGE | [#202 Preserve cold replay and qualify ordinary mixture-decay continuation](https://github.com/brettbergin/flight-simulator/issues/202) | ORIGINAL-PISTON-FLIGHT, PISTON-COUPLING-ACCURACY, PISTON-LOCAL-WINDOW-CONTRACT, PISTON-READINGS-DECIMAL-ADMISSION |
 | PISTON-LOCAL-WINDOW-CONTRACT | [#207 Ratify one certified local piston decay window before coverage repair](https://github.com/brettbergin/flight-simulator/issues/207) | ORIGINAL-PISTON-FLIGHT, PISTON-COUPLING-ACCURACY |
+
+| LOCAL-PLAYERS-CONTRACT | [#218 Ratify durable local players, explicit preference saves and truthful practice history](https://github.com/brettbergin/flight-simulator/issues/218) | CORE-CONTRACTS, INTERACTIVE-CONTRACT, SIM-LOOP-CONTRACT, INPUT-CONTROLS-CONTRACT, ORIGINAL-PISTON-CONTRACT, COCKPIT-READINGS-CONTRACT, OBSERVED-REVIEW-CONTRACT, OBSERVED-ARCHIVE-CONTRACT, STEADY-WIND-CONTRACT, PROTOTYPE-AUDIO-CUE-CONTRACT, PAUSED-VIEWS-CONTRACT, NATIVE-WIRE-NUMBER-CONTRACT, SAVE-PROOF |
+| LOCAL-PLAYERS-STORE | [#219 Implement isolated SQLite local-player storage and one-writer service](https://github.com/brettbergin/flight-simulator/issues/219) | LOCAL-PLAYERS-CONTRACT, TOOLCHAIN, LICENSE-REGISTER |
+| LOCAL-PLAYERS-JOURNEY | [#220 Deliver two named players and Guest with saved Controls/Audio and practice history](https://github.com/brettbergin/flight-simulator/issues/220) | LOCAL-PLAYERS-CONTRACT, LOCAL-PLAYERS-STORE, INPUT-CONTROLS-CONTRACT, POINTER-ENGINE-CONTROLS, ORIGINAL-AUDIO-CUES, OBSERVED-FLIGHT-REVIEW, OBSERVED-REVIEW-FILES, PAUSED-VIEWS, ORIGINAL-PISTON-FLIGHT, PISTON-MIXTURE-DECAY-COVERAGE |
 
 ## P4 — Regional navigation and environment
 

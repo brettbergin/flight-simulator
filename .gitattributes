@@ -40,3 +40,7 @@ docs/evidence/P3/piston-local-window-reference/generate.py text eol=lf
 tests/wire_codec/** text eol=lf
 
 tools/bootstrap/build-local-window.ps1 text eol=lf
+
+# Exact local-player DDL/codec and independent reference bytes.
+schemas/save/local-players/** text eol=lf
+tests/persistence/local_players/reference/** text eol=lf

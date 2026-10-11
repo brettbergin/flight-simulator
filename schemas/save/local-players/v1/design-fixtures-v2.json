@@ -1,0 +1,622 @@
+{
+  "schema": "PrivateLocalPlayersContractDesignFixtures/v2",
+  "status": "PROPOSED_UNRATIFIED_NOT_EXECUTED",
+  "license": "Original MIT",
+  "source_authority": "All operation recipes authored design cases; no DB/service output; zero fingerprint is synthetic only",
+  "cases": [
+    {
+      "id": "paging_immutable_updated_middle",
+      "inputs": {
+        "rows": [
+          {
+            "id": "A",
+            "creation": "90",
+            "commit": "90"
+          },
+          {
+            "id": "B",
+            "creation": "80",
+            "commit": "999"
+          },
+          {
+            "id": "C",
+            "creation": "70",
+            "commit": "70"
+          }
+        ],
+        "limit": 2
+      },
+      "expected": {
+        "ids": [
+          "A",
+          "B"
+        ],
+        "next_before_creation_sequence": "80"
+      }
+    },
+    {
+      "id": "paging_delete_insert_between",
+      "inputs": {
+        "cursor": "80",
+        "deleted": "A",
+        "inserted": {
+          "id": "D",
+          "creation": "100",
+          "commit": "100"
+        },
+        "remaining": [
+          {
+            "id": "B",
+            "creation": "80",
+            "commit": "999"
+          },
+          {
+            "id": "C",
+            "creation": "70",
+            "commit": "70"
+          }
+        ]
+      },
+      "expected": {
+        "ids": [
+          "C"
+        ],
+        "next_before_creation_sequence": null
+      }
+    },
+    {
+      "id": "rename_same",
+      "inputs": {
+        "recipe": "rename_same"
+      },
+      "expected": "no_change"
+    },
+    {
+      "id": "save_same_normalized_bits",
+      "inputs": {
+        "recipe": "save_same_normalized_bits"
+      },
+      "expected": "no_change"
+    },
+    {
+      "id": "stale_same_save",
+      "inputs": {
+        "recipe": "stale_same_save"
+      },
+      "expected": "revision_conflict"
+    },
+    {
+      "id": "observe_same_tick",
+      "inputs": {
+        "recipe": "observe_same_tick"
+      },
+      "expected": "no_change"
+    },
+    {
+      "id": "observe_lower_tick",
+      "inputs": {
+        "recipe": "observe_lower_tick"
+      },
+      "expected": "tick_regression"
+    },
+    {
+      "id": "source_foreign_session",
+      "inputs": {
+        "recipe": "source_foreign_session"
+      },
+      "expected": "source_mismatch"
+    },
+    {
+      "id": "source_foreign_fingerprint",
+      "inputs": {
+        "recipe": "source_foreign_fingerprint"
+      },
+      "expected": "source_mismatch"
+    },
+    {
+      "id": "begin_same_initial_seed_after_progress",
+      "inputs": {
+        "recipe": "begin_same_initial_seed_after_progress"
+      },
+      "expected": "no_change/current progressed row"
+    },
+    {
+      "id": "begin_unknown_extra_fields",
+      "inputs": {
+        "recipe": "begin_unknown_extra_fields"
+      },
+      "expected": "invalid_record"
+    },
+    {
+      "id": "begin_foreign_player_reuse_source",
+      "inputs": {
+        "recipe": "begin_foreign_player_reuse_source"
+      },
+      "expected": "identity_conflict"
+    },
+    {
+      "id": "end_same_current_revision",
+      "inputs": {
+        "recipe": "end_same_current_revision"
+      },
+      "expected": "no_change"
+    },
+    {
+      "id": "end_old_revision",
+      "inputs": {
+        "recipe": "end_old_revision"
+      },
+      "expected": "revision_conflict"
+    },
+    {
+      "id": "end_interrupted_from_UI",
+      "inputs": {
+        "recipe": "end_interrupted_from_UI"
+      },
+      "expected": "invalid_transition"
+    },
+    {
+      "id": "end_after_terminal_new_tick",
+      "inputs": {
+        "recipe": "end_after_terminal_new_tick"
+      },
+      "expected": "invalid_transition"
+    },
+    {
+      "id": "history_rows_2000",
+      "inputs": {
+        "recipe": "history_rows_2000"
+      },
+      "expected": "history_limit"
+    },
+    {
+      "id": "players_8",
+      "inputs": {
+        "recipe": "players_8"
+      },
+      "expected": "player_limit"
+    },
+    {
+      "id": "accepted16_unpolled",
+      "inputs": {
+        "recipe": "accepted16_unpolled"
+      },
+      "expected": "queue_full"
+    },
+    {
+      "id": "result_slot_allocation_fails",
+      "inputs": {
+        "recipe": "result_slot_allocation_fails"
+      },
+      "expected": "out_of_memory/no BEGIN"
+    },
+    {
+      "id": "max_u64_mutation",
+      "inputs": {
+        "recipe": "max_u64_mutation"
+      },
+      "expected": "counter_exhausted/no mutation"
+    },
+    {
+      "id": "display_name_dotdot",
+      "inputs": {
+        "recipe": "display_name_dotdot"
+      },
+      "expected": "allowed name/no path derivation"
+    },
+    {
+      "id": "path_dotdot",
+      "inputs": {
+        "recipe": "path_dotdot"
+      },
+      "expected": "path_rejected"
+    },
+    {
+      "id": "foreign_thread_status",
+      "inputs": {
+        "recipe": "foreign_thread_status"
+      },
+      "expected": null
+    },
+    {
+      "id": "foreign_thread_poll",
+      "inputs": {
+        "recipe": "foreign_thread_poll"
+      },
+      "expected": null
+    },
+    {
+      "id": "export_saved",
+      "inputs": {
+        "recipe": "export_saved"
+      },
+      "expected": {
+        "state": "read",
+        "commit_sequence": null,
+        "file": "saved/done/installedtrue/tempnull/actualhash",
+        "database_write_disable": false
+      }
+    },
+    {
+      "id": "export_collision",
+      "inputs": {
+        "recipe": "export_collision"
+      },
+      "expected": {
+        "state": "failed",
+        "commit_sequence": null,
+        "file": "not_saved/installedfalse/no target change",
+        "database_write_disable": false
+      }
+    },
+    {
+      "id": "export_write_error",
+      "inputs": {
+        "recipe": "export_write_error"
+      },
+      "expected": {
+        "state": "failed",
+        "commit_sequence": null,
+        "file": "not_saved/observed temp retained",
+        "database_write_disable": false
+      }
+    },
+    {
+      "id": "export_move_unknown",
+      "inputs": {
+        "recipe": "export_move_unknown"
+      },
+      "expected": {
+        "state": "recovery_required",
+        "commit_sequence": null,
+        "file": "installednull/observed paths",
+        "database_write_disable": false
+      }
+    },
+    {
+      "id": "export_postverify_error",
+      "inputs": {
+        "recipe": "export_postverify_error"
+      },
+      "expected": {
+        "state": "recovery_required",
+        "commit_sequence": null,
+        "file": "installedtrue/target retained/hashnull",
+        "database_write_disable": false
+      }
+    },
+    {
+      "id": "before_BEGIN",
+      "inputs": {
+        "recipe": "before_BEGIN"
+      },
+      "expected": "failed/unchanged"
+    },
+    {
+      "id": "known_rollback_none",
+      "inputs": {
+        "recipe": "known_rollback_none"
+      },
+      "expected": "failed/unchanged"
+    },
+    {
+      "id": "COMMIT_success_receipt_lost",
+      "inputs": {
+        "recipe": "COMMIT_success_receipt_lost"
+      },
+      "expected": "uncertain/read_only/reconcile"
+    },
+    {
+      "id": "rollback_failure",
+      "inputs": {
+        "recipe": "rollback_failure"
+      },
+      "expected": "uncertain/read_only"
+    },
+    {
+      "id": "read_snapshot_failure",
+      "inputs": {
+        "recipe": "read_snapshot_failure"
+      },
+      "expected": "failed/no fabricatedcommit"
+    },
+    {
+      "id": "worker_stuck",
+      "inputs": {
+        "recipe": "worker_stuck"
+      },
+      "expected": "closing/no join/no invented receipts"
+    },
+    {
+      "id": "wrong_app_id",
+      "inputs": {
+        "recipe": "wrong_app_id"
+      },
+      "expected": "foreign_store/original bytepreserved"
+    },
+    {
+      "id": "newer_version",
+      "inputs": {
+        "recipe": "newer_version"
+      },
+      "expected": "unsupported_version/no original SQLite open"
+    },
+    {
+      "id": "active_previous_process",
+      "inputs": {
+        "recipe": "active_previous_process"
+      },
+      "expected": "one recoverytransaction/source+lasttickpreserved"
+    },
+    {
+      "id": "two_retained_sets",
+      "inputs": {
+        "recipe": "two_retained_sets"
+      },
+      "expected": "recovery_limit/no automatic prune"
+    },
+    {
+      "id": "snapshot_sharing_denied",
+      "inputs": {
+        "recipe": "snapshot_sharing_denied"
+      },
+      "expected": "store_locked/no SQLite open"
+    },
+    {
+      "id": "snapshot_roster_changed",
+      "inputs": {
+        "recipe": "snapshot_roster_changed"
+      },
+      "expected": "snapshot_failed/partial retained"
+    },
+    {
+      "id": "snapshot_flush_failed",
+      "inputs": {
+        "recipe": "snapshot_flush_failed"
+      },
+      "expected": "snapshot_failed/partial retained"
+    },
+    {
+      "id": "unknown_snapshot_file",
+      "inputs": {
+        "recipe": "unknown_snapshot_file"
+      },
+      "expected": "no delete/refuse"
+    },
+    {
+      "id": "worker_exit_after_commit",
+      "inputs": {
+        "recipe": "worker_exit_after_commit"
+      },
+      "expected": "actual reopen reconciles/never autoretry"
+    },
+    {
+      "id": "Guest_end_Cancel",
+      "inputs": {
+        "recipe": "Guest_end_Cancel"
+      },
+      "expected": "whole authority/options/record unchanged"
+    },
+    {
+      "id": "Guest_end_confirm_join",
+      "inputs": {
+        "recipe": "Guest_end_confirm_join"
+      },
+      "expected": "no newworker/chooser accessible"
+    },
+    {
+      "id": "switch_fail_after_close",
+      "inputs": {
+        "recipe": "switch_fail_after_close"
+      },
+      "expected": "oldplayer/options retained/history honestlyclosed"
+    },
+    {
+      "id": "switch_retained_record",
+      "inputs": {
+        "recipe": "switch_retained_record"
+      },
+      "expected": "old ownership never reassigned"
+    },
+    {
+      "id": "save_edits_during_pending",
+      "inputs": {
+        "recipe": "save_edits_during_pending"
+      },
+      "expected": "commit snapshot/newdraft stilldirty"
+    },
+    {
+      "id": "stale_opening_receipt",
+      "inputs": {
+        "recipe": "stale_opening_receipt"
+      },
+      "expected": "drained but no activation or Apply"
+    },
+    {
+      "id": "camera_select_player",
+      "inputs": {
+        "recipe": "camera_select_player"
+      },
+      "expected": "camera unchanged until fresh adoption"
+    },
+    {
+      "id": "audio_named_explicit_save",
+      "inputs": {
+        "recipe": "audio_named_explicit_save"
+      },
+      "expected": "four options durable only selectedplayer"
+    },
+    {
+      "id": "Guest_audio",
+      "inputs": {
+        "recipe": "Guest_audio"
+      },
+      "expected": "instance transient"
+    },
+    {
+      "id": "A_B_relaunch",
+      "inputs": {
+        "recipe": "A_B_relaunch"
+      },
+      "expected": "distinct bits/history persist"
+    },
+    {
+      "id": "prune_active",
+      "inputs": {
+        "recipe": "prune_active"
+      },
+      "expected": "active_practice/no rowsremoved"
+    },
+    {
+      "id": "delete_B",
+      "inputs": {
+        "recipe": "delete_B"
+      },
+      "expected": "A untouched/external files untouched/recovery privacy disclosed"
+    },
+    {
+      "id": "continuous_INT1",
+      "inputs": {
+        "recipe": "continuous_INT1"
+      },
+      "expected": "stored INT1/restored INT1"
+    },
+    {
+      "id": "continuous_FLOAT1",
+      "inputs": {
+        "recipe": "continuous_FLOAT1"
+      },
+      "expected": "stored 000000000000f03f/restored FLOATsamebits"
+    },
+    {
+      "id": "continuous_FLOAT_negative_zero",
+      "inputs": {
+        "recipe": "continuous_FLOAT_negative_zero"
+      },
+      "expected": "stored 0000000000000080/restored FLOATsamebits"
+    },
+    {
+      "id": "joy_index_FLOAT_negative_zero",
+      "inputs": {
+        "recipe": "joy_index_FLOAT_negative_zero"
+      },
+      "expected": "accepted validator -> INT0"
+    },
+    {
+      "id": "Audio_gain_INT1",
+      "inputs": {
+        "recipe": "Audio_gain_INT1"
+      },
+      "expected": "invalid_type/no queue"
+    },
+    {
+      "id": "physical_key_4194305",
+      "inputs": {
+        "recipe": "physical_key_4194305"
+      },
+      "expected": "bounded INT>2401 preserved if actual key roundtrip valid"
+    },
+    {
+      "id": "historical_current_source_unknown_fingerprint",
+      "inputs": {
+        "recipe": "historical_current_source_unknown_fingerprint"
+      },
+      "expected": "structurally valid/current descriptor; unavailable native source/no requalification as current"
+    },
+    {
+      "id": "future_source_extra_version_field",
+      "inputs": {
+        "recipe": "future_source_extra_version_field"
+      },
+      "expected": "corrupt_store/whole qualification refused"
+    },
+    {
+      "id": "WAL_committed_page1_main_header_old",
+      "inputs": {
+        "recipe": "WAL_committed_page1_main_header_old"
+      },
+      "expected": "qualified WORK COPY resolves actual logical metadata; never guessed foreign from main0 alone"
+    },
+    {
+      "id": "observe_terminal_equal_tick",
+      "inputs": {
+        "recipe": "observe_terminal_equal_tick"
+      },
+      "expected": "invalid_transition/no mutation"
+    },
+    {
+      "id": "delete_recovery_partial",
+      "inputs": {
+        "recipe": "delete_recovery_partial"
+      },
+      "expected": "failed/snapshot_failed/actual disjoint deleted+retained/no DB uncertainty"
+    },
+    {
+      "id": "management_start",
+      "inputs": {
+        "recipe": "management_start"
+      },
+      "expected": "no SQLite open; explicit ownership/read receipt; delete allowed only here"
+    },
+    {
+      "id": "same_process_storage_reopen_active",
+      "inputs": {
+        "recipe": "same_process_storage_reopen_active"
+      },
+      "expected": "preserve active/source/ticks; require actual source reconciliation; no fake interruption"
+    },
+    {
+      "id": "different_process_reopen_active",
+      "inputs": {
+        "recipe": "different_process_reopen_active"
+      },
+      "expected": "one actual recovery commit/interrupted/unchanged source+lasttick/current run stamp"
+    },
+    {
+      "id": "different_process_reopen_no_active",
+      "inputs": {
+        "recipe": "different_process_reopen_no_active"
+      },
+      "expected": "read/null sequence; old run stamp allowed until next real begin"
+    }
+  ],
+  "audio_binary64_design_examples": [
+    {
+      "value_label": "positive_zero",
+      "binary64_le": "0000000000000000"
+    },
+    {
+      "value_label": "negative_zero",
+      "binary64_le": "0000000000000080"
+    },
+    {
+      "value_label": "quarter",
+      "binary64_le": "000000000000d03f"
+    },
+    {
+      "value_label": "three_quarters",
+      "binary64_le": "000000000000e83f"
+    },
+    {
+      "value_label": "one",
+      "binary64_le": "000000000000f03f"
+    }
+  ],
+  "u64_examples": [
+    {
+      "a": "18446744073709551615",
+      "b": "18446744073709551614",
+      "difference": "1"
+    },
+    {
+      "a": "9007199254740993",
+      "b": "9007199254740992",
+      "difference": "1"
+    },
+    {
+      "a": "121",
+      "b": "1",
+      "difference": "120"
+    }
+  ]
+}
