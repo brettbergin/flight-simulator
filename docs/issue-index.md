@@ -74,6 +74,7 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | PISTON-OBSERVED-REVIEW-CONTRACT | [#195 Freeze cold-profile observed recording and saved historical review](https://github.com/brettbergin/flight-simulator/issues/195) | OBSERVED-FLIGHT-REVIEW, OBSERVED-REVIEW-FILES, ORIGINAL-PISTON-FLIGHT, LICENSE-REGISTER |
 | PISTON-OBSERVED-REVIEW | [#197 Record cold-engine flights and save historical engine review](https://github.com/brettbergin/flight-simulator/issues/197) | PISTON-OBSERVED-REVIEW-CONTRACT, OBSERVED-FLIGHT-REVIEW, OBSERVED-REVIEW-FILES, ORIGINAL-PISTON-FLIGHT, LICENSE-REGISTER |
 | FLIGHT-SETUP-PRESENTATION | [#199 Make First flight setup clear and compact](https://github.com/brettbergin/flight-simulator/issues/199) | FIRST-FLIGHT-FRONTEND-CONTRACT, FIRST-FLIGHT-BRIEFING, SYNTHETIC-CIRCUIT-REFERENCE, PISTON-OBSERVED-REVIEW |
+| PISTON-PROPELLER-PRESENTATION | [#201 Make piston propeller presentation follow accepted simulation progress](https://github.com/brettbergin/flight-simulator/issues/201) | SIM-LOOP-CONTRACT, ORIGINAL-PISTON-CONTRACT, ORIGINAL-PISTON-FLIGHT, THIRD-PERSON-STABILITY |
 
 ## P3 — Complete circuit and durable progress
 
@@ -100,6 +101,8 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | C172P-SOURCE-ASSESSMENT | [#169 Assess a maintained C172P candidate before a standalone port](https://github.com/brettbergin/flight-simulator/issues/169) | LICENSE-REGISTER, VALIDATION-CORPUS |
 | C172P-APPLICABILITY-DOSSIER | [#171 Establish one 160 hp land C172P applicability and normal-reference dossier](https://github.com/brettbergin/flight-simulator/issues/171) | C172P-SOURCE-ASSESSMENT, LICENSE-REGISTER, VALIDATION-CORPUS |
 | C172P-HOST-RIGHTS-CLOSURE | [#172 Resolve recursive numerical/FlightGear-host provenance and rights](https://github.com/brettbergin/flight-simulator/issues/172) | C172P-SOURCE-ASSESSMENT, LICENSE-REGISTER, VALIDATION-CORPUS |
+
+| PISTON-MIXTURE-DECAY-COVERAGE | [#202 Preserve cold replay and qualify ordinary mixture-decay continuation](https://github.com/brettbergin/flight-simulator/issues/202) | ORIGINAL-PISTON-FLIGHT, PISTON-COUPLING-ACCURACY |
 
 ## P4 — Regional navigation and environment
 

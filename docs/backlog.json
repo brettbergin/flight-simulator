@@ -41,47 +41,47 @@
     {
       "name": "phase:P0",
       "color": "1d76db",
-      "description": "P0 — Reviewable foundations"
+      "description": "P0 \u2014 Reviewable foundations"
     },
     {
       "name": "phase:P1",
       "color": "1d76db",
-      "description": "P1 — Flight core and delivery feasibility"
+      "description": "P1 \u2014 Flight core and delivery feasibility"
     },
     {
       "name": "phase:P2",
       "color": "1d76db",
-      "description": "P2 — First cockpit and synthetic airfield"
+      "description": "P2 \u2014 First cockpit and synthetic airfield"
     },
     {
       "name": "phase:P3",
       "color": "1d76db",
-      "description": "P3 — Complete circuit and durable progress"
+      "description": "P3 \u2014 Complete circuit and durable progress"
     },
     {
       "name": "phase:P4",
       "color": "1d76db",
-      "description": "P4 — Regional navigation and environment"
+      "description": "P4 \u2014 Regional navigation and environment"
     },
     {
       "name": "phase:P5",
       "color": "1d76db",
-      "description": "P5 — Lessons, ATC, and debrief"
+      "description": "P5 \u2014 Lessons, ATC, and debrief"
     },
     {
       "name": "phase:P6",
       "color": "1d76db",
-      "description": "P6 — Advanced realism and failures"
+      "description": "P6 \u2014 Advanced realism and failures"
     },
     {
       "name": "phase:P7",
       "color": "1d76db",
-      "description": "P7 — Windows release and pilot acceptance"
+      "description": "P7 \u2014 Windows release and pilot acceptance"
     },
     {
       "name": "phase:P8",
       "color": "1d76db",
-      "description": "P8 — Validated expansion"
+      "description": "P8 \u2014 Validated expansion"
     },
     {
       "name": "status:ready",
@@ -187,47 +187,47 @@
   "milestones": [
     {
       "key": "P0",
-      "title": "P0 — Reviewable foundations",
+      "title": "P0 \u2014 Reviewable foundations",
       "description": "Outcome gate P0; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
     },
     {
       "key": "P1",
-      "title": "P1 — Flight core and delivery feasibility",
+      "title": "P1 \u2014 Flight core and delivery feasibility",
       "description": "Outcome gate P1; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
     },
     {
       "key": "P2",
-      "title": "P2 — First cockpit and synthetic airfield",
+      "title": "P2 \u2014 First cockpit and synthetic airfield",
       "description": "Outcome gate P2; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
     },
     {
       "key": "P3",
-      "title": "P3 — Complete circuit and durable progress",
+      "title": "P3 \u2014 Complete circuit and durable progress",
       "description": "Outcome gate P3; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
     },
     {
       "key": "P4",
-      "title": "P4 — Regional navigation and environment",
+      "title": "P4 \u2014 Regional navigation and environment",
       "description": "Outcome gate P4; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
     },
     {
       "key": "P5",
-      "title": "P5 — Lessons, ATC, and debrief",
+      "title": "P5 \u2014 Lessons, ATC, and debrief",
       "description": "Outcome gate P5; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
     },
     {
       "key": "P6",
-      "title": "P6 — Advanced realism and failures",
+      "title": "P6 \u2014 Advanced realism and failures",
       "description": "Outcome gate P6; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
     },
     {
       "key": "P7",
-      "title": "P7 — Windows release and pilot acceptance",
+      "title": "P7 \u2014 Windows release and pilot acceptance",
       "description": "Outcome gate P7; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
     },
     {
       "key": "P8",
-      "title": "P8 — Validated expansion",
+      "title": "P8 \u2014 Validated expansion",
       "description": "Outcome gate P8; see docs/roadmap.md. No guessed due date. Close after all child tasks and required evidence are reviewed."
     }
   ],
@@ -587,7 +587,7 @@
       "acceptance": [
         "Owner reviews standalone Windows/offline/Godot/native choices, C172S evidence gate, synthetic-first regional scope, and deferred VR/expansion.",
         "Any changes are reconciled across ADRs, roadmap, contracts, and backlog before this issue closes.",
-        "Owner explicitly authorizes P1 implementation; no developer closes this on the owner’s behalf."
+        "Owner explicitly authorizes P1 implementation; no developer closes this on the owner\u2019s behalf."
       ],
       "evidence": [
         "Owner review comment and linked plan revision PRs, if any."
@@ -3086,7 +3086,7 @@
       "kind": "task",
       "phase": "P7",
       "parent": "EPIC-P7",
-      "summary": "Prove the actual Windows experience on the user’s i9/RTX3090/64GB PC.",
+      "summary": "Prove the actual Windows experience on the user\u2019s i9/RTX3090/64GB PC.",
       "depends_on": [
         "EPIC-P6",
         "WINDOWS-PACKAGING",
@@ -3313,7 +3313,7 @@
       "kind": "task",
       "phase": "P7",
       "parent": "EPIC-P7",
-      "summary": "Evaluate the candidate’s flying feel and instructional coverage through structured review.",
+      "summary": "Evaluate the candidate\u2019s flying feel and instructional coverage through structured review.",
       "depends_on": [
         "EPIC-P6",
         "SOAK-STABILITY",
@@ -3808,7 +3808,7 @@
       "acceptance": [
         "Publish exact original model bytes, lineage, identity, MIT notice and independently checked rights inventory; historical flight-only and ground-cart packages remain unchanged.",
         "Ratify named ground and airborne starts, SI/frame/datum and congruent prepared-plane identity, owner-thread/value-readback API, existing v1 command authority, fixed120Hz stepping, lifecycle and fail-closed coverage semantics before public consumers.",
-        "Record actual independently repeated single-executive ground→takeoff→touchdown→all-wheels stop and strict-v1 evidence as synthetic scripted proof, with no Cessna, human handling or phase-gate claim."
+        "Record actual independently repeated single-executive ground\u2192takeoff\u2192touchdown\u2192all-wheels stop and strict-v1 evidence as synthetic scripted proof, with no Cessna, human handling or phase-gate claim."
       ],
       "evidence": [
         "Small reviewed ADR/model/rights PR, frozen native trial fingerprints and separate consumer handoff."
@@ -5639,7 +5639,7 @@
         "Freeze ADR018's exact original six map-plane points/five leg labels in a single MIT fixture. Tie it to the accepted prepared-world hash and existing runway36 pavement end. Literal dimensions illustrate horizontal geometry; y0 is not a flight altitude, and the endpoint is not an operational threshold.",
         "Enable current guidance only for exact legacy profile / `ground-ready` / adopted `calm` / actual zero wind/turbulence / selected runway36, qualified through existing full Readback and WindCue source checks. Cold, airborne, runway18, noncalm, invalid, retained or incompatible states return explicit unavailable guidance with no stale ownship. Never silently change the user's condition or broaden the legacy wind domain.",
         "Pure `CircuitGeometry.view` and copied `set_circuit_reference` implement ADR018 exactly. Validate owned copies, source/world/identity, fixed-anchor point alignment, clipped projection/translation/rebase and unavailable output with independent fixtures. At 1,000m map extent and with ownship outside the diagram, prove normal geographic clipping and unchanged extent/centering/runway/route. No airspace/terrain/physical collision or flight-state mutation.",
-        "Aid defaults off, is session-local and clears on a fresh session. The map is an ordinary clipped geographic layer; a separate fixed reference card fits the full six-point schematic and all five labels independently of map zoom/ownship at every supported window size. Label **OPTIONAL SYNTHETIC CIRCUIT REFERENCE / not evaluated** and **Fixed schematic · not to map scale**; no card ownship marker/current-leg inference. Off/unavailable clears geometry and labels. Preserve existing bound map toggle/runway/zoom and mouse-ignore live display; use a paused aid choice. No auto-zoom/pan/recenter, forged `set_route`, automatic leg/grade/award, “turn now” or invented aircraft speeds/altitudes/procedures.",
+        "Aid defaults off, is session-local and clears on a fresh session. The map is an ordinary clipped geographic layer; a separate fixed reference card fits the full six-point schematic and all five labels independently of map zoom/ownship at every supported window size. Label **OPTIONAL SYNTHETIC CIRCUIT REFERENCE / not evaluated** and **Fixed schematic \u00b7 not to map scale**; no card ownship marker/current-leg inference. Off/unavailable clears geometry and labels. Preserve existing bound map toggle/runway/zoom and mouse-ignore live display; use a paused aid choice. No auto-zoom/pan/recenter, forged `set_route`, automatic leg/grade/award, \u201cturn now\u201d or invented aircraft speeds/altitudes/procedures.",
         "Already-paused show/hide/manual UI operations, resizing and camera changes preserve complete Readback, commands, controls/debt/mapper, recorder and origin. Opening the chooser uses only ordinary explicit pause. Saved ADR011/012 reviews remain byte-compatible and explicitly do not retain aid context; cold review remains unavailable.",
         "Affected checks, exact source/staging/package/resource/module evidence and current protected checks pass. Independently review actual exported960x540/1920x1080/2560x1440 guide off/on/unsupported/paused and cockpit/panel/outside states. Live map/card preserves primary readings/status/look-release access and explains the existing map visibility binding and paused First flight aid-disable choice; no live card action or new binding. Add one bounded real exported flight interaction proving normal controls/map coexistence; paused screenshots alone do not suffice. Record an actual human attempt/feedback or pending status, not automated pilot acceptance."
       ],
@@ -5818,7 +5818,7 @@
         "Map each retained authoritative property/control/indication to readers, writers, units/frame, alias/default/init/reinit order, timing and active-engine selection. Cover starter/electrical supply, primer, feed/carburetor/mixture, oil/heat/icing, fuel/load, ground/contact and damage dependencies; assist helpers require actual activation/default evidence. This ownership analysis is a proposal, not an accepted interface.",
         "Record candidate solver/source assumptions and differences from our pinned JSBSim and accepted event-aware/coupled shaft mechanism. Unknown coupling/default behavior is unresolved; no build/load/flight assertion.",
         "Review retained numerical authorship/project GPL2+ scope and transitive exceptions/actual contrary terms. Distinguish aircraft implementation from manufacturer references and asset licenses. Do not invent a per-file-header requirement, assume every asset GPL, relabel GPL code MIT, or treat interpreted data as obligation-free.",
-        "Provide a concrete selected-source/derivative/notices/modification/corresponding-source distribution obligations proposal referencing GPLv2 sections1–3 and6, with unknown application/integration boundary explicit. No package rights clearance or wholesale application-license change. Future owner/integration review must choose the actual GPL/source-package approach before publication.",
+        "Provide a concrete selected-source/derivative/notices/modification/corresponding-source distribution obligations proposal referencing GPLv2 sections1\u20133 and6, with unknown application/integration boundary explicit. No package rights clearance or wholesale application-license change. Future owner/integration review must choose the actual GPL/source-package approach before publication.",
         "Every graph node and rights cell is resolved with evidence or marked blocked/uninspected; acceptance report distinguishes complete proposed retained closure from unfinished closure. Source feasibility may be blocked rather than fabricated.",
         "Keep metadata only; no model/source/asset import, runtime/profile contract, tuning, build/launch, numerical tolerances, C172S substitution or gate closure. Independent source/rights review and node tools/check-docs.mjs pass."
       ],
@@ -6536,6 +6536,120 @@
       "evidence": [
         "Exact accepted base/source/immutable fixture pins, focused UI tests, existing native lifecycle/modal regressions, compiler/staging/package closure and three native contexts; current required hosted checks and independent exact-head source review.",
         "Small reviewed actual-native original-image roster with full draw-truth/source/PCK/native/join bindings and independent original-pixel readability review. Explicitly label synthetic visual states, retained failures, pending human feedback and separate aircraft/hardware/pilot/phase gates."
+      ]
+    },
+    {
+      "key": "PISTON-PROPELLER-PRESENTATION",
+      "title": "Make piston propeller presentation follow accepted simulation progress",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Correct the original piston visual phase clock with qualified published shaft rate and a documented local approximation; optional original running-propeller art needs moving-image evidence. No native phase, physics or aircraft-validation claim.",
+      "depends_on": [
+        "SIM-LOOP-CONTRACT",
+        "ORIGINAL-PISTON-CONTRACT",
+        "ORIGINAL-PISTON-FLIGHT",
+        "THIRD-PERSON-STABILITY"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:aircraft",
+        "priority:P1",
+        "status:ready"
+      ],
+      "owned_paths": [
+        "app/simulation/flight_scene.gd",
+        "app/proof/interactive/flight_world.gd",
+        "app/proof/interactive/flight_aircraft_checks.gd",
+        "tests/engine/scene_checks.gd",
+        "tests/engine/visual_checks.gd",
+        "content/aircraft/prototype/propeller-presentation.json",
+        "tools/interactive-preview/simulation-staging.ps1",
+        "tools/interactive-preview/simulation-staging.test.ps1",
+        "tools/interactive-preview/package.mjs",
+        "tools/interactive-preview/verify.test.mjs",
+        "docs/evidence/P2/propeller-presentation.md",
+        "docs/README.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md"
+      ],
+      "docs": [
+        "docs/decisions/007-sim-loop-facade.md",
+        "docs/decisions/010-original-piston-profile.md",
+        "docs/decisions/015-source-law-coupled-shaft.md",
+        "docs/evidence/P3/original-piston-player.md",
+        "docs/evidence/P1/third-person-stability.md",
+        "docs/evidence/P2/cockpit-presentation.md"
+      ],
+      "requirements": [
+        "PRD-002",
+        "PRD-007"
+      ],
+      "acceptance": [
+        "Integrate a local approximate phase once per newly adopted qualified current live/paused Scene Readback boundary, not each internal Facade reply, using checked accepted tick progress and actual finite shaft rate. Facade [due-1,1] aggregates and ordinary delta1..32 are valid sampled batches. Never use wall/render/widget time or new native steps. Preserve legacy presentation. Reset local history on identity changes, malformed/backwards tick, delta above32 or invalid/unsupported arithmetic. Delta0/repeated draws, pause and resume acknowledgements cannot invent motion. Accepted stalled/closed/coverage_blocked/discarded, historical and invalid source invalidate cue/history and cannot retain current running blur; do not introduce a new current-stall interpretation.",
+        "Document native-phase absence and endpoint sampling approximation; independently quantify constant/changing-rate behavior across all five time scales, varying batches/cadences including valid delta2..32 aggregate adoption and lifecycle/uint64/delta-above32/invalid/overflow/terminal/zero/tiny/coasting negatives without changing physics tolerances or accepted body/camera interpolation.",
+        "Optional original running-propeller art requires moving before/after evidence, original provenance, preserved dimensions/frames and stopped/slow/unavailable visibility. No fake RPM, imported assets, new framework or speculative shared interface; contract first if one becomes necessary.",
+        "Extend existing focused tests/observer and retain legacy assertions/result schemas. Actual startup/coast/shutdown observations use ordinary controls; passive rendering preserves full native/held/mapper/latch/debt/origin/recorder/ledger truth exactly. Separate real Run intervals from passive captures and synthetic references.",
+        "Bind bounded original nose/chase sequences and representative sight-picture images to qualified editor/portable/rebuilt-library resources; independent source/sequence review, current protected CI and docs check precede closure. Preserve failures and close only this leaf, not aircraft, pilot, hardware, renderer, phase or broad22/23/26 gates."
+      ],
+      "evidence": [
+        "Independent authored integration reference with measured approximation error; focused actual-source/native invariance results; original moving before/after observations and independent review; exact delivery/source/provenance bindings and retained limitations."
+      ]
+    },
+    {
+      "key": "PISTON-MIXTURE-DECAY-COVERAGE",
+      "title": "Preserve cold replay and qualify ordinary mixture-decay continuation",
+      "kind": "bug",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Reproduce and resolve the original piston supported-control decay-certification coverage gap without weakening strict arithmetic, frozen source/reference or physics gates.",
+      "depends_on": [
+        "ORIGINAL-PISTON-FLIGHT",
+        "PISTON-COUPLING-ACCURACY"
+      ],
+      "labels": [
+        "type:bug",
+        "phase:P3",
+        "area:aircraft",
+        "priority:P1",
+        "status:ready"
+      ],
+      "owned_paths": [
+        "tests/engine/mixture_decay/",
+        "native/fdm_jsbsim/proof/",
+        "third_party/patches/jsbsim/",
+        "tools/export/jsbsim-coupled-midpoint/",
+        "tools/bootstrap/coupled-source-variant.py",
+        "docs/decisions/",
+        "docs/evidence/P3/piston-mixture-decay-coverage.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p3-complete-circuit.md"
+      ],
+      "docs": [
+        "docs/decisions/010-original-piston-profile.md",
+        "docs/decisions/015-source-law-coupled-shaft.md",
+        "docs/decisions/016-generated-native-build-identity.md",
+        "docs/evidence/P3/original-piston-player.md",
+        "docs/evidence/P3/coupled-midpoint-shaft.md"
+      ],
+      "requirements": [
+        "PRD-004",
+        "PRD-033"
+      ],
+      "acceptance": [
+        "Reproduce the exact captured cold command/tick/float/step history headlessly on unchanged source/DLL and retain its actual terminal failure and joined close before any correction.",
+        "Capture the failed actual scalar frame, endpoint/equilibrium and exact certificate bounds/split disjunct; independently establish whether it is true nonmonotonicity or conservative enclosure exhaustion. Do not infer a wrong root from the error string.",
+        "Review any correction within existing ADR015 bounds; expanded numerical admission or source identities require a contract PR first. Preserve immutable source/fixtures and genuine ambiguous/equilibrium/stop/resource rejections, with no fallback, hidden resource increase, model or budget retune.",
+        "Qualify separately bound modified corresponding source, strict actual native compilation, fresh generated/actual native identity and replacement closure; pass new independent references/replay and unchanged scalar/default/legacy/mode/fuel/terminal,60/120/240physical and actual-player regressions.",
+        "Record remaining limits and close only this coverage leaf, not C172, pilot or phase gates. Separate fuel-feed-cutoff presentation does not fix or relabel the mixture failure."
+      ],
+      "evidence": [
+        "Preserved observed failure and exact portable cold replay; independently labelled actual failed-frame certificate diagnosis; prospective method/source decisions, independent arithmetic/regression evidence and actual native/player/source/replacement qualification."
       ]
     }
   ]

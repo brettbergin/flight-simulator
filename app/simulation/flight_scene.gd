@@ -63,6 +63,7 @@ var landmark_board: Control
 var route_open: bool=false
 var route_aids_visible: bool=true
 var route_view: Dictionary={}
+const PropellerU64 = preload("res://simulation/uint64.gd")
 const EngineStatus = preload("res://cockpit/instruments/engine_status.gd")
 const EngineControls = preload("res://cockpit/engine_controls.gd")
 var engine_controls: Control
@@ -75,6 +76,8 @@ var selected_profile: String="original-interactive-prototype"
 var adopted_session_id: String=""
 var profile_presets: Dictionary={}
 var engine_status: Dictionary={}
+# Scene-local endpoint-sampled presentation; never native rotor angle/state.
+var _propeller_phase: Dictionary={}
 var held_systems: Dictionary={}
 var pending_systems: Dictionary={}
 var profile_button: Button
@@ -198,6 +201,7 @@ func close_session() -> bool:
 	if facade!=null: invalidate_engine_pointer("Session closing")
 	render_pose.clear()
 	if facade==null:
+		_propeller_phase.clear()
 		_observe_audio({})
 		bridge=null
 		return true
@@ -211,6 +215,7 @@ func close_session() -> bool:
 	else:
 		observe_flight(result.readback)
 	if result.ok:
+		_propeller_phase.clear()
 		review_joined=true
 		facade=null
 		bridge=null
@@ -389,6 +394,45 @@ func choose_profile() -> void:
 	var draft_wind: String="calm" if draft_profile==Facade.PISTON_PROFILE.id else current_wind_profile
 	request_discard("restart",draft_start,draft_wind,draft_profile)
 
+# Private numerical presentation estimate, not a native rotor angle. Scene
+# adopts one aggregate Readback; Facade's internal [due-1,1] replies are not
+# individual samples here. Endpoint trapezoids approximate changing shaft rate.
+static func _next_propeller_phase(previous: Dictionary, source: Dictionary) -> Dictionary:
+	var status: Dictionary=EngineStatus.from_readback(source)
+	if status.state not in ["live","paused"]:
+		return {}
+	var shaft: Dictionary=status.readings["propeller.angular_speed"]
+	if not shaft.valid or typeof(shaft.value)!=TYPE_FLOAT or not is_finite(shaft.value) or shaft.value<0.0:
+		return {}
+	var identity: Dictionary={"session_id":source.session_id,"model_identity":source.model_identity.duplicate(true),
+		"native_source_fingerprint":source.native_source_fingerprint,"prepared_world_sha256":source.prepared_world_sha256,
+		"world_anchor":source.world_anchor.duplicate(true),"named_start":source.named_start,"clock":source.aircraft.clock.duplicate(true)}
+	var next: Dictionary={"identity":identity,"tick":source.tick,"rate":shaft.value,"angle":0.0,"source_elapsed_s":source.aircraft.elapsed_s}
+	if previous.is_empty() or previous.identity!=identity:
+		return next
+	var progress: Dictionary=PropellerU64.small_difference(source.tick,previous.tick,32)
+	if not progress.ok:
+		# New valid boundary seeds a fresh local reference; never bridge a reset,
+		# backwards tick or unsupported (>32) gap with an invented large angle.
+		return next
+	if progress.value==0:
+		return previous.duplicate(true)
+	var interval: float=float(progress.value)/float(source.aircraft.clock.tick_rate_hz)
+	var mean_rate: float=(float(previous.rate)+float(shaft.value))*0.5
+	var increment: float=mean_rate*interval
+	if not is_finite(mean_rate) or not is_finite(increment):
+		return {}
+	# Wrap the increment before addition, retaining bounded local phase. No
+	# absolute uint64 tick or rounded absolute elapsed-time subtraction is used.
+	next.angle=fposmod(float(previous.angle)+fposmod(increment,TAU),TAU)
+	if not is_finite(next.angle):
+		return {}
+	return next
+
+func _adopt_propeller_phase(source: Dictionary) -> void:
+	_propeller_phase=_next_propeller_phase(_propeller_phase,source)
+
+
 func adopt_result(result: Dictionary) -> void:
 	var was_paused: bool=paused
 	var state: Dictionary=result.readback
@@ -406,6 +450,7 @@ func adopt_result(result: Dictionary) -> void:
 		engine_status=EngineStatus.from_readback(state)
 		var feedback: Dictionary=EngineStatus.held_systems_from_readback(state)
 		held_systems=feedback.value.duplicate(true) if feedback.ok else {}
+	_adopt_propeller_phase(state)
 	paused=state.paused or state.host_mode!="live"
 	if paused and mapper!=null and (not was_paused or not result.ok):
 		suspend_mapper("Native flight paused or rejected")
@@ -1611,12 +1656,12 @@ func show_state(seconds: float=0.0) -> void:
 		camera.position.y=maxf(camera.position.y,camera_floor)
 	camera_ready=true
 	camera.look_at(look_target,up)
-	if propeller!=null and not paused:
+	if propeller!=null:
 		if piston_mode():
-			var shaft: Dictionary=engine_status.get("readings",{}).get("propeller.angular_speed",{})
-			if engine_status.get("state")=="live" and shaft.get("valid")==true:
-				propeller.rotate_z(clampf(seconds,0.0,0.25)*float(shaft.value))
-		else:
+			# Draw is read-only in time: pause/redraw cannot advance phase. Invalid
+			# or fresh source uses the declared static reference, never old legacy angle.
+			propeller.rotation.z=float(_propeller_phase.get("angle",0.0))
+		elif not paused:
 			propeller.rotate_z(clampf(seconds,0.0,0.25)*(25+float(held_controls.throttle)*65))
 	var view_names: Array[String]=["COCKPIT","CHASE","ORBIT","PANEL"]
 	var input_name: String=active_preset.get("name","Controls")+" / guest"

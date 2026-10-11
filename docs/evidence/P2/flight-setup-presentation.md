@@ -1,6 +1,6 @@
 # First flight setup presentation
 
-Status: implementation evidence in progress; no pilot, aircraft, hardware or phase acceptance. This bounded contribution improves the existing paused First flight screen under ADR018/019/022. Implementation issue [#199](https://github.com/brettbergin/flight-simulator/issues/199), accepted base4631e61d49569b17336c8983da930151a6ac197f (PR198). The final PR records the reviewed source head.
+Status: merged implementation with qualified local delivery; no pilot, aircraft, hardware or phase acceptance. This bounded contribution improves the existing paused First flight screen under ADR018/019/022. Implementation issue [#199](https://github.com/brettbergin/flight-simulator/issues/199), accepted base4631e61d49569b17336c8983da930151a6ac197f (PR198). The final PR records the reviewed source head.
 
 ## Player result and preserved authority
 
@@ -18,9 +18,13 @@ Nine fresh original GPU captures passed448 source/layout/authority assertions on
 
 Root and an independent reviewer directly inspected all nine originals with no readability/clipping findings. Campaign `flight-setup-visual-v1/run-d5f75010abe94f3db9ee0e9a0bb0d1c7`; receipt SHA256 `e466459eede866e34a9bc0ef3c912259d9eea9e0028dfc12c75116a73d50ef43`; independent original-pixel/file review SHA256 `e2f5802333755e210da8e10c86d808a26eaf1d564b5acb7804d5919a8b036ee3`; separate artifact audit SHA256 `51ffd00017dcb8889f6d028201e5ad22a811eb95b86db8176a0f130be6476a1b`. All499 qualified original payload files,336 original project files and332 prescribed private-stage files remained unchanged. The auditor corrected and retained an initial schema assumption about where native source fingerprints occur; this was an audit failure, not a runtime pass. These are private authoring-executable/project graphics; final PCK source equivalence and shipping functional qualification remain separate.
 
-## Remaining delivery evidence
+## Final local delivery and merged hosted review
 
-Integrated lifecycle regressions, final graphics-resource/PCK bindings, corresponding-source/native package closure in all three contexts, exact-head independent review and required hosted checks are pending. Final evidence must identify original image and full draw-truth bindings and distinguish authoring-executable graphics from shipping-executable functional checks. A private development image alone cannot qualify a later PCK.
+The completed Windows package `run-f6838a865c7c4425b024e52cd54aa5cd` is bound to source head `56bae21ab0febca9a1a7e4d468ba45903a7c3dbb`, manifest SHA256 `881a9c97bbb6d14856d37ea083bd0adc46e09d1d9e6cd8645805cec1e94b05e1` and PCK SHA256 `abcc05be05c1189728e53b021675ca2b6b07bf04cfeb9c8c688592ebf7fc203d` (7,899,580 bytes;187 entries). Its editor, portable and rebuilt-library contexts passed the integrated functional checks. Each saved context records63,697 facade checks,16,031 native piston checks,71 native observed-piston checks,120,489 pointer checks and371 ground checks. The independent corrected final audit passed87,308 checks with no failures:499 shipping files,227 authoring sources,131 grouped sources and exact source/native/rights bindings. Final audit SHA256 `1b58ad8655f65c8ca89658b8068f733200caad7bf15901669f60a2cba71f2321`; final disposition SHA256 `2e36b0ba3ccb0bb3f90687ad07956387623bc4adb079e48b4baf78367364f896`.
+
+The nine earlier authoring-executable/private-project graphics and their eighteen complete binary truth files are bound through35 exact resource matches to the final PCK/corresponding source, with actual native module/model/fingerprint correspondence. This is resource equivalence, not a new shipping-executable GPU capture or a new original-pixel review. The initial failed audit assumed one destination for a shared immutable reference; its correction checks every declared destination. The original failed report remains failed and preserved; no package, source, golden or threshold changed to make the audit pass.
+
+The [final local delivery review comment](https://github.com/brettbergin/flight-simulator/pull/200#issuecomment-6105427039) records this bounded approval. [PR200](https://github.com/brettbergin/flight-simulator/pull/200) merged as `914b0e69b5b6d54a46a79751aca03f7da91139f5` after all eight required hosted checks completed successfully and exact-head independent review. Owner/pilot and phase acceptance remain separate.
 
 ## Retained failures and limitations
 
