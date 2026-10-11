@@ -80,7 +80,7 @@ jobs:
             'docs/contracts/local-players/test-capability-v1.md' = 'a7c66c5c588cd5984070781310f77906839c9b5ad703ab70a1db09a629620bed'
             'docs/contracts/local-players/recovery-v1.md' = 'd7349a672519a9c7e3d367d5f756adbcc0507a9138b800500805687782f90859'
             'docs/decisions/026-durable-local-players-and-practice-history.md' = '34d2617ff70453b6679df3f9bd388334c39b38f55bd966b27ca975780c251a1b'
-            'docs/decisions/027-synthetic-taxi-navigation.md' = '480ea9cbc9872ce7f2da74e92c7620646a4d28d40ba40540cecd461a10cae0f3'
+            'docs/decisions/027-synthetic-taxi-navigation.md' = 'd3a39710e3cf3ad354ac22c886656c446b3d8612acf58a730513c787c2382e03'
           }
           foreach ($name in $localPlayerPins.Keys) {
             if ((Get-FileHash -LiteralPath $name -Algorithm SHA256).Hash.ToLowerInvariant() -cne $localPlayerPins[$name]) { throw 'Frozen local-player input changed; reviewed successor contract required' }
@@ -99,7 +99,7 @@ jobs:
           $taxiPins = @{
             'content/world/synthetic/taxi-layout-v1.json' = 'd8668af407885949a4eb05fbe170d41fe6c6752d3ce15670f9879a36063d355c'
             'schemas/world/synthetic-taxi-layout-v1.schema.json' = '14d7a2d7836c76d7a1adb5841d153e6c1e06a101992ab94bc4363d50db581a36'
-            'docs/decisions/027-synthetic-taxi-navigation.md' = '480ea9cbc9872ce7f2da74e92c7620646a4d28d40ba40540cecd461a10cae0f3'
+            'docs/decisions/027-synthetic-taxi-navigation.md' = 'd3a39710e3cf3ad354ac22c886656c446b3d8612acf58a730513c787c2382e03'
             'tests/world/taxi/reference/generate.py' = '799fbcc5fc2144e713d295559e961d1614e245b7bf2a003135ce1234eedec558'
             'tests/world/taxi/reference/expected-v1.json' = '9b9579b18c38ba3c1393af76798fa39b8683229fdf2eff553b1c12e0fd3ae37c'
             'tests/world/taxi/reference/source-binding-v1.json' = '1366d0484be3eb6a6ca13028f7f431894d6c879c01dbe2a04f3107a7a7678c8b'
