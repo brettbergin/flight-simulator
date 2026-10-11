@@ -292,13 +292,14 @@ export const firstFlightSourceGroups=[
  ['app/ui/first_flight','ui/first_flight',['briefing_panel.gd','binding_help.gd','circuit_guide.gd']],
  ['app/world/synthetic','world/synthetic',['circuit_geometry.gd']],
  ['content/scenarios/first-flight','content/scenarios/first-flight',['briefing.json']],
- ['content/world/synthetic','content/world/synthetic',['practice-circuit.json']],
+ ['content/world/synthetic','content/world/synthetic',['practice-circuit.json','taxi-layout-v1.json']],
  ['tests/scenarios/first-flight','scenario_tests/first-flight',['briefing_checks.gd','circuit_checks.gd']],
  ['tests/ui/first_flight','first_flight_ui_tests',['briefing_checks.gd']],
  ['tests/world/synthetic','world_tests/synthetic',['circuit_checks.gd']],
  ['tests/integration/first_flight','first_flight_scene_tests',['scene_checks.gd','map_checks.gd','visual_checks.gd','layout_visual_checks.gd','hud_caption_visual_checks.gd']],
 ];
 const circuitFixtureSHA='2a4540d99d4500e326a1b1f0673583bd6f8ea99d430b991fcca1130befbbddcc';
+const taxiLayoutFixtureSHA='d8668af407885949a4eb05fbe170d41fe6c6752d3ce15670f9879a36063d355c';
 const circuitCaptureSHA='58b1a7b0ec46161357c1268dbaeeaab27f84bbbd4de70def35571fd45ddb67f9';
 const circuitCaptureSource='5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5';
 const firstFlightNames=['briefing','bindings','geometry','card','map','scene'];
@@ -326,6 +327,7 @@ export function validateFirstFlightSources(repository,project,source){
   }
  }
  assert.equal(source_files['content/world/synthetic/practice-circuit.json'].sha256,circuitFixtureSHA,'Frozen circuit content changed');
+ assert.equal(source_files['content/world/synthetic/taxi-layout-v1.json'].sha256,taxiLayoutFixtureSHA,'Frozen taxi layout content changed');
  return {source_files};
 }
 export function validateFirstFlightReceipt(value,includePiston,expectedSourceFingerprint){
