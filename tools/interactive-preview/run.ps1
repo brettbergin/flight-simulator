@@ -175,6 +175,11 @@ Copy-AudioSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $audioG
 if($includePiston){Copy-PistonSourceSnapshot -RepoRoot $repo -DestinationRoot $project -Snapshot $pistonSnapshot}
 Copy-Item -LiteralPath (Join-Path $repo 'app/proof/interactive/project-settings.cfg') -Destination (Join-Path $project 'project.godot')
 Set-SimulationMainScene -ProjectFile (Join-Path $project 'project.godot')
+# Preserve raw text-scene bytes for exact source/PCK/harness receipt identity.
+$stagedSettingsPath=Join-Path $project 'project.godot'
+$stagedSettings=[IO.File]::ReadAllText($stagedSettingsPath)
+if($stagedSettings -match '(?m)^\s*\[editor\]\s*$' -or $stagedSettings -match '(?m)^\s*export/convert_text_resources_to_binary\s*='){throw 'Unexpected existing raw text export configuration'}
+[IO.File]::WriteAllText($stagedSettingsPath,$stagedSettings+"`n[editor]`nexport/convert_text_resources_to_binary=false`n",[Text.UTF8Encoding]::new($false))
 Copy-PreviewNativeIdentityResource -Identity $nativeIdentity -DestinationRoot $project
 Write-SimulationCheckHarness -ProjectRoot $project -RepoRoot $repo -IncludePiston:$includePiston
 Assert-CameraSourceGroups -Root $project -Groups $cameraGroups
