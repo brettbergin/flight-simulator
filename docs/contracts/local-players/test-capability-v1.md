@@ -187,3 +187,66 @@ bound independently of CXX. After compilation, actual SQLite C command, object
 and static archive roster plus storage link map verify inclusion in the tested
 DLL. These post-build witnesses are excluded from compiled hash inputs to avoid
 an identity cycle. No actual compiled witness/hash is allocated by this draft.
+
+## Normative companions and independent fixed reference inputs
+
+This proposed successor appends four normative contract inputs, in order, without
+changing the original seven-input prefix:
+
+- [service-lifecycle-amendment-v1.md](service-lifecycle-amendment-v1.md)
+- [full-record-reference-amendment-v1.md](full-record-reference-amendment-v1.md)
+- [reservation-and-export-spool-v1.md](reservation-and-export-spool-v1.md)
+- [test-scheduler-v1.md](test-scheduler-v1.md)
+
+The allocation also closes these13 independent qualification/source-package inputs:
+
+- [tests/persistence/local_players/service_reference/expected-v1.json](../../../tests/persistence/local_players/service_reference/expected-v1.json)
+- [tests/persistence/local_players/service_reference/generate.py](../../../tests/persistence/local_players/service_reference/generate.py)
+- [tests/persistence/local_players/service_reference/source-binding-v1.json](../../../tests/persistence/local_players/service_reference/source-binding-v1.json)
+- [tests/persistence/local_players/service_reference/README.md](../../../tests/persistence/local_players/service_reference/README.md)
+- [tests/persistence/local_players/full_record_reference/expected-v1.json](../../../tests/persistence/local_players/full_record_reference/expected-v1.json)
+- [tests/persistence/local_players/full_record_reference/generate.py](../../../tests/persistence/local_players/full_record_reference/generate.py)
+- [tests/persistence/local_players/full_record_reference/source-binding-v1.json](../../../tests/persistence/local_players/full_record_reference/source-binding-v1.json)
+- [tests/persistence/local_players/full_record_reference/README.md](../../../tests/persistence/local_players/full_record_reference/README.md)
+- [tests/persistence/local_players/full_record_reference/player-summary-v1.json](../../../tests/persistence/local_players/full_record_reference/player-summary-v1.json)
+- [tests/persistence/local_players/reservation_reference/expected-v1.json](../../../tests/persistence/local_players/reservation_reference/expected-v1.json)
+- [tests/persistence/local_players/reservation_reference/generate.py](../../../tests/persistence/local_players/reservation_reference/generate.py)
+- [tests/persistence/local_players/reservation_reference/source-binding-v1.json](../../../tests/persistence/local_players/reservation_reference/source-binding-v1.json)
+- [tests/persistence/local_players/reservation_reference/README.md](../../../tests/persistence/local_players/reservation_reference/README.md)
+
+The exact17 added path/size/raw-SHA256 bindings are in the allocation. Missing,
+duplicate or changed inputs fail; existing114/72/66 and110 expected math/type/byte
+fixtures remain immutable. Historical source-binding metadata retains authoring
+provenance; the fresh proof manifest separately binds actual adopted contracts.
+Read-only generator checks are mandatory. No extra CTest, actor, compiled source,
+build control, shipping method or fault hook is allocated:17 storage source slots,
+15 controls and the five fixed CTests retain their original order and definitions.
+
+The lifecycle companion fixes admission/quiescence/retained-result semantics and
+preserves actual observed flight UTC. A never-created worker needs no fictitious
+join; every ever-created worker still needs actual exit/join and closed resources.
+The full-record companion freezes complete numeric-creation-desc export history
+and exact scanner accounting. PreferencesStorage envelope and decoded payload
+are scanned separately, each30000 values/depth12 before tag restoration; that is
+not an aggregate-export value cap. All closed rows,2000-summary count and32MiB
+outer-byte limits still apply. Reference fixtures are independent byte/type and
+conditional state expectations, never storage or crash observations.
+
+Reservation/scheduler companions specify the32MiB native-owned arena excluding
+caller Variants/SQLite/OS, one shared18MiB inner-export spool, and real four-event
+recovery IO pairs with independently counted partial calls. Sixteen is a request
+count ceiling, not a promise16 exports fit. The conditional17044688-byte inner
+spool premise still needs a complete canonical-encoder/maximum-record-size
+argument; one2000-row expansion is not that theorem. All actual events must fit
+the checked524288-record test plan, with overflow/unexpected events failing.
+Test observer/factory/actors remain absent shipping objects; actual allocator,
+SQL/OS faults, process exit and joins must be witnessed, not supplied by recipes.
+
+Issue218 accepts concrete design, roles, representations/ceilings and independently
+reviewed fixtures. Issue219 then authors actual layouts, terminal/failure paths,
+source sites and hashes within that contract, independently reviewed after
+authoring and BEFORE compilation/execution. Unwritten source hashes are not a
+circular prerequisite for contract authoring. Actual compiled source/link closure,
+five CTests, service/SQLite/NTFS/ClassDB and installed-player journeys remain
+separate gates. This proposed publication alone neither closes218 nor unlocks
+219/220, accepts runtime storage, or changes native flight authority.

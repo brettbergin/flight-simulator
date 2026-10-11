@@ -7092,7 +7092,9 @@
         "tools/interactive-preview/camera-receipt.mjs",
         "tools/interactive-preview/camera-receipt.test.mjs",
         ".github/workflows/coupled-ci.yml",
-        ".github/workflows/coupled-local-window-ci.yml"
+        ".github/workflows/coupled-local-window-ci.yml",
+        "tools/interactive-preview/native-identity.py",
+        "tools/interactive-preview/test_native_identity.py"
       ],
       "docs": [
         "docs/README.md",
@@ -7181,7 +7183,24 @@
         "docs/evidence/P3/local-players-contract.md",
         ".gitattributes",
         ".github/workflows/foundation-ci.yml",
-        "schemas/validate.mjs"
+        "schemas/validate.mjs",
+        "tests/persistence/local_players/service_reference/expected-v1.json",
+        "tests/persistence/local_players/service_reference/generate.py",
+        "tests/persistence/local_players/service_reference/source-binding-v1.json",
+        "tests/persistence/local_players/service_reference/README.md",
+        "docs/contracts/local-players/service-lifecycle-amendment-v1.md",
+        "tests/persistence/local_players/full_record_reference/expected-v1.json",
+        "tests/persistence/local_players/full_record_reference/generate.py",
+        "tests/persistence/local_players/full_record_reference/source-binding-v1.json",
+        "tests/persistence/local_players/full_record_reference/README.md",
+        "tests/persistence/local_players/full_record_reference/player-summary-v1.json",
+        "docs/contracts/local-players/full-record-reference-amendment-v1.md",
+        "docs/contracts/local-players/reservation-and-export-spool-v1.md",
+        "docs/contracts/local-players/test-scheduler-v1.md",
+        "tests/persistence/local_players/reservation_reference/expected-v1.json",
+        "tests/persistence/local_players/reservation_reference/generate.py",
+        "tests/persistence/local_players/reservation_reference/source-binding-v1.json",
+        "tests/persistence/local_players/reservation_reference/README.md"
       ],
       "docs": [
         "docs/README.md",

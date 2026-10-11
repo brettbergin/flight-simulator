@@ -1,0 +1,100 @@
+{
+  "schema": "IndependentReservationReferenceSourceBinding/v1",
+  "status": "PROPOSED_PRECONSUMER_UNRATIFIED",
+  "license": "Original MIT",
+  "files": [
+    {
+      "path": "generate.py",
+      "bytes": 11714,
+      "sha256": "e9da454d83bf62f6e42a5746d414acc524df0f5616f2b9861cad01f00d274f50"
+    },
+    {
+      "path": "expected-v1.json",
+      "bytes": 17582,
+      "sha256": "2bbe1ced7a5d30ae1a469eb5da1675779028fceaf9779fb309d78e356b22cd86"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2924,
+      "sha256": "03fe9f18d76edb7723687ffc5491e03ebebe7c10df75f20f3b46401c3128e1f7"
+    }
+  ],
+  "sources": [
+    {
+      "path": "docs/contracts/local-players/reservation-and-export-spool-v1.md",
+      "bytes": 13122,
+      "sha256": "e16f2c8835144179d5f1ce386e96cdc8c348c88bf09e7e80a0f49ffab712ce47",
+      "status": "Proposed final private source; explicit public allocation/adoption still required"
+    },
+    {
+      "path": "docs/contracts/local-players/test-scheduler-v1.md",
+      "bytes": 16743,
+      "sha256": "ca6f1bec9002b14235e6c0997e7dd89823f630f885372548a9c44adfd0dde2fd",
+      "status": "Proposed final private source; explicit public allocation/adoption still required"
+    },
+    {
+      "path": "docs/contracts/local-players/protocol-v1.md",
+      "bytes": 23240,
+      "sha256": "d7a5bc7ee7820df6a3ce8addbc72c66b57b86db91355ad18555f53da6c152d36",
+      "status": "Reviewed proposed normative input; no runtime inferred"
+    },
+    {
+      "path": "docs/contracts/local-players/records-and-lifetimes-v1.md",
+      "bytes": 47338,
+      "sha256": "e29b1a9fc563ae58105a7b99c6ed158ada347cf506a5565e68c8f7a051d322e0",
+      "status": "Reviewed proposed normative input; no runtime inferred"
+    },
+    {
+      "path": "docs/contracts/local-players/recovery-v1.md",
+      "bytes": 6598,
+      "sha256": "d7349a672519a9c7e3d367d5f756adbcc0507a9138b800500805687782f90859",
+      "status": "Reviewed proposed normative input; no runtime inferred"
+    },
+    {
+      "path": "schemas/save/local-players/v1/schema-v1.sql",
+      "bytes": 3860,
+      "sha256": "cbd00b3fe47b400e79635ed901d195abfe133a4131d5001feac8e3eedeb0562f",
+      "status": "Reviewed proposed normative input; no runtime inferred"
+    },
+    {
+      "path": "schemas/save/local-players/v1/preferences-codec-v1.json",
+      "bytes": 6986,
+      "sha256": "47711d41be89e233efe3c42e8f2cedd33f729e6e0e2c9a78a6026454022b0538",
+      "status": "Reviewed proposed normative input; no runtime inferred"
+    },
+    {
+      "path": "docs/contracts/local-players/compiled-source-allocation-v1.json",
+      "bytes": 43168,
+      "sha256": "8b0ff9e40450e277a6e73e4208a5e096c38dfc2a8d38784837a0006770dc2f75",
+      "status": "Reviewed proposed normative input; no runtime inferred"
+    },
+    {
+      "path": "docs/contracts/local-players/test-capability-v1.md",
+      "bytes": 12368,
+      "sha256": "ed0506a4634f7b7e2b5d293a9ae49f00e284320dd8e0bd31b9359e16e2cc81d7",
+      "status": "Reviewed proposed normative input; no runtime inferred"
+    },
+    {
+      "path": "docs/contracts/local-players/service-lifecycle-amendment-v1.md",
+      "bytes": 16411,
+      "sha256": "5c42070514a49b3a2b678cbc039fdc832dfe69a6589969a9b675d1cfc5b83f3f",
+      "status": "Reviewed proposed normative input; no runtime inferred"
+    }
+  ],
+  "origin": {
+    "original_private_v1_handoff_sha256": "bceee8f54046011a46955880a056c74290ab1789717388ca50d0733f2dbc774d",
+    "final_design_handoff_sha256": "fa4aa0e79deb405969cb4f55ba7b5d9fccb13436e7d42d218ac24051732f4f71",
+    "preserved_cases": "L01..L15 exact prior values; L16 exact four-event successor; no consumer output"
+  },
+  "immutable_predecessor_expected_sha256": {
+    "114": "1ffaa82ae54a18dc5c9ec3d6c49760ed3b2d6c27abf77783572c6a9b3902d962",
+    "72": "8969d0dd4bee47432606f54e1bb8f2b4ff805062e2ba4015a23ef0288973fb77",
+    "66": "61078c6aea80de7d15b2d0fe8a94a796a24086ea270f64e98fa9074aa8aa7860",
+    "110": "164aad9b74de33b04a6a69734116eab899dceaf696135137b9963f679968b722"
+  },
+  "remaining": [
+    "Independent references/source review and Root ratification",
+    "Explicit four-path public allocation and checked design adoption",
+    "Actual authored allocator/writer/site/plan source/compiler then compiled/runtime qualification; no consumer authority from these recipes"
+  ]
+}

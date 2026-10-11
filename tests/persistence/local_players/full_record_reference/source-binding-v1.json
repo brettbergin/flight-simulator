@@ -1,0 +1,135 @@
+{
+  "schema": "IndependentLocalPlayersFullRecordSourceBinding/v2",
+  "status": "PROPOSED_PRECONSUMER_UNRATIFIED",
+  "license": "Original MIT",
+  "public_directory": "tests/persistence/local_players/full_record_reference",
+  "files": [
+    {
+      "path": "generate.py",
+      "bytes": 30670,
+      "sha256": "431da3b2c7d752816653e7b78e887f7189b6d2fb548fd40f2c51b3f9d8b686e0"
+    },
+    {
+      "path": "expected-v1.json",
+      "bytes": 3427125,
+      "sha256": "164aad9b74de33b04a6a69734116eab899dceaf696135137b9963f679968b722"
+    },
+    {
+      "path": "player-summary-v1.json",
+      "bytes": 7641,
+      "sha256": "1bb1781e8484ceafc6ce2e3ae421112d71004bdbaae713127c7a31d50f28f2b0"
+    },
+    {
+      "path": "README.md",
+      "bytes": 6097,
+      "sha256": "e2cddabda7cdc6f4677a5830c547be6ac775cccf5f465d2a2bf0b0e7ee51e478"
+    },
+    {
+      "path": "full-record-reference-amendment-v1.md",
+      "bytes": 3077,
+      "sha256": "876edc5805f8ed9e497eed7e1bd99635d2441db9cd43b891dc4c2937d04ad91c"
+    }
+  ],
+  "sources": [
+    {
+      "path": "docs/contracts/local-players/records-and-lifetimes-v1.md",
+      "bytes": 47338,
+      "sha256": "e29b1a9fc563ae58105a7b99c6ed158ada347cf506a5565e68c8f7a051d322e0",
+      "role": "Exact frozen proposed contract bytes, PR222 source head188f727 reported by Root; no protected acceptance inferred"
+    },
+    {
+      "path": "docs/contracts/local-players/protocol-v1.md",
+      "bytes": 23240,
+      "sha256": "d7a5bc7ee7820df6a3ce8addbc72c66b57b86db91355ad18555f53da6c152d36",
+      "role": "Exact frozen proposed contract bytes, PR222 source head188f727 reported by Root; no protected acceptance inferred"
+    },
+    {
+      "path": "schemas/save/local-players/v1/preferences-codec-v1.json",
+      "bytes": 6986,
+      "sha256": "47711d41be89e233efe3c42e8f2cedd33f729e6e0e2c9a78a6026454022b0538",
+      "role": "Exact frozen proposed contract bytes, PR222 source head188f727 reported by Root; no protected acceptance inferred"
+    },
+    {
+      "path": "schemas/save/local-players/v1/schema-v1.sql",
+      "bytes": 3860,
+      "sha256": "cbd00b3fe47b400e79635ed901d195abfe133a4131d5001feac8e3eedeb0562f",
+      "role": "Exact frozen proposed contract bytes, PR222 source head188f727 reported by Root; no protected acceptance inferred"
+    },
+    {
+      "path": "schemas/save/local-players/v1/schema-binding-v1.json",
+      "bytes": 1647,
+      "sha256": "9353c034edafdb1bcc3984452bd9c2d4fcdbf283342e99bb5a5dd2d27792f049",
+      "role": "Exact frozen proposed contract bytes, PR222 source head188f727 reported by Root; no protected acceptance inferred"
+    },
+    {
+      "path": "app/input/input_preset.gd",
+      "raw_bytes": 28360,
+      "raw_sha256": "c07b20eb9f876228ca00196103822ab1e4c5001c0d1384f33c42635e3c5727d9",
+      "git_lf_sha256": "c07b20eb9f876228ca00196103822ab1e4c5001c0d1384f33c42635e3c5727d9",
+      "role": "Read-only accepted implementation definition; source inspection only, not imported/executed"
+    },
+    {
+      "path": "app/audio/audio_options.gd",
+      "raw_bytes": 934,
+      "raw_sha256": "d6d3125d28ed47db967d12a8613911b0358f32632e6503bdcbc76817d58af4e4",
+      "git_lf_sha256": "d6d3125d28ed47db967d12a8613911b0358f32632e6503bdcbc76817d58af4e4",
+      "role": "Read-only accepted implementation definition; source inspection only, not imported/executed"
+    },
+    {
+      "path": "app/simulation/session_facade.gd",
+      "raw_bytes": 45131,
+      "raw_sha256": "baf65ec37888fd6af2d7ba75e3d0757d288f08f28fe8e4f3d9361d6dacce1587",
+      "git_lf_sha256": "20251aa55c8f7d002038a3006b3a569e107ec9ea10cfd02251500b16718cc67f",
+      "role": "Read-only accepted implementation definition; source inspection only, not imported/executed"
+    }
+  ],
+  "immutable_predecessors": [
+    {
+      "name": "original114",
+      "bytes": 54200,
+      "sha256": "1ffaa82ae54a18dc5c9ec3d6c49760ed3b2d6c27abf77783572c6a9b3902d962",
+      "role": "Immutable predecessor, no replacement/edit/import; historical cases retain own status and scope"
+    },
+    {
+      "name": "original72",
+      "bytes": 14985,
+      "sha256": "8969d0dd4bee47432606f54e1bb8f2b4ff805062e2ba4015a23ef0288973fb77",
+      "role": "Immutable predecessor, no replacement/edit/import; historical cases retain own status and scope"
+    },
+    {
+      "name": "original66",
+      "bytes": 468270,
+      "sha256": "61078c6aea80de7d15b2d0fe8a94a796a24086ea270f64e98fa9074aa8aa7860",
+      "role": "Immutable predecessor, no replacement/edit/import; historical cases retain own status and scope"
+    }
+  ],
+  "root_choices": {
+    "export_practice": "complete Array creation_sequence numeric DESC, empty[] coherent selected-player snapshot",
+    "structural_values": "root1; object values/array elements recursive; keys excluded",
+    "structural_depth": "root container1; nested containers+1; primitive leaves no increment"
+  },
+  "future_lifecycle_companion": {
+    "proposed_path": "docs/contracts/local-players/service-lifecycle-amendment-v1.md",
+    "sha256": "5c42070514a49b3a2b678cbc039fdc832dfe69a6589969a9b675d1cfc5b83f3f",
+    "role": "Separate reviewed prospective amendment, NOT assumed accepted or used to replace original66"
+  },
+  "remaining_gates": [
+    "Independent fixture/source review and Root ratification",
+    "Checked full #218 contract/reference/allocation before #219/#220 consumers",
+    "Real variant/key normalization parity, SQL/schema/row and filesystem/source qualification",
+    "Scheduler/reservation/worker/crash/Win32 proofs separately allocated; no scalar/recipe evidence substitutes"
+  ],
+  "scope_clarification": {
+    "preferences_scanner_layers": [
+      "PreferencesStorage outer envelope JSON",
+      "decoded PreferencesStorage payload JSON"
+    ],
+    "per_layer_before_tag_restoration": {
+      "values": 30000,
+      "container_depth": 12
+    },
+    "not_export_aggregate_cap": true,
+    "export_aggregate": "All selected-player closed records; <=2000 summaries, <=32MiB exact outer bytes and separately bound spool",
+    "normative_fixture_bytes_unchanged": true
+  }
+}
