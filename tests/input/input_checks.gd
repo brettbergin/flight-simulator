@@ -9,6 +9,21 @@ var failures: Array[String] = []
 var references: Dictionary = {}
 var covered: Dictionary = {}
 var file_evidence: Dictionary = {}
+# Diagnostic branch only: opt-in low-volume checkpoints, no payload/path output.
+var _trace_enabled: bool = false
+var _trace_started_usec: int = 0
+var _trace_sequence: int = 0
+
+func _trace(stage: String) -> void:
+	if not _trace_enabled: return
+	_trace_sequence += 1
+	print("INPUT_PREFLIGHT_TRACE " + JSON.stringify({"schema":"InputPreflightPhase/v1","sequence":_trace_sequence,"stage":stage,"elapsed_usec":Time.get_ticks_usec()-_trace_started_usec,"checks":checks,"failures":failures.size()}))
+
+func _trace_save(stage: String, target: String, value: Dictionary) -> Dictionary:
+	_trace(stage+"_before")
+	var result: Dictionary = Preset.save(target,value)
+	_trace(stage+"_after")
+	return result
 
 static func run() -> Dictionary:
 	return new()._run()
@@ -427,7 +442,7 @@ func _codec() -> void:
 		if original != null:
 			original.store_string("UNSUPPORTED_ORIGINAL_KEEP")
 			original.close()
-		var unsupported: Dictionary = Preset.save(target,preset)
+		var unsupported: Dictionary = _trace_save("codec_unsupported_save",target,preset)
 		_check(not unsupported.ok and not unsupported.error.is_empty(),"codec_unsupported_platform_explicit_rejection")
 		_check(FileAccess.get_file_as_string(target)=="UNSUPPORTED_ORIGINAL_KEEP","codec_unsupported_platform_preserves_original")
 		var retained := false
@@ -436,12 +451,12 @@ func _codec() -> void:
 		_check(retained,"codec_unsupported_platform_retains_temporary")
 		file_evidence = {"scope":"explicit disposable selected path","platform":OS.get_name(),"atomic_save_qualified":false,"unsupported_rejected":not unsupported.ok,"original_preserved":FileAccess.get_file_as_string(target)=="UNSUPPORTED_ORIGINAL_KEEP","retained_test_directory":directory}
 		return
-	var saved: Dictionary = Preset.save(target,preset)
+	var saved: Dictionary = _trace_save("codec_selected_save",target,preset)
 	_check(saved.ok,"codec_selected_save")
 	var before := FileAccess.get_file_as_bytes(target)
 	var next := preset.duplicate(true)
 	next.name = "Original explicit replacement test"
-	var replaced: Dictionary = Preset.save(target,next)
+	var replaced: Dictionary = _trace_save("codec_selected_replace",target,next)
 	_check(replaced.ok,"codec_selected_replace_verifies_contents")
 	var after := FileAccess.get_file_as_bytes(target)
 	_check(after != before and Preset.decode(after).ok,"codec_replacement_verified_bytes")
@@ -454,9 +469,9 @@ func _codec() -> void:
 		marker.store_string("ORIGINAL_KEEP")
 		marker.flush()
 		marker.close()
-	_check(not Preset.save(blocked,next).ok,"codec_replace_failure_reported")
+	_check(not _trace_save("codec_directory_refusal",blocked,next).ok,"codec_replace_failure_reported")
 	_check(DirAccess.dir_exists_absolute(blocked) and FileAccess.get_file_as_string(blocked.path_join("preserved-marker.txt")) == "ORIGINAL_KEEP","codec_replace_failure_preserves_target")
-	_check(not Preset.save(target,{"version":2}).ok,"codec_invalid_save_rejected")
+	_check(not _trace_save("codec_invalid_save",target,{"version":2}).ok,"codec_invalid_save_rejected")
 	_check(FileAccess.get_file_as_bytes(target) == after,"codec_invalid_save_preserves_bytes")
 	# Interrupted/corrupt import is exercised against real decode; applying that result
 	# is deliberately never attempted and existing mapper state must remain unchanged.
@@ -488,12 +503,16 @@ func _locked_replacement(target: String, prior_preset: Dictionary) -> Dictionary
 	# https://learn.microsoft.com/en-us/dotnet/api/system.environment.exit
 	var encoded := Marshalls.raw_to_base64(script.to_utf16_buffer())
 	var executable := OS.get_environment("SystemRoot").path_join("System32/WindowsPowerShell/v1.0/powershell.exe")
+	_trace("lock_create_before")
 	var pid := OS.create_process(executable,PackedStringArray(["-NoProfile","-NonInteractive","-WindowStyle","Hidden","-EncodedCommand",encoded]),false)
+	_trace("lock_create_after")
 	_check(pid>0,"codec_external_lock_child_created")
 	if pid<=0: return {"tested":false,"error":"Cannot create fixture child"}
+	_trace("lock_ready_wait_before")
 	var deadline := Time.get_ticks_msec()+5000
 	while not FileAccess.file_exists(ready) and OS.is_process_running(pid) and Time.get_ticks_msec()<deadline:
 		OS.delay_msec(20)
+	_trace("lock_ready_wait_after")
 	var locked := FileAccess.file_exists(ready) and OS.is_process_running(pid)
 	_check(locked,"codec_external_share_lock_observed")
 	var old_bytes := FileAccess.get_file_as_bytes(target)
@@ -506,7 +525,7 @@ func _locked_replacement(target: String, prior_preset: Dictionary) -> Dictionary
 	if locked:
 		var replacement := prior_preset.duplicate(true)
 		replacement.name = "Must not replace externally locked original"
-		var result: Dictionary = Preset.save(target,replacement)
+		var result: Dictionary = _trace_save("codec_locked_save",target,replacement)
 		held_through_save = OS.is_process_running(pid) and not FileAccess.file_exists(done) and not FileAccess.file_exists(release)
 		save_error = result.error
 		rejected = not result.ok and not result.error.is_empty()
@@ -540,6 +559,7 @@ func _locked_replacement(target: String, prior_preset: Dictionary) -> Dictionary
 		_check(not save_error.contains(target) and not save_error.contains(target.get_base_dir()) and not save_error.contains(target.get_base_dir().replace("/","\\")) and not save_error.contains(".tmp-"),"codec_share_locked_error_excludes_target_temporary_paths")
 		_check(preserved,"codec_share_locked_original_bytes_preserved")
 		_check(retained,"codec_share_locked_temporary_bytes_retained")
+	_trace("lock_release_before")
 	var held_before_release: bool = OS.is_process_running(pid) and not FileAccess.file_exists(done)
 	# Publish only a complete closed signal; the child never reads this sibling pending file.
 	var release_pending: String = release+".pending"
@@ -555,6 +575,8 @@ func _locked_replacement(target: String, prior_preset: Dictionary) -> Dictionary
 			signal_rename=DirAccess.rename_absolute(release_pending,release)
 	var release_written := held_before_release and signal_rename==OK and FileAccess.file_exists(release) and FileAccess.get_file_as_string(release)=="RELEASE"
 	_check(release_written,"codec_lock_release_signal_written")
+	_trace("lock_release_after")
+	_trace("lock_retirement_before")
 	deadline = Time.get_ticks_msec()+5000
 	while OS.is_process_running(pid) and Time.get_ticks_msec()<deadline:
 		OS.delay_msec(20)
@@ -562,20 +584,39 @@ func _locked_replacement(target: String, prior_preset: Dictionary) -> Dictionary
 	var close_marker := FileAccess.file_exists(done) and FileAccess.get_file_as_string(done)=="CLOSED"
 	if not joined: OS.kill(pid) # Only the PID just created by this fixture; timeout still fails.
 	_check(joined and close_marker,"codec_owned_lock_child_retired")
+	_trace("lock_retirement_after")
 	return {"tested":locked,"held_through_save":held_through_save,"held_before_release":held_before_release,"save_error":save_error,"rejected":rejected,"old_bytes_preserved":preserved,"temporary_retained":retained,"release_signal_written":release_written,"close_marker_observed":close_marker,"fixture_child_retired":joined}
 
 func _run() -> Dictionary:
+	_trace_enabled = OS.get_environment("FLIGHT_INPUT_PREFLIGHT_TRACE")=="1"
+	_trace_started_usec = Time.get_ticks_usec()
+	_trace("run_begin")
 	var decoded = JSON.parse_string(FileAccess.get_file_as_string("res://input_tests/reference.json"))
 	_check(decoded is Dictionary and decoded.get("case_count",0) == 38,"independent_reference_loaded")
 	if not decoded is Dictionary: return {"passed":false,"checks":checks,"failures":failures}
 	for row in decoded.cases: references[row.id] = row
 	_check(JOY_AXIS_MAX > JOY_AXIS_LEFT_Y and JOY_BUTTON_MAX > 0,"actual_backend_enum_bounds")
+	_trace("mapping_before")
 	_mapping()
+	_trace("mapping_after")
+	_trace("digital_before")
 	_digital()
+	_trace("digital_after")
+	_trace("latch_before")
 	_latch()
+	_trace("latch_after")
+	_trace("lifecycle_before")
 	_lifecycle()
+	_trace("lifecycle_after")
+	_trace("invalid_and_copies_before")
 	_invalid_and_copies()
+	_trace("invalid_and_copies_after")
+	_trace("edges_and_failures_before")
 	_edges_and_failures()
+	_trace("edges_and_failures_after")
+	_trace("codec_before")
 	_codec()
+	_trace("codec_after")
 	_check(covered.size() == 38,"all_independent_cases_exercised")
+	_trace("run_complete")
 	return {"schema_version":1,"passed":failures.is_empty(),"checks":checks,"failures":failures,"analytic_reference_cases":covered.size(),"arithmetic_absolute_allowance":EPSILON,"runtime_constants":{"JOY_AXIS_MAX":JOY_AXIS_MAX,"JOY_BUTTON_MAX":JOY_BUTTON_MAX},"file_evidence":file_evidence,"scope":"Actual pure mapper/codec with synthetic copied readings; no physical device/native/GPU/human qualification. File evidence does not prove interrupted power-loss durability."}
