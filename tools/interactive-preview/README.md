@@ -82,7 +82,7 @@ The engine strip reports copied native shaft RPM, combustion state, throttle, mi
 
 **F7 Controls** edits the selected profile's bindings and calibration while paused. Version1 presets remain ready-to-fly presets. Their piston migration is an explicit draft requiring review and Apply; switching profiles does not silently convert or overwrite a saved preset. The two profiles retain separate in-memory presets. Release the starter before resuming: pause/focus loss clears local starter intent, and native starter-release admission must succeed before flight advances.
 
-Cold-profile observation recording and new-review Save are currently unavailable and say so. Previously saved ready-to-fly reviews may still be opened as historical observations. This profile adds no durable engine-state save or flight resume. The optional map and route board remain geometric aids; wind-derived cues stay unavailable where their legacy profile contract does not apply.
+Cold-profile observations use Recording2/archive2: flight and all ten engine channels are captured from the same native publication. Review shows held mixture separately from captured engine feedback, retains unavailable reasons and uses historical labels for opened files. Save creates a new selected local Windows file; This flight returns to the separate current recording. Version1 ready-to-fly files retain their unchanged format. The review body scrolls at small sizes while Save/Open/This flight/Back remain reachable. This profile adds no durable engine-state save or flight resume. The optional map and route board remain geometric aids; wind-derived cues stay unavailable where their legacy profile contract does not apply.
 
 
 ### Original procedural audio delivery (ADR020 / #188)

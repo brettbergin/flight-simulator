@@ -6374,6 +6374,90 @@
         "Reviewed contract and exact synthetic wire fixture generator/input/output hashes, measured counts/bytes and independent review.",
         "Affected documentation checks, canonical mappings and explicit bounded dispatch; no runtime/aircraft acceptance."
       ]
+    },
+    {
+      "key": "PISTON-OBSERVED-REVIEW",
+      "title": "Record cold-engine flights and save historical engine review",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Implement accepted ADR022: original piston sampled flight/engine/control review, selected new-file Save and fresh-process historical Open; partial BASIC-DEBRIEF only.",
+      "depends_on": [
+        "PISTON-OBSERVED-REVIEW-CONTRACT",
+        "OBSERVED-FLIGHT-REVIEW",
+        "OBSERVED-REVIEW-FILES",
+        "ORIGINAL-PISTON-FLIGHT",
+        "LICENSE-REGISTER"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:ui",
+        "priority:P1",
+        "status:ready"
+      ],
+      "owned_paths": [
+        "app/replay/observed/values.gd",
+        "app/replay/observed/recorder.gd",
+        "app/replay/observed/review.gd",
+        "app/replay/observed_archive/codec.gd",
+        "app/replay/observed_archive/strict_json.gd",
+        "app/ui/debrief/observed/panel.gd",
+        "app/simulation/flight_scene.gd",
+        "tests/debrief/observed/piston_checks.gd",
+        "tests/debrief/observed/piston_panel_checks.gd",
+        "tests/debrief/observed/piston_scene_checks.gd",
+        "tests/debrief/observed_archive/piston_checks.gd",
+        "tests/debrief/observed_archive/reference/piston-small.fsreview.json",
+        "tests/engine/scene_checks.gd",
+        "tools/interactive-preview/simulation-staging.ps1",
+        "tools/interactive-preview/simulation-staging.test.ps1",
+        "tools/interactive-preview/package.mjs",
+        "tools/interactive-preview/verify.test.mjs",
+        "tools/interactive-preview/README.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md",
+        "docs/evidence/P2/piston-observed-review.md",
+        "tools/interactive-preview/piston-staging.test.ps1",
+        "tests/engine/visual_checks.gd",
+        "tests/debrief/observed_archive/README.md",
+        "docs/README.md",
+        "docs/decisions/022-piston-observed-review.md",
+        "docs/evidence/P2/piston-observed-review-contract.md",
+        "tests/integration/input/pointer_engine_scene_checks.gd",
+        "tests/integration/input/pointer_flight_checks.gd",
+        "content/scenarios/first-flight/briefing.json",
+        "app/ui/first_flight/briefing_panel.gd",
+        "tests/scenarios/first-flight/briefing_checks.gd"
+      ],
+      "docs": [
+        "docs/decisions/011-observed-flight-review.md",
+        "docs/decisions/012-observed-review-interchange.md",
+        "docs/decisions/010-original-piston-profile.md",
+        "docs/experience-and-progress.md",
+        "docs/decisions/022-piston-observed-review.md",
+        "docs/evidence/P2/piston-observed-review-contract.md"
+      ],
+      "requirements": [
+        "PRD-025",
+        "UX-017",
+        "UX-018",
+        "UX-021",
+        "UX-022"
+      ],
+      "acceptance": [
+        "Actual cold-profile attempt records qualified same-Readback flight/engine/held-control samples in Recording2 without invented transitions; unavailable channels stay honest.",
+        "Production v2 dense roundtrip preserves closed identities/types/bits/source; legacyv1 remains unchanged. Exact tuples, duplicated values, Boolean/numeric types, invalidtags and actual adjacent scanner/byte boundaries reject correctly.",
+        "After ordinary initial pause, review/scrub/Save/Open/Cancel/failure/dismiss preserve native/Raw/starter/held/debt/origin/currentrecording authority and held-release Resume admission.",
+        "Selected new Windows file Save and fresh-process historical Open preserve exact source/values and existing no-overwrite/collision/recovery protections; imported authorship remains unverified.",
+        "Readable historical engine/control views at960 and larger; meaningful affected legacy/audio/modal tests, exact source/package/editor/export/replacement and current protected CI pass. Parent75/34/35/74 and source/pilot/phase gates remain open."
+      ],
+      "evidence": [
+        "Source-bound actual native cold observations, unchanged paused authority, selected Windows Save and fresh-process historical Open.",
+        "Independent synthetic references plus production codec and strict boundary evidence; original UI images at supported dimensions and affected delivery/test receipts."
+      ]
     }
   ]
 }

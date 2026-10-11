@@ -184,9 +184,9 @@ function Get-ObservedReviewSourceGroups {
  @(
   @{source='app/replay/observed';destination='replay/observed';required=@('recorder.gd','review.gd','tick_math.gd','values.gd')},
   @{source='app/ui/debrief/observed';destination='ui/debrief/observed';required=@('panel.gd')},
-  @{source='tests/debrief/observed';destination='observed_tests';required=@('recorder_checks.gd','scene_checks.gd','expected-v1.json','generate.py','preparation-binding-v2.json','root-ratification-v1.json','README.md','.gitattributes')},
+  @{source='tests/debrief/observed';destination='observed_tests';required=@('recorder_checks.gd','scene_checks.gd','piston_checks.gd','piston_panel_checks.gd','piston_scene_checks.gd','expected-v1.json','generate.py','preparation-binding-v2.json','root-ratification-v1.json','README.md','.gitattributes')},
   @{source='app/replay/observed_archive';destination='replay/observed_archive';required=@('codec.gd','strict_json.gd','files.gd','windows_io.ps1')},
-  @{source='tests/debrief/observed_archive';destination='observed_archive_tests';required=@('archive_checks.gd','file_checks.gd','scene_checks.gd','visual_checks.gd','windows_fixture.ps1','generate.py','source-binding-v1.json','root-ratification-v1.json','README.md','.gitattributes','reference/expected-text-v1.json','reference/expected-binary64-v1.json')}
+  @{source='tests/debrief/observed_archive';destination='observed_archive_tests';required=@('archive_checks.gd','file_checks.gd','scene_checks.gd','visual_checks.gd','piston_checks.gd','windows_fixture.ps1','generate.py','source-binding-v1.json','root-ratification-v1.json','README.md','.gitattributes','reference/expected-text-v1.json','reference/expected-binary64-v1.json','reference/piston-small.fsreview.json')}
  )|ForEach-Object {$_.snapshot=@(Get-SimulationSourceSnapshot (Join-Path $RepoRoot $_.source) -RequiredEntries $_.required);$_}
 }
 function Copy-ObservedReviewSourceGroups {
@@ -341,7 +341,8 @@ function Assert-PreviewFacadeReceipt {
   foreach($paused in $row.pause_attempts){if($paused -isnot [bool] -or -not $paused){throw 'No hidden first-flight Resume is allowed'}}
   if(($row.native_calls -isnot [long] -and $row.native_calls -isnot [int]) -or $row.native_calls -le 0 -or $row.native_calls -gt 9007199254740991 -or ($row.completed -isnot [long] -and $row.completed -isnot [int]) -or $row.completed -ne 0){throw 'First-flight native calls or completed count rejected'}
  }
- if((($Receipt.observed.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "recorder`nscene"){throw 'Both observed recorder and scene results are mandatory'}
+ if((($Receipt.observed.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "piston`nrecorder`nscene"){throw 'Observed recorder, scene and piston results are mandatory'}
+ Assert-ObservedPistonReceipt $Receipt.observed.piston
  foreach($name in @('recorder','scene')){
   $item=$Receipt.observed.$name
   $names=if($name -eq 'recorder'){@('passed','checks','failures','reference_cases','reference_sha256','scope')}else{@('passed','checks','failures','scope')}
@@ -450,6 +451,21 @@ function Copy-PistonSourceSnapshot {
  Assert-PistonSourceSnapshot -Root $DestinationRoot -Snapshot $Snapshot
  Assert-PistonSourceSnapshot -Root $RepoRoot -Snapshot $Snapshot -Authoring
 }
+function Assert-ObservedPistonReceipt {
+ param([Parameter(Mandatory)]$Receipt)
+ if((($Receipt.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "archive`npanel`nrecorder"){throw 'All three piston observed leaves are mandatory'}
+ $total=[long]0
+ foreach($name in @('recorder','archive','panel')){
+  $item=$Receipt.$name
+  if((($item.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "checks`nfailures`npassed`nscope" -or $item.passed -isnot [bool] -or -not $item.passed -or ($item.checks -isnot [int] -and $item.checks -isnot [long]) -or $item.checks -le 0 -or $item.checks -gt 9007199254740991 -or $item.failures -isnot [array] -or $item.failures.Count -ne 0 -or $item.scope -isnot [string] -or [string]::IsNullOrWhiteSpace($item.scope) -or $item.scope.Length -gt 1024){throw 'Piston observed leaf missing, vacuous or failed'}
+  $total+=$item.checks
+  if($total -gt 9007199254740991){throw 'Piston observed aggregate is not a safe integer'}
+ }
+}
+function Assert-ObservedPistonSceneReceipt {
+ param([Parameter(Mandatory)]$Receipt)
+ if((($Receipt.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "checks`nfailures`npassed`nscope" -or $Receipt.passed -isnot [bool] -or -not $Receipt.passed -or ($Receipt.checks -isnot [int] -and $Receipt.checks -isnot [long]) -or $Receipt.checks -le 0 -or $Receipt.checks -gt 9007199254740991 -or $Receipt.failures -isnot [array] -or $Receipt.failures.Count -ne 0 -or $Receipt.scope -isnot [string] -or [string]::IsNullOrWhiteSpace($Receipt.scope) -or $Receipt.scope.Length -gt 1024){throw 'Actual piston observed scene missing, vacuous or failed'}
+}
 function Assert-PreviewPistonReceipt {
  param([Parameter(Mandatory)]$Receipt)
  if((($Receipt.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "checks`nfailures`ngroups`npassed`nschema`nscope" -or $Receipt.schema -cne 'PistonFlightChecks/v1' -or $Receipt.passed -isnot [bool] -or -not $Receipt.passed -or ($Receipt.checks -isnot [long] -and $Receipt.checks -isnot [int]) -or $Receipt.checks -le 0 -or $Receipt.failures -isnot [array] -or $Receipt.failures.Count -ne 0 -or $Receipt.scope -isnot [string] -or [string]::IsNullOrWhiteSpace($Receipt.scope) -or $Receipt.scope.Length -gt 1024){throw 'Cold-flight receipt shape or active checks rejected'}
@@ -475,6 +491,7 @@ function Assert-PreviewPistonReceipt {
   $covered+=$key
  }
  if($Receipt.groups.scene.result.initialized -isnot [bool] -or -not $Receipt.groups.scene.result.initialized -or $Receipt.groups.scene.result.cold_initial_tick -isnot [string] -or $Receipt.groups.scene.result.cold_initial_tick -cne '0' -or $Receipt.groups.scene.result.cold_reset_tick -isnot [string] -or $Receipt.groups.scene.result.cold_reset_tick -cne '0'){throw 'Actual cold scene adoption/reset evidence required'}
+ Assert-ObservedPistonSceneReceipt $Receipt.groups.scene.result.observed_review
 }
 
 # ADR016: build-side expectation qualification, never native self-report trust.
@@ -820,6 +837,20 @@ func execute() -> void:
   check(failures.size()==before and result.get("passed",false) and result.get("checks",0)>0 and result.get("failures",["missing"]).is_empty(),"actual_freeflight_"+item.name+"_checks")
   freeflight_checks[item.name]=result
  var observed_checks: Dictionary={}
+ var piston_observed: Dictionary={}
+ stage("begin","observed.piston")
+ piston_observed.recorder=load("res://observed_tests/piston_checks.gd").new().run(self)
+ piston_observed.archive=load("res://observed_archive_tests/piston_checks.gd").run()
+ var piston_fixture: Dictionary=load("res://replay/observed_archive/codec.gd").decode(FileAccess.get_file_as_bytes("res://observed_archive_tests/reference/piston-small.fsreview.json"))
+ var legacy_fixture: Dictionary=load("res://replay/observed_archive/codec.gd").decode(FileAccess.get_file_as_bytes("res://observed_archive_tests/reference/minimal.fsreview.json"))
+ check(piston_fixture.ok and legacy_fixture.ok,"piston_review_independent_ui_fixtures_admitted")
+ piston_observed.panel=await load("res://observed_tests/piston_panel_checks.gd").new().run(self,piston_fixture.value if piston_fixture.ok else {},legacy_fixture.value if legacy_fixture.ok else {})
+ for name in ["recorder","archive","panel"]:
+  var child: Dictionary=piston_observed[name]
+  check(child.get("passed")==true and typeof(child.get("checks"))==TYPE_INT and child.checks>0 and child.get("failures") is Array and child.failures.is_empty(),"actual_piston_observed_"+name+"_checks")
+  if name in ["archive","panel"] and typeof(child.get("checks"))==TYPE_INT: checks+=child.checks
+ observed_checks.piston=piston_observed
+ stage("end","observed.piston")
  var observed_before: int=failures.size()
  stage("begin","observed.recorder")
  var recorded: Dictionary=load("res://observed_tests/recorder_checks.gd").new().run(self)

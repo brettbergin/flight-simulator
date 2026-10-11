@@ -1,6 +1,6 @@
 # ADR022: Original piston recorded observations and saved review
 
-Status: **proposed under [#195](https://github.com/brettbergin/flight-simulator/issues/195); independent design/reference review passed; checked contract publication pending**. This extends only the original-profile observed recording/archive seam. Partial original-prototype engineering support for BASIC-DEBRIEF #75; its P2/profile/resume dependencies and P3 gate remain open. Basis: accepted ADR011/#134/PR135, ADR012/#138/PR139 and original piston #127/PR156. Actual #75 assignment still describes a complete sourced circuit/event debrief; this slice deliberately does less and must be published as a separate bounded child.
+Status: **accepted through [PR196](https://github.com/brettbergin/flight-simulator/pull/196), merged as `7ddbff810a8301d69a25d4b4e43d0f02bdebfe8c`; runtime consumer [#197](https://github.com/brettbergin/flight-simulator/issues/197) is separately qualified**. This extends only the original-profile observed recording/archive seam. Partial original-prototype engineering support for BASIC-DEBRIEF #75; its P2/profile/resume dependencies and P3 gate remain open. Basis: accepted ADR011/#134/PR135, ADR012/#138/PR139 and original piston #127/PR156. Actual #75 assignment still describes a complete sourced circuit/event debrief; this slice deliberately does less and must be published as a separate bounded child.
 
 ## Exact revision and admission
 
