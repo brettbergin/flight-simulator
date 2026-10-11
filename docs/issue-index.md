@@ -104,7 +104,8 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | C172P-APPLICABILITY-DOSSIER | [#171 Establish one 160 hp land C172P applicability and normal-reference dossier](https://github.com/brettbergin/flight-simulator/issues/171) | C172P-SOURCE-ASSESSMENT, LICENSE-REGISTER, VALIDATION-CORPUS |
 | C172P-HOST-RIGHTS-CLOSURE | [#172 Resolve recursive numerical/FlightGear-host provenance and rights](https://github.com/brettbergin/flight-simulator/issues/172) | C172P-SOURCE-ASSESSMENT, LICENSE-REGISTER, VALIDATION-CORPUS |
 
-| PISTON-MIXTURE-DECAY-COVERAGE | [#202 Preserve cold replay and qualify ordinary mixture-decay continuation](https://github.com/brettbergin/flight-simulator/issues/202) | ORIGINAL-PISTON-FLIGHT, PISTON-COUPLING-ACCURACY |
+| PISTON-MIXTURE-DECAY-COVERAGE | [#202 Preserve cold replay and qualify ordinary mixture-decay continuation](https://github.com/brettbergin/flight-simulator/issues/202) | ORIGINAL-PISTON-FLIGHT, PISTON-COUPLING-ACCURACY, PISTON-LOCAL-WINDOW-CONTRACT |
+| PISTON-LOCAL-WINDOW-CONTRACT | [#207 Ratify one certified local piston decay window before coverage repair](https://github.com/brettbergin/flight-simulator/issues/207) | ORIGINAL-PISTON-FLIGHT, PISTON-COUPLING-ACCURACY |
 
 ## P4 — Regional navigation and environment
 

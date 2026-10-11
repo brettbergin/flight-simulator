@@ -34,3 +34,5 @@ third_party/licenses/notices/Microsoft-VS2022-Community-Terms.txt whitespace=-tr
 tests/export/*.bin binary
 
 docs/evidence/P2/native-wire-number-reference.py text eol=lf
+
+docs/evidence/P3/piston-local-window-reference/generate.py text eol=lf

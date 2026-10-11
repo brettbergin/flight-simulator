@@ -1,0 +1,41 @@
+# Certified local decay-window contract evidence
+
+Status: **proposed contract with independently reviewed, frozen amendment references; integrated review and hosted checks pending**. [Issue207](https://github.com/brettbergin/flight-simulator/issues/207) owns [ADR024](../../decisions/024-certified-local-decay-window.md). The later numerical and player repair remains open under [issue202](https://github.com/brettbergin/flight-simulator/issues/202). Dependencies are accepted [issue127](https://github.com/brettbergin/flight-simulator/issues/127) and [issue149](https://github.com/brettbergin/flight-simulator/issues/149); this contract does not depend on completing issue202.
+
+## What the retained evidence establishes
+
+The unchanged original piston replay preserves 298 calls, 138 exact binary64 command fields and three raw checkpoints. It reproduces `coupled shaft: decay continuation uncertified`: the failing step requests 28 ticks, completes three and advances from tick 1579 to tick 1582 before visible rejection and joined close. The original expected-failure receipt is SHA256 `dd2ce2a158b9f7265d997c6548ab89e6d8c8587bd65f6d56eccddb07c03b478d`, independently reviewed as `8f9a194be74b8321bb247e4bfc3e94b0ac86422f8ca98ad44752b73a8ce7c018`. This is reproducibility of a defect, not successful continuation.
+
+A separate private instrumented source identity, `f902c425f742ea1120cf1fc200f49610f4be6c18ff15815fcc99b1088cff3353`, captures the failed certificate without changing solver expressions, evaluation budgets or the original reply/checkpoint bytes. Its replay passes 7,726 expected-failure checks over the same 298 calls and three checkpoints, including joined shutdown. The captured frame is SHA256 `01a8cbc256bbc30a5a53265362d5af89a7297cc5d6f5f065cd1b53d9d3458e8b`; saved-artifact review is `65ddbd05e66efaf29ae689bba06def00bc4e8c86255e00063060f5f8e27bc0df`. The capture records eight exhausted splits, 16 evaluated cells and no positive lower enclosure. This diagnostic identity is separate from the accepted runtime and is not a shipping source variant.
+
+Exact rational analysis reconstructs all five derivative coefficients and all 16 observed Horner-cell decisions. The full interval genuinely has a nonmonotone time map: its derivative polynomial is positive at zero and has one root near 0.014205 rad/s. Increasing splits cannot certify monotonicity of that full interval. The requested short duration instead has a unique connected solution within the half interval: the same polynomial has a strictly negative exact Horner enclosure there, and the remaining duration is strictly below the half-endpoint time. An independent derivation checks coefficient expansion, Bernstein signs, connected negative torque and rational time order; it does not infer the cause from the rejection text or fit a native output.
+
+Retained diagnosis handoff: SHA256 `24bbe52d2b556e838c520278a1ffcfad11a4e0ec5402257e4723fd8a6ad919e1`; exact analysis result: `d553967f7b213996ccba247eb7ec60e4a695ff6d1b1f21f5276b33f9e63cf97a`. These hashes identify retained engineering evidence. They are not a new native golden value or a published replacement archive.
+
+## Proposed bounded amendment
+
+ADR024 keeps whole-interval certification first and returns every successful full path before evaluating a fallback. Only an explicit algebraic uncertifiable result permits one deterministic connected half-window attempt. Arithmetic, source, environment, capacity and stagnation failures continue to reject.
+
+Both attempts share eight total splits and at most 18 interval evaluations. Exact certification remains possible without another split after the allowance is exhausted. The existing 64-bisection solve, arithmetic/rounding bounds, model inputs, public ticks and once-per-public-step engine/fuel chronology remain unchanged. Strict remaining-time bracketing admits only an ordinary interior result, never a fabricated half event or stop.
+
+The proposed source identifier `jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2` requires separate ratification, archive/manifest/build fingerprints and the complete inherited four-file corresponding-source/license closure. Immutable v1 sources, references and rejection artifacts remain preserved. This evidence records a policy proposal, not adoption of that identifier.
+
+## References and completion gates
+
+A prospective 17-case exact-rational packet has been frozen before any new local-window implementation output. Independent exact-reference review passed (SHA256 `b7452f7b24c38ea8a66c9d6194e387db199f373fe1dfd799eeb3c1fcdc80346d`), and Root ratified the exact generator/expected-data bytes before implementation. Final integrated contract review and checked merge remain required. Its proposed public [reference packet](piston-local-window-reference/README.md) contains `generate.py`, `expected.json`, `README.md` and `manifest.json`. The retained authoring manifest fingerprint is SHA256 `a7bc0e530ba8b76b77f849ee04d2f7e58969286192dad75951845cd23c120f97`; the proposed public derivative manifest binds portable tracked destinations and preserves this origin hash.
+
+| Prepared reference file | SHA256 |
+|---|---|
+| `generate.py` | `01d4b45c3abee53d3cf72804540973aec7b27171a8b23cd7d82d63bf22782699` |
+| `expected.json` | `da53acdff9600e2577832d1e3d110d8cfd221c45e8d1576ff088ef59514bdd7b` |
+| Original authoring `README.md` | `7974449d1ea2cfdb935a5e783f58cdc2db12e38f3a12869054c335b8ec2df76a` |
+
+The prepared cases cover the actual captured frame, authored scalar-law/full-success/source-boundary compatibility, strict half-time equality/excess, local-sign rejection, shared/exhausted split counters, unchanged direct R05 split/bisection/capacity guards and adjacent-endpoint midpoint rejection. These are mathematical admission/certificate expectations, not native angular-speed goldens or guaranteed solver output bits. The later compiled solver still must satisfy its unchanged representability, residual and output guards. Preserve v1 R05 and all other original expectations under v1; prospective v2 behavior must be explicit. Reference expectations and tolerances cannot be selected from implementation output.
+
+Contract acceptance still needs the integrated policy/reference/source-identity review and current documentation/schema/CI checks. Closing issue207 would accept only that contract. Issue202 subsequently needs the reviewed source change, strict Windows/Linux comparisons, unchanged physical/convergence gates, actual continuation past the preserved failure, native engine/fuel chronology and fresh editor/portable/rebuilt-library delivery. None of those implementation results is supplied by this packet.
+
+No model XML, aircraft parameter, physical threshold, public wire/session method or UI selector changes are authorized here. [Issue204](https://github.com/brettbergin/flight-simulator/issues/204) and [issue205](https://github.com/brettbergin/flight-simulator/issues/205) retain their separate frontend decimal-decoding scope. No C172 calibration, training credit, pilot evaluation or P3 acceptance is established.
+
+The proposed public README and manifest are relocatable derivatives; the README hash is recorded in the adjacent [public manifest](piston-local-window-reference/manifest.json), and the final manifest hash belongs in integration evidence. The generator and expected JSON remain exactly frozen. No extra capture file is needed to regenerate these expectations: the full primitive law, speed, inertia and exact time are embedded; the original diagnostic frame remains identified by its origin hash.
+
+The integrated public manifest is SHA256 `996dbc36c68fc35b8cb33d2b988fd9b10da235bd5f8e137e4b498101798fc016`. Its portable source/file pins preserve the generator and expected data exactly while recording the independent mathematical review and bounded ratification. This accepts expectations only; no corrected solver or successful continuation is claimed.

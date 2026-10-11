@@ -6608,7 +6608,8 @@
       "summary": "Reproduce and resolve the original piston supported-control decay-certification coverage gap without weakening strict arithmetic, frozen source/reference or physics gates.",
       "depends_on": [
         "ORIGINAL-PISTON-FLIGHT",
-        "PISTON-COUPLING-ACCURACY"
+        "PISTON-COUPLING-ACCURACY",
+        "PISTON-LOCAL-WINDOW-CONTRACT"
       ],
       "labels": [
         "type:bug",
@@ -6635,7 +6636,9 @@
         "docs/decisions/015-source-law-coupled-shaft.md",
         "docs/decisions/016-generated-native-build-identity.md",
         "docs/evidence/P3/original-piston-player.md",
-        "docs/evidence/P3/coupled-midpoint-shaft.md"
+        "docs/evidence/P3/coupled-midpoint-shaft.md",
+        "docs/decisions/024-certified-local-decay-window.md",
+        "docs/evidence/P3/piston-local-window-contract.md"
       ],
       "requirements": [
         "PRD-004",
@@ -6644,7 +6647,7 @@
       "acceptance": [
         "Reproduce the exact captured cold command/tick/float/step history headlessly on unchanged source/DLL and retain its actual terminal failure and joined close before any correction.",
         "Capture the failed actual scalar frame, endpoint/equilibrium and exact certificate bounds/split disjunct; independently establish whether it is true nonmonotonicity or conservative enclosure exhaustion. Do not infer a wrong root from the error string.",
-        "Review any correction within existing ADR015 bounds; expanded numerical admission or source identities require a contract PR first. Preserve immutable source/fixtures and genuine ambiguous/equilibrium/stop/resource rejections, with no fallback, hidden resource increase, model or budget retune.",
+        "Review any correction within existing ADR015 bounds; expanded numerical admission or source identities require checked ADR024/issue207 and independently ratified references first. Preserve immutable source/fixtures and genuine ambiguous/equilibrium/stop/resource rejections, with no unreviewed fallback, hidden resource increase, model or budget retune.",
         "Qualify separately bound modified corresponding source, strict actual native compilation, fresh generated/actual native identity and replacement closure; pass new independent references/replay and unchanged scalar/default/legacy/mode/fuel/terminal,60/120/240physical and actual-player regressions.",
         "Record remaining limits and close only this coverage leaf, not C172, pilot or phase gates. Separate fuel-feed-cutoff presentation does not fix or relabel the mixture failure."
       ],
@@ -6769,6 +6772,61 @@
       ],
       "evidence": [
         "Source-bound old pure failure and observed native token/held bits; reviewed contract plus independently pre-ratified exact numeric/grammar references before any implementation outputs."
+      ]
+    },
+    {
+      "key": "PISTON-LOCAL-WINDOW-CONTRACT",
+      "title": "Ratify one certified local piston decay window before coverage repair",
+      "kind": "task",
+      "phase": "P3",
+      "parent": "EPIC-P3",
+      "summary": "Review the bounded connected half-window amendment and independent exact references before issue202 numerical/source adoption; preserve immutable v1 evidence and physical gates.",
+      "depends_on": [
+        "ORIGINAL-PISTON-FLIGHT",
+        "PISTON-COUPLING-ACCURACY"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P3",
+        "area:aircraft",
+        "priority:P1",
+        "status:ready"
+      ],
+      "owned_paths": [
+        "docs/decisions/024-certified-local-decay-window.md",
+        "docs/evidence/P3/piston-local-window-contract.md",
+        "docs/evidence/P3/piston-local-window-reference/generate.py",
+        "docs/evidence/P3/piston-local-window-reference/expected.json",
+        "docs/evidence/P3/piston-local-window-reference/README.md",
+        "docs/evidence/P3/piston-local-window-reference/manifest.json",
+        "docs/contracts.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p3-complete-circuit.md",
+        ".gitattributes"
+      ],
+      "docs": [
+        "docs/decisions/010-original-piston-profile.md",
+        "docs/decisions/014-event-aware-shaft.md",
+        "docs/decisions/015-source-law-coupled-shaft.md",
+        "docs/decisions/016-generated-native-build-identity.md",
+        "docs/decisions/024-certified-local-decay-window.md",
+        "docs/evidence/P3/piston-local-window-contract.md"
+      ],
+      "requirements": [
+        "PRD-004",
+        "PRD-033"
+      ],
+      "acceptance": [
+        "Ratify full-certificate-first and one deterministic half-window attempt authorized only by structured algebraic uncertifiable status; preserve unrelated rejections, eight total shared splits, zero-split certification at exhaustion, at most 18 interval evaluations and the existing 64-bisection solve.",
+        "Require an exact negative local certificate, connected negative torque and strict remaining time below the half-endpoint time; return only an ordinary interior result without synthetic events/stops/time subtraction/extra engine or fuel calls/public ticks.",
+        "Freeze independently derived exact-rational amendment references and negative cases before implementation outputs; preserve immutable v1 source/references/failures and explicitly specify new-variant outcomes.",
+        "Ratify a distinct source/archive/generated identity and complete inherited corresponding-source/license closure; no model XML, physical threshold, public wire/session method or UI selector changes.",
+        "Integrate contract/maps/evidence and current documentation/schema checks with independent review before production consumers. Closure accepts only the contract; issue202 still requires actual corrected replay, unchanged physical/convergence gates and fresh editor/portable/rebuilt-library delivery."
+      ],
+      "evidence": [
+        "Reviewed ADR024 policy/work bounds and source-identity plan; independently frozen amendment packet and integrated review before outputs; retained original expected-failure replay and captured exact diagnosis, with implementation/phase limits explicit."
       ]
     }
   ]
