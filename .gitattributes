@@ -60,3 +60,4 @@ tests/world/taxi/compatibility-reference/** text eol=lf
 # Raw source pins are identical in ordinary Windows checkouts and source archives.
 native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp text eol=lf
 native/fdm_jsbsim/interactive/src/session.cpp text eol=lf
+tests/world/ground-materials/checks.gd text eol=lf
