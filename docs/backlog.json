@@ -7092,7 +7092,9 @@
         "tools/interactive-preview/camera-receipt.mjs",
         "tools/interactive-preview/camera-receipt.test.mjs",
         ".github/workflows/coupled-ci.yml",
-        ".github/workflows/coupled-local-window-ci.yml"
+        ".github/workflows/coupled-local-window-ci.yml",
+        "tools/interactive-preview/native-identity.py",
+        "tests/interactive/test_native_identity.py"
       ],
       "docs": [
         "docs/README.md",
