@@ -99,7 +99,7 @@ jobs:
           $taxiPins = @{
             'content/world/synthetic/taxi-layout-v1.json' = 'd8668af407885949a4eb05fbe170d41fe6c6752d3ce15670f9879a36063d355c'
             'schemas/world/synthetic-taxi-layout-v1.schema.json' = '14d7a2d7836c76d7a1adb5841d153e6c1e06a101992ab94bc4363d50db581a36'
-            'docs/decisions/027-synthetic-taxi-navigation.md' = '6a16fd986ac0d243546d8de8e1c17667fe69941b207d9fa738bf744ad27dbf9b'
+            'docs/decisions/027-synthetic-taxi-navigation.md' = '480ea9cbc9872ce7f2da74e92c7620646a4d28d40ba40540cecd461a10cae0f3'
             'tests/world/taxi/reference/generate.py' = '799fbcc5fc2144e713d295559e961d1614e245b7bf2a003135ce1234eedec558'
             'tests/world/taxi/reference/expected-v1.json' = '9b9579b18c38ba3c1393af76798fa39b8683229fdf2eff553b1c12e0fd3ae37c'
             'tests/world/taxi/reference/source-binding-v1.json' = '1366d0484be3eb6a6ca13028f7f431894d6c879c01dbe2a04f3107a7a7678c8b'
