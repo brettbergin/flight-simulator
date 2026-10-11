@@ -6313,6 +6313,67 @@
         "A feasible accepted bounded ADR or explicit incompatibility result; conditional consumer ownership only, with capture/rearm and delivery gates still pending.",
         "docs/evidence/P2/manual-flight-overlay-dock-contract.md: reviewed initial eight-original whole-mirror incompatibility; mandatory960 piston PANEL heading occlusion retained, wider configurations unmeasured; no API or consumer."
       ]
+    },
+    {
+      "key": "PISTON-OBSERVED-REVIEW-CONTRACT",
+      "title": "Freeze cold-profile observed recording and saved historical review",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Define a versioned original-piston observed record/archive over accepted review/file machinery; partial BASIC-DEBRIEF only, no runtime consumer before accepted contract and dispatch.",
+      "depends_on": [
+        "OBSERVED-FLIGHT-REVIEW",
+        "OBSERVED-REVIEW-FILES",
+        "ORIGINAL-PISTON-FLIGHT",
+        "LICENSE-REGISTER"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:ui",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "docs/decisions/011-observed-flight-review.md",
+        "docs/decisions/012-observed-review-interchange.md",
+        "docs/contracts.md",
+        "docs/README.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md",
+        "docs/evidence/P1/gate-review.md",
+        "docs/evidence/P2/piston-observed-review-contract.md",
+        "docs/decisions/022-piston-observed-review.md",
+        "docs/evidence/P2/piston-observed-review-reference.py",
+        "docs/evidence/P2/piston-observed-review-wire-reference.json"
+      ],
+      "docs": [
+        "docs/decisions/011-observed-flight-review.md",
+        "docs/decisions/012-observed-review-interchange.md",
+        "docs/decisions/010-original-piston-profile.md",
+        "docs/experience-and-progress.md",
+        "docs/decisions/022-piston-observed-review.md",
+        "docs/evidence/P2/piston-observed-review-contract.md"
+      ],
+      "requirements": [
+        "PRD-025",
+        "UX-017",
+        "UX-018",
+        "UX-021",
+        "UX-022"
+      ],
+      "acceptance": [
+        "Freeze exact piston-only Recording2/archive2 and unchanged legacy1 admission, same-source EngineStatus/types/partial/duplicated-value/source rules.",
+        "Independently reproduce actual dense wire fixture count/bytes and review explicit v2-only400k value limit; v1 remains250k and both8MiB caps unchanged.",
+        "Specify paused historical-only UI/IO/session/Raw/capture/starter/audio boundaries and conditional consumer ownership/acceptance.",
+        "Preserve BASIC-DEBRIEF parent dependencies and aggregate/source/pilot gates; no consumer until contract acceptance and Root dispatch."
+      ],
+      "evidence": [
+        "Reviewed contract and exact synthetic wire fixture generator/input/output hashes, measured counts/bytes and independent review.",
+        "Affected documentation checks, canonical mappings and explicit bounded dispatch; no runtime/aircraft acceptance."
+      ]
     }
   ]
 }
