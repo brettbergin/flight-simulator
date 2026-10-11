@@ -188,7 +188,7 @@ export function groundMaterialIdentity(repository){
 export function validateGroundMaterialReceipt(receipt,expected){
  assert.deepEqual(Object.keys(receipt).sort(),['result','source_files','shader_code_utf8_sha256'].sort());
  assert.deepEqual(Object.keys(receipt.result).sort(),['passed','checks','failures','scope'].sort());
- assert.equal(receipt.result.passed,true);assert.equal(receipt.result.checks,371);
+ assert.equal(receipt.result.passed,true);assert.equal(receipt.result.checks,452);
  assert.deepEqual(receipt.result.failures,[]);assert.equal(typeof receipt.result.scope,'string');
  assert(receipt.result.scope.length>0&&receipt.result.scope.length<=1024);
  assert.deepEqual(receipt.source_files,expected.source_files,'Actual ground resource bytes differ');

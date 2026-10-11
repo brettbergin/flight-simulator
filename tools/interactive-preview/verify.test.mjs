@@ -174,9 +174,9 @@ test('ground material package binds actual resources and all three independent r
  }
  const expected=validateGroundMaterialSources(authored,project,source);
  assert.deepEqual(expected,groundMaterialIdentity(authored));
- const good={result:{passed:true,checks:371,failures:[],scope:'Synthetic admission only; not GPU evidence'},...expected};
- assert.equal(validateGroundMaterialReceipt(good,expected),371);
- for(const mutate of [r=>{r.result.checks=0;},r=>{r.result.checks=370;},r=>{r.result.checks='371';},r=>{r.result.passed=false;},r=>{r.result.failures=['failed'];},r=>{r.result.extra=true;},r=>{r.extra=true;},r=>{delete r.source_files['tests/world/ground-materials/checks.gd'];},r=>{r.source_files['app/proof/interactive/flight_world.gd'].sha256='a'.repeat(64);},r=>{r.source_files['content/aircraft/prototype/ground-presentation.json'].bytes++;},r=>{r.shader_code_utf8_sha256='b'.repeat(64);}]){
+ const good={result:{passed:true,checks:452,failures:[],scope:'Synthetic admission only; not GPU evidence'},...expected};
+ assert.equal(validateGroundMaterialReceipt(good,expected),452);
+ for(const mutate of [r=>{r.result.checks=0;},r=>{r.result.checks=370;},r=>{r.result.checks='371';},r=>{r.result.checks=371;},r=>{r.result.checks=451;},r=>{r.result.checks=453;},r=>{r.result.checks='452';},r=>{r.result.checks=519;},r=>{r.result.passed=false;},r=>{r.result.failures=['failed'];},r=>{r.result.extra=true;},r=>{r.extra=true;},r=>{delete r.source_files['tests/world/ground-materials/checks.gd'];},r=>{r.source_files['app/proof/interactive/flight_world.gd'].sha256='a'.repeat(64);},r=>{r.source_files['content/aircraft/prototype/ground-presentation.json'].bytes++;},r=>{r.shader_code_utf8_sha256='b'.repeat(64);}]){
   const bad=structuredClone(good);mutate(bad);assert.throws(()=>validateGroundMaterialReceipt(bad,expected));
  }
  for(const [name,mapped] of Object.entries(mapping)){
