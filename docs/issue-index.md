@@ -68,6 +68,8 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | ORDINARY-FLIGHT-LAYOUT | [#178 Keep ordinary flight overlays clear of instruments and each other](https://github.com/brettbergin/flight-simulator/issues/178) | ORDINARY-FLIGHT-LAYOUT-CONTRACT, POINTER-ENGINE-CONTROLS, COCKPIT-PRESENTATION, FIRST-FLIGHT-FRONTEND-CONTRACT, FIRST-FLIGHT-BRIEFING, SYNTHETIC-CIRCUIT-REFERENCE |
 | GAZE-OVERLAY-LAYOUT-DESIGN | [#179 Design overlay readability during deliberate gaze and zoom](https://github.com/brettbergin/flight-simulator/issues/179) | ORDINARY-FLIGHT-LAYOUT |
 | CHASE-HUD-CAPTION-SPACING | [#184 Keep CHASE HUD unit captions clear of the next instrument row](https://github.com/brettbergin/flight-simulator/issues/184) | ORDINARY-FLIGHT-LAYOUT |
+| PROTOTYPE-AUDIO-CUE-CONTRACT | [#187 Freeze original audio cues, options and paused Audio panel contract](https://github.com/brettbergin/flight-simulator/issues/187) | SIM-LOOP, LICENSE-REGISTER, ORDINARY-FLIGHT-LAYOUT |
+| ORIGINAL-AUDIO-CUES | [#188 Add original TAS airflow and engine mix with paused Audio controls](https://github.com/brettbergin/flight-simulator/issues/188) | PROTOTYPE-AUDIO-CUE-CONTRACT, SIM-LOOP, LICENSE-REGISTER |
 
 ## P3 — Complete circuit and durable progress
 
