@@ -58,7 +58,8 @@ file(WRITE "${CMAKE_BINARY_DIR}/interactive-source-fingerprint.txt" "${INTERACTI
 set(interactive_identity_variants
   jsbsim-1.3.1-upstream
   jsbsim-1.3.1-event-aware-constant-power-v1
-  jsbsim-1.3.1-event-aware-coupled-midpoint-v1)
+  jsbsim-1.3.1-event-aware-coupled-midpoint-v1
+  jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2)
 if(NOT FLIGHT_JSBSIM_SOURCE_VARIANT IN_LIST interactive_identity_variants)
   message(FATAL_ERROR "Generated native identity requires a reviewed source variant")
 endif()

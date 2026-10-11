@@ -1,0 +1,5644 @@
+{
+  "schema": "PistonMixtureDecayRecipe/v1",
+  "status": "Observed baseline failure; portable inputs not replayed yet",
+  "source_fingerprint": "5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5",
+  "source_transcript_sha256": "22f00351cdfd5a271ffcc814aee19b80a99811f7813d64ec217985cfafd31970",
+  "original_receipt_sha256": "3094ae8a2d826ec5fe41651ca7f4fb4d054408d8bde3a102879f79f760ed6c31",
+  "bindings": {
+    "@session_id": "Bind only the actual fresh open_session result session ID",
+    "@model_root": "Bind the qualified original piston model root with unchanged bytes"
+  },
+  "calls": [
+    {
+      "index": 0,
+      "method": "open_session",
+      "arguments": [
+        "@model_root",
+        "piston-cold-ground",
+        "calm",
+        "original-piston-prop-v1"
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 1,
+      "method": "session_control",
+      "arguments": [
+        {
+          "type": "SessionControl",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "@session_id",
+          "sequence": "1",
+          "source_id": "session.owner",
+          "payload": {
+            "kind": "pause",
+            "paused": true
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "paused",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 2,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "paused",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 3,
+      "method": "session_control",
+      "arguments": [
+        {
+          "type": "SessionControl",
+          "schema_version": 1,
+          "tick": "0",
+          "session_id": "@session_id",
+          "sequence": "2",
+          "source_id": "session.owner",
+          "payload": {
+            "kind": "pause",
+            "paused": false
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 4,
+      "method": "submit",
+      "arguments": [
+        {
+          "type": "ControlCommand",
+          "schema_version": 1,
+          "tick": "1",
+          "session_id": "@session_id",
+          "sequence": "1",
+          "source_id": "pilot.controls",
+          "authority": "pilot",
+          "assistance": {
+            "profile_id": "unassisted",
+            "active": []
+          },
+          "payload": {
+            "kind": "axes",
+            "roll": 0.0,
+            "pitch": 0.0,
+            "yaw": 0.0,
+            "throttle": 0.0,
+            "mixture": 0.06,
+            "left_brake": 1.0,
+            "right_brake": 1.0,
+            "trim": 0.0
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": true,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 5,
+      "method": "step_fixed",
+      "arguments": [
+        27
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 27,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 6,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 7,
+      "method": "submit",
+      "arguments": [
+        {
+          "type": "ControlCommand",
+          "schema_version": 1,
+          "tick": "29",
+          "session_id": "@session_id",
+          "sequence": "2",
+          "source_id": "pilot.controls",
+          "authority": "pilot",
+          "assistance": {
+            "profile_id": "unassisted",
+            "active": []
+          },
+          "payload": {
+            "kind": "axes",
+            "roll": 0.0,
+            "pitch": 0.0,
+            "yaw": 0.0,
+            "throttle": 0.0,
+            "mixture": 0.12,
+            "left_brake": 1.0,
+            "right_brake": 1.0,
+            "trim": 0.0
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": true,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 8,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 9,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 10,
+      "method": "submit",
+      "arguments": [
+        {
+          "type": "ControlCommand",
+          "schema_version": 1,
+          "tick": "58",
+          "session_id": "@session_id",
+          "sequence": "3",
+          "source_id": "pilot.controls",
+          "authority": "pilot",
+          "assistance": {
+            "profile_id": "unassisted",
+            "active": []
+          },
+          "payload": {
+            "kind": "axes",
+            "roll": 0.0,
+            "pitch": 0.0,
+            "yaw": 0.0,
+            "throttle": 0.0,
+            "mixture": 0.18,
+            "left_brake": 1.0,
+            "right_brake": 1.0,
+            "trim": 0.0
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": true,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 11,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 12,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 13,
+      "method": "submit",
+      "arguments": [
+        {
+          "type": "ControlCommand",
+          "schema_version": 1,
+          "tick": "87",
+          "session_id": "@session_id",
+          "sequence": "4",
+          "source_id": "pilot.controls",
+          "authority": "pilot",
+          "assistance": {
+            "profile_id": "unassisted",
+            "active": []
+          },
+          "payload": {
+            "kind": "axes",
+            "roll": 0.0,
+            "pitch": 0.0,
+            "yaw": 0.0,
+            "throttle": 0.0,
+            "mixture": 0.24,
+            "left_brake": 1.0,
+            "right_brake": 1.0,
+            "trim": 0.0
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": true,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 14,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 15,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 16,
+      "method": "submit",
+      "arguments": [
+        {
+          "type": "ControlCommand",
+          "schema_version": 1,
+          "tick": "116",
+          "session_id": "@session_id",
+          "sequence": "5",
+          "source_id": "pilot.controls",
+          "authority": "pilot",
+          "assistance": {
+            "profile_id": "unassisted",
+            "active": []
+          },
+          "payload": {
+            "kind": "axes",
+            "roll": 0.0,
+            "pitch": 0.0,
+            "yaw": 0.0,
+            "throttle": 0.0,
+            "mixture": 0.3,
+            "left_brake": 1.0,
+            "right_brake": 1.0,
+            "trim": 0.0
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": true,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 17,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 18,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 19,
+      "method": "submit",
+      "arguments": [
+        {
+          "type": "ControlCommand",
+          "schema_version": 1,
+          "tick": "145",
+          "session_id": "@session_id",
+          "sequence": "6",
+          "source_id": "pilot.controls",
+          "authority": "pilot",
+          "assistance": {
+            "profile_id": "unassisted",
+            "active": []
+          },
+          "payload": {
+            "kind": "axes",
+            "roll": 0.0,
+            "pitch": 0.0,
+            "yaw": 0.0,
+            "throttle": 0.0,
+            "mixture": 0.36,
+            "left_brake": 1.0,
+            "right_brake": 1.0,
+            "trim": 0.0
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": true,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 20,
+      "method": "step_fixed",
+      "arguments": [
+        27
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 27,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 21,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 22,
+      "method": "submit",
+      "arguments": [
+        {
+          "type": "ControlCommand",
+          "schema_version": 1,
+          "tick": "173",
+          "session_id": "@session_id",
+          "sequence": "7",
+          "source_id": "pilot.controls",
+          "authority": "pilot",
+          "assistance": {
+            "profile_id": "unassisted",
+            "active": []
+          },
+          "payload": {
+            "kind": "axes",
+            "roll": 0.0,
+            "pitch": 0.0,
+            "yaw": 0.0,
+            "throttle": 0.0,
+            "mixture": 0.42,
+            "left_brake": 1.0,
+            "right_brake": 1.0,
+            "trim": 0.0
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": true,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 23,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 24,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 25,
+      "method": "submit",
+      "arguments": [
+        {
+          "type": "ControlCommand",
+          "schema_version": 1,
+          "tick": "202",
+          "session_id": "@session_id",
+          "sequence": "8",
+          "source_id": "pilot.controls",
+          "authority": "pilot",
+          "assistance": {
+            "profile_id": "unassisted",
+            "active": []
+          },
+          "payload": {
+            "kind": "axes",
+            "roll": 0.0,
+            "pitch": 0.0,
+            "yaw": 0.0,
+            "throttle": 0.0,
+            "mixture": 0.48,
+            "left_brake": 1.0,
+            "right_brake": 1.0,
+            "trim": 0.0
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": true,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 26,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 27,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 28,
+      "method": "submit",
+      "arguments": [
+        {
+          "type": "ControlCommand",
+          "schema_version": 1,
+          "tick": "231",
+          "session_id": "@session_id",
+          "sequence": "9",
+          "source_id": "pilot.controls",
+          "authority": "pilot",
+          "assistance": {
+            "profile_id": "unassisted",
+            "active": []
+          },
+          "payload": {
+            "kind": "axes",
+            "roll": 0.0,
+            "pitch": 0.0,
+            "yaw": 0.0,
+            "throttle": 0.0,
+            "mixture": 0.54,
+            "left_brake": 1.0,
+            "right_brake": 1.0,
+            "trim": 0.0
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": true,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 29,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 30,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 31,
+      "method": "submit",
+      "arguments": [
+        {
+          "type": "ControlCommand",
+          "schema_version": 1,
+          "tick": "260",
+          "session_id": "@session_id",
+          "sequence": "10",
+          "source_id": "pilot.controls",
+          "authority": "pilot",
+          "assistance": {
+            "profile_id": "unassisted",
+            "active": []
+          },
+          "payload": {
+            "kind": "axes",
+            "roll": 0.0,
+            "pitch": 0.0,
+            "yaw": 0.0,
+            "throttle": 0.0,
+            "mixture": 0.6000000000000001,
+            "left_brake": 1.0,
+            "right_brake": 1.0,
+            "trim": 0.0
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": true,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 32,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 33,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 34,
+      "method": "submit",
+      "arguments": [
+        {
+          "type": "ControlCommand",
+          "schema_version": 1,
+          "tick": "289",
+          "session_id": "@session_id",
+          "sequence": "11",
+          "source_id": "pilot.controls",
+          "authority": "pilot",
+          "assistance": {
+            "profile_id": "unassisted",
+            "active": []
+          },
+          "payload": {
+            "kind": "axes",
+            "roll": 0.0,
+            "pitch": 0.0,
+            "yaw": 0.0,
+            "throttle": 0.0,
+            "mixture": 0.6600000000000001,
+            "left_brake": 1.0,
+            "right_brake": 1.0,
+            "trim": 0.0
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": true,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 35,
+      "method": "step_fixed",
+      "arguments": [
+        27
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 27,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 36,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 37,
+      "method": "submit",
+      "arguments": [
+        {
+          "type": "ControlCommand",
+          "schema_version": 1,
+          "tick": "317",
+          "session_id": "@session_id",
+          "sequence": "12",
+          "source_id": "pilot.controls",
+          "authority": "pilot",
+          "assistance": {
+            "profile_id": "unassisted",
+            "active": []
+          },
+          "payload": {
+            "kind": "axes",
+            "roll": 0.0,
+            "pitch": 0.0,
+            "yaw": 0.0,
+            "throttle": 0.0,
+            "mixture": 0.7200000000000002,
+            "left_brake": 1.0,
+            "right_brake": 1.0,
+            "trim": 0.0
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": true,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 38,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 39,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 40,
+      "method": "submit",
+      "arguments": [
+        {
+          "type": "ControlCommand",
+          "schema_version": 1,
+          "tick": "346",
+          "session_id": "@session_id",
+          "sequence": "13",
+          "source_id": "pilot.controls",
+          "authority": "pilot",
+          "assistance": {
+            "profile_id": "unassisted",
+            "active": []
+          },
+          "payload": {
+            "kind": "axes",
+            "roll": 0.0,
+            "pitch": 0.0,
+            "yaw": 0.0,
+            "throttle": 0.06,
+            "mixture": 0.7200000000000002,
+            "left_brake": 1.0,
+            "right_brake": 1.0,
+            "trim": 0.0
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": true,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 41,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 42,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 43,
+      "method": "submit",
+      "arguments": [
+        {
+          "type": "ControlCommand",
+          "schema_version": 1,
+          "tick": "375",
+          "session_id": "@session_id",
+          "sequence": "14",
+          "source_id": "pilot.controls",
+          "authority": "pilot",
+          "assistance": {
+            "profile_id": "unassisted",
+            "active": []
+          },
+          "payload": {
+            "kind": "axes",
+            "roll": 0.0,
+            "pitch": 0.0,
+            "yaw": 0.0,
+            "throttle": 0.12,
+            "mixture": 0.7200000000000002,
+            "left_brake": 1.0,
+            "right_brake": 1.0,
+            "trim": 0.0
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": true,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 44,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 45,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 46,
+      "method": "submit",
+      "arguments": [
+        {
+          "type": "ControlCommand",
+          "schema_version": 1,
+          "tick": "404",
+          "session_id": "@session_id",
+          "sequence": "15",
+          "source_id": "pilot.controls",
+          "authority": "pilot",
+          "assistance": {
+            "profile_id": "unassisted",
+            "active": []
+          },
+          "payload": {
+            "kind": "axes",
+            "roll": 0.0,
+            "pitch": 0.0,
+            "yaw": 0.0,
+            "throttle": 0.18,
+            "mixture": 0.7200000000000002,
+            "left_brake": 1.0,
+            "right_brake": 1.0,
+            "trim": 0.0
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": true,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 47,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 48,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 49,
+      "method": "submit",
+      "arguments": [
+        {
+          "type": "ControlCommand",
+          "schema_version": 1,
+          "tick": "433",
+          "session_id": "@session_id",
+          "sequence": "16",
+          "source_id": "pilot.controls",
+          "authority": "pilot",
+          "assistance": {
+            "profile_id": "unassisted",
+            "active": []
+          },
+          "payload": {
+            "kind": "axes",
+            "roll": 0.0,
+            "pitch": 0.0,
+            "yaw": 0.0,
+            "throttle": 0.24,
+            "mixture": 0.7200000000000002,
+            "left_brake": 1.0,
+            "right_brake": 1.0,
+            "trim": 0.0
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": true,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 50,
+      "method": "step_fixed",
+      "arguments": [
+        27
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 27,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 51,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 52,
+      "method": "submit",
+      "arguments": [
+        {
+          "type": "ControlCommand",
+          "schema_version": 1,
+          "tick": "461",
+          "session_id": "@session_id",
+          "sequence": "17",
+          "source_id": "pilot.controls",
+          "authority": "pilot",
+          "assistance": {
+            "profile_id": "unassisted",
+            "active": []
+          },
+          "payload": {
+            "kind": "system",
+            "control_id": "engine.ignition_left",
+            "value": true
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": true,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 53,
+      "method": "submit",
+      "arguments": [
+        {
+          "type": "ControlCommand",
+          "schema_version": 1,
+          "tick": "461",
+          "session_id": "@session_id",
+          "sequence": "18",
+          "source_id": "pilot.controls",
+          "authority": "pilot",
+          "assistance": {
+            "profile_id": "unassisted",
+            "active": []
+          },
+          "payload": {
+            "kind": "system",
+            "control_id": "engine.ignition_right",
+            "value": true
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": true,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 54,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 55,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 56,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 57,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 58,
+      "method": "submit",
+      "arguments": [
+        {
+          "type": "ControlCommand",
+          "schema_version": 1,
+          "tick": "519",
+          "session_id": "@session_id",
+          "sequence": "19",
+          "source_id": "pilot.controls",
+          "authority": "pilot",
+          "assistance": {
+            "profile_id": "unassisted",
+            "active": []
+          },
+          "payload": {
+            "kind": "system",
+            "control_id": "engine.starter",
+            "value": true
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": true,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 59,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 60,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 61,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 62,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 63,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 64,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 65,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 66,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 67,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 68,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 69,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 70,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 71,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 72,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 73,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 74,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 75,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 76,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 77,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 78,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 79,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 80,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 81,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 82,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 83,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 84,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 85,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 86,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 87,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 88,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 89,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 90,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 91,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 92,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 93,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 94,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 95,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 96,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 97,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 98,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 99,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 100,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 101,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 102,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 103,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 104,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 105,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 106,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 107,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 108,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 109,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 110,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 111,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 112,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 113,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 114,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 115,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 116,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 117,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 118,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 119,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 120,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 121,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 122,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 123,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 124,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 125,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 126,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 127,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 128,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 129,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 130,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 131,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 132,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 133,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 134,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 135,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 136,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 137,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 138,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 139,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 140,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 141,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 142,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 143,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 144,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 145,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 146,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 147,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 148,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 149,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 150,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 151,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 152,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 153,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 154,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 155,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 156,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 157,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 158,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 159,
+      "method": "step_fixed",
+      "arguments": [
+        27
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 27,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 160,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 161,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 162,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 163,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 164,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 165,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 166,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 167,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 168,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 169,
+      "method": "step_fixed",
+      "arguments": [
+        27
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 27,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 170,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 171,
+      "method": "submit",
+      "arguments": [
+        {
+          "type": "ControlCommand",
+          "schema_version": 1,
+          "tick": "989",
+          "session_id": "@session_id",
+          "sequence": "20",
+          "source_id": "pilot.controls",
+          "authority": "pilot",
+          "assistance": {
+            "profile_id": "unassisted",
+            "active": []
+          },
+          "payload": {
+            "kind": "system",
+            "control_id": "engine.starter",
+            "value": false
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": true,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 172,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 173,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 174,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 175,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 176,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 177,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 178,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 179,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 180,
+      "method": "step_fixed",
+      "arguments": [
+        27
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 27,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 181,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 182,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 183,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 184,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 185,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 186,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 28,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 187,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 188,
+      "method": "session_control",
+      "arguments": [
+        {
+          "type": "SessionControl",
+          "schema_version": 1,
+          "tick": "1219",
+          "session_id": "@session_id",
+          "sequence": "3",
+          "source_id": "session.owner",
+          "payload": {
+            "kind": "pause",
+            "paused": true
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "paused",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 189,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "paused",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 190,
+      "method": "session_control",
+      "arguments": [
+        {
+          "type": "SessionControl",
+          "schema_version": 1,
+          "tick": "1219",
+          "session_id": "@session_id",
+          "sequence": "4",
+          "source_id": "session.owner",
+          "payload": {
+            "kind": "pause",
+            "paused": false
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 191,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 192,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 193,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 194,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 195,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 196,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 197,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 198,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 199,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 200,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 201,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 202,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 203,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 204,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 205,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 206,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 207,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 208,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 209,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 210,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 211,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 212,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 213,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 214,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 215,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 216,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 217,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 218,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 219,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 220,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 221,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 222,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 223,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 224,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 225,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 226,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 227,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 228,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 229,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 230,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 231,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 232,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 233,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 234,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 235,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 236,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 237,
+      "method": "step_fixed",
+      "arguments": [
+        4
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 4,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 238,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 239,
+      "method": "session_control",
+      "arguments": [
+        {
+          "type": "SessionControl",
+          "schema_version": 1,
+          "tick": "1339",
+          "session_id": "@session_id",
+          "sequence": "5",
+          "source_id": "session.owner",
+          "payload": {
+            "kind": "pause",
+            "paused": true
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "paused",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 240,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "paused",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 241,
+      "method": "session_control",
+      "arguments": [
+        {
+          "type": "SessionControl",
+          "schema_version": 1,
+          "tick": "1339",
+          "session_id": "@session_id",
+          "sequence": "6",
+          "source_id": "session.owner",
+          "payload": {
+            "kind": "time_scale",
+            "scale": 2.0
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "paused",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 242,
+      "method": "session_control",
+      "arguments": [
+        {
+          "type": "SessionControl",
+          "schema_version": 1,
+          "tick": "1339",
+          "session_id": "@session_id",
+          "sequence": "7",
+          "source_id": "session.owner",
+          "payload": {
+            "kind": "pause",
+            "paused": false
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 243,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 244,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 245,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 246,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 247,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 248,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 249,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 250,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 251,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 252,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 253,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 254,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 255,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 256,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 257,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 258,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 259,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 260,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 261,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 262,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 263,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 264,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 265,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 266,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 267,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 268,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 269,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 270,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 271,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 272,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 273,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 274,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 275,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 276,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 277,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 278,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 279,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 280,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 281,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 282,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 283,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 284,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 285,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 286,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 287,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 288,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 289,
+      "method": "step_fixed",
+      "arguments": [
+        9
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 9,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 290,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 1,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 291,
+      "method": "session_control",
+      "arguments": [
+        {
+          "type": "SessionControl",
+          "schema_version": 1,
+          "tick": "1579",
+          "session_id": "@session_id",
+          "sequence": "8",
+          "source_id": "session.owner",
+          "payload": {
+            "kind": "pause",
+            "paused": true
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "paused",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 292,
+      "method": "step_fixed",
+      "arguments": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "paused",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 293,
+      "method": "session_control",
+      "arguments": [
+        {
+          "type": "SessionControl",
+          "schema_version": 1,
+          "tick": "1579",
+          "session_id": "@session_id",
+          "sequence": "9",
+          "source_id": "session.owner",
+          "payload": {
+            "kind": "time_scale",
+            "scale": 1.0
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "paused",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 294,
+      "method": "session_control",
+      "arguments": [
+        {
+          "type": "SessionControl",
+          "schema_version": 1,
+          "tick": "1579",
+          "session_id": "@session_id",
+          "sequence": "10",
+          "source_id": "session.owner",
+          "payload": {
+            "kind": "pause",
+            "paused": false
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 295,
+      "method": "submit",
+      "arguments": [
+        {
+          "type": "ControlCommand",
+          "schema_version": 1,
+          "tick": "1580",
+          "session_id": "@session_id",
+          "sequence": "21",
+          "source_id": "pilot.controls",
+          "authority": "pilot",
+          "assistance": {
+            "profile_id": "unassisted",
+            "active": []
+          },
+          "payload": {
+            "kind": "axes",
+            "roll": 0.0,
+            "pitch": 0.0,
+            "yaw": 0.0,
+            "throttle": 0.24,
+            "mixture": 0.6600000000000001,
+            "left_brake": 1.0,
+            "right_brake": 1.0,
+            "trim": 0.0
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "completed",
+        "completed": 0,
+        "live": true,
+        "historical": false,
+        "fault": "",
+        "queued": true,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 296,
+      "method": "step_fixed",
+      "arguments": [
+        28
+      ],
+      "expected": {
+        "ok": true,
+        "outcome": "discarded",
+        "completed": 3,
+        "live": false,
+        "historical": true,
+        "fault": "coupled shaft: decay continuation uncertified",
+        "queued": false,
+        "rejection": 0
+      }
+    },
+    {
+      "index": 297,
+      "method": "close",
+      "arguments": [],
+      "expected": {
+        "ok": true,
+        "joined": true
+      }
+    }
+  ],
+  "limits": "Only generated session identity and machine-specific model path replaced. All remaining argument types, floats, ticks, sequences and step batches preserve original observed native inputs. Expected replies record the original terminal failure, not desired corrected behavior. Original unmodified transcript remains preserved separately."
+}

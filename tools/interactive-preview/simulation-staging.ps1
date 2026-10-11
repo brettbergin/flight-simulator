@@ -1,5 +1,6 @@
 #Requires -Version 7.0
 . (Join-Path $PSScriptRoot 'wire-codec-staging.ps1')
+. (Join-Path $PSScriptRoot 'local-window-replay-staging.ps1')
 # Recursive authoring snapshot shared by project staging and corresponding source.
 function Get-SimulationSourceSnapshot {
  param([Parameter(Mandatory)][string]$SourceRoot,[string[]]$RequiredEntries=@('session_facade.gd','render_origin.gd'))
@@ -601,6 +602,56 @@ function Write-SimulationCheckHarness {
  param([Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)][string]$RepoRoot,[switch]$IncludePiston)
  $wireGroups=@(Get-WireCodecSourceGroups -RepoRoot $RepoRoot)
  Copy-WireCodecSourceGroups -RepoRoot $RepoRoot -DestinationRoot $ProjectRoot -Groups $wireGroups
+ # Staging applicability follows the already verified generated identity resource.
+ $replayIdentity=Join-Path $ProjectRoot 'build/native_identity.gd'
+ $includeLocalWindowReplay=$false
+ if(Test-Path -LiteralPath $replayIdentity -PathType Leaf){
+  $identityText=[IO.File]::ReadAllText($replayIdentity)
+  $variantLine=[regex]::Match($identityText,'(?m)^const SOURCE_VARIANT: String = "([a-z0-9.-]+)"\r?$')
+  if(-not $variantLine.Success){throw 'Generated native identity source selector absent'}
+  $includeLocalWindowReplay=$variantLine.Groups[1].Value -ceq 'jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2'
+ }
+ $localWindowReplayChecks=''
+ $localWindowReplayCompileFolder=''
+ if($includeLocalWindowReplay){
+  if(-not $IncludePiston){throw 'Exact local-window v2 must include existing cold groups'}
+  $replayGroups=@(Get-LocalWindowReplaySourceGroups -RepoRoot $RepoRoot)
+  Copy-LocalWindowReplaySourceGroups -RepoRoot $RepoRoot -DestinationRoot $ProjectRoot -Groups $replayGroups
+  $localWindowReplayCompileFolder=',"res://local_window_replay_tests"'
+  $localWindowReplayChecks=@'
+ stage("begin","local_window_replay")
+ var replay_identity=load("res://build/native_identity.gd")
+ if replay_identity.SOURCE_VARIANT!="jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2":
+  check(false,"local_window_replay_exact_source_variant")
+  get_tree().quit(1)
+  return
+ var replay_pins: Dictionary={"recipe.json":"2ef833b13cab7127b19ae84272f9bfc015133e14c125d781c535b84ad284aba1","argument-binary64.json":"ffb39073782ac1226795df39b0b95512e0f444a4f2284224c9c34af4a5ef9b76","checks.gd":"5689a75e0868067d04b22cd8cfde61f75f0d83d78b5f9a6a1cd37848e34636b8","README.md":"9a333bcce0d17202e9ec2818f7a13227a522764063da7a6a2cd028f38b20a949"}
+ for name in replay_pins:
+  if FileAccess.get_sha256("res://local_window_replay_tests/"+name)!=replay_pins[name]:
+   check(false,"local_window_replay_resource_"+name)
+   get_tree().quit(1)
+   return
+  check(true,"local_window_replay_resource_"+name)
+ var replay_root: String=(ProjectSettings.globalize_path("res://piston-models") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("piston-models")).replace("\\","/")
+ var replay_result: Dictionary=load("res://local_window_replay_tests/checks.gd").run(replay_root)
+ check(typeof(replay_result.get("passed"))==TYPE_BOOL and replay_result.passed and typeof(replay_result.get("checks"))==TYPE_INT and replay_result.checks>0 and replay_result.get("failures") is Array and replay_result.failures.is_empty(),"actual_local_window_replay_checks")
+ if typeof(replay_result.get("checks"))==TYPE_INT and replay_result.checks>0: checks+=replay_result.checks
+ if replay_result.get("failures") is Array:
+  for failure in replay_result.failures: failures.append("local_window_replay:"+str(failure))
+ var replay_output: String=ProjectSettings.globalize_path("res://local-window-replay-receipt.json") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("local-window-replay-receipt.json")
+ if FileAccess.file_exists(replay_output):
+  check(false,"local_window_replay_receipt_fresh")
+  get_tree().quit(1)
+  return
+ var replay_file=FileAccess.open(replay_output,FileAccess.WRITE)
+ check(replay_file!=null,"local_window_replay_receipt_saved")
+ if replay_file!=null:
+  replay_file.store_string(JSON.stringify(replay_result,"  ",false,true))
+  replay_file.close()
+ stage("end","local_window_replay")
+
+'@
+ }
  $pistonChecks=if($IncludePiston){@'
  var piston_start_checks: int=checks
  var piston_start_failures: int=failures.size()
@@ -757,7 +808,7 @@ func execute() -> void:
   return
  identity_file.store_string(JSON.stringify(identity_receipt))
  identity_file.close()
- for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests","res://world/wind","res://ui/wind","res://wind_tests","res://wind_scene_tests","res://audio","res://ui/audio","res://audio_tests","res://ui/first_flight","res://world/synthetic","res://scenario_tests/first-flight","res://first_flight_ui_tests","res://world_tests/synthetic","res://first_flight_scene_tests","res://wire_codec_tests"$pistonCompileFolder]:
+ for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests","res://world/wind","res://ui/wind","res://wind_tests","res://wind_scene_tests","res://audio","res://ui/audio","res://audio_tests","res://ui/first_flight","res://world/synthetic","res://scenario_tests/first-flight","res://first_flight_ui_tests","res://world_tests/synthetic","res://first_flight_scene_tests","res://wire_codec_tests"$pistonCompileFolder$localWindowReplayCompileFolder]:
   for name in DirAccess.get_files_at(folder):
    if name.ends_with(".gd"):
     var script=load(folder.path_join(name)) as Script
@@ -915,6 +966,7 @@ $pistonChecks
   numeric_file.store_string(JSON.stringify(numeric,"  "))
   numeric_file.close()
  stage("end","wire_codec")
+$localWindowReplayChecks
  var report: Dictionary={"schema_version":1,"scope":"Headless actual-native facade and synthetic wire/render fixtures; GPU and pilot qualification separate","passed":failures.is_empty(),"checks":checks,"failures":failures.duplicate(),"facade":facade,"origin":origin,"participants":participants,"wire":wire,"scene":scene,"input":input,"input_scene":input_scene,"instruments":instruments,"cockpit":cockpit_checks,"freeflight":freeflight_checks,"observed":observed_checks,"observed_archive":archive_checks,"wind":wind_checks,"first_flight":first_flight_checks,"audio":audio_checks}
  var output: String=ProjectSettings.globalize_path("res://facade-check-receipt.json") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("facade-check-receipt.json")
  for argument in OS.get_cmdline_user_args():

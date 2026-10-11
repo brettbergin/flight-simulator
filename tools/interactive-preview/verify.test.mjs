@@ -137,14 +137,14 @@ test('standalone piston validator rejects coherent register-policy identity drif
 
 import {stageAcceptedSourceIdentity} from './package.mjs';
 import {createHash} from 'node:crypto';
-test('modified preview stages the exact declared baseline source identity and preserves pristine delivery',()=>{
+for(const policy of ['jsbsim-coupled-midpoint-v1','jsbsim-coupled-midpoint-local-window-v2'])test('modified preview stages the exact declared baseline source identity and preserves pristine delivery: '+policy,()=>{
  const temporary=fs.mkdtempSync(path.join(root,'source-identity-'));
  const baseline=path.join(temporary,'baseline'),payload=path.join(temporary,'payload');
  fs.mkdirSync(path.join(baseline,'evidence'),{recursive:true});fs.mkdirSync(payload);
- const entry=JSON.parse(fs.readFileSync(path.join(repo,'third_party/licenses/register.json'),'utf8')).entries.find(item=>item.id==='jsbsim-coupled-midpoint-v1');
+ const entry=JSON.parse(fs.readFileSync(path.join(repo,'third_party/licenses/register.json'),'utf8')).entries.find(item=>item.id===policy);
  const pin=entry.library_policy.source_identity,file='evidence/jsbsim-coupled-source-identity.json';
  const raw=fs.readFileSync(path.join(repo,pin.path));
- const selection={modified:true,component_id:entry.id,source_variant:'jsbsim-1.3.1-event-aware-coupled-midpoint-v1',source_identity:pin};
+ const selection={modified:true,component_id:entry.id,source_variant:policy==='jsbsim-coupled-midpoint-v1'?'jsbsim-1.3.1-event-aware-coupled-midpoint-v1':'jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2',source_identity:pin};
  const accepted={id:entry.id,modified:true,source_variant:selection.source_variant,source_identity:file,files:[{path:file,role:'evidence',sha256:pin.sha256}]};
  fs.writeFileSync(path.join(baseline,file),raw);
  assert.equal(stageAcceptedSourceIdentity(payload,baseline,accepted,selection),file);
