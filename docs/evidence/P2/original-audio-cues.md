@@ -1,0 +1,31 @@
+# Original audio cues and paused Audio controls
+
+Scope: bounded P2 implementation of [ORIGINAL-AUDIO-CUES #188](https://github.com/brettbergin/flight-simulator/issues/188), consuming [ADR020](../../decisions/020-original-audio-cues.md). Contract [PR189](https://github.com/brettbergin/flight-simulator/pull/189) merged as `1bbaa205d64c736456a733d16168e94078361c75` after independent review and all four required hosted checks. This child improves the two original synthetic profiles; it does not close [FLIGHT-AUDIO #25](https://github.com/brettbergin/flight-simulator/issues/25), aircraft/source, pilot or phase gates.
+
+## Behavior
+
+The already-paused main menu provides Audio beside flight speed. Master mute, independent engine/airflow gains and optional source details share one application-owned options record. Settings survive fresh flights within this process; they are not durable preferences. Back, Escape and a configured controller pause-menu action return to the menu still paused. Source details remain independent of mute. The required paused/unavailable qualifier stays visible when optional details are hidden. The opaque panel scrolls full text and controls at the supported minimum960x540 window.
+
+Engine synthesis follows actual native shaft/Running channels for the original piston profile. Rotating is labelled without guessing cranking versus coasting; missing starvation remains unavailable information rather than an invented alarm. The legacy profile explicitly labels its native-held-throttle synthetic cue as not measured RPM. Airflow uses accepted wind-relative TAS rather than ground-relative speed. Structural source rejection clears all cues; a derived TAS overflow suppresses airflow while preserving independently qualified engine channels. No installed aircraft warnings, measured load/torque or C172 acoustics are supplied.
+
+The fixed22050Hz production renderer advances phase, deterministic noise and its20ms gain/source envelope per generated sample. It omits harmonics at/above0.45 of sample rate and preserves the original -12dB player gain. These are artistic digital amplitudes, not sound-pressure calibration. Source/option events at the same sample offsets produce identical sample bytes under different buffer partitions; this does not promise equal device latency or arrival timing.
+
+Scene publishes audio synchronously on actual adoption, pause/resume, fault, failed setup and close; provisional workers cannot sound before commit. Pause, mute, source loss and session change stop/detach queued playback. All retiring playback references must clear before another generator attaches. One AudioStreamPlayer is reused. Shutdown retains its actual two-second budget and reports failure if a playback reference remains alive.
+
+## Development verification
+
+An isolated pinned Godot4.7.2 project passed source cue99, options49, production sample66, panel143 and actual playback-lifecycle14 checks. The affected native first-flight Scene suite passed1476 checks, including full binary native/held/mapper/queue/origin/recording comparisons, stale same-session callbacks, keyboard and configured controller Back, reset and missing-host invalidation, one-emitter/empty-paused-buffer assertions and actual completed native held starter with explicit retained-rearm Raw fixtures. Existing cold/preview engine assertions passed as well. The host counted1562 assertions; child totals are separately reported and must not be added to that host count. This was development over an identified existing native build, not final portable delivery.
+
+The first restricted import failed normal editor cache safe-save permissions. The first restricted runtime retained an actual typed-Array test-fixture assignment error and existing archive fixture user-directory failures. The test fixture now appends to its existing typed rearm array; a fresh permitted import and runtime passed with no script errors. No production guard or archive assertion was weakened.
+
+An isolated actual Windows Compatibility observer produced four960x540 paused native-source images. Root inspected all four: controls, required qualification and optional engine/TAS details were legible. It exposed an initial Back-focus scroll issue. The corrected panel waits for layout before scrolling the still-focused Back button, without deferred focus stealing. The same143-check regression suite failed four assertions on the old source and passed on the correction. A fresh isolated Windows observer passed; Root inspected its legacy and cold-profile opening images and confirmed Back is visible. This is bounded development evidence, not final exported visual acceptance.
+
+The same disposable process activated actual Windows WASAPI through IAudioClient3 at48000Hz/stereo, observed21504 finite nonzero output-bus frames (peak0.0217249076813459), and verified synchronous paused detachment plus joined native/audio ownership. This exercises one Windows output path; no human listening, acoustic measurement, universal driver, click-free output, latency or hardware/pilot acceptance is claimed. The unchanged native aircraft model was not recalibrated.
+
+## Original source and delivery boundary
+
+The synthesis expressions are authored project code under the repository [MIT license](../../../LICENSE): `app/audio/sample_renderer.gd` and `app/proof/interactive/flight_sound.gd`. No external recording, aircraft manual, sampled engine pack, voice or vendor audio asset was imported. [The rights register](../../../third_party/licenses/register.json) records this bounded original source separately from excluded unselected recording packs. Godot mixer/driver/font/runtime notices remain separate.
+
+Final source commit, exact corresponding-source/package binding, three-context exported checks, fresh visual result, independent review and current hosted CI are pending. Do not treat this development record or the merged contract as acceptance of #188.
+
+Live captions and critical-warning accessibility remain open under #25/#64; the paused panel summary is not live audio accessibility. Durable settings, real-aircraft acoustic/load/warning sources, measured handling and qualified human/device evaluation remain future work.

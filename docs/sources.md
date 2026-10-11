@@ -91,3 +91,7 @@ P1 numerical work uses an original, visibly synthetic fixture once authored and 
 5. A reviewed content manifest and exact asset/file hashes, with source rights and aircraft applicability independently accepted. If source/rights remain unavailable, retain the synthetic prototype and report the gate rather than relabel it.
 
 The JSBSim acquisition archive includes excluded aircraft/engine inputs. Its download checksum is an acquisition identity only. A separately reviewed library-only source bundle, complete build dependency closure, all notices, DLL replacement evidence and debugging/modification permission are mandatory before binary redistribution; the executable register deliberately leaves that distributable-source digest unresolved until the package owner creates the evidence. Geographic datasets, sponsor graphics, fonts, textures and audio likewise require selected product/file evidence before inclusion.
+
+## Original prototype audio
+
+[ADR020](decisions/020-original-audio-cues.md) specifies project-authored analytic synthesis for the two original engineering profiles. The renderer and Sound source use the repository MIT license; no recordings, manufacturer acoustic data, voice assets or manuals are imported. Exact implementation/source and Windows-output qualification belong to the [consumer evidence](evidence/P2/original-audio-cues.md) and its package manifests. This is independent of the unselected/excluded recording-pack entry in the rights register and does not resolve real-aircraft acoustic or warning fidelity.

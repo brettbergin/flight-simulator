@@ -20,6 +20,16 @@ const WindPanel = preload("res://ui/wind/panel.gd")
 const FirstFlightPanel = preload("res://ui/first_flight/briefing_panel.gd")
 const CircuitGeometry = preload("res://world/synthetic/circuit_geometry.gd")
 const CircuitReferenceCard = preload("res://ui/first_flight/circuit_guide.gd")
+const AudioCues = preload("res://audio/audio_cues.gd")
+const AudioOptions = preload("res://audio/audio_options.gd")
+const AudioPanel = preload("res://ui/audio/audio_panel.gd")
+var audio_options: Dictionary={"enabled":true,"engine_gain":1.0,"airflow_gain":1.0,"show_panel_captions":true}
+var audio_panel: Control
+var audio_button: Button
+var audio_open: bool=false
+var _audio_opening: Dictionary={}
+var _audio_callback: Callable
+var _audio_dismiss_callback: Callable
 var first_flight_panel: Control
 var first_flight_open: bool=false
 var circuit_card: Control
@@ -162,6 +172,10 @@ func make_world() -> void:
 	super.make_world()
 	if legacy_proof:
 		return
+	# Ordinary audio must be silent before any provisional worker is adopted.
+	if sound!=null:
+		sound.set_options(audio_options)
+		sound.observe({})
 	world_root=Node3D.new()
 	world_root.name="CanonicalWorld"
 	light_root=Node3D.new()
@@ -178,14 +192,17 @@ func close_session() -> bool:
 	if legacy_proof:
 		return super.close_session()
 	if not archive_operation.is_empty(): return false
+	retire_audio_panel()
 	retire_first_flight()
 	clear_circuit_reference("Session closing")
 	if facade!=null: invalidate_engine_pointer("Session closing")
 	render_pose.clear()
 	if facade==null:
+		_observe_audio({})
 		bridge=null
 		return true
 	var result: Dictionary=facade.close()
+	_observe_audio(result.readback)
 	# Retain the old prefix when replacement fails, but still label its actual
 	# confirmed stop. New-session publications remain held until begin succeeds.
 	if initializing_recording and not piston_mode() and not observed_status.is_empty():
@@ -324,6 +341,7 @@ func restart(replace_confirmed: bool=false, selected_wind: Variant=null, request
 	review_joined=false
 	current_wind_profile=requested_wind
 	circuit_aid_enabled=false
+	_observe_audio(facade.readback())
 	return true
 
 func piston_mode() -> bool:
@@ -365,6 +383,7 @@ func suspend_mapper(reason: String) -> void:
 	# This clears only local intent. Facade owns release admission before resume.
 
 func choose_profile() -> void:
+	if audio_open: return
 	# Draft selection remains separate from the current adopted profile and preset.
 	if not paused or facade==null or facade.readback().host_mode!="paused": return
 	if review_open or scan_open or route_open or not archive_operation.is_empty() or not pending_discard.is_empty(): return
@@ -406,10 +425,12 @@ func adopt_result(result: Dictionary) -> void:
 		status="LIVE | %.2fx | original synthetic model"%state.time_scale
 	elif state.host_mode=="paused":
 		status="PAUSED | P resumes; R fresh attempt"
+	_observe_audio(state)
 
 func pause_session(value: bool) -> bool:
 	if legacy_proof:
 		return super.pause_session(value)
+	if audio_open and not value: return false
 	if not archive_operation.is_empty(): return false
 	if facade==null:
 		return false
@@ -476,11 +497,6 @@ func _process(delta: float) -> void:
 	last_wall_us=now
 	process_input_interval(elapsed)
 	show_state(clampf(float(elapsed)/1000000.0,0.0,0.25))
-	if sound!=null and not snapshot.is_empty():
-		if piston_mode():
-			sound.call("update_engine_audio",engine_status,flight_speed(),paused,any_wow())
-		else:
-			sound.call("update_audio",float(held_controls.get("throttle",0)),flight_speed(),paused,any_wow())
 
 func process_input_interval(elapsed: int) -> void:
 	if not archive_operation.is_empty(): return
@@ -590,7 +606,22 @@ func make_menu(canvas: CanvasLayer) -> void:
 	scan_panel.focus_selected.connect(on_instrument_selected)
 	scan_panel.dismissed.connect(dismiss_instrument_scan)
 	speed_button=add_menu_button(box,"Flight speed: 1x  (F5 / F6)",cycle_flight_scale)
-	box.move_child(speed_button,6)
+	var speed_audio_row:=HBoxContainer.new()
+	speed_audio_row.add_theme_constant_override("separation",8)
+	box.add_child(speed_audio_row)
+	box.move_child(speed_audio_row,6)
+	speed_button.reparent(speed_audio_row)
+	speed_button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	audio_button=Button.new()
+	audio_button.text="Audio"
+	audio_button.custom_minimum_size=Vector2(92,32)
+	audio_button.add_theme_font_size_override("font_size",18)
+	audio_button.pressed.connect(open_audio)
+	speed_audio_row.add_child(audio_button)
+	audio_panel=AudioPanel.new()
+	canvas.add_child(audio_panel)
+	audio_panel.z_index=3
+	audio_panel.hide()
 	controls_panel=ControlsPanel.new()
 	canvas.add_child(controls_panel)
 	controls_panel.hide()
@@ -690,7 +721,7 @@ func make_menu(canvas: CanvasLayer) -> void:
 	menu.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	menu.custom_minimum_size=Vector2(560,490)
 	layout_flight_menu()
-	for page in [menu,first_flight_panel,controls_panel,wind_panel,observed_panel,discard_layer,scan_panel]:
+	for page in [menu,first_flight_panel,controls_panel,wind_panel,observed_panel,discard_layer,scan_panel,audio_panel]:
 		page.visibility_changed.connect(func():
 			if look_release_label!=null and not pointer_modal_free(): look_release_label.hide())
 
@@ -754,6 +785,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		super._unhandled_input(event)
 		return
 	if not archive_operation.is_empty(): return
+	if audio_open:
+		if event is InputEventJoypadButton and event.pressed:
+			var raw: Dictionary=collect_input_raw()
+			if Preset.validate_raw(raw).ok and Mapper.action_pressed(active_preset,raw,"pause_menu"):
+				dismiss_audio()
+				get_viewport().set_input_as_handled()
+		return
 	if controls_panel!=null and controls_panel.visible:
 		return
 	if first_flight_open:
@@ -780,6 +818,12 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		super._unhandled_key_input(event)
 		return
 	if not event is InputEventKey or not event.pressed or event.echo:
+		return
+	if audio_open:
+		var raw: Dictionary=collect_input_raw()
+		if event.physical_keycode==KEY_ESCAPE or (Preset.validate_raw(raw).ok and Mapper.action_pressed(active_preset,raw,"pause_menu")):
+			dismiss_audio()
+		get_viewport().set_input_as_handled()
 		return
 	if not archive_operation.is_empty():
 		get_viewport().set_input_as_handled()
@@ -836,6 +880,9 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func dispatch_input_action(action: String) -> void:
+	if audio_open:
+		if action=="pause_menu": dismiss_audio()
+		return
 	if not archive_operation.is_empty(): return
 	if first_flight_open:
 		if action=="pause_menu": dismiss_first_flight()
@@ -874,8 +921,9 @@ func dispatch_input_action(action: String) -> void:
 			panel.call("set_panel_visible",panel_visible)
 		"controls_panel","controller_select": open_controls()
 		"audio":
-			audio_enabled=not audio_enabled
-			if sound!=null: sound.call("set_enabled",audio_enabled)
+			var options: Dictionary=audio_options.duplicate(true)
+			options.enabled=not options.enabled
+			set_audio_options(options)
 		"fullscreen":
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED if DisplayServer.window_get_mode()==DisplayServer.WINDOW_MODE_FULLSCREEN else DisplayServer.WINDOW_MODE_FULLSCREEN)
 		"speed_down","speed_up":
@@ -988,7 +1036,98 @@ func select_input_device(slot: String, device: int) -> void:
 		return
 	selected_slots[slot]={"device":device,"generation":device_connections[device].generation}
 
+# ADR020: source adoption and the paused modal never own simulation/input state.
+func _observe_audio(value: Variant) -> void:
+	if legacy_proof: return
+	var source: Dictionary={}
+	if not initializing_recording and facade!=null and value is Dictionary and value.get("model_identity") is Dictionary and not adopted_session_id.is_empty():
+		if value.get("session_id")==adopted_session_id and value.get("model_identity",{}).get("id")==selected_profile:
+			source=value.duplicate(true)
+	if sound!=null: sound.observe(source)
+	if audio_open and audio_panel!=null:
+		var cues: Dictionary=AudioCues.from_readback(source)
+		audio_panel.set_context(cues,audio_options)
+		if cues.state!="paused" or cues.session_id!=_audio_opening.get("session"):
+			retire_audio_panel()
+			# Do not call open_menu here: a lost publication grants no pause action.
+			menu_open=true
+			if menu!=null:
+				menu.show()
+				menu_title.text="Audio source changed · inspect current flight"
+				resume_button.disabled=cues.state!="paused"
+
+func set_audio_options(value: Variant) -> bool:
+	var checked: Dictionary=AudioOptions.validate(value)
+	if not checked.ok: return false
+	if sound!=null and not sound.set_options(checked.value): return false
+	audio_options=checked.value.duplicate(true)
+	audio_enabled=audio_options.enabled
+	if audio_open and facade!=null:
+		audio_panel.set_context(AudioCues.from_readback(facade.readback()),audio_options)
+	return true
+
+func _audio_entry_source() -> Dictionary:
+	if legacy_proof or facade==null or mapper==null or initializing_recording or quitting or not paused or not menu_open or menu==null or not menu.visible: return {}
+	if audio_open or first_flight_open or scan_open or route_open or review_open or not archive_operation.is_empty() or not pending_discard.is_empty(): return {}
+	if (controls_panel!=null and controls_panel.visible) or (wind_panel!=null and wind_panel.visible): return {}
+	if engine_pointer_look_active or not engine_pointer_terminal.is_empty() or Input.mouse_mode==Input.MOUSE_MODE_CAPTURED: return {}
+	if mapper.pointer_view().capture!=null or not mapper.get("_pointer_pending").is_empty(): return {}
+	if engine_controls!=null and not engine_controls.get("_capture").is_empty(): return {}
+	var source: Dictionary=facade.readback()
+	var cues: Dictionary=AudioCues.from_readback(source)
+	return source if cues.state=="paused" and cues.session_id==adopted_session_id and cues.profile_id==selected_profile else {}
+
+func open_audio() -> void:
+	var source: Dictionary=_audio_entry_source()
+	if source.is_empty() or audio_panel==null: return
+	if not audio_panel.set_context(AudioCues.from_readback(source),audio_options): return
+	var opening: Dictionary={"active":true,"session":adopted_session_id}
+	var widget: Control=audio_panel
+	_audio_opening=opening
+	_audio_callback=func(options: Dictionary, source_session: String): _on_audio_options(options,source_session,widget,opening)
+	_audio_dismiss_callback=func():
+		if opening.active and audio_open and widget==audio_panel: dismiss_audio()
+	widget.options_requested.connect(_audio_callback)
+	widget.dismissed.connect(_audio_dismiss_callback)
+	audio_open=true
+	menu.hide()
+	widget.show()
+	widget.focus_back()
+
+func _on_audio_options(value: Variant, source_session: String, widget: Control, opening: Dictionary) -> void:
+	if not opening.get("active",false) or not audio_open or widget!=audio_panel or not widget.is_visible_in_tree() or not menu_open: return
+	if source_session!=opening.get("session") or source_session!=adopted_session_id or initializing_recording or not archive_operation.is_empty() or not pending_discard.is_empty() or facade==null: return
+	var source: Dictionary=facade.readback()
+	var cues: Dictionary=AudioCues.from_readback(source)
+	if not paused or cues.state!="paused" or cues.session_id!=source_session or cues.profile_id!=selected_profile: return
+	set_audio_options(value)
+
+func retire_audio_panel() -> void:
+	if not _audio_opening.is_empty(): _audio_opening.active=false
+	_audio_opening={}
+	if audio_panel!=null:
+		if _audio_callback.is_valid() and audio_panel.options_requested.is_connected(_audio_callback): audio_panel.options_requested.disconnect(_audio_callback)
+		if _audio_dismiss_callback.is_valid() and audio_panel.dismissed.is_connected(_audio_dismiss_callback): audio_panel.dismissed.disconnect(_audio_dismiss_callback)
+		audio_panel.hide()
+	_audio_callback=Callable()
+	_audio_dismiss_callback=Callable()
+	audio_open=false
+
+func dismiss_audio() -> void:
+	if not audio_open: return
+	retire_audio_panel()
+	menu_open=true
+	menu.show()
+	if audio_button!=null: audio_button.grab_focus()
+
+func fail(message: String) -> bool:
+	if not legacy_proof:
+		retire_audio_panel()
+		if sound!=null: sound.observe({})
+	return super.fail(message)
+
 func open_controls() -> void:
+	if audio_open: return
 	if not archive_operation.is_empty(): return
 	if controls_panel==null or facade==null:
 		return
@@ -1010,6 +1149,7 @@ func open_controls() -> void:
 	controls_panel.update_diagnostics(collect_input_raw(),held_controls,held_controls,controls_diagnostics())
 
 func open_wind() -> void:
+	if audio_open: return
 	if legacy_proof or wind_panel==null or facade==null or not archive_operation.is_empty() or not pending_discard.is_empty(): return
 	if review_open or scan_open or route_open or (controls_panel!=null and controls_panel.visible): return
 	if not review_boundary():
@@ -1110,6 +1250,7 @@ func start_flight(start: String) -> void:
 	request_discard("restart",start,wind_draft,selected_profile)
 
 func perform_start(start: String, selected_wind: Variant=null, requested_profile: Variant=null, first_flight_continuation: bool=false) -> void:
+	if audio_open: return
 	if not archive_operation.is_empty(): return
 	var next_profile: Variant=selected_profile if requested_profile==null else requested_profile
 	var profile_changed: bool=next_profile!=selected_profile
@@ -1161,6 +1302,7 @@ func retire_first_flight() -> void:
 	if first_flight_panel!=null: first_flight_panel.hide()
 
 func open_first_flight() -> void:
+	if audio_open: return
 	if legacy_proof or first_flight_panel==null or initializing_recording or not archive_operation.is_empty() or not pending_discard.is_empty(): return
 	if review_open or scan_open or route_open or (controls_panel!=null and controls_panel.visible) or (wind_panel!=null and wind_panel.visible): return
 	if not ensure_review_boundary(): return
@@ -1383,6 +1525,7 @@ func show_state(seconds: float=0.0) -> void:
 		super.show_state(seconds)
 		return
 	if facade==null:
+		_observe_audio({})
 		clear_circuit_reference("Current flight unavailable")
 		suppress_geometry()
 		var closed_info: Dictionary={"blocked":true,"paused":true,"outcome":"discarded","locator_binding_hints":locator_binding_hints()}
@@ -1396,6 +1539,7 @@ func show_state(seconds: float=0.0) -> void:
 	var current: Dictionary=facade.readback()
 	update_wind_presentation(current)
 	if snapshot.is_empty() or current.aircraft==null or current.canonical==null:
+		_observe_audio({})
 		clear_circuit_reference("Current flight unavailable")
 		suppress_geometry()
 		if panel != null:
@@ -1622,6 +1766,7 @@ func publish_landmark_route(readback: Dictionary, info: Dictionary={}) -> void:
 	flight_map.call("set_route",route_view if route_aids_visible else {})
 
 func open_landmark_route() -> void:
+	if audio_open: return
 	if legacy_proof or facade==null or landmark_board==null:
 		return
 	if controls_panel!=null and controls_panel.visible:
@@ -1713,6 +1858,7 @@ func publish_readings(readback: Dictionary, info: Dictionary) -> void:
 		scan_panel.z_index=-1 if menu_open and not scan_open else 1
 
 func open_instrument_scan() -> void:
+	if audio_open: return
 	# Selection belongs to an already paused menu. Never pauses native flight,
 	# primes mapper edges, suppresses mouse bindings or changes the prior camera.
 	if legacy_proof or facade==null or not paused or facade.readback().host_mode!="paused":
@@ -1741,6 +1887,7 @@ func on_instrument_selected(_instrument: String) -> void:
 
 func open_menu(title: String="Flight paused") -> void:
 	if not archive_operation.is_empty(): return
+	if not legacy_proof: retire_audio_panel()
 	if not legacy_proof:
 		if review_open: return
 		if not pending_discard.is_empty(): return
@@ -1757,6 +1904,9 @@ func open_menu(title: String="Flight paused") -> void:
 
 func close_menu() -> void:
 	if not archive_operation.is_empty(): return
+	if not legacy_proof and audio_open:
+		dismiss_audio()
+		return
 	if not legacy_proof and not pending_discard.is_empty():
 		cancel_discard()
 		return
@@ -1780,6 +1930,8 @@ func close_menu() -> void:
 	super.close_menu()
 
 func restart_failed(message: String) -> bool:
+	retire_audio_panel()
+	_observe_audio({})
 	retire_first_flight()
 	clear_circuit_reference("Flight setup failed")
 	if facade!=null:
@@ -1833,6 +1985,7 @@ func ensure_review_boundary() -> bool:
 	return false
 
 func open_observed_review() -> void:
+	if audio_open: return
 	if legacy_proof or observed_panel==null or not pending_discard.is_empty() or not archive_operation.is_empty(): return
 	if controls_panel!=null and controls_panel.visible: return
 	if not ensure_review_boundary():
@@ -1879,6 +2032,7 @@ func show_current_review() -> void:
 		observed_panel.set_file_context(false,archive_message)
 
 func begin_archive_operation(action: String, show_dialog: bool=true) -> bool:
+	if audio_open: return false
 	if legacy_proof or not review_open or not archive_operation.is_empty() or not pending_discard.is_empty() or not action in ["save","open"]: return false
 	if initializing_recording or not review_boundary():
 		archive_feedback("A verified pause or joined stop is required.")
@@ -1996,6 +2150,7 @@ func make_discard_confirmation(canvas: CanvasLayer) -> void:
 	discard_layer.hide()
 
 func request_discard(action: String, start: String="", selected_wind: Variant=null, requested_profile: Variant=null, first_flight_continuation: bool=false) -> void:
+	if audio_open: return
 	if not archive_operation.is_empty(): return
 	if not pending_discard.is_empty() or not action in ["restart","quit"]: return
 	var next_profile: Variant=selected_profile if requested_profile==null else requested_profile
@@ -2058,6 +2213,7 @@ func confirm_discard() -> void:
 	else: await perform_quit()
 
 func quit_flight() -> void:
+	if not legacy_proof: retire_audio_panel()
 	if legacy_proof:
 		await super.quit_flight()
 	else:
@@ -2065,12 +2221,14 @@ func quit_flight() -> void:
 
 func perform_quit() -> void:
 	if not archive_operation.is_empty(): return
+	retire_audio_panel()
 	retire_first_flight()
 	clear_circuit_reference("Flight closing")
 	await super.quit_flight()
 
 func _exit_tree() -> void:
 	quitting=true
+	retire_audio_panel()
 	invalidate_engine_pointer("Scene retired")
 	# Forced shutdown can lose an unsaved review, but native ownership must join.
 	archive_operation.clear()
@@ -2297,7 +2455,7 @@ func pointer_session_live() -> bool:
 	return source.get("host_mode")=="live" and source.get("native_live")==true and source.get("paused")==false and source.get("session_id")==adopted_session_id and mapper.pointer_view().session_id==adopted_session_id and pointer_modal_free()
 
 func pointer_modal_free() -> bool:
-	return not menu_open and not first_flight_open and not scan_open and not route_open and not review_open and archive_operation.is_empty() and pending_discard.is_empty() and (controls_panel==null or not controls_panel.visible) and (wind_panel==null or not wind_panel.visible)
+	return not menu_open and not audio_open and not first_flight_open and not scan_open and not route_open and not review_open and archive_operation.is_empty() and pending_discard.is_empty() and (controls_panel==null or not controls_panel.visible) and (wind_panel==null or not wind_panel.visible)
 
 func pointer_ui_eligible() -> bool:
 	return pointer_session_live() and engine_pointer_rearm.is_empty() and not engine_pointer_look_active and Input.mouse_mode==Input.MOUSE_MODE_VISIBLE

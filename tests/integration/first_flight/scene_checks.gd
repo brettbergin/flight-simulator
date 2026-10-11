@@ -887,6 +887,121 @@ func _closed_failure(scene: Node) -> void:
  scene.on_first_flight_choice("ready-flight","",scene.first_flight_panel)
  _assert_new(scene,CHOICES[1],prior,"joined_failure_explicit_recovery")
 
+func _audio_modal(scene: Node) -> void:
+ var original: Dictionary=scene.audio_options.duplicate(true)
+ var profiles: Array[String]=["original-interactive-prototype"]
+ if _include_piston: profiles.append("original-piston-prop-v1")
+ for profile in profiles:
+  if not _source(scene,profile): continue
+  scene.dismiss_first_flight()
+  _settle(scene)
+  var native: PackedByteArray=_snapshot(scene)
+  var ledger: PackedByteArray=_ledger(scene)
+  var raw: PackedByteArray=var_to_bytes(scene.collect_input_raw())
+  var presentation: PackedByteArray=var_to_bytes([scene.look_angles,scene.camera_mode,scene.camera.fov,scene.help_visible,scene.panel_visible,scene.map_visible,scene.circuit_aid_enabled,scene.engine_controls.is_expanded()])
+  scene.open_audio()
+  _check(scene.audio_open and scene.audio_panel.visible and not scene.menu.visible and scene.paused,"audio_actual_paused_entry_"+profile)
+  _check(scene.sound.cue_view().state=="paused" and scene.sound.cue_view().session_id==scene.adopted_session_id and scene.sound.playback==null and scene.sound.player.stream==null and scene.sound.get_child_count()==1,"audio_paused_source_has_one_emitter_and_no_queued_buffer_"+profile)
+  _check(_snapshot(scene)==native and _ledger(scene)==ledger and var_to_bytes(scene.collect_input_raw())==raw,"audio_entry_full_native_Raw_authority_"+profile)
+  var callback: Callable=scene._audio_callback
+  var old_back: Callable=scene._audio_dismiss_callback
+  var selected: Dictionary={"enabled":false,"engine_gain":0.25,"airflow_gain":0.75,"show_panel_captions":false}
+  callback.call(selected,scene.adopted_session_id)
+  _check(scene.audio_options==selected and not scene.audio_enabled,"audio_single_authoritative_master_and_gains_"+profile)
+  selected.engine_gain=1.0
+  _check(scene.audio_options.engine_gain==0.25,"audio_options_owned_request_copy_"+profile)
+  var admitted: PackedByteArray=var_to_bytes(scene.audio_options)
+  var invalid: Dictionary=scene.audio_options.duplicate(true)
+  invalid.airflow_gain=1
+  callback.call(invalid,scene.adopted_session_id)
+  callback.call(original,"wrong-session")
+  _check(var_to_bytes(scene.audio_options)==admitted,"audio_invalid_or_stale_session_atomic_rejection_"+profile)
+  for action in ["restart","start_airborne","view_cycle","audio","map_toggle","speed_up","controls_panel"]:
+   scene.dispatch_input_action(action)
+  scene.open_controls();scene.open_wind();scene.open_first_flight();scene.open_landmark_route();scene.open_instrument_scan();scene.open_observed_review();scene.choose_profile()
+  _check(scene.audio_open and scene.audio_panel.visible and not scene.first_flight_open and not scene.controls_panel.visible and not scene.wind_panel.visible and not scene.route_open and not scene.scan_open and not scene.review_open,"audio_sibling_and_flight_actions_inert_"+profile)
+  _check(not scene.pause_session(false),"audio_direct_Resume_rejected_"+profile)
+  _check(_snapshot(scene)==native and _ledger(scene)==ledger and var_to_bytes(scene.collect_input_raw())==raw,"audio_settings_no_native_mapper_origin_recording_actions_"+profile)
+  _check(var_to_bytes([scene.look_angles,scene.camera_mode,scene.camera.fov,scene.help_visible,scene.panel_visible,scene.map_visible,scene.circuit_aid_enabled,scene.engine_controls.is_expanded()])==presentation,"audio_existing_display_choices_preserved_"+profile)
+  scene.close_menu()
+  _check(not scene.audio_open and scene.menu.visible and scene.paused and scene.audio_button.has_focus(),"audio_Back_returns_menu_focus_still_paused_"+profile)
+  scene.open_audio()
+  callback.call(original,scene.adopted_session_id)
+  old_back.call()
+  _check(scene.audio_open and var_to_bytes(scene.audio_options)==admitted,"audio_retired_same_session_opening_callbacks_inert_"+profile)
+  _key(scene,KEY_ESCAPE)
+  _check(not scene.audio_open and scene.menu.visible and scene.paused and _snapshot(scene)==native and _ledger(scene)==ledger,"audio_Escape_not_Resume_"+profile)
+  # Explicit pending local-capture fixture; no command/Raw rewrite is invented.
+  var pending: Array=scene.mapper.get("_pointer_pending").duplicate(true)
+  scene.mapper.get("_pointer_pending").append({"fixture":"pending"})
+  scene.open_audio()
+  _check(not scene.audio_open,"audio_pending_pointer_entry_rejected_"+profile)
+  scene.mapper.set("_pointer_pending",pending)
+  scene.open_audio()
+  var held: RefCounted=scene.facade
+  var guarded: Callable=scene._audio_callback
+  scene.facade=null
+  scene.show_state(0.0)
+  _check(not scene.audio_open and not scene.audio_panel.visible and scene.sound.cue_view().state=="unavailable","audio_missing_host_synchronously_clears_cues_and_opening_"+profile)
+  guarded.call(original,scene.adopted_session_id)
+  _check(var_to_bytes(scene.audio_options)==admitted,"audio_lost_host_callback_cannot_change_options_"+profile)
+  scene.facade=held
+  scene._observe_audio(held.readback())
+  _check(_snapshot(scene)==native and _ledger(scene)==ledger,"audio_missing_host_fixture_preserves_actual_worker_"+profile)
+  _check(scene.restart(true,"calm",profile,"piston-cold-ground" if profile=="original-piston-prop-v1" else "ground-ready"),"audio_fresh_session_adopted_"+profile)
+  _check(var_to_bytes(scene.audio_options)==admitted and scene.sound.cue_view().state=="paused" and scene.sound.cue_view().session_id==scene.adopted_session_id,"audio_options_survive_reset_with_only_committed_paused_cues_"+profile)
+  _check(scene.sound.playback==null and scene.sound.player.stream==null and scene.sound.get_child_count()==1,"audio_repeated_reset_never_retains_old_queued_playback_"+profile)
+  scene.set_audio_options(original)
+  # Explicit validated controller remap and complete synthetic Raw. The real
+  # event exercises Audio's branch before generic menu Resume; no device claim.
+  var saved_preset: Dictionary=scene.active_preset.duplicate(true)
+  var joy_preset: Dictionary=saved_preset.duplicate(true)
+  joy_preset.devices=[{"slot":"audio-pad","label":"Synthetic audio Back fixture","match":{"guid":"fixture","name":"fixture","vendor_id":"","product_id":""}}]
+  for action in joy_preset.actions:
+   if action.id=="pause_menu": action.sources=[{"kind":"joy_button","slot":"audio-pad","index":0}]
+  scene.synthetic_raw={"keys":[],"mouse_buttons":[],"devices":[{"slot":"audio-pad","generation":3,"axes":[],"buttons":[{"index":0,"pressed":false}]}]}
+  scene.apply_controls(joy_preset)
+  _check(scene.active_preset==joy_preset,"audio_controller_validated_remap_applied_"+profile)
+  scene.synthetic_raw.devices[0].buttons[0].pressed=true
+  var joy_native: PackedByteArray=_snapshot(scene)
+  var joy_ledger: PackedByteArray=_ledger(scene)
+  var joy_raw: PackedByteArray=var_to_bytes(scene.collect_input_raw())
+  scene.open_audio()
+  _check(scene.audio_open,"audio_controller_actual_paused_entry_"+profile)
+  var joy: InputEventJoypadButton=InputEventJoypadButton.new()
+  joy.pressed=true;joy.button_index=0
+  scene._unhandled_input(joy)
+  _check(not scene.audio_open and scene.menu.visible and scene.paused and scene.audio_button.has_focus(),"audio_controller_Back_precedes_generic_Resume_"+profile)
+  _check(_snapshot(scene)==joy_native and _ledger(scene)==joy_ledger and var_to_bytes(scene.collect_input_raw())==joy_raw,"audio_controller_Back_native_Raw_ledger_unchanged_"+profile)
+  scene.synthetic_raw={"keys":[],"mouse_buttons":[],"devices":[]}
+  scene.apply_controls(saved_preset)
+  _check(scene.active_preset==saved_preset,"audio_controller_fixture_explicitly_restored_"+profile)
+ if _include_piston and _source(scene,"original-piston-prop-v1"):
+  scene.dismiss_first_flight()
+  scene.close_menu()
+  _check(not scene.paused,"audio_starter_fixture_real_Resume")
+  scene.synthetic_raw.keys=[KEY_F12]
+  scene.process_input_interval(8334)
+  scene.open_menu("Actual paused starter fixture")
+  _check(scene.held_systems.get("engine.starter")==true,"audio_actual_completed_native_starter_held_before_modal")
+  _check(scene.sound.cue_view().state=="paused" and scene.sound.playback==null and scene.sound.player.stream==null,"audio_actual_native_pause_synchronously_discards_playback")
+  # An explicit retained rearm fixture stays latched; actual Raw is complete.
+  scene.engine_pointer_rearm.clear()
+  scene.engine_pointer_rearm.append(1)
+  scene.synthetic_raw.mouse_buttons=[1]
+  var native: PackedByteArray=_snapshot(scene)
+  var ledger: PackedByteArray=_ledger(scene)
+  var raw: PackedByteArray=var_to_bytes(scene.collect_input_raw())
+  scene.open_audio()
+  _check(scene.audio_open,"audio_paused_held_starter_capture_free_entry")
+  scene._audio_callback.call(original,scene.adopted_session_id)
+  scene.dismiss_audio()
+  scene.close_menu()
+  _check(scene.paused and scene.menu.visible and scene.held_systems.get("engine.starter")==true and scene.engine_pointer_rearm==[1],"audio_cannot_clear_starter_or_rearm_to_make_Resume_succeed")
+  _check(_snapshot(scene)==native and _ledger(scene)==ledger and var_to_bytes(scene.collect_input_raw())==raw,"audio_actual_held_starter_Raw_native_ledger_unchanged")
+  scene.synthetic_raw={"keys":[],"mouse_buttons":[],"devices":[]}
+ scene.set_audio_options(original)
+
 func run(host: Node,include_piston: bool=true) -> Dictionary:
  _host=host
  _include_piston=include_piston
@@ -909,6 +1024,7 @@ func run(host: Node,include_piston: bool=true) -> Dictionary:
   await _route_tooltip_dispatch(scene)
   await _missing_facade_presentation(scene)
   _modal_input(scene)
+  _audio_modal(scene)
   if not _include_piston: _legacy_cold_rejection(scene)
   _closed_failure(scene)
  _check(scene.close_session(),"actual_worker_joined")
