@@ -7094,7 +7094,7 @@
         ".github/workflows/coupled-ci.yml",
         ".github/workflows/coupled-local-window-ci.yml",
         "tools/interactive-preview/native-identity.py",
-        "tests/interactive/test_native_identity.py"
+        "tools/interactive-preview/test_native_identity.py"
       ],
       "docs": [
         "docs/README.md",
