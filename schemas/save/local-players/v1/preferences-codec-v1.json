@@ -1,0 +1,130 @@
+{
+  "schema": "ProposedPreferencesStorageCodec/v1",
+  "status": "PROPOSED_UNRATIFIED_NO_CONSUMER_OUTPUT",
+  "envelope_keys": [
+    "format",
+    "version",
+    "payload_json",
+    "payload_sha256"
+  ],
+  "format": "LocalPlayerPreferences",
+  "version": 1,
+  "payload": "exact PlayerPreferences/v1; fixed record member order specified below",
+  "caps": {
+    "envelope_bytes": 614400,
+    "slot_encoded_bytes": 262144,
+    "restored_preset_json_bytes": 65536,
+    "depth": 12,
+    "values": 30000,
+    "string_scalars": 1024,
+    "string_utf8_bytes": 4096
+  },
+  "binary64_tag": {
+    "key": "$binary64_le",
+    "value": "exact16lowerhex;8bytes little endian IEEE754;finite only"
+  },
+  "float_paths": [
+    {
+      "path": "$.audio.engine_gain",
+      "admission": "actual finite FLOAT0..1; preserve signed zero"
+    },
+    {
+      "path": "$.audio.airflow_gain",
+      "admission": "actual finite FLOAT0..1; preserve signed zero"
+    },
+    {
+      "path": "$.{legacy_input,piston_input}.axes[*].value",
+      "when": "kind=fixed and accepted leaf TYPE_FLOAT",
+      "admission": "preserve exact finite binary64 bits; accepted TYPE_INT branch stays canonical bounded integer"
+    },
+    {
+      "path": "$.{legacy_input,piston_input}.axes[*].{rate,gain}",
+      "when": "kind=key_pair and accepted leaf TYPE_FLOAT",
+      "admission": "preserve finite binary64 bits; accepted TYPE_INT branch stays integer"
+    },
+    {
+      "path": "$.{legacy_input,piston_input}.axes[*].{minimum,center,maximum,deadzone,saturation,gain,slew_per_s}",
+      "when": "kind=joy_axis and accepted leaf TYPE_FLOAT",
+      "admission": "preserve finite binary64 bits; accepted TYPE_INT branch stays integer"
+    }
+  ],
+  "integer_paths": [
+    {
+      "path": "$.version",
+      "value": 1,
+      "admission": "actual INT"
+    },
+    {
+      "path": "$.{legacy_input,piston_input}.axes[*].{value,rate,gain,minimum,center,maximum,deadzone,saturation,slew_per_s}",
+      "when": "field exists for admitted axis kind and accepted leaf TYPE_INT",
+      "admission": "preserve exact INT and source field-specific continuous range; no INT-to-FLOAT coercion"
+    },
+    {
+      "path": "$.{legacy_input,piston_input}.version",
+      "value": "1 legacy /2 piston",
+      "admission": "accepted exact integral INT/FLOAT normalized to INT"
+    },
+    {
+      "path": "$.{legacy_input,piston_input}.axes[*].index",
+      "when": "kind=joy_axis",
+      "admission": "accepted exact integral index -> INT; existing JOY_AXIS_MAX bound"
+    },
+    {
+      "path": "$.{legacy_input,piston_input}.axes[*].{negative,positive}[*]",
+      "when": "kind=key_pair",
+      "admission": "accepted physical key -> INT; existing roundtrip key admission"
+    },
+    {
+      "path": "$.{legacy_input,piston_input}.actions[*].sources[*].keys[*]",
+      "when": "kind=physical_keys",
+      "admission": "accepted physical key -> INT"
+    },
+    {
+      "path": "$.{legacy_input,piston_input}.actions[*].sources[*].index",
+      "when": "kind=joy_button",
+      "admission": "accepted JOY_BUTTON_MAX bound -> INT"
+    },
+    {
+      "path": "$.{legacy_input,piston_input}.actions[*].sources[*].button",
+      "when": "kind=mouse_button",
+      "admission": "accepted1..9 -> INT"
+    },
+    {
+      "path": "$.piston_input.systems[*].sources[*].keys[*]",
+      "when": "kind=physical_keys",
+      "admission": "accepted physical key -> INT"
+    },
+    {
+      "path": "$.piston_input.systems[*].sources[*].index",
+      "when": "kind=joy_button",
+      "admission": "accepted JOY_BUTTON_MAX bound -> INT"
+    },
+    {
+      "path": "$.piston_input.systems[*].sources[*].button",
+      "when": "kind=mouse_button",
+      "admission": "accepted1..9 except4..7 -> INT"
+    }
+  ],
+  "booleans": "audio.enabled/show_panel_captions; axis.invert/return_to_start; no numeric alternatives",
+  "strings": "all remaining source-defined preset metadata/profile/capability/id/kind/range and player_id/revision/type; vendor_id/product_id are STRINGS, never integer restoration",
+  "nulls": "legacy_input/piston_input only, at declared bundle positions",
+  "canonical_order": "object keys ASCII lexical order; arrays preserve admitted order; JSON booleans/null, canonical integer tokens; String UTF8 escapes only quote/backslash and C0 as lowercase4hex; all other Unicode scalars literal; no BOM/whitespace; payload_json exact UTF8 source text; envelope keys ASCII lexical order; SHA256 over payload_json UTF8 before parse",
+  "grammar": "strict UTF8/RFC8259/one complete root; reject duplicate and escaped object keys, lone/reversed surrogates, naked real/exponent numbers and negative-zero integer token (-0); restore integer tokens ONLY table paths; exact binary tag ONLY float table paths; validate closed shape then full accepted InputPreset/v1/v2 and AudioOptions after restoration",
+  "note": "ordinary integer0 is admitted; all finite negative-zero real values use binary tag. Integral enum inputs normalize exactly as existing validators, including FLOAT -0 index to INT0; continuous TYPE_INT/FLOAT branches retain their accepted types. Never reuse archive integer magnitude cap2401: this leaf requires exact path-bound INT parsing with physical-key limit2147483647, JOY_AXIS_MAX10 and JOY_BUTTON_MAX128, and field-specific source ranges. No widening of archive grammar or NativeWireDecoder is authorized.",
+  "owner_boundary": "Direct ClassDB submit performs closed validation, all existing preset semantic/conflict/key checks, normalization, codec roundtrip/full validation and caps BEFORE queue reservation. Caller-supplied validated flags/bytes are never trusted. Worker gets bounded owned native DTO plus canonical bytes only; no Godot Objects/Callable/Variant in worker. Native validator parity with accepted validators is mandatory before actual qualification.",
+  "continuous_bounds": {
+    "audio_gains": "FLOAT finite0..1 inclusive",
+    "fixed_signed": "roll/pitch/yaw/trim -1..1 inclusive",
+    "fixed_unsigned": "throttle/left_brake/right_brake/v2mixture 0..1 inclusive",
+    "fixed_v1mixture": "exact1",
+    "key_pair_rate": "0<rate<=4",
+    "gain": "0<gain<=1",
+    "joy_calibration": "minimum/center/maximum each -1..1; centered center-min>=0.05 AND max-center>=0.05; unsigned max-min>=0.05, center still -1..1",
+    "deadzone": "0..0.4 inclusive",
+    "saturation": "0..1 inclusive AND saturation>deadzone",
+    "slew_per_s": "0..4 inclusive",
+    "v2mixture": "joy_axis unsigned only; key_pair return_to_start=false",
+    "zero_sign": "preserve signed zero at admitted FLOAT positions; rate/gain/saturation cannot admit zero under their full constraints"
+  },
+  "normalization": "Run source validators first; persist their owned normalized result, not raw caller. For all bounds exactly preserve the source binary64 comparison and no repair/clamp. Continuous types remain INT/FLOAT; integral enum positions normalize to INT. Input key name/code roundtrip is performed by actual main-thread backend before DTO construction."
+}

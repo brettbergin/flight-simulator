@@ -1,0 +1,709 @@
+{
+  "schema": "ProposedLocalPlayersCompiledSourceAllocation/v1",
+  "status": "PROPOSED_UNRATIFIED_NO_CONSUMERS",
+  "license": "Original MIT first-party; existing pinned dependency rights retained",
+  "allocation_decision": {
+    "extension": "Separate Windows-x64 storage GDExtension; no JSBSim or flight target linkage",
+    "ownership_amendment": "Earlier same-extension native/godot_bridge/src/local_players.hpp/.cpp proposal is superseded ONLY for this unaccepted leaf by native/persistence/godot_bridge/src/local_players.hpp/.cpp plus explicit register_types.cpp. Existing flight bridge source/link lists remain untouched. Core preserves published include/flight/local_players/{records,codec,store,service,filesystem}.hpp and src/{records,codec,store,service,windows_filesystem}.cpp; extra opaque access, Windows declaration and compiled identity files are explicitly allocated below.",
+    "new_directory_metadata": [
+      "native/persistence/godot_bridge/README.md"
+    ],
+    "root_integration": "Root CMake adds reusable storage core, its test directory and Windows-only separate storage target. No native/godot_bridge/CMakeLists.txt or existing bridge.cpp change is required.",
+    "unsupported_platform": "No shipping storage GDExtension/Win32/KnownFolder/store runtime on Linux v1. Linux can compile reusable pure codec/core tests with explicitly test-only platform fixtures; their receipts cannot satisfy Windows filesystem/ClassDB/product gates."
+  },
+  "preserved_flight_identity": {
+    "source_schema": "ADR016/PreviewNativeBuildIdentity/v2 unchanged",
+    "ordered_sources": [
+      "native/fdm_jsbsim/interactive/src/session.cpp",
+      "native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp",
+      "native/fdm_jsbsim/interactive/include/flight/interactive/surface.hpp",
+      "tests/interactive/native.cpp",
+      "tests/interactive/negatives.hpp",
+      "native/fdm_jsbsim/interactive/src/model-pins.hpp",
+      "native/fdm_jsbsim/interactive/src/piston-model-pins.hpp",
+      "tests/engine/CMakeLists.txt",
+      "tests/engine/loaded-library.hpp",
+      "tests/engine/native.cpp",
+      "tests/engine/native-mechanism.cpp",
+      "tests/engine/native-validate.py",
+      "tests/engine/native-generate.py",
+      "tests/engine/native-limits.hpp",
+      "tests/engine/native-limits.json",
+      "native/godot_bridge/src/bridge.cpp",
+      "native/godot_bridge/src/codec.hpp",
+      "native/godot_bridge/src/codec.cpp",
+      "native/godot_bridge/src/worker.hpp",
+      "native/godot_bridge/src/worker.cpp",
+      "native/godot_bridge/src/interactive_worker.hpp",
+      "native/godot_bridge/src/interactive_worker.cpp",
+      "native/godot_bridge/src/interactive_bridge.cpp",
+      "native/godot_bridge/src/wire_numbers.hpp",
+      "native/godot_bridge/src/wire_numbers.cpp"
+    ],
+    "ordered_controls": [
+      "CMakeLists.txt",
+      "CMakePresets.json",
+      "third_party/dependencies.lock.json",
+      "tools/bootstrap/source-selection.cmake",
+      "tools/bootstrap/source-variant.py",
+      "tools/bootstrap/coupled-source-variant.py",
+      "tools/bootstrap/build.ps1",
+      "tools/bootstrap/bootstrap.py",
+      "native/fdm_jsbsim/CMakeLists.txt",
+      "native/fdm_jsbsim/ground/CMakeLists.txt",
+      "native/fdm_jsbsim/interactive/CMakeLists.txt",
+      "tests/fdm/CMakeLists.txt",
+      "native/fdm_jsbsim/interactive/native_identity.gd.in",
+      "native/godot_bridge/CMakeLists.txt",
+      "tests/wire_codec/CMakeLists.txt",
+      "tools/bootstrap/coupled-local-window-source-variant.py",
+      "tools/bootstrap/build-local-window.ps1",
+      "tests/engine/local-window-v2/CMakeLists.txt"
+    ],
+    "rule": "Preserve exact closed25/18 path ordering and old evidence semantics. Root CMake/control content changes still require fresh independently reproduced flight control/source digest, generated native resource, actual bridge/library bytes and applicable flight qualification. Never claim unchanged fingerprints from unchanged path lists."
+  },
+  "ordered_storage_component_sources": [
+    {
+      "path": "native/persistence/local_players/include/flight/local_players/records.hpp",
+      "role": "Closed owned DTO types, bounds, actual numeric/string variants; no Godot"
+    },
+    {
+      "path": "native/persistence/local_players/src/records.cpp",
+      "role": "Pure exact closed record/source validation and U64 ordering/arithmetic; no simulation queries"
+    },
+    {
+      "path": "native/persistence/local_players/include/flight/local_players/codec.hpp",
+      "role": "Exact storage codec and bounded streaming hash interfaces"
+    },
+    {
+      "path": "native/persistence/local_players/src/codec.cpp",
+      "role": "Strict bounded preference/record JSON, tagged IEEE bits, canonical UTF8/SHA256; no Variant bytesToVar or shell"
+    },
+    {
+      "path": "native/persistence/local_players/include/flight/local_players/filesystem.hpp",
+      "role": "Bounded native filesystem/clock/random/lock abstraction; no production root string accepted from requests"
+    },
+    {
+      "path": "native/persistence/local_players/include/flight/local_players/store_access.hpp",
+      "role": "Opaque move-only production/test-origin access token with private constructors, no public arbitrary-path repository factory"
+    },
+    {
+      "path": "native/persistence/local_players/include/flight/local_players/store.hpp",
+      "role": "Repository and typed transaction result interfaces"
+    },
+    {
+      "path": "native/persistence/local_players/src/store.cpp",
+      "role": "Same SQLite C API transaction/WAL/qualification/recovery/export core for production and isolated tests"
+    },
+    {
+      "path": "native/persistence/local_players/include/flight/local_players/service.hpp",
+      "role": "Bounded FIFO/capacity/thread lifecycle interfaces"
+    },
+    {
+      "path": "native/persistence/local_players/src/service.cpp",
+      "role": "Writer owner, pre-reserved terminal slots, DTO-only worker, joined shutdown and trusted process-lifetime run ID"
+    },
+    {
+      "path": "native/persistence/local_players/include/flight/local_players/windows_filesystem.hpp",
+      "role": "Native Windows adapter declaration; no Godot dependencies"
+    },
+    {
+      "path": "native/persistence/local_players/src/windows_filesystem.cpp",
+      "role": "KnownFolder fixed root, Win32 locks/handles/CREATE_NEW/flush/no-replace/readback/root guards and native OS crypto/time"
+    },
+    {
+      "path": "native/persistence/local_players/include/flight/local_players/storage_identity.hpp",
+      "role": "Read-only compiled component fingerprint accessor with no filesystem/DB/root side effects"
+    },
+    {
+      "path": "native/persistence/local_players/src/storage_identity.cpp",
+      "role": "Read-only compiled identity values; no actual response used as expected source"
+    },
+    {
+      "path": "native/persistence/godot_bridge/src/local_players.hpp",
+      "role": "LocalPlayers ClassDB owner-thread wrapper; exact seven-method contract, no test-root method"
+    },
+    {
+      "path": "native/persistence/godot_bridge/src/local_players.cpp",
+      "role": "Direct Variant admission and main-thread Godot key-roundtrip validator parity; owned native DTO conversion and copied results; private LocalPlayersBoundary shared by production/test wrappers without alternate validation implementation or conditional core compilation"
+    },
+    {
+      "path": "native/persistence/godot_bridge/src/register_types.cpp",
+      "role": "Separate SCENE initializer/terminator; register only LocalPlayers; separate exported entry flight_local_players_init"
+    }
+  ],
+  "ordered_storage_build_controls": [
+    "CMakeLists.txt",
+    "CMakePresets.json",
+    "third_party/dependencies.lock.json",
+    "tools/bootstrap/bootstrap.py",
+    "tools/bootstrap/build.ps1",
+    "tools/bootstrap/binding-profile.json",
+    "native/persistence/local_players/CMakeLists.txt",
+    "native/persistence/godot_bridge/CMakeLists.txt",
+    "tests/persistence/local_players/CMakeLists.txt",
+    "native/persistence/local_players/storage_identity.gd.in",
+    "app/persistence/local_players.gdextension",
+    "tools/local-players/run.ps1",
+    "tools/local-players/qualify.py",
+    "tools/local-players/source-identity.py",
+    "docs/contracts/local-players/compiled-source-allocation-v1.json"
+  ],
+  "ordered_contract_inputs": [
+    "docs/contracts/local-players/records-and-lifetimes-v1.md",
+    "docs/contracts/local-players/protocol-v1.md",
+    "docs/contracts/local-players/recovery-v1.md",
+    "docs/contracts/local-players/test-capability-v1.md",
+    "schemas/save/local-players/v1/schema-v1.sql",
+    "schemas/save/local-players/v1/preferences-codec-v1.json",
+    "schemas/save/local-players/v1/schema-binding-v1.json"
+  ],
+  "test_sources": {
+    "shared_core": [
+      "tests/persistence/local_players/codec.cpp",
+      "tests/persistence/local_players/native.cpp",
+      "tests/persistence/local_players/service.cpp"
+    ],
+    "windows_only": [
+      "tests/persistence/local_players/windows.cpp",
+      "tests/persistence/local_players/crash_actor.cpp",
+      "tests/persistence/local_players/faults/lock_actor.cpp",
+      "tests/persistence/local_players/faults/fault_plan.hpp",
+      "tests/persistence/local_players/test_capability.hpp",
+      "tests/persistence/local_players/test_capability.cpp",
+      "tests/persistence/local_players/test_bridge.cpp",
+      "tests/persistence/local_players/local_players_test.gdextension",
+      "tests/persistence/local_players/bridge_checks.gd",
+      "tests/persistence/local_players/journey_checks.gd"
+    ],
+    "original_references": [
+      "tests/persistence/local_players/reference/expected-v1.json",
+      "tests/persistence/local_players/reference/generate.py",
+      "tests/persistence/local_players/reference/source-binding-v1.json",
+      "tests/persistence/local_players/reference/README.md"
+    ],
+    "metadata": [
+      "tests/persistence/local_players/CMakeLists.txt",
+      "tests/persistence/local_players/README.md"
+    ],
+    "rule": "Exact target-specific compile lists; test sources and source-control hashes separately bound in proof input manifest. No silent source glob, optional missing target, mock positive service, guessed count, reference mutation or test-root hook in production. Published native.cpp drives store/crash suites, codec.cpp drives value references; no value_refs.cpp/repository.cpp test substitution. crash_actor.cpp and faults/lock_actor.cpp are separate real Windows processes, test-only and independently hash/command bound."
+  },
+  "targets": [
+    {
+      "name": "flight_local_players_core",
+      "kind": "STATIC",
+      "alias": "flight::local_players_core",
+      "sources": [
+        "native/persistence/local_players/include/flight/local_players/records.hpp",
+        "native/persistence/local_players/src/records.cpp",
+        "native/persistence/local_players/include/flight/local_players/codec.hpp",
+        "native/persistence/local_players/src/codec.cpp",
+        "native/persistence/local_players/include/flight/local_players/filesystem.hpp",
+        "native/persistence/local_players/include/flight/local_players/store_access.hpp",
+        "native/persistence/local_players/include/flight/local_players/store.hpp",
+        "native/persistence/local_players/src/store.cpp",
+        "native/persistence/local_players/include/flight/local_players/service.hpp",
+        "native/persistence/local_players/src/service.cpp",
+        "native/persistence/local_players/include/flight/local_players/storage_identity.hpp",
+        "native/persistence/local_players/src/storage_identity.cpp"
+      ],
+      "links": [
+        "flight::sqlite",
+        "Threads::Threads"
+      ],
+      "includes": [
+        "native/persistence/local_players/include",
+        "checksum-verified sqlite3.h directory"
+      ],
+      "definition_policy": "No Godot/JSBSim/app root lookup; repository receives only private opaque StoreAccess and native Platform. No test-only macro changes to production core compilation."
+    },
+    {
+      "name": "flight_local_players_windows",
+      "kind": "STATIC Windows-only",
+      "alias": "flight::local_players_windows",
+      "sources": [
+        "native/persistence/local_players/include/flight/local_players/windows_filesystem.hpp",
+        "native/persistence/local_players/src/windows_filesystem.cpp"
+      ],
+      "links": [
+        "flight::local_players_core",
+        "Shell32",
+        "Ole32",
+        "Bcrypt"
+      ],
+      "includes": [
+        "native/persistence/local_players/include"
+      ],
+      "definition_policy": "WIN32_LEAN_AND_MEAN; NOMINMAX; Unicode explicit W APIs; no test factory compiled. Kernel32 baseline filesystem/time APIs; no shell execution, arbitrary SQLite extension/plugin loading or network."
+    },
+    {
+      "name": "flight_local_players_bridge",
+      "kind": "SHARED Windows-only GDExtension",
+      "sources": [
+        "native/persistence/godot_bridge/src/local_players.hpp",
+        "native/persistence/godot_bridge/src/local_players.cpp",
+        "native/persistence/godot_bridge/src/register_types.cpp"
+      ],
+      "links": [
+        "godot::cpp",
+        "flight::local_players_core",
+        "flight::local_players_windows"
+      ],
+      "shipping_artifact": "bin/flight_local_players_bridge.dll",
+      "rule": "Do not link flight::fdm_jsbsim, flight::interactive or JSBSim. Same pinned Godot API4.5 on engine4.7.2/single precision, exceptions enabled, dynamic CRT. Only production registration source compiled."
+    },
+    {
+      "name": "local_players_codec_native",
+      "kind": "headless executable",
+      "sources": [
+        "tests/persistence/local_players/codec.cpp"
+      ],
+      "links": [
+        "flight::local_players_core"
+      ],
+      "scope": "Pure value/codec/records/U64 references on Windows or Linux; no database/Win32 claim."
+    },
+    {
+      "name": "local_players_store_native",
+      "kind": "headless Windows executable",
+      "sources": [
+        "tests/persistence/local_players/native.cpp",
+        "tests/persistence/local_players/test_capability.hpp",
+        "tests/persistence/local_players/test_capability.cpp",
+        "tests/persistence/local_players/faults/fault_plan.hpp"
+      ],
+      "links": [
+        "flight::local_players_core",
+        "flight::local_players_windows"
+      ],
+      "scope": "Same core/Win32/SQLite isolated-root store transactions, retries/revisions/paging; --suite store fixed by CTest."
+    },
+    {
+      "name": "local_players_service_native",
+      "kind": "headless Windows executable",
+      "sources": [
+        "tests/persistence/local_players/service.cpp",
+        "tests/persistence/local_players/test_capability.hpp",
+        "tests/persistence/local_players/test_capability.cpp",
+        "tests/persistence/local_players/faults/fault_plan.hpp"
+      ],
+      "links": [
+        "flight::local_players_core",
+        "flight::local_players_windows"
+      ],
+      "scope": "Actual bounded writer/FIFO/ownership/copy/join service over isolated same core; no fabricated commit substitute."
+    },
+    {
+      "name": "local_players_windows_native",
+      "kind": "headless Windows executable",
+      "sources": [
+        "tests/persistence/local_players/windows.cpp",
+        "tests/persistence/local_players/test_capability.hpp",
+        "tests/persistence/local_players/test_capability.cpp",
+        "tests/persistence/local_players/faults/fault_plan.hpp"
+      ],
+      "links": [
+        "flight::local_players_core",
+        "flight::local_players_windows"
+      ],
+      "scope": "Actual NTFS identity/locks/reparse/CREATE_NEW/flush/no-replace/known-folder readonly observation; isolated capability for all store writes."
+    },
+    {
+      "name": "local_players_crash_native",
+      "kind": "headless Windows executable",
+      "sources": [
+        "tests/persistence/local_players/native.cpp",
+        "tests/persistence/local_players/test_capability.hpp",
+        "tests/persistence/local_players/test_capability.cpp",
+        "tests/persistence/local_players/faults/fault_plan.hpp"
+      ],
+      "links": [
+        "flight::local_players_core",
+        "flight::local_players_windows"
+      ],
+      "scope": "Parent crash/reopen/uncertain-ack/retained evidence suite; --suite crash, real actor executables, no timeout counted as graceful join."
+    },
+    {
+      "name": "local_players_crash_actor",
+      "kind": "standalone test-only Windows executable",
+      "sources": [
+        "tests/persistence/local_players/crash_actor.cpp",
+        "tests/persistence/local_players/test_capability.hpp",
+        "tests/persistence/local_players/test_capability.cpp",
+        "tests/persistence/local_players/faults/fault_plan.hpp"
+      ],
+      "links": [
+        "flight::local_players_core",
+        "flight::local_players_windows"
+      ],
+      "scope": "Real child using SAME repository/SQLite/Windows core; closed before-BEGIN/after-write-before-COMMIT/after-COMMIT-before-ACK/during-recovery crash phases; actual controlled process termination and exit observed by parent. Not shipping."
+    },
+    {
+      "name": "local_players_lock_actor",
+      "kind": "standalone test-only Windows executable",
+      "sources": [
+        "tests/persistence/local_players/faults/lock_actor.cpp",
+        "tests/persistence/local_players/test_capability.hpp",
+        "tests/persistence/local_players/test_capability.cpp",
+        "tests/persistence/local_players/faults/fault_plan.hpp"
+      ],
+      "links": [
+        "flight::local_players_core",
+        "flight::local_players_windows"
+      ],
+      "scope": "Actual Windows deny-share/ownership guard actor; nonce-bound READY/release protocol and actual exit; no sleep-based assumed startup. Not shipping."
+    },
+    {
+      "name": "flight_local_players_test_bridge",
+      "kind": "SHARED test-only Windows GDExtension",
+      "sources": [
+        "native/persistence/godot_bridge/src/local_players.hpp",
+        "native/persistence/godot_bridge/src/local_players.cpp",
+        "tests/persistence/local_players/test_capability.hpp",
+        "tests/persistence/local_players/test_capability.cpp",
+        "tests/persistence/local_players/test_bridge.cpp"
+      ],
+      "scope": "Links SAME production core/windows libraries and compiles SAME local_players.cpp admission/LocalPlayersBoundary implementation; separate test wrapper+registration and capability factories only. Test wrapper extends RefCounted, forwards to shared boundary; does not derive from an unregistered LocalPlayers Godot base. Registers LocalPlayersTest only. No production resource/root fallback. Never shipped."
+    }
+  ],
+  "build": {
+    "cpp": "C++20; x64 only; std::numeric_limits<double>::is_iec559 && sizeof(double)==8; standard UTF8 source",
+    "msvc": "Actual pinned v143>=19.40 compiler; /MD release /MDd debug; /W4 /WX /permissive- /utf-8; numeric codec/validator sources /fp:strict",
+    "linux_core": "GCC>=13; -Wall -Wextra -Wpedantic -Werror; numeric codec/validator -fno-fast-math -ffp-contract=off -frounding-math; no Win32 adapter/shipping extension claim",
+    "threading": "find_package(Threads REQUIRED), production writer owned/joined; only owner thread can admit/query Godot wrapper; workers contain no Godot Variant/Object/Callable",
+    "sqlite": {
+      "target": "existing flight_sqlite / flight::sqlite STATIC; one verified amalgamation compiled into separate storage DLL",
+      "version": "3.53.4",
+      "source_id": "2026-07-24 19:02:57 bf7c7f30031888f4e796e429ab3978879485813aaca6f641c7b33e4e09459bcc",
+      "archive_sha256": "1e71ddf93849c6a6ecf58b827c0692073d2dd7ee40196158068f7b29f422e87d",
+      "include": "same checksum-verified amalgamation sqlite3.h; no OS sqlite DLL or unpinned package",
+      "definitions": [
+        "SQLITE_THREADSAFE=1",
+        "SQLITE_OMIT_LOAD_EXTENSION=1"
+      ],
+      "forbidden": [
+        "SQLITE_NO_SYNC",
+        "SQLITE_OMIT_WAL",
+        "SQLITE_THREADSAFE=0",
+        "unreviewed custom VFS",
+        "sqlite3_load_extension"
+      ],
+      "C_API": [
+        "sqlite3_open_v2",
+        "sqlite3_close_v2",
+        "sqlite3_prepare_v3",
+        "sqlite3_bind_int",
+        "sqlite3_bind_int64",
+        "sqlite3_bind_text64",
+        "sqlite3_bind_blob64",
+        "sqlite3_bind_null",
+        "sqlite3_step",
+        "sqlite3_reset",
+        "sqlite3_clear_bindings",
+        "sqlite3_finalize",
+        "sqlite3_column_type",
+        "sqlite3_column_int64",
+        "sqlite3_column_text",
+        "sqlite3_column_blob",
+        "sqlite3_column_bytes",
+        "sqlite3_changes64",
+        "sqlite3_exec",
+        "sqlite3_free",
+        "sqlite3_busy_timeout",
+        "sqlite3_extended_result_codes",
+        "sqlite3_extended_errcode",
+        "sqlite3_txn_state",
+        "sqlite3_get_autocommit",
+        "sqlite3_wal_checkpoint_v2",
+        "sqlite3_sourceid",
+        "sqlite3_libversion",
+        "sqlite3_compileoption_get",
+        "sqlite3_file_control"
+      ],
+      "VFS": "Pinned default win32 only for production; verify sqlite3_file_control(SQLITE_FCNTL_VFSNAME) and record observed name. Exclusive OS ownership and PRAGMA locking_mode=EXCLUSIVE before database/WAL access, as protocol. sqlite3_open_v2 SQLITE_OPEN_EXCLUSIVE is NOT CreateNew; Windows adapter must reserve new DB with real CREATE_NEW before SQLite open without CREATE. No custom VFS added through this allocation.",
+      "actual_qualification": "Record actual sqlite3_sourceid/libversion/compile options/VFS, compiled objects/flags/link map, flush failure and WAL/checkpoint behavior. Static source inspection or THREADSAFE alone does not prove durable operation.",
+      "C_API_scope": "Required bounded repository API inventory, no wildcard load/exec of caller SQL. Bind only fixed reviewed statements and parameters; integer enum/bool/small count use INT, U64 text and float bits use TEXT/BLOB, never sqlite3_bind_double for durable preferences. busy_timeout exactly2000ms per contract; at most one application retry only proved not-begun. sqlite3_free releases SQLite-owned VFS-name buffers. Extra API usage must be source-reviewed before build, not treated as an arbitrary capability.",
+      "C_compiler_binding": {
+        "language": "C, independently from CXX",
+        "source": "Checksum-verified sqlite3.c exact bytes; sqlite3.h include closure bound",
+        "precompile": "Actual C compiler ID/version/executable SHA, CMAKE_C_FLAGS and configuration C flags, effective target definitions/options/includes, C runtime property /MD or /MDd; compiler switches do not borrow CXX-only flags. Target SQLITE_THREADSAFE=1 and SQLITE_OMIT_LOAD_EXTENSION=1 exact; no unreviewed SQLITE compile options.",
+        "postcompile": "Actual C compile row/compiler path/hash, object bytes, static archive member roster/hash and DLL actual link command/map prove transitive inclusion; changing C compiler/options/defines/CRT changes control identity. No unlinked static library or source-only pin can qualify the DLL."
+      }
+    },
+    "godot_cpp": {
+      "commit": "e83fd0904c13356ed1d4c3d09f8bb9132bdc6b77",
+      "archive_sha256": "579af30c5f62c1084edb28216788188227d80a583f0114463699ac4edd22140f",
+      "profile": "Existing tools/bootstrap/binding-profile.json sufficient for RefCounted/ClassDB. Any profile/header/ABI changes need explicit reviewed allocation update, not inferred available API."
+    },
+    "FP": "Never change caller/process floating-point controls silently. Exact float codec uses bit representations and integer/string transport, not decimal parse. Full accepted semantic-validator parity, subnormal/negative-zero handling and caller FENV/MXCSR preservation require actual qualification; strict compiler switches alone are not runtime proof."
+  },
+  "storage_identity": {
+    "component_schema": "flight-local-players-component-v1",
+    "source_digest_recipe": "SHA256 UTF8: flight-local-players-component-v1\\n + storage-build-controls:<digest>\\n + storage-contracts:<digest>\\n + sqlite-source:<verified source ID>\\n + sqlite-amalgamation:<raw sqlite3.c digest>\\n + sqlite-header:<raw sqlite3.h digest>\\n + godot-cpp:<verified commit>\\n + ordered component path:<SHA256 LF-normalized source bytes>\\n lines. Interpret displayed \\n as actual LF.",
+    "build_digest_recipe": "Ordered build-control path:<SHA256 LF-normalized text> LF lines, then exact ordered compiled_build_scalar_keys below as key:<value> LF. Values are actual independently inspected configure/cache/compile/link controls, not guessed CXX stand-ins for C. One final LF; no arbitrary environment or generated output. Compiler executable digests are actual file bytes; command/input paths canonicalized only under the explicit command-binding recipe. Storage qualification fails if actual C SQLite compilation/static inclusion disagrees.",
+    "contracts_digest_recipe": "Ordered contract-input path:<SHA256 exact UTF8 LF file bytes> LF lines. SQL/codec exact raw LF hash must match schema binding; no auto-formatting.",
+    "generated_build_path": "local-players-identity.gd",
+    "staged_path": "build/local_players_identity.gd",
+    "resource_template_path": "native/persistence/local_players/storage_identity.gd.in",
+    "resource_lines": [
+      "extends RefCounted",
+      "const SCHEMA: String = \"flight-local-players-component-v1\"",
+      "const COMPONENT_FINGERPRINT: String = \"<independently-qualified lowercase64hex>\"",
+      "const BUILD_CONTROL_SHA256: String = \"<independently-qualified lowercase64hex>\"",
+      "const CONTRACT_SHA256: String = \"<independently-qualified lowercase64hex>\""
+    ],
+    "resource_rule": "Exactly five UTF8 no-BOM LF lines with final LF. Template an input, generated output excluded from source/control inputs. Compiled definition FLIGHT_LOCAL_PLAYERS_COMPONENT_SHA256 matches independently reproduced digest; shipping read-only C++ accessor performs no Godot/root/DB access. No new LocalPlayers protocol method or use of native echo as expected value.",
+    "fresh_hashes": "No source, object, library, identity or final binary digest allocated for unwritten files. Before any build, bind actual reviewed source/afterimages, controls, dependencies and references in fresh source packet; after build independently derive and qualify evidence. No zero placeholders/fabricated hashes accepted as current.",
+    "build_scalar_keys": [
+      "c_compiler_id",
+      "c_compiler_version",
+      "c_compiler_executable_sha256",
+      "cxx_compiler_id",
+      "cxx_compiler_version",
+      "cxx_compiler_executable_sha256",
+      "generator",
+      "configuration",
+      "c_flags",
+      "c_configuration_flags",
+      "cxx_flags",
+      "cxx_configuration_flags",
+      "sqlite_compile_definitions",
+      "sqlite_compile_options",
+      "sqlite_include_directories_sha256",
+      "sqlite_c_compile_command_sha256",
+      "sqlite_static_archive_sha256",
+      "sqlite_object_roster_sha256",
+      "storage_link_command_sha256",
+      "msvc_runtime_c",
+      "msvc_runtime_cxx",
+      "precision",
+      "godot_api",
+      "declared_numeric_flags",
+      "platform"
+    ],
+    "command_binding_recipe": "Before build freeze compiler/control/source command plan; after compile independently bind actual compile_commands.json SQLite C row, its selected C compiler file/ID/version/options/defines/includes, exact produced object and archive-member roster/hashes, and actual storage DLL link command/map demonstrating inclusion of that object. command hash = SHA256 exact UTF8 LF command record with source/build roots replaced only by fixed @source_root/@build_root tokens, retaining argument array order, exact spelling and compiler file digest; reject ambiguous/duplicate source rows and shell-string-only reconstruction. Object/archive/link hashes are build witnesses used to QUALIFY build digest, not source-fingerprint inputs available only after compile. See build_digest_cycle_policy.",
+    "build_digest_cycle_policy": "Only pre-compilation scalar/source/control values participate in compiled BUILD_CONTROL_SHA256: actual C/CXX compiler IDs/versions/executable hashes, flags/configuration flags, declared SQLite target options/defines/include provenance, runtime properties, precision/API/platform and intended command recipe. Post-compilation sqlite_c_compile_command_sha256, sqlite_static_archive_sha256, sqlite_object_roster_sha256 and storage_link_command_sha256 are mandatory independently measured build evidence, NOT compiled digest inputs; otherwise source_identity.cpp -> static archive -> DLL creates a cycle. The ordered scalar list is partitioned explicitly below.",
+    "compiled_build_scalar_keys": [
+      "c_compiler_id",
+      "c_compiler_version",
+      "c_compiler_executable_sha256",
+      "cxx_compiler_id",
+      "cxx_compiler_version",
+      "cxx_compiler_executable_sha256",
+      "generator",
+      "configuration",
+      "c_flags",
+      "c_configuration_flags",
+      "cxx_flags",
+      "cxx_configuration_flags",
+      "sqlite_compile_definitions",
+      "sqlite_compile_options",
+      "sqlite_include_directories_sha256",
+      "msvc_runtime_c",
+      "msvc_runtime_cxx",
+      "precision",
+      "godot_api",
+      "declared_numeric_flags",
+      "platform"
+    ],
+    "postbuild_witness_keys": [
+      "sqlite_c_compile_command_sha256",
+      "sqlite_static_archive_sha256",
+      "sqlite_object_roster_sha256",
+      "storage_link_command_sha256"
+    ]
+  },
+  "extension_resource": {
+    "authored_path": "app/persistence/local_players.gdextension",
+    "entry_symbol": "flight_local_players_init",
+    "compatibility_minimum": "4.5",
+    "reloadable": false,
+    "libraries": {
+      "windows.debug.x86_64": "res://bin/flight_local_players_bridge.dll",
+      "windows.release.x86_64": "res://bin/flight_local_players_bridge.dll"
+    },
+    "dependencies": "No JSBSim/sqlite DLL dependency; SQLite is static. Exact actual dynamic MSVC CRT closure retained separately. No Linux library entry in v1. Only Windows storage-enabled project stages/loads this resource; other platforms explicitly report unavailable storage and Guest remains usable."
+  },
+  "options": {
+    "FLIGHT_BUILD_LOCAL_PLAYERS": "Explicit reviewed Windows-x64 production build option; OFF until adopted consumer selection, bindings required. Missing/unsupported requested build fails configuration, never silently substitutes a no-op store.",
+    "FLIGHT_BUILD_LOCAL_PLAYERS_TEST_BRIDGE": "OFF default; requires WIN32, BUILD_TESTING and explicit test packaging. Shipping targets never inherit factory/test defines or registration."
+  },
+  "aggregate_package_identity": {
+    "schema": "LocalPlayersPackageAggregate/v1",
+    "purpose": "Build/delivery evidence, not persistent flight data or extension self-assertion",
+    "closed_fields": [
+      "schema",
+      "source_head",
+      "flight",
+      "storage",
+      "artifacts",
+      "corresponding_source_sha256",
+      "qualification_receipts"
+    ],
+    "flight": "Existing exact qualified PreviewNativeBuildIdentity/v2 file binding + actual flight_godot_bridge and JSBSim module identities/resources; no schema expansion or reinterpretation.",
+    "storage": "Separately qualified component identity evidence + exact generated storage identity and authored local_players.gdextension bytes + actual storage DLL path/hash.",
+    "artifact_roles_order": [
+      "flight_extension_resource",
+      "flight_expected_identity_resource",
+      "flight_bridge",
+      "flight_backend",
+      "storage_extension_resource",
+      "storage_expected_identity_resource",
+      "storage_bridge",
+      "MSVCP140.dll",
+      "MSVCP140_2.dll",
+      "MSVCP140_ATOMIC_WAIT.dll",
+      "VCRUNTIME140.dll",
+      "VCRUNTIME140_1.dll"
+    ],
+    "artifact_record": "exact {role:String,path:String,bytes:INT,sha256:String}; safe relative path; unique role/path case-insensitive, all12 roles mandatory for Windows release, no extra/duplicate/omitted record. PCK resources independently bound to source bytes; binary modules independently read and actual loaded module paths observed by qualified supervisor/process receipts, not only resource declarations.",
+    "closure": "Corresponding source includes BOTH extensions/core/test qualification inputs, exact SQLite amalgamation/header+rights and static dependency build scripts, original flight selected JSBSim sources, resource/templates/build controls and actual generated resources. Package SHA binds declared inventory only after closed roster and full same-run actual file verification. No player DB/WAL/SHM, profiles, history, exports, recovery snapshots or test root are copied.",
+    "proof_hooks": [
+      "Independent source/control/schema/codec/reference reconstruction before staging and before/after package/import",
+      "Compile/link command and map audit proves selected17 component sources, exact include paths/static SQLite/Win32 imports/dynamic CRT, no test registration/factory compiled in shipping target",
+      "Actual Windows ClassDB start/submit/poll/status and joined shutdown on isolated test route; actual shipping resource load/registration/no-test-method audit in root-free probe",
+      "Actual editor/portable/rebuilt-replacement source+PCK/resources/all module identities with separate LocalPlayers receipt, preserve existing Facade/298/camera/wire schemas/receipts",
+      "Separate actual storage source rebuild and replacement DLL proof; old only-two-flight-DLL replacement is insufficient. Keep SQLite public-domain, Godot-cpp MIT and first-party MIT notices/source inventory. No hash pin revokes LGPL JSBSim replacement rights.",
+      "Installed production KnownFolder write journey only in separately authorized disposable Windows account, not owner profile; read-only resolver proof independently possible"
+    ],
+    "receipt_rule": "Storage qualification receipt/validator exact shape must be frozen and independently reviewed with actual driver before that runtime route; this allocation does not invent passed counters or reuse logical recipes as observed receipts. Raw failure evidence and all worker/process joins retained.",
+    "field_shapes": {
+      "schema": "String exactly LocalPlayersPackageAggregate/v1",
+      "source_head": "String40 lowercasehex actual reviewed compiled source commit; uncommitted private afterimages must first be source-bound and integrated, no fabricated HEAD",
+      "flight": "exact {identity_path:String,identity_sha256:String,source_variant:String,source_fingerprint:String,backend_identity_sha256:String,build_control_sha256:String}; identity_path safe relative actual qualified PreviewNativeBuildIdentity/v2 file; all digest values independently reproduced and cross-bound",
+      "storage": "exact {identity_path:String,identity_sha256:String,component_fingerprint:String,build_control_sha256:String,contract_sha256:String}; safe relative actual separately qualified storage identity evidence; cross-check exact generated resource/compiled definition/source closure",
+      "artifacts": "Array exactly12 records in artifact_roles_order, each exact artifact_record shape",
+      "corresponding_source_sha256": "String64lowerhex; exact source inventory manifest excludes aggregate output to avoid hash cycle; source roster/file bytes independently verified",
+      "qualification_receipts": "exact {editor:{path:String,bytes:INT,sha256:String},portable:{path:String,bytes:INT,sha256:String},replacement:{path:String,bytes:INT,sha256:String}}; ordinary bounded source-bound receipt files validated against separately frozen actual driver and strict receipt schema. Mere digest/receipt passed field never establishes qualification."
+    }
+  },
+  "test_capability": "See test-capability-v1.md; production ClassDB registration/methods never expose root/path/capability/fault/process-exit methods. Test token factory and LocalPlayersTest registration absent from shipping objects/DLL/source package entry resource; test source remains corresponding-source only.",
+  "pending_review": [
+    "Root and independent reviewer approval of this exact allocation and capability contract",
+    "Public issue ownership/mapping for amended separate storage bridge directory and new closed qualifier/template/resource paths",
+    "Actual candidate source/controls hashes frozen before build; exact target command/source/link closure then strict Windows qualification",
+    "No consumer/runtime/storage acceptance from this proposed allocation"
+  ],
+  "source_review_constraints": [
+    "Separate storage ClassDB registration never depends on registration order of flight classes or calls any flight session. Guest remains viable when storage missing/failing.",
+    "Header input named in source roster is bound even if not an independent compilation unit. Compile/link closure must prove every compiled source and all transitive project headers/dependency includes; an unlisted new project header causes explicit contract amendment, not silent acceptance.",
+    "CMake/include/link/template/selector/qualifier and static SQLite source/header bytes are reviewed and independently rehashed before any build. Final generated hashes and binary/module evidence must come from that fresh actual build.",
+    "Test targets compile shared boundary without production registration; test wrapper uses composition of LocalPlayersBoundary, not invalid Godot inheritance from an unregistered native class. Shipping symbol/API absence and exact target lists remain actual gates.",
+    "Existing FDM25/18 qualifiers retain exact closed shapes; source/control changes requalify, never relabel old artifact. New storage aggregate is additive separate evidence.",
+    "ClassDB arguments requiring exact types (especially poll max_results) must arrive as Variant and be checked BEFORE any Godot binder conversion; a typed int binding that silently accepts FLOAT8.0 fails the existing contract. No new protocol coercion is allocated.",
+    "Five fixed public CTest names and real crash/lock actor target slots are part of source allocation. Native execution is separately authorized; actors/test factory objects never enter shipping target. Changed C compiler/C flags/SQLite target properties must change storage controls; post-build archive/object/link witnesses stay outside compiled hash cycle."
+  ],
+  "ctest_definitions": [
+    {
+      "name": "local_players_codec",
+      "platforms": [
+        "Windows-x64",
+        "Linux-x64"
+      ],
+      "executable_target": "local_players_codec_native",
+      "command": [
+        "$<TARGET_FILE:local_players_codec_native>",
+        "--reference",
+        "<repository>/tests/persistence/local_players/reference/expected-v1.json"
+      ],
+      "scope": "Pure exact values/records/codec/U64 only, no DB/root/thread/Win32 durability claim"
+    },
+    {
+      "name": "local_players_store",
+      "platforms": [
+        "Windows-x64"
+      ],
+      "executable_target": "local_players_store_native",
+      "command": [
+        "<pinned Python>",
+        "<repository>/tools/local-players/qualify.py",
+        "ctest",
+        "--case",
+        "store",
+        "--executable",
+        "$<TARGET_FILE:local_players_store_native>",
+        "--proof-root",
+        "<Root-approved fresh proof root>",
+        "--execution-authorization",
+        "<Root-reviewed native authorization manifest>",
+        "--suite",
+        "store"
+      ],
+      "scope": "Actual Windows same-core isolated capability; qualifier validates exact command/executable/source/reference hashes, creates one unique child capability then runs/join-observes actual process. No production root fallback."
+    },
+    {
+      "name": "local_players_service",
+      "platforms": [
+        "Windows-x64"
+      ],
+      "executable_target": "local_players_service_native",
+      "command": [
+        "<pinned Python>",
+        "<repository>/tools/local-players/qualify.py",
+        "ctest",
+        "--case",
+        "service",
+        "--executable",
+        "$<TARGET_FILE:local_players_service_native>",
+        "--proof-root",
+        "<Root-approved fresh proof root>",
+        "--execution-authorization",
+        "<Root-reviewed native authorization manifest>"
+      ],
+      "scope": "Actual Windows same-core isolated capability; qualifier validates exact command/executable/source/reference hashes, creates one unique child capability then runs/join-observes actual process. No production root fallback."
+    },
+    {
+      "name": "local_players_windows",
+      "platforms": [
+        "Windows-x64"
+      ],
+      "executable_target": "local_players_windows_native",
+      "command": [
+        "<pinned Python>",
+        "<repository>/tools/local-players/qualify.py",
+        "ctest",
+        "--case",
+        "windows",
+        "--executable",
+        "$<TARGET_FILE:local_players_windows_native>",
+        "--proof-root",
+        "<Root-approved fresh proof root>",
+        "--execution-authorization",
+        "<Root-reviewed native authorization manifest>",
+        "--crash-actor",
+        "$<TARGET_FILE:local_players_crash_actor>",
+        "--lock-actor",
+        "$<TARGET_FILE:local_players_lock_actor>"
+      ],
+      "scope": "Actual Windows same-core isolated capability; qualifier validates exact command/executable/source/reference hashes, creates one unique child capability then runs/join-observes actual process. No production root fallback."
+    },
+    {
+      "name": "local_players_crash",
+      "platforms": [
+        "Windows-x64"
+      ],
+      "executable_target": "local_players_crash_native",
+      "command": [
+        "<pinned Python>",
+        "<repository>/tools/local-players/qualify.py",
+        "ctest",
+        "--case",
+        "crash",
+        "--executable",
+        "$<TARGET_FILE:local_players_crash_native>",
+        "--proof-root",
+        "<Root-approved fresh proof root>",
+        "--execution-authorization",
+        "<Root-reviewed native authorization manifest>",
+        "--suite",
+        "crash",
+        "--crash-actor",
+        "$<TARGET_FILE:local_players_crash_actor>",
+        "--lock-actor",
+        "$<TARGET_FILE:local_players_lock_actor>"
+      ],
+      "scope": "Actual Windows same-core isolated capability; qualifier validates exact command/executable/source/reference hashes, creates one unique child capability then runs/join-observes actual process. No production root fallback."
+    }
+  ],
+  "ctest_policy": "These exact five CTest names/target commands are required for Windows. Any missing/duplicate/extra replacement target or command fails qualification. The qualifier is the already allocated Root runner backend, not a new independent harness; fixed Root-reviewed proof root/authorization substituted as data. Build-only stage never runs CTest/actors. NativeChecks requires explicit authorization and exact actual executable hashes, five discovery commands plus both actor hashes/closed arguments, descriptor/nonce and observed exits. Linux runs local_players_codec only and records remaining four Windows-only gates unavailable; neither absent tests nor core compilation yields Windows green. Test bridge/journey checks are separate actual Godot gates, never renamed CTests."
+}

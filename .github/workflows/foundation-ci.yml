@@ -46,6 +46,25 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Frozen49 native-wire oracle reproduction failed' }
           python -B tests/wire_codec/emit_reference.py --check
           if ($LASTEXITCODE -ne 0) { throw 'Mechanical native-wire table differs from frozen oracle' }
+      - name: Verify frozen local-player contract and independent value references
+        shell: pwsh
+        run: |
+          $localPlayerPins = @{
+            'docs/contracts/local-players/records-and-lifetimes-v1.md' = 'e29b1a9fc563ae58105a7b99c6ed158ada347cf506a5565e68c8f7a051d322e0'
+            'docs/contracts/local-players/protocol-v1.md' = 'd7a5bc7ee7820df6a3ce8addbc72c66b57b86db91355ad18555f53da6c152d36'
+            'schemas/save/local-players/v1/schema-v1.sql' = 'cbd00b3fe47b400e79635ed901d195abfe133a4131d5001feac8e3eedeb0562f'
+            'schemas/save/local-players/v1/preferences-codec-v1.json' = '47711d41be89e233efe3c42e8f2cedd33f729e6e0e2c9a78a6026454022b0538'
+            'schemas/save/local-players/v1/schema-binding-v1.json' = '9353c034edafdb1bcc3984452bd9c2d4fcdbf283342e99bb5a5dd2d27792f049'
+            'tests/persistence/local_players/reference/expected-v1.json' = '1ffaa82ae54a18dc5c9ec3d6c49760ed3b2d6c27abf77783572c6a9b3902d962'
+            'tests/persistence/local_players/reference/generate.py' = 'a695fa0d06a8b91bed3b3117789c09b2fdb3df0e5e0afe7aa4bd9069d63374ed'
+            'tests/persistence/local_players/reference/source-binding-v1.json' = '37d551c29b6e14c51f6d0c0ca37893680a57520b06ffa9f2f046919820eeaa95'
+            'tests/persistence/local_players/reference/README.md' = '70507f04f9fdaadd5677e5ff5636c9cc30fbacc0bd9de788c0d7f8234635ec72'
+          }
+          foreach ($name in $localPlayerPins.Keys) {
+            if ((Get-FileHash -LiteralPath $name -Algorithm SHA256).Hash.ToLowerInvariant() -cne $localPlayerPins[$name]) { throw 'Frozen local-player input changed; reviewed successor contract required' }
+          }
+          python -B tests/persistence/local_players/reference/generate.py --check
+          if ($LASTEXITCODE -ne 0) { throw 'Independent local-player value reference reproduction failed' }
       - name: Install locked contract validators
         run: npm ci --ignore-scripts --prefix schemas
       - name: Check reconstruction declaration rejection cases
