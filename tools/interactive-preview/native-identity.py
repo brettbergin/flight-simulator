@@ -388,6 +388,21 @@ def reconstruction_paths(repo):
     # Exact current overlays supplement a pinned public base checkout. Include
     # complete new native/test/bootstrap directories, not just the old six files.
     names = set(SOURCES + CONTROLS)
+    # Exact authored camera copies supplement the compiled reconstruction.
+    # These are not native SOURCES/CONTROLS; generated UIDs are never authored.
+    names.update((
+        'app/camera/view_policy.gd',
+        'app/ui/camera/views_panel.gd',
+        'tests/camera/.gitattributes',
+        'tests/camera/README.md',
+        'tests/camera/expected-v1.json',
+        'tests/camera/generate.py',
+        'tests/camera/root-ratification-v1.json',
+        'tests/camera/source-binding-v1.json',
+        'tests/camera/policy_checks.gd',
+        'tests/camera/panel_checks.gd',
+        'tests/camera/scene_checks.gd',
+    ))
     for folder in ('native', 'tests/engine', 'tests/interactive', 'tools/bootstrap'):
         root = ordinary(repo / folder, True)
         for path in root.rglob('*'):

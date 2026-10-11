@@ -802,3 +802,192 @@ Write-SimulationCheckHarness -ProjectRoot $audioHarness -RepoRoot $repo
 $generated=[IO.File]::ReadAllText((Join-Path $audioHarness 'sim_loop_checks.gd'))
 foreach($required in @('res://audio','res://ui/audio','res://audio_tests','audio_cues_checks.gd','audio_options_checks.gd','sample_renderer_checks.gd','audio_panel_checks.gd','await audio_lifecycle_checks()','owner.set_paused(false)','run_sound(self,source)','owner.close()','"audio":audio_checks')){if(-not $generated.Contains($required)){throw 'Generated audio harness omitted '+$required}}
 Write-Output 'PASS audio exact recursive project/corresponding source, byte/set/descriptor/UID drift and actual lifecycle harness inclusion.'
+
+# Closed camera source and generated-harness admission, with synthetic bytes only.
+& {
+param([string]$hostRepo,[string]$sourceTools)
+$fixture=Join-Path $hostRepo ('.local/camera-staging-test/'+[Guid]::NewGuid().ToString('N'))
+$tools=Join-Path $fixture 'tools'
+New-Item -ItemType Directory -Path $tools|Out-Null
+foreach($name in @('camera-staging.ps1','simulation-staging.ps1','wire-codec-staging.ps1','local-window-replay-staging.ps1')){
+ Copy-Item -LiteralPath (Join-Path $sourceTools $name) -Destination $tools
+}
+. (Join-Path $tools 'simulation-staging.ps1')
+$repo=Join-Path $fixture 'authored'
+foreach($group in @(Get-CameraSourceDefinitions)){
+ foreach($name in $group.required){
+  $dest=Join-Path $repo ($group.source+'/'+$name)
+  New-Item -ItemType Directory -Force -Path (Split-Path $dest -Parent)|Out-Null
+  [IO.File]::WriteAllText($dest,"# Synthetic staging fixture`nextends RefCounted`n",[Text.UTF8Encoding]::new($false))
+ }
+}
+$checks=[Collections.Generic.List[string]]::new()
+function Pass([string]$name){$checks.Add($name)}
+function Reject([scriptblock]$Action,[string]$Name){$rejected=$false;try{& $Action}catch{$rejected=$true};if(-not $rejected){throw "Expected fixture rejection: $Name"};Pass $Name}
+$groups=@(Get-CameraSourceGroups -RepoRoot $repo)
+$project=Join-Path $fixture 'project'
+Copy-CameraSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $groups
+Assert-CameraSourceGroups -Root $project -Groups $groups
+Pass 'actual_snapshot_copy_and_exact_roster'
+Reject {Copy-CameraSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $groups} 'existing_destination_rejected'
+$policy=Join-Path $project 'camera/view_policy.gd'
+$old=[IO.File]::ReadAllBytes($policy)
+[IO.File]::AppendAllText($policy,'# drift')
+Reject {Assert-CameraSourceGroups -Root $project -Groups $groups} 'staged_hash_drift_rejected'
+[IO.File]::WriteAllBytes($policy,$old)
+$extra=Join-Path $project 'camera/extra.gd'
+[IO.File]::WriteAllText($extra,'extends RefCounted')
+Reject {Assert-CameraSourceGroups -Root $project -Groups $groups} 'extra_staged_script_rejected'
+Remove-Item -LiteralPath $extra
+$uid=$policy+'.uid'
+[IO.File]::WriteAllText($uid,"uid://abc123`n")
+Assert-CameraSourceGroups -Root $project -Groups $groups -AllowGeneratedUIDs
+Pass 'bound_import_uid_admitted_only_when_requested'
+Reject {Assert-CameraSourceGroups -Root $project -Groups $groups} 'uid_rejected_in_exact_corresponding_mode'
+[IO.File]::WriteAllText($uid,'not-a-uid')
+Reject {Assert-CameraSourceGroups -Root $project -Groups $groups -AllowGeneratedUIDs} 'malformed_import_uid_rejected'
+Remove-Item -LiteralPath $uid
+$reference=Join-Path $project 'camera_tests/expected-v1.json'
+$refbytes=[IO.File]::ReadAllBytes($reference)
+Remove-Item -LiteralPath $reference
+Reject {Assert-CameraSourceGroups -Root $project -Groups $groups} 'missing_reference_rejected'
+[IO.File]::WriteAllBytes($reference,$refbytes)
+$author=Join-Path $repo 'app/camera/view_policy.gd'
+[IO.File]::AppendAllText($author,'# author drift')
+Reject {Assert-CameraSourceGroups -Root $repo -Groups $groups -Authoring} 'author_drift_rejected'
+$generated=Get-PreviewCameraHarnessChecks -Groups $groups -IncludePiston $true
+if($generated -notmatch 'JSON.stringify\(camera_report,"  ",false,true\)' -or $generated -notmatch 'camera_host,true' -or $generated -notmatch 'scene_checks.gd' -or $generated -notmatch '132'){throw 'Required additive harness source absent'}
+Pass 'fullprecision_three_actual_groups_generated_without_simulator_execution'
+Write-PreviewCameraCheckHarness -ProjectRoot $project -Groups $groups -IncludePiston $true
+Assert-PreviewCameraHarnessFiles -ProjectRoot $project
+Pass 'exact_two_generated_resources_admitted'
+Reject {Write-PreviewCameraCheckHarness -ProjectRoot $project -Groups $groups -IncludePiston $true} 'generated_destination_overwrite_refused'
+$cameraCode=[IO.File]::ReadAllText((Join-Path $project 'camera_checks.gd'))
+if($cameraCode -notmatch 'capture_observed=Input.mouse_mode==Input.MOUSE_MODE_CAPTURED' -or $cameraCode -notmatch 'DisplayServer.get_name\(\)=="headless"' -or $cameraCode -notmatch 'CAMERA_CHECKS_PASSED' -or $cameraCode -notmatch '"camera_checks.tscn"' -or $cameraCode -notmatch 'await load\("res://camera_tests/scene_checks.gd"\).new\(\).run\(camera_host,true\)'){throw 'Required graphical/capture/child/generated source absent'}
+Pass 'actual_capture_and_three_checks_mandatory_in_graphical_source'
+if($cameraCode -notmatch 'RenderingServer.get_current_rendering_driver_name' -or $cameraCode -notmatch 'actual_driver!=requested_driver' -or $cameraCode -notmatch 'CAMERA_RENDERING_DRIVER_MISMATCH' -or $cameraCode -notmatch 'CAMERA_RENDERING method='){throw 'Actual driver/fallback rejection missing'}
+Pass 'actual_driver_and_method_match_required_before_capture'
+$copy=Join-Path $fixture 'corresponding'
+New-Item -ItemType Directory $copy|Out-Null
+Copy-Item -LiteralPath (Join-Path $project 'camera_checks.gd'),(Join-Path $project 'camera_checks.tscn') -Destination $copy
+Assert-PreviewCameraHarnessFiles -ProjectRoot $project -SourceRoot $copy
+Pass 'generated_exact_corresponding_sources'
+$uid=Join-Path $project 'camera_checks.gd.uid'
+[IO.File]::WriteAllText($uid,'invalid')
+Reject {Assert-PreviewCameraHarnessFiles -ProjectRoot $project -SourceRoot $copy} 'generated_invalid_UID_rejected'
+[IO.File]::WriteAllText($uid,('uid://abc123'+[char]10))
+Assert-PreviewCameraHarnessFiles -ProjectRoot $project -SourceRoot $copy
+Pass 'generated_bound_UID_admitted'
+Copy-Item -LiteralPath $uid -Destination $copy
+Reject {Assert-PreviewCameraHarnessFiles -ProjectRoot $project -SourceRoot $copy} 'generated_UID_source_rejected'
+Remove-Item -LiteralPath (Join-Path $copy 'camera_checks.gd.uid')
+[IO.File]::AppendAllText((Join-Path $copy 'camera_checks.gd'),'# drift')
+Reject {Assert-PreviewCameraHarnessFiles -ProjectRoot $project -SourceRoot $copy} 'generated_corresponding_drift_rejected'
+Remove-Item -LiteralPath (Join-Path $project 'camera_checks.tscn')
+Reject {Assert-PreviewCameraHarnessFiles -ProjectRoot $project} 'generated_missing_scene_rejected'
+$engine=@('--path','synthetic project','--rendering-method','gl_compatibility','--rendering-driver','opengl3')
+$request=Get-PreviewCameraRenderingArguments -Arguments @($engine+'--'+'--camera-checks')
+if(($request.arguments -join '|') -cne (($engine+@('--','--camera-checks','--camera-request-method=gl_compatibility','--camera-request-driver=opengl3')) -join '|') -or $request.method -cne 'gl_compatibility' -or $request.driver -cne 'opengl3'){throw 'Camera transport must preserve the complete original engine/user argument sequence'}
+Pass 'render_transport_existing_separator_preserves_camera_checks'
+$request=Get-PreviewCameraRenderingArguments -Arguments $engine
+if(($request.arguments -join '|') -cne (($engine+@('--','--camera-request-method=gl_compatibility','--camera-request-driver=opengl3')) -join '|')){throw 'Missing separator must be added exactly once'}
+Pass 'render_transport_new_separator_added'
+foreach($pair in @(@('gl_compatibility','opengl3_angle'),@('mobile','vulkan'),@('forward_plus','d3d12'))){
+ $request=Get-PreviewCameraRenderingArguments -Arguments @('--rendering-method',$pair[0],'--rendering-driver',$pair[1])
+ if($request.method -cne $pair[0] -or $request.driver -cne $pair[1]){throw 'Valid explicit renderer pair changed'}
+}
+Pass 'render_transport_other_allowed_pairs'
+Reject {Get-PreviewCameraRenderingArguments -Arguments @($engine+'--'+'--'+'--camera-checks')} 'render_transport_duplicate_separator_rejected'
+Reject {Get-PreviewCameraRenderingArguments -Arguments @($engine+'--'+'--camera-request-method=mobile')} 'render_transport_existing_ack_rejected'
+Reject {Get-PreviewCameraRenderingArguments -Arguments @($engine+'--camera-request-driver=opengl3')} 'render_transport_engine_ack_rejected'
+Reject {Get-PreviewCameraRenderingArguments -Arguments @('--','--rendering-method','gl_compatibility','--rendering-driver','opengl3')} 'render_transport_user_only_pair_rejected'
+Reject {Get-PreviewCameraRenderingArguments -Arguments @($engine+'--rendering-method'+'mobile')} 'render_transport_duplicate_engine_pair_rejected'
+Reject {Get-PreviewCameraRenderingArguments -Arguments @('--rendering-method','gl_compatibility','--rendering-driver')} 'render_transport_missing_value_rejected'
+Reject {Get-PreviewCameraRenderingArguments -Arguments @('--rendering-method','gl_compatibility','--rendering-driver','vulkan')} 'render_transport_incompatible_pair_rejected'
+Reject {Get-PreviewCameraRenderingArguments -Arguments @('--rendering-method','unknown','--rendering-driver','opengl3')} 'render_transport_unknown_enum_rejected'
+if($cameraCode -notmatch 'OS.get_cmdline_user_args\(\)' -or $cameraCode -match 'OS.get_cmdline_args\(\)' -or $cameraCode -notmatch 'requested_methods.size\(\)!=1' -or $cameraCode -notmatch 'requested_drivers.size\(\)!=1' -or $cameraCode -notmatch 'CAMERA_RENDERING_REQUEST_INVALID' -or $cameraCode -notmatch 'actual_method!=requested_method'){throw 'Generated request must use closed acknowledged user arguments and preserve actual renderer comparison'}
+Pass 'render_transport_generated_closed_user_ack_and_actual_guard'
+@{passed=$true;scope='Offline source/staging fixtures only; no Godot/native/graphical runtime';checks=$checks.Count;names=@($checks);fixture=$fixture}|ConvertTo-Json -Depth 5
+} $repo $PSScriptRoot
+
+
+# Actual offline reconstruction producer -> unchanged camera source consumer.
+# No generated resource is loaded; authored camera/reference bytes remain exact.
+& {
+ param([string]$hostRepo,[string]$sourceTools,[string]$pythonExe)
+ $fixture=Join-Path $hostRepo ('.local/camera-reconstruction-test/'+[Guid]::NewGuid().ToString('N'))
+ New-Item -ItemType Directory -Path $fixture|Out-Null
+ $project=Join-Path $fixture 'project'
+ $corresponding=Join-Path $fixture 'corresponding'
+ $groups=@(Get-CameraSourceGroups -RepoRoot $hostRepo)
+ Copy-CameraSourceGroups -RepoRoot $hostRepo -DestinationRoot $project -Groups $groups
+ Copy-CameraSourceGroups -RepoRoot $hostRepo -DestinationRoot $corresponding -Groups $groups
+ Write-PreviewCameraCheckHarness -ProjectRoot $project -Groups $groups -IncludePiston $true
+ Copy-Item -LiteralPath (Join-Path $project 'camera_checks.gd'),(Join-Path $project 'camera_checks.tscn') -Destination $corresponding
+ $producer=Join-Path $fixture 'producer.py'
+ $producerCode=@'
+from pathlib import Path
+import importlib.util, sys
+spec=importlib.util.spec_from_file_location('camera_reconstruction_producer',sys.argv[1])
+n=importlib.util.module_from_spec(spec)
+spec.loader.exec_module(n)
+repo,destination=Path(sys.argv[2]),Path(sys.argv[3])
+if sys.argv[4]=='copy': n.reconstruction(repo,destination)
+elif sys.argv[4]=='check': n.check_reconstruction(repo,destination)
+else: raise ValueError('Closed fixture operation required')
+'@
+ [IO.File]::WriteAllText($producer,$producerCode,[Text.UTF8Encoding]::new($false))
+ $consumer=Join-Path $fixture 'consumer.mjs'
+ $consumerCode=@'
+import assert from 'node:assert/strict';
+import {pathToFileURL} from 'node:url';
+const [modulePath,repository,project,sourceRoot]=process.argv.slice(2);
+const {validateCameraSources}=await import(pathToFileURL(modulePath).href);
+const result=validateCameraSources({repository,project,sourceRoot});
+assert.equal(Object.keys(result.source_files).length,10);
+assert.equal(Object.keys(result.harness_files).length,2);
+'@
+ [IO.File]::WriteAllText($consumer,$consumerCode,[Text.UTF8Encoding]::new($false))
+ $identityModule=Join-Path $sourceTools 'native-identity.py'
+ $cameraModule=Join-Path $sourceTools 'camera-receipt.mjs'
+ $checks=[Collections.Generic.List[string]]::new()
+ function Producer([string]$mode,[bool]$mustReject,[string]$name){
+  & $pythonExe -B $producer $identityModule $hostRepo $corresponding $mode *> (Join-Path $fixture ($name+'.log'))
+  if(($LASTEXITCODE -eq 0) -eq $mustReject){throw 'Camera reconstruction producer fixture failed: '+$name}
+  $checks.Add($name)
+ }
+ function Consumer([bool]$mustReject,[string]$name){
+  & node $consumer $cameraModule $hostRepo $project $corresponding *> (Join-Path $fixture ($name+'.log'))
+  if(($LASTEXITCODE -eq 0) -eq $mustReject){throw 'Camera corresponding-source consumer fixture failed: '+$name}
+  $checks.Add($name)
+ }
+ Producer 'copy' $false 'actual_native_reconstruction_producer'
+ Producer 'check' $false 'actual_exact_reconstruction_admission'
+ Consumer $false 'actual_unchanged_camera_consumer_accepts_producer'
+ $binding=Get-Content -LiteralPath (Join-Path $corresponding 'native-reconstruction.json') -Raw|ConvertFrom-Json
+ $expected=@($groups|ForEach-Object {$group=$_;foreach($file in $group.snapshot){$group.source+'/'+$file.path}}|Sort-Object)
+ $cameraRows=@($binding.files|Where-Object {$_.path -cmatch '^(app/camera/|app/ui/camera/|tests/camera/)'}|Sort-Object path)
+ if($expected.Count -ne 11 -or $cameraRows.Count -ne 11 -or ($cameraRows.path -join "`n") -cne ($expected -join "`n")){throw 'Exact eleven authored camera reconstruction rows required'}
+ Assert-CameraSourceGroups -Root (Join-Path $corresponding 'repository') -Groups $groups -Authoring
+ $checks.Add('exact_eleven_authoring_snapshot_without_uid')
+ Producer 'copy' $true 'repeat_reconstruction_destination_rejected'
+ $policy=Join-Path $corresponding 'repository/app/camera/view_policy.gd'
+ $original=[IO.File]::ReadAllBytes($policy)
+ Remove-Item -LiteralPath $policy
+ Producer 'check' $true 'missing_authored_copy_rejected_by_producer_check'
+ Consumer $true 'missing_authored_copy_rejected_by_camera_consumer'
+ [IO.File]::WriteAllBytes($policy,$original)
+ [IO.File]::AppendAllText($policy,'# changed corresponding source')
+ Producer 'check' $true 'changed_authored_copy_rejected_by_producer_check'
+ Consumer $true 'changed_authored_copy_rejected_by_camera_consumer'
+ [IO.File]::WriteAllBytes($policy,$original)
+ $uid=$policy+'.uid'
+ [IO.File]::WriteAllText($uid,"uid://abc123`n",[Text.UTF8Encoding]::new($false))
+ Producer 'check' $true 'extra_authored_uid_rejected_by_exact_reconstruction'
+ Must-Reject {Assert-CameraSourceGroups -Root (Join-Path $corresponding 'repository') -Groups $groups -Authoring} 'camera authored UID'
+ Remove-Item -LiteralPath $uid
+ Producer 'check' $false 'restored_exact_reconstruction_admission'
+ Consumer $false 'restored_unchanged_camera_consumer_admission'
+ Assert-CameraSourceGroups -Root $hostRepo -Groups $groups -Authoring
+ @{passed=$true;scope='Offline reconstruction producer and unchanged source-consumer seam; no native/Godot execution';checks=$checks.Count;names=@($checks);fixture=$fixture}|ConvertTo-Json -Depth 5
+} $repo $PSScriptRoot $Python

@@ -1,0 +1,54 @@
+{
+  "utc": "2026-10-11T08:29:36.940988+00:00",
+  "approved_reference_freeze": true,
+  "consumer_authorized": false,
+  "contract_merge_still_required": true,
+  "contract_pr": 214,
+  "adr_sha256": "2cd89a17541d574559be6a1892e7229e544f94ce1eb142f7f415662abc51ad36",
+  "expected_sha256": "d3ee38b2a2455e7a21c61ae46f01461dd901663c3743581059e19c5193f513cd",
+  "reference_rows": 132,
+  "presentation_targets": {
+    "bounded_unit_direction_component_abs": 3e-06,
+    "local_position_offset_abs_m": 0.0001,
+    "look_ray_60m_endpoint_abs_m": 0.0003,
+    "exposed_binary64_alpha_abs": 2e-14
+  },
+  "scope": "Frozen before consumer output; bounded original presentation engineering targets only. Not native numeric budgets, C172 geometry, manufacturer sight picture or pilot comfort.",
+  "basis": [
+    "Independent general Rodrigues/Taylor and analytic exponential packet plus independent exact-Fraction component/exp-series review; readonly regeneration PASS.",
+    "Actual default single-precision Godot Vector3 arithmetic needs bounded nonzero comparison targets; exact legacy expression/order regression remains mandatory.",
+    "Exact typed settings/copies/native-state/mapper/recording/lifecycle/authority checks have no epsilon.",
+    "Common presented translation and origin consistency must be checked separately; targets do not authorize raw-endpoint lag, optical stabilization, input snapping or aids movement."
+  ],
+  "additional_required_cases": [
+    "Direct describe() invalid types including StringName and unknown IDs; exact closedAPIshape.",
+    "Actual compiled/runtime precision and moving camera proof; readonly math is not runtime acceptance."
+  ],
+  "remaining_gates": [
+    "Protected213/214contract and204repairmerge",
+    "ExplicitRootconsumerissueallocationanddispatch",
+    "Meaningfulactualtests/source/PCK/replacement/visualreview/currentCI",
+    "Broad26/179/192/aircraft/hardware/pilot/phasegates"
+  ],
+  "schema": "CameraReferenceRootRatification/v1",
+  "source_receipt_sha256": "7c09708adf9756327784be5bcb0cae3f22840db2ea7d5d1e73b3184a8406cdaf",
+  "reference_packet_provenance": {
+    "sha256": "ba70cd4c4854639cda8a4b9a507b785cf054d1875c9f73b5b861838d2fe84198",
+    "bytes": 1758,
+    "note": "Historical freeze-receipt provenance; no private artifact is an execution prerequisite."
+  },
+  "independent_review": {
+    "sha256": "4257895379c93055f015cba23b49a2124896e3284024ef379e91b48a49f8bc30",
+    "bytes": 4345,
+    "approved": true,
+    "note": "Independent source/math review of all31directions,5alphas/3frames and manual cases; no consumer/runtime qualification."
+  },
+  "generator_sha256": "bb35c60914aaab18f0226bdbc20e5c0801db9fd6c8c11c42ee93554d3dc0a358",
+  "historical_metadata_policy": "Expected fixture and generator remain exact original bytes. Private/proposed/unratified wording inside those immutable files describes their original freeze; this separately bound summary records later coordinator reference/criteria ratification only.",
+  "remaining_gates_readable": [
+    "Protected merge of camera contract issue #213 / PR214 and decimal repair issue #204 / PR211; source-allocation PR212 belongs to separate #202 work and does not gate this camera leaf.",
+    "Explicit Root consumer issue allocation and dispatch.",
+    "Meaningful actual tests, source/PCK/replacement qualification, original visual review and current protected CI.",
+    "Broad #26, #179/#192, aircraft, hardware, pilot and phase gates remain separate."
+  ]
+}

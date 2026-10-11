@@ -160,13 +160,31 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '22'
+      - name: Verify readonly independently frozen camera references
+        run: |
+          $cameraPins = @{
+            'tests/camera/.gitattributes' = 'a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9'
+            'tests/camera/README.md' = 'a598e765421507aff4b9476be97f1131c36812d1a3c465b640cd56b102776cf9'
+            'tests/camera/expected-v1.json' = 'd3ee38b2a2455e7a21c61ae46f01461dd901663c3743581059e19c5193f513cd'
+            'tests/camera/generate.py' = 'bb35c60914aaab18f0226bdbc20e5c0801db9fd6c8c11c42ee93554d3dc0a358'
+            'tests/camera/root-ratification-v1.json' = '31175acf5717e62df4456bad80a8da9ed3e116c1b0110c28bf6e6112c1f9c9f1'
+            'tests/camera/source-binding-v1.json' = 'c8d817b250ed3e9d31e0ac0bb067fb7d55b2c142f5c667e7d1820c80719740df'
+          }
+          foreach ($name in $cameraPins.Keys) {
+            if ((Get-FileHash -LiteralPath $name -Algorithm SHA256).Hash.ToLowerInvariant() -cne $cameraPins[$name]) { throw 'Frozen camera reference source changed' }
+          }
+          python -B tests/camera/generate.py --check
+          if ($LASTEXITCODE -ne 0) { throw 'Frozen132 camera reference reproduction failed' }
+          foreach ($name in $cameraPins.Keys) {
+            if ((Get-FileHash -LiteralPath $name -Algorithm SHA256).Hash.ToLowerInvariant() -cne $cameraPins[$name]) { throw 'Readonly camera reference generator changed inputs' }
+          }
       - name: Install locked schema validators and check source admission fixtures
         run: |
           npm ci --ignore-scripts --prefix schemas
           if ($LASTEXITCODE -ne 0) { throw 'Locked schema installation failed' }
           node tools/license-audit/test.mjs
           if ($LASTEXITCODE -ne 0) { throw 'Rights-source admission fixtures failed' }
-          node --test tools/interactive-preview/verify.test.mjs tests/export/runtime.test.mjs
+          node --test tools/interactive-preview/verify.test.mjs tools/interactive-preview/camera-receipt.test.mjs tests/export/runtime.test.mjs
           if ($LASTEXITCODE -ne 0) { throw 'Player model/receipt/runtime admission fixtures failed' }
           python -B -m unittest discover -s tools/interactive-preview -p 'test_native_identity.py' -v
           if ($LASTEXITCODE -ne 0) { throw 'Independent native identity fixtures failed' }
@@ -233,14 +251,20 @@ jobs:
           $proof = Get-Content .local/coupled-player-ci/evidence/export-baseline.json -Raw | ConvertFrom-Json
           $latest = Get-Content .local/export-proof/latest-run.json -Raw | ConvertFrom-Json
           if ($latest.root -cne $proof.root) { throw 'Whole-flight matching baseline root changed' }
-          ./tools/interactive-preview/run.ps1 -ExportProofRoot $proof.root -ToolchainRoot .local/toolchain -NativeBuildRoot .local/coupled-player-ci/build -FacadeCheckTimeoutSeconds 600
+          ./tools/interactive-preview/run.ps1 -ExportProofRoot $proof.root -ToolchainRoot .local/toolchain -NativeBuildRoot .local/coupled-player-ci/build -FacadeCheckTimeoutSeconds 600 -CameraRenderingMethod gl_compatibility -CameraRenderingDriver opengl3_angle
       - name: Recheck real payload rights and all three focused cold receipts
         run: |
           . ./tools/interactive-preview/simulation-staging.ps1
           $flight = Get-Content .local/interactive-preview/latest-run.json -Raw | ConvertFrom-Json
           $manifest = Get-Content (Join-Path $flight.evidence 'manifest.json') -Raw | ConvertFrom-Json
           if ($manifest.piston_checks_enabled -isnot [bool] -or -not $manifest.piston_checks_enabled) { throw 'Cold test route was not enabled' }
+          $cameraGroups=@(Get-CameraSourceGroups -RepoRoot $PWD)
+          Assert-CameraSourceGroups -Root $PWD -Groups $cameraGroups -Authoring
+          Assert-CameraSourceGroups -Root $flight.project -Groups $cameraGroups -AllowGeneratedUIDs
+          Assert-CameraSourceGroups -Root (Join-Path $flight.payload 'source/whole-flight-preview') -Groups $cameraGroups
           foreach ($context in @('editor','portable','replacement')) {
+            node tools/interactive-preview/camera-receipt.mjs receipt (Join-Path $flight.evidence ($context+'-camera-receipt.json')) $PWD $flight.project (Join-Path $flight.evidence 'native-build-identity.json') true
+            if ($LASTEXITCODE -ne 0) { throw 'Actual graphical camera three-start/21-view/capture receipt rejected' }
             $receipt = Get-Content (Join-Path $flight.evidence ($context+'-piston-receipt.json')) -Raw | ConvertFrom-Json
             Assert-PreviewPistonReceipt -Receipt $receipt
           }
@@ -275,5 +299,7 @@ jobs:
             .local/coupled-player-ci/build/coupled-unit-proof/**/*.stderr
             .local/export-proof/run-*/evidence/**
             .local/interactive-preview/run-*/evidence/*.json
+            .local/interactive-preview/run-*/evidence/*-camera-observed-receipt.json
+            .local/interactive-preview/run-*/evidence/*-camera-receipt.json
             .local/interactive-preview/run-*/evidence/*.log
             .local/interactive-preview/run-*/evidence/*.ndjson

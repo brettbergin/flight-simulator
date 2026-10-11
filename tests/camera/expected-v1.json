@@ -1,0 +1,4295 @@
+{
+  "schema": "PrivateCameraPreconsumerReferences/v1",
+  "status": "FROZEN_EXPECTATIONS_PROPOSED_FOR_INDEPENDENT_RATIFICATION_NOT_RUNTIME_EVIDENCE",
+  "adr_git_lf_sha256": "2cd89a17541d574559be6a1892e7229e544f94ce1eb142f7f415662abc51ad36",
+  "format": "binary64_le fields are test descriptors, not production/public JSON schemas; decode bytes to FLOAT without a decimal parser. JSON ints/booleans are declarative metadata only. Explicit Variant edits construct actual types in future driver.",
+  "precision": "Decimal110 and140 independently regenerate identical serialized binary64 expected values; working precision is not a runtime/libm claim.",
+  "numeric_criteria_proposed_before_outputs": {
+    "closed_values_types_ownership_lifecycle_authority": "exact; float bits checked for preserved state; no epsilon/native held snapping",
+    "new_direction_or_ideal_normalization_absolute_component": "3e-6 for these bounded unit-direction cases; presentation-only engineering criterion, not universal libm theorem",
+    "bounded_local_camera_or_follow_offset_absolute_m": "1e-4 for this <=32m arithmetic sequence; no physics/convergence change",
+    "sixty_meter_look_ray_endpoint_absolute_m": "3e-4 if exercising actual Camera target; no calibrated sight-picture claim",
+    "scalar_alpha_if_exposed_binary64_absolute": "2e-14; separate from Vector3 component rounding",
+    "traditional_expression_regression": "same pinned engine before/after exact expression/order results, not relaxed to ideal-math tolerance",
+    "ratification": "Root and independent reviewer must ratify criteria before consumer output; these targets do not establish actual execution/performance/readability."
+  },
+  "defaults": {
+    "settings": {
+      "preset": "cockpit",
+      "fov_deg": {
+        "binary64_le": "0000000000005240",
+        "display_binary64": "72.0"
+      },
+      "external_response": "smooth"
+    },
+    "distance_m": {
+      "binary64_le": "0000000000002a40",
+      "display_binary64": "13.0"
+    },
+    "look_angles": [
+      {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      }
+    ]
+  },
+  "required_settings_variant_types": {
+    "keys": "exact String",
+    "preset": "exact String",
+    "fov_deg": "FLOAT",
+    "external_response": "exact String"
+  },
+  "mappings": [
+    {
+      "preset": "cockpit",
+      "mode": 0,
+      "default_fov": {
+        "binary64_le": "0000000000005240",
+        "display_binary64": "72.0"
+      },
+      "base_direction": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "7ed30ace3d91d0bf",
+          "display_binary64": "-0.25886483308141084"
+        },
+        {
+          "binary64_le": "9bb4de8bc3e8eebf",
+          "display_binary64": "-0.9659135562739211"
+        }
+      ]
+    },
+    {
+      "preset": "forward_horizon",
+      "mode": 0,
+      "default_fov": {
+        "binary64_le": "0000000000005240",
+        "display_binary64": "72.0"
+      },
+      "base_direction": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f0bf",
+          "display_binary64": "-1.0"
+        }
+      ]
+    },
+    {
+      "preset": "left_window",
+      "mode": 0,
+      "default_fov": {
+        "binary64_le": "0000000000005240",
+        "display_binary64": "72.0"
+      },
+      "base_direction": [
+        {
+          "binary64_le": "000000000000f0bf",
+          "display_binary64": "-1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ]
+    },
+    {
+      "preset": "right_window",
+      "mode": 0,
+      "default_fov": {
+        "binary64_le": "0000000000005240",
+        "display_binary64": "72.0"
+      },
+      "base_direction": [
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ]
+    },
+    {
+      "preset": "panel",
+      "mode": 3,
+      "default_fov": {
+        "binary64_le": "0000000000004d40",
+        "display_binary64": "58.0"
+      },
+      "base_direction": null,
+      "host_direction_reference": [
+        {
+          "binary64_le": "026f589242c1cf3f",
+          "display_binary64": "0.24808532853864312"
+        },
+        {
+          "binary64_le": "68a8b3fb0057e1bf",
+          "display_binary64": "-0.5418705860186153"
+        },
+        {
+          "binary64_le": "fd08956548b2e9bf",
+          "display_binary64": "-0.8030130371119238"
+        }
+      ]
+    },
+    {
+      "preset": "chase",
+      "mode": 1,
+      "default_fov": {
+        "binary64_le": "0000000000005240",
+        "display_binary64": "72.0"
+      },
+      "base_direction": null
+    },
+    {
+      "preset": "orbit",
+      "mode": 2,
+      "default_fov": {
+        "binary64_le": "0000000000005240",
+        "display_binary64": "72.0"
+      },
+      "base_direction": null
+    }
+  ],
+  "basis_rows": {
+    "identity": [
+      [
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        }
+      ]
+    ],
+    "permute_x_to_minus_z": [
+      [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        }
+      ],
+      [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      [
+        {
+          "binary64_le": "000000000000f0bf",
+          "display_binary64": "-1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ]
+    ],
+    "inverted_up": [
+      [
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f0bf",
+          "display_binary64": "-1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f0bf",
+          "display_binary64": "-1.0"
+        }
+      ]
+    ]
+  },
+  "direction_cases": [
+    {
+      "id": "D01",
+      "preset": "forward_horizon",
+      "yaw": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "pitch": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f0bf",
+          "display_binary64": "-1.0"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f0bf",
+          "display_binary64": "-1.0"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D02",
+      "preset": "forward_horizon",
+      "yaw": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "pitch": {
+        "binary64_le": "000000000000d03f",
+        "display_binary64": "0.25"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacf3f",
+          "display_binary64": "0.24740395925452294"
+        },
+        {
+          "binary64_le": "a1ee7d9f5401efbf",
+          "display_binary64": "-0.9689124217106447"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacf3f",
+          "display_binary64": "0.24740395925452294"
+        },
+        {
+          "binary64_le": "a1ee7d9f5401efbf",
+          "display_binary64": "-0.9689124217106447"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D03",
+      "preset": "forward_horizon",
+      "yaw": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "pitch": {
+        "binary64_le": "000000000000d0bf",
+        "display_binary64": "-0.25"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacfbf",
+          "display_binary64": "-0.24740395925452294"
+        },
+        {
+          "binary64_le": "a1ee7d9f5401efbf",
+          "display_binary64": "-0.9689124217106447"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacfbf",
+          "display_binary64": "-0.24740395925452294"
+        },
+        {
+          "binary64_le": "a1ee7d9f5401efbf",
+          "display_binary64": "-0.9689124217106447"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D04",
+      "preset": "forward_horizon",
+      "yaw": {
+        "binary64_le": "000000000000e03f",
+        "display_binary64": "0.5"
+      },
+      "pitch": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "f0054b74e8aede3f",
+          "display_binary64": "0.479425538604203"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "507d5b062815ecbf",
+          "display_binary64": "-0.8775825618903728"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "f0054b74e8aede3f",
+          "display_binary64": "0.479425538604203"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "507d5b062815ecbf",
+          "display_binary64": "-0.8775825618903728"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D05",
+      "preset": "forward_horizon",
+      "yaw": {
+        "binary64_le": "000000000000e0bf",
+        "display_binary64": "-0.5"
+      },
+      "pitch": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "f0054b74e8aedebf",
+          "display_binary64": "-0.479425538604203"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "507d5b062815ecbf",
+          "display_binary64": "-0.8775825618903728"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "f0054b74e8aedebf",
+          "display_binary64": "-0.479425538604203"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "507d5b062815ecbf",
+          "display_binary64": "-0.8775825618903728"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D06",
+      "preset": "forward_horizon",
+      "yaw": {
+        "binary64_le": "000000000000e03f",
+        "display_binary64": "0.5"
+      },
+      "pitch": {
+        "binary64_le": "000000000000d03f",
+        "display_binary64": "0.25"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "6b54fccbb7badd3f",
+          "display_binary64": "0.46452135963892854"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacf3f",
+          "display_binary64": "0.24740395925452294"
+        },
+        {
+          "binary64_le": "e087e9b2a935ebbf",
+          "display_binary64": "-0.8503006452922328"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "6b54fccbb7badd3f",
+          "display_binary64": "0.46452135963892854"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacf3f",
+          "display_binary64": "0.24740395925452294"
+        },
+        {
+          "binary64_le": "e087e9b2a935ebbf",
+          "display_binary64": "-0.8503006452922328"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D07",
+      "preset": "forward_horizon",
+      "yaw": {
+        "binary64_le": "000000000000e0bf",
+        "display_binary64": "-0.5"
+      },
+      "pitch": {
+        "binary64_le": "000000000000d0bf",
+        "display_binary64": "-0.25"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "6b54fccbb7baddbf",
+          "display_binary64": "-0.46452135963892854"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacfbf",
+          "display_binary64": "-0.24740395925452294"
+        },
+        {
+          "binary64_le": "e087e9b2a935ebbf",
+          "display_binary64": "-0.8503006452922328"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "6b54fccbb7baddbf",
+          "display_binary64": "-0.46452135963892854"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacfbf",
+          "display_binary64": "-0.24740395925452294"
+        },
+        {
+          "binary64_le": "e087e9b2a935ebbf",
+          "display_binary64": "-0.8503006452922328"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D08",
+      "preset": "forward_horizon",
+      "yaw": {
+        "binary64_le": "000000000000e03f",
+        "display_binary64": "0.5"
+      },
+      "pitch": {
+        "binary64_le": "000000000000d03f",
+        "display_binary64": "0.25"
+      },
+      "basis": "permute_x_to_minus_z",
+      "pitch_axis": [
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "6b54fccbb7badd3f",
+          "display_binary64": "0.46452135963892854"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacf3f",
+          "display_binary64": "0.24740395925452294"
+        },
+        {
+          "binary64_le": "e087e9b2a935ebbf",
+          "display_binary64": "-0.8503006452922328"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "e087e9b2a935ebbf",
+          "display_binary64": "-0.8503006452922328"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacf3f",
+          "display_binary64": "0.24740395925452294"
+        },
+        {
+          "binary64_le": "6b54fccbb7baddbf",
+          "display_binary64": "-0.46452135963892854"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D09",
+      "preset": "forward_horizon",
+      "yaw": {
+        "binary64_le": "000000000000e03f",
+        "display_binary64": "0.5"
+      },
+      "pitch": {
+        "binary64_le": "000000000000d03f",
+        "display_binary64": "0.25"
+      },
+      "basis": "inverted_up",
+      "pitch_axis": [
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "6b54fccbb7badd3f",
+          "display_binary64": "0.46452135963892854"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacf3f",
+          "display_binary64": "0.24740395925452294"
+        },
+        {
+          "binary64_le": "e087e9b2a935ebbf",
+          "display_binary64": "-0.8503006452922328"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "6b54fccbb7badd3f",
+          "display_binary64": "0.46452135963892854"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacfbf",
+          "display_binary64": "-0.24740395925452294"
+        },
+        {
+          "binary64_le": "e087e9b2a935eb3f",
+          "display_binary64": "0.8503006452922328"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f0bf",
+          "display_binary64": "-1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D10",
+      "preset": "left_window",
+      "yaw": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "pitch": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f0bf",
+          "display_binary64": "-1.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "000000000000f0bf",
+          "display_binary64": "-1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "000000000000f0bf",
+          "display_binary64": "-1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D11",
+      "preset": "left_window",
+      "yaw": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "pitch": {
+        "binary64_le": "000000000000d03f",
+        "display_binary64": "0.25"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f0bf",
+          "display_binary64": "-1.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "a1ee7d9f5401efbf",
+          "display_binary64": "-0.9689124217106447"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacf3f",
+          "display_binary64": "0.24740395925452294"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "a1ee7d9f5401efbf",
+          "display_binary64": "-0.9689124217106447"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacf3f",
+          "display_binary64": "0.24740395925452294"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D12",
+      "preset": "left_window",
+      "yaw": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "pitch": {
+        "binary64_le": "000000000000d0bf",
+        "display_binary64": "-0.25"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f0bf",
+          "display_binary64": "-1.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "a1ee7d9f5401efbf",
+          "display_binary64": "-0.9689124217106447"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacfbf",
+          "display_binary64": "-0.24740395925452294"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "a1ee7d9f5401efbf",
+          "display_binary64": "-0.9689124217106447"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacfbf",
+          "display_binary64": "-0.24740395925452294"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D13",
+      "preset": "left_window",
+      "yaw": {
+        "binary64_le": "000000000000e03f",
+        "display_binary64": "0.5"
+      },
+      "pitch": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f0bf",
+          "display_binary64": "-1.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "507d5b062815ecbf",
+          "display_binary64": "-0.8775825618903728"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "f0054b74e8aedebf",
+          "display_binary64": "-0.479425538604203"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "507d5b062815ecbf",
+          "display_binary64": "-0.8775825618903728"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "f0054b74e8aedebf",
+          "display_binary64": "-0.479425538604203"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D14",
+      "preset": "left_window",
+      "yaw": {
+        "binary64_le": "000000000000e0bf",
+        "display_binary64": "-0.5"
+      },
+      "pitch": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f0bf",
+          "display_binary64": "-1.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "507d5b062815ecbf",
+          "display_binary64": "-0.8775825618903728"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "f0054b74e8aede3f",
+          "display_binary64": "0.479425538604203"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "507d5b062815ecbf",
+          "display_binary64": "-0.8775825618903728"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "f0054b74e8aede3f",
+          "display_binary64": "0.479425538604203"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D15",
+      "preset": "left_window",
+      "yaw": {
+        "binary64_le": "000000000000e03f",
+        "display_binary64": "0.5"
+      },
+      "pitch": {
+        "binary64_le": "000000000000d03f",
+        "display_binary64": "0.25"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f0bf",
+          "display_binary64": "-1.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "e087e9b2a935ebbf",
+          "display_binary64": "-0.8503006452922328"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacf3f",
+          "display_binary64": "0.24740395925452294"
+        },
+        {
+          "binary64_le": "6b54fccbb7baddbf",
+          "display_binary64": "-0.46452135963892854"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "e087e9b2a935ebbf",
+          "display_binary64": "-0.8503006452922328"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacf3f",
+          "display_binary64": "0.24740395925452294"
+        },
+        {
+          "binary64_le": "6b54fccbb7baddbf",
+          "display_binary64": "-0.46452135963892854"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D16",
+      "preset": "left_window",
+      "yaw": {
+        "binary64_le": "000000000000e0bf",
+        "display_binary64": "-0.5"
+      },
+      "pitch": {
+        "binary64_le": "000000000000d0bf",
+        "display_binary64": "-0.25"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f0bf",
+          "display_binary64": "-1.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "e087e9b2a935ebbf",
+          "display_binary64": "-0.8503006452922328"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacfbf",
+          "display_binary64": "-0.24740395925452294"
+        },
+        {
+          "binary64_le": "6b54fccbb7badd3f",
+          "display_binary64": "0.46452135963892854"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "e087e9b2a935ebbf",
+          "display_binary64": "-0.8503006452922328"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacfbf",
+          "display_binary64": "-0.24740395925452294"
+        },
+        {
+          "binary64_le": "6b54fccbb7badd3f",
+          "display_binary64": "0.46452135963892854"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D17",
+      "preset": "left_window",
+      "yaw": {
+        "binary64_le": "000000000000e03f",
+        "display_binary64": "0.5"
+      },
+      "pitch": {
+        "binary64_le": "000000000000d03f",
+        "display_binary64": "0.25"
+      },
+      "basis": "permute_x_to_minus_z",
+      "pitch_axis": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f0bf",
+          "display_binary64": "-1.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "e087e9b2a935ebbf",
+          "display_binary64": "-0.8503006452922328"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacf3f",
+          "display_binary64": "0.24740395925452294"
+        },
+        {
+          "binary64_le": "6b54fccbb7baddbf",
+          "display_binary64": "-0.46452135963892854"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "6b54fccbb7baddbf",
+          "display_binary64": "-0.46452135963892854"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacf3f",
+          "display_binary64": "0.24740395925452294"
+        },
+        {
+          "binary64_le": "e087e9b2a935eb3f",
+          "display_binary64": "0.8503006452922328"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D18",
+      "preset": "left_window",
+      "yaw": {
+        "binary64_le": "000000000000e03f",
+        "display_binary64": "0.5"
+      },
+      "pitch": {
+        "binary64_le": "000000000000d03f",
+        "display_binary64": "0.25"
+      },
+      "basis": "inverted_up",
+      "pitch_axis": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f0bf",
+          "display_binary64": "-1.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "e087e9b2a935ebbf",
+          "display_binary64": "-0.8503006452922328"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacf3f",
+          "display_binary64": "0.24740395925452294"
+        },
+        {
+          "binary64_le": "6b54fccbb7baddbf",
+          "display_binary64": "-0.46452135963892854"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "e087e9b2a935ebbf",
+          "display_binary64": "-0.8503006452922328"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacfbf",
+          "display_binary64": "-0.24740395925452294"
+        },
+        {
+          "binary64_le": "6b54fccbb7badd3f",
+          "display_binary64": "0.46452135963892854"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f0bf",
+          "display_binary64": "-1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D19",
+      "preset": "right_window",
+      "yaw": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "pitch": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D20",
+      "preset": "right_window",
+      "yaw": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "pitch": {
+        "binary64_le": "000000000000d03f",
+        "display_binary64": "0.25"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "a1ee7d9f5401ef3f",
+          "display_binary64": "0.9689124217106447"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacf3f",
+          "display_binary64": "0.24740395925452294"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "a1ee7d9f5401ef3f",
+          "display_binary64": "0.9689124217106447"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacf3f",
+          "display_binary64": "0.24740395925452294"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D21",
+      "preset": "right_window",
+      "yaw": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "pitch": {
+        "binary64_le": "000000000000d0bf",
+        "display_binary64": "-0.25"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "a1ee7d9f5401ef3f",
+          "display_binary64": "0.9689124217106447"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacfbf",
+          "display_binary64": "-0.24740395925452294"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "a1ee7d9f5401ef3f",
+          "display_binary64": "0.9689124217106447"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacfbf",
+          "display_binary64": "-0.24740395925452294"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D22",
+      "preset": "right_window",
+      "yaw": {
+        "binary64_le": "000000000000e03f",
+        "display_binary64": "0.5"
+      },
+      "pitch": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "507d5b062815ec3f",
+          "display_binary64": "0.8775825618903728"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "f0054b74e8aede3f",
+          "display_binary64": "0.479425538604203"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "507d5b062815ec3f",
+          "display_binary64": "0.8775825618903728"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "f0054b74e8aede3f",
+          "display_binary64": "0.479425538604203"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D23",
+      "preset": "right_window",
+      "yaw": {
+        "binary64_le": "000000000000e0bf",
+        "display_binary64": "-0.5"
+      },
+      "pitch": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "507d5b062815ec3f",
+          "display_binary64": "0.8775825618903728"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "f0054b74e8aedebf",
+          "display_binary64": "-0.479425538604203"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "507d5b062815ec3f",
+          "display_binary64": "0.8775825618903728"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "f0054b74e8aedebf",
+          "display_binary64": "-0.479425538604203"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D24",
+      "preset": "right_window",
+      "yaw": {
+        "binary64_le": "000000000000e03f",
+        "display_binary64": "0.5"
+      },
+      "pitch": {
+        "binary64_le": "000000000000d03f",
+        "display_binary64": "0.25"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "e087e9b2a935eb3f",
+          "display_binary64": "0.8503006452922328"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacf3f",
+          "display_binary64": "0.24740395925452294"
+        },
+        {
+          "binary64_le": "6b54fccbb7badd3f",
+          "display_binary64": "0.46452135963892854"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "e087e9b2a935eb3f",
+          "display_binary64": "0.8503006452922328"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacf3f",
+          "display_binary64": "0.24740395925452294"
+        },
+        {
+          "binary64_le": "6b54fccbb7badd3f",
+          "display_binary64": "0.46452135963892854"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D25",
+      "preset": "right_window",
+      "yaw": {
+        "binary64_le": "000000000000e0bf",
+        "display_binary64": "-0.5"
+      },
+      "pitch": {
+        "binary64_le": "000000000000d0bf",
+        "display_binary64": "-0.25"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "e087e9b2a935eb3f",
+          "display_binary64": "0.8503006452922328"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacfbf",
+          "display_binary64": "-0.24740395925452294"
+        },
+        {
+          "binary64_le": "6b54fccbb7baddbf",
+          "display_binary64": "-0.46452135963892854"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "e087e9b2a935eb3f",
+          "display_binary64": "0.8503006452922328"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacfbf",
+          "display_binary64": "-0.24740395925452294"
+        },
+        {
+          "binary64_le": "6b54fccbb7baddbf",
+          "display_binary64": "-0.46452135963892854"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D26",
+      "preset": "right_window",
+      "yaw": {
+        "binary64_le": "000000000000e03f",
+        "display_binary64": "0.5"
+      },
+      "pitch": {
+        "binary64_le": "000000000000d03f",
+        "display_binary64": "0.25"
+      },
+      "basis": "permute_x_to_minus_z",
+      "pitch_axis": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "e087e9b2a935eb3f",
+          "display_binary64": "0.8503006452922328"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacf3f",
+          "display_binary64": "0.24740395925452294"
+        },
+        {
+          "binary64_le": "6b54fccbb7badd3f",
+          "display_binary64": "0.46452135963892854"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "6b54fccbb7badd3f",
+          "display_binary64": "0.46452135963892854"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacf3f",
+          "display_binary64": "0.24740395925452294"
+        },
+        {
+          "binary64_le": "e087e9b2a935ebbf",
+          "display_binary64": "-0.8503006452922328"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D27",
+      "preset": "right_window",
+      "yaw": {
+        "binary64_le": "000000000000e03f",
+        "display_binary64": "0.5"
+      },
+      "pitch": {
+        "binary64_le": "000000000000d03f",
+        "display_binary64": "0.25"
+      },
+      "basis": "inverted_up",
+      "pitch_axis": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "e087e9b2a935eb3f",
+          "display_binary64": "0.8503006452922328"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacf3f",
+          "display_binary64": "0.24740395925452294"
+        },
+        {
+          "binary64_le": "6b54fccbb7badd3f",
+          "display_binary64": "0.46452135963892854"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "e087e9b2a935eb3f",
+          "display_binary64": "0.8503006452922328"
+        },
+        {
+          "binary64_le": "7715f3d4eeaacfbf",
+          "display_binary64": "-0.24740395925452294"
+        },
+        {
+          "binary64_le": "6b54fccbb7baddbf",
+          "display_binary64": "-0.46452135963892854"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f0bf",
+          "display_binary64": "-1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D28",
+      "preset": "cockpit",
+      "yaw": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "pitch": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "7ed30ace3d91d0bf",
+          "display_binary64": "-0.25886483308141084"
+        },
+        {
+          "binary64_le": "9bb4de8bc3e8eebf",
+          "display_binary64": "-0.9659135562739211"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "7ed30ace3d91d0bf",
+          "display_binary64": "-0.25886483308141084"
+        },
+        {
+          "binary64_le": "9bb4de8bc3e8eebf",
+          "display_binary64": "-0.9659135562739211"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D29",
+      "preset": "cockpit",
+      "yaw": {
+        "binary64_le": "000000000000e03f",
+        "display_binary64": "0.5"
+      },
+      "pitch": {
+        "binary64_le": "000000000000d03f",
+        "display_binary64": "0.25"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "f1d8fd585baede3f",
+          "display_binary64": "0.47939189615807637"
+        },
+        {
+          "binary64_le": "f75f6038fc4288bf",
+          "display_binary64": "-0.011846514196847109"
+        },
+        {
+          "binary64_le": "093cbae0a614ecbf",
+          "display_binary64": "-0.8775209798058096"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "f1d8fd585baede3f",
+          "display_binary64": "0.47939189615807637"
+        },
+        {
+          "binary64_le": "f75f6038fc4288bf",
+          "display_binary64": "-0.011846514196847109"
+        },
+        {
+          "binary64_le": "093cbae0a614ecbf",
+          "display_binary64": "-0.8775209798058096"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D30",
+      "preset": "panel",
+      "yaw": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "pitch": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "026f589242c1cf3f",
+          "display_binary64": "0.24808532853864312"
+        },
+        {
+          "binary64_le": "68a8b3fb0057e1bf",
+          "display_binary64": "-0.5418705860186153"
+        },
+        {
+          "binary64_le": "fd08956548b2e9bf",
+          "display_binary64": "-0.8030130371119238"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "026f589242c1cf3f",
+          "display_binary64": "0.24808532853864312"
+        },
+        {
+          "binary64_le": "68a8b3fb0057e1bf",
+          "display_binary64": "-0.5418705860186153"
+        },
+        {
+          "binary64_le": "fd08956548b2e9bf",
+          "display_binary64": "-0.8030130371119238"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    },
+    {
+      "id": "D31",
+      "preset": "panel",
+      "yaw": {
+        "binary64_le": "000000000000e0bf",
+        "display_binary64": "-0.5"
+      },
+      "pitch": {
+        "binary64_le": "000000000000d0bf",
+        "display_binary64": "-0.25"
+      },
+      "basis": "identity",
+      "pitch_axis": [
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_local": [
+        {
+          "binary64_le": "9548be27af4db7bf",
+          "display_binary64": "-0.09102911682410515"
+        },
+        {
+          "binary64_le": "32bbacc97f28e7bf",
+          "display_binary64": "-0.7236937464675519"
+        },
+        {
+          "binary64_le": "7f35bdac13e4e5bf",
+          "display_binary64": "-0.684091412907648"
+        }
+      ],
+      "expected_scene": [
+        {
+          "binary64_le": "9548be27af4db7bf",
+          "display_binary64": "-0.09102911682410515"
+        },
+        {
+          "binary64_le": "32bbacc97f28e7bf",
+          "display_binary64": "-0.7236937464675519"
+        },
+        {
+          "binary64_le": "7f35bdac13e4e5bf",
+          "display_binary64": "-0.684091412907648"
+        }
+      ],
+      "expected_scene_up": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "000000000000f03f",
+          "display_binary64": "1.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "oracle": "Decimal Rodrigues; exact dyadic angle inputs"
+    }
+  ],
+  "settings_positive_cases": [
+    {
+      "id": "S01",
+      "input": {
+        "preset": "cockpit",
+        "fov_deg": {
+          "binary64_le": "0000000000005240",
+          "display_binary64": "72.0"
+        },
+        "external_response": "smooth"
+      },
+      "expected_ok": true
+    },
+    {
+      "id": "S02",
+      "input": {
+        "preset": "left_window",
+        "fov_deg": {
+          "binary64_le": "0000000000804140",
+          "display_binary64": "35.0"
+        },
+        "external_response": "immediate"
+      },
+      "expected_ok": true
+    },
+    {
+      "id": "S03",
+      "input": {
+        "preset": "right_window",
+        "fov_deg": {
+          "binary64_le": "0000000000805640",
+          "display_binary64": "90.0"
+        },
+        "external_response": "smooth"
+      },
+      "expected_ok": true
+    },
+    {
+      "id": "S04",
+      "input": {
+        "preset": "panel",
+        "fov_deg": {
+          "binary64_le": "0000000000c04e40",
+          "display_binary64": "61.5"
+        },
+        "external_response": "immediate"
+      },
+      "expected_ok": true
+    }
+  ],
+  "settings_negative_cases": [
+    {
+      "id": "S05",
+      "description": "missing fov key",
+      "base_input": {
+        "preset": "left_window",
+        "fov_deg": {
+          "binary64_le": "0000000000c04e40",
+          "display_binary64": "61.5"
+        },
+        "external_response": "immediate"
+      },
+      "edit": {
+        "remove": "fov_deg"
+      },
+      "expected_ok": false,
+      "expected_value": null,
+      "error": "nonempty exact String; wording not prescribed",
+      "host_and_input": "unchanged"
+    },
+    {
+      "id": "S06",
+      "description": "extra key",
+      "base_input": {
+        "preset": "left_window",
+        "fov_deg": {
+          "binary64_le": "0000000000c04e40",
+          "display_binary64": "61.5"
+        },
+        "external_response": "immediate"
+      },
+      "edit": {
+        "add": {
+          "unknown": true
+        }
+      },
+      "expected_ok": false,
+      "expected_value": null,
+      "error": "nonempty exact String; wording not prescribed",
+      "host_and_input": "unchanged"
+    },
+    {
+      "id": "S07",
+      "description": "integer FOV",
+      "base_input": {
+        "preset": "left_window",
+        "fov_deg": {
+          "binary64_le": "0000000000c04e40",
+          "display_binary64": "61.5"
+        },
+        "external_response": "immediate"
+      },
+      "edit": {
+        "field": "fov_deg",
+        "variant": "INT",
+        "value": 72
+      },
+      "expected_ok": false,
+      "expected_value": null,
+      "error": "nonempty exact String; wording not prescribed",
+      "host_and_input": "unchanged"
+    },
+    {
+      "id": "S08",
+      "description": "boolean FOV",
+      "base_input": {
+        "preset": "left_window",
+        "fov_deg": {
+          "binary64_le": "0000000000c04e40",
+          "display_binary64": "61.5"
+        },
+        "external_response": "immediate"
+      },
+      "edit": {
+        "field": "fov_deg",
+        "variant": "BOOL",
+        "value": true
+      },
+      "expected_ok": false,
+      "expected_value": null,
+      "error": "nonempty exact String; wording not prescribed",
+      "host_and_input": "unchanged"
+    },
+    {
+      "id": "S09",
+      "description": "string FOV",
+      "base_input": {
+        "preset": "left_window",
+        "fov_deg": {
+          "binary64_le": "0000000000c04e40",
+          "display_binary64": "61.5"
+        },
+        "external_response": "immediate"
+      },
+      "edit": {
+        "field": "fov_deg",
+        "variant": "STRING",
+        "value": "72"
+      },
+      "expected_ok": false,
+      "expected_value": null,
+      "error": "nonempty exact String; wording not prescribed",
+      "host_and_input": "unchanged"
+    },
+    {
+      "id": "S10",
+      "description": "NaN FOV",
+      "base_input": {
+        "preset": "left_window",
+        "fov_deg": {
+          "binary64_le": "0000000000c04e40",
+          "display_binary64": "61.5"
+        },
+        "external_response": "immediate"
+      },
+      "edit": {
+        "binary64_le": "000000000000f87f",
+        "display_binary64": "nan"
+      },
+      "expected_ok": false,
+      "expected_value": null,
+      "error": "nonempty exact String; wording not prescribed",
+      "host_and_input": "unchanged"
+    },
+    {
+      "id": "S11",
+      "description": "positive infinity FOV",
+      "base_input": {
+        "preset": "left_window",
+        "fov_deg": {
+          "binary64_le": "0000000000c04e40",
+          "display_binary64": "61.5"
+        },
+        "external_response": "immediate"
+      },
+      "edit": {
+        "binary64_le": "000000000000f07f",
+        "display_binary64": "inf"
+      },
+      "expected_ok": false,
+      "expected_value": null,
+      "error": "nonempty exact String; wording not prescribed",
+      "host_and_input": "unchanged"
+    },
+    {
+      "id": "S12",
+      "description": "below35 adjacent binary64",
+      "base_input": {
+        "preset": "left_window",
+        "fov_deg": {
+          "binary64_le": "0000000000c04e40",
+          "display_binary64": "61.5"
+        },
+        "external_response": "immediate"
+      },
+      "edit": {
+        "binary64_le": "ffffffffff7f4140",
+        "display_binary64": "34.99999999999999"
+      },
+      "expected_ok": false,
+      "expected_value": null,
+      "error": "nonempty exact String; wording not prescribed",
+      "host_and_input": "unchanged"
+    },
+    {
+      "id": "S13",
+      "description": "above90 adjacent binary64",
+      "base_input": {
+        "preset": "left_window",
+        "fov_deg": {
+          "binary64_le": "0000000000c04e40",
+          "display_binary64": "61.5"
+        },
+        "external_response": "immediate"
+      },
+      "edit": {
+        "binary64_le": "0100000000805640",
+        "display_binary64": "90.00000000000001"
+      },
+      "expected_ok": false,
+      "expected_value": null,
+      "error": "nonempty exact String; wording not prescribed",
+      "host_and_input": "unchanged"
+    },
+    {
+      "id": "S14",
+      "description": "StringName preset",
+      "base_input": {
+        "preset": "left_window",
+        "fov_deg": {
+          "binary64_le": "0000000000c04e40",
+          "display_binary64": "61.5"
+        },
+        "external_response": "immediate"
+      },
+      "edit": {
+        "field": "preset",
+        "variant": "STRING_NAME",
+        "value": "left_window"
+      },
+      "expected_ok": false,
+      "expected_value": null,
+      "error": "nonempty exact String; wording not prescribed",
+      "host_and_input": "unchanged"
+    },
+    {
+      "id": "S15",
+      "description": "StringName response",
+      "base_input": {
+        "preset": "left_window",
+        "fov_deg": {
+          "binary64_le": "0000000000c04e40",
+          "display_binary64": "61.5"
+        },
+        "external_response": "immediate"
+      },
+      "edit": {
+        "field": "external_response",
+        "variant": "STRING_NAME",
+        "value": "smooth"
+      },
+      "expected_ok": false,
+      "expected_value": null,
+      "error": "nonempty exact String; wording not prescribed",
+      "host_and_input": "unchanged"
+    },
+    {
+      "id": "S16",
+      "description": "StringName key",
+      "base_input": {
+        "preset": "left_window",
+        "fov_deg": {
+          "binary64_le": "0000000000c04e40",
+          "display_binary64": "61.5"
+        },
+        "external_response": "immediate"
+      },
+      "edit": {
+        "key_type": "STRING_NAME",
+        "key": "preset"
+      },
+      "expected_ok": false,
+      "expected_value": null,
+      "error": "nonempty exact String; wording not prescribed",
+      "host_and_input": "unchanged"
+    },
+    {
+      "id": "S17",
+      "description": "unknown preset",
+      "base_input": {
+        "preset": "left_window",
+        "fov_deg": {
+          "binary64_le": "0000000000c04e40",
+          "display_binary64": "61.5"
+        },
+        "external_response": "immediate"
+      },
+      "edit": {
+        "field": "preset",
+        "variant": "STRING",
+        "value": "Left window"
+      },
+      "expected_ok": false,
+      "expected_value": null,
+      "error": "nonempty exact String; wording not prescribed",
+      "host_and_input": "unchanged"
+    },
+    {
+      "id": "S18",
+      "description": "unknown response",
+      "base_input": {
+        "preset": "left_window",
+        "fov_deg": {
+          "binary64_le": "0000000000c04e40",
+          "display_binary64": "61.5"
+        },
+        "external_response": "immediate"
+      },
+      "edit": {
+        "field": "external_response",
+        "variant": "STRING",
+        "value": "Smooth"
+      },
+      "expected_ok": false,
+      "expected_value": null,
+      "error": "nonempty exact String; wording not prescribed",
+      "host_and_input": "unchanged"
+    },
+    {
+      "id": "S19",
+      "description": "null settings",
+      "base_input": {
+        "preset": "left_window",
+        "fov_deg": {
+          "binary64_le": "0000000000c04e40",
+          "display_binary64": "61.5"
+        },
+        "external_response": "immediate"
+      },
+      "edit": {
+        "replace_root_variant": "NIL"
+      },
+      "expected_ok": false,
+      "expected_value": null,
+      "error": "nonempty exact String; wording not prescribed",
+      "host_and_input": "unchanged"
+    },
+    {
+      "id": "S20",
+      "description": "Array settings",
+      "base_input": {
+        "preset": "left_window",
+        "fov_deg": {
+          "binary64_le": "0000000000c04e40",
+          "display_binary64": "61.5"
+        },
+        "external_response": "immediate"
+      },
+      "edit": {
+        "replace_root_variant": "ARRAY"
+      },
+      "expected_ok": false,
+      "expected_value": null,
+      "error": "nonempty exact String; wording not prescribed",
+      "host_and_input": "unchanged"
+    },
+    {
+      "id": "S21",
+      "description": "Object settings",
+      "base_input": {
+        "preset": "left_window",
+        "fov_deg": {
+          "binary64_le": "0000000000c04e40",
+          "display_binary64": "61.5"
+        },
+        "external_response": "immediate"
+      },
+      "edit": {
+        "replace_root_variant": "OBJECT"
+      },
+      "expected_ok": false,
+      "expected_value": null,
+      "error": "nonempty exact String; wording not prescribed",
+      "host_and_input": "unchanged"
+    }
+  ],
+  "copy_cases": [
+    {
+      "id": "C01",
+      "operation": "Mutate defaults() result, call defaults() again",
+      "expected": {
+        "preset": "cockpit",
+        "fov_deg": {
+          "binary64_le": "0000000000005240",
+          "display_binary64": "72.0"
+        },
+        "external_response": "smooth"
+      }
+    },
+    {
+      "id": "C02",
+      "operation": "After validate success, mutate caller input",
+      "expected": "Previously returned value unchanged and not aliased"
+    },
+    {
+      "id": "C03",
+      "operation": "Mutate successful returned value",
+      "expected": "Original input, subsequent defaults and validation unchanged"
+    },
+    {
+      "id": "C04",
+      "operation": "Mutate describe() base-direction array",
+      "expected": "Subsequent describe() and all other preset directions unchanged"
+    }
+  ],
+  "lifecycle_initial_camera": {
+    "settings": {
+      "preset": "left_window",
+      "fov_deg": {
+        "binary64_le": "0000000000c04e40",
+        "display_binary64": "61.5"
+      },
+      "external_response": "immediate"
+    },
+    "look_angles": [
+      {
+        "binary64_le": "000000000000d03f",
+        "display_binary64": "0.25"
+      },
+      {
+        "binary64_le": "000000000000c0bf",
+        "display_binary64": "-0.125"
+      }
+    ],
+    "distance_m": {
+      "binary64_le": "0000000000003140",
+      "display_binary64": "17.0"
+    },
+    "follow_offset_m": [
+      {
+        "binary64_le": "000000000000f03f",
+        "display_binary64": "1.0"
+      },
+      {
+        "binary64_le": "0000000000000040",
+        "display_binary64": "2.0"
+      },
+      {
+        "binary64_le": "0000000000000840",
+        "display_binary64": "3.0"
+      }
+    ],
+    "follow_ready": true,
+    "manual_aid_visibility": "captured unchanged per same-mode current owner",
+    "session_id": "camera-reference-session-A"
+  },
+  "valid_entry": {
+    "adopted_session_id": "camera-reference-session-A",
+    "identity_qualified": true,
+    "paused": true,
+    "host_mode": "paused",
+    "valid_current_visual_pose": true,
+    "menu_open": true,
+    "initializing": false,
+    "closing": false,
+    "other_modal_owner": null,
+    "visible_pointer": true,
+    "active_pointer_capture": false,
+    "queued_pointer_capture": false
+  },
+  "page_cases": [
+    {
+      "id": "L01",
+      "action": "open then edit draft to right_window/58/smooth",
+      "expected": {
+        "host_camera": "EXACT_INITIAL",
+        "draft": "changed owned copy",
+        "page": "open",
+        "default_focus": "Cancel"
+      }
+    },
+    {
+      "id": "L02",
+      "action": "open, edit draft, Cancel",
+      "expected": {
+        "host_camera": "EXACT_INITIAL",
+        "page": "closed",
+        "host_mode": "paused"
+      }
+    },
+    {
+      "id": "L03",
+      "action": "open, edit draft, Escape",
+      "expected": {
+        "host_camera": "EXACT_INITIAL",
+        "page": "closed",
+        "host_mode": "paused"
+      }
+    },
+    {
+      "id": "L04",
+      "action": "open, edit draft, Back",
+      "expected": {
+        "host_camera": "EXACT_INITIAL",
+        "page": "closed",
+        "host_mode": "paused"
+      }
+    },
+    {
+      "id": "L05",
+      "action": "open, select right_window, edit FOV58, Apply",
+      "expected": {
+        "settings": {
+          "preset": "right_window",
+          "fov_deg": {
+            "binary64_le": "0000000000004d40",
+            "display_binary64": "58.0"
+          },
+          "external_response": "immediate"
+        },
+        "look_angles": [
+          {
+            "binary64_le": "0000000000000000",
+            "display_binary64": "0.0"
+          },
+          {
+            "binary64_le": "0000000000000000",
+            "display_binary64": "0.0"
+          }
+        ],
+        "distance_m": {
+          "binary64_le": "0000000000003140",
+          "display_binary64": "17.0"
+        },
+        "follow_offset_policy": "reseed from desired at next coherent draw; no stale blend; internal readiness flag not prescribed",
+        "page": "closed",
+        "host_mode": "paused",
+        "same_mode_aids": "EXACT_INITIAL"
+      }
+    },
+    {
+      "id": "L06",
+      "action": "open, Restore defaults, Cancel",
+      "expected": {
+        "host_camera": "EXACT_INITIAL",
+        "page": "closed"
+      }
+    },
+    {
+      "id": "L07",
+      "action": "open, Restore defaults, Apply",
+      "expected": {
+        "settings": {
+          "preset": "cockpit",
+          "fov_deg": {
+            "binary64_le": "0000000000005240",
+            "display_binary64": "72.0"
+          },
+          "external_response": "smooth"
+        },
+        "look_angles": [
+          {
+            "binary64_le": "0000000000000000",
+            "display_binary64": "0.0"
+          },
+          {
+            "binary64_le": "0000000000000000",
+            "display_binary64": "0.0"
+          }
+        ],
+        "distance_m": {
+          "binary64_le": "0000000000003140",
+          "display_binary64": "17.0"
+        },
+        "follow_offset_policy": "reseed at next coherent draw",
+        "same_mode_aids": "EXACT_INITIAL",
+        "host_mode": "paused"
+      }
+    },
+    {
+      "id": "L08",
+      "action": "open, select panel, then set draft FOV61.5, Apply",
+      "expected": {
+        "settings": {
+          "preset": "panel",
+          "fov_deg": {
+            "binary64_le": "0000000000c04e40",
+            "display_binary64": "61.5"
+          },
+          "external_response": "immediate"
+        },
+        "mode": 3,
+        "distance_m": {
+          "binary64_le": "0000000000003140",
+          "display_binary64": "17.0"
+        },
+        "inherited_visibility": "traditional mode3 rules apply; not same-mode aid invariance"
+      }
+    },
+    {
+      "id": "L09",
+      "action": "open, corrupt draft FOV Variant to INT72, Apply",
+      "expected": {
+        "host_camera": "EXACT_INITIAL",
+        "ok": false,
+        "no_partial_adoption": true
+      }
+    },
+    {
+      "id": "L10",
+      "action": "Apply identical settings twice from separate valid paused openings",
+      "expected": {
+        "after_second": "EXACT_FIRST_APPLIED_PRESENTATION",
+        "extra_generation_or_tick_change": false
+      }
+    },
+    {
+      "id": "L11",
+      "action": "open under sessionA, change adopted session to B externally, deliver stale Apply callback",
+      "expected": {
+        "ok": false,
+        "current_sessionB_camera": "unchanged",
+        "page_callback": "retired"
+      }
+    },
+    {
+      "id": "L12",
+      "action": "open, externally fail/close/quit, deliver retired callback",
+      "expected": {
+        "ok": false,
+        "camera_after_external_lifecycle": "unchanged by callback",
+        "page_callback": "retired"
+      }
+    },
+    {
+      "id": "L13",
+      "action": "cancel requested discard/restart",
+      "expected": {
+        "host_camera": "EXACT_INITIAL"
+      }
+    },
+    {
+      "id": "L14",
+      "action": "external restart attempt fails before fully successful adoption",
+      "expected": {
+        "settings": "EXACT_INITIAL",
+        "geometry": "may be honestly suppressed by existing failed restart; not claimed current"
+      }
+    },
+    {
+      "id": "L15",
+      "action": "external fresh session fully adopted successfully, invoke camera session reset",
+      "expected": {
+        "camera_defaults": {
+          "settings": {
+            "preset": "cockpit",
+            "fov_deg": {
+              "binary64_le": "0000000000005240",
+              "display_binary64": "72.0"
+            },
+            "external_response": "smooth"
+          },
+          "look_angles": [
+            {
+              "binary64_le": "0000000000000000",
+              "display_binary64": "0.0"
+            },
+            {
+              "binary64_le": "0000000000000000",
+              "display_binary64": "0.0"
+            }
+          ],
+          "distance_m": {
+            "binary64_le": "0000000000002a40",
+            "display_binary64": "13.0"
+          }
+        },
+        "old_callback": "retired",
+        "no_camera_initiated_native_calls": true
+      }
+    },
+    {
+      "id": "L16",
+      "action": "open/Apply while physical look button still guarded held from prior pause; Resume after real admission",
+      "expected": {
+        "guard": "unchanged until actual up edge",
+        "capture": "unavailable while guarded",
+        "native_release_fabricated": false
+      }
+    }
+  ],
+  "entry_rejection_cases": [
+    {
+      "id": "G01",
+      "valid_base": "valid_entry",
+      "override": {
+        "identity_qualified": false
+      },
+      "expected_open": false,
+      "camera": "EXACT_INITIAL",
+      "native_pause_requested": false,
+      "capture_or_guard_clear": false
+    },
+    {
+      "id": "G02",
+      "valid_base": "valid_entry",
+      "override": {
+        "paused": false
+      },
+      "expected_open": false,
+      "camera": "EXACT_INITIAL",
+      "native_pause_requested": false,
+      "capture_or_guard_clear": false
+    },
+    {
+      "id": "G03",
+      "valid_base": "valid_entry",
+      "override": {
+        "host_mode": "live"
+      },
+      "expected_open": false,
+      "camera": "EXACT_INITIAL",
+      "native_pause_requested": false,
+      "capture_or_guard_clear": false
+    },
+    {
+      "id": "G04",
+      "valid_base": "valid_entry",
+      "override": {
+        "valid_current_visual_pose": false
+      },
+      "expected_open": false,
+      "camera": "EXACT_INITIAL",
+      "native_pause_requested": false,
+      "capture_or_guard_clear": false
+    },
+    {
+      "id": "G05",
+      "valid_base": "valid_entry",
+      "override": {
+        "menu_open": false
+      },
+      "expected_open": false,
+      "camera": "EXACT_INITIAL",
+      "native_pause_requested": false,
+      "capture_or_guard_clear": false
+    },
+    {
+      "id": "G06",
+      "valid_base": "valid_entry",
+      "override": {
+        "initializing": true
+      },
+      "expected_open": false,
+      "camera": "EXACT_INITIAL",
+      "native_pause_requested": false,
+      "capture_or_guard_clear": false
+    },
+    {
+      "id": "G07",
+      "valid_base": "valid_entry",
+      "override": {
+        "closing": true
+      },
+      "expected_open": false,
+      "camera": "EXACT_INITIAL",
+      "native_pause_requested": false,
+      "capture_or_guard_clear": false
+    },
+    {
+      "id": "G08",
+      "valid_base": "valid_entry",
+      "override": {
+        "visible_pointer": false
+      },
+      "expected_open": false,
+      "camera": "EXACT_INITIAL",
+      "native_pause_requested": false,
+      "capture_or_guard_clear": false
+    },
+    {
+      "id": "G09",
+      "valid_base": "valid_entry",
+      "override": {
+        "active_pointer_capture": true
+      },
+      "expected_open": false,
+      "camera": "EXACT_INITIAL",
+      "native_pause_requested": false,
+      "capture_or_guard_clear": false
+    },
+    {
+      "id": "G10",
+      "valid_base": "valid_entry",
+      "override": {
+        "queued_pointer_capture": true
+      },
+      "expected_open": false,
+      "camera": "EXACT_INITIAL",
+      "native_pause_requested": false,
+      "capture_or_guard_clear": false
+    },
+    {
+      "id": "G11",
+      "valid_base": "valid_entry",
+      "override": {
+        "other_modal_owner": "archive"
+      },
+      "expected_open": false,
+      "camera": "EXACT_INITIAL",
+      "native_pause_requested": false,
+      "capture_or_guard_clear": false
+    },
+    {
+      "id": "G12",
+      "valid_base": "valid_entry",
+      "override": {
+        "other_modal_owner": "discard"
+      },
+      "expected_open": false,
+      "camera": "EXACT_INITIAL",
+      "native_pause_requested": false,
+      "capture_or_guard_clear": false
+    },
+    {
+      "id": "G13",
+      "valid_base": "valid_entry",
+      "override": {
+        "other_modal_owner": "review"
+      },
+      "expected_open": false,
+      "camera": "EXACT_INITIAL",
+      "native_pause_requested": false,
+      "capture_or_guard_clear": false
+    },
+    {
+      "id": "G14",
+      "valid_base": "valid_entry",
+      "override": {
+        "other_modal_owner": "Controls"
+      },
+      "expected_open": false,
+      "camera": "EXACT_INITIAL",
+      "native_pause_requested": false,
+      "capture_or_guard_clear": false
+    },
+    {
+      "id": "G15",
+      "valid_base": "valid_entry",
+      "override": {
+        "other_modal_owner": "Wind"
+      },
+      "expected_open": false,
+      "camera": "EXACT_INITIAL",
+      "native_pause_requested": false,
+      "capture_or_guard_clear": false
+    },
+    {
+      "id": "G16",
+      "valid_base": "valid_entry",
+      "override": {
+        "other_modal_owner": "Audio"
+      },
+      "expected_open": false,
+      "camera": "EXACT_INITIAL",
+      "native_pause_requested": false,
+      "capture_or_guard_clear": false
+    },
+    {
+      "id": "G17",
+      "valid_base": "valid_entry",
+      "override": {
+        "other_modal_owner": "Scan"
+      },
+      "expected_open": false,
+      "camera": "EXACT_INITIAL",
+      "native_pause_requested": false,
+      "capture_or_guard_clear": false
+    },
+    {
+      "id": "G18",
+      "valid_base": "valid_entry",
+      "override": {
+        "other_modal_owner": "Route"
+      },
+      "expected_open": false,
+      "camera": "EXACT_INITIAL",
+      "native_pause_requested": false,
+      "capture_or_guard_clear": false
+    },
+    {
+      "id": "G19",
+      "valid_base": "valid_entry",
+      "override": {
+        "other_modal_owner": "First-flight"
+      },
+      "expected_open": false,
+      "camera": "EXACT_INITIAL",
+      "native_pause_requested": false,
+      "capture_or_guard_clear": false
+    }
+  ],
+  "mapped_action_cases": [
+    {
+      "id": "A01",
+      "initial_preset": "cockpit",
+      "operation": "accepted view_cycle",
+      "expected_preset": "chase",
+      "expected_mode": 1,
+      "expected_fov": {
+        "binary64_le": "0000000000005240",
+        "display_binary64": "72.0"
+      },
+      "look_angles": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "distance_m": {
+        "binary64_le": "0000000000003140",
+        "display_binary64": "17.0"
+      },
+      "external_response": "preserve immediate",
+      "aid_effect": "only inherited traditional-mode transition"
+    },
+    {
+      "id": "A02",
+      "initial_preset": "forward_horizon",
+      "operation": "accepted view_cycle",
+      "expected_preset": "chase",
+      "expected_mode": 1,
+      "expected_fov": {
+        "binary64_le": "0000000000005240",
+        "display_binary64": "72.0"
+      },
+      "look_angles": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "distance_m": {
+        "binary64_le": "0000000000003140",
+        "display_binary64": "17.0"
+      },
+      "external_response": "preserve immediate",
+      "aid_effect": "only inherited traditional-mode transition"
+    },
+    {
+      "id": "A03",
+      "initial_preset": "left_window",
+      "operation": "accepted view_cycle",
+      "expected_preset": "chase",
+      "expected_mode": 1,
+      "expected_fov": {
+        "binary64_le": "0000000000005240",
+        "display_binary64": "72.0"
+      },
+      "look_angles": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "distance_m": {
+        "binary64_le": "0000000000003140",
+        "display_binary64": "17.0"
+      },
+      "external_response": "preserve immediate",
+      "aid_effect": "only inherited traditional-mode transition"
+    },
+    {
+      "id": "A04",
+      "initial_preset": "right_window",
+      "operation": "accepted view_cycle",
+      "expected_preset": "chase",
+      "expected_mode": 1,
+      "expected_fov": {
+        "binary64_le": "0000000000005240",
+        "display_binary64": "72.0"
+      },
+      "look_angles": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "distance_m": {
+        "binary64_le": "0000000000003140",
+        "display_binary64": "17.0"
+      },
+      "external_response": "preserve immediate",
+      "aid_effect": "only inherited traditional-mode transition"
+    },
+    {
+      "id": "A05",
+      "initial_preset": "panel",
+      "operation": "accepted view_cycle",
+      "expected_preset": "cockpit",
+      "expected_mode": 0,
+      "expected_fov": {
+        "binary64_le": "0000000000005240",
+        "display_binary64": "72.0"
+      },
+      "look_angles": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "distance_m": {
+        "binary64_le": "0000000000003140",
+        "display_binary64": "17.0"
+      },
+      "external_response": "preserve immediate",
+      "aid_effect": "only inherited traditional-mode transition"
+    },
+    {
+      "id": "A06",
+      "initial_preset": "chase",
+      "operation": "accepted view_cycle",
+      "expected_preset": "orbit",
+      "expected_mode": 2,
+      "expected_fov": {
+        "binary64_le": "0000000000005240",
+        "display_binary64": "72.0"
+      },
+      "look_angles": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "distance_m": {
+        "binary64_le": "0000000000003140",
+        "display_binary64": "17.0"
+      },
+      "external_response": "preserve immediate",
+      "aid_effect": "only inherited traditional-mode transition"
+    },
+    {
+      "id": "A07",
+      "initial_preset": "orbit",
+      "operation": "accepted view_cycle",
+      "expected_preset": "panel",
+      "expected_mode": 3,
+      "expected_fov": {
+        "binary64_le": "0000000000004d40",
+        "display_binary64": "58.0"
+      },
+      "look_angles": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "distance_m": {
+        "binary64_le": "0000000000003140",
+        "display_binary64": "17.0"
+      },
+      "external_response": "preserve immediate",
+      "aid_effect": "only inherited traditional-mode transition"
+    },
+    {
+      "id": "A08",
+      "initial_preset": "left_window",
+      "operation": "accepted view_cockpit",
+      "expected_preset": "cockpit",
+      "expected_fov": {
+        "binary64_le": "0000000000005240",
+        "display_binary64": "72.0"
+      },
+      "look_angles": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "distance_m": {
+        "binary64_le": "0000000000003140",
+        "display_binary64": "17.0"
+      },
+      "external_response": "preserve immediate",
+      "aid_effect": "existing explicit traditional-action behavior; no new gaze policy"
+    },
+    {
+      "id": "A09",
+      "initial_preset": "left_window",
+      "operation": "accepted view_chase",
+      "expected_preset": "chase",
+      "expected_fov": {
+        "binary64_le": "0000000000005240",
+        "display_binary64": "72.0"
+      },
+      "look_angles": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "distance_m": {
+        "binary64_le": "0000000000003140",
+        "display_binary64": "17.0"
+      },
+      "external_response": "preserve immediate",
+      "aid_effect": "existing explicit traditional-action behavior; no new gaze policy"
+    },
+    {
+      "id": "A10",
+      "initial_preset": "left_window",
+      "operation": "accepted view_orbit",
+      "expected_preset": "orbit",
+      "expected_fov": {
+        "binary64_le": "0000000000005240",
+        "display_binary64": "72.0"
+      },
+      "look_angles": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "distance_m": {
+        "binary64_le": "0000000000003140",
+        "display_binary64": "17.0"
+      },
+      "external_response": "preserve immediate",
+      "aid_effect": "existing explicit traditional-action behavior; no new gaze policy"
+    },
+    {
+      "id": "A11",
+      "initial_preset": "left_window",
+      "operation": "accepted view_panel",
+      "expected_preset": "panel",
+      "expected_fov": {
+        "binary64_le": "0000000000004d40",
+        "display_binary64": "58.0"
+      },
+      "look_angles": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "distance_m": {
+        "binary64_le": "0000000000003140",
+        "display_binary64": "17.0"
+      },
+      "external_response": "preserve immediate",
+      "aid_effect": "existing explicit traditional-action behavior; no new gaze policy"
+    },
+    {
+      "id": "A12",
+      "initial_preset": "left_window",
+      "operation": "accepted recenter",
+      "expected_preset": "left_window",
+      "expected_fov": {
+        "binary64_le": "0000000000c04e40",
+        "display_binary64": "61.5"
+      },
+      "look_angles": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "distance_m": {
+        "binary64_le": "0000000000003140",
+        "display_binary64": "17.0"
+      },
+      "external_response": "immediate",
+      "aid_effect": "EXACT_INITIAL"
+    },
+    {
+      "id": "A13",
+      "initial_preset": "left_window",
+      "operation": "interior zoom from FOV35 by -3",
+      "expected_fov": {
+        "binary64_le": "0000000000804140",
+        "display_binary64": "35.0"
+      },
+      "distance_m": {
+        "binary64_le": "0000000000003140",
+        "display_binary64": "17.0"
+      }
+    },
+    {
+      "id": "A14",
+      "initial_preset": "right_window",
+      "operation": "interior zoom from FOV90 by +3",
+      "expected_fov": {
+        "binary64_le": "0000000000805640",
+        "display_binary64": "90.0"
+      },
+      "distance_m": {
+        "binary64_le": "0000000000003140",
+        "display_binary64": "17.0"
+      }
+    },
+    {
+      "id": "A15",
+      "initial_preset": "orbit",
+      "operation": "external distance from6 by-1",
+      "expected_distance_m": {
+        "binary64_le": "0000000000001840",
+        "display_binary64": "6.0"
+      },
+      "fov_policy": "unchanged"
+    },
+    {
+      "id": "A16",
+      "initial_preset": "chase",
+      "operation": "external distance from40 by+1",
+      "expected_distance_m": {
+        "binary64_le": "0000000000004440",
+        "display_binary64": "40.0"
+      },
+      "fov_policy": "unchanged"
+    },
+    {
+      "id": "A17",
+      "initial_preset": "cockpit",
+      "operation": "zoom actual FOV to69, open Views",
+      "expected_draft_fov": {
+        "binary64_le": "0000000000405140",
+        "display_binary64": "69.0"
+      },
+      "not_stale_previous_draft": true
+    },
+    {
+      "id": "A18",
+      "initial_preset": "left_window",
+      "operation": "actual look_hold up edge after ordinary live input boundary",
+      "expected": "pointer visible; same preset/angles/held native intent; no forced recenter"
+    }
+  ],
+  "filter_scalar_cases": [
+    {
+      "id": "F01",
+      "seconds": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "expected_clamped_seconds": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "expected_alpha": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "reference": "Integral response of d(offset)/dt=9*(desired-offset), fixed desired for interval"
+    },
+    {
+      "id": "F02",
+      "seconds": {
+        "binary64_le": "000000000000903f",
+        "display_binary64": "0.015625"
+      },
+      "expected_clamped_seconds": {
+        "binary64_le": "000000000000903f",
+        "display_binary64": "0.015625"
+      },
+      "expected_alpha": {
+        "binary64_le": "78128a11abcac03f",
+        "display_binary64": "0.13118494373715683"
+      },
+      "reference": "Integral response of d(offset)/dt=9*(desired-offset), fixed desired for interval"
+    },
+    {
+      "id": "F03",
+      "seconds": {
+        "binary64_le": "000000000000c03f",
+        "display_binary64": "0.125"
+      },
+      "expected_clamped_seconds": {
+        "binary64_le": "000000000000c03f",
+        "display_binary64": "0.125"
+      },
+      "expected_alpha": {
+        "binary64_le": "702ac46d729ce53f",
+        "display_binary64": "0.6753475326416503"
+      },
+      "reference": "Integral response of d(offset)/dt=9*(desired-offset), fixed desired for interval"
+    },
+    {
+      "id": "F04",
+      "seconds": {
+        "binary64_le": "000000000000d03f",
+        "display_binary64": "0.25"
+      },
+      "expected_clamped_seconds": {
+        "binary64_le": "000000000000d03f",
+        "display_binary64": "0.25"
+      },
+      "expected_alpha": {
+        "binary64_le": "01752fce91a0ec3f",
+        "display_binary64": "0.8946007754381357"
+      },
+      "reference": "Integral response of d(offset)/dt=9*(desired-offset), fixed desired for interval"
+    },
+    {
+      "id": "F05",
+      "seconds": {
+        "binary64_le": "000000000000e03f",
+        "display_binary64": "0.5"
+      },
+      "expected_clamped_seconds": {
+        "binary64_le": "000000000000d03f",
+        "display_binary64": "0.25"
+      },
+      "expected_alpha": {
+        "binary64_le": "01752fce91a0ec3f",
+        "display_binary64": "0.8946007754381357"
+      },
+      "reference": "Integral response of d(offset)/dt=9*(desired-offset), fixed desired for interval"
+    }
+  ],
+  "filter_moving_sequence": [
+    {
+      "id": "M01",
+      "presented_ownship_m": [
+        {
+          "binary64_le": "0000000000000040",
+          "display_binary64": "2.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "latest_raw_endpoint_m": [
+        {
+          "binary64_le": "0000000000405940",
+          "display_binary64": "101.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "previous_smooth_offset_m": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000c40",
+          "display_binary64": "3.5"
+        },
+        {
+          "binary64_le": "0000000000002a40",
+          "display_binary64": "13.0"
+        }
+      ],
+      "desired_offset_m": [
+        {
+          "binary64_le": "0000000000002a40",
+          "display_binary64": "13.0"
+        },
+        {
+          "binary64_le": "0000000000000c40",
+          "display_binary64": "3.5"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "seconds": {
+        "binary64_le": "000000000000c03f",
+        "display_binary64": "0.125"
+      },
+      "expected_smooth_offset_m": [
+        {
+          "binary64_le": "7b622ff91c8f2140",
+          "display_binary64": "8.779517924341453"
+        },
+        {
+          "binary64_le": "0000000000000c40",
+          "display_binary64": "3.5"
+        },
+        {
+          "binary64_le": "0a3ba10dc6e11040",
+          "display_binary64": "4.220482075658547"
+        }
+      ],
+      "expected_smooth_camera_m": [
+        {
+          "binary64_le": "7b622ff91c8f2540",
+          "display_binary64": "10.779517924341453"
+        },
+        {
+          "binary64_le": "0000000000000c40",
+          "display_binary64": "3.5"
+        },
+        {
+          "binary64_le": "0a3ba10dc6e11040",
+          "display_binary64": "4.220482075658547"
+        }
+      ],
+      "expected_immediate_offset_m": [
+        {
+          "binary64_le": "0000000000002a40",
+          "display_binary64": "13.0"
+        },
+        {
+          "binary64_le": "0000000000000c40",
+          "display_binary64": "3.5"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "expected_immediate_camera_m": [
+        {
+          "binary64_le": "0000000000002e40",
+          "display_binary64": "15.0"
+        },
+        {
+          "binary64_le": "0000000000000c40",
+          "display_binary64": "3.5"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "raw_endpoint_ignored": true
+    },
+    {
+      "id": "M02",
+      "presented_ownship_m": [
+        {
+          "binary64_le": "0000000000001040",
+          "display_binary64": "4.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "latest_raw_endpoint_m": [
+        {
+          "binary64_le": "0000000000805940",
+          "display_binary64": "102.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "previous_smooth_offset_m": [
+        {
+          "binary64_le": "7b622ff91c8f2140",
+          "display_binary64": "8.779517924341453"
+        },
+        {
+          "binary64_le": "0000000000000c40",
+          "display_binary64": "3.5"
+        },
+        {
+          "binary64_le": "0a3ba10dc6e11040",
+          "display_binary64": "4.220482075658547"
+        }
+      ],
+      "desired_offset_m": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000c40",
+          "display_binary64": "3.5"
+        },
+        {
+          "binary64_le": "0000000000002ac0",
+          "display_binary64": "-13.0"
+        }
+      ],
+      "seconds": {
+        "binary64_le": "000000000000d03f",
+        "display_binary64": "0.25"
+      },
+      "expected_smooth_offset_m": [
+        {
+          "binary64_le": "9c1596ca809ced3f",
+          "display_binary64": "0.925354381252578"
+        },
+        {
+          "binary64_le": "0000000000000c40",
+          "display_binary64": "3.5"
+        },
+        {
+          "binary64_le": "7b7fb6fbb45e26c0",
+          "display_binary64": "-11.184974542644104"
+        }
+      ],
+      "expected_smooth_camera_m": [
+        {
+          "binary64_le": "b3c2521990b31340",
+          "display_binary64": "4.9253543812525775"
+        },
+        {
+          "binary64_le": "0000000000000c40",
+          "display_binary64": "3.5"
+        },
+        {
+          "binary64_le": "7b7fb6fbb45e26c0",
+          "display_binary64": "-11.184974542644104"
+        }
+      ],
+      "expected_immediate_offset_m": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000c40",
+          "display_binary64": "3.5"
+        },
+        {
+          "binary64_le": "0000000000002ac0",
+          "display_binary64": "-13.0"
+        }
+      ],
+      "expected_immediate_camera_m": [
+        {
+          "binary64_le": "0000000000001040",
+          "display_binary64": "4.0"
+        },
+        {
+          "binary64_le": "0000000000000c40",
+          "display_binary64": "3.5"
+        },
+        {
+          "binary64_le": "0000000000002ac0",
+          "display_binary64": "-13.0"
+        }
+      ],
+      "raw_endpoint_ignored": true
+    },
+    {
+      "id": "M03",
+      "presented_ownship_m": [
+        {
+          "binary64_le": "0000000000001840",
+          "display_binary64": "6.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "latest_raw_endpoint_m": [
+        {
+          "binary64_le": "0000000000c05940",
+          "display_binary64": "103.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        }
+      ],
+      "previous_smooth_offset_m": [
+        {
+          "binary64_le": "9c1596ca809ced3f",
+          "display_binary64": "0.925354381252578"
+        },
+        {
+          "binary64_le": "0000000000000c40",
+          "display_binary64": "3.5"
+        },
+        {
+          "binary64_le": "7b7fb6fbb45e26c0",
+          "display_binary64": "-11.184974542644104"
+        }
+      ],
+      "desired_offset_m": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000c40",
+          "display_binary64": "3.5"
+        },
+        {
+          "binary64_le": "0000000000002ac0",
+          "display_binary64": "-13.0"
+        }
+      ],
+      "seconds": {
+        "binary64_le": "0000000000000000",
+        "display_binary64": "0.0"
+      },
+      "expected_smooth_offset_m": [
+        {
+          "binary64_le": "9c1596ca809ced3f",
+          "display_binary64": "0.925354381252578"
+        },
+        {
+          "binary64_le": "0000000000000c40",
+          "display_binary64": "3.5"
+        },
+        {
+          "binary64_le": "7b7fb6fbb45e26c0",
+          "display_binary64": "-11.184974542644104"
+        }
+      ],
+      "expected_smooth_camera_m": [
+        {
+          "binary64_le": "b3c2521990b31b40",
+          "display_binary64": "6.9253543812525775"
+        },
+        {
+          "binary64_le": "0000000000000c40",
+          "display_binary64": "3.5"
+        },
+        {
+          "binary64_le": "7b7fb6fbb45e26c0",
+          "display_binary64": "-11.184974542644104"
+        }
+      ],
+      "expected_immediate_offset_m": [
+        {
+          "binary64_le": "0000000000000000",
+          "display_binary64": "0.0"
+        },
+        {
+          "binary64_le": "0000000000000c40",
+          "display_binary64": "3.5"
+        },
+        {
+          "binary64_le": "0000000000002ac0",
+          "display_binary64": "-13.0"
+        }
+      ],
+      "expected_immediate_camera_m": [
+        {
+          "binary64_le": "0000000000001840",
+          "display_binary64": "6.0"
+        },
+        {
+          "binary64_le": "0000000000000c40",
+          "display_binary64": "3.5"
+        },
+        {
+          "binary64_le": "0000000000002ac0",
+          "display_binary64": "-13.0"
+        }
+      ],
+      "raw_endpoint_ignored": true
+    }
+  ],
+  "filter_branch_cases": [
+    {
+      "id": "B01",
+      "context": "first draw/not ready",
+      "response": "smooth",
+      "expected_offset": "EXACT_DESIRED",
+      "no_stale_mode_blend": true
+    },
+    {
+      "id": "B02",
+      "context": "paused",
+      "response": "smooth",
+      "expected_offset": "EXACT_DESIRED"
+    },
+    {
+      "id": "B03",
+      "context": "interior mode0 or3",
+      "response": "smooth",
+      "expected_offset": "EXACT_EYE_IN_PRESENTED_BASIS"
+    },
+    {
+      "id": "B04",
+      "context": "live external ready, seconds0, same desired pose",
+      "response": "smooth",
+      "expected_offset": "EXACT_PREVIOUS",
+      "filter_advance": false
+    },
+    {
+      "id": "B05",
+      "context": "live external ready, seconds0, same desired pose",
+      "response": "immediate",
+      "expected_offset": "EXACT_DESIRED",
+      "repeat_idempotent": true
+    },
+    {
+      "id": "B06",
+      "context": "mode/response adopted while paused",
+      "response": "either",
+      "expected_offset_next_draw": "EXACT_DESIRED",
+      "no_stale_mode_blend": true
+    },
+    {
+      "id": "B07",
+      "context": "Orbit desired y below existing plane-floor+0.35",
+      "response": "either",
+      "expected": "existing desired and final camera floor clamps retained; no aircraft or plane movement"
+    },
+    {
+      "id": "B08",
+      "context": "coherent origin rebase by exact common translation(16,0,-8)",
+      "response": "either",
+      "expected": "camera and ownship receive same common translation; relative offset and view direction unchanged"
+    }
+  ],
+  "authority_oracle": {
+    "page_only_boundary": "Capture after existing ordinary pause/capture-retirement succeeds. No native wall advancement is introduced merely to test the page. Native readback copies are allowed for host admission; compare actual complete typed state, not arbitrary sentinel subset.",
+    "exact_unchanged": [
+      "full native Readback incl session/tick/debt/held controls/aircraft/weather/engine/event/command history",
+      "native submit/step/lifecycle/open/close call counters",
+      "mapper preset/calibration/capture/generation/edge/rearm state",
+      "observed recording/status/samples",
+      "same-mode aid geometry/requested manual visibility"
+    ],
+    "allowed_presentation_mutations": "Only validated settings/look-angle reset/follow-offset reseed and page draft/focus/lifecycle described per case.",
+    "external_lifecycle_exclusion": "L11/L12/L14/L15 include external lifecycle changes; compare the callback/reset against immediately post-lifecycle authority. Never require successful restart or real pause/resume to equal a no-lifecycle native history.",
+    "mapped_action_scope": "A cases begin after an existing action is admitted; physical Raw polling is not asserted nonexistent. Compare accepted-action effect to unchanged input/native authority with identical wall/lifecycle schedule.",
+    "mode_change_exception": "Existing explicit traditional-mode visibility/layout effects permitted; same-mode new lookout/FOV/comfort do not add side effects. If an existing geometry condition requires pointer retirement, preserve ADR017 ordering; page baseline has no active capture."
+  },
+  "legacy_source_constraints": [
+    "Keep Cockpit/Panel original gaze matrix multiplication and normalized base evaluation order unchanged.",
+    "Preserve original eye(-.27,.67,-.92),focus(-.08,.255,-1.535),near.1,Orbit floor and four-mode proof API.",
+    "No consumer, native/source/model/schema/Mapper/action or flight-aid policy implementation exists in this packet."
+  ]
+}

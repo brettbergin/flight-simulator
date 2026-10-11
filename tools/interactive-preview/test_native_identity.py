@@ -57,6 +57,22 @@ EXPECTED_SOURCE_PATHS = (
 )
 
 
+# Independent authored roster, not derived from reconstruction_paths.
+EXPECTED_CAMERA_RECONSTRUCTION_PATHS = (
+    'app/camera/view_policy.gd',
+    'app/ui/camera/views_panel.gd',
+    'tests/camera/.gitattributes',
+    'tests/camera/README.md',
+    'tests/camera/expected-v1.json',
+    'tests/camera/generate.py',
+    'tests/camera/root-ratification-v1.json',
+    'tests/camera/source-binding-v1.json',
+    'tests/camera/policy_checks.gd',
+    'tests/camera/panel_checks.gd',
+    'tests/camera/scene_checks.gd',
+)
+
+
 def fixture(root, family='MSVC', variant=n.VARIANTS[0]):
     repo, build = root / 'repo', root / 'build'
     repo.mkdir(); build.mkdir()
@@ -67,6 +83,8 @@ def fixture(root, family='MSVC', variant=n.VARIANTS[0]):
     put(repo, 'tools/bootstrap/source-selection.cmake',
         'set(JSBSIM_BUILD_CONTROL_PATHS\n' + '\n'.join(n.CONTROLS) + ')\n')
     put(repo, n.TEMPLATE, n.TEMPLATE_BYTES)
+    for name in EXPECTED_CAMERA_RECONSTRUCTION_PATHS:
+        put(repo, name, 'synthetic camera authoring ' + name + '\n')
     (repo/'deps/jsbsim').mkdir(parents=True)
     (repo/'bundle/vendor').mkdir(parents=True)
     source = repo / ('deps/jsbsim' if variant == n.VARIANTS[0] else 'bundle/vendor')
@@ -398,6 +416,52 @@ class IdentityTests(unittest.TestCase):
 
     def test_duplicate_json_fields_rejected(self):
         with self.assertRaises(ValueError):n.unique_json(b'{"schema":1,"schema":2}')
+
+    def test_camera_reconstruction_closed_producer_and_drift(self):
+        destination = self.root/'camera-source'
+        destination.mkdir()
+        qualified_before = self.qualify()
+        with patch.object(n.subprocess, 'check_output', return_value='1'*40+'\n'):
+            n.reconstruction(self.repo, destination)
+            n.check_reconstruction(self.repo, destination)
+            rows = json.loads((destination/'native-reconstruction.json').read_bytes())['files']
+            camera_rows = [row for row in rows if row['path'].startswith(
+                ('app/camera/', 'app/ui/camera/', 'tests/camera/'))]
+            self.assertEqual([row['path'] for row in camera_rows],
+                             sorted(EXPECTED_CAMERA_RECONSTRUCTION_PATHS))
+            for row in camera_rows:
+                raw = (self.repo/row['path']).read_bytes()
+                self.assertEqual(row['bytes'], len(raw))
+                self.assertEqual(row['sha256'], sha(raw))
+                self.assertEqual((destination/'repository'/row['path']).read_bytes(), raw)
+            with self.assertRaisesRegex(ValueError, 'output must be fresh'):
+                n.reconstruction(self.repo, destination)
+            policy = destination/'repository/app/camera/view_policy.gd'
+            raw = policy.read_bytes()
+            policy.unlink()
+            with self.assertRaises(ValueError):
+                n.check_reconstruction(self.repo, destination)
+            policy.write_bytes(raw+b'# changed')
+            with self.assertRaises(ValueError):
+                n.check_reconstruction(self.repo, destination)
+            policy.write_bytes(raw)
+            for extra in ('view_policy.gd.uid', 'extra.gd'):
+                file = policy.with_name(extra)
+                file.write_bytes(b'uid://abc123\n')
+                with self.assertRaisesRegex(ValueError, 'omitted/extra source files'):
+                    n.check_reconstruction(self.repo, destination)
+                file.unlink()
+            n.check_reconstruction(self.repo, destination)
+        self.assertEqual(self.qualify(), qualified_before,
+                         'Camera reconstruction must not change compiled identity')
+
+    def test_missing_authored_camera_file_cannot_be_reconstructed(self):
+        (self.repo/'tests/camera/expected-v1.json').unlink()
+        destination = self.root/'missing-camera-source'
+        destination.mkdir()
+        with patch.object(n.subprocess, 'check_output', return_value='1'*40+'\n'):
+            with self.assertRaises((ValueError, FileNotFoundError)):
+                n.reconstruction(self.repo, destination)
 
     def test_reconstruction_complete_current_overlay_and_tampering(self):
         destination=self.root/'source';destination.mkdir()
