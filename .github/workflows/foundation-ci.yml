@@ -59,12 +59,39 @@ jobs:
             'tests/persistence/local_players/reference/generate.py' = 'a695fa0d06a8b91bed3b3117789c09b2fdb3df0e5e0afe7aa4bd9069d63374ed'
             'tests/persistence/local_players/reference/source-binding-v1.json' = '37d551c29b6e14c51f6d0c0ca37893680a57520b06ffa9f2f046919820eeaa95'
             'tests/persistence/local_players/reference/README.md' = '70507f04f9fdaadd5677e5ff5636c9cc30fbacc0bd9de788c0d7f8234635ec72'
+            'tests/persistence/local_players/service_reference/expected-v1.json' = '61078c6aea80de7d15b2d0fe8a94a796a24086ea270f64e98fa9074aa8aa7860'
+            'tests/persistence/local_players/service_reference/generate.py' = 'ecc26633c8f1569b4d5e854915c371f53aaee558e5bb22f6249d7e8440c86efd'
+            'tests/persistence/local_players/service_reference/source-binding-v1.json' = '0e431ecd198388e29ad40e2209327d68aa31c55b7407d1bc914e0f0a3bfb5c4c'
+            'tests/persistence/local_players/service_reference/README.md' = 'a6446d658d5d4b8def14cd77e87f2ec3f9c591091b8335b132db94ecdbacb783'
+            'tests/persistence/local_players/full_record_reference/generate.py' = '431da3b2c7d752816653e7b78e887f7189b6d2fb548fd40f2c51b3f9d8b686e0'
+            'tests/persistence/local_players/full_record_reference/expected-v1.json' = '164aad9b74de33b04a6a69734116eab899dceaf696135137b9963f679968b722'
+            'tests/persistence/local_players/full_record_reference/source-binding-v1.json' = 'e8b1cf26e233bb0205a0cc918d8c62376aab9e861c8c7f7f76968811c3e39362'
+            'tests/persistence/local_players/full_record_reference/README.md' = 'e2cddabda7cdc6f4677a5830c547be6ac775cccf5f465d2a2bf0b0e7ee51e478'
+            'tests/persistence/local_players/full_record_reference/player-summary-v1.json' = '1bb1781e8484ceafc6ce2e3ae421112d71004bdbaae713127c7a31d50f28f2b0'
+            'docs/contracts/local-players/full-record-reference-amendment-v1.md' = '876edc5805f8ed9e497eed7e1bd99635d2441db9cd43b891dc4c2937d04ad91c'
+            'docs/contracts/local-players/service-lifecycle-amendment-v1.md' = '5c42070514a49b3a2b678cbc039fdc832dfe69a6589969a9b675d1cfc5b83f3f'
+            'docs/contracts/local-players/reservation-and-export-spool-v1.md' = 'e16f2c8835144179d5f1ce386e96cdc8c348c88bf09e7e80a0f49ffab712ce47'
+            'docs/contracts/local-players/test-scheduler-v1.md' = 'ca6f1bec9002b14235e6c0997e7dd89823f630f885372548a9c44adfd0dde2fd'
+            'tests/persistence/local_players/reservation_reference/expected-v1.json' = '2bbe1ced7a5d30ae1a469eb5da1675779028fceaf9779fb309d78e356b22cd86'
+            'tests/persistence/local_players/reservation_reference/generate.py' = 'e9da454d83bf62f6e42a5746d414acc524df0f5616f2b9861cad01f00d274f50'
+            'tests/persistence/local_players/reservation_reference/source-binding-v1.json' = 'af4d754440c4630afd09ccd71061868120e92325817c55a3a4e54b2c0bef19ed'
+            'tests/persistence/local_players/reservation_reference/README.md' = '03fe9f18d76edb7723687ffc5491e03ebebe7c10df75f20f3b46401c3128e1f7'
+            'docs/contracts/local-players/compiled-source-allocation-v1.json' = 'a3269f6ff8a4eddcdf4db45d0736e951d885e1c1fc11e7ecd2a0f2e22cd49ab1'
+            'docs/contracts/local-players/test-capability-v1.md' = 'a7c66c5c588cd5984070781310f77906839c9b5ad703ab70a1db09a629620bed'
+            'docs/contracts/local-players/recovery-v1.md' = 'd7349a672519a9c7e3d367d5f756adbcc0507a9138b800500805687782f90859'
+            'docs/decisions/026-durable-local-players-and-practice-history.md' = '0d2ea8c0d88dbd7885bf73e8677d4acca509aba0f40517200407c2442299f4ef'
           }
           foreach ($name in $localPlayerPins.Keys) {
             if ((Get-FileHash -LiteralPath $name -Algorithm SHA256).Hash.ToLowerInvariant() -cne $localPlayerPins[$name]) { throw 'Frozen local-player input changed; reviewed successor contract required' }
           }
           python -B tests/persistence/local_players/reference/generate.py --check
           if ($LASTEXITCODE -ne 0) { throw 'Independent local-player value reference reproduction failed' }
+          python -B tests/persistence/local_players/service_reference/generate.py --check
+          if ($LASTEXITCODE -ne 0) { throw 'Independent local-player service reference reproduction failed' }
+          python -B tests/persistence/local_players/full_record_reference/generate.py --check --schema-source schemas/save/local-players/v1/schema-v1.sql
+          if ($LASTEXITCODE -ne 0) { throw 'Independent local-player full-record reference reproduction failed' }
+          python -B tests/persistence/local_players/reservation_reference/generate.py --check
+          if ($LASTEXITCODE -ne 0) { throw 'Independent local-player reservation reference reproduction failed' }
       - name: Install locked contract validators
         run: npm ci --ignore-scripts --prefix schemas
       - name: Check reconstruction declaration rejection cases

@@ -44,3 +44,6 @@ tools/bootstrap/build-local-window.ps1 text eol=lf
 # Exact local-player DDL/codec and independent reference bytes.
 schemas/save/local-players/** text eol=lf
 tests/persistence/local_players/reference/** text eol=lf
+tests/persistence/local_players/service_reference/** text eol=lf
+tests/persistence/local_players/full_record_reference/** text eol=lf
+tests/persistence/local_players/reservation_reference/** text eol=lf

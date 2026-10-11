@@ -156,7 +156,11 @@
     "docs/contracts/local-players/test-capability-v1.md",
     "schemas/save/local-players/v1/schema-v1.sql",
     "schemas/save/local-players/v1/preferences-codec-v1.json",
-    "schemas/save/local-players/v1/schema-binding-v1.json"
+    "schemas/save/local-players/v1/schema-binding-v1.json",
+    "docs/contracts/local-players/service-lifecycle-amendment-v1.md",
+    "docs/contracts/local-players/full-record-reference-amendment-v1.md",
+    "docs/contracts/local-players/reservation-and-export-spool-v1.md",
+    "docs/contracts/local-players/test-scheduler-v1.md"
   ],
   "test_sources": {
     "shared_core": [
@@ -182,11 +186,146 @@
       "tests/persistence/local_players/reference/source-binding-v1.json",
       "tests/persistence/local_players/reference/README.md"
     ],
+    "service_reference": [
+      "tests/persistence/local_players/service_reference/expected-v1.json",
+      "tests/persistence/local_players/service_reference/generate.py",
+      "tests/persistence/local_players/service_reference/source-binding-v1.json",
+      "tests/persistence/local_players/service_reference/README.md"
+    ],
+    "full_record_reference": [
+      "tests/persistence/local_players/full_record_reference/expected-v1.json",
+      "tests/persistence/local_players/full_record_reference/generate.py",
+      "tests/persistence/local_players/full_record_reference/source-binding-v1.json",
+      "tests/persistence/local_players/full_record_reference/README.md",
+      "tests/persistence/local_players/full_record_reference/player-summary-v1.json"
+    ],
+    "reservation_reference": [
+      "tests/persistence/local_players/reservation_reference/expected-v1.json",
+      "tests/persistence/local_players/reservation_reference/generate.py",
+      "tests/persistence/local_players/reservation_reference/source-binding-v1.json",
+      "tests/persistence/local_players/reservation_reference/README.md"
+    ],
     "metadata": [
       "tests/persistence/local_players/CMakeLists.txt",
       "tests/persistence/local_players/README.md"
     ],
     "rule": "Exact target-specific compile lists; test sources and source-control hashes separately bound in proof input manifest. No silent source glob, optional missing target, mock positive service, guessed count, reference mutation or test-root hook in production. Published native.cpp drives store/crash suites, codec.cpp drives value references; no value_refs.cpp/repository.cpp test substitution. crash_actor.cpp and faults/lock_actor.cpp are separate real Windows processes, test-only and independently hash/command bound."
+  },
+  "added_contract_and_reference_bindings": {
+    "status": "PROPOSED_FIXED_SOURCE_INPUTS_NOT_RUNTIME_EVIDENCE",
+    "rows": [
+      {
+        "path": "docs/contracts/local-players/service-lifecycle-amendment-v1.md",
+        "bytes": 16411,
+        "sha256": "5c42070514a49b3a2b678cbc039fdc832dfe69a6589969a9b675d1cfc5b83f3f",
+        "role": "normative companion; proposed until checked adoption"
+      },
+      {
+        "path": "docs/contracts/local-players/full-record-reference-amendment-v1.md",
+        "bytes": 3077,
+        "sha256": "876edc5805f8ed9e497eed7e1bd99635d2441db9cd43b891dc4c2937d04ad91c",
+        "role": "normative companion; proposed until checked adoption"
+      },
+      {
+        "path": "docs/contracts/local-players/reservation-and-export-spool-v1.md",
+        "bytes": 13122,
+        "sha256": "e16f2c8835144179d5f1ce386e96cdc8c348c88bf09e7e80a0f49ffab712ce47",
+        "role": "normative companion; proposed until checked adoption"
+      },
+      {
+        "path": "docs/contracts/local-players/test-scheduler-v1.md",
+        "bytes": 16743,
+        "sha256": "ca6f1bec9002b14235e6c0997e7dd89823f630f885372548a9c44adfd0dde2fd",
+        "role": "normative companion; proposed until checked adoption"
+      },
+      {
+        "path": "tests/persistence/local_players/service_reference/expected-v1.json",
+        "bytes": 468270,
+        "sha256": "61078c6aea80de7d15b2d0fe8a94a796a24086ea270f64e98fa9074aa8aa7860",
+        "role": "fixed independent reference input; not runtime evidence"
+      },
+      {
+        "path": "tests/persistence/local_players/service_reference/generate.py",
+        "bytes": 28357,
+        "sha256": "ecc26633c8f1569b4d5e854915c371f53aaee558e5bb22f6249d7e8440c86efd",
+        "role": "fixed independent reference input; not runtime evidence"
+      },
+      {
+        "path": "tests/persistence/local_players/service_reference/source-binding-v1.json",
+        "bytes": 7911,
+        "sha256": "0e431ecd198388e29ad40e2209327d68aa31c55b7407d1bc914e0f0a3bfb5c4c",
+        "role": "fixed independent reference input; not runtime evidence"
+      },
+      {
+        "path": "tests/persistence/local_players/service_reference/README.md",
+        "bytes": 3245,
+        "sha256": "a6446d658d5d4b8def14cd77e87f2ec3f9c591091b8335b132db94ecdbacb783",
+        "role": "fixed independent reference input; not runtime evidence"
+      },
+      {
+        "path": "tests/persistence/local_players/full_record_reference/expected-v1.json",
+        "bytes": 3427125,
+        "sha256": "164aad9b74de33b04a6a69734116eab899dceaf696135137b9963f679968b722",
+        "role": "fixed independent reference input; not runtime evidence"
+      },
+      {
+        "path": "tests/persistence/local_players/full_record_reference/generate.py",
+        "bytes": 30670,
+        "sha256": "431da3b2c7d752816653e7b78e887f7189b6d2fb548fd40f2c51b3f9d8b686e0",
+        "role": "fixed independent reference input; not runtime evidence"
+      },
+      {
+        "path": "tests/persistence/local_players/full_record_reference/source-binding-v1.json",
+        "bytes": 6050,
+        "sha256": "e8b1cf26e233bb0205a0cc918d8c62376aab9e861c8c7f7f76968811c3e39362",
+        "role": "fixed independent reference input; not runtime evidence"
+      },
+      {
+        "path": "tests/persistence/local_players/full_record_reference/README.md",
+        "bytes": 6097,
+        "sha256": "e2cddabda7cdc6f4677a5830c547be6ac775cccf5f465d2a2bf0b0e7ee51e478",
+        "role": "fixed independent reference input; not runtime evidence"
+      },
+      {
+        "path": "tests/persistence/local_players/full_record_reference/player-summary-v1.json",
+        "bytes": 7641,
+        "sha256": "1bb1781e8484ceafc6ce2e3ae421112d71004bdbaae713127c7a31d50f28f2b0",
+        "role": "fixed independent reference input; not runtime evidence"
+      },
+      {
+        "path": "tests/persistence/local_players/reservation_reference/expected-v1.json",
+        "bytes": 17582,
+        "sha256": "2bbe1ced7a5d30ae1a469eb5da1675779028fceaf9779fb309d78e356b22cd86",
+        "role": "fixed independent reference input; not runtime evidence"
+      },
+      {
+        "path": "tests/persistence/local_players/reservation_reference/generate.py",
+        "bytes": 11714,
+        "sha256": "e9da454d83bf62f6e42a5746d414acc524df0f5616f2b9861cad01f00d274f50",
+        "role": "fixed independent reference input; not runtime evidence"
+      },
+      {
+        "path": "tests/persistence/local_players/reservation_reference/source-binding-v1.json",
+        "bytes": 4302,
+        "sha256": "af4d754440c4630afd09ccd71061868120e92325817c55a3a4e54b2c0bef19ed",
+        "role": "fixed independent reference input; not runtime evidence"
+      },
+      {
+        "path": "tests/persistence/local_players/reservation_reference/README.md",
+        "bytes": 2924,
+        "sha256": "03fe9f18d76edb7723687ffc5491e03ebebe7c10df75f20f3b46401c3128e1f7",
+        "role": "fixed independent reference input; not runtime evidence"
+      }
+    ],
+    "rule": "All17 exact public paths are mandatory independent inputs. The four companion paths append to ordered_contract_inputs and therefore change CONTRACT_SHA256/component identity after actual reviewed adoption. The13 reference files remain qualification/source-package inputs, not new compiled source slots, build controls, target executables, or CTest names. Rehash exact raw UTF8 LF bytes and run all fixed reference generators read-only before any qualification; missing, extra, duplicate or changed expected/generator inputs fail. Bind actual test/qualifier use before execution; no optional reference groups or output-derived expected values.",
+    "historical_binding_rule": "Frozen reference source-binding metadata describes its authoring provenance, including earlier proposed allocation snapshots; it is not an assertion that those historical source hashes equal later adopted contract bytes. Independently bind the actual reviewed contract-input suffix and exact reference bytes in the fresh proof input manifest. Preserve original114/72/66 and all110 targets/generator/export bytes; conditional recipes do not constitute real allocator/SQLite/Win32/worker evidence.",
+    "generator_checks": [
+      "python -B tests/persistence/local_players/reference/generate.py --check",
+      "python -B tests/persistence/local_players/service_reference/generate.py --check",
+      "python -B tests/persistence/local_players/full_record_reference/generate.py --check --schema-source schemas/save/local-players/v1/schema-v1.sql",
+      "python -B tests/persistence/local_players/reservation_reference/generate.py --check"
+    ],
+    "scope": "218 freezes concrete contracts, representation/charge ceilings, event/actor grammar and independent fixtures. 219 authors exact layouts, minimal terminal paths, sites and actual source hashes; independent review follows authoring and precedes compile/execution. Post-build evidence and actual DB/Win32/ClassDB/journeys remain separate. No unwritten source hashes are invented or required to author the contract."
   },
   "targets": [
     {
