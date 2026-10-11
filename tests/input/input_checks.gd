@@ -338,7 +338,57 @@ func _edges_and_failures() -> void:
 	_check(mapper.sample(button_raw,0).actions == ["view_cycle"],"observed_button_rising_action")
 	_check(mapper.sample(button_raw,0).actions.is_empty(),"observed_button_no_repeat")
 
+func _save_failure_diagnostics() -> void:
+	# Original closed transport examples, independent of any helper/process output.
+	var safe: Dictionary = {"stage":"install","chain":[{"type":"System.IO.IOException","hresult":-2147024864.0}]}
+	var marker: String = "PRESET_SAVE_FAILURE "
+	var formatted: String = Preset._save_failure_diagnostic([marker+JSON.stringify(safe)])
+	_check(formatted.begins_with(marker) and JSON.parse_string(formatted.trim_prefix(marker))==safe,"save_diagnostic_safe_fields_reconstructed")
+	var failures: Array = [
+		["missing",[]],
+		["wrong_outer_type",[17]],
+		["repeated_output",[marker+JSON.stringify(safe),marker+JSON.stringify(safe)]],
+		["no_marker",[JSON.stringify(safe)]],
+		["malformed",[marker+"{broken"]],
+		["oversized",[marker+"x".repeat(4096)]],
+		["extra_path",[marker+JSON.stringify({"stage":"install","chain":safe.chain,"path":"C:/private/profile"})]],
+		["unknown_stage",[marker+JSON.stringify({"stage":"C:/private/target","chain":safe.chain})]],
+		["null_chain",[marker+JSON.stringify({"stage":"install","chain":null})]],
+		["empty_chain",[marker+JSON.stringify({"stage":"install","chain":[]})]],
+		["too_many",[marker+JSON.stringify({"stage":"install","chain":safe.chain+safe.chain+safe.chain+safe.chain+safe.chain+safe.chain+safe.chain+safe.chain+safe.chain})]]]
+	var boundary_chain: Array = []
+	for i in range(8): boundary_chain.append({"type":"A".repeat(128),"hresult":0.0})
+	var maximum: Dictionary = {"stage":"install","chain":boundary_chain}
+	var maximum_result: String = Preset._save_failure_diagnostic([marker+JSON.stringify(maximum)])
+	_check(maximum_result.begins_with(marker) and JSON.parse_string(maximum_result.trim_prefix(marker))==maximum,"save_diagnostic_exact_chain_type_bounds")
+	failures.append(["nonfinite_hresult",[marker+'{"stage":"install","chain":[{"type":"System.IO.IOException","hresult":1e999}]}']])
+	failures.append(["malformed_then_valid",[marker+'{"path":"private"}'+"\n"+marker+JSON.stringify(safe)]])
+	for mutation in ["message","path_type","unicode_type","empty_type","long_type","string_hresult","bool_hresult","fraction_hresult","overflow_hresult","underflow_hresult","missing_hresult","entry_not_object"]:
+		var bad: Dictionary = safe.duplicate(true)
+		match mutation:
+			"message": bad.chain[0].message="Private error message"
+			"path_type": bad.chain[0].type="C:/private/target.tmp-123"
+			"unicode_type": bad.chain[0].type="System.IO."+String.chr(233)
+			"empty_type": bad.chain[0].type=""
+			"long_type": bad.chain[0].type="A".repeat(129)
+			"string_hresult": bad.chain[0].hresult="-2147024864"
+			"bool_hresult": bad.chain[0].hresult=true
+			"fraction_hresult": bad.chain[0].hresult=1.5
+			"overflow_hresult": bad.chain[0].hresult=2147483648
+			"underflow_hresult": bad.chain[0].hresult=-2147483649
+			"missing_hresult": bad.chain[0].erase("hresult")
+			"entry_not_object": bad.chain[0]="private"
+		failures.append([mutation,[marker+JSON.stringify(bad)]])
+	for row in failures:
+		_check(Preset._save_failure_diagnostic(row[1])=="unavailable","save_diagnostic_rejects_"+row[0])
+	for stage in ["canonical_source","canonical_target","drive","ancestor_guards","target_attributes","install"]:
+		for hresult in [-2147483648,2147483647]:
+			var boundary: Dictionary = {"stage":stage,"chain":[{"type":"A_1.+`","hresult":float(hresult)}]}
+			var result: String = Preset._save_failure_diagnostic([marker+JSON.stringify(boundary)])
+			_check(result.begins_with(marker) and JSON.parse_string(result.trim_prefix(marker))==boundary,"save_diagnostic_closed_stage_signed32_"+stage+"_"+str(hresult))
+
 func _codec() -> void:
+	_save_failure_diagnostics()
 	var preset := _preset()
 	var encoded: Dictionary = Preset.encode(preset)
 	_check(encoded.ok and encoded.value is PackedByteArray,"codec_encode_valid")
@@ -386,7 +436,8 @@ func _codec() -> void:
 		_check(retained,"codec_unsupported_platform_retains_temporary")
 		file_evidence = {"scope":"explicit disposable selected path","platform":OS.get_name(),"atomic_save_qualified":false,"unsupported_rejected":not unsupported.ok,"original_preserved":FileAccess.get_file_as_string(target)=="UNSUPPORTED_ORIGINAL_KEEP","retained_test_directory":directory}
 		return
-	_check(Preset.save(target,preset).ok,"codec_selected_save")
+	var saved: Dictionary = Preset.save(target,preset)
+	_check(saved.ok,"codec_selected_save")
 	var before := FileAccess.get_file_as_bytes(target)
 	var next := preset.duplicate(true)
 	next.name = "Original explicit replacement test"
@@ -414,7 +465,7 @@ func _codec() -> void:
 	_check(not Preset.decode(corrupt).ok,"codec_truncated_import_rejects")
 	_near(mapper.sample(_raw([KEY_W]),200000).axes.throttle,0.05,"failed_import_existing_mapper_unmodified")
 	var locked_result := _locked_replacement(target,next)
-	file_evidence = {"scope":"unique explicitly selected disposable paths; no pilot settings","save_replace_verified":replaced.ok and after != before and Preset.decode(after).ok,"replacement_failure_kind":"existing_directory_and_external_Windows_share_lock" if OS.get_name()=="Windows" else "existing_directory","locked_replacement":locked_result,"retained_test_directory":directory,"atomicity_limit":"Successful replacement and failures alone do not prove atomicity. Review the actual Windows replacement implementation separately; no power-loss durability or unsupported filesystem/hardware claim."}
+	file_evidence = {"scope":"unique explicitly selected disposable paths; no pilot settings","save_error":saved.error,"replacement_error":replaced.error,"save_replace_verified":replaced.ok and after != before and Preset.decode(after).ok,"replacement_failure_kind":"existing_directory_and_external_Windows_share_lock" if OS.get_name()=="Windows" else "existing_directory","locked_replacement":locked_result,"retained_test_directory":directory,"atomicity_limit":"Successful replacement and failures alone do not prove atomicity. Review the actual Windows replacement implementation separately; no power-loss durability or unsupported filesystem/hardware claim."}
 
 func _locked_replacement(target: String, prior_preset: Dictionary) -> Dictionary:
 	if OS.get_name() != "Windows": return {"tested":false,"reason":"Windows sharing fixture unavailable"}
@@ -446,10 +497,12 @@ func _locked_replacement(target: String, prior_preset: Dictionary) -> Dictionary
 	var rejected := false
 	var preserved := false
 	var retained := false
+	var save_error: String = ""
 	if locked:
 		var replacement := prior_preset.duplicate(true)
 		replacement.name = "Must not replace externally locked original"
 		var result: Dictionary = Preset.save(target,replacement)
+		save_error = result.error
 		rejected = not result.ok and not result.error.is_empty()
 		preserved = FileAccess.get_file_as_bytes(target) == old_bytes
 		var encoded_replacement: Dictionary = Preset.encode(replacement)
@@ -458,6 +511,27 @@ func _locked_replacement(target: String, prior_preset: Dictionary) -> Dictionary
 				retained = retained or FileAccess.get_file_as_bytes(target.get_base_dir().path_join(filename)) == encoded_replacement.value
 		_check(OS.is_process_running(pid),"codec_lock_remained_held_during_save")
 		_check(rejected,"codec_share_locked_replace_reports_failure")
+		_check(save_error.begins_with("Preset not saved:") and save_error.contains("original target preserved, temporary retained"),"codec_share_locked_error_clear_preservation")
+		_check(save_error.length()<=4352,"codec_share_locked_error_bounded")
+		_check(save_error.contains("helper_exit=2; helper_output=PRESET_SAVE_FAILURE "),"codec_share_locked_error_actual_helper_exit")
+		var diagnostic_text: String = save_error.get_slice("helper_output=PRESET_SAVE_FAILURE ",1)
+		var diagnostic: Variant = JSON.parse_string(diagnostic_text)
+		var closed_diagnostic: bool = diagnostic is Dictionary and diagnostic.size()==2 and diagnostic.has("stage") and diagnostic.has("chain")
+		_check(closed_diagnostic and diagnostic.get("stage")=="install","codec_share_locked_error_actual_install_stage")
+		var chain_valid: bool = closed_diagnostic and diagnostic.get("chain") is Array and diagnostic.chain.size()>=1 and diagnostic.chain.size()<=8
+		if chain_valid:
+			for entry in diagnostic.chain:
+				if not entry is Dictionary or entry.size()!=2 or not entry.has("type") or not entry.has("hresult"):
+					chain_valid = false
+					break
+				if not entry.type is String or entry.type.is_empty() or entry.type.length()>128 or typeof(entry.hresult) not in [TYPE_INT,TYPE_FLOAT] or not is_finite(float(entry.hresult)) or floor(float(entry.hresult))!=float(entry.hresult) or entry.hresult < -2147483648 or entry.hresult > 2147483647:
+					chain_valid = false
+					break
+				for i in entry.type.length():
+					var code: int = entry.type.unicode_at(i)
+					if not (code>=65 and code<=90 or code>=97 and code<=122 or code>=48 and code<=57 or code in [95,46,43,96]): chain_valid = false
+		_check(chain_valid,"codec_share_locked_error_closed_type_hresult_chain")
+		_check(not save_error.contains(target) and not save_error.contains(target.get_base_dir()) and not save_error.contains(target.get_base_dir().replace("/","\\")) and not save_error.contains(".tmp-"),"codec_share_locked_error_excludes_target_temporary_paths")
 		_check(preserved,"codec_share_locked_original_bytes_preserved")
 		_check(retained,"codec_share_locked_temporary_bytes_retained")
 	var signal_file := FileAccess.open(release,FileAccess.WRITE)
@@ -473,7 +547,7 @@ func _locked_replacement(target: String, prior_preset: Dictionary) -> Dictionary
 	var close_marker := FileAccess.file_exists(done) and FileAccess.get_file_as_string(done)=="CLOSED"
 	if not joined: OS.kill(pid) # Only the PID just created by this fixture; timeout still fails.
 	_check(joined and close_marker,"codec_owned_lock_child_retired")
-	return {"tested":locked,"rejected":rejected,"old_bytes_preserved":preserved,"temporary_retained":retained,"release_signal_written":release_written,"close_marker_observed":close_marker,"fixture_child_retired":joined}
+	return {"tested":locked,"save_error":save_error,"rejected":rejected,"old_bytes_preserved":preserved,"temporary_retained":retained,"release_signal_written":release_written,"close_marker_observed":close_marker,"fixture_child_retired":joined}
 
 func _run() -> Dictionary:
 	var decoded = JSON.parse_string(FileAccess.get_file_as_string("res://input_tests/reference.json"))

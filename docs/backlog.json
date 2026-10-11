@@ -7621,6 +7621,55 @@
         "WORLD-015",
         "WORLD-017"
       ]
+    },
+    {
+      "key": "PRESET-SAVE-DIAGNOSTICS",
+      "title": "Retain bounded Windows preset-save failure evidence",
+      "kind": "bug",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Retain privacy-preserving helper stage/type/HResult and actual save errors for the unreproduced selected-file replacement failure observed during taxi qualification. Preserve atomic save semantics and all existing failure checks.",
+      "depends_on": [
+        "INPUT-CONTROLS-CONTRACT"
+      ],
+      "owned_paths": [
+        "app/input/input_preset.gd",
+        "tests/input/input_checks.gd",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md"
+      ],
+      "acceptance": [
+        "Preserve ADR008/010 {ok,error}, validation/write/flush/close/reread and existing local-NTFS/reparse/atomic Replace/Move guards. No retry/delete/rename fallback or relaxed replacement checks.",
+        "Both save versions retain bounded helper failure stage, exception type and HResult without selected paths, exception messages, preset bytes or arbitrary child output.",
+        "Real Windows sharing-lock checks prove useful bounded diagnostics, preserved original bytes and retained temporary bytes; retain initial-save and replacement errors in the existing evidence.",
+        "Pass focused actual Windows input/save checks and fresh changed-source wholeflight/package qualification before taxi adoption. Carry unchanged native evidence only with exact source/control/binary correspondence and original attribution.",
+        "Keep the historical failure and unresolved cause visible; diagnostic acceptance does not close taxi/airfield/aircraft/pilot/phase gates."
+      ],
+      "evidence": [
+        "Retained failed wholeflight editor/portable/rebuilt context receipts; fresh helper10 and actual Godot60 diagnostic saves passed without reproducing historical failure. Future changed-source sharing-lock and complete delivery evidence required."
+      ],
+      "labels": [
+        "type:bug",
+        "phase:P2",
+        "area:input",
+        "priority:P1",
+        "status:in-progress"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/agent-operations.md",
+        "docs/decisions/008-input-presets.md",
+        "docs/decisions/010-original-piston-profile.md",
+        "docs/evidence/P2/input-controls.md"
+      ],
+      "requirements": [
+        "REAL-021",
+        "PRD-017",
+        "UX-013"
+      ]
     }
   ]
 }
