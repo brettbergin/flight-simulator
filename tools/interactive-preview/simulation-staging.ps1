@@ -1,4 +1,5 @@
 #Requires -Version 7.0
+. (Join-Path $PSScriptRoot 'wire-codec-staging.ps1')
 # Recursive authoring snapshot shared by project staging and corresponding source.
 function Get-SimulationSourceSnapshot {
  param([Parameter(Mandatory)][string]$SourceRoot,[string[]]$RequiredEntries=@('session_facade.gd','render_origin.gd'))
@@ -598,6 +599,8 @@ function Assert-FirstFlightSourceGroups {
 }
 function Write-SimulationCheckHarness {
  param([Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)][string]$RepoRoot,[switch]$IncludePiston)
+ $wireGroups=@(Get-WireCodecSourceGroups -RepoRoot $RepoRoot)
+ Copy-WireCodecSourceGroups -RepoRoot $RepoRoot -DestinationRoot $ProjectRoot -Groups $wireGroups
  $pistonChecks=if($IncludePiston){@'
  var piston_start_checks: int=checks
  var piston_start_failures: int=failures.size()
@@ -754,7 +757,7 @@ func execute() -> void:
   return
  identity_file.store_string(JSON.stringify(identity_receipt))
  identity_file.close()
- for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests","res://world/wind","res://ui/wind","res://wind_tests","res://wind_scene_tests","res://audio","res://ui/audio","res://audio_tests","res://ui/first_flight","res://world/synthetic","res://scenario_tests/first-flight","res://first_flight_ui_tests","res://world_tests/synthetic","res://first_flight_scene_tests"$pistonCompileFolder]:
+ for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests","res://world/wind","res://ui/wind","res://wind_tests","res://wind_scene_tests","res://audio","res://ui/audio","res://audio_tests","res://ui/first_flight","res://world/synthetic","res://scenario_tests/first-flight","res://first_flight_ui_tests","res://world_tests/synthetic","res://first_flight_scene_tests","res://wire_codec_tests"$pistonCompileFolder]:
   for name in DirAccess.get_files_at(folder):
    if name.ends_with(".gd"):
     var script=load(folder.path_join(name)) as Script
@@ -901,6 +904,17 @@ $pistonChecks
   stage("end","first_flight."+name)
   check(result.get("passed")==true and typeof(result.get("checks"))==TYPE_INT and result.checks>0 and result.get("failures") is Array and result.failures.is_empty(),"actual_first_flight_"+name+"_checks")
   first_flight_checks[name]=result
+ stage("begin","wire_codec")
+ var numeric: Dictionary=load("res://wire_codec_tests/checks.gd").run(ProjectSettings.globalize_path("res://piston-models"),$firstFlightPiston)
+ check(numeric.get("passed")==true and typeof(numeric.get("checks"))==TYPE_INT and numeric.checks>0 and numeric.get("failures") is Array and numeric.failures.is_empty(),"actual_native_wire_codec_checks")
+ if typeof(numeric.get("checks"))==TYPE_INT and numeric.checks>0: checks+=numeric.checks
+ var numeric_output: String=ProjectSettings.globalize_path("res://wire-codec-receipt.json") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("wire-codec-receipt.json")
+ var numeric_file=FileAccess.open(numeric_output,FileAccess.WRITE)
+ check(numeric_file!=null,"wire_codec_receipt_saved")
+ if numeric_file!=null:
+  numeric_file.store_string(JSON.stringify(numeric,"  "))
+  numeric_file.close()
+ stage("end","wire_codec")
  var report: Dictionary={"schema_version":1,"scope":"Headless actual-native facade and synthetic wire/render fixtures; GPU and pilot qualification separate","passed":failures.is_empty(),"checks":checks,"failures":failures.duplicate(),"facade":facade,"origin":origin,"participants":participants,"wire":wire,"scene":scene,"input":input,"input_scene":input_scene,"instruments":instruments,"cockpit":cockpit_checks,"freeflight":freeflight_checks,"observed":observed_checks,"observed_archive":archive_checks,"wind":wind_checks,"first_flight":first_flight_checks,"audio":audio_checks}
  var output: String=ProjectSettings.globalize_path("res://facade-check-receipt.json") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("facade-check-receipt.json")
  for argument in OS.get_cmdline_user_args():

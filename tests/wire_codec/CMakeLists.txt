@@ -1,0 +1,16 @@
+find_package(Python3 3.12 COMPONENTS Interpreter REQUIRED)
+add_custom_target(wire_numbers_reference_check
+  COMMAND "${Python3_EXECUTABLE}" -B "${CMAKE_CURRENT_SOURCE_DIR}/emit_reference.py" --check
+  COMMENT "Verify the unchanged independent 49-case binary64 table")
+add_executable(wire_numbers_native native.cpp ../../native/godot_bridge/src/wire_numbers.cpp)
+add_dependencies(wire_numbers_native wire_numbers_reference_check)
+target_compile_features(wire_numbers_native PRIVATE cxx_std_20)
+target_compile_definitions(wire_numbers_native PRIVATE FLIGHT_WIRE_NUMBERS_CORE_ONLY=1)
+target_include_directories(wire_numbers_native PRIVATE ../../native/godot_bridge/src)
+if(MSVC)
+  target_compile_options(wire_numbers_native PRIVATE /W4 /WX /permissive- /fp:strict)
+else()
+  target_compile_options(wire_numbers_native PRIVATE -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off -frounding-math)
+endif()
+add_test(NAME wire_numbers_native COMMAND wire_numbers_native)
+set_tests_properties(wire_numbers_native PROPERTIES TIMEOUT 30)

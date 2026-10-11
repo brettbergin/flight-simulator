@@ -27,7 +27,7 @@ Placeholders above are substituted with one closed variant ID and three lowercas
 - `jsbsim-1.3.1-event-aware-constant-power-v1`
 - `jsbsim-1.3.1-event-aware-coupled-midpoint-v1`
 
-Shape alone never establishes a reviewed backend: the existing corresponding-source selector must verify the complete selected source closure and derive its canonical identity. Include the fixed template in declared build-control inputs. Do not include generated output in those inputs or create a fingerprint cycle. Preserve existing selected-backend/materializer derivation, compiler/configuration controls, prefix spelling and ordered LF source hashing. The canonical interactive body begins `verified-jsbsim-backend:<digest>\njsbsim-build-controls:<digest>\n`, followed by the fifteen path/hash lines below; SHA256 of that UTF-8 body is SOURCE_FINGERPRINT. The compiled definition and `interactive-source-fingerprint.txt` must match it exactly.
+Shape alone never establishes a reviewed backend: the existing corresponding-source selector must verify the complete selected source closure and derive its canonical identity. Include the fixed template in declared build-control inputs. Do not include generated output in those inputs or create a fingerprint cycle. Preserve existing selected-backend/materializer derivation, compiler/configuration controls, prefix spelling and ordered LF source hashing. The canonical interactive body begins `verified-jsbsim-backend:<digest>\njsbsim-build-controls:<digest>\n`, followed by the twenty-five path/hash lines below; SHA256 of that UTF-8 body is SOURCE_FINGERPRINT. The compiled definition and `interactive-source-fingerprint.txt` must match it exactly.
 
 Facade preloads the generated resource and validates its schema, variant and digest shapes before constructing the bridge. `NATIVE` becomes a constant alias of its SOURCE_FINGERPRINT, preserving the WindCue constant alias. Missing, malformed or unstaged resources fail visibly at build/import/start before native allocation; no claimed live Readback is published. The native open reply must still match the expected source fingerprint, current profile/model/inventory, prepared world, wind, clock and other accepted metadata exactly. Copied Readback records the matched actual identity. Subsequent reply/admission/fault/retention rules remain unchanged.
 
@@ -54,6 +54,42 @@ The ordered closed interactive source roster is:
 13. `tests/engine/native-generate.py`
 14. `tests/engine/native-limits.hpp`
 15. `tests/engine/native-limits.json`
+16. `native/godot_bridge/src/bridge.cpp`
+17. `native/godot_bridge/src/codec.hpp`
+18. `native/godot_bridge/src/codec.cpp`
+19. `native/godot_bridge/src/worker.hpp`
+20. `native/godot_bridge/src/worker.cpp`
+21. `native/godot_bridge/src/interactive_worker.hpp`
+22. `native/godot_bridge/src/interactive_worker.cpp`
+23. `native/godot_bridge/src/interactive_bridge.cpp`
+24. `native/godot_bridge/src/wire_numbers.hpp`
+25. `native/godot_bridge/src/wire_numbers.cpp`
+
+### ADR023 first-party closure amendment (issue204)
+
+This proposed amendment consumes the accepted [ADR023](023-native-wire-binary64-decoding.md) contract and belongs to [repair #204](https://github.com/brettbergin/flight-simulator/issues/204). Its reviewed integration merge, not this private draft, authorizes the expanded qualification policy. Preserve the original ordered fifteen-source prefix byte for byte; append exactly the ten bridge/header source paths 16–25 above. This binds actual ClassDB registration, its codec/worker dependencies and the new stateless number utility. It does not add a session operation or alter vendor/model/physics source authority.
+
+The ordered build-control file roster expands from thirteen to fifteen. Preserve the original thirteen-path prefix and append only bridge CMake and wire-test CMake:
+
+1. `CMakeLists.txt`
+2. `CMakePresets.json`
+3. `third_party/dependencies.lock.json`
+4. `tools/bootstrap/source-selection.cmake`
+5. `tools/bootstrap/source-variant.py`
+6. `tools/bootstrap/coupled-source-variant.py`
+7. `tools/bootstrap/build.ps1`
+8. `tools/bootstrap/bootstrap.py`
+9. `native/fdm_jsbsim/CMakeLists.txt`
+10. `native/fdm_jsbsim/ground/CMakeLists.txt`
+11. `native/fdm_jsbsim/interactive/CMakeLists.txt`
+12. `tests/fdm/CMakeLists.txt`
+13. `native/fdm_jsbsim/interactive/native_identity.gd.in`
+14. `native/godot_bridge/CMakeLists.txt`
+15. `tests/wire_codec/CMakeLists.txt`
+
+These file inputs retain the existing LF-normalized path/hash concatenation and existing compiler/configuration scalar suffix. The template remains an input; generated output remains excluded. No schema identifier, generated six-line grammar, seven-build-witness roster, selected-backend derivation or source/archive rights policy changes. `PreviewNativeBuildIdentity/v2` retains its exact field names/types; its reviewed `source_bindings` policy now requires exactly these twenty-five ordered records. This is an explicit bounded roster amendment, not a general count override or acceptance of arbitrary source subsets.
+
+New builds must freshly reproduce the expanded build/source digests and stage their canonical generated resource. Historical fifteen-source v2 records/packages remain immutable historical evidence; the new qualifier must not reinterpret them as current twenty-five-source qualification. A new bridge fingerprint proves neither number-conversion correctness nor new physics validity. Actual strict Windows/Linux converter qualification, 49 independent bit references, atomic rejection/FENV preservation, migrated reader checks and separate editor/export/rebuilt-replacement WireCodec receipts remain repair acceptance gates. Existing native JSON serializer bytes, public wire schemas, method defaults, aircraft/model inventories, numerical references and budgets stay unchanged.
 
 Source-list changes require explicit review, rather than replacing the old count with an arbitrary new count. This LF/ordered identity is distinct from the FDM adapter's raw/sorted identity; do not interchange the algorithms.
 
@@ -69,7 +105,7 @@ New staging evidence uses this exact closed top-level shape. All SHA256 values a
 | backend_identity_sha256 | String, independently derived selected backend digest |
 | build_control_sha256 | String, independently reproduced accepted compiler/build-control digest |
 | declared_source_fingerprint | String, independently reproduced interactive digest |
-| source_bindings | Array of exactly fifteen records in the ordered roster above |
+| source_bindings | Array of exactly twenty-five records in the ordered roster above |
 | build_witnesses | Array of exactly seven records in the ordered build roster below |
 | resource | Exactly `{build_path:String,staged_path:String,bytes:int,sha256:String}` |
 | scope | String `Qualified declared source/build/resource identity; actual loaded facade and library identity require runtime evidence` |

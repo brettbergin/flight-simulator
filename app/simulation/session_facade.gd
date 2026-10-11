@@ -4,6 +4,7 @@ const U64 = preload("res://simulation/uint64.gd")
 const Frames = preload("res://simulation/canonical_frames.gd")
 const Origin = preload("res://simulation/render_origin.gd")
 const Wire = preload("res://simulation/wire_validation.gd")
+const NativeWireDecoder = preload("res://simulation/native_wire_decoder.gd")
 const NativeIdentity = preload("res://build/native_identity.gd")
 const QUANTA: int = 4000000
 const MAX_INT: int = 9223372036854775807
@@ -128,26 +129,21 @@ static func _keys(value: Dictionary, expected: Array) -> bool:
 	b.sort()
 	return a==b
 
-static func _same(a: Variant, b: Variant, decoded_wire: bool=false) -> bool:
+static func _same(a: Variant, b: Variant) -> bool:
 	if (a is float or a is int) and (b is float or b is int):
-		if not decoded_wire:
-			return float(a)==float(b)
-		# Godot JSON parsing and native binary64 dictionary values can differ by
-		# a few ULPs. This bounded codec allowance never applies to wire strings,
-		# ordering, native trace comparisons or locally coalesced pilot intent.
-		return absf(float(a)-float(b))<=8.0*2.220446049250313e-16*maxf(1.0,maxf(absf(float(a)),absf(float(b))))
+		return float(a)==float(b)
 	if a is Dictionary and b is Dictionary:
 		if not _keys(a,b.keys()):
 			return false
 		for key in a:
-			if not _same(a[key],b[key],decoded_wire):
+			if not _same(a[key],b[key]):
 				return false
 		return true
 	if a is Array and b is Array:
 		if a.size()!=b.size():
 			return false
 		for index in a.size():
-			if not _same(a[index],b[index],decoded_wire):
+			if not _same(a[index],b[index]):
 				return false
 		return true
 	return typeof(a)==typeof(b) and a==b
@@ -172,10 +168,8 @@ static func _finite_tree(value: Variant, depth: int=0) -> bool:
 	return value==null or value is String or value is int or value is bool
 
 static func _decode(encoded: String) -> Variant:
-	if encoded.length()>1048576:
-		return null
-	var parser:=JSON.new()
-	return parser.data if parser.parse(encoded)==OK else null
+	var decoded: Dictionary=NativeWireDecoder.decode(encoded)
+	return decoded.value if decoded.ok else null
 
 static func valid_axes(value: Variant, profile_id: String="original-interactive-prototype") -> bool:
 	if profile_id not in ["original-interactive-prototype","original-piston-prop-v1"]:
@@ -222,9 +216,9 @@ static func _piston_publication(aircraft: Dictionary, axes: Dictionary) -> bool:
 			return false
 		if system.id in ["fuel.total","propeller.angular_speed"] and float(system.value)<0.0:
 			return false
-		if system.id=="engine.throttle" and not _same(system.value,axes.throttle,true):
+		if system.id=="engine.throttle" and not _same(system.value,axes.throttle):
 			return false
-		if system.id=="engine.mixture" and not _same(system.value,axes.mixture,true):
+		if system.id=="engine.mixture" and not _same(system.value,axes.mixture):
 			return false
 	return valid_systems(_snapshot_systems(aircraft))
 
@@ -467,7 +461,7 @@ func _accept(reply: Dictionary, requested: int, initial: bool=false, step_reply:
 	if _profile==PISTON_PROFILE.id and not _piston_publication(aircraft,reply.held_axes):
 		return false
 	if initial and _profile==PISTON_PROFILE.id:
-		if not _same(reply.held_axes,{"kind":"axes","roll":0.0,"pitch":0.0,"yaw":0.0,"throttle":0.0,"mixture":0.0,"left_brake":1.0,"right_brake":1.0,"trim":0.0},true):
+		if not _same(reply.held_axes,{"kind":"axes","roll":0.0,"pitch":0.0,"yaw":0.0,"throttle":0.0,"mixture":0.0,"left_brake":1.0,"right_brake":1.0,"trim":0.0}):
 			return false
 		for system in aircraft.systems:
 			if system.id=="fuel.total" and absf(float(system.value)-100.0)>1e-10:
@@ -497,7 +491,7 @@ func _accept(reply: Dictionary, requested: int, initial: bool=false, step_reply:
 	var expected_systems: Dictionary = COLD_SYSTEMS.duplicate(true) if initial else (_snapshot_systems(_truth.aircraft) if _profile==PISTON_PROFILE.id else {})
 	for record in commands:
 		var next: Dictionary=U64.increment(command_cursor)
-		if not Wire.command(record) or not next.ok or record.sequence!=next.value or not _pending_commands.has(record.sequence) or not _same(record,_pending_commands[record.sequence],true):
+		if not Wire.command(record) or not next.ok or record.sequence!=next.value or not _pending_commands.has(record.sequence) or not _same(record,_pending_commands[record.sequence]):
 			return false
 		command_cursor=record.sequence
 		if record.payload.kind=="axes":
@@ -511,7 +505,7 @@ func _accept(reply: Dictionary, requested: int, initial: bool=false, step_reply:
 		if not Wire.event(record) or not next.ok or record.sequence!=next.value or not _pending_events.has(record.sequence):
 			return false
 		var expected: Dictionary=_pending_events[record.sequence]
-		if record.tick!=expected.tick or not _same(record.payload,expected.payload,true) or record.source_id!="session.owner" or record.confidence!="observed" or record.content_version!="0.1.0-prototype":
+		if record.tick!=expected.tick or not _same(record.payload,expected.payload) or record.source_id!="session.owner" or record.confidence!="observed" or record.content_version!="0.1.0-prototype":
 			return false
 		event_cursor=record.sequence
 	if step_reply:
@@ -530,11 +524,11 @@ func _accept(reply: Dictionary, requested: int, initial: bool=false, step_reply:
 				return false
 	elif not commands.is_empty() or not events.is_empty():
 		return false
-	if expected_axes!=null and not _same(reply.held_axes,expected_axes,true):
+	if expected_axes!=null and not _same(reply.held_axes,expected_axes):
 		return false
 	if _profile==PISTON_PROFILE.id and not _same(_snapshot_systems(aircraft),expected_systems):
 		return false
-	if not _same(aircraft.configuration.trim_fraction,reply.held_axes.trim,true):
+	if not _same(aircraft.configuration.trim_fraction,reply.held_axes.trim):
 		return false
 	var adjacent: bool=false
 	if _current!=null and _truth.session_id==aircraft.session_id:

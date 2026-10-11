@@ -1,4 +1,5 @@
 extends RefCounted
+const NativeWireDecoder = preload("res://simulation/native_wire_decoder.gd")
 # Original MIT. Actual GDExtension selector/codec/native status integration.
 # Root stages and authorizes this test after the native numerical gates.
 const LEGACY: String = "original-interactive-prototype"
@@ -27,7 +28,7 @@ func reply_shape(reply: Dictionary, is_open: bool, label: String) -> void:
 	check(actual==expected, label)
 
 func aircraft(reply: Dictionary) -> Dictionary:
-	var value: Variant = JSON.parse_string(reply.get("aircraft_json", ""))
+	var value: Variant = NativeWireDecoder.decode(reply.get("aircraft_json", "")).value
 	check(value is Dictionary, "Actual aircraft JSON exists")
 	return value if value is Dictionary else {}
 
@@ -168,7 +169,7 @@ func run(legacy_root: String, piston_root: String) -> Dictionary:
 		check(state.get("tick")=="1" and reply.held_axes.mixture==0.25, "Actual tick1 held mixture")
 		check(reply.get("applied_commands_json",[]).size()==5, "Five honest separately admitted records")
 		for i in mini(reply.get("applied_commands_json",[]).size(),payloads.size()):
-			var applied: Variant=JSON.parse_string(reply.applied_commands_json[i])
+			var applied: Variant=NativeWireDecoder.decode(reply.applied_commands_json[i]).value
 			check(applied is Dictionary and applied.sequence==str(i+1) and applied.tick=="1" and applied.payload==payloads[i], "Exact actual command echo "+str(i+1))
 		for id in ["engine.ignition_left","engine.ignition_right","engine.starter","fuel.feed"]:
 			check(system(state,id)==true, "Actual native applied Boolean "+id)

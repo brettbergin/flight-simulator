@@ -12,6 +12,7 @@ var fault_position: int=0
 var disposable_models: Dictionary={}
 
 class ObservedAdapter extends RefCounted:
+	const NativeWireDecoder = preload("res://simulation/native_wire_decoder.gd")
 	var native: RefCounted=ClassDB.instantiate("FlightInteractiveSession") as RefCounted
 	var mode: String
 	var position: int
@@ -31,7 +32,7 @@ class ObservedAdapter extends RefCounted:
 		elif mode=="extra_open": value.unknown=true
 		elif mode=="wrong_fingerprint": value.native_source_fingerprint=("0" if Facade.NATIVE[0]!="0" else "1")+Facade.NATIVE.substr(1)
 		elif mode.begins_with("initial_"):
-			var aircraft: Dictionary=JSON.parse_string(value.aircraft_json)
+			var aircraft: Dictionary=NativeWireDecoder.decode(value.aircraft_json).value
 			match mode:
 				"initial_fuel": _system(aircraft,"fuel.total").value=99.0
 				"initial_shaft": _system(aircraft,"propeller.angular_speed").value=0.01
@@ -73,7 +74,7 @@ class ObservedAdapter extends RefCounted:
 		var reply: Dictionary=native.call("step_fixed",count)
 		integrated+=int(reply.get("completed",0))
 		if mode=="wrong_echo" and not reply.applied_commands_json.is_empty():
-			var record: Dictionary=JSON.parse_string(reply.applied_commands_json[-1])
+			var record: Dictionary=NativeWireDecoder.decode(reply.applied_commands_json[-1]).value
 			record.payload.value=not record.payload.value
 			reply.applied_commands_json[-1]=JSON.stringify(record)
 		return reply

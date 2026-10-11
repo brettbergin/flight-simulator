@@ -6674,7 +6674,7 @@
         "phase:P2",
         "area:cockpit",
         "priority:P0",
-        "status:blocked"
+        "status:in-progress"
       ],
       "owned_paths": [
         "app/cockpit/instruments/native_readings.gd",
@@ -6695,7 +6695,35 @@
         "native/godot_bridge/src/wire_numbers.cpp",
         "native/godot_bridge/src/bridge.cpp",
         "native/godot_bridge/CMakeLists.txt",
-        "tests/wire_codec/"
+        "tests/wire_codec/",
+        "app/simulation/steady_wind_bridge_checks.gd",
+        "app/proof/interactive/preview.gd",
+        "app/proof/airborne/preview.gd",
+        "app/proof/proof.gd",
+        "app/proof/interactive/flight_camera_checks.gd",
+        "tests/interactive/bridge_profile_checks.gd",
+        "native/fdm_jsbsim/interactive/CMakeLists.txt",
+        "tools/interactive-preview/native-identity.py",
+        "tools/bootstrap/source-selection.cmake",
+        "CMakeLists.txt",
+        "tools/interactive-preview/wire-codec-staging.ps1",
+        "tools/interactive-preview/simulation-staging.ps1",
+        "tools/interactive-preview/run.ps1",
+        "tools/interactive-preview/package.mjs",
+        ".gitattributes",
+        "tools/export/proof.ps1",
+        "tools/preview/run.ps1",
+        "tools/benchmark/run.ps1",
+        "tools/ci/coupled-player.py",
+        "tools/ci/test_coupled_player.py",
+        ".github/workflows/foundation-ci.yml",
+        ".github/workflows/native-ci.yml",
+        "docs/decisions/016-generated-native-build-identity.md",
+        "docs/decisions/023-native-wire-binary64-decoding.md",
+        "docs/evidence/P2/native-wire-number-contract.md",
+        "tools/interactive-preview/test_native_identity.py",
+        "tests/interactive/source-fingerprint.mjs",
+        "tests/interactive/source-fingerprint.test.mjs"
       ],
       "docs": [
         "docs/decisions/007-sim-loop-facade.md",
@@ -6703,7 +6731,8 @@
         "docs/decisions/010-original-piston-profile.md",
         "docs/evidence/P3/original-piston-player.md",
         "docs/evidence/P2/propeller-presentation.md",
-        "docs/decisions/023-native-wire-binary64-decoding.md"
+        "docs/decisions/023-native-wire-binary64-decoding.md",
+        "docs/evidence/P2/piston-readings-decimal-admission.md"
       ],
       "requirements": [
         "PRD-002",

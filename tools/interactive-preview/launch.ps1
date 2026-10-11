@@ -1,6 +1,6 @@
 #Requires -Version 7.0
 [CmdletBinding()]
-param([switch]$HeadlessSmoke,[switch]$VisualSmoke,[switch]$Airborne)
+param([switch]$HeadlessSmoke,[switch]$VisualSmoke,[switch]$Airborne,[ValidateRange(1,600)][int]$SmokeTimeoutSeconds=120)
 $ErrorActionPreference='Stop'
 if($HeadlessSmoke -and $VisualSmoke){throw 'Choose one smoke mode'}
 $info=[Diagnostics.ProcessStartInfo]::new()
@@ -27,14 +27,30 @@ if($VisualSmoke) { $info.ArgumentList.Add('--');$info.ArgumentList.Add('--visual
 if($Airborne){if(!$HeadlessSmoke -and !$VisualSmoke){$info.ArgumentList.Add('--');$info.ArgumentList.Add('--airborne')}else{throw 'Airborne is for human mode only'}}
 $process=[Diagnostics.Process]::new()
 $process.StartInfo=$info
+$elapsed=[Diagnostics.Stopwatch]::StartNew()
 if(!$process.Start()){throw 'Preview did not start'}
 $stdout=$process.StandardOutput.ReadToEndAsync()
 $stderr=$process.StandardError.ReadToEndAsync()
-if($HeadlessSmoke -or $VisualSmoke) {
- if(!$process.WaitForExit(30000)){ $process.Kill($true); throw 'Preview smoke exceeded30seconds' }
-} else { $process.WaitForExit() }
 $log=if($VisualSmoke){'visual-smoke.log'}elseif($HeadlessSmoke){'portable-smoke.log'}else{'interactive.log'}
+if($HeadlessSmoke -or $VisualSmoke) {
+ if(!$process.WaitForExit($SmokeTimeoutSeconds*1000)){
+  $terminationError=''
+  try { $process.Kill($true) } catch { $terminationError=$_.Exception.Message }
+  $joined=$process.WaitForExit(10000)
+  $drained=$false; $drainError=''
+  try { $drained=[Threading.Tasks.Task]::WaitAll([Threading.Tasks.Task[]]@($stdout,$stderr),10000) } catch { $drainError=$_.Exception.Message }
+  $output=if($stdout.IsCompletedSuccessfully){$stdout.GetAwaiter().GetResult()}else{'[stdout did not finish draining]'}
+  $output+=if($stderr.IsCompletedSuccessfully){$stderr.GetAwaiter().GetResult()}else{'[stderr did not finish draining]'}
+  $elapsed.Stop()
+  $output+="`nPreview watchdog: elapsed_ms=$($elapsed.ElapsedMilliseconds); timeout_seconds=$SmokeTimeoutSeconds; joined=$joined; drained=$drained; termination_error=$terminationError; drain_error=$drainError"
+  try { $output | Set-Content -LiteralPath (Join-Path $PSScriptRoot $log) -Encoding utf8 } finally { $process.Dispose() }
+  Write-Output $output
+  throw "Preview smoke exceeded $SmokeTimeoutSeconds seconds; raw log retained; joined=$joined; drained=$drained"
+ }
+} else { $process.WaitForExit() }
+$elapsed.Stop()
 $output=$stdout.GetAwaiter().GetResult()+$stderr.GetAwaiter().GetResult()
+if($HeadlessSmoke -or $VisualSmoke){$output+="`nPreview supervisor: elapsed_ms=$($elapsed.ElapsedMilliseconds); timeout_seconds=$SmokeTimeoutSeconds"}
 $output | Set-Content -Encoding utf8 (Join-Path $PSScriptRoot $log)
 $exit=$process.ExitCode
 $process.Dispose()

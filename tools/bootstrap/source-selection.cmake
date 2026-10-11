@@ -97,7 +97,9 @@ set(JSBSIM_BUILD_CONTROL_PATHS
   tools/bootstrap/build.ps1 tools/bootstrap/bootstrap.py
   native/fdm_jsbsim/CMakeLists.txt native/fdm_jsbsim/ground/CMakeLists.txt
   native/fdm_jsbsim/interactive/CMakeLists.txt tests/fdm/CMakeLists.txt
-  native/fdm_jsbsim/interactive/native_identity.gd.in)
+  native/fdm_jsbsim/interactive/native_identity.gd.in
+  native/godot_bridge/CMakeLists.txt
+  tests/wire_codec/CMakeLists.txt)
 set(JSBSIM_BUILD_CONTROL_TEXT "")
 foreach(relative_path IN LISTS JSBSIM_BUILD_CONTROL_PATHS)
   set(control_path "${CMAKE_SOURCE_DIR}/${relative_path}")

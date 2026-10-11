@@ -9,6 +9,7 @@ const READBACK_KEYS: Array[String] = ["host_mode","error","historical","session_
 const DOUBLE_ARITHMETIC_ALLOWANCE: float = 0.000000000002
 
 class ObservedAdapter extends RefCounted:
+	const NativeWireDecoder = preload("res://simulation/native_wire_decoder.gd")
 	# Default six-method wrapper delegates to the actual native extension.
 	# Explicit synthetic modes reject close-pause before native submission,
 	# return an unjoined close acknowledgement without closing, or mutate owned
@@ -34,7 +35,7 @@ class ObservedAdapter extends RefCounted:
 		elif mode=="wind_echo": latest.wind_profile="calm"
 		elif mode=="wind_extra": latest.wind_setup={"profile":wind_profile}
 		elif mode=="wind_actual":
-			var weather: Dictionary=JSON.parse_string(latest.atmosphere_json)
+			var weather: Dictionary=NativeWireDecoder.decode(latest.atmosphere_json).value
 			weather.wind_toward_ned_mps.x=5.0
 			latest.atmosphere_json=JSON.stringify(weather)
 		return latest.duplicate(true)
@@ -68,19 +69,19 @@ class ObservedAdapter extends RefCounted:
 		elif mode == "malformed_aircraft":
 			reply.aircraft_json = "{"
 		elif mode == "negative_mass":
-			var aircraft: Dictionary = JSON.parse_string(reply.aircraft_json)
+			var aircraft: Dictionary = NativeWireDecoder.decode(reply.aircraft_json).value
 			aircraft.mass_kg = -1.0
 			reply.aircraft_json = JSON.stringify(aircraft)
 		elif mode == "negative_density":
-			var weather: Dictionary = JSON.parse_string(reply.atmosphere_json)
+			var weather: Dictionary = NativeWireDecoder.decode(reply.atmosphere_json).value
 			weather.density_kgpm3 = -1.0
 			reply.atmosphere_json = JSON.stringify(weather)
 		elif mode == "extra_position_member":
-			var aircraft: Dictionary = JSON.parse_string(reply.aircraft_json)
+			var aircraft: Dictionary = NativeWireDecoder.decode(reply.aircraft_json).value
 			aircraft.position.uncontracted = 1
 			reply.aircraft_json = JSON.stringify(aircraft)
 		elif mode == "wrong_weather_tick":
-			var weather: Dictionary = JSON.parse_string(reply.atmosphere_json)
+			var weather: Dictionary = NativeWireDecoder.decode(reply.atmosphere_json).value
 			weather.tick = "0"
 			reply.atmosphere_json = JSON.stringify(weather)
 		elif mode == "impossible_completed":
@@ -91,7 +92,7 @@ class ObservedAdapter extends RefCounted:
 		elif mode == "duplicate_command" and not reply.applied_commands_json.is_empty():
 			reply.applied_commands_json.append(reply.applied_commands_json[0])
 		elif mode == "unadmitted_command" and not reply.applied_commands_json.is_empty():
-			var command: Dictionary = JSON.parse_string(reply.applied_commands_json[0])
+			var command: Dictionary = NativeWireDecoder.decode(reply.applied_commands_json[0]).value
 			command.payload.roll = 0.5
 			reply.applied_commands_json[0] = JSON.stringify(command)
 		elif mode == "dropped_event":

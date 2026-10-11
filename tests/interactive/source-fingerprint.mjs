@@ -17,6 +17,16 @@ export const interactiveSources = Object.freeze([
   'tests/engine/native.cpp', 'tests/engine/native-mechanism.cpp',
   'tests/engine/native-validate.py', 'tests/engine/native-generate.py',
   'tests/engine/native-limits.hpp', 'tests/engine/native-limits.json',
+  'native/godot_bridge/src/bridge.cpp',
+  'native/godot_bridge/src/codec.hpp',
+  'native/godot_bridge/src/codec.cpp',
+  'native/godot_bridge/src/worker.hpp',
+  'native/godot_bridge/src/worker.cpp',
+  'native/godot_bridge/src/interactive_worker.hpp',
+  'native/godot_bridge/src/interactive_worker.cpp',
+  'native/godot_bridge/src/interactive_bridge.cpp',
+  'native/godot_bridge/src/wire_numbers.hpp',
+  'native/godot_bridge/src/wire_numbers.cpp',
 ]);
 
 // The build manifest is build-side provenance from the verified bootstrap,

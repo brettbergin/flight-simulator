@@ -1,4 +1,5 @@
 #include "codec.hpp"
+#include "wire_numbers.hpp"
 #include "worker.hpp"
 #ifdef FLIGHT_HAS_INTERACTIVE
 #include "interactive_worker.hpp"
@@ -133,6 +134,7 @@ class FlightProofSession final : public godot::RefCounted {
 void initialize(godot::ModuleInitializationLevel level) {
   if(level!=godot::MODULE_INITIALIZATION_LEVEL_SCENE) return;
   godot::ClassDB::register_class<FlightProofSession>();
+  register_wire_numbers();
 #ifdef FLIGHT_HAS_INTERACTIVE
   register_interactive_bridge();
 #endif

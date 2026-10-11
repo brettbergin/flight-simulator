@@ -23,7 +23,17 @@ set(INTERACTIVE_SOURCE_PATHS
   tests/engine/native-validate.py
   tests/engine/native-generate.py
   tests/engine/native-limits.hpp
-  tests/engine/native-limits.json)
+  tests/engine/native-limits.json
+  native/godot_bridge/src/bridge.cpp
+  native/godot_bridge/src/codec.hpp
+  native/godot_bridge/src/codec.cpp
+  native/godot_bridge/src/worker.hpp
+  native/godot_bridge/src/worker.cpp
+  native/godot_bridge/src/interactive_worker.hpp
+  native/godot_bridge/src/interactive_worker.cpp
+  native/godot_bridge/src/interactive_bridge.cpp
+  native/godot_bridge/src/wire_numbers.hpp
+  native/godot_bridge/src/wire_numbers.cpp)
 # Root supplies this only after verifying the complete selected backend closure.
 if(NOT DEFINED FLIGHT_JSBSIM_SOURCE_ROOT OR NOT IS_DIRECTORY "${FLIGHT_JSBSIM_SOURCE_ROOT}/src")
   message(FATAL_ERROR "A verified selected JSBSim source root is required")

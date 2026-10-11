@@ -32,6 +32,20 @@ jobs:
       - name: Check recursive simulation staging and drift rejection
         shell: pwsh
         run: ./tools/interactive-preview/simulation-staging.test.ps1
+      - name: Verify readonly frozen native-wire binary64 references and table
+        shell: pwsh
+        run: |
+          $referencePins = @{
+            'docs/evidence/P2/native-wire-number-reference.py' = '3783367f8bc110c8f4122187083aeef0e7ef8db49ec27c93b2a67732b65430d1'
+            'docs/evidence/P2/native-wire-number-reference.json' = '1cab52841eb0cb063d547bf90e7a50f04a1871a5293bdfee4e0a78ddb8940ff6'
+          }
+          foreach ($name in $referencePins.Keys) {
+            if ((Get-FileHash -LiteralPath $name -Algorithm SHA256).Hash.ToLowerInvariant() -cne $referencePins[$name]) { throw 'Frozen native-wire reference source changed' }
+          }
+          python -B docs/evidence/P2/native-wire-number-reference.py --check
+          if ($LASTEXITCODE -ne 0) { throw 'Frozen49 native-wire oracle reproduction failed' }
+          python -B tests/wire_codec/emit_reference.py --check
+          if ($LASTEXITCODE -ne 0) { throw 'Mechanical native-wire table differs from frozen oracle' }
       - name: Install locked contract validators
         run: npm ci --ignore-scripts --prefix schemas
       - name: Check reconstruction declaration rejection cases

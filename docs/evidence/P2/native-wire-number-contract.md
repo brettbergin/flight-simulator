@@ -1,6 +1,6 @@
 # Native wire binary64 contract evidence
 
-Status: **proposed documentation/reference packet for [#205](https://github.com/brettbergin/flight-simulator/issues/205)**, governed by [ADR023](../../decisions/023-native-wire-binary64-decoding.md). This supports P2 publication correctness under PRD-002/004/015/033. It implements no converter, changes no model and closes neither [readout repair #204](https://github.com/brettbergin/flight-simulator/issues/204) nor [shaft coverage #202](https://github.com/brettbergin/flight-simulator/issues/202). Root integrates maps and acceptance status after independent review; actual compiler and consumer qualification remain pending.
+Status: **accepted documentation/reference contract for [#205](https://github.com/brettbergin/flight-simulator/issues/205)** through [PR206](https://github.com/brettbergin/flight-simulator/pull/206), accepted main `f68d243623a697a6a500052f926cc6f8e203c240`, governed by [ADR023](../../decisions/023-native-wire-binary64-decoding.md). This supports P2 publication correctness under PRD-002/004/015/033. Contract acceptance implements no converter, changes no model and closes neither [readout repair #204](https://github.com/brettbergin/flight-simulator/issues/204) nor [shaft coverage #202](https://github.com/brettbergin/flight-simulator/issues/202). Current limited implementation results are recorded [separately](piston-readings-decimal-admission.md).
 
 ## Preserved old failure
 
@@ -48,7 +48,9 @@ python -B docs/evidence/P2/native-wire-number-reference.py --check
 
 The generator refuses to overwrite an existing fixture without a read-only check. A mismatching candidate never changes expected bits. Counts, exact Fraction selection and hand-known endian anchors passed reference-generation assertions. Independent review rederived all 49 cases using binade/scaled-significand integer division instead of the author oracle's ordered-bit search; exact bits and rejection categories agree. Its report SHA256 is `d2e0030c7f545860b4eac669996b8deaa49d84858f0f59cf7d5c08069f0807b7`. Independent interface/source review SHA256 is `02ec5c364b7bb1c09041f43663d725619b06dea4cdeb6e876e3c7f97f55b2d70`; its bounds, converter-result admission and Unicode clarifications are incorporated in ADR023. These are oracle observations only, not candidate converter results.
 
-## Pending proof and handoff
+## Historical pre-contract proof and handoff
+
+The following table and handoff text preserve the pre-merge snapshot. References to proposed status, missing implementation and pending contract CI describe that historical point; the acceptance update below supersedes their current-status interpretation.
 
 | Gate | Current evidence / remaining work |
 |---|---|
@@ -63,3 +65,9 @@ The generator refuses to overwrite an existing fixture without a read-only check
 Root owns the contract maps, source/build identities and delivery. Native/frontend/test assignments use ADR023's disjoint paths after acceptance. Audit native publication readers including the direct proof previews, flight-camera checks, steady-wind bridge checks and native-template mutation tests; do not leave an undisclosed parser path with different numeric semantics. Preserve tagged archives/input/content behavior and exact semantic validators.
 
 Before merging the integrated documentation snapshot, run `node tools/check-docs.mjs`, `npm --prefix schemas run check` and `node --test tests/contracts/schema.test.mjs`. Root integrated checks passed: 124 canonical issues, 147 requirements, nine phases, 160 Markdown files, all 14 generated contracts and all 11 schema tests. Hosted CI and the checked contract merge remain pending. Contract acceptance authorizes the bounded next implementation, not aircraft fidelity, official instruction credit or a P2/P3 exit decision.
+
+## Contract acceptance and implementation handoff update
+
+[PR206](https://github.com/brettbergin/flight-simulator/pull/206) merged as accepted main `f68d243623a697a6a500052f926cc6f8e203c240`, resolving the checked-contract gate for #205. The49-case fixture and original Fraction generator hashes above are unchanged. Historical pending-contract statements do not mean the contract remains proposed.
+
+The [issue204 implementation evidence](piston-readings-decimal-admission.md) now records an actual isolated strict Windows production-core CTest (16,595 checks, zero failures), preserved initial frontend parse failure and corrected pinned-Godot negative-only frontend fixture (ten checks). These are distinct observations: neither core-only checks nor rejecting-Callable negatives prove a positive ClassDB or native-backed repaired publication. Adapter, Linux, full native/player and editor/portable/rebuilt-library qualification remain pending. Source-only integration review is not a delivered-success receipt. #204 and #202 remain separate open work; contract merge implies no aircraft, pilot or phase acceptance.

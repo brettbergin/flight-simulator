@@ -1,4 +1,5 @@
 extends Node3D
+const NativeWireDecoder = preload("res://simulation/native_wire_decoder.gd")
 
 const HZ: int = 120
 const BUDGET_DENOMINATOR: int = 1000000
@@ -65,8 +66,12 @@ func restart() -> bool:
 	var reply: Dictionary = bridge.call("open_session", model_root, FileAccess.get_file_as_bytes("res://initializer.bin"))
 	if not reply.get("ok", false):
 		return fail("Initialization failed: " + str(reply))
-	initial = JSON.parse_string(reply.initialization_json)
-	snapshot = JSON.parse_string(reply.aircraft_json)
+	var next_initial: Variant=_native_value(reply.initialization_json)
+	var next_aircraft: Variant=_native_value(reply.aircraft_json)
+	if not next_initial is Dictionary or not next_aircraft is Dictionary:
+		return fail("Native initialization publication decoding rejected")
+	initial = next_initial
+	snapshot = next_aircraft
 	controls = initial.solved_controls.duplicate(true)
 	last_submitted = controls.duplicate(true)
 	origin_ecef = snapshot.ecef_position_m.duplicate(true)
@@ -140,7 +145,9 @@ func step_ticks(count: int) -> bool:
 	var reply: Dictionary = bridge.call("step_fixed", count)
 	if not reply.get("ok", false) or not reply.get("stepped", false):
 		return fail("Native flight-only solver stopped: " + str(reply))
-	var next: Dictionary = JSON.parse_string(reply.aircraft_json)
+	var next: Variant = _native_value(reply.aircraft_json)
+	if not next is Dictionary:
+		return fail("Native aircraft publication decoding rejected")
 	if next.validity != "valid" or int(next.tick) != old_tick + count:
 		return fail("Invalid state or unexpected native tick boundary")
 	snapshot = next
@@ -334,7 +341,7 @@ func run_smoke() -> void:
 	var saved: String = JSON.stringify(snapshot)
 	check(pause_session(true), "native_pause_accepted")
 	var no_step: Dictionary = bridge.call("step_fixed",1)
-	check(no_step.get("ok",false) and not no_step.get("stepped",true) and JSON.stringify(JSON.parse_string(no_step.aircraft_json))==saved, "paused_native_state_unchanged")
+	check(no_step.get("ok",false) and not no_step.get("stepped",true) and JSON.stringify(_native_value(no_step.aircraft_json))==saved, "paused_native_state_unchanged")
 	check(pause_session(false), "native_resume_accepted")
 	check(submit_axes(baseline), "neutral_release_to_solved_controls")
 	check(advance_wall_us(10000), "integer_wall_step")
@@ -403,3 +410,7 @@ func _exit_tree() -> void:
 
 
 
+
+static func _native_value(encoded: Variant) -> Variant:
+	var decoded: Dictionary=NativeWireDecoder.decode(encoded)
+	return decoded.value if decoded.ok else null

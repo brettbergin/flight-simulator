@@ -31,6 +31,38 @@ foreach($name in @('run.ps1','reduce.mjs','png.mjs','recipe.json')) {
   $benchmarkToolInventory+=@{path=('tools/benchmark/'+$name);sha256=(Get-FileHash -LiteralPath (Join-Path $verificationTools $name) -Algorithm SHA256).Hash.ToLowerInvariant()}
 }
 Get-ChildItem -LiteralPath (Join-Path $repo 'app/proof') | Where-Object { $_.Name -notin @('.godot','bin','models','initializer.bin') } | Copy-Item -Destination $project -Recurse
+# ADR023: bind only this stateless resource; no interactive scene dependency.
+$wireDecoderRoot=Join-Path $repo 'app/simulation'
+$wireDecoderNames=@('native_wire_decoder.gd')
+if(Test-Path -LiteralPath (Join-Path $wireDecoderRoot 'native_wire_decoder.gd.uid')){$wireDecoderNames+=@('native_wire_decoder.gd.uid')}
+$wireDecoderSnapshot=@(foreach($name in $wireDecoderNames){
+ $file=Get-Item -LiteralPath (Join-Path $wireDecoderRoot $name) -ErrorAction Stop
+ if($file.PSIsContainer -or ($file.Attributes -band [IO.FileAttributes]::ReparsePoint)){throw 'Decoder input must be an ordinary file'}
+ @{path=$name;bytes=$file.Length;sha256=(Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}
+})
+$wireDecoderStage=Join-Path $project 'simulation'
+New-Item -ItemType Directory -Path $wireDecoderStage | Out-Null
+foreach($file in $wireDecoderSnapshot){Copy-Item -LiteralPath (Join-Path $wireDecoderRoot $file.path) -Destination (Join-Path $wireDecoderStage $file.path)}
+function Assert-BenchmarkWireDecoder {
+ param([string]$SourceRoot,[string]$StageRoot,[object[]]$Snapshot)
+ $sourceNames=@('native_wire_decoder.gd')
+ if(Test-Path -LiteralPath (Join-Path $SourceRoot 'native_wire_decoder.gd.uid')){$sourceNames+=@('native_wire_decoder.gd.uid')}
+ if(($sourceNames -join "`n") -cne (@($Snapshot.path) -join "`n")){throw 'Decoder authoring UID roster changed'}
+ foreach($root in @($SourceRoot,$StageRoot)){
+  foreach($file in $Snapshot){
+   $actual=Get-Item -LiteralPath (Join-Path $root $file.path) -ErrorAction Stop
+   if($actual.PSIsContainer -or ($actual.Attributes -band [IO.FileAttributes]::ReparsePoint) -or $actual.Length -ne $file.bytes -or (Get-FileHash -LiteralPath $actual.FullName -Algorithm SHA256).Hash.ToLowerInvariant() -cne $file.sha256){throw 'Bound decoder resource changed'}
+  }
+ }
+ foreach($actual in Get-ChildItem -LiteralPath $StageRoot -Force){
+  if($actual.PSIsContainer -or ($actual.Attributes -band [IO.FileAttributes]::ReparsePoint)){throw 'Unexpected decoder stage entry'}
+  if($actual.Name -cnotin @($Snapshot.path)){
+   if($actual.Name -cne 'native_wire_decoder.gd.uid' -or $actual.Length -gt 64 -or (Get-Content -LiteralPath $actual.FullName -Raw).Trim() -cnotmatch '^uid://[a-z0-9]{1,20}$'){throw 'Unexpected generated decoder resource'}
+  }
+ }
+}
+Assert-BenchmarkWireDecoder $wireDecoderRoot $wireDecoderStage $wireDecoderSnapshot
+$wireDecoderSnapshot | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $evidence 'wire-decoder-resource.json') -Encoding utf8
 Copy-Item -LiteralPath (Join-Path $proof 'project/bin') -Destination (Join-Path $project 'bin') -Recurse
 Copy-Item -LiteralPath (Join-Path $proof 'project/models') -Destination (Join-Path $project 'models') -Recurse
 Copy-Item -LiteralPath (Join-Path $repo 'tests/export/initializer.bin') -Destination (Join-Path $project 'initializer.bin')
@@ -51,6 +83,7 @@ if($import.exit_code -ne 0 -or $import.text -match 'ERROR:|SCRIPT ERROR:|FATAL:'
 foreach($file in (Get-ChildItem -LiteralPath (Join-Path $project 'pipeline') -File -Filter '*.import')) {
   $inventory+=@{path=$file.FullName.Substring($project.Length+1).Replace('\','/');bytes=$file.Length;sha256=(Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant();role='pinned-engine-generated-import-settings'}
 }
+Assert-BenchmarkWireDecoder $wireDecoderRoot $wireDecoderStage $wireDecoderSnapshot
 $export=Invoke-ProofProcess -Executable $godot -Arguments @('--headless','--path',$project,'--export-release','Windows Proof',(Join-Path $payload 'flight-render.exe')) -WorkingDirectory $root -Log (Join-Path $evidence 'export.log')
 if($export.exit_code -ne 0 -or $export.text -match 'ERROR:|SCRIPT ERROR:|FATAL:') { throw 'Renderer release export failed' }
 New-Item -ItemType Directory -Force -Path (Join-Path $payload 'bin') | Out-Null
@@ -69,7 +102,9 @@ foreach($source in $inventory) {
   if((Get-FileHash -LiteralPath (Join-Path $project $source.path) -Algorithm SHA256).Hash.ToLowerInvariant() -ne $source.sha256) { throw 'Staged source changed during export' }
 }
 $engine=Join-Path (Split-Path -Parent $godot) 'Godot_v4.7.2-stable_win64.exe'
+Assert-BenchmarkWireDecoder $wireDecoderRoot $wireDecoderStage $wireDecoderSnapshot
 $manifest=[ordered]@{
+  wire_decoder_resource=$wireDecoderSnapshot
   schema_version=1; kind='synthetic-render-feasibility';fixture=$Fixture;duration_s=$Duration
   resolution=@($Width,$Height);fov_deg=$Fov;warmup_s=10
   git_head=$snapshotGitHead

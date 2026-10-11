@@ -26,13 +26,44 @@ def put(root, name, raw):
     file.write_bytes(raw.encode() if isinstance(raw, str) else raw)
 
 
+# Fixed independently from ADR016: original fifteen-source prefix, then
+# exactly ten bridge/helper sources. Do not derive expected paths from n.SOURCES.
+EXPECTED_SOURCE_PATHS = (
+    'native/fdm_jsbsim/interactive/src/session.cpp',
+    'native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp',
+    'native/fdm_jsbsim/interactive/include/flight/interactive/surface.hpp',
+    'tests/interactive/native.cpp',
+    'tests/interactive/negatives.hpp',
+    'native/fdm_jsbsim/interactive/src/model-pins.hpp',
+    'native/fdm_jsbsim/interactive/src/piston-model-pins.hpp',
+    'tests/engine/CMakeLists.txt',
+    'tests/engine/loaded-library.hpp',
+    'tests/engine/native.cpp',
+    'tests/engine/native-mechanism.cpp',
+    'tests/engine/native-validate.py',
+    'tests/engine/native-generate.py',
+    'tests/engine/native-limits.hpp',
+    'tests/engine/native-limits.json',
+    'native/godot_bridge/src/bridge.cpp',
+    'native/godot_bridge/src/codec.hpp',
+    'native/godot_bridge/src/codec.cpp',
+    'native/godot_bridge/src/worker.hpp',
+    'native/godot_bridge/src/worker.cpp',
+    'native/godot_bridge/src/interactive_worker.hpp',
+    'native/godot_bridge/src/interactive_worker.cpp',
+    'native/godot_bridge/src/interactive_bridge.cpp',
+    'native/godot_bridge/src/wire_numbers.hpp',
+    'native/godot_bridge/src/wire_numbers.cpp',
+)
+
+
 def fixture(root, family='MSVC', variant=n.VARIANTS[0]):
     repo, build = root / 'repo', root / 'build'
     repo.mkdir(); build.mkdir()
-    for name in set(n.SOURCES + n.CONTROLS):
+    for name in set(EXPECTED_SOURCE_PATHS + n.CONTROLS):
         put(repo, name, 'original synthetic source ' + name + '\r\n')
     put(repo, 'native/fdm_jsbsim/interactive/CMakeLists.txt',
-        'set(INTERACTIVE_SOURCE_PATHS\n' + '\n'.join(n.SOURCES) + ')\n')
+        'set(INTERACTIVE_SOURCE_PATHS\n' + '\n'.join(EXPECTED_SOURCE_PATHS) + ')\n')
     put(repo, 'tools/bootstrap/source-selection.cmake',
         'set(JSBSIM_BUILD_CONTROL_PATHS\n' + '\n'.join(n.CONTROLS) + ')\n')
     put(repo, n.TEMPLATE, n.TEMPLATE_BYTES)
@@ -62,7 +93,7 @@ def fixture(root, family='MSVC', variant=n.VARIANTS[0]):
         '\nmsvc_runtime:MultiThreaded$<$<CONFIG:Debug>:Debug>DLL\ndeclared_strict_fp_flags:'+flags+'\n')
     control = sha(body.encode())
     body = ('verified-jsbsim-backend:'+'a'*64+'\njsbsim-build-controls:'+control+'\n'+
-        ''.join(p+':'+sha((repo/p).read_bytes().replace(b'\r\n',b'\n'))+'\n' for p in n.SOURCES))
+        ''.join(p+':'+sha((repo/p).read_bytes().replace(b'\r\n',b'\n'))+'\n' for p in EXPECTED_SOURCE_PATHS))
     consumer = sha(body.encode())
     put(build, 'interactive-source-fingerprint.txt', consumer+'\n'+body)
     put(build, 'jsbsim-source-build-manifest.txt', 'Source variant: '+variant+'\nSelected source root: '+source.as_posix()+
@@ -72,8 +103,8 @@ def fixture(root, family='MSVC', variant=n.VARIANTS[0]):
         '\nActual compiler commands must be inspected before numerical execution.\n')
     put(build, 'toolchain-build-manifest.txt', 'Project: synthetic not executable\nCompiler: '+family+' '+compiler+
         '\nGenerator: Ninja\nBuild type: RelWithDebInfo\nMSVC runtime: MultiThreadedDLL\n')
-    command = 'fixture-compiler -D'+n.MACRO+'=\\"'+consumer+'\\" -c '+str(repo/n.SOURCES[0])
-    put(build, 'compile_commands.json', json.dumps([dict(directory=str(build),file=str(repo/n.SOURCES[0]),command=command)]))
+    command = 'fixture-compiler -D'+n.MACRO+'=\\"'+consumer+'\\" -c '+str(repo/EXPECTED_SOURCE_PATHS[0])
+    put(build, 'compile_commands.json', json.dumps([dict(directory=str(build),file=str(repo/EXPECTED_SOURCE_PATHS[0]),command=command)]))
     put(build, 'build.ninja', 'DEFINES = -D'+n.MACRO+'=\\"'+consumer+'\\"\n')
     put(build, n.witness_paths(family)[0], b'not executable synthetic bridge\x00'+consumer.encode()+b'\x00')
     resource = ('extends RefCounted\nconst SCHEMA: String = "flight-native-build-identity-v1"\n'
@@ -120,10 +151,54 @@ class IdentityTests(unittest.TestCase):
             repo, build, selected, expected = fixture(root,family,variant)
             result = n.qualify(repo,build,lambda *_:selected)
             self.assertEqual(result['declared_source_fingerprint'],expected)
-            self.assertEqual(len(result['source_bindings']),15)
-            self.assertEqual(len(result['build_witnesses']),7)
+            self.assertEqual(n.SOURCES, EXPECTED_SOURCE_PATHS)
+            self.assertEqual(tuple(row['path'] for row in result['source_bindings']), EXPECTED_SOURCE_PATHS)
+            self.assertEqual(tuple(row['path'] for row in result['build_witnesses']), (
+                'bin/flight_godot_bridge.dll' if family == 'MSVC' else 'bin/libflight_godot_bridge.so',
+                'build.ninja', 'CMakeCache.txt', 'toolchain-build-manifest.txt',
+                'jsbsim-source-build-manifest.txt', 'interactive-source-fingerprint.txt',
+                'compile_commands.json'))
             fingerprints.append(expected)
         self.assertEqual(len(set(fingerprints)),6)
+
+    def test_number_helper_missing_and_changed_source(self):
+        for name in EXPECTED_SOURCE_PATHS[-2:]:
+            path = self.repo/name; old = path.read_bytes()
+            with self.subTest(path=name, mutation='missing'):
+                path.unlink()
+                try:
+                    with self.assertRaises((ValueError, FileNotFoundError)): self.qualify()
+                finally:
+                    path.write_bytes(old)
+            with self.subTest(path=name, mutation='changed'):
+                path.write_bytes(old+b'changed helper source')
+                try:
+                    with self.assertRaises(ValueError): self.qualify()
+                finally:
+                    path.write_bytes(old)
+
+    def test_number_helper_declared_and_evidence_roster(self):
+        good = self.qualify()
+        path = self.repo/'native/fdm_jsbsim/interactive/CMakeLists.txt'
+        old = path.read_bytes()
+        for mutation in ('omit-header', 'omit-implementation', 'swap-helpers'):
+            paths = list(EXPECTED_SOURCE_PATHS)
+            rows = copy.deepcopy(good['source_bindings'])
+            if mutation == 'swap-helpers':
+                paths[-2], paths[-1] = paths[-1], paths[-2]
+                rows[-2], rows[-1] = rows[-1], rows[-2]
+            else:
+                index = -2 if mutation == 'omit-header' else -1
+                paths.pop(index); rows.pop(index)
+            with self.subTest(mutation=mutation):
+                bad = copy.deepcopy(good); bad['source_bindings'] = rows
+                with self.assertRaises(ValueError): n.validate_evidence(bad)
+                put(self.repo, 'native/fdm_jsbsim/interactive/CMakeLists.txt',
+                    'set(INTERACTIVE_SOURCE_PATHS\n'+'\n'.join(paths)+')\n')
+                try:
+                    with self.assertRaises(ValueError): self.qualify()
+                finally:
+                    path.write_bytes(old)
 
     def test_v2_exact_shapes_types_and_order(self):
         good=self.qualify();n.validate_evidence(good)

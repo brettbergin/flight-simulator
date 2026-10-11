@@ -23,6 +23,38 @@ if($LASTEXITCODE -ne 0){throw 'Selected source has no matching reviewed release 
 $selection=$rawSelection|ConvertFrom-Json -ErrorAction Stop
 $selection|ConvertTo-Json -Depth 10|Set-Content -LiteralPath (Join-Path $evidence 'selected-library-release.json') -Encoding utf8
 Get-ChildItem -LiteralPath (Join-Path $repo 'app/proof') -File | Copy-Item -Destination $project
+# ADR023: bind only this stateless resource; no interactive scene dependency.
+$wireDecoderRoot=Join-Path $repo 'app/simulation'
+$wireDecoderNames=@('native_wire_decoder.gd')
+if(Test-Path -LiteralPath (Join-Path $wireDecoderRoot 'native_wire_decoder.gd.uid')){$wireDecoderNames+=@('native_wire_decoder.gd.uid')}
+$wireDecoderSnapshot=@(foreach($name in $wireDecoderNames){
+ $file=Get-Item -LiteralPath (Join-Path $wireDecoderRoot $name) -ErrorAction Stop
+ if($file.PSIsContainer -or ($file.Attributes -band [IO.FileAttributes]::ReparsePoint)){throw 'Decoder input must be an ordinary file'}
+ @{path=$name;bytes=$file.Length;sha256=(Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}
+})
+$wireDecoderStage=Join-Path $project 'simulation'
+New-Item -ItemType Directory -Path $wireDecoderStage | Out-Null
+foreach($file in $wireDecoderSnapshot){Copy-Item -LiteralPath (Join-Path $wireDecoderRoot $file.path) -Destination (Join-Path $wireDecoderStage $file.path)}
+function Assert-ExportProofWireDecoder {
+ param([string]$SourceRoot,[string]$StageRoot,[object[]]$Snapshot)
+ $sourceNames=@('native_wire_decoder.gd')
+ if(Test-Path -LiteralPath (Join-Path $SourceRoot 'native_wire_decoder.gd.uid')){$sourceNames+=@('native_wire_decoder.gd.uid')}
+ if(($sourceNames -join "`n") -cne (@($Snapshot.path) -join "`n")){throw 'Decoder authoring UID roster changed'}
+ foreach($root in @($SourceRoot,$StageRoot)){
+  foreach($file in $Snapshot){
+   $actual=Get-Item -LiteralPath (Join-Path $root $file.path) -ErrorAction Stop
+   if($actual.PSIsContainer -or ($actual.Attributes -band [IO.FileAttributes]::ReparsePoint) -or $actual.Length -ne $file.bytes -or (Get-FileHash -LiteralPath $actual.FullName -Algorithm SHA256).Hash.ToLowerInvariant() -cne $file.sha256){throw 'Bound decoder resource changed'}
+  }
+ }
+ foreach($actual in Get-ChildItem -LiteralPath $StageRoot -Force){
+  if($actual.PSIsContainer -or ($actual.Attributes -band [IO.FileAttributes]::ReparsePoint)){throw 'Unexpected decoder stage entry'}
+  if($actual.Name -cnotin @($Snapshot.path)){
+   if($actual.Name -cne 'native_wire_decoder.gd.uid' -or $actual.Length -gt 64 -or (Get-Content -LiteralPath $actual.FullName -Raw).Trim() -cnotmatch '^uid://[a-z0-9]{1,20}$'){throw 'Unexpected generated decoder resource'}
+  }
+ }
+}
+Assert-ExportProofWireDecoder $wireDecoderRoot $wireDecoderStage $wireDecoderSnapshot
+$wireDecoderSnapshot | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $evidence 'wire-decoder-resource.json') -Encoding utf8
 Copy-Item -LiteralPath (Join-Path $repo 'tests/export/initializer.bin') -Destination (Join-Path $project 'initializer.bin')
 Copy-Item -LiteralPath (Join-Path $repo 'native/fdm_jsbsim/models/original-synthetic') -Destination (Join-Path $project 'models') -Recurse
 $bridge=if($windowsHost) {'flight_godot_bridge.dll'} else {'libflight_godot_bridge.so'}
@@ -55,6 +87,7 @@ if($windowsHost) {
 }
 $import=Invoke-ProofProcess -Executable $godot -Arguments @('--headless','--path',$project,'--editor','--quit-after','120','--frame-delay','100') -WorkingDirectory $root -Log (Join-Path $evidence 'editor-import.log')
 if($import.exit_code -ne 0 -or $import.text -match 'ERROR:|SCRIPT ERROR:|FATAL:') { throw "Godot project import failed exit=$($import.exit_code); log=$evidence/editor-import.log" }
+Assert-ExportProofWireDecoder $wireDecoderRoot $wireDecoderStage $wireDecoderSnapshot
 $editor=Invoke-ProofProcess -Executable $godot -Arguments @('--headless','--path',$project) -WorkingDirectory $root -Log (Join-Path $evidence 'editor-scene.log')
 Assert-ProofSuccess $editor
 & node (Join-Path $repo 'tests/export/validate-log.mjs') (Join-Path $evidence 'editor-scene.log')
@@ -110,6 +143,7 @@ if(-not $EditorOnly) {
     # with an installed global CRT, the bridge must reject its escaped module path.
   }
 }
-$manifest=[ordered]@{schema_version=1;root=$root;project=$project;evidence=$evidence;payload=$(if($EditorOnly){$null}else{$package});relocated=$(if($EditorOnly){$null}else{$relocated});editor_passed=$true;windows_portable_passed=(-not $EditorOnly);clean_path=(-not $EditorOnly);unicode_path=(-not $EditorOnly);source_replacement='pending independent source rebuild/replacement stage';selected_crt=$crtFiles;native_build_identity=$nativeIdentity;selected_library=$selection;python_executable=$Python;toolchain_root=$ToolchainRoot}
+Assert-ExportProofWireDecoder $wireDecoderRoot $wireDecoderStage $wireDecoderSnapshot
+$manifest=[ordered]@{wire_decoder_resource=$wireDecoderSnapshot;schema_version=1;root=$root;project=$project;evidence=$evidence;payload=$(if($EditorOnly){$null}else{$package});relocated=$(if($EditorOnly){$null}else{$relocated});editor_passed=$true;windows_portable_passed=(-not $EditorOnly);clean_path=(-not $EditorOnly);unicode_path=(-not $EditorOnly);source_replacement='pending independent source rebuild/replacement stage';selected_crt=$crtFiles;native_build_identity=$nativeIdentity;selected_library=$selection;python_executable=$Python;toolchain_root=$ToolchainRoot}
 $manifest | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $repo '.local/export-proof/latest-run.json') -Encoding utf8
 $manifest | ConvertTo-Json -Depth 8 | Write-Output
