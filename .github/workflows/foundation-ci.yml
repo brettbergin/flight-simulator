@@ -79,7 +79,8 @@ jobs:
             'docs/contracts/local-players/compiled-source-allocation-v1.json' = 'a3269f6ff8a4eddcdf4db45d0736e951d885e1c1fc11e7ecd2a0f2e22cd49ab1'
             'docs/contracts/local-players/test-capability-v1.md' = 'a7c66c5c588cd5984070781310f77906839c9b5ad703ab70a1db09a629620bed'
             'docs/contracts/local-players/recovery-v1.md' = 'd7349a672519a9c7e3d367d5f756adbcc0507a9138b800500805687782f90859'
-            'docs/decisions/026-durable-local-players-and-practice-history.md' = '6e0deb6f36ccfed20dbe8b236afbe3c4ec8003f916b98a8d362c4c3f0189c464'
+            'docs/decisions/026-durable-local-players-and-practice-history.md' = '0d2ea8c0d88dbd7885bf73e8677d4acca509aba0f40517200407c2442299f4ef'
+            'docs/decisions/027-synthetic-taxi-navigation.md' = '480ea9cbc9872ce7f2da74e92c7620646a4d28d40ba40540cecd461a10cae0f3'
           }
           foreach ($name in $localPlayerPins.Keys) {
             if ((Get-FileHash -LiteralPath $name -Algorithm SHA256).Hash.ToLowerInvariant() -cne $localPlayerPins[$name]) { throw 'Frozen local-player input changed; reviewed successor contract required' }
