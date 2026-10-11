@@ -6430,7 +6430,8 @@
         "tests/integration/input/pointer_flight_checks.gd",
         "content/scenarios/first-flight/briefing.json",
         "app/ui/first_flight/briefing_panel.gd",
-        "tests/scenarios/first-flight/briefing_checks.gd"
+        "tests/scenarios/first-flight/briefing_checks.gd",
+        "tests/debrief/observed_archive/generate.py"
       ],
       "docs": [
         "docs/decisions/011-observed-flight-review.md",
