@@ -6096,6 +6096,151 @@
         "Source-pinned failing-before/passing-after actual glyph/ring geometry tests; unchanged physical caption and formatter provenance; full copied/native/mapper/origin invariance.",
         "Fresh three-context original Windows CHASE HUD images at named sizes, independent source/pixel review and exact source/PCK/module/model binding; honest intermediate-size and unavailable-state limits."
       ]
+    },
+    {
+      "key": "PROTOTYPE-AUDIO-CUE-CONTRACT",
+      "title": "Freeze original audio cues, options and paused Audio panel contract",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Define copied source qualification, sample-count audio and session-local paused controls before audio consumers, retaining original prototype and input authority. Partial FLIGHT-AUDIO #25 preparation under the recorded bounded P2 dispatch; aggregate gates remain open.",
+      "depends_on": [
+        "SIM-LOOP",
+        "LICENSE-REGISTER",
+        "ORDINARY-FLIGHT-LAYOUT"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:audio",
+        "priority:P1",
+        "status:ready"
+      ],
+      "owned_paths": [
+        "docs/decisions/020-original-audio-cues.md",
+        "docs/contracts.md",
+        "docs/README.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md",
+        "docs/evidence/P1/gate-review.md"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/phases/p2-first-flight.md",
+        "docs/agent-operations.md",
+        "docs/contracts.md",
+        "docs/decisions/007-sim-loop-facade.md",
+        "docs/decisions/009-cockpit-readings.md",
+        "docs/decisions/010-original-piston-profile.md",
+        "docs/decisions/019-ordinary-flight-overlay-layout.md",
+        "docs/experience-and-progress.md",
+        "docs/realism-and-validation.md",
+        "docs/evidence/P1/gate-review.md",
+        "tools/interactive-preview/README.md"
+      ],
+      "requirements": [
+        "REAL-020",
+        "PRD-018",
+        "PRD-020",
+        "UX-013"
+      ],
+      "acceptance": [
+        "Publish ADR020 with the exact ten-key cue view, four-key options and three-key validation result. Reuse accepted Readback/NativeReadings/EngineStatus; distinguish global invalid source, independent missing channels and derived TAS overflow. Valid paused captions retain actual source facts while active audio is silent. Legacy throttle comes only from the same validated Readback.held_axes; Scene adoption owns actual native authority.",
+        "Freeze synchronous observe hooks across successful adoption, pause/resume, fault, failed setup and close; provisional startup cannot sound before actual Scene commit. Preserve existing separately runnable preview entry points, single Scene master-mute authority and strict all-or-nothing options without native/schema/preset/persistence changes.",
+        "Define deterministic production sample-count mixing, authored coefficient bounds, harmonic handling, source/reset semantics, actual queued-playback retirement and honest limits. No invented clear-buffer API, timeout waiver, measured load/torque, installed warning or aircraft acoustic claim.",
+        "Define paused Audio modal entry, source-bound per-opening callback lifetime, two gain controls, master mute and optional panel-only captions. Split the existing speed menu row; use an opaque scrolling modal. Preserve complete Raw, held starter/capture/rearm, existing Resume and all other display choices. Back/Escape/controller pause returns to menu still paused. Live captions remain explicitly deferred; no new flight overlay or reserved live slot.",
+        "Update only the eight owned documents, append the two reviewed canonical descriptors to the latest graph preserving existing entries and #184 ownership, regenerate mappings and pass documentation checks. Obtain independent exact documentation/source-contract review and current required CI before consumers. Keep #25 and phase/source/human gates open."
+      ],
+      "evidence": [
+        "Reviewed ADR020 closed API and explicit integration/ownership handoff.",
+        "Canonical dependency/requirement mapping, documentation checks and independent exact source-contract review."
+      ]
+    },
+    {
+      "key": "ORIGINAL-AUDIO-CUES",
+      "title": "Add original TAS airflow and engine mix with paused Audio controls",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Improve feedback in the two original synthetic profiles with qualified wind-relative TAS airflow, deterministic engine synthesis, independent gains and optional source captions inside a paused Audio panel. This partial child does not close FLIGHT-AUDIO #25.",
+      "depends_on": [
+        "PROTOTYPE-AUDIO-CUE-CONTRACT",
+        "SIM-LOOP",
+        "LICENSE-REGISTER"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:audio",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "app/audio/audio_cues.gd",
+        "app/audio/audio_options.gd",
+        "app/audio/sample_renderer.gd",
+        "app/ui/audio/audio_panel.gd",
+        "app/proof/interactive/flight_sound.gd",
+        "tests/audio/audio_cues_checks.gd",
+        "tests/audio/audio_options_checks.gd",
+        "tests/audio/sample_renderer_checks.gd",
+        "tests/audio/audio_panel_checks.gd",
+        "docs/evidence/P2/original-audio-cues.md",
+        "app/simulation/flight_scene.gd",
+        "tests/integration/first_flight/scene_checks.gd",
+        "tools/interactive-preview/simulation-staging.ps1",
+        "tools/interactive-preview/simulation-staging.test.ps1",
+        "tools/interactive-preview/run.ps1",
+        "tools/interactive-preview/package.mjs",
+        "tools/interactive-preview/verify.test.mjs",
+        "tools/interactive-preview/README.md",
+        "docs/README.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md",
+        "docs/sources.md",
+        "third_party/licenses/register.json"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/phases/p2-first-flight.md",
+        "docs/agent-operations.md",
+        "docs/contracts.md",
+        "docs/decisions/007-sim-loop-facade.md",
+        "docs/decisions/009-cockpit-readings.md",
+        "docs/decisions/010-original-piston-profile.md",
+        "docs/decisions/019-ordinary-flight-overlay-layout.md",
+        "docs/experience-and-progress.md",
+        "docs/realism-and-validation.md",
+        "docs/evidence/P1/gate-review.md",
+        "tools/interactive-preview/README.md",
+        "docs/decisions/020-original-audio-cues.md"
+      ],
+      "requirements": [
+        "REAL-020",
+        "PRD-018",
+        "PRD-020",
+        "UX-013"
+      ],
+      "acceptance": [
+        "Consume checked ADR020 only after the contract issue is accepted and Root dispatches the bounded child. Use one facade-owned copied publication, accepted wind-relative TAS and actual shaft/Running state; no mixed sessions, throttle-as-measured-RPM/load, invented warnings or new native/wire fields. Preserve current preview APIs and separately runnable proof behavior.",
+        "Implement actual production fixed-count synthesis with the reviewed original mix, gain envelope, seed and harmonic policy. Equal sample-indexed source/options schedules produce identical samples across varying buffer partitions; independent frequency/peak/finite/near-Nyquist assertions exercise production code. Original ground-relative-speed behavior fails the specified independent airflow counterexamples and corrected TAS passes.",
+        "Implement strict copied source/options admission and partial-channel errors. Valid paused/historical captions remain truthfully qualified but cannot sound; malformed/empty source clears prior cues. Missing TAS disables airflow only; missing engine channels disable engine only; missing starved never invents false or mutes qualified sound. Invalid options and stale/inactive per-opening callbacks preserve settings without actions.",
+        "Provide paused-only Audio entry and controls in the existing modal flow: master mute, independent engine/airflow gains with percentages, optional source summary and Back. Actual minimum960 font/focus/hit and scroll tests retain full source/error text. Keyboard/controller Back or pause-menu returns still paused; no hidden Resume, test tone, fabricated Raw release, held-starter command, capture/rearm clearance, camera or visibility change. Captions are independent of mute but are not live accessibility.",
+        "Synchronously invalidate/observe adoption, pause, failure and close without waiting for nonempty-snapshot frames. Suppress provisional new-worker sound until Scene commit. Discard queued old-source audio, track all retiring playback references, keep one emitter and report actual shutdown retirement. Repeated pause/reset/mute and invalidation cannot replay stale audio or weaken shutdown assertions.",
+        "Extend focused source/options/sample/UI and existing Scene lifecycle tests only as needed, retaining failed attempts and exact source pins. Root owns source closure, package admission, actual Windows output/listening smoke and current required CI. Report the exact tested context; sample mathematics is not device QA or universal loudness/click evidence. No broad unchanged aircraft numerical rerun is required.",
+        "Record original procedural authorship and actual shipped source/notice closure, independent exact review and remaining parent work. Do not acquire recordings or claim C172 fidelity, calibrated warning logic, durable settings, pilot/hardware/phase acceptance. Leave #25 open for measured load, supported warnings and live accessibility; #64 keeps broader qualification."
+      ],
+      "evidence": [
+        "Original synthesis/source register and supported cue/accessibility checklist, with live captions deferred.",
+        "Production sample-partition and independent TAS/frequency tests, source/lifecycle negatives and bounded paused UI integration results.",
+        "Actual package/source/notice closure and exact Windows output/listening scope, independent review and required CI."
+      ]
     }
   ]
 }
