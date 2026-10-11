@@ -301,7 +301,7 @@ func _make_facade() -> RefCounted:
 func restart(replace_confirmed: bool=false, selected_wind: Variant=null, requested_profile: Variant=null, requested_start: Variant=null) -> bool:
 	if legacy_proof:
 		return super.restart()
-	if views_open or taxi_open: return false
+	if taxi_open: return false
 	if not archive_operation.is_empty(): return false
 	var next_profile: Variant=selected_profile if requested_profile==null else requested_profile
 	var next_start: Variant=named_start if requested_start==null else requested_start
