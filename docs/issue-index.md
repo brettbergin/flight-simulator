@@ -80,6 +80,8 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | NATIVE-WIRE-NUMBER-CONTRACT | [#205 Ratify exact binary64 native wire decoding before decimal repair](https://github.com/brettbergin/flight-simulator/issues/205) | INTERACTIVE-CONTRACT, SIM-LOOP-CONTRACT, COCKPIT-READINGS-CONTRACT, ORIGINAL-PISTON-CONTRACT |
 | PAUSED-VIEWS-CONTRACT | [#213 Ratify paused lookout views and camera comfort](https://github.com/brettbergin/flight-simulator/issues/213) | SIM-LOOP-CONTRACT, INPUT-CONTROLS-CONTRACT, COCKPIT-READINGS-CONTRACT, THIRD-PERSON-STABILITY, POINTER-ENGINE-CONTRACT, POINTER-ENGINE-CONTROLS, ORDINARY-FLIGHT-LAYOUT |
 
+| PAUSED-VIEWS | [#215 Add paused cockpit lookout presets and external camera response](https://github.com/brettbergin/flight-simulator/issues/215) | PAUSED-VIEWS-CONTRACT, PISTON-READINGS-DECIMAL-ADMISSION |
+
 ## P3 — Complete circuit and durable progress
 
 | Key | Issue | Dependencies |

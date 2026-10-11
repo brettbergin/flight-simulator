@@ -1,0 +1,135 @@
+{
+  "schema": "CameraReferenceSourceBinding/v1",
+  "status": "PRECONSUMER_REFERENCE_PUBLICATION_NOT_RUNTIME_QUALIFICATION",
+  "source_head": "dc2465b93a5a69295fff9bbe469b42e93db6a817",
+  "contract_pr": 214,
+  "adr_git_lf_sha256": "2cd89a17541d574559be6a1892e7229e544f94ce1eb142f7f415662abc51ad36",
+  "files": {
+    "expected-v1.json": {
+      "bytes": 113938,
+      "sha256": "d3ee38b2a2455e7a21c61ae46f01461dd901663c3743581059e19c5193f513cd"
+    },
+    "generate.py": {
+      "bytes": 25693,
+      "sha256": "bb35c60914aaab18f0226bdbc20e5c0801db9fd6c8c11c42ee93554d3dc0a358"
+    }
+  },
+  "sources": [
+    {
+      "path": "docs/decisions/025-paused-view-presets-and-comfort.md",
+      "git_source_commit": "dc2465b93a5a69295fff9bbe469b42e93db6a817",
+      "bytes": 14876,
+      "git_lf_sha256": "2cd89a17541d574559be6a1892e7229e544f94ce1eb142f7f415662abc51ad36",
+      "git_blob": "50108643a150a22836ca154ed045d74cf38e515f"
+    },
+    {
+      "path": "docs/decisions/007-sim-loop-facade.md",
+      "git_source_commit": "dc2465b93a5a69295fff9bbe469b42e93db6a817",
+      "bytes": 22299,
+      "git_lf_sha256": "1e8c8e624231872cf29197530e38c1652ba3ea66b3fa20758d91657238359ce7",
+      "git_blob": "0875b22e939ee46408ac47c88023c7988c41aeb1"
+    },
+    {
+      "path": "docs/decisions/008-input-presets.md",
+      "git_source_commit": "dc2465b93a5a69295fff9bbe469b42e93db6a817",
+      "bytes": 19306,
+      "git_lf_sha256": "c7ca7ca400d1d59e05f9066a59531c75b4e2fd349e797d581fc233f6fb58793d",
+      "git_blob": "cad09e9b239aa82a703e09529fd3a9de6e1c450c"
+    },
+    {
+      "path": "docs/decisions/017-frontend-pointer-engine-controls.md",
+      "git_source_commit": "dc2465b93a5a69295fff9bbe469b42e93db6a817",
+      "bytes": 19155,
+      "git_lf_sha256": "2e74519e1f13356e88da9d399854e72c0bb5b2a43585cfa2eab6c7fe6d05d83e",
+      "git_blob": "fb9bcacadd5d0364822c6393951e0b4d5e86f405"
+    },
+    {
+      "path": "docs/decisions/019-ordinary-flight-overlay-layout.md",
+      "git_source_commit": "dc2465b93a5a69295fff9bbe469b42e93db6a817",
+      "bytes": 25162,
+      "git_lf_sha256": "aa4c5831c45601f46c91e9a7d92163d52def799e8e5ec9b5a9420b53d37593f5",
+      "git_blob": "09fb41a7f5cc37be0896452b4b9eb9e0f3da2995"
+    },
+    {
+      "path": "docs/decisions/021-manual-flight-overlay-dock.md",
+      "git_source_commit": "dc2465b93a5a69295fff9bbe469b42e93db6a817",
+      "bytes": 5205,
+      "git_lf_sha256": "5b3101682351f3c0474fe3de923e09a05834608731c9e33a726fdb9c291d0b93",
+      "git_blob": "1b7019b9b7dc08684448fb4540cada7f319bc5e6"
+    },
+    {
+      "path": "app/simulation/flight_scene.gd",
+      "git_source_commit": "dc2465b93a5a69295fff9bbe469b42e93db6a817",
+      "bytes": 126368,
+      "git_lf_sha256": "17a75a5b3270e765b0b70d5a27d62b2b11369a27241e253d26c8a251b2cdfdba",
+      "git_blob": "5a18d70bc86e488dd7255c13e4e523ab526c90f5"
+    },
+    {
+      "path": "app/proof/interactive/preview.gd",
+      "git_source_commit": "dc2465b93a5a69295fff9bbe469b42e93db6a817",
+      "bytes": 57300,
+      "git_lf_sha256": "2d6641828c284a3280a2f438abe02b63dc97c1e40ae6ccea2e7fdb35a302865d",
+      "git_blob": "836313b7052e9ade5f1bf56ed9fe26a39a7a61a9"
+    },
+    {
+      "path": "app/proof/interactive/flight_cockpit.gd",
+      "git_source_commit": "dc2465b93a5a69295fff9bbe469b42e93db6a817",
+      "bytes": 11099,
+      "git_lf_sha256": "a1244e0293aaa3488be26729e134b2b11ddc64dfd7bfb48f8b146e00e88a100d",
+      "git_blob": "d9d8a9bea241c3f42a875e7a74e66a384ffe00da"
+    }
+  ],
+  "primary_upstream_source_observations": [
+    {
+      "repository": "godotengine/godot-cpp",
+      "commit": "e83fd0904c13356ed1d4c3d09f8bb9132bdc6b77",
+      "path": "include/godot_cpp/core/math_defs.hpp",
+      "url": "https://github.com/godotengine/godot-cpp/blob/e83fd0904c13356ed1d4c3d09f8bb9132bdc6b77/include/godot_cpp/core/math_defs.hpp",
+      "bytes": 3411,
+      "sha256": "822a1f896b524ebf8e6b56627f69d17a6e6d38322a6ef293f970734e58544eaa"
+    },
+    {
+      "repository": "godotengine/godot-cpp",
+      "commit": "e83fd0904c13356ed1d4c3d09f8bb9132bdc6b77",
+      "path": "include/godot_cpp/variant/vector3.hpp",
+      "url": "https://github.com/godotengine/godot-cpp/blob/e83fd0904c13356ed1d4c3d09f8bb9132bdc6b77/include/godot_cpp/variant/vector3.hpp",
+      "bytes": 18626,
+      "sha256": "8c607b8af919a8696349e6073370b720873dcb2dab6bd1f6eb22e04ec5f5c2d3"
+    }
+  ],
+  "primary_source_note": "math_defs.hpp69..72 default real_t=float unless REAL_T_IS_DOUBLE; vector3.hpp54..56 components and232..235 lerp. Read-only source observation, not eventual engine build-precision qualification.",
+  "independent_method": "No consumer read/import/output; general Decimal Rodrigues and analytic exponential with exact dyadic inputs, explicit manual lifecycle outcomes. Source files above define contract/legacy obligations only.",
+  "source_findings": [
+    "Scene inherits interactive preview four-mode helper; traditional gaze multiplication/order, eye, panel focus and mode-dependent visibility remain baseline.",
+    "Camera desired translation and look target use same current Facade.visual_pose; filter affects offset only, dt clamps0..0.25.",
+    "Current mouse relative sensitivity0.004; yaw clamps +/-PI and pitch+/-1.2; no new action or gate.",
+    "ADR017 capture retirement precedes actual changed hit geometry; page-only comparison begins after ordinary pause retirement."
+  ],
+  "original_freeze_receipt_sha256": "ba70cd4c4854639cda8a4b9a507b785cf054d1875c9f73b5b861838d2fe84198",
+  "original_source_binding_sha256": "8c8bca8146d291a6662612e021f27e1846889d74e0d7f15c71209958ca1792f4",
+  "independent_review": {
+    "sha256": "4257895379c93055f015cba23b49a2124896e3284024ef379e91b48a49f8bc30",
+    "approved": true,
+    "method": "Explicit component matrices with exact Fraction fixed-degree trig; fixed-degree rational exponential and analytic integral response. No author generator import or consumer output."
+  },
+  "root_ratification": "root-ratification-v1.json",
+  "reference_rows": 132,
+  "case_counts": {
+    "mappings": 7,
+    "direction_cases": 31,
+    "settings_positive_cases": 4,
+    "settings_negative_cases": 17,
+    "copy_cases": 4,
+    "page_cases": 16,
+    "entry_rejection_cases": 19,
+    "mapped_action_cases": 18,
+    "filter_scalar_cases": 5,
+    "filter_moving_sequence": 3,
+    "filter_branch_cases": 8
+  },
+  "limits": [
+    "Original expected/generator historical private metadata preserved byte-for-byte; current reference approval is in adjacent ratification summary.",
+    "No local owner paths or private artifacts required for generation/check. Historical receipt hashes are provenance references only.",
+    "Same-engine exact traditional expression/order and complete actual runtime/delivery/pixel/comfort tests still required."
+  ]
+}
