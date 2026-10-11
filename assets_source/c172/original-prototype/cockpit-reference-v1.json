@@ -1,0 +1,1816 @@
+{
+  "kind": "original-cockpit-asset-design-reference",
+  "version": 1,
+  "status": "PROPOSED_CONTRACT_DATA_NOT_ASSET_OR_RUNTIME_OUTPUT",
+  "license": "MIT",
+  "author": "Flight Simulator contributors",
+  "manufacturer_geometry": false,
+  "source": "app/proof/interactive/flight_cockpit.gd",
+  "source_raw_sha256": "a1244e0293aaa3488be26729e134b2b11ddc64dfd7bfb48f8b146e00e88a100d",
+  "units": "m; radians for runtime copied rotations; degrees only explicitly labeled source rotations",
+  "axes": {
+    "x": "right",
+    "y": "up",
+    "z": "aft"
+  },
+  "origin": "unchanged local origin of OriginalReadonlyCockpit; not a new CG/datum/plane definition",
+  "coordinate_conversion": {
+    "blender_from_reference": "(x,y,z) -> (x,-z,y)",
+    "gltf_from_blender": "(x,y,z) -> (x,z,-y)",
+    "net_reference_to_gltf": "identity; no runtime corrective root transform"
+  },
+  "glb_root": "OriginalCockpitAsset",
+  "identity_nodes": [
+    "OriginalCockpitAsset",
+    "Static"
+  ],
+  "markers_and_pivots": [
+    {
+      "name": "PilotEye",
+      "parent": "OriginalCockpitAsset",
+      "translation_m": [
+        -0.27,
+        0.67,
+        -0.92
+      ],
+      "rotation_xyz_rad": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "PanelFocus",
+      "parent": "OriginalCockpitAsset",
+      "translation_m": [
+        -0.08,
+        0.255,
+        -1.535
+      ],
+      "rotation_xyz_rad": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "PanelSurfaceAnchor",
+      "parent": "OriginalCockpitAsset",
+      "translation_m": [
+        0,
+        0.255,
+        -1.535
+      ],
+      "rotation_xyz_rad": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "CopiedPilotYoke",
+      "parent": "OriginalCockpitAsset",
+      "translation_m": [
+        -0.27,
+        0.075,
+        -1.265
+      ],
+      "rotation_xyz_rad": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "CopiedLeftPedal",
+      "parent": "OriginalCockpitAsset",
+      "translation_m": [
+        -0.36,
+        -0.47,
+        -1.49
+      ],
+      "rotation_xyz_rad": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "CopiedRightPedal",
+      "parent": "OriginalCockpitAsset",
+      "translation_m": [
+        -0.18,
+        -0.47,
+        -1.49
+      ],
+      "rotation_xyz_rad": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "CopiedThrottleHandle",
+      "parent": "OriginalCockpitAsset",
+      "translation_m": [
+        0.22,
+        -0.07,
+        -1.305
+      ],
+      "rotation_xyz_rad": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "CopiedTrimWheel",
+      "parent": "OriginalCockpitAsset",
+      "translation_m": [
+        0.09,
+        -0.26,
+        -0.92
+      ],
+      "rotation_xyz_rad": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "name": "Roof",
+      "parent": "Static",
+      "primitive": "box",
+      "material": "WarmTrim",
+      "size_m": [
+        1.4,
+        0.08,
+        2.06
+      ],
+      "center_m": [
+        0,
+        1.19,
+        -0.37
+      ]
+    },
+    {
+      "name": "Floor",
+      "parent": "Static",
+      "primitive": "box",
+      "material": "Cloth",
+      "size_m": [
+        1.32,
+        0.08,
+        1.96
+      ],
+      "center_m": [
+        0,
+        -0.59,
+        -0.4
+      ]
+    },
+    {
+      "name": "LeftFrontPillar",
+      "parent": "Static",
+      "primitive": "cylinder_between_endpoints",
+      "material": "WarmTrim",
+      "endpoints_m": [
+        [
+          -0.65,
+          0.47,
+          -1.72
+        ],
+        [
+          -0.59,
+          1.16,
+          -1.39
+        ]
+      ],
+      "radius_m": 0.043,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "LeftLowerRail",
+      "parent": "Static",
+      "primitive": "cylinder_between_endpoints",
+      "material": "Dark",
+      "endpoints_m": [
+        [
+          -0.66,
+          0.43,
+          -1.6
+        ],
+        [
+          -0.69,
+          0.43,
+          0.45
+        ]
+      ],
+      "radius_m": 0.035,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "LeftUpperRail",
+      "parent": "Static",
+      "primitive": "cylinder_between_endpoints",
+      "material": "WarmTrim",
+      "endpoints_m": [
+        [
+          -0.63,
+          1.15,
+          -1.4
+        ],
+        [
+          -0.69,
+          1.15,
+          0.5
+        ]
+      ],
+      "radius_m": 0.038,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "LeftRearPost",
+      "parent": "Static",
+      "primitive": "cylinder_between_endpoints",
+      "material": "WarmTrim",
+      "endpoints_m": [
+        [
+          -0.69,
+          0.42,
+          0.3
+        ],
+        [
+          -0.69,
+          1.16,
+          0.3
+        ]
+      ],
+      "radius_m": 0.032,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "LeftLowerWall",
+      "parent": "Static",
+      "primitive": "box",
+      "material": "WarmTrim",
+      "size_m": [
+        0.075,
+        0.85,
+        1.8
+      ],
+      "center_m": [
+        -0.69,
+        -0.025,
+        -0.49
+      ]
+    },
+    {
+      "name": "LeftClothInset",
+      "parent": "Static",
+      "primitive": "box",
+      "material": "Cloth",
+      "size_m": [
+        0.032,
+        0.53,
+        1.15
+      ],
+      "center_m": [
+        -0.639,
+        -0.09,
+        -0.4
+      ]
+    },
+    {
+      "name": "LeftArmrest",
+      "parent": "Static",
+      "primitive": "box",
+      "material": "Dark",
+      "size_m": [
+        0.13,
+        0.055,
+        0.45
+      ],
+      "center_m": [
+        -0.62,
+        0.15,
+        -0.41
+      ]
+    },
+    {
+      "name": "LeftHandle",
+      "parent": "Static",
+      "primitive": "cylinder_between_endpoints",
+      "material": "Metal",
+      "endpoints_m": [
+        [
+          -0.602,
+          0.22,
+          -0.22
+        ],
+        [
+          -0.602,
+          0.22,
+          -0.07
+        ]
+      ],
+      "radius_m": 0.016,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "LeftLatch",
+      "parent": "Static",
+      "primitive": "box",
+      "material": "Metal",
+      "size_m": [
+        0.03,
+        0.025,
+        0.065
+      ],
+      "center_m": [
+        -0.61,
+        0.29,
+        -0.73
+      ]
+    },
+    {
+      "name": "RightFrontPillar",
+      "parent": "Static",
+      "primitive": "cylinder_between_endpoints",
+      "material": "WarmTrim",
+      "endpoints_m": [
+        [
+          0.65,
+          0.47,
+          -1.72
+        ],
+        [
+          0.59,
+          1.16,
+          -1.39
+        ]
+      ],
+      "radius_m": 0.043,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "RightLowerRail",
+      "parent": "Static",
+      "primitive": "cylinder_between_endpoints",
+      "material": "Dark",
+      "endpoints_m": [
+        [
+          0.66,
+          0.43,
+          -1.6
+        ],
+        [
+          0.69,
+          0.43,
+          0.45
+        ]
+      ],
+      "radius_m": 0.035,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "RightUpperRail",
+      "parent": "Static",
+      "primitive": "cylinder_between_endpoints",
+      "material": "WarmTrim",
+      "endpoints_m": [
+        [
+          0.63,
+          1.15,
+          -1.4
+        ],
+        [
+          0.69,
+          1.15,
+          0.5
+        ]
+      ],
+      "radius_m": 0.038,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "RightRearPost",
+      "parent": "Static",
+      "primitive": "cylinder_between_endpoints",
+      "material": "WarmTrim",
+      "endpoints_m": [
+        [
+          0.69,
+          0.42,
+          0.3
+        ],
+        [
+          0.69,
+          1.16,
+          0.3
+        ]
+      ],
+      "radius_m": 0.032,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "RightLowerWall",
+      "parent": "Static",
+      "primitive": "box",
+      "material": "WarmTrim",
+      "size_m": [
+        0.075,
+        0.85,
+        1.8
+      ],
+      "center_m": [
+        0.69,
+        -0.025,
+        -0.49
+      ]
+    },
+    {
+      "name": "RightClothInset",
+      "parent": "Static",
+      "primitive": "box",
+      "material": "Cloth",
+      "size_m": [
+        0.032,
+        0.53,
+        1.15
+      ],
+      "center_m": [
+        0.639,
+        -0.09,
+        -0.4
+      ]
+    },
+    {
+      "name": "RightArmrest",
+      "parent": "Static",
+      "primitive": "box",
+      "material": "Dark",
+      "size_m": [
+        0.13,
+        0.055,
+        0.45
+      ],
+      "center_m": [
+        0.62,
+        0.15,
+        -0.41
+      ]
+    },
+    {
+      "name": "RightHandle",
+      "parent": "Static",
+      "primitive": "cylinder_between_endpoints",
+      "material": "Metal",
+      "endpoints_m": [
+        [
+          0.602,
+          0.22,
+          -0.22
+        ],
+        [
+          0.602,
+          0.22,
+          -0.07
+        ]
+      ],
+      "radius_m": 0.016,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "RightLatch",
+      "parent": "Static",
+      "primitive": "box",
+      "material": "Metal",
+      "size_m": [
+        0.03,
+        0.025,
+        0.065
+      ],
+      "center_m": [
+        0.61,
+        0.29,
+        -0.73
+      ]
+    },
+    {
+      "name": "WindshieldTopRail",
+      "parent": "Static",
+      "primitive": "cylinder_between_endpoints",
+      "material": "WarmTrim",
+      "endpoints_m": [
+        [
+          -0.59,
+          1.14,
+          -1.41
+        ],
+        [
+          0.59,
+          1.14,
+          -1.41
+        ]
+      ],
+      "radius_m": 0.041,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "WindshieldCenterPost",
+      "parent": "Static",
+      "primitive": "cylinder_between_endpoints",
+      "material": "Dark",
+      "endpoints_m": [
+        [
+          0,
+          0.52,
+          -1.72
+        ],
+        [
+          0,
+          1.13,
+          -1.41
+        ]
+      ],
+      "radius_m": 0.014,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "PanelHousing",
+      "parent": "Static",
+      "primitive": "sphere_scaled",
+      "material": "Dark",
+      "size_m": [
+        1.37,
+        0.64,
+        0.26
+      ],
+      "center_m": [
+        0,
+        0.21,
+        -1.75
+      ],
+      "rotation_xyz_deg": [
+        0,
+        0,
+        0
+      ],
+      "base_radius_m": 0.5,
+      "base_height_m": 1,
+      "radial_segments": 24,
+      "rings": 12
+    },
+    {
+      "name": "PanelBacking",
+      "parent": "Static",
+      "primitive": "box",
+      "material": "Dark",
+      "size_m": [
+        1.24,
+        0.64,
+        0.05
+      ],
+      "center_m": [
+        0,
+        0.23,
+        -1.605
+      ]
+    },
+    {
+      "name": "GlareTop",
+      "parent": "Static",
+      "primitive": "box",
+      "material": "Black",
+      "size_m": [
+        1.39,
+        0.055,
+        0.4
+      ],
+      "center_m": [
+        0,
+        0.55,
+        -1.755
+      ]
+    },
+    {
+      "name": "GlareLip",
+      "parent": "Static",
+      "primitive": "cylinder_between_endpoints",
+      "material": "Black",
+      "endpoints_m": [
+        [
+          -0.67,
+          0.57,
+          -1.59
+        ],
+        [
+          0.67,
+          0.57,
+          -1.59
+        ]
+      ],
+      "radius_m": 0.033,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "LowerKneePanel",
+      "parent": "Static",
+      "primitive": "box",
+      "material": "Cloth",
+      "size_m": [
+        1.15,
+        0.2,
+        0.1
+      ],
+      "center_m": [
+        0,
+        -0.17,
+        -1.72
+      ]
+    },
+    {
+      "name": "PanelFrameMetal",
+      "parent": "Static",
+      "primitive": "box",
+      "material": "Metal",
+      "size_m": [
+        1.18,
+        0.605,
+        0.018
+      ],
+      "center_m": [
+        0,
+        0.255,
+        -1.569
+      ]
+    },
+    {
+      "name": "PanelFrameBlack",
+      "parent": "Static",
+      "primitive": "box",
+      "material": "Black",
+      "size_m": [
+        1.15,
+        0.585,
+        0.02
+      ],
+      "center_m": [
+        0,
+        0.255,
+        -1.552
+      ]
+    },
+    {
+      "name": "PanelFastener00",
+      "parent": "Static",
+      "primitive": "sphere_scaled",
+      "material": "Metal",
+      "size_m": [
+        0.013,
+        0.013,
+        0.006
+      ],
+      "center_m": [
+        -0.573,
+        -0.032,
+        -1.548
+      ],
+      "rotation_xyz_deg": [
+        0,
+        0,
+        0
+      ],
+      "base_radius_m": 0.5,
+      "base_height_m": 1,
+      "radial_segments": 24,
+      "rings": 12
+    },
+    {
+      "name": "PanelFastener01",
+      "parent": "Static",
+      "primitive": "sphere_scaled",
+      "material": "Metal",
+      "size_m": [
+        0.013,
+        0.013,
+        0.006
+      ],
+      "center_m": [
+        -0.573,
+        0.541,
+        -1.548
+      ],
+      "rotation_xyz_deg": [
+        0,
+        0,
+        0
+      ],
+      "base_radius_m": 0.5,
+      "base_height_m": 1,
+      "radial_segments": 24,
+      "rings": 12
+    },
+    {
+      "name": "PanelFastener10",
+      "parent": "Static",
+      "primitive": "sphere_scaled",
+      "material": "Metal",
+      "size_m": [
+        0.013,
+        0.013,
+        0.006
+      ],
+      "center_m": [
+        0.573,
+        -0.032,
+        -1.548
+      ],
+      "rotation_xyz_deg": [
+        0,
+        0,
+        0
+      ],
+      "base_radius_m": 0.5,
+      "base_height_m": 1,
+      "radial_segments": 24,
+      "rings": 12
+    },
+    {
+      "name": "PanelFastener11",
+      "parent": "Static",
+      "primitive": "sphere_scaled",
+      "material": "Metal",
+      "size_m": [
+        0.013,
+        0.013,
+        0.006
+      ],
+      "center_m": [
+        0.573,
+        0.541,
+        -1.548
+      ],
+      "rotation_xyz_deg": [
+        0,
+        0,
+        0
+      ],
+      "base_radius_m": 0.5,
+      "base_height_m": 1,
+      "radial_segments": 24,
+      "rings": 12
+    },
+    {
+      "name": "LeftSeatCushion",
+      "parent": "Static",
+      "primitive": "sphere_scaled",
+      "material": "Leather",
+      "size_m": [
+        0.51,
+        0.16,
+        0.54
+      ],
+      "center_m": [
+        -0.29,
+        -0.18,
+        -0.2
+      ],
+      "rotation_xyz_deg": [
+        0,
+        0,
+        0
+      ],
+      "base_radius_m": 0.5,
+      "base_height_m": 1,
+      "radial_segments": 24,
+      "rings": 12
+    },
+    {
+      "name": "LeftSeatBack",
+      "parent": "Static",
+      "primitive": "sphere_scaled",
+      "material": "Leather",
+      "size_m": [
+        0.52,
+        0.64,
+        0.14
+      ],
+      "center_m": [
+        -0.29,
+        0.08,
+        0.06
+      ],
+      "rotation_xyz_deg": [
+        -8,
+        0,
+        0
+      ],
+      "base_radius_m": 0.5,
+      "base_height_m": 1,
+      "radial_segments": 24,
+      "rings": 12
+    },
+    {
+      "name": "LeftSeatHeadrest",
+      "parent": "Static",
+      "primitive": "sphere_scaled",
+      "material": "Leather",
+      "size_m": [
+        0.25,
+        0.17,
+        0.12
+      ],
+      "center_m": [
+        -0.29,
+        0.47,
+        0.08
+      ],
+      "rotation_xyz_deg": [
+        0,
+        0,
+        0
+      ],
+      "base_radius_m": 0.5,
+      "base_height_m": 1,
+      "radial_segments": 24,
+      "rings": 12
+    },
+    {
+      "name": "LeftSeatPost0",
+      "parent": "Static",
+      "primitive": "cylinder_between_endpoints",
+      "material": "Metal",
+      "endpoints_m": [
+        [
+          -0.4,
+          0.33,
+          0.05
+        ],
+        [
+          -0.4,
+          0.44,
+          0.07
+        ]
+      ],
+      "radius_m": 0.012,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "LeftSeatPost1",
+      "parent": "Static",
+      "primitive": "cylinder_between_endpoints",
+      "material": "Metal",
+      "endpoints_m": [
+        [
+          -0.18,
+          0.33,
+          0.05
+        ],
+        [
+          -0.18,
+          0.44,
+          0.07
+        ]
+      ],
+      "radius_m": 0.012,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "LeftSeatRail0",
+      "parent": "Static",
+      "primitive": "box",
+      "material": "Metal",
+      "size_m": [
+        0.03,
+        0.22,
+        0.38
+      ],
+      "center_m": [
+        -0.43,
+        -0.34,
+        -0.2
+      ]
+    },
+    {
+      "name": "LeftSeatRail1",
+      "parent": "Static",
+      "primitive": "box",
+      "material": "Metal",
+      "size_m": [
+        0.03,
+        0.22,
+        0.38
+      ],
+      "center_m": [
+        -0.15,
+        -0.34,
+        -0.2
+      ]
+    },
+    {
+      "name": "LeftSeatSeam0",
+      "parent": "Static",
+      "primitive": "cylinder_between_endpoints",
+      "material": "Metal",
+      "endpoints_m": [
+        [
+          -0.44,
+          -0.13,
+          -0.39
+        ],
+        [
+          -0.44,
+          -0.13,
+          -0.01
+        ]
+      ],
+      "radius_m": 0.006,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "LeftSeatSeam1",
+      "parent": "Static",
+      "primitive": "cylinder_between_endpoints",
+      "material": "Metal",
+      "endpoints_m": [
+        [
+          -0.14,
+          -0.13,
+          -0.39
+        ],
+        [
+          -0.14,
+          -0.13,
+          -0.01
+        ]
+      ],
+      "radius_m": 0.006,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "RightSeatCushion",
+      "parent": "Static",
+      "primitive": "sphere_scaled",
+      "material": "Leather",
+      "size_m": [
+        0.51,
+        0.16,
+        0.54
+      ],
+      "center_m": [
+        0.29,
+        -0.18,
+        -0.2
+      ],
+      "rotation_xyz_deg": [
+        0,
+        0,
+        0
+      ],
+      "base_radius_m": 0.5,
+      "base_height_m": 1,
+      "radial_segments": 24,
+      "rings": 12
+    },
+    {
+      "name": "RightSeatBack",
+      "parent": "Static",
+      "primitive": "sphere_scaled",
+      "material": "Leather",
+      "size_m": [
+        0.52,
+        0.64,
+        0.14
+      ],
+      "center_m": [
+        0.29,
+        0.08,
+        0.06
+      ],
+      "rotation_xyz_deg": [
+        -8,
+        0,
+        0
+      ],
+      "base_radius_m": 0.5,
+      "base_height_m": 1,
+      "radial_segments": 24,
+      "rings": 12
+    },
+    {
+      "name": "RightSeatHeadrest",
+      "parent": "Static",
+      "primitive": "sphere_scaled",
+      "material": "Leather",
+      "size_m": [
+        0.25,
+        0.17,
+        0.12
+      ],
+      "center_m": [
+        0.29,
+        0.47,
+        0.08
+      ],
+      "rotation_xyz_deg": [
+        0,
+        0,
+        0
+      ],
+      "base_radius_m": 0.5,
+      "base_height_m": 1,
+      "radial_segments": 24,
+      "rings": 12
+    },
+    {
+      "name": "RightSeatPost0",
+      "parent": "Static",
+      "primitive": "cylinder_between_endpoints",
+      "material": "Metal",
+      "endpoints_m": [
+        [
+          0.18,
+          0.33,
+          0.05
+        ],
+        [
+          0.18,
+          0.44,
+          0.07
+        ]
+      ],
+      "radius_m": 0.012,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "RightSeatPost1",
+      "parent": "Static",
+      "primitive": "cylinder_between_endpoints",
+      "material": "Metal",
+      "endpoints_m": [
+        [
+          0.4,
+          0.33,
+          0.05
+        ],
+        [
+          0.4,
+          0.44,
+          0.07
+        ]
+      ],
+      "radius_m": 0.012,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "RightSeatRail0",
+      "parent": "Static",
+      "primitive": "box",
+      "material": "Metal",
+      "size_m": [
+        0.03,
+        0.22,
+        0.38
+      ],
+      "center_m": [
+        0.15,
+        -0.34,
+        -0.2
+      ]
+    },
+    {
+      "name": "RightSeatRail1",
+      "parent": "Static",
+      "primitive": "box",
+      "material": "Metal",
+      "size_m": [
+        0.03,
+        0.22,
+        0.38
+      ],
+      "center_m": [
+        0.43,
+        -0.34,
+        -0.2
+      ]
+    },
+    {
+      "name": "RightSeatSeam0",
+      "parent": "Static",
+      "primitive": "cylinder_between_endpoints",
+      "material": "Metal",
+      "endpoints_m": [
+        [
+          0.14,
+          -0.13,
+          -0.39
+        ],
+        [
+          0.14,
+          -0.13,
+          -0.01
+        ]
+      ],
+      "radius_m": 0.006,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "RightSeatSeam1",
+      "parent": "Static",
+      "primitive": "cylinder_between_endpoints",
+      "material": "Metal",
+      "endpoints_m": [
+        [
+          0.44,
+          -0.13,
+          -0.39
+        ],
+        [
+          0.44,
+          -0.13,
+          -0.01
+        ]
+      ],
+      "radius_m": 0.006,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "CenterPedestal",
+      "parent": "Static",
+      "primitive": "box",
+      "material": "Dark",
+      "size_m": [
+        0.15,
+        0.19,
+        0.73
+      ],
+      "center_m": [
+        0,
+        -0.43,
+        -0.76
+      ]
+    },
+    {
+      "name": "YokeStem",
+      "parent": "Static",
+      "primitive": "cylinder_between_endpoints",
+      "material": "Metal",
+      "endpoints_m": [
+        [
+          -0.27,
+          -0.15,
+          -1.56
+        ],
+        [
+          -0.27,
+          0.07,
+          -1.285
+        ]
+      ],
+      "radius_m": 0.023,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "YokeHub",
+      "parent": "CopiedPilotYoke",
+      "primitive": "sphere_scaled",
+      "material": "Black",
+      "size_m": [
+        0.115,
+        0.075,
+        0.056
+      ],
+      "center_m": [
+        0,
+        0,
+        0
+      ],
+      "rotation_xyz_deg": [
+        0,
+        0,
+        0
+      ],
+      "base_radius_m": 0.5,
+      "base_height_m": 1,
+      "radial_segments": 24,
+      "rings": 12
+    },
+    {
+      "name": "YokeCrossbar",
+      "parent": "CopiedPilotYoke",
+      "primitive": "cylinder_between_endpoints",
+      "material": "Black",
+      "endpoints_m": [
+        [
+          -0.145,
+          -0.027,
+          0
+        ],
+        [
+          0.145,
+          -0.027,
+          0
+        ]
+      ],
+      "radius_m": 0.02,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "YokeLeftGripRod",
+      "parent": "CopiedPilotYoke",
+      "primitive": "cylinder_between_endpoints",
+      "material": "Black",
+      "endpoints_m": [
+        [
+          -0.143,
+          -0.027,
+          0
+        ],
+        [
+          -0.183,
+          0.075,
+          -0.018
+        ]
+      ],
+      "radius_m": 0.025,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "YokeLeftGrip",
+      "parent": "CopiedPilotYoke",
+      "primitive": "sphere_scaled",
+      "material": "Black",
+      "size_m": [
+        0.049,
+        0.065,
+        0.053
+      ],
+      "center_m": [
+        -0.183,
+        0.082,
+        -0.018
+      ],
+      "rotation_xyz_deg": [
+        0,
+        0,
+        0
+      ],
+      "base_radius_m": 0.5,
+      "base_height_m": 1,
+      "radial_segments": 24,
+      "rings": 12
+    },
+    {
+      "name": "YokeRightGripRod",
+      "parent": "CopiedPilotYoke",
+      "primitive": "cylinder_between_endpoints",
+      "material": "Black",
+      "endpoints_m": [
+        [
+          0.143,
+          -0.027,
+          0
+        ],
+        [
+          0.183,
+          0.075,
+          -0.018
+        ]
+      ],
+      "radius_m": 0.025,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "YokeRightGrip",
+      "parent": "CopiedPilotYoke",
+      "primitive": "sphere_scaled",
+      "material": "Black",
+      "size_m": [
+        0.049,
+        0.065,
+        0.053
+      ],
+      "center_m": [
+        0.183,
+        0.082,
+        -0.018
+      ],
+      "rotation_xyz_deg": [
+        0,
+        0,
+        0
+      ],
+      "base_radius_m": 0.5,
+      "base_height_m": 1,
+      "radial_segments": 24,
+      "rings": 12
+    },
+    {
+      "name": "YokeAccent",
+      "parent": "CopiedPilotYoke",
+      "primitive": "box",
+      "material": "Accent",
+      "size_m": [
+        0.035,
+        0.008,
+        0.01
+      ],
+      "center_m": [
+        0,
+        0.024,
+        0.032
+      ]
+    },
+    {
+      "name": "LeftPedalPlate",
+      "parent": "CopiedLeftPedal",
+      "primitive": "box",
+      "material": "Metal",
+      "size_m": [
+        0.13,
+        0.025,
+        0.2
+      ],
+      "center_m": [
+        0,
+        0.018,
+        -0.025
+      ]
+    },
+    {
+      "name": "LeftPedalTread0",
+      "parent": "CopiedLeftPedal",
+      "primitive": "box",
+      "material": "Black",
+      "size_m": [
+        0.12,
+        0.009,
+        0.012
+      ],
+      "center_m": [
+        0,
+        0.035,
+        -0.075
+      ]
+    },
+    {
+      "name": "LeftPedalTread1",
+      "parent": "CopiedLeftPedal",
+      "primitive": "box",
+      "material": "Black",
+      "size_m": [
+        0.12,
+        0.009,
+        0.012
+      ],
+      "center_m": [
+        0,
+        0.035,
+        -0.025
+      ]
+    },
+    {
+      "name": "LeftPedalTread2",
+      "parent": "CopiedLeftPedal",
+      "primitive": "box",
+      "material": "Black",
+      "size_m": [
+        0.12,
+        0.009,
+        0.012
+      ],
+      "center_m": [
+        0,
+        0.035,
+        0.025
+      ]
+    },
+    {
+      "name": "RightPedalPlate",
+      "parent": "CopiedRightPedal",
+      "primitive": "box",
+      "material": "Metal",
+      "size_m": [
+        0.13,
+        0.025,
+        0.2
+      ],
+      "center_m": [
+        0,
+        0.018,
+        -0.025
+      ]
+    },
+    {
+      "name": "RightPedalTread0",
+      "parent": "CopiedRightPedal",
+      "primitive": "box",
+      "material": "Black",
+      "size_m": [
+        0.12,
+        0.009,
+        0.012
+      ],
+      "center_m": [
+        0,
+        0.035,
+        -0.075
+      ]
+    },
+    {
+      "name": "RightPedalTread1",
+      "parent": "CopiedRightPedal",
+      "primitive": "box",
+      "material": "Black",
+      "size_m": [
+        0.12,
+        0.009,
+        0.012
+      ],
+      "center_m": [
+        0,
+        0.035,
+        -0.025
+      ]
+    },
+    {
+      "name": "RightPedalTread2",
+      "parent": "CopiedRightPedal",
+      "primitive": "box",
+      "material": "Black",
+      "size_m": [
+        0.12,
+        0.009,
+        0.012
+      ],
+      "center_m": [
+        0,
+        0.035,
+        0.025
+      ]
+    },
+    {
+      "name": "ThrottleSlot",
+      "parent": "Static",
+      "primitive": "box",
+      "material": "Black",
+      "size_m": [
+        0.075,
+        0.044,
+        0.27
+      ],
+      "center_m": [
+        0.22,
+        -0.16,
+        -1.41
+      ]
+    },
+    {
+      "name": "ThrottleShaft",
+      "parent": "CopiedThrottleHandle",
+      "primitive": "cylinder_between_endpoints",
+      "material": "Metal",
+      "endpoints_m": [
+        [
+          0,
+          -0.09,
+          0
+        ],
+        [
+          0,
+          0.035,
+          0
+        ]
+      ],
+      "radius_m": 0.012,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "ThrottleKnob",
+      "parent": "CopiedThrottleHandle",
+      "primitive": "sphere_scaled",
+      "material": "Black",
+      "size_m": [
+        0.06,
+        0.06,
+        0.063
+      ],
+      "center_m": [
+        0,
+        0.04,
+        0
+      ],
+      "rotation_xyz_deg": [
+        0,
+        0,
+        0
+      ],
+      "base_radius_m": 0.5,
+      "base_height_m": 1,
+      "radial_segments": 24,
+      "rings": 12
+    },
+    {
+      "name": "TrimRim",
+      "parent": "CopiedTrimWheel",
+      "primitive": "torus",
+      "material": "Black",
+      "inner_radius_m": 0.055,
+      "outer_radius_m": 0.075,
+      "rings": 24,
+      "ring_segments": 12,
+      "center_m": [
+        0,
+        0,
+        0
+      ],
+      "rotation_xyz_deg": [
+        0,
+        0,
+        90
+      ]
+    },
+    {
+      "name": "TrimSpokeY",
+      "parent": "CopiedTrimWheel",
+      "primitive": "cylinder_between_endpoints",
+      "material": "Metal",
+      "endpoints_m": [
+        [
+          0,
+          -0.06,
+          0
+        ],
+        [
+          0,
+          0.06,
+          0
+        ]
+      ],
+      "radius_m": 0.007,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    },
+    {
+      "name": "TrimSpokeZ",
+      "parent": "CopiedTrimWheel",
+      "primitive": "cylinder_between_endpoints",
+      "material": "Metal",
+      "endpoints_m": [
+        [
+          0,
+          0,
+          -0.06
+        ],
+        [
+          0,
+          0,
+          0.06
+        ]
+      ],
+      "radius_m": 0.007,
+      "radial_segments": 12,
+      "local_mesh_axis": "+Y",
+      "orientation": "same shortest rotation UP to normalized(b-a) as current builder; verify against independently captured baseline, no guessed Euler angles"
+    }
+  ],
+  "counts": {
+    "glb_mesh_instances": 74,
+    "glb_meshes_each_one_triangle_surface": 74,
+    "static_mesh_instances": 54,
+    "dynamic_mesh_instances": 20,
+    "glb_nodes": 84,
+    "glb_materials": 7,
+    "runtime_panel": 1,
+    "runtime_bezels": 6,
+    "ordinary_total_mesh_instances": 81,
+    "ordinary_shared_materials": 9
+  },
+  "materials": [
+    {
+      "name": "WarmTrim",
+      "original_godot_albedo_rgb": [
+        0.46,
+        0.43,
+        0.36
+      ],
+      "roughness": 0.94,
+      "metallic": 0,
+      "alpha": 1
+    },
+    {
+      "name": "Cloth",
+      "original_godot_albedo_rgb": [
+        0.25,
+        0.29,
+        0.29
+      ],
+      "roughness": 0.95,
+      "metallic": 0,
+      "alpha": 1
+    },
+    {
+      "name": "Dark",
+      "original_godot_albedo_rgb": [
+        0.045,
+        0.058,
+        0.061
+      ],
+      "roughness": 0.87,
+      "metallic": 0,
+      "alpha": 1
+    },
+    {
+      "name": "Metal",
+      "original_godot_albedo_rgb": [
+        0.25,
+        0.28,
+        0.29
+      ],
+      "roughness": 0.78,
+      "metallic": 0.12,
+      "alpha": 1
+    },
+    {
+      "name": "Leather",
+      "original_godot_albedo_rgb": [
+        0.22,
+        0.24,
+        0.22
+      ],
+      "roughness": 0.92,
+      "metallic": 0,
+      "alpha": 1
+    },
+    {
+      "name": "Accent",
+      "original_godot_albedo_rgb": [
+        0.075,
+        0.39,
+        0.41
+      ],
+      "roughness": 0.52,
+      "metallic": 0,
+      "alpha": 1
+    },
+    {
+      "name": "Black",
+      "original_godot_albedo_rgb": [
+        0.013,
+        0.018,
+        0.021
+      ],
+      "roughness": 0.92,
+      "metallic": 0,
+      "alpha": 1
+    }
+  ],
+  "texture_detail_materials": [
+    "Cloth",
+    "Leather",
+    "Dark",
+    "Black"
+  ],
+  "runtime_retained": {
+    "panel_surface_size_m": [
+      1.115,
+      0.5575
+    ],
+    "panel_center_m": [
+      0,
+      0.255,
+      -1.535
+    ],
+    "panel_texture_px": [
+      2048,
+      1024
+    ],
+    "logical_panel_px": [
+      1024,
+      512
+    ],
+    "logical_scale": [
+      2,
+      2
+    ],
+    "six_bezels": "unchanged _bezel_mesh/_build_bezels recipe, shared 48-segment open annulus; no asset disk/glazing",
+    "exterior": "unchanged flight_world.gd and native contacts/propeller phase"
+  },
+  "controls": {
+    "yoke": "z_rotation=-clamp(roll,-1,1)*0.48; position=home+(0,0,clamp(pitch,-1,1)*0.07)",
+    "left_pedal": "x_rotation=-clamp(left_brake,0,1)*0.28; z=-1.49+clamp(yaw,-1,1)*0.045",
+    "right_pedal": "x_rotation=-clamp(right_brake,0,1)*0.28; z=-1.49-clamp(yaw,-1,1)*0.045",
+    "throttle": "position=home-(0,0,clamp(throttle,0,1)*0.17)",
+    "trim": "x_rotation=clamp(trim,-1,1)*PI",
+    "defaults": "same current missing-key 0.0 and clamping; these are presentation copies, never pilot intent"
+  },
+  "numeric_export_budget": {
+    "absolute_position_m": 1e-06,
+    "unit_normal_dot_min": 0.99999,
+    "basis_element_absolute": 1e-06,
+    "meaning": "small local float32 export/import comparison only, not aircraft/physics/sight-picture tolerance",
+    "independent_baseline": "actual current procedural builder geometry/control endpoints must be captured independently before authored asset output; do not generate expected mesh from candidate"
+  },
+  "limits": [
+    "Reference numbers transcribe original prototype choices, not aircraft evidence.",
+    "No new asset, Blender operation, import or renderer measurement exists.",
+    "No animation clips, skins, cameras, lights, colliders, opaque panes, scripts or external resource URIs permitted in GLB."
+  ]
+}
