@@ -152,16 +152,29 @@ func execute()->void:
   get_tree().quit(1)
   return
  # Qualify the actual driver, not only requested CLI or a successful fallback.
- var camera_args: PackedStringArray=OS.get_cmdline_args()
- var method_index: int=camera_args.find("--rendering-method")
- var driver_index: int=camera_args.find("--rendering-driver")
- if camera_args.count("--rendering-method")!=1 or camera_args.count("--rendering-driver")!=1 or method_index<0 or driver_index<0 or method_index+1>=camera_args.size() or driver_index+1>=camera_args.size():
+ var requested_methods: Array[String]=[]
+ var requested_drivers: Array[String]=[]
+ var request_invalid: bool=false
+ for argument in OS.get_cmdline_user_args():
+  if argument.begins_with("--camera-request-method="):
+   requested_methods.append(argument.trim_prefix("--camera-request-method="))
+  elif argument.begins_with("--camera-request-driver="):
+   requested_drivers.append(argument.trim_prefix("--camera-request-driver="))
+  elif argument.begins_with("--camera-request-"):
+   request_invalid=true
+ if request_invalid or requested_methods.size()!=1 or requested_drivers.size()!=1:
+  push_error("CAMERA_RENDERING_REQUEST_INVALID")
+  get_tree().quit(1)
+  return
+ var requested_method: String=requested_methods[0]
+ var requested_driver: String=requested_drivers[0]
+ if not requested_method in ["gl_compatibility","mobile","forward_plus"] or not requested_driver in ["opengl3","opengl3_angle","vulkan","d3d12"] or ((requested_method=="gl_compatibility")!=(requested_driver in ["opengl3","opengl3_angle"])):
   push_error("CAMERA_RENDERING_REQUEST_INVALID")
   get_tree().quit(1)
   return
  var actual_method: String=RenderingServer.get_current_rendering_method()
  var actual_driver: String=RenderingServer.get_current_rendering_driver_name()
- if actual_method!=camera_args[method_index+1] or actual_driver!=camera_args[driver_index+1]:
+ if actual_method!=requested_method or actual_driver!=requested_driver:
   push_error("CAMERA_RENDERING_DRIVER_MISMATCH: requested driver cannot silently fallback")
   get_tree().quit(1)
   return
@@ -197,18 +210,33 @@ script = ExtResource("1")
   [IO.File]::WriteAllText($file,$pair.text,[Text.UTF8Encoding]::new($false))
  }
 }
+function Get-PreviewCameraRenderingArguments {
+ param([Parameter(Mandatory)][string[]]$Arguments)
+ if(@($Arguments|Where-Object {$_ -ceq '--'}).Count -gt 1){throw 'At most one camera user-argument separator required'}
+ if(@($Arguments|Where-Object {$_.StartsWith('--camera-request-',[StringComparison]::Ordinal)}).Count -ne 0){throw 'Camera rendering acknowledgement arguments are host-owned'}
+ $separator=[Array]::IndexOf($Arguments,'--')
+ $engineEnd=if($separator -lt 0){$Arguments.Count}else{$separator}
+ $engine=@($Arguments|Select-Object -First $engineEnd)
+ $methodIndex=[Array]::IndexOf($engine,'--rendering-method')
+ $driverIndex=[Array]::IndexOf($engine,'--rendering-driver')
+ if(@($engine|Where-Object {$_ -ceq '--rendering-method'}).Count -ne 1 -or @($engine|Where-Object {$_ -ceq '--rendering-driver'}).Count -ne 1 -or $methodIndex -lt 0 -or $driverIndex -lt 0 -or $methodIndex+1 -ge $engine.Count -or $driverIndex+1 -ge $engine.Count){throw 'Exactly one explicit engine camera method/driver pair required before user arguments'}
+ $method=$engine[$methodIndex+1]
+ $driver=$engine[$driverIndex+1]
+ if($method -cnotin @('gl_compatibility','mobile','forward_plus') -or $driver -cnotin @('opengl3','opengl3_angle','vulkan','d3d12') -or (($method -ceq 'gl_compatibility') -ne ($driver -cin @('opengl3','opengl3_angle')))){throw 'Explicit camera method/driver pair rejected'}
+ $forwarded=@($Arguments)
+ if($separator -lt 0){$forwarded+='--'}
+ $forwarded+=@(("--camera-request-method="+$method),("--camera-request-driver="+$driver))
+ return [pscustomobject]@{arguments=[string[]]$forwarded;method=$method;driver=$driver}
+}
+
 function Invoke-PreviewGraphicalCameraChecks {
  param([Parameter(Mandatory)][string]$Executable,[Parameter(Mandatory)][string[]]$Arguments,[Parameter(Mandatory)][string]$Root,[Parameter(Mandatory)][string]$TargetPath,[Parameter(Mandatory)][string]$Evidence,[Parameter(Mandatory)][string]$Name,[Parameter(Mandatory)][string]$RepoRoot,[Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)][string]$NativeIdentityPath,[ValidateRange(120,600)][int]$TimeoutSeconds=120,[bool]$RequireFullSupported=$false)
  if(-not $IsWindows){throw 'Mandatory camera graphical gate requires Windows; no headless substitution'}
  Assert-PreviewCameraHarnessFiles -ProjectRoot $ProjectRoot
  if($Arguments -contains '--headless'){throw 'Graphical camera invocation cannot be headless'}
- $methodIndex=[Array]::IndexOf($Arguments,'--rendering-method')
- $driverIndex=[Array]::IndexOf($Arguments,'--rendering-driver')
- if(@($Arguments|Where-Object {$_ -ceq '--rendering-method'}).Count -ne 1 -or @($Arguments|Where-Object {$_ -ceq '--rendering-driver'}).Count -ne 1 -or $methodIndex -lt 0 -or $driverIndex -lt 0 -or $methodIndex+1 -ge $Arguments.Count -or $driverIndex+1 -ge $Arguments.Count){throw 'Exactly one explicit camera method/driver pair required'}
- $requestedMethod=$Arguments[$methodIndex+1]
- $requestedDriver=$Arguments[$driverIndex+1]
- if($requestedMethod -cnotin @('gl_compatibility','mobile','forward_plus') -or $requestedDriver -cnotin @('opengl3','opengl3_angle','vulkan','d3d12') -or (($requestedMethod -ceq 'gl_compatibility') -ne ($requestedDriver -cin @('opengl3','opengl3_angle')))){throw 'Explicit camera method/driver pair rejected'}
- $renderingMarker='CAMERA_RENDERING method='+$requestedMethod+' driver='+$requestedDriver
+ $request=Get-PreviewCameraRenderingArguments -Arguments $Arguments
+ $Arguments=$request.arguments
+ $renderingMarker='CAMERA_RENDERING method='+$request.method+' driver='+$request.driver
 
  if(Test-Path -LiteralPath (Join-Path $TargetPath 'camera-check-receipt.json')){throw 'Camera receipt destination must be fresh'}
  try {

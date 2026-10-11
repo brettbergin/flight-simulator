@@ -865,7 +865,7 @@ Reject {Write-PreviewCameraCheckHarness -ProjectRoot $project -Groups $groups -I
 $cameraCode=[IO.File]::ReadAllText((Join-Path $project 'camera_checks.gd'))
 if($cameraCode -notmatch 'capture_observed=Input.mouse_mode==Input.MOUSE_MODE_CAPTURED' -or $cameraCode -notmatch 'DisplayServer.get_name\(\)=="headless"' -or $cameraCode -notmatch 'CAMERA_CHECKS_PASSED' -or $cameraCode -notmatch '"camera_checks.tscn"' -or $cameraCode -notmatch 'await load\("res://camera_tests/scene_checks.gd"\).new\(\).run\(camera_host,true\)'){throw 'Required graphical/capture/child/generated source absent'}
 Pass 'actual_capture_and_three_checks_mandatory_in_graphical_source'
-if($cameraCode -notmatch 'RenderingServer.get_current_rendering_driver_name' -or $cameraCode -notmatch 'actual_driver!=camera_args' -or $cameraCode -notmatch 'CAMERA_RENDERING_DRIVER_MISMATCH' -or $cameraCode -notmatch 'CAMERA_RENDERING method='){throw 'Actual driver/fallback rejection missing'}
+if($cameraCode -notmatch 'RenderingServer.get_current_rendering_driver_name' -or $cameraCode -notmatch 'actual_driver!=requested_driver' -or $cameraCode -notmatch 'CAMERA_RENDERING_DRIVER_MISMATCH' -or $cameraCode -notmatch 'CAMERA_RENDERING method='){throw 'Actual driver/fallback rejection missing'}
 Pass 'actual_driver_and_method_match_required_before_capture'
 $copy=Join-Path $fixture 'corresponding'
 New-Item -ItemType Directory $copy|Out-Null
@@ -885,5 +885,27 @@ Remove-Item -LiteralPath (Join-Path $copy 'camera_checks.gd.uid')
 Reject {Assert-PreviewCameraHarnessFiles -ProjectRoot $project -SourceRoot $copy} 'generated_corresponding_drift_rejected'
 Remove-Item -LiteralPath (Join-Path $project 'camera_checks.tscn')
 Reject {Assert-PreviewCameraHarnessFiles -ProjectRoot $project} 'generated_missing_scene_rejected'
+$engine=@('--path','synthetic project','--rendering-method','gl_compatibility','--rendering-driver','opengl3')
+$request=Get-PreviewCameraRenderingArguments -Arguments @($engine+'--'+'--camera-checks')
+if(($request.arguments -join '|') -cne (($engine+@('--','--camera-checks','--camera-request-method=gl_compatibility','--camera-request-driver=opengl3')) -join '|') -or $request.method -cne 'gl_compatibility' -or $request.driver -cne 'opengl3'){throw 'Camera transport must preserve the complete original engine/user argument sequence'}
+Pass 'render_transport_existing_separator_preserves_camera_checks'
+$request=Get-PreviewCameraRenderingArguments -Arguments $engine
+if(($request.arguments -join '|') -cne (($engine+@('--','--camera-request-method=gl_compatibility','--camera-request-driver=opengl3')) -join '|')){throw 'Missing separator must be added exactly once'}
+Pass 'render_transport_new_separator_added'
+foreach($pair in @(@('gl_compatibility','opengl3_angle'),@('mobile','vulkan'),@('forward_plus','d3d12'))){
+ $request=Get-PreviewCameraRenderingArguments -Arguments @('--rendering-method',$pair[0],'--rendering-driver',$pair[1])
+ if($request.method -cne $pair[0] -or $request.driver -cne $pair[1]){throw 'Valid explicit renderer pair changed'}
+}
+Pass 'render_transport_other_allowed_pairs'
+Reject {Get-PreviewCameraRenderingArguments -Arguments @($engine+'--'+'--'+'--camera-checks')} 'render_transport_duplicate_separator_rejected'
+Reject {Get-PreviewCameraRenderingArguments -Arguments @($engine+'--'+'--camera-request-method=mobile')} 'render_transport_existing_ack_rejected'
+Reject {Get-PreviewCameraRenderingArguments -Arguments @($engine+'--camera-request-driver=opengl3')} 'render_transport_engine_ack_rejected'
+Reject {Get-PreviewCameraRenderingArguments -Arguments @('--','--rendering-method','gl_compatibility','--rendering-driver','opengl3')} 'render_transport_user_only_pair_rejected'
+Reject {Get-PreviewCameraRenderingArguments -Arguments @($engine+'--rendering-method'+'mobile')} 'render_transport_duplicate_engine_pair_rejected'
+Reject {Get-PreviewCameraRenderingArguments -Arguments @('--rendering-method','gl_compatibility','--rendering-driver')} 'render_transport_missing_value_rejected'
+Reject {Get-PreviewCameraRenderingArguments -Arguments @('--rendering-method','gl_compatibility','--rendering-driver','vulkan')} 'render_transport_incompatible_pair_rejected'
+Reject {Get-PreviewCameraRenderingArguments -Arguments @('--rendering-method','unknown','--rendering-driver','opengl3')} 'render_transport_unknown_enum_rejected'
+if($cameraCode -notmatch 'OS.get_cmdline_user_args\(\)' -or $cameraCode -match 'OS.get_cmdline_args\(\)' -or $cameraCode -notmatch 'requested_methods.size\(\)!=1' -or $cameraCode -notmatch 'requested_drivers.size\(\)!=1' -or $cameraCode -notmatch 'CAMERA_RENDERING_REQUEST_INVALID' -or $cameraCode -notmatch 'actual_method!=requested_method'){throw 'Generated request must use closed acknowledged user arguments and preserve actual renderer comparison'}
+Pass 'render_transport_generated_closed_user_ack_and_actual_guard'
 @{passed=$true;scope='Offline source/staging fixtures only; no Godot/native/graphical runtime';checks=$checks.Count;names=@($checks);fixture=$fixture}|ConvertTo-Json -Depth 5
 } $repo $PSScriptRoot
