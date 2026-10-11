@@ -4,6 +4,8 @@ import argparse
 import hashlib
 import json
 import struct
+import os
+import stat
 
 HERE = Path(__file__).resolve().parent
 CPP_REL = 'vendor/src/models/propulsion/FGPropeller.cpp'
@@ -131,13 +133,31 @@ def body(c):
       check(!(endpoint<half&&half<w),"stagnant_half_strict_admission_rejected");'''
     raise AssertionError('Unrecognized frozen case ' + c['id'])
 
+def fresh_output(path):
+    """Admit absent or ordinary empty output without following links/reparse points."""
+    output = Path(os.path.abspath(path))
+    for item in [*reversed(output.parents), output]:
+        try:
+            info = item.lstat()
+        except FileNotFoundError:
+            continue
+        assert not stat.S_ISLNK(info.st_mode), 'Output path must not traverse a symlink'
+        assert not (getattr(info, 'st_file_attributes', 0) & 0x400), 'Output path must not traverse a reparse point'
+        assert stat.S_ISDIR(info.st_mode), 'Output path must contain only ordinary directories'
+    if output.exists():
+        assert not any(output.iterdir()), 'Fresh empty output required; preserve earlier evidence'
+    return output
+
+def write_new(path, raw):
+    with path.open('xb') as stream:
+        stream.write(raw)
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--repo-root', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     a = parser.parse_args()
-    repo, output = a.repo_root.resolve(), a.output.resolve()
-    assert not output.exists(), 'Fresh output required; preserve all earlier source/qualification evidence'
+    repo, output = a.repo_root.resolve(), fresh_output(a.output)
     data = {}
     for name, expected in PINS.items():
         raw = (repo / name).read_bytes()
@@ -163,10 +183,11 @@ def main():
     cases = '\n'.join('  run_case(' + json.dumps(c['id']) + ',[](){\n      ' + body(c) + '\n  });' for c in reference['cases'])
     driver = driver.replace('@@OWNED_TYPES@@', old_types).replace('@@REFERENCE_CASES@@', cases)
     assert '@@' not in driver
-    output.mkdir(parents=True)
+    output.mkdir(parents=True, exist_ok=True)
+    fresh_output(output)
     generated = {'driver.cpp': driver.encode('utf-8'), **helpers}
     for name, raw in generated.items():
-        (output / name).write_bytes(raw)
+        write_new(output / name, raw)
     receipt = {
         'schema': 'PistonLocalWindowNativeTestSourceBinding/v1',
         'status': 'SOURCE_ONLY_NO_GENERATOR_SOLVER_COMPILER_OR_NATIVE_EXECUTION',
@@ -177,7 +198,7 @@ def main():
         'scope': 'Verbatim compiled scalar helper consumer only; not actual replaceable DLL/session execution',
         'work_observation_limit': 'Actual final split counter/status and independent frozen-cell CIEval results; no instrumented production visit/evaluation counters',
     }
-    (output / 'source-binding.json').write_text(json.dumps(receipt, indent=2) + '\n', encoding='utf-8', newline='\n')
+    write_new(output / 'source-binding.json', (json.dumps(receipt, indent=2) + '\n').encode('utf-8'))
     print(json.dumps({'status': receipt['status'], 'reference_cases': len(IDS), 'generated': receipt['generated']}, indent=2))
 
 if __name__ == '__main__':

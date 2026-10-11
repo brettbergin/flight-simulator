@@ -265,5 +265,52 @@ class ProvenanceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'evidence changed'):ci.check_unit_receipt(out,receipt,self.unit_auth,self.work/'unit-execution.json')
 
 
+class ScalarPreparationFreshnessTests(unittest.TestCase):
+    """CMake may create an empty output parent; prior evidence must survive."""
+    def setUp(self):
+        spec = importlib.util.spec_from_file_location('local_window_scalar_prepare',
+            Path(__file__).resolve().parents[2]/'tests/engine/shaft-method/local-window-v2/prepare.py')
+        self.prepare = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.prepare)
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+
+    def test_absent_and_cmake_created_empty_output(self):
+        output = self.root/'generated'
+        self.assertEqual(self.prepare.fresh_output(output), output.absolute())
+        self.assertFalse(output.exists(), 'admission alone cannot create outputs')
+        output.mkdir()
+        self.assertEqual(self.prepare.fresh_output(output), output.absolute())
+        self.assertEqual(list(output.iterdir()), [])
+
+    def test_prior_file_or_subdirectory_is_rejected_and_preserved(self):
+        for kind in ('file', 'directory'):
+            output = self.root/kind
+            output.mkdir()
+            old = output/'.retained'
+            if kind == 'file': old.write_bytes(b'previous qualification')
+            else: old.mkdir()
+            with self.assertRaisesRegex(AssertionError, 'preserve earlier evidence'):
+                self.prepare.fresh_output(output)
+            self.assertTrue(old.exists())
+            if kind == 'file': self.assertEqual(old.read_bytes(), b'previous qualification')
+
+    def test_file_output_and_file_ancestor_are_rejected(self):
+        old = self.root/'retained'
+        old.write_bytes(b'previous qualification')
+        for output in (old, old/'generated'):
+            with self.assertRaisesRegex(AssertionError, 'ordinary directories'):
+                self.prepare.fresh_output(output)
+        self.assertEqual(old.read_bytes(), b'previous qualification')
+
+    def test_exclusive_writes_cannot_overwrite_prior_evidence(self):
+        output = self.root/'driver.cpp'
+        self.prepare.write_new(output, b'original driver')
+        with self.assertRaises(FileExistsError):
+            self.prepare.write_new(output, b'replacement driver')
+        self.assertEqual(output.read_bytes(), b'original driver')
+
+
 if __name__ == '__main__':
     unittest.main()
