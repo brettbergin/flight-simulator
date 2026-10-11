@@ -9,6 +9,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import subprocess
 from pathlib import Path
 import tempfile
 import unittest
@@ -279,6 +280,46 @@ class ReviewedSourcePinTests(unittest.TestCase):
             with self.subTest(source=name):
                 self.assertEqual(ci.sha(repo/name), expected)
 
+
+    def test_build_entry_checkout_keeps_exact_manifest_bytes(self):
+        # Exercise Git's real Windows-style smudge path, not text normalization
+        # inside the qualifier. This private repository never touches owner Git.
+        repo = Path(__file__).resolve().parents[2]
+        name = 'tools/bootstrap/build-local-window.ps1'
+        original = (repo/name).read_bytes()
+        manifest = json.loads((repo/'tests/engine/shaft-method/probes-local-window-v2/probe-manifest.json').read_text(encoding='utf-8'))
+        expected = manifest['shared_sources'][name]
+        attrs = (repo/'.gitattributes').read_bytes()
+        rule = b'tools/bootstrap/build-local-window.ps1 text eol=lf'
+        self.assertEqual(attrs.splitlines().count(rule), 1)
+        self.assertNotIn(b'\r', original)
+        self.assertEqual({'sha256':hashlib.sha256(original).hexdigest(), 'bytes':len(original)}, expected)
+        variants = (('lf', attrs, True), ('missing-rule', b'\n'.join(line for line in attrs.splitlines() if line != rule)+b'\n', False),
+                    ('crlf-rule', attrs.replace(rule, b'tools/bootstrap/build-local-window.ps1 text eol=crlf'), False))
+        env = {key:value for key,value in os.environ.items() if not key.startswith('GIT_')}
+        env.update(GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL=os.devnull, GIT_ATTR_NOSYSTEM='1')
+        for label, attributes, exact in variants:
+            with self.subTest(checkout=label), tempfile.TemporaryDirectory() as temp:
+                scratch = Path(temp)
+                def git(*args):
+                    return subprocess.run(['git', '-c', 'core.autocrlf=true', '-c', 'core.eol=crlf', '-c', 'core.safecrlf=false', '-c', 'core.attributesFile='+os.devnull, *args],
+                                          cwd=scratch, env=env, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                git('init', '--quiet')
+                (scratch/'.gitattributes').write_bytes(attributes)
+                entry = scratch/name
+                entry.parent.mkdir(parents=True)
+                entry.write_bytes(original)
+                git('add', '--', '.gitattributes', name)
+                entry.unlink()  # Only this newly-created temporary test file.
+                git('checkout-index', '--force', '--', name)
+                actual = entry.read_bytes()
+                observed = {'sha256':hashlib.sha256(actual).hexdigest(), 'bytes':len(actual)}
+                if exact:
+                    self.assertEqual(actual, original)
+                    self.assertEqual(observed, expected)
+                else:
+                    self.assertEqual(actual, original.replace(b'\n', b'\r\n'))
+                    self.assertNotEqual(observed, expected, 'raw-byte guard must reject checkout drift')
 
     def test_public_probe_manifest_matches_actual_source_closure(self):
         repo = Path(__file__).resolve().parents[2]

@@ -14,9 +14,9 @@ The new source is `jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2`. W
 
 | Source allocation | SHA256 |
 |---|---|
-| New four-file source identity | `c6f96834a166d72300c999e84d95b1bc1da9127c097773e9731e25a094bba233` |
-| Derived backend identity | `3d445058dca744fe44811fc02977b2722b42c7eabd861ecf5335ab50ee7db743` |
-| Corresponding-source archive,3926779 bytes | `3b50427ed55b9f9ed0e1e5b48876813b34a5de743203b76b141f1c3839e5b1bb` |
+| New four-file source identity | `73000fbab720fe8361d65de049a027b6e280e5f835eedaab92df0bdd1746d770` |
+| Derived backend identity | `2d633139c38d27ec445ca8357ede0fae526f95da80808b3ef45e1708be4189ea` |
+| Corresponding-source archive,3926768 bytes | `7341b8d797082efb2107f12511ac0ecab09fde66423c8bb3b6cd329ddff28177` |
 
 These source-only allocations are not binary hashes or final consumer fingerprints. The current numerical change is confined to FGPropeller.cpp inside the inherited four-file modified-library package. Immutable v1 source, model XML, coefficients, old references and failed artifacts remain unchanged. Build identity retains exactly25 ordered consumer sources and18 unconditional controls. The reviewed implementation entered at `96adddfd908309650a01de64552f563630bdfeea`; two stale fixture counts were corrected separately at `b88218f55a87dfa077a54b4282e8c46d9b252d99`, strengthening explicit four-route admission without changing physics.
 
@@ -38,8 +38,8 @@ The first fresh bindings-ON build at `b88218f55a87dfa077a54b4282e8c46d9b252d99` 
 |---|---|
 | Frozen17 amendment expectations | Accepted independently authored references; regeneration passes; new compiled consumer pending |
 | Old137/default270/library/chronology12/terminal/full-success compatibility | Unchanged criteria; new-source execution pending |
-| Strict Windows/Linux actual compilation and measured isolated executable | First Windows build failed in source generation; fresh successful qualification pending |
-| Thirteen CTests and unchanged twelve-process60/120/240 physical suite | Pending |
+| Strict Windows/Linux actual compilation and measured isolated executable | Retained b66 Windows build measured successfully; successor-source qualification pending |
+| Thirteen CTests and unchanged twelve-process60/120/240 physical suite | Retained b66 Windows trial: ten passed, two failed, physical dependency not run; successor pending |
 | Original298 / complete publications / final1607 / joined ownership | Mandatory in all three actual contexts; pending |
 | Generated identity, loaded library, source/PCK/model/rights/CRT and replacement closure | Fresh qualification pending |
 | Independent final package review and current protected/affected hosted CI | Pending |
@@ -50,3 +50,15 @@ Close only this coverage issue after the complete corrected continuation and qua
 The source-generation correction accepts only absent or ordinary empty output directories, rejects prior contents and link/reparse paths, and creates every output exclusively. Four added public filesystem regressions pass alongside all16 existing native qualifier fixtures. Actual source preparation in both absent and CMake-created empty directories passes and produces byte-identical driver/helper files to the original preparer; attempting reuse rejects and preserves every output. This is source-generation evidence only. The first failed build remains retained; a fresh successful compile and numerical execution are still required.
 
 The next fresh Windows build at `187118e5dc65d6bb371ed1f0390b12cfa82d3ac2` compiled successfully with bindings ON. Its canonical corresponding-source archive passed all21 source/policy checks. Measured authorization then rejected stale duplicate preparer/README pins in the isolated-unit runner before any numerical test executed. The correction updates those two metadata pins and the runner's public source-manifest row; two offline regressions now compare both qualifier pin sets with actual source and check every public probe/shared manifest entry. All32 qualifier fixtures and29 probe fixtures pass. The workflow selects the single canonical `*-library-source.zip` while retaining the separate reproducibility archive. This successful compilation remains retained as untested evidence; a fresh build and measured execution of the corrected source are still required.
+
+## Preserved native failures and reviewed successor
+
+The fresh bindings-ON Windows build at `b66e9d743b42b626a9d89f26863292e4058f00a5` compiled, passed the 21 archive/source-policy checks and received independent review of its measured actual source, compiler commands and binaries. Its actual fingerprint was `598fea7dd5c0782f0fdbe7fc14f0641891cc52d6c5796b9d7e65059320c3596d`. After explicit unit and physical authorization, CTest passed ten tests and failed two; the dependent physical lifecycle test did not run. Neither compilation nor those ten passes establishes repaired flight behavior.
+
+The original 137-case comparator rejected K15_0's changed error text. Independent exact analysis confirms the requested time remains outside the certified half-window and must still reject; ADR024 requires retaining the historical coverage-rejection category. The frozen 17 numerical expectations passed in the new scalar consumer, but its additional floating-point compatibility check expected the wrong first guard on MSVC. The production environment guard remains byte-identical to the historical implementation; the corrected supplement derives its exact expected guard from installed caller rounding, then requires unchanged rounding and full MXCSR. No numerical predicate, reference expectation, tolerance or accepted rejection set is changed.
+
+The separately reviewed [successor allocation PR217](https://github.com/brettbergin/flight-simulator/pull/217) merged as `18bfd945f902b36ca2a459d068ed92ac0310218e` after independent exact-head review and all four protected checks. It preserves ADR016's initial allocation and allocates only the successor source recorded above. Within its deterministic 293-file archive, exactly FGPropeller.cpp, its recipe and derived manifest change. The production correction is one rejection-message literal; the independently reviewed companion scalar supplement changes only its caller-state expectation. Frozen 17/137 references and all original model/source-rights/resource budgets remain unchanged. Source-only review does not allocate or qualify a new compiled fingerprint.
+
+Hosted Windows checks also exposed an independent checkout problem: Git converted the new build entry's 232 LF endings to CRLF, exactly reproducing the unexpected 20,393-byte hash instead of the pinned 20,161-byte source. An exact-file LF attribute fixes checkout; strict raw-hash validation stays intact. A real private Git checkout regression covers LF success and missing-rule/CRLF-rule rejection with global/system configuration and attributes isolated. The retained hosted Ubuntu run reached CTest and failed the same K15 category comparison; it is a separate failure from Windows checkout drift.
+
+Fresh offline checks pass: 53 mathematical/tamper tests, 33 qualifier fixtures including the actual Windows-style Git checkout, 23 native-identity fixtures, 21 actual archive/source-policy checks and 72 rights checks. Five package-fixture junction cases could not create links inside the Windows sandbox; the complete 21-test package-fixture file then passed in the permitted environment. All other 94 Node cases, 15 replay-staging cases and process guard controls passed. A fresh strict successor build, all 13 CTests, the unchanged full physical suite, original replay and all delivery contexts remain pending. Every prior failed attempt and usable launch package remains preserved.

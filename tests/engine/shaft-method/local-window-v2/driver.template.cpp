@@ -136,7 +136,7 @@ void law_case(const LawCase& c) {
       check(same_dyadic(now.remaining.n,requested.n)&&same_dyadic(now.remaining.d,requested.d),"no_event_time_subtraction");
       observations.push_back(std::string(c.id)+":w_bits="+bits(now.w));
     }else if(outcome=="reject_local_time") {
-      rejection(advance,"coupled shaft: local decay time outside certified window");
+      rejection(advance,"coupled shaft: decay continuation uncertified");
     }else if(outcome=="reject_local_uncertified") {
       rejection(advance,"coupled shaft: decay continuation uncertified");
     }else throw std::runtime_error("unknown_frozen_outcome");
@@ -164,9 +164,16 @@ void supplements() {
     (void)j::CCertifyDecayWindow(p,std::nextafter(1.0,2.0),1,used);},"coupled shaft: decay certificate stagnation");
   for(const unsigned mask:{0x8000u,0x0040u,0x2000u}) {
     Controls restore;_mm_setcsr(restore.csr|mask);const unsigned before=_mm_getcsr();
+    const int rounding_before=std::fegetround();
+    check((before&mask)==mask,"unsupported_sse_test_mask_installed");
+    // The first fatal guard is fegetround, which can observe SSE rounding on
+    // MSVC x64; use caller control state, never a returned candidate reason.
+    const char* reason=rounding_before!=FE_TONEAREST
+      ? "event-aware shaft: unsupported rounding mode"
+      : "event-aware shaft: FTZ/DAZ or SSE rounding unsupported";
     rejection([](){(void)j::CAdvanceSegment({-1,0.5,-0.125,0},1,2,
-      j::CoupledRatio(j::CoupledDyadic(0.125),j::CoupledDyadic(1)),false,0);},"event-aware shaft: FTZ/DAZ or SSE rounding unsupported");
-    check(_mm_getcsr()==before,"unsupported_sse_control_not_repaired");
+      j::CoupledRatio(j::CoupledDyadic(0.125),j::CoupledDyadic(1)),false,0);},reason);
+    check(std::fegetround()==rounding_before&&_mm_getcsr()==before,"unsupported_sse_control_not_repaired");
   }
   {Controls restore;check(std::fesetround(FE_TOWARDZERO)==0,"set_test_round_mode");
     rejection([](){(void)j::CAdvanceSegment({-1,0.5,-0.125,0},1,2,

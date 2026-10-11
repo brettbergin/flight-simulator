@@ -6702,7 +6702,8 @@
         "docs/phases/p3-complete-circuit.md",
         "docs/evidence/P3/piston-mixture-decay-coverage.md",
         "docs/evidence/P3/piston-local-window-contract.md",
-        "docs/decisions/016-generated-native-build-identity.md"
+        "docs/decisions/016-generated-native-build-identity.md",
+        ".gitattributes"
       ],
       "docs": [
         "docs/decisions/010-original-piston-profile.md",

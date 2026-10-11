@@ -671,7 +671,7 @@ CoupledAdvance CAdvanceSegment(const CoupledLaw& p,double inertia,double w,
         if(CCertifyDecayWindow(b,w,half,splits)==CoupledDecayCertificate::uncertifiable)
           ShaftReject("coupled shaft: decay continuation uncertified");
         const CoupledRatio halfTime=CTime(p,inertia,w,half);
-        if(CCompare(remaining,halfTime)>=0) ShaftReject("coupled shaft: local decay time outside certified window");
+        if(CCompare(remaining,halfTime)>=0) ShaftReject("coupled shaft: decay continuation uncertified");
         const double result=CSolve(p,inertia,w,half,remaining,drift);
         if(result<0.0 || result>w) ShaftReject("coupled shaft: nonmonotone result");
         // A representable result on/below the private boundary is not an event,

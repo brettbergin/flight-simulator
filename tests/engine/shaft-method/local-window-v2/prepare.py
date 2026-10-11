@@ -15,7 +15,7 @@ NEW = 'third_party/patches/jsbsim/event-aware-coupled-midpoint-local-window-v2'
 REF = 'docs/evidence/P3/piston-local-window-reference'
 PINS = {
     OLD + '/' + CPP_REL: 'e0ff11682070f2fa5a40ed7f14dbfcf56719a186089eb03185af8cdf9227d9f4',
-    NEW + '/' + CPP_REL: 'ae07b0e30bfc1c14c04f3865dc1f08d3db1b122521953767d6601c429598631c',
+    NEW + '/' + CPP_REL: 'bc8414bfd86d482e32c7c3edd5e73352ffa7209b9daec74cf6ac19f1421a6d17',
     OLD + '/' + H_REL: '730819eba6e87b94c75c8e02606f55a8006e54822f8f8f669f24d2941b1be6a5',
     NEW + '/' + H_REL: '730819eba6e87b94c75c8e02606f55a8006e54822f8f8f669f24d2941b1be6a5',
     REF + '/expected.json': 'da53acdff9600e2577832d1e3d110d8cfd221c45e8d1576ff088ef59514bdd7b',

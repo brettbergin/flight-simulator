@@ -186,13 +186,13 @@
       ],
       "library_policy": {
         "linkage": "dynamic",
-        "source_archive_sha256": "3b50427ed55b9f9ed0e1e5b48876813b34a5de743203b76b141f1c3839e5b1bb",
+        "source_archive_sha256": "7341b8d797082efb2107f12511ac0ecab09fde66423c8bb3b6cd329ddff28177",
         "source_delivery": "Reviewed schema3 library-only archive: 293 regular files, 279 vendor paths, 275 pristine and four modified; preserve before-images, recipe, upstream inventory, wrappers, LGPL/embedded notices and exact BUILD replacement instructions.",
         "modification_policy": "Flight-simulator project contributors inherited the four ADR015 propulsion modifications dated 2026-10-09 and changed only FGPropeller.cpp further on 2026-10-11 under retained LGPL-2.1-or-later grants for the ADR024 bounded local decay window. Original copyright/embedded grants remain in force; no aircraft qualification claim.",
         "release_policy": "jsbsim-coupled-midpoint-local-window-v2",
         "source_identity": {
           "path": "third_party/patches/jsbsim/event-aware-coupled-midpoint-local-window-v2/identity.json",
-          "sha256": "c6f96834a166d72300c999e84d95b1bc1da9127c097773e9731e25a094bba233"
+          "sha256": "73000fbab720fe8361d65de049a027b6e280e5f835eedaab92df0bdd1746d770"
         }
       },
       "evidence_file": "docs/decisions/024-certified-local-decay-window.md"

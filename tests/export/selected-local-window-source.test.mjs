@@ -9,7 +9,7 @@ import {auditLocalWindowIdentity} from '../../tools/license-audit/modified-jsbsi
 const repo=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
 const read=name=>JSON.parse(fs.readFileSync(path.join(repo,name),'utf8'));
 const register=read('third_party/licenses/register.json');
-const native={schema:'PreviewNativeBuildIdentity/v2',source_variant:LOCAL_WINDOW,backend_identity_sha256:'3d445058dca744fe44811fc02977b2722b42c7eabd861ecf5335ab50ee7db743'};
+const native={schema:'PreviewNativeBuildIdentity/v2',source_variant:LOCAL_WINDOW,backend_identity_sha256:'2d633139c38d27ec445ca8357ede0fae526f95da80808b3ef45e1708be4189ea'};
 const selection=selectedLibrary(register,native,repo);
 const identity=read(selection.source_identity.path);
 const archive=process.argv[2];assert(archive,'Require actual independently materialized local-window archive');
@@ -18,7 +18,7 @@ const check=(name,action)=>{action();checks++;console.log('PASS '+name);};
 const reject=(name,action)=>check(name,()=>assert.throws(action));
 check('closed local-window identity',()=>assert.deepEqual(auditLocalWindowIdentity(identity),[]));
 check('new reviewed archive',()=>verifySelectedArchive(selection,archive));
-check('new exact policy',()=>{assert.equal(selection.component_id,'jsbsim-coupled-midpoint-local-window-v2');assert.equal(selection.source_identity.sha256,'c6f96834a166d72300c999e84d95b1bc1da9127c097773e9731e25a094bba233');assert.equal(selection.source_archive_bytes,3926779);assert.equal(selection.modified,true);});
+check('new exact policy',()=>{assert.equal(selection.component_id,'jsbsim-coupled-midpoint-local-window-v2');assert.equal(selection.source_identity.sha256,'73000fbab720fe8361d65de049a027b6e280e5f835eedaab92df0bdd1746d770');assert.equal(selection.source_archive_bytes,3926768);assert.equal(selection.modified,true);});
 reject('raw identity is not backend',()=>selectedLibrary(register,{...native,backend_identity_sha256:selection.source_identity.sha256},repo));
 reject('old backend cannot claim v2',()=>selectedLibrary(register,{...native,backend_identity_sha256:'c066b744b180edf04c94ace89edec1d6bdd64018bbcc58d9e630ef0ae3449a6d'},repo));
 reject('new backend cannot claim v1',()=>selectedLibrary(register,{...native,source_variant:COUPLED},repo));

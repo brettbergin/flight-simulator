@@ -3,7 +3,7 @@ from pathlib import Path
 import argparse,hashlib,importlib.util,json
 HERE=Path(__file__).resolve().parent
 
-PINS={'FGPropeller.cpp':'ae07b0e30bfc1c14c04f3865dc1f08d3db1b122521953767d6601c429598631c',
+PINS={'FGPropeller.cpp':'bc8414bfd86d482e32c7c3edd5e73352ffa7209b9daec74cf6ac19f1421a6d17',
       'FGPropeller.h':'730819eba6e87b94c75c8e02606f55a8006e54822f8f8f669f24d2941b1be6a5',
       'FGPiston.cpp':'509097a76de13c00ff29c6e86e4c475aa6cb14694c3091607be72acc92f730b9'}
 def sha(b):return hashlib.sha256(b).hexdigest()
@@ -46,7 +46,7 @@ def main():
     # The driver, wrapper, owned types and standard includes stay outside it.
     helper_name='flight_coupled_exact_vendor_helpers_local_window_v2.inc'
     helpers=values['@@EXACT_HELPERS@@'].encode()
-    assert sha(helpers)=='cf2e57530211747b7fbf38007267a21509f3f891874c5b915a6588aee60940f4','Verbatim helper header changed'
+    assert sha(helpers)=='8983556d0700e5c07670f27ff198bda80743edaa741414e0ff896587ea4c9e7f','Verbatim helper header changed'
     assert driver.count('#include <'+helper_name+'>')==1
     for key,value in values.items():
         if key=='@@EXACT_HELPERS@@':continue

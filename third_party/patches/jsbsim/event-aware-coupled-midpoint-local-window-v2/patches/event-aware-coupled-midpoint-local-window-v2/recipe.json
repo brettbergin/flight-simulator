@@ -29,9 +29,9 @@
     },
     {
       "after": {
-        "bytes": 57216,
+        "bytes": 57205,
         "member": "vendor/src/models/propulsion/FGPropeller.cpp",
-        "sha256": "ae07b0e30bfc1c14c04f3865dc1f08d3db1b122521953767d6601c429598631c"
+        "sha256": "bc8414bfd86d482e32c7c3edd5e73352ffa7209b9daec74cf6ac19f1421a6d17"
       },
       "before": {
         "bytes": 18319,
