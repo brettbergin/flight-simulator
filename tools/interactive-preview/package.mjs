@@ -228,7 +228,7 @@ export function isOriginalAudioSourcePath(file){
 }
 export function stageOriginalAudioNotice(repository,payload,entry){
  assert.equal(entry?.id,'original-prototype-audio');assert.equal(entry.class,'audio-assets');assert.equal(entry.license,'MIT');
- assert(Array.isArray(entry.notice_files)&&entry.notice_files.length===1);const notice=entry.notice_files[0];assert.equal(notice.path,'LICENSE');
+ assert(Array.isArray(entry.notice_files)&&entry.notice_files.length===1);const notice=entry.notice_files[0];assert.equal(notice.path,'third_party/licenses/notices/FirstParty-Interactive-MIT.txt');
  const source=path.join(repository,notice.path);ordinaryAncestors(source);const raw=fs.readFileSync(source);assert.equal(sha(raw),notice.sha256,'Original audio MIT notice differs');
  const file='notices/Original-Audio-MIT.txt',target=path.join(payload,file);fs.mkdirSync(path.dirname(target),{recursive:true});ordinaryAncestors(path.dirname(target));
  if(fs.existsSync(target))ordinaryAncestors(target);fs.writeFileSync(target,raw);

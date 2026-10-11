@@ -343,9 +343,10 @@ test('original audio source attribution stages actual reviewed MIT notice withou
  for(const name of ['WholeFlightPreview.pck','source/whole-flight-preview/audio/audio_cues.gd','source/whole-flight-preview/audio/sample_renderer.gd.uid','interactive/flight_sound.gd'])assert.equal(isOriginalAudioSourcePath(name),false);
  const temporary=fs.mkdtempSync(path.join(root,'audio-notice-')),authored=path.join(temporary,'repo'),payload=path.join(temporary,'payload');fs.mkdirSync(authored);fs.mkdirSync(payload);
  const entry=JSON.parse(fs.readFileSync(path.join(repo,'third_party/licenses/register.json'),'utf8')).entries.find(item=>item.id==='original-prototype-audio');
- const raw=fs.readFileSync(path.join(repo,'LICENSE'));fs.writeFileSync(path.join(authored,'LICENSE'),raw);
- const notice=stageOriginalAudioNotice(authored,payload,entry);assert.equal(notice.file,'notices/Original-Audio-MIT.txt');assert.equal(notice.register_path,'LICENSE');assert.equal(notice.sha256,entry.notice_files[0].sha256);assert(fs.readFileSync(path.join(payload,notice.file)).equals(raw));
+ const noticePath='third_party/licenses/notices/FirstParty-Interactive-MIT.txt',authoredNotice=path.join(authored,noticePath);
+ const raw=fs.readFileSync(path.join(repo,noticePath));fs.mkdirSync(path.dirname(authoredNotice),{recursive:true});fs.writeFileSync(authoredNotice,raw);assert(!raw.includes(13),'Reviewed notice is LF-pinned');
+ const notice=stageOriginalAudioNotice(authored,payload,entry);assert.equal(notice.file,'notices/Original-Audio-MIT.txt');assert.equal(notice.register_path,noticePath);assert.equal(notice.sha256,entry.notice_files[0].sha256);assert(fs.readFileSync(path.join(payload,notice.file)).equals(raw));
  assert.deepEqual(stageOriginalAudioNotice(authored,payload,entry),notice);
- for(const change of [e=>e.id='other',e=>e.class='other',e=>e.license='GPL',e=>e.notice_files=[],e=>e.notice_files[0].path='../LICENSE',e=>e.notice_files[0].sha256='a'.repeat(64)]){const bad=structuredClone(entry);change(bad);assert.throws(()=>stageOriginalAudioNotice(authored,payload,bad));}
- fs.appendFileSync(path.join(authored,'LICENSE'),'drift');assert.throws(()=>stageOriginalAudioNotice(authored,payload,entry));assert(fs.readFileSync(path.join(payload,notice.file)).equals(raw),'Rejected notice preserves staged bytes');
+ for(const change of [e=>e.id='other',e=>e.class='other',e=>e.license='GPL',e=>e.notice_files=[],e=>e.notice_files[0].path='../LICENSE',e=>e.notice_files[0].path='LICENSE',e=>e.notice_files[0].sha256='a'.repeat(64)]){const bad=structuredClone(entry);change(bad);assert.throws(()=>stageOriginalAudioNotice(authored,payload,bad));}
+ fs.appendFileSync(authoredNotice,'drift');assert.throws(()=>stageOriginalAudioNotice(authored,payload,entry));assert(fs.readFileSync(path.join(payload,notice.file)).equals(raw),'Rejected notice preserves staged bytes');
 });

@@ -930,8 +930,8 @@
       ],
       "notice_files": [
         {
-          "path": "LICENSE",
-          "sha256": "b928476750e5c645f3013fe17948c503763dc06586aa28ffbfc291f027f59ffa",
+          "path": "third_party/licenses/notices/FirstParty-Interactive-MIT.txt",
+          "sha256": "ca8c1205d820d40917b54d548b97dde200bc24bc6c3166358e8bc6cc27eb0e9e",
           "source_url": "https://github.com/brettbergin/flight-simulator/blob/main/LICENSE"
         }
       ],
