@@ -574,36 +574,159 @@ function Assert-GroundMaterialSourceGroups {
   Assert-SimulationSourceSnapshot (Join-Path $DestinationRoot $path) $group.snapshot -RequiredEntries $group.required -AllowGeneratedUIDs:$AllowGeneratedUIDs
  }
 }
-# ADR018 leaves and integrated checks travel with every staged player.
+# ADR027 tools-only source groups; this does not assert native start support.
+function Assert-TaxiLayoutContent {
+ param([Parameter(Mandatory)][string]$RepoRoot)
+ $path=Join-Path $RepoRoot 'content/world/synthetic/taxi-layout-v1.json'
+ Assert-PreviewOrdinaryAncestors -Path $path
+ $item=Get-Item -Force -LiteralPath $path -ErrorAction Stop
+ if($item.PSIsContainer -or (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant() -cne 'd8668af407885949a4eb05fbe170d41fe6c6752d3ce15670f9879a36063d355c'){throw 'Exact original taxi layout content required'}
+}
+function Get-TaxiSourceDefinitions {
+ @(
+  @{source='app/world/taxi';destination='world/taxi';required=@('taxi_layout.gd','taxi_navigation.gd')},
+  @{source='app/ui/taxi';destination='ui/taxi';required=@('taxi_panel.gd')},
+  @{source='tests/world/taxi';destination='taxi_tests';required=@('layout_checks.gd','navigation_checks.gd','panel_checks.gd','map_checks.gd','reference/expected-v1.json','reference/generate.py','reference/source-binding-v1.json','reference/README.md','start-reference/expected-v1.json','start-reference/generate.py','start-reference/source-binding-v1.json','start-reference/README.md','start-reference/prop-disk-v1.json','start-reference/generate-prop-disk.py','compatibility-reference/expected-v1.json','compatibility-reference/generate.py','compatibility-reference/source-binding-v1.json','compatibility-reference/README.md')},
+  @{source='tests/integration/taxi';destination='taxi_scene_tests';required=@('scene_checks.gd')}
+ )
+}
+function Get-TaxiReferencePins {
+ @{
+  'reference/expected-v1.json'='9b9579b18c38ba3c1393af76798fa39b8683229fdf2eff553b1c12e0fd3ae37c'
+  'reference/generate.py'='799fbcc5fc2144e713d295559e961d1614e245b7bf2a003135ce1234eedec558'
+  'reference/source-binding-v1.json'='1366d0484be3eb6a6ca13028f7f431894d6c879c01dbe2a04f3107a7a7678c8b'
+  'reference/README.md'='dd070ab6dcfcd45de6c2dd26129b2402c045cc7eb0b5ebfa6dd2a8ceee81df41'
+  'start-reference/expected-v1.json'='fb543ddd1681c3cb040cdfd1c65ff404eb9409e73bb6f613c225a3a501f2e333'
+  'start-reference/generate.py'='da0e7b91bd3a3ea7df60f80b01b75df209bc4271950f6458fa462da4efba2645'
+  'start-reference/source-binding-v1.json'='5b097ee7c6b727e0f19fe4079913c1e0c4ad6453de9628d01a9bc9588c08c230'
+  'start-reference/README.md'='4eb067f2cf2d7bae258984704685578a672be0cae697b6af0b1212bca980eeb6'
+  'start-reference/prop-disk-v1.json'='545c0dc04dfa8e5d10eebaef0458dbfb46bb12f53d2d5ab05cf02004bcfe6537'
+  'start-reference/generate-prop-disk.py'='dd9aa4014416a2871cb13239fc74c29b1ff21c7d6f26e158ff0ad8bfcc02d8ff'
+  'compatibility-reference/expected-v1.json'='0ae22514067840455e4e01fb65cde1c39015e731937ff6971df030ce81a0d811'
+  'compatibility-reference/generate.py'='c7dca2b57ef8ed9d7f0922b8abc7916632cffe6adbecadb40b8b2cbefa40a263'
+  'compatibility-reference/source-binding-v1.json'='92944cb006c2497211c5dec3fa847e17dd52b6dd46df085c6c8bc7864378603c'
+  'compatibility-reference/README.md'='453c91177bb7549b6fb16b30634b7c08fcebd4af79a5c5f2d8e7853a210a35b9'
+ }
+}
+function Get-TaxiSourceGroups {
+ param([Parameter(Mandatory)][string]$RepoRoot)
+ $groups=@(Get-TaxiSourceDefinitions|ForEach-Object {$_.snapshot=@(Get-SimulationSourceSnapshot (Join-Path $RepoRoot $_.source) -RequiredEntries $_.required);$_})
+ Assert-TaxiSourceGroups -Root $RepoRoot -Groups $groups -Authoring
+ $groups
+}
+function Assert-TaxiSourceGroups {
+ param([Parameter(Mandatory)][string]$Root,[Parameter(Mandatory)][object[]]$Groups,[switch]$Authoring,[switch]$AllowGeneratedUIDs)
+ $definitions=@(Get-TaxiSourceDefinitions)
+ if($Groups.Count -ne $definitions.Count){throw 'Complete taxi source group roster required'}
+ for($i=0;$i -lt $definitions.Count;$i++){
+  $group=$Groups[$i];$definition=$definitions[$i]
+  if($group.source -cne $definition.source -or $group.destination -cne $definition.destination -or ($group.required -join "`n") -cne ($definition.required -join "`n") -or (($group.snapshot.path|Sort-Object) -join "`n") -cne (($definition.required|Sort-Object) -join "`n")){throw 'Closed taxi source descriptor/roster rejected'}
+  if($group.source -ceq 'tests/world/taxi'){foreach($entry in (Get-TaxiReferencePins).GetEnumerator()){ $rows=@($group.snapshot|Where-Object {$_.path -ceq $entry.Key});if($rows.Count -ne 1 -or $rows[0].sha256 -cne $entry.Value){throw 'Frozen taxi reference bytes changed'} }}
+  $folder=if($Authoring){$group.source}else{$group.destination}
+  Assert-SimulationSourceSnapshot -SourceRoot (Join-Path $Root $folder) -Snapshot $group.snapshot -RequiredEntries $group.required -AllowGeneratedUIDs:$AllowGeneratedUIDs
+ }
+}
+function Copy-TaxiSourceGroups {
+ param([Parameter(Mandatory)][string]$RepoRoot,[Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Groups)
+ Assert-TaxiSourceGroups -Root $RepoRoot -Groups $Groups -Authoring
+ foreach($group in $Groups){Copy-SimulationSourceSnapshot (Join-Path $RepoRoot $group.source) (Join-Path $DestinationRoot $group.destination) $group.snapshot -RequiredEntries $group.required}
+ Assert-TaxiSourceGroups -Root $DestinationRoot -Groups $Groups
+ Assert-TaxiSourceGroups -Root $RepoRoot -Groups $Groups -Authoring
+}
+function Test-PreviewApronStartSourceBindings {
+ param([Parameter(Mandatory)]$NativeIdentity)
+ # Caller supplies Get-PreviewNativeBuildIdentity's already independently closed
+ # 25-row identity. These three raw pins additionally bind the new start code.
+ $pins=@{
+  'native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp'='40511064929f717e57ed3ff084a3aad0f9af6c406bb50ba74ec1a4fdbe5fcd8f'
+  'native/fdm_jsbsim/interactive/src/session.cpp'='272edf5984dc9205c75f7103546b0312c78ba43f05f416dad929172b8ef6fbeb'
+  'native/godot_bridge/src/interactive_bridge.cpp'='0ebe3a59122368733745f05d82204a2e5a2b9187e985c89bff7b59a6f5e9dcd3'
+ }
+ foreach($path in $pins.Keys){
+  $rows=@($NativeIdentity.source_bindings|Where-Object {$_.path -ceq $path})
+  if($rows.Count -ne 1 -or $rows[0].raw_sha256 -cne $pins[$path]){return $false}
+ }
+ return $true
+}
+function Test-PreviewTaxiStartSource {
+ param([Parameter(Mandatory)]$NativeIdentity)
+ return ($NativeIdentity.source_variant -ceq 'jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2' -and (Test-PreviewApronStartSourceBindings -NativeIdentity $NativeIdentity))
+}
+
+# ADR018 leaves remain exact; ADR027 adds one explicitly bound composite file.
 function Get-FirstFlightSourceGroups {
  param([Parameter(Mandatory)][string]$RepoRoot)
+ Assert-TaxiLayoutContent -RepoRoot $RepoRoot
  @(
   @{source='app/ui/first_flight';destination='ui/first_flight';required=@('briefing_panel.gd','binding_help.gd','circuit_guide.gd')},
   @{source='app/world/synthetic';destination='world/synthetic';required=@('circuit_geometry.gd')},
   @{source='content/scenarios/first-flight';destination='content/scenarios/first-flight';required=@('briefing.json')},
-  @{source='content/world/synthetic';destination='content/world/synthetic';required=@('practice-circuit.json')},
+  @{source='content/world/synthetic';destination='content/world/synthetic';required=@('practice-circuit.json','taxi-layout-v1.json')},
   @{source='tests/scenarios/first-flight';destination='scenario_tests/first-flight';required=@('briefing_checks.gd','circuit_checks.gd')},
   @{source='tests/ui/first_flight';destination='first_flight_ui_tests';required=@('briefing_checks.gd')},
   @{source='tests/world/synthetic';destination='world_tests/synthetic';required=@('circuit_checks.gd')},
   @{source='tests/integration/first_flight';destination='first_flight_scene_tests';required=@('scene_checks.gd','map_checks.gd','visual_checks.gd','layout_visual_checks.gd','hud_caption_visual_checks.gd')}
- )|ForEach-Object {$_.snapshot=@(Get-SimulationSourceSnapshot (Join-Path $RepoRoot $_.source) -RequiredEntries $_.required);$_}
+ )|ForEach-Object {
+  $_.snapshot=@(Get-SimulationSourceSnapshot (Join-Path $RepoRoot $_.source) -RequiredEntries $_.required)
+  if($_.source -ceq 'app/world/synthetic'){
+   if(@($_.snapshot.path) -ccontains 'taxi-layout-v1.json'){throw 'Taxi layout is owned by content, never a duplicate authored world file'}
+   $layout=Get-Item -LiteralPath (Join-Path $RepoRoot 'content/world/synthetic/taxi-layout-v1.json')
+   $_.snapshot=@($_.snapshot)+@([pscustomobject]@{path='taxi-layout-v1.json';bytes=$layout.Length;sha256='d8668af407885949a4eb05fbe170d41fe6c6752d3ce15670f9879a36063d355c'})
+   $_.snapshot=@($_.snapshot|Sort-Object path)
+   $_.required+=@('taxi-layout-v1.json')
+  }
+  $_
+ }
 }
 function Copy-FirstFlightSourceGroups {
  param([Parameter(Mandatory)][string]$RepoRoot,[Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Groups)
- foreach($group in $Groups){Copy-SimulationSourceSnapshot (Join-Path $RepoRoot $group.source) (Join-Path $DestinationRoot $group.destination) $group.snapshot -RequiredEntries $group.required}
+ Assert-FirstFlightSourceGroups -DestinationRoot $RepoRoot -Groups $Groups -Authoring
+ foreach($group in $Groups){
+  if($group.source -ceq 'app/world/synthetic'){
+   $authored=@($group.snapshot|Where-Object {$_.path -cne 'taxi-layout-v1.json'})
+   Copy-SimulationSourceSnapshot (Join-Path $RepoRoot $group.source) (Join-Path $DestinationRoot $group.destination) $authored -RequiredEntries @('circuit_geometry.gd')
+   Copy-Item -LiteralPath (Join-Path $RepoRoot 'content/world/synthetic/taxi-layout-v1.json') -Destination (Join-Path $DestinationRoot 'world/synthetic/taxi-layout-v1.json')
+  }else{Copy-SimulationSourceSnapshot (Join-Path $RepoRoot $group.source) (Join-Path $DestinationRoot $group.destination) $group.snapshot -RequiredEntries $group.required}
+ }
+ Assert-FirstFlightSourceGroups -DestinationRoot $DestinationRoot -Groups $Groups
+ Assert-FirstFlightSourceGroups -DestinationRoot $RepoRoot -Groups $Groups -Authoring
 }
 function Assert-FirstFlightSourceGroups {
  param([Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Groups,[switch]$Authoring,[switch]$AllowGeneratedUIDs)
  foreach($group in $Groups){
-  $path=if($Authoring){$group.source}else{$group.destination}
-  Assert-SimulationSourceSnapshot (Join-Path $DestinationRoot $path) $group.snapshot -RequiredEntries $group.required -AllowGeneratedUIDs:$AllowGeneratedUIDs
+  if($Authoring -and $group.source -ceq 'app/world/synthetic'){
+   Assert-TaxiLayoutContent -RepoRoot $DestinationRoot
+   $layout=@($group.snapshot|Where-Object {$_.path -ceq 'taxi-layout-v1.json'})
+   $actual=Get-Item -LiteralPath (Join-Path $DestinationRoot 'content/world/synthetic/taxi-layout-v1.json')
+   if($layout.Count -ne 1 -or $layout[0].bytes -ne $actual.Length -or $layout[0].sha256 -cne 'd8668af407885949a4eb05fbe170d41fe6c6752d3ce15670f9879a36063d355c'){throw 'Composite taxi layout descriptor rejected'}
+   Assert-SimulationSourceSnapshot (Join-Path $DestinationRoot $group.source) @($group.snapshot|Where-Object {$_.path -cne 'taxi-layout-v1.json'}) -RequiredEntries @('circuit_geometry.gd')
+  }else{
+   $path=if($Authoring){$group.source}else{$group.destination}
+   Assert-SimulationSourceSnapshot (Join-Path $DestinationRoot $path) $group.snapshot -RequiredEntries $group.required -AllowGeneratedUIDs:$AllowGeneratedUIDs
+  }
  }
 }
+
 function Write-SimulationCheckHarness {
- param([Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)][string]$RepoRoot,[switch]$IncludePiston)
+ param([Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)][string]$RepoRoot,[switch]$IncludePiston,$NativeIdentity=$null)
+ $taxiGroups=@(Get-TaxiSourceGroups -RepoRoot $RepoRoot)
+ Copy-TaxiSourceGroups -RepoRoot $RepoRoot -DestinationRoot $ProjectRoot -Groups $taxiGroups
+ $taxiFullSupported='false'
+ $apronCameraCoverage=$false
+ if($null -ne $NativeIdentity){$apronCameraCoverage=Test-PreviewApronStartSourceBindings -NativeIdentity $NativeIdentity}
+ if($IncludePiston){
+  if($null -eq $NativeIdentity){throw 'Actual independently qualified native identity required'}
+  if($NativeIdentity.source_variant -ceq 'jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2'){
+   if(-not (Test-PreviewTaxiStartSource -NativeIdentity $NativeIdentity)){throw 'Mandatory actual source-qualified apron starts absent'}
+   $taxiFullSupported='true'
+  }
+ }
+ $taxiPairs=@(foreach($group in $taxiGroups){foreach($file in $group.snapshot){,@(($group.source+'/'+$file.path),('res://'+$group.destination+'/'+$file.path))}})
+ $taxiPairs+=,@('content/world/synthetic/taxi-layout-v1.json','res://world/synthetic/taxi-layout-v1.json')
+ $taxiSourcePairs=ConvertTo-Json -InputObject $taxiPairs -Depth 5 -Compress
  $cameraGroups=@(Get-CameraSourceGroups -RepoRoot $RepoRoot)
  Copy-CameraSourceGroups -RepoRoot $RepoRoot -DestinationRoot $ProjectRoot -Groups $cameraGroups
- Write-PreviewCameraCheckHarness -ProjectRoot $ProjectRoot -Groups $cameraGroups -IncludePiston ([bool]$IncludePiston)
+ Write-PreviewCameraCheckHarness -ProjectRoot $ProjectRoot -Groups $cameraGroups -IncludePiston ([bool]$IncludePiston) -IncludeApron $apronCameraCoverage
  $wireGroups=@(Get-WireCodecSourceGroups -RepoRoot $RepoRoot)
  Copy-WireCodecSourceGroups -RepoRoot $RepoRoot -DestinationRoot $ProjectRoot -Groups $wireGroups
  # Staging applicability follows the already verified generated identity resource.
@@ -812,7 +935,7 @@ func execute() -> void:
   return
  identity_file.store_string(JSON.stringify(identity_receipt))
  identity_file.close()
- for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests","res://world/wind","res://ui/wind","res://wind_tests","res://wind_scene_tests","res://audio","res://ui/audio","res://audio_tests","res://ui/first_flight","res://world/synthetic","res://scenario_tests/first-flight","res://first_flight_ui_tests","res://world_tests/synthetic","res://first_flight_scene_tests","res://wire_codec_tests","res://camera","res://ui/camera","res://camera_tests"$pistonCompileFolder$localWindowReplayCompileFolder]:
+ for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests","res://world/wind","res://ui/wind","res://wind_tests","res://wind_scene_tests","res://audio","res://ui/audio","res://audio_tests","res://ui/first_flight","res://world/synthetic","res://world/taxi","res://ui/taxi","res://taxi_tests","res://taxi_scene_tests","res://scenario_tests/first-flight","res://first_flight_ui_tests","res://world_tests/synthetic","res://first_flight_scene_tests","res://wire_codec_tests","res://camera","res://ui/camera","res://camera_tests"$pistonCompileFolder$localWindowReplayCompileFolder]:
   for name in DirAccess.get_files_at(folder):
    if name.ends_with(".gd"):
     var script=load(folder.path_join(name)) as Script
@@ -972,6 +1095,52 @@ $pistonChecks
   numeric_file.store_string(JSON.stringify(numeric,"  "))
   numeric_file.close()
  stage("end","wire_codec")
+ var taxi_groups: Dictionary={}
+ stage("begin","taxi.layout")
+ taxi_groups.layout=load("res://taxi_tests/layout_checks.gd").run()
+ stage("end","taxi.layout")
+ stage("begin","taxi.panel")
+ taxi_groups.panel=await load("res://taxi_tests/panel_checks.gd").new().run(self)
+ stage("end","taxi.panel")
+ stage("begin","taxi.map")
+ taxi_groups.map=load("res://taxi_tests/map_checks.gd").new().run(self)
+ stage("end","taxi.map")
+ taxi_groups.scene=null
+ if ${taxiFullSupported}:
+  stage("begin","taxi.scene")
+  taxi_groups.scene=await load("res://taxi_scene_tests/scene_checks.gd").new().run(self)
+  stage("end","taxi.scene")
+ var taxi_failures: Array[String]=[]
+ var taxi_checks: int=0
+ for name in taxi_groups:
+  if name=="scene" and not ${taxiFullSupported}: continue
+  var child: Variant=taxi_groups[name]
+  var child_ok: bool=typeof(child)==TYPE_DICTIONARY
+  if child_ok:
+   child_ok=child.keys().size()==4 and child.has("passed") and child.has("checks") and child.has("failures") and child.has("scope")
+  if child_ok:
+   child_ok=typeof(child.passed)==TYPE_BOOL and child.passed and typeof(child.checks)==TYPE_INT and child.checks>0 and typeof(child.failures)==TYPE_ARRAY and child.failures.is_empty() and typeof(child.scope)==TYPE_STRING and not child.scope.is_empty()
+  check(child_ok,"actual_taxi_"+name+"_checks")
+  if not child_ok: taxi_failures.append("taxi_"+name+"_failed_or_vacuous")
+  if typeof(child)==TYPE_DICTIONARY and typeof(child.get("checks"))==TYPE_INT and child.checks>0:
+   taxi_checks+=child.checks
+   checks+=child.checks
+ if not ${taxiFullSupported}: taxi_failures.append("taxi_full_start_domain_unavailable")
+ var taxi_source_files: Dictionary={}
+ var taxi_pairs: Array=$taxiSourcePairs
+ for item in taxi_pairs:
+  var raw: PackedByteArray=FileAccess.get_file_as_bytes(item[1])
+  taxi_source_files[item[0]]={"bytes":raw.size(),"sha256":FileAccess.get_sha256(item[1])}
+ var taxi_harness_raw: PackedByteArray=FileAccess.get_file_as_bytes("res://sim_loop_checks.gd")
+ var taxi_report: Dictionary={"schema":"TaxiNavigationChecks/v1","passed":taxi_failures.is_empty(),"checks":taxi_checks,"failures":taxi_failures,"scope":"Actual pure layout, copied paused panel and synthetic map checks; full_supported adds actual source-qualified apron adoption/page modal/lifecycle/navigation checks. No moving taxi journey, rendered legibility, C172, pilot or phase acceptance.","full_supported":${taxiFullSupported},"groups":taxi_groups,"source_files":taxi_source_files,"native_identity":identity_receipt.duplicate(true),"harness_file":{"path":"sim_loop_checks.gd","bytes":taxi_harness_raw.size(),"sha256":FileAccess.get_sha256("res://sim_loop_checks.gd")}}
+ var taxi_output: String=ProjectSettings.globalize_path("res://taxi-check-receipt.json") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("taxi-check-receipt.json")
+ var taxi_file=FileAccess.open(taxi_output,FileAccess.WRITE)
+ check(taxi_file!=null,"taxi_receipt_saved")
+ if taxi_file!=null:
+  taxi_file.store_string(JSON.stringify(taxi_report,"  ",false,true))
+  taxi_file.close()
+ print("TAXI_NAVIGATION_CHECKS_PASSED" if taxi_report.passed else ("TAXI_NAVIGATION_FULL_GATE_UNAVAILABLE" if not ${taxiFullSupported} and taxi_failures==["taxi_full_start_domain_unavailable"] else "TAXI_NAVIGATION_CHECKS_FAILED"))
+
 $localWindowReplayChecks
  var report: Dictionary={"schema_version":1,"scope":"Headless actual-native facade and synthetic wire/render fixtures; GPU and pilot qualification separate","passed":failures.is_empty(),"checks":checks,"failures":failures.duplicate(),"facade":facade,"origin":origin,"participants":participants,"wire":wire,"scene":scene,"input":input,"input_scene":input_scene,"instruments":instruments,"cockpit":cockpit_checks,"freeflight":freeflight_checks,"observed":observed_checks,"observed_archive":archive_checks,"wind":wind_checks,"first_flight":first_flight_checks,"audio":audio_checks}
  var output: String=ProjectSettings.globalize_path("res://facade-check-receipt.json") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("facade-check-receipt.json")

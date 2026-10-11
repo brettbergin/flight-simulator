@@ -53,3 +53,10 @@ content/world/synthetic/taxi-layout-v1.json text eol=lf
 schemas/world/synthetic-taxi-layout-v1.schema.json text eol=lf
 tests/world/taxi/reference/** text eol=lf
 tests/world/taxi/start-reference/** text eol=lf
+
+# Preserve independently frozen complete apron record/archive fixtures.
+tests/world/taxi/compatibility-reference/** text eol=lf
+
+# Raw source pins are identical in ordinary Windows checkouts and source archives.
+native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp text eol=lf
+native/fdm_jsbsim/interactive/src/session.cpp text eol=lf

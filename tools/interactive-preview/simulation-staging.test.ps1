@@ -702,7 +702,7 @@ Write-Output 'PASS generated pointer harness source-pair shape and self-hash'
 
 # ADR018 resources must survive authoring/staged/corresponding source intact.
 $firstFlightGroups=@(Get-FirstFlightSourceGroups -RepoRoot $repo)
-if($firstFlightGroups.Count -ne 8 -or @($firstFlightGroups|ForEach-Object {$_.snapshot}).Count -ne 16){throw 'Complete first-flight resource roster including original taxi layout required'}
+if($firstFlightGroups.Count -ne 8 -or @($firstFlightGroups|ForEach-Object {$_.snapshot}).Count -ne 17){throw 'Complete first-flight composite resource roster including both original taxi layout copies required'}
 $firstFlightStage=Join-Path $testRoot 'first-flight-stage'
 $firstFlightSource=Join-Path $testRoot 'first-flight-source'
 Copy-FirstFlightSourceGroups -RepoRoot $repo -DestinationRoot $firstFlightStage -Groups $firstFlightGroups
@@ -722,6 +722,19 @@ Must-Reject {Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -
 Remove-Item -LiteralPath $taxiStaged
 Must-Reject {Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -Groups $firstFlightGroups} 'omitted original taxi layout from shared world-content stage'
 [IO.File]::WriteAllBytes($taxiStaged,$taxiStagedBytes)
+Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -Groups $firstFlightGroups
+# Runtime content is a composite of two separately owned authoring roots.
+$taxiRuntime=Join-Path $firstFlightStage 'world/synthetic/taxi-layout-v1.json'
+if((Get-FileHash -LiteralPath $taxiRuntime -Algorithm SHA256).Hash -cne (Get-FileHash -LiteralPath $taxiStaged -Algorithm SHA256).Hash){throw 'Runtime and original content layout bytes differ'}
+Remove-Item -LiteralPath $taxiRuntime
+Must-Reject {Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -Groups $firstFlightGroups} 'missing runtime layout despite original content present'
+[IO.File]::WriteAllBytes($taxiRuntime,$taxiStagedBytes)
+[IO.File]::WriteAllBytes($taxiRuntime,$taxiStagedChanged)
+Must-Reject {Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -Groups $firstFlightGroups} 'same-length runtime layout drift'
+[IO.File]::WriteAllBytes($taxiRuntime,$taxiStagedBytes)
+[IO.File]::WriteAllText(($taxiRuntime+'.uid'),"uid://notascript`n")
+Must-Reject {Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -Groups $firstFlightGroups -AllowGeneratedUIDs} 'UID sidecar for JSON is not a bound script'
+Remove-Item -LiteralPath ($taxiRuntime+'.uid')
 Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -Groups $firstFlightGroups
 $firstFlightBound=Join-Path $firstFlightStage 'world_tests/synthetic/circuit_checks.gd'
 $firstFlightBytes=[IO.File]::ReadAllBytes($firstFlightBound)
@@ -877,7 +890,7 @@ Assert-PreviewCameraHarnessFiles -ProjectRoot $project
 Pass 'exact_two_generated_resources_admitted'
 Reject {Write-PreviewCameraCheckHarness -ProjectRoot $project -Groups $groups -IncludePiston $true} 'generated_destination_overwrite_refused'
 $cameraCode=[IO.File]::ReadAllText((Join-Path $project 'camera_checks.gd'))
-if($cameraCode -notmatch 'capture_observed=Input.mouse_mode==Input.MOUSE_MODE_CAPTURED' -or $cameraCode -notmatch 'DisplayServer.get_name\(\)=="headless"' -or $cameraCode -notmatch 'CAMERA_CHECKS_PASSED' -or $cameraCode -notmatch '"camera_checks.tscn"' -or $cameraCode -notmatch 'await load\("res://camera_tests/scene_checks.gd"\).new\(\).run\(camera_host,true\)'){throw 'Required graphical/capture/child/generated source absent'}
+if($cameraCode -notmatch 'capture_observed=Input.mouse_mode==Input.MOUSE_MODE_CAPTURED' -or $cameraCode -notmatch 'DisplayServer.get_name\(\)=="headless"' -or $cameraCode -notmatch 'CAMERA_CHECKS_PASSED' -or $cameraCode -notmatch '"camera_checks.tscn"' -or $cameraCode -notmatch 'await load\("res://camera_tests/scene_checks.gd"\).new\(\).run\(camera_host,true,false\)'){throw 'Required graphical/capture/child/generated source absent'}
 Pass 'actual_capture_and_three_checks_mandatory_in_graphical_source'
 if($cameraCode -notmatch 'RenderingServer.get_current_rendering_driver_name' -or $cameraCode -notmatch 'actual_driver!=requested_driver' -or $cameraCode -notmatch 'CAMERA_RENDERING_DRIVER_MISMATCH' -or $cameraCode -notmatch 'CAMERA_RENDERING method='){throw 'Actual driver/fallback rejection missing'}
 Pass 'actual_driver_and_method_match_required_before_capture'
@@ -1005,3 +1018,100 @@ assert.equal(Object.keys(result.harness_files).length,2);
  Assert-CameraSourceGroups -Root $hostRepo -Groups $groups -Authoring
  @{passed=$true;scope='Offline reconstruction producer and unchanged source-consumer seam; no native/Godot execution';checks=$checks.Count;names=@($checks);fixture=$fixture}|ConvertTo-Json -Depth 5
 } $repo $PSScriptRoot $Python
+
+# ADR027 closed taxi resources and pure delivery admission (never native proof).
+$taxiSourceGroups=@(Get-TaxiSourceGroups -RepoRoot $repo)
+if($taxiSourceGroups.Count -ne 4 -or @($taxiSourceGroups|ForEach-Object {$_.snapshot}).Count -ne 22){throw 'Exact taxi module/test/reference roster required'}
+$taxiProjectFixture=Join-Path $testRoot 'taxi-project'
+$taxiSourceFixture=Join-Path $testRoot 'taxi-source'
+Copy-TaxiSourceGroups -RepoRoot $repo -DestinationRoot $taxiProjectFixture -Groups $taxiSourceGroups
+Copy-TaxiSourceGroups -RepoRoot $repo -DestinationRoot $taxiSourceFixture -Groups $taxiSourceGroups
+foreach($root in @($taxiProjectFixture,$taxiSourceFixture)){
+ New-Item -ItemType Directory -Force -Path (Join-Path $root 'world/synthetic')|Out-Null
+ Copy-Item -LiteralPath (Join-Path $repo 'content/world/synthetic/taxi-layout-v1.json') -Destination (Join-Path $root 'world/synthetic/taxi-layout-v1.json')
+ # Test-owned stand-in for hashing/closure only, not an executable proof harness.
+ [IO.File]::WriteAllText((Join-Path $root 'sim_loop_checks.gd'),'extends Node # pure source-binding fixture')
+}
+$taxiScript=Join-Path $taxiProjectFixture 'world/taxi/taxi_layout.gd'
+$taxiOriginalScript=[IO.File]::ReadAllBytes($taxiScript)
+$taxiChangedScript=[byte[]]$taxiOriginalScript.Clone();$taxiChangedScript[0]=$taxiChangedScript[0] -bxor 1
+[IO.File]::WriteAllBytes($taxiScript,$taxiChangedScript)
+Must-Reject {Assert-TaxiSourceGroups -Root $taxiProjectFixture -Groups $taxiSourceGroups} 'taxi script same-length drift'
+[IO.File]::WriteAllBytes($taxiScript,$taxiOriginalScript)
+[IO.File]::WriteAllText(($taxiScript+'.uid'),"uid://taxifixture`n")
+Assert-TaxiSourceGroups -Root $taxiProjectFixture -Groups $taxiSourceGroups -AllowGeneratedUIDs
+Must-Reject {Assert-TaxiSourceGroups -Root $taxiProjectFixture -Groups $taxiSourceGroups} 'taxi UID in exact corresponding source'
+Remove-Item -LiteralPath ($taxiScript+'.uid')
+$taxiExtra=Join-Path $taxiProjectFixture 'taxi_tests/unbound.gd'
+[IO.File]::WriteAllText($taxiExtra,'extends RefCounted')
+Must-Reject {Assert-TaxiSourceGroups -Root $taxiProjectFixture -Groups $taxiSourceGroups -AllowGeneratedUIDs} 'unbound taxi script'
+Remove-Item -LiteralPath $taxiExtra
+$taxiReference=Join-Path $taxiProjectFixture 'taxi_tests/start-reference/expected-v1.json'
+$taxiReferenceBytes=[IO.File]::ReadAllBytes($taxiReference)
+Remove-Item -LiteralPath $taxiReference
+Must-Reject {Assert-TaxiSourceGroups -Root $taxiProjectFixture -Groups $taxiSourceGroups} 'missing preconsumer pose reference'
+[IO.File]::WriteAllBytes($taxiReference,$taxiReferenceBytes)
+Assert-TaxiSourceGroups -Root $taxiProjectFixture -Groups $taxiSourceGroups
+$taxiKnownPins=@{
+ 'native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp'='40511064929f717e57ed3ff084a3aad0f9af6c406bb50ba74ec1a4fdbe5fcd8f'
+ 'native/fdm_jsbsim/interactive/src/session.cpp'='272edf5984dc9205c75f7103546b0312c78ba43f05f416dad929172b8ef6fbeb'
+ 'native/godot_bridge/src/interactive_bridge.cpp'='0ebe3a59122368733745f05d82204a2e5a2b9187e985c89bff7b59a6f5e9dcd3'
+}
+$taxiKnownIdentity=[pscustomobject]@{source_variant='jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2';source_bindings=@(foreach($entry in $taxiKnownPins.GetEnumerator()){[pscustomobject]@{path=$entry.Key;raw_sha256=$entry.Value}})}
+if(-not (Test-PreviewApronStartSourceBindings $taxiKnownIdentity) -or -not (Test-PreviewTaxiStartSource $taxiKnownIdentity)){throw 'Known independent apron code pins required'}
+foreach($row in $taxiKnownIdentity.source_bindings){
+ $saved=$row.raw_sha256;$row.raw_sha256=('b'*64)
+ if((Test-PreviewApronStartSourceBindings $taxiKnownIdentity) -or (Test-PreviewTaxiStartSource $taxiKnownIdentity)){throw 'Any changed apron source row must reject'}
+ $row.raw_sha256=$saved
+}
+$taxiKnownIdentity.source_variant='jsbsim-1.3.1-upstream'
+if(-not (Test-PreviewApronStartSourceBindings $taxiKnownIdentity) -or (Test-PreviewTaxiStartSource $taxiKnownIdentity)){throw 'New upstream ready camera domain is distinct from full cold/apron taxi gate'}
+$taxiNodeChecks=@'
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import {pathToFileURL} from 'node:url';
+const [modulePath,repository,project,source]=process.argv.slice(2);
+const {validateTaxiSources,validateTaxiReceipt,taxiStartsSupported,taxiStartSourcePins}=await import(pathToFileURL(modulePath));
+// This is a labelled synthetic receipt/source-gate test, NOT compiled identity.
+const independentlyBoundStartPins={
+ 'native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp':'40511064929f717e57ed3ff084a3aad0f9af6c406bb50ba74ec1a4fdbe5fcd8f',
+ 'native/fdm_jsbsim/interactive/src/session.cpp':'272edf5984dc9205c75f7103546b0312c78ba43f05f416dad929172b8ef6fbeb',
+ 'native/godot_bridge/src/interactive_bridge.cpp':'0ebe3a59122368733745f05d82204a2e5a2b9187e985c89bff7b59a6f5e9dcd3',
+};
+assert.deepEqual(taxiStartSourcePins,independentlyBoundStartPins);
+const identity={source_variant:'jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2',source_bindings:Object.entries(independentlyBoundStartPins).map(([path,raw_sha256])=>({path,raw_sha256})),resource:{bytes:1,sha256:'a'.repeat(64)}};
+const bound=validateTaxiSources(repository,project,source);
+// Editor same-root comparison permits only an already-bound script UID.
+const editorUID=path.join(project,'world/taxi/taxi_layout.gd.uid');
+try{fs.writeFileSync(editorUID,'uid://taxifixture\n');assert.deepEqual(validateTaxiSources(repository,project,project),bound);}finally{fs.unlinkSync(editorUID);}
+const child=()=>({passed:true,checks:1,failures:[],scope:'Synthetic receipt admission fixture only'});
+const receipt=()=>({schema:'TaxiNavigationChecks/v1',passed:true,checks:4,failures:[],scope:'Synthetic source and shape test, no runtime',full_supported:true,groups:{layout:child(),panel:child(),map:child(),scene:child()},source_files:structuredClone(bound.source_files),native_identity:{schema:'PreviewNativeResource/v1',path:'build/native_identity.gd',...identity.resource},harness_file:structuredClone(bound.harness_file)});
+const options={nativeIdentity:identity,sourceFiles:bound.source_files,harnessFile:bound.harness_file,requireFullSupported:true};
+assert.equal(validateTaxiReceipt(receipt(),options).checks,4);
+let negatives=0;
+function rejected(fn){assert.throws(fn);negatives++;}
+for(const mutate of [r=>r.extra=true,r=>delete r.groups.scene,r=>r.groups.scene=null,r=>r.groups.panel.checks=0,r=>r.groups.map.passed=false,r=>r.checks=5,r=>r.full_supported=false,r=>r.source_files['content/world/synthetic/taxi-layout-v1.json'].sha256='b'.repeat(64),r=>r.harness_file.sha256='b'.repeat(64),r=>r.native_identity.sha256='b'.repeat(64),r=>r.failures=['bad']]){
+ const r=receipt();mutate(r);rejected(()=>validateTaxiReceipt(r,options));
+}
+for(const name of Object.keys(taxiStartSourcePins)){
+ const altered=structuredClone(identity);altered.source_bindings.find(row=>row.path===name).raw_sha256='b'.repeat(64);
+ assert.equal(taxiStartsSupported(altered),false);rejected(()=>validateTaxiReceipt(receipt(),{...options,nativeIdentity:altered}));
+}
+const duplicate=structuredClone(identity);duplicate.source_bindings.push(duplicate.source_bindings[0]);assert.equal(taxiStartsSupported(duplicate),false);
+const variantOnly=structuredClone(identity);variantOnly.source_bindings=[];assert.equal(taxiStartsSupported(variantOnly),false);
+const old=structuredClone(identity);old.source_variant='jsbsim-1.3.1-event-aware-coupled-midpoint-v1';assert.equal(taxiStartsSupported(old),false);
+const partial=receipt();partial.full_supported=false;partial.passed=false;partial.failures=['taxi_full_start_domain_unavailable'];partial.groups.scene=null;partial.checks=3;
+assert.equal(validateTaxiReceipt(partial,{...options,requireFullSupported:false}).full_supported,false);
+rejected(()=>validateTaxiReceipt(partial,options));
+const rawPath=path.join(project,'world/synthetic/taxi-layout-v1.json'),raw=fs.readFileSync(rawPath);
+try{fs.unlinkSync(rawPath);rejected(()=>validateTaxiSources(repository,project,source));fs.writeFileSync(rawPath,raw);const changed=Buffer.from(raw);changed[0]^=1;fs.writeFileSync(rawPath,changed);rejected(()=>validateTaxiSources(repository,project,source));}finally{fs.writeFileSync(rawPath,raw);}
+const orphan=path.join(project,'taxi_tests/orphan.gd.uid');
+try{fs.writeFileSync(orphan,'uid://orphan\n');rejected(()=>validateTaxiSources(repository,project,source));}finally{fs.unlinkSync(orphan);}
+const harness=path.join(source,'sim_loop_checks.gd'),hraw=fs.readFileSync(harness);
+try{fs.writeFileSync(harness,'different');rejected(()=>validateTaxiSources(repository,project,source));}finally{fs.writeFileSync(harness,hraw);}
+console.log('PASS pure taxi source/receipt admissions; negatives='+negatives+'; no native/runtime qualification');
+'@
+& node --input-type=module -e $taxiNodeChecks 'taxi-admission-fixture' (Join-Path $PSScriptRoot 'package.mjs') $repo $taxiProjectFixture $taxiSourceFixture
+if($LASTEXITCODE -ne 0){throw 'Pure taxi delivery admission tests failed'}
+Write-Output 'PASS taxi composite/closed source, original content prerequisite, narrow UID, independent source pin and exact receipt tests; no runtime qualification'

@@ -63,12 +63,13 @@ class CameraCheckHost extends Node:
 '@
 }
 function Get-PreviewCameraHarnessChecks {
- param([Parameter(Mandatory)][object[]]$Groups,[Parameter(Mandatory)][bool]$IncludePiston)
+ param([Parameter(Mandatory)][object[]]$Groups,[Parameter(Mandatory)][bool]$IncludePiston,[bool]$IncludeApron=$false)
  $sourceFiles=[ordered]@{}
  # Literal source-only transport exception: Godot does not export dotfiles.
  foreach($group in $Groups){foreach($file in $group.snapshot){if($group.source -ceq 'tests/camera' -and $file.path -ceq '.gitattributes'){continue};$sourceFiles[$group.destination+'/'+$file.path]=@{bytes=$file.bytes;sha256=$file.sha256}}}
  $sourceLiteral=$sourceFiles|ConvertTo-Json -Depth 8 -Compress
  $coldLiteral=$IncludePiston.ToString().ToLowerInvariant()
+ $apronLiteral=$IncludeApron.ToString().ToLowerInvariant()
  @"
  stage("begin","camera")
  var camera_sources: Dictionary=$sourceLiteral
@@ -92,7 +93,7 @@ function Get-PreviewCameraHarnessChecks {
  var camera_groups: Dictionary={}
  camera_groups.policy=load("res://camera_tests/policy_checks.gd").run()
  camera_groups.panel=await load("res://camera_tests/panel_checks.gd").new().run(camera_host)
- camera_groups.scene=await load("res://camera_tests/scene_checks.gd").new().run(camera_host,$coldLiteral)
+ camera_groups.scene=await load("res://camera_tests/scene_checks.gd").new().run(camera_host,$coldLiteral,$apronLiteral)
  var camera_failures: Array=Array(camera_host.failures)
  var camera_checks: int=0
  for group_name in ["policy","panel","scene"]:
@@ -128,9 +129,9 @@ function Get-PreviewCameraHarnessChecks {
 }
 
 function Write-PreviewCameraCheckHarness {
- param([Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)][object[]]$Groups,[Parameter(Mandatory)][bool]$IncludePiston)
+ param([Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)][object[]]$Groups,[Parameter(Mandatory)][bool]$IncludePiston,[bool]$IncludeApron=$false)
  $class=Get-PreviewCameraHarnessClass
- $checks=Get-PreviewCameraHarnessChecks -Groups $Groups -IncludePiston $IncludePiston
+ $checks=Get-PreviewCameraHarnessChecks -Groups $Groups -IncludePiston $IncludePiston -IncludeApron $IncludeApron
  $script=@"
 extends Node
 # Original MIT. Separate graphical qualification; never part of Facade/v1.

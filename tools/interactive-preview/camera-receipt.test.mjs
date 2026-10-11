@@ -5,10 +5,10 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {validateCameraReceipt,validateCameraSources,expectedCoverage,cameraSourceGroups,frozenCameraReferences,referenceSHA} from './camera-receipt.mjs';
+import {validateCameraReceipt,validateCameraSources,expectedCoverage,cameraSourceGroups,frozenCameraReferences,referenceSHA,apronStartsSupported,apronStartSourcePins} from './camera-receipt.mjs';
 const here=path.dirname(fileURLToPath(import.meta.url));
 const referenceRoot=process.env.FLIGHT_CAMERA_TEST_REFERENCES||path.resolve(here,'../../tests/camera');
-const coupled={source_variant:'jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2',declared_source_fingerprint:'a'.repeat(64)};
+const coupled={source_variant:'jsbsim-1.3.1-event-aware-coupled-midpoint-v1',declared_source_fingerprint:'a'.repeat(64)};
 const upstream={...coupled,source_variant:'jsbsim-1.3.1-upstream'};
 const harnessFiles={'camera_checks.gd':{bytes:10,sha256:'f'.repeat(64)},'camera_checks.tscn':{bytes:11,sha256:'e'.repeat(64)}};
 const sourceFiles={'camera/view_policy.gd':{bytes:21,sha256:'b'.repeat(64)}};
@@ -87,3 +87,30 @@ sourceTest('changed generated corresponding script rejects',f=>fs.appendFileSync
 sourceTest('malformed root camera UID rejects',f=>fs.writeFileSync(path.join(f.project,'camera_checks.gd.uid'),'invalid'));
 sourceTest('root camera UID cannot enter corresponding source',f=>fs.writeFileSync(path.join(f.sourceRoot,'camera_checks.gd.uid'),'uid://abc123\n'));
 sourceTest('bound root camera UID admits',f=>fs.writeFileSync(path.join(f.project,'camera_checks.gd.uid'),'uid://abc123\n'),true);
+
+// Explicit synthetic receipt admission cases; these are not compiled identities.
+const syntheticNativePaths=["native/fdm_jsbsim/interactive/src/session.cpp","native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp","native/fdm_jsbsim/interactive/include/flight/interactive/surface.hpp","tests/interactive/native.cpp","tests/interactive/negatives.hpp","native/fdm_jsbsim/interactive/src/model-pins.hpp","native/fdm_jsbsim/interactive/src/piston-model-pins.hpp","tests/engine/CMakeLists.txt","tests/engine/loaded-library.hpp","tests/engine/native.cpp","tests/engine/native-mechanism.cpp","tests/engine/native-validate.py","tests/engine/native-generate.py","tests/engine/native-limits.hpp","tests/engine/native-limits.json","native/godot_bridge/src/bridge.cpp","native/godot_bridge/src/codec.hpp","native/godot_bridge/src/codec.cpp","native/godot_bridge/src/worker.hpp","native/godot_bridge/src/worker.cpp","native/godot_bridge/src/interactive_worker.hpp","native/godot_bridge/src/interactive_worker.cpp","native/godot_bridge/src/interactive_bridge.cpp","native/godot_bridge/src/wire_numbers.hpp","native/godot_bridge/src/wire_numbers.cpp"];
+function syntheticCurrentIdentity(variant='jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2'){
+ return {source_variant:variant,declared_source_fingerprint:'a'.repeat(64),source_bindings:syntheticNativePaths.map(name=>{
+  const pin=apronStartSourcePins[name];return {path:name,bytes:pin?.bytes??1,raw_sha256:pin?.sha256??'b'.repeat(64),lf_sha256:pin?.sha256??'b'.repeat(64)};
+ })};
+}
+test('current source-qualified coupled35 and upstream21 retain all prior rows',()=>{
+ for(const [variant,count,cold] of [['jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2',35,true],['jsbsim-1.3.1-upstream',21,false]]){
+  const identity=syntheticCurrentIdentity(variant);assert(apronStartsSupported(identity));
+  const value=receipt(identity),result=validateCameraReceipt(value,{nativeIdentity:identity,sourceFiles,harnessFiles,requireFullSupported:cold});
+  assert.equal(result.coverage,count);assert.equal(result.full_supported,cold);
+  assert.equal(value.groups.scene.coverage.filter(row=>row.start==='apron-ready').length,7);
+  assert.equal(value.groups.scene.coverage.filter(row=>row.start==='piston-cold-apron').length,cold?7:0);
+  const historical=expectedCoverage(cold?coupled:upstream);
+  for(const row of historical)assert(value.groups.scene.coverage.some(item=>JSON.stringify(item)===JSON.stringify(row)));
+  const missing=structuredClone(value);missing.groups.scene.coverage=historical;
+  assert.throws(()=>validateCameraReceipt(missing,{nativeIdentity:identity,sourceFiles,harnessFiles}));
+ }
+});
+test('variant alone and incomplete or changed current recipe source never downgrade full coverage',()=>{
+ const mutations=[r=>delete r.source_bindings,r=>r.source_bindings.pop(),r=>r.source_bindings.push(r.source_bindings[0]),r=>r.source_bindings[0].raw_sha256='0'.repeat(64),r=>r.source_bindings[0].lf_sha256='0'.repeat(64),r=>r.source_bindings[0].bytes++,r=>r.source_bindings[1].path=r.source_bindings[0].path,r=>r.source_bindings[0].extra=true,r=>r.source_bindings[0].bytes=true];
+ for(const mutate of mutations){const identity=syntheticCurrentIdentity();mutate(identity);assert.throws(()=>expectedCoverage(identity));}
+ assert.equal(apronStartsSupported(coupled),false);assert.equal(apronStartsSupported(upstream),false);
+ const old=syntheticCurrentIdentity('jsbsim-1.3.1-upstream');old.source_bindings[0].raw_sha256='0'.repeat(64);assert.equal(apronStartsSupported(old),false);assert.equal(expectedCoverage(old).length,14);
+});

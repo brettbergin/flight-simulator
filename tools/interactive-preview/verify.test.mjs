@@ -325,8 +325,8 @@ test('all eight first-flight source groups bind exact authoring staged and corre
  const temporary=fs.mkdtempSync(path.join(root,'first-flight-'));
  const authored=path.join(temporary,'repo'),project=path.join(temporary,'project'),source=path.join(temporary,'source');
  assert.equal(firstFlightSourceGroups.length,8);
- const mapping=firstFlightSourceGroups.flatMap(([a,b,names])=>names.map(name=>[a+'/'+name,b+'/'+name]));
- assert.equal(mapping.length,16);
+ const mapping=firstFlightSourceGroups.flatMap(([a,b,names])=>names.map(name=>[b==='world/synthetic'&&name==='taxi-layout-v1.json'?'content/world/synthetic/'+name:a+'/'+name,b+'/'+name]));
+ assert.equal(mapping.length,17);
  for(const [name,mapped] of mapping){
   const raw=['content/world/synthetic/practice-circuit.json','content/world/synthetic/taxi-layout-v1.json'].includes(name)?fs.readFileSync(path.join(repo,name)):Buffer.from('Original synthetic source-closure fixture: '+name+'\n');
   for(const [base,relative] of [[authored,name],[project,mapped],[source,mapped]]){const target=path.join(base,relative);fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,raw);}
@@ -335,6 +335,7 @@ test('all eight first-flight source groups bind exact authoring staged and corre
  assert.equal(Object.keys(expected.source_files).length,16);
  assert.equal(expected.source_files['content/world/synthetic/practice-circuit.json'].sha256,'2a4540d99d4500e326a1b1f0673583bd6f8ea99d430b991fcca1130befbbddcc');
  assert.equal(expected.source_files['content/world/synthetic/taxi-layout-v1.json'].sha256,'d8668af407885949a4eb05fbe170d41fe6c6752d3ce15670f9879a36063d355c');
+ assert(!fs.existsSync(path.join(authored,'app/world/synthetic/taxi-layout-v1.json')),'Layout authoring provenance remains content');
  assert.deepEqual(firstFlightSourceGroups.find(([name])=>name==='content/world/synthetic')[2],['practice-circuit.json','taxi-layout-v1.json']);
  assert.equal(mapping.find(([name])=>name==='tests/integration/first_flight/visual_checks.gd')[1],'first_flight_scene_tests/visual_checks.gd');
  assert.equal(mapping.find(([name])=>name==='tests/integration/first_flight/layout_visual_checks.gd')[1],'first_flight_scene_tests/layout_visual_checks.gd');
@@ -357,9 +358,10 @@ test('all eight first-flight source groups bind exact authoring staged and corre
  assert.throws(()=>validateFirstFlightSources(authored,project,source),/Frozen circuit content changed/,'Coherent three-tree drift cannot replace frozen content');
  for(const [base,name] of [[authored,originals[0]],[project,originals[1]],[source,originals[1]]])fs.writeFileSync(path.join(base,name),fs.readFileSync(path.join(repo,originals[0])));
  const taxi=mapping.find(([name])=>name==='content/world/synthetic/taxi-layout-v1.json');
- for(const [base,name] of [[authored,taxi[0]],[project,taxi[1]],[source,taxi[1]]])fs.appendFileSync(path.join(base,name),'\n');
- assert.throws(()=>validateFirstFlightSources(authored,project,source),/Frozen taxi layout content changed/,'Coherent three-tree drift cannot replace frozen taxi content');
- for(const [base,name] of [[authored,taxi[0]],[project,taxi[1]],[source,taxi[1]]])fs.writeFileSync(path.join(base,name),fs.readFileSync(path.join(repo,taxi[0])));
+ const taxiCopies=[[authored,taxi[0]],...[project,source].flatMap(base=>['content/world/synthetic/taxi-layout-v1.json','world/synthetic/taxi-layout-v1.json'].map(name=>[base,name]))];
+ for(const [base,name] of taxiCopies)fs.appendFileSync(path.join(base,name),'\n');
+ assert.throws(()=>validateFirstFlightSources(authored,project,source),/Frozen taxi layout content changed/,'Coherent five-copy drift cannot replace frozen taxi content');
+ for(const [base,name] of taxiCopies)fs.writeFileSync(path.join(base,name),fs.readFileSync(path.join(repo,taxi[0])));
  const folder=path.join(source,'first_flight_scene_tests'),outside=path.join(temporary,'outside');fs.renameSync(folder,outside);fs.symlinkSync(outside,folder,process.platform==='win32'?'junction':'dir');
  assert.throws(()=>validateFirstFlightSources(authored,project,source),/link/);
 });

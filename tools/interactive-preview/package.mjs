@@ -290,7 +290,7 @@ export function validateAudioReceipt(value){
 // ADR018 delivery is mandatory; a skipped/partial child cannot admit a player.
 export const firstFlightSourceGroups=[
  ['app/ui/first_flight','ui/first_flight',['briefing_panel.gd','binding_help.gd','circuit_guide.gd']],
- ['app/world/synthetic','world/synthetic',['circuit_geometry.gd']],
+ ['app/world/synthetic','world/synthetic',['circuit_geometry.gd','taxi-layout-v1.json']],
  ['content/scenarios/first-flight','content/scenarios/first-flight',['briefing.json']],
  ['content/world/synthetic','content/world/synthetic',['practice-circuit.json','taxi-layout-v1.json']],
  ['tests/scenarios/first-flight','scenario_tests/first-flight',['briefing_checks.gd','circuit_checks.gd']],
@@ -313,7 +313,9 @@ export function validateFirstFlightSources(repository,project,source){
  const source_files={};
  for(const [authored,mapped,required] of firstFlightSourceGroups){
   const expected=[...required].sort();
-  for(const [base,folder] of [[repository,authored],[source,mapped]])assert.deepEqual(ordinaryFiles(path.join(base,folder)).sort(),expected,'Closed first-flight source roster/'+folder);
+  const authorExpected=mapped==='world/synthetic'?expected.filter(name=>name!=='taxi-layout-v1.json'):expected;
+  assert.deepEqual(ordinaryFiles(path.join(repository,authored)).sort(),authorExpected,'Closed first-flight authoring roster/'+authored);
+  assert.deepEqual(ordinaryFiles(path.join(source,mapped)).sort(),expected,'Closed first-flight corresponding roster/'+mapped);
   const staged=ordinaryFiles(path.join(project,mapped));
   for(const name of staged.filter(name=>!expected.includes(name))){
    assert(name.endsWith('.gd.uid')&&expected.includes(name.slice(0,-4)),'Only bound generated first-flight UID allowed');
@@ -321,7 +323,7 @@ export function validateFirstFlightSources(repository,project,source){
   }
   assert.deepEqual(staged.filter(name=>expected.includes(name)).sort(),expected,'Complete first-flight staged roster/'+mapped);
   for(const name of expected){
-   const relative=authored+'/'+name,raw=fs.readFileSync(path.join(repository,relative));
+   const relative=mapped==='world/synthetic'&&name==='taxi-layout-v1.json'?'content/world/synthetic/taxi-layout-v1.json':authored+'/'+name,raw=fs.readFileSync(path.join(repository,relative));
    source_files[relative]={bytes:raw.length,sha256:sha(raw)};
    for(const base of [project,source])assert(fs.readFileSync(path.join(base,mapped,name)).equals(raw),'First-flight actual corresponding bytes/'+mapped+'/'+name);
   }
@@ -330,6 +332,102 @@ export function validateFirstFlightSources(repository,project,source){
  assert.equal(source_files['content/world/synthetic/taxi-layout-v1.json'].sha256,taxiLayoutFixtureSHA,'Frozen taxi layout content changed');
  return {source_files};
 }
+// ADR027 delivery resources are explicit; source mode alone is not start support.
+export const taxiSourceGroups=[
+ ['app/world/taxi','world/taxi',['taxi_layout.gd','taxi_navigation.gd']],
+ ['app/ui/taxi','ui/taxi',['taxi_panel.gd']],
+ ['tests/world/taxi','taxi_tests',['layout_checks.gd','navigation_checks.gd','panel_checks.gd','map_checks.gd','reference/expected-v1.json','reference/generate.py','reference/source-binding-v1.json','reference/README.md','start-reference/expected-v1.json','start-reference/generate.py','start-reference/source-binding-v1.json','start-reference/README.md','start-reference/prop-disk-v1.json','start-reference/generate-prop-disk.py','compatibility-reference/expected-v1.json','compatibility-reference/generate.py','compatibility-reference/source-binding-v1.json','compatibility-reference/README.md']],
+ ['tests/integration/taxi','taxi_scene_tests',['scene_checks.gd']],
+];
+export const taxiStartSourcePins={
+ 'native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp':'40511064929f717e57ed3ff084a3aad0f9af6c406bb50ba74ec1a4fdbe5fcd8f',
+ 'native/fdm_jsbsim/interactive/src/session.cpp':'272edf5984dc9205c75f7103546b0312c78ba43f05f416dad929172b8ef6fbeb',
+ 'native/godot_bridge/src/interactive_bridge.cpp':'0ebe3a59122368733745f05d82204a2e5a2b9187e985c89bff7b59a6f5e9dcd3',
+};
+export const taxiReferencePins={
+ "reference/expected-v1.json": "9b9579b18c38ba3c1393af76798fa39b8683229fdf2eff553b1c12e0fd3ae37c",
+ "reference/generate.py": "799fbcc5fc2144e713d295559e961d1614e245b7bf2a003135ce1234eedec558",
+ "reference/source-binding-v1.json": "1366d0484be3eb6a6ca13028f7f431894d6c879c01dbe2a04f3107a7a7678c8b",
+ "reference/README.md": "dd070ab6dcfcd45de6c2dd26129b2402c045cc7eb0b5ebfa6dd2a8ceee81df41",
+ "start-reference/expected-v1.json": "fb543ddd1681c3cb040cdfd1c65ff404eb9409e73bb6f613c225a3a501f2e333",
+ "start-reference/generate.py": "da0e7b91bd3a3ea7df60f80b01b75df209bc4271950f6458fa462da4efba2645",
+ "start-reference/source-binding-v1.json": "5b097ee7c6b727e0f19fe4079913c1e0c4ad6453de9628d01a9bc9588c08c230",
+ "start-reference/README.md": "4eb067f2cf2d7bae258984704685578a672be0cae697b6af0b1212bca980eeb6",
+ "start-reference/prop-disk-v1.json": "545c0dc04dfa8e5d10eebaef0458dbfb46bb12f53d2d5ab05cf02004bcfe6537",
+ "start-reference/generate-prop-disk.py": "dd9aa4014416a2871cb13239fc74c29b1ff21c7d6f26e158ff0ad8bfcc02d8ff",
+ "compatibility-reference/expected-v1.json": "0ae22514067840455e4e01fb65cde1c39015e731937ff6971df030ce81a0d811",
+ "compatibility-reference/generate.py": "c7dca2b57ef8ed9d7f0922b8abc7916632cffe6adbecadb40b8b2cbefa40a263",
+ "compatibility-reference/source-binding-v1.json": "92944cb006c2497211c5dec3fa847e17dd52b6dd46df085c6c8bc7864378603c",
+ "compatibility-reference/README.md": "453c91177bb7549b6fb16b30634b7c08fcebd4af79a5c5f2d8e7853a210a35b9"
+};
+export function taxiStartsSupported(nativeIdentity){
+ assert(Array.isArray(nativeIdentity.source_bindings),'Already-qualified actual native source bindings required');
+ if(nativeIdentity.source_variant!=='jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2')return false;
+ return Object.entries(taxiStartSourcePins).every(([name,pin])=>{
+  const rows=nativeIdentity.source_bindings.filter(row=>row.path===name);
+  return rows.length===1&&rows[0].raw_sha256===pin;
+ });
+}
+export function validateTaxiSources(repository,project,source){
+ const source_files={};
+ for(const [authored,mapped,required] of taxiSourceGroups){
+  const expected=[...required].sort();
+  assert.deepEqual(ordinaryFiles(path.join(repository,authored)).sort(),expected,'Closed taxi authoring roster/'+authored);
+  // Editor validation runs before the corresponding-source copy exists. Only
+  // this exact same-root case uses the staged UID policy below; final package
+  // admission always supplies its distinct, UID-free corresponding source.
+  if(path.resolve(source)!==path.resolve(project))assert.deepEqual(ordinaryFiles(path.join(source,mapped)).sort(),expected,'Closed taxi corresponding roster/'+mapped);
+  const staged=ordinaryFiles(path.join(project,mapped));
+  for(const name of staged.filter(name=>!expected.includes(name))){
+   assert(name.endsWith('.gd.uid')&&expected.includes(name.slice(0,-4)),'Only already-bound taxi script UID allowed');
+   const raw=fs.readFileSync(path.join(project,mapped,name));assert(raw.length<=64);assert.match(raw.toString('utf8'),/^uid:\/\/[a-z0-9]{1,20}\r?\n?$/);
+  }
+  assert.deepEqual(staged.filter(name=>expected.includes(name)).sort(),expected,'Complete staged taxi roster');
+  for(const name of expected){
+   const relative=authored+'/'+name,raw=fs.readFileSync(path.join(repository,relative));
+   if(authored==='tests/world/taxi'&&Object.hasOwn(taxiReferencePins,name))assert.equal(sha(raw),taxiReferencePins[name],'Frozen taxi independent reference/'+name);
+   source_files[relative]={bytes:raw.length,sha256:sha(raw)};
+   for(const base of [project,source])assert(fs.readFileSync(path.join(base,mapped,name)).equals(raw),'Exact taxi corresponding bytes/'+mapped+'/'+name);
+  }
+ }
+ const relative='content/world/synthetic/taxi-layout-v1.json',raw=fs.readFileSync(path.join(repository,relative));
+ assert.equal(sha(raw),taxiLayoutFixtureSHA,'Frozen original taxi layout');
+ source_files[relative]={bytes:raw.length,sha256:sha(raw)};
+ for(const base of [project,source])assert(fs.readFileSync(path.join(base,'world/synthetic/taxi-layout-v1.json')).equals(raw),'Composite runtime taxi layout exact bytes');
+ const harness=fs.readFileSync(path.join(project,'sim_loop_checks.gd'));
+ assert(fs.readFileSync(path.join(source,'sim_loop_checks.gd')).equals(harness),'Taxi generated harness corresponding source');
+ return {source_files,harness_file:{path:'sim_loop_checks.gd',bytes:harness.length,sha256:sha(harness)}};
+}
+export function validateTaxiReceipt(receipt,{nativeIdentity,sourceFiles,harnessFile,requireFullSupported}){
+ assert.equal(typeof requireFullSupported,'boolean');
+ pointerKeys(receipt,['schema','passed','checks','failures','scope','full_supported','groups','source_files','native_identity','harness_file'],'Taxi receipt');
+ assert.equal(receipt.schema,'TaxiNavigationChecks/v1');assert.equal(typeof receipt.passed,'boolean');assert.equal(typeof receipt.full_supported,'boolean');
+ assert.equal(typeof receipt.scope,'string');assert(receipt.scope.trim().length>0&&receipt.scope.length<=1024);
+ assert(Array.isArray(receipt.failures));assert(Number.isSafeInteger(receipt.checks)&&receipt.checks>0);
+ assert.deepEqual(receipt.source_files,sourceFiles,'Actual raw exported taxi resources');
+ assert.deepEqual(receipt.harness_file,harnessFile,'Actual exported taxi harness bytes');
+ validateResourceReceipt(receipt.native_identity,nativeIdentity.resource);
+ pointerKeys(receipt.groups,['layout','panel','map','scene'],'Taxi children');
+ let checks=0;
+ for(const name of ['layout','panel','map','scene']){
+  const child=receipt.groups[name];
+  if(name==='scene'&&!receipt.full_supported){assert.equal(child,null,'Unavailable native Scene cannot claim skipped PASS');continue;}
+  pointerKeys(child,['passed','checks','failures','scope'],'Taxi child/'+name);
+  assert.equal(child.passed,true);assert(Number.isSafeInteger(child.checks)&&child.checks>0);assert.deepEqual(child.failures,[]);
+  assert.equal(typeof child.scope,'string');assert(child.scope.trim().length>0&&child.scope.length<=1024);
+  checks+=child.checks;assert(Number.isSafeInteger(checks));
+ }
+ assert.equal(receipt.checks,checks,'Exact actual taxi child aggregate');
+ if(requireFullSupported){
+  assert(taxiStartsSupported(nativeIdentity),'Mandatory new native start source is absent');
+  assert.equal(receipt.full_supported,true);assert.equal(receipt.passed,true);assert.deepEqual(receipt.failures,[]);
+ }else{
+  assert.equal(receipt.full_supported,false,'Upstream is not full cold/apron qualification');
+  assert.equal(receipt.passed,false);assert.deepEqual(receipt.failures,['taxi_full_start_domain_unavailable']);
+ }
+ return {checks,full_supported:receipt.full_supported};
+}
+
 export function validateFirstFlightReceipt(value,includePiston,expectedSourceFingerprint){
  assert.equal(typeof includePiston,'boolean','Actual selected native source mode required');
  assert.equal(typeof expectedSourceFingerprint,'string','Actual selected source fingerprint required');
@@ -441,6 +539,12 @@ function audit(root,proof,build,python='python'){
  const audioIdentity=validateAudioSources(repo,path.join(root,'project'),reconstructionRoot);
  validateAudioSourceDescriptors(json(path.join(evidence,'audio-source-groups.json')),audioIdentity.source_files);
  const firstFlightIdentity=validateFirstFlightSources(repo,path.join(root,'project'),reconstructionRoot);
+ const taxiIdentity=validateTaxiSources(repo,path.join(root,'project'),reconstructionRoot);
+ const taxiReceipts=['editor','portable','replacement'].map(context=>{
+  const file=path.join(evidence,context+'-taxi-receipt.json');ordinaryAncestors(file);const raw=fs.readFileSync(file);
+  const result=validateTaxiReceipt(JSON.parse(raw.toString('utf8')),{nativeIdentity,sourceFiles:taxiIdentity.source_files,harnessFile:taxiIdentity.harness_file,requireFullSupported:pointerEnabled&&nativeIdentity.source_variant===localWindowVariant});
+  return {context,raw,...result};
+ });
  const groundIdentity=validateGroundMaterialSources(repo,path.join(root,'project'),reconstructionRoot);
  const groundReceipts=['editor','portable','replacement'].map(context=>{
   const file=path.join(evidence,context+'-ground-receipt.json');ordinaryAncestors(file);const raw=fs.readFileSync(file);
@@ -601,6 +705,7 @@ function audit(root,proof,build,python='python'){
   fs.writeFileSync(path.join(payload,target),raw);declare('native-export-proof',target,'evidence');
  }
  for(const {context,raw} of pointerReceipts){const target='evidence/'+context+'-pointer-check-receipt.json';fs.mkdirSync(path.dirname(path.join(payload,target)),{recursive:true});fs.writeFileSync(path.join(payload,target),raw);declare('native-export-proof',target,'evidence');}
+ for(const {context,raw} of taxiReceipts){const target='evidence/'+context+'-taxi-receipt.json';fs.mkdirSync(path.dirname(path.join(payload,target)),{recursive:true});fs.writeFileSync(path.join(payload,target),raw);declare('native-export-proof',target,'evidence');}
  for(const {context,raw} of cameraReceipts){const target='evidence/'+context+'-camera-receipt.json';fs.mkdirSync(path.dirname(path.join(payload,target)),{recursive:true});fs.writeFileSync(path.join(payload,target),raw);declare('native-export-proof',target,'evidence');}
  for(const {context,raw} of localWindowReceipts){const target='evidence/'+context+'-local-window-replay-receipt.json';fs.mkdirSync(path.dirname(path.join(payload,target)),{recursive:true});fs.writeFileSync(path.join(payload,target),raw);declare('native-export-proof',target,'evidence');}
  stage('microsoft-vc143-crt','evidence/selected-runtime.json',runtime);stage('microsoft-vc143-crt','evidence/native-dependencies.json',dependencies);
@@ -612,7 +717,7 @@ function audit(root,proof,build,python='python'){
  assert.deepEqual(auditRelease(register,manifest,{repoRoot:repo,packageRoot:payload}),[]);
  assert.deepEqual(auditDependencyLock(register,json(path.join(repo,'third_party/dependencies.lock.json'))),[]);
  write(path.join(evidence,'package-inventory.json'),manifest);
- write(path.join(evidence,'package-audit.json'),{schema_version:1,rights_integrity_passed:true,actual_combined_replacement_passed:true,camera_checks_passed:true,camera_source_closure_verified:true,camera_source_files:cameraIdentity.source_files,camera_generated_harness:cameraIdentity.harness_files,camera_contexts:cameraReceipts.map(({context,raw,checks,coverage,full_supported})=>({context,checks,coverage,full_supported,bytes:raw.length,sha256:sha(raw)})),wire_codec_checks_passed:true,wire_codec_source_closure_verified:true,wire_codec_contexts:wireCodecContexts,local_window_replay_enabled:nativeIdentity.source_variant===localWindowVariant,...(nativeIdentity.source_variant===localWindowVariant?{local_window_replay_contexts:localWindowReceipts.map(({context,raw,checks,calls,final_tick,continuation_completed,joined})=>({context,checks,calls,final_tick,continuation_completed,joined,bytes:raw.length,sha256:sha(raw)})),local_window_replay_source_closure_verified:true}:{}),model_pins_verified:true,actual_seven_modules_inside_payload:true,exact_editor_portable_repeat:true,observed_editor_portable_replacement_checks_passed:true,observed_source_closure_verified:true,audio_checks_passed:true,audio_source_closure_verified:true,audio_source_files:audioIdentity.source_files,audio_contexts:uiReceipts.map((receipt,index)=>({context:['editor','portable','replacement'][index],checks:validateAudioReceipt(receipt.audio)})),first_flight_checks_passed:true,first_flight_source_closure_verified:true,first_flight_source_files:firstFlightIdentity.source_files,first_flight_contexts:uiReceipts.map((receipt,index)=>({context:['editor','portable','replacement'][index],checks:validateFirstFlightReceipt(receipt.first_flight,pointerEnabled,nativeIdentity.declared_source_fingerprint),route_scope:receipt.first_flight.scene.route_scope})),observed_archive_checks_passed:true,pointer_checks_enabled:pointerEnabled,...(pointerEnabled?{pointer_checks_passed:true,pointer_contexts:pointerReceipts.map(({context,raw,traceRaw,receipt,rows,commands})=>({context,checks:receipt.checks,rows,commands,summary:{bytes:raw.length,sha256:sha(raw)},trace:{path:context+'-pointer-flight-trace.json',bytes:traceRaw.length,sha256:sha(traceRaw)}}))}:{}),ground_material_checks_passed:true,ground_material_contexts:groundReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)})),...(pistonEnabled?{piston_model_pins_verified:true,piston_editor_portable_replacement_checks_passed:true,piston_contexts:coldReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)}))}:{}),runtime_verification:runtime,trace_records_compared:traces[0].length,selected_library:selection,native_build_identity:nativeIdentity});
+ write(path.join(evidence,'package-audit.json'),{schema_version:1,rights_integrity_passed:true,actual_combined_replacement_passed:true,taxi_full_supported:taxiReceipts.every(row=>row.full_supported),taxi_checks_passed:taxiReceipts.every(row=>row.full_supported),taxi_source_closure_verified:true,taxi_source_files:taxiIdentity.source_files,taxi_harness_file:taxiIdentity.harness_file,taxi_contexts:taxiReceipts.map(({context,raw,checks,full_supported})=>({context,checks,full_supported,bytes:raw.length,sha256:sha(raw)})),camera_checks_passed:true,camera_source_closure_verified:true,camera_source_files:cameraIdentity.source_files,camera_generated_harness:cameraIdentity.harness_files,camera_contexts:cameraReceipts.map(({context,raw,checks,coverage,full_supported})=>({context,checks,coverage,full_supported,bytes:raw.length,sha256:sha(raw)})),wire_codec_checks_passed:true,wire_codec_source_closure_verified:true,wire_codec_contexts:wireCodecContexts,local_window_replay_enabled:nativeIdentity.source_variant===localWindowVariant,...(nativeIdentity.source_variant===localWindowVariant?{local_window_replay_contexts:localWindowReceipts.map(({context,raw,checks,calls,final_tick,continuation_completed,joined})=>({context,checks,calls,final_tick,continuation_completed,joined,bytes:raw.length,sha256:sha(raw)})),local_window_replay_source_closure_verified:true}:{}),model_pins_verified:true,actual_seven_modules_inside_payload:true,exact_editor_portable_repeat:true,observed_editor_portable_replacement_checks_passed:true,observed_source_closure_verified:true,audio_checks_passed:true,audio_source_closure_verified:true,audio_source_files:audioIdentity.source_files,audio_contexts:uiReceipts.map((receipt,index)=>({context:['editor','portable','replacement'][index],checks:validateAudioReceipt(receipt.audio)})),first_flight_checks_passed:true,first_flight_source_closure_verified:true,first_flight_source_files:firstFlightIdentity.source_files,first_flight_contexts:uiReceipts.map((receipt,index)=>({context:['editor','portable','replacement'][index],checks:validateFirstFlightReceipt(receipt.first_flight,pointerEnabled,nativeIdentity.declared_source_fingerprint),route_scope:receipt.first_flight.scene.route_scope})),observed_archive_checks_passed:true,pointer_checks_enabled:pointerEnabled,...(pointerEnabled?{pointer_checks_passed:true,pointer_contexts:pointerReceipts.map(({context,raw,traceRaw,receipt,rows,commands})=>({context,checks:receipt.checks,rows,commands,summary:{bytes:raw.length,sha256:sha(raw)},trace:{path:context+'-pointer-flight-trace.json',bytes:traceRaw.length,sha256:sha(traceRaw)}}))}:{}),ground_material_checks_passed:true,ground_material_contexts:groundReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)})),...(pistonEnabled?{piston_model_pins_verified:true,piston_editor_portable_replacement_checks_passed:true,piston_contexts:coldReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)}))}:{}),runtime_verification:runtime,trace_records_compared:traces[0].length,selected_library:selection,native_build_identity:nativeIdentity});
  console.log('PASS combined package model/source/notices/full PE+CRT closure and actual replacement loop');
 }
 
@@ -794,5 +899,5 @@ export function validateWireCodecSources(repository,project,source,nativeIdentit
 
 const [mode,...args]=process.argv.slice(2);
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
-if(mode==='models')models(...args);else if(mode==='audit')audit(...args);else if(mode==='pointer-receipt'){assert.equal(args.length,5);validatePointerEvidence(args[0],args[1],args[2],args[3],json(args[4]));console.log('PASS actual pointer four-suite receipt/external trace/source/native identity');}else if(mode==='ground-receipt'){assert.equal(args.length,2);ordinaryAncestors(args[0]);validateGroundMaterialReceipt(json(args[0]),groundMaterialIdentity(args[1]));console.log('PASS actual ground-material receipt/source identity');}else throw new Error('Expected models, audit or ground-receipt');
+if(mode==='models')models(...args);else if(mode==='audit')audit(...args);else if(mode==='pointer-receipt'){assert.equal(args.length,5);validatePointerEvidence(args[0],args[1],args[2],args[3],json(args[4]));console.log('PASS actual pointer four-suite receipt/external trace/source/native identity');}else if(mode==='taxi-receipt'){assert.equal(args.length,6);assert(['true','false'].includes(args[5]));const identity=json(args[4]);const sources=validateTaxiSources(args[1],args[2],args[3]);ordinaryAncestors(args[0]);validateTaxiReceipt(json(args[0]),{nativeIdentity:identity,sourceFiles:sources.source_files,harnessFile:sources.harness_file,requireFullSupported:args[5]==='true'});console.log('PASS actual taxi resources/source and explicit full-start scope');}else if(mode==='ground-receipt'){assert.equal(args.length,2);ordinaryAncestors(args[0]);validateGroundMaterialReceipt(json(args[0]),groundMaterialIdentity(args[1]));console.log('PASS actual ground-material receipt/source identity');}else throw new Error('Expected models, audit or ground-receipt');
 }

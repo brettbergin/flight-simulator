@@ -125,7 +125,7 @@ static func changed_identity(value: Variant, bound: Variant) -> bool:
 		return false
 	if not identifier(value.get("session_id")) or not hex(value.get("native_source_fingerprint")) or not hex(value.get("prepared_world_sha256")):
 		return false
-	if typeof(value.get("named_start"))!=TYPE_STRING or value.named_start not in ["ground-ready","airborne-prepared","piston-cold-ground"]:
+	if typeof(value.get("named_start"))!=TYPE_STRING or value.named_start not in ["ground-ready","airborne-prepared","apron-ready","piston-cold-ground","piston-cold-apron"]:
 		return false
 	var model: Variant = value.get("model_identity")
 	if not keys(model,MODEL.keys()) or not identifier(model.id) or typeof(model.version)!=TYPE_STRING or not Wire._version(model.version) or not identifier(model.backend_model):
@@ -191,7 +191,7 @@ static func valid_metadata(value: Variant, revision: int = 1) -> bool:
 	for key in ANCHOR:
 		if typeof(value.world_anchor[key])!=TYPE_FLOAT:
 			return false
-	return hex(value.native_source_fingerprint) and typeof(value.prepared_world_sha256)==TYPE_STRING and value.prepared_world_sha256==NativeReadings.WORLD and typeof(value.seed)==TYPE_STRING and value.seed=="42" and keys(value.clock,CLOCK.keys()) and typeof(value.clock.purpose)==TYPE_STRING and value.clock.purpose=="runtime" and typeof(value.clock.tick_rate_hz) in [TYPE_INT,TYPE_FLOAT] and value.clock.tick_rate_hz==120 and typeof(value.named_start)==TYPE_STRING and (value.named_start=="piston-cold-ground" if revision==2 else value.named_start in ["ground-ready","airborne-prepared"]) and typeof(value.first_tick)==TYPE_STRING and U64.valid(value.first_tick)
+	return hex(value.native_source_fingerprint) and typeof(value.prepared_world_sha256)==TYPE_STRING and value.prepared_world_sha256==NativeReadings.WORLD and typeof(value.seed)==TYPE_STRING and value.seed=="42" and keys(value.clock,CLOCK.keys()) and typeof(value.clock.purpose)==TYPE_STRING and value.clock.purpose=="runtime" and typeof(value.clock.tick_rate_hz) in [TYPE_INT,TYPE_FLOAT] and value.clock.tick_rate_hz==120 and typeof(value.named_start)==TYPE_STRING and (value.named_start in ["piston-cold-ground","piston-cold-apron"] if revision==2 else value.named_start in ["ground-ready","airborne-prepared","apron-ready"]) and typeof(value.first_tick)==TYPE_STRING and U64.valid(value.first_tick)
 
 static func valid_readings(value: Variant, session: String, tick: String) -> bool:
 	if not keys(value,["session_id","tick","state","native_truth","readings","error"]):

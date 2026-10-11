@@ -80,11 +80,39 @@ export function validateCameraHarnessSources(project,sourceRoot){
  }
  return result;
 }
+// The caller supplies native-identity.py's independently qualified build receipt.
+// A backend name alone cannot establish that the first-party apron recipes exist.
+export const apronStartSourcePins=Object.freeze({"native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp":{"bytes":4151,"sha256":"40511064929f717e57ed3ff084a3aad0f9af6c406bb50ba74ec1a4fdbe5fcd8f"},"native/fdm_jsbsim/interactive/src/session.cpp":{"bytes":46016,"sha256":"272edf5984dc9205c75f7103546b0312c78ba43f05f416dad929172b8ef6fbeb"},"native/godot_bridge/src/interactive_bridge.cpp":{"bytes":12768,"sha256":"0ebe3a59122368733745f05d82204a2e5a2b9187e985c89bff7b59a6f5e9dcd3"}});
+const nativeSourcePaths=Object.freeze(["native/fdm_jsbsim/interactive/src/session.cpp","native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp","native/fdm_jsbsim/interactive/include/flight/interactive/surface.hpp","tests/interactive/native.cpp","tests/interactive/negatives.hpp","native/fdm_jsbsim/interactive/src/model-pins.hpp","native/fdm_jsbsim/interactive/src/piston-model-pins.hpp","tests/engine/CMakeLists.txt","tests/engine/loaded-library.hpp","tests/engine/native.cpp","tests/engine/native-mechanism.cpp","tests/engine/native-validate.py","tests/engine/native-generate.py","tests/engine/native-limits.hpp","tests/engine/native-limits.json","native/godot_bridge/src/bridge.cpp","native/godot_bridge/src/codec.hpp","native/godot_bridge/src/codec.cpp","native/godot_bridge/src/worker.hpp","native/godot_bridge/src/worker.cpp","native/godot_bridge/src/interactive_worker.hpp","native/godot_bridge/src/interactive_worker.cpp","native/godot_bridge/src/interactive_bridge.cpp","native/godot_bridge/src/wire_numbers.hpp","native/godot_bridge/src/wire_numbers.cpp"]);
+export function apronStartsSupported(nativeIdentity){
+ assert(plain(nativeIdentity));assert(variants.includes(nativeIdentity.source_variant));
+ if(nativeIdentity.source_bindings===undefined){
+  assert.notEqual(nativeIdentity.source_variant,variants[3],'Current local-window delivery requires actual new recipe bindings');
+  return false; // Historical upstream/coupled-v1 identities retain old coverage.
+ }
+ const bindings=nativeIdentity.source_bindings;
+ assert(Array.isArray(bindings)&&bindings.length===nativeSourcePaths.length,'Complete qualified native source roster');
+ for(let i=0;i<bindings.length;i++){
+  const row=bindings[i];keys(row,['path','bytes','raw_sha256','lf_sha256'],'Qualified native source');
+  assert.equal(row.path,nativeSourcePaths[i]);assert(Number.isSafeInteger(row.bytes)&&row.bytes>0);
+  for(const key of ['raw_sha256','lf_sha256'])assert.match(row[key],/^[a-f0-9]{64}$/);
+ }
+ const supported=Object.entries(apronStartSourcePins).every(([name,pin])=>{
+  const row=bindings.find(item=>item.path===name);
+  return row.bytes===pin.bytes&&row.raw_sha256===pin.sha256&&row.lf_sha256===pin.sha256;
+ });
+ if(nativeIdentity.source_variant===variants[3])assert(supported,'Current local-window delivery cannot fall back to historical camera coverage');
+ return supported;
+}
 export function expectedCoverage(nativeIdentity){
  assert(plain(nativeIdentity));assert(variants.includes(nativeIdentity.source_variant),'Closed actual backend variant');
  assert.match(nativeIdentity.declared_source_fingerprint,/^[a-f0-9]{64}$/);
  const starts=[['original-interactive-prototype','ground-ready'],['original-interactive-prototype','airborne-prepared']];
  if(coupled(nativeIdentity.source_variant))starts.push(['original-piston-prop-v1','piston-cold-ground']);
+ if(apronStartsSupported(nativeIdentity)){
+  starts.push(['original-interactive-prototype','apron-ready']);
+  if(coupled(nativeIdentity.source_variant))starts.push(['original-piston-prop-v1','piston-cold-apron']);
+ }
  return starts.flatMap(([profile,start])=>presets.map(preset=>({profile,start,preset})));
 }
 export function validateCameraReceipt(value,{nativeIdentity,sourceFiles,harnessFiles,requireFullSupported=false}){
@@ -113,7 +141,7 @@ export function validateCameraReceipt(value,{nativeIdentity,sourceFiles,harnessF
  const normalize=rows=>rows.map(row=>JSON.stringify([row.profile,row.start,row.preset])).sort();
  const expected=expectedCoverage(nativeIdentity);assert.deepEqual(normalize(coverage),normalize(expected),'Every actual supported start and preset exactly once');
  assert.equal(value.groups.scene.cold_rejection,!coupled(nativeIdentity.source_variant),'Honest upstream cold-admission rejection');
- if(requireFullSupported)assert(coupled(nativeIdentity.source_variant)&&expected.length===21,'Full three-start delivery requires qualified coupled backend');
+ if(requireFullSupported)assert(coupled(nativeIdentity.source_variant)&&expected.length===(nativeIdentity.source_variant===variants[3]?35:21),'Full delivery requires actual source-qualified supported starts');
  return {checks,coverage:expected.length,full_supported:coupled(nativeIdentity.source_variant)};
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){

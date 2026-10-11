@@ -13,6 +13,13 @@ c::PilotAxes hold_pitch(const p::Session& session,double desired,double throttle
 int main(int argc,char** argv){
   try{
     if(argc<3){throw std::invalid_argument("Usage interactive_tests model_root output_prefix [airborne|negatives]");}
+    if(argc>3&&std::string(argv[3])=="apron"){
+      if(argc!=5){throw std::invalid_argument("Usage interactive_tests legacy_model_root output_prefix apron piston_model_root");}
+      const auto checks=interactive_checks::run_apron(argv[1],argv[4],argv[2]);
+      std::ofstream out(std::string(argv[2])+".json");if(!out){throw std::runtime_error("Apron receipt unavailable");}
+      out<<"{\"engineering_prototype\":true,\"passed\":true,\"checks\":"<<checks<<",\"compiled_source_fingerprint\":\""<<p::source_fingerprint()<<"\"}\n";
+      if(!out){throw std::runtime_error("Apron receipt write failed");}return 0;
+    }
     if(argc>3&&std::string(argv[3])=="negatives"){const auto checks=interactive_checks::run(argv[1],argv[2]);std::ofstream out(std::string(argv[2])+".json");out<<"{\"engineering_prototype\":true,\"passed\":true,\"checks\":"<<checks<<",\"compiled_source_fingerprint\":\""<<p::source_fingerprint()<<"\"}\n";return 0;}
     p::SurfaceConfig cfg;auto world=std::make_shared<p::AnalyticSurface>(cfg,p::prepared_identity(cfg));p::Config start;start.model_root=argv[1];start.surface=world;
     if(argc>3){start.start=p::Start::airborne;start.requested_height_m=1000;start.forward_mps=55*std::cos(.02);start.down_mps=55*std::sin(.02);start.pitch_rad=.02;start.trim=true;}

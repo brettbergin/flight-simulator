@@ -1,0 +1,581 @@
+{
+  "schema": "HypotheticalApronCompatibilitySourceBinding/v1",
+  "status": "PROPOSED_PRECONSUMER_SOURCE_ONLY_INDEPENDENT_REVIEW_REQUIRED",
+  "license": "Original MIT",
+  "public_directory": "tests/world/taxi/compatibility-reference",
+  "files": [
+    {
+      "path": "tests/world/taxi/compatibility-reference/expected-v1.json",
+      "bytes": 935611,
+      "sha256": "0ae22514067840455e4e01fb65cde1c39015e731937ff6971df030ce81a0d811"
+    },
+    {
+      "path": "tests/world/taxi/compatibility-reference/generate.py",
+      "bytes": 31821,
+      "sha256": "c7dca2b57ef8ed9d7f0922b8abc7916632cffe6adbecadb40b8b2cbefa40a263"
+    },
+    {
+      "path": "tests/world/taxi/compatibility-reference/README.md",
+      "bytes": 10115,
+      "sha256": "453c91177bb7549b6fb16b30634b7c08fcebd4af79a5c5f2d8e7853a210a35b9"
+    }
+  ],
+  "source_definitions": [
+    {
+      "path": "docs/decisions/027-synthetic-taxi-navigation.md",
+      "bytes": 35097,
+      "sha256": "480ea9cbc9872ce7f2da74e92c7620646a4d28d40ba40540cecd461a10cae0f3",
+      "git_lf_bytes": 35097,
+      "git_lf_sha256": "480ea9cbc9872ce7f2da74e92c7620646a4d28d40ba40540cecd461a10cae0f3",
+      "role": "prospective closed definition/math source; not accepted runtime authority"
+    },
+    {
+      "path": "docs/decisions/011-observed-flight-review.md",
+      "bytes": 25339,
+      "sha256": "3161b23caa0a15d27ba59349339aa054f9a3aa0e1690697e8e0150a2be654fab",
+      "git_lf_bytes": 25339,
+      "git_lf_sha256": "3161b23caa0a15d27ba59349339aa054f9a3aa0e1690697e8e0150a2be654fab",
+      "role": "prospective closed definition/math source; not accepted runtime authority"
+    },
+    {
+      "path": "docs/decisions/012-observed-review-interchange.md",
+      "bytes": 24843,
+      "sha256": "bde453e84734251f0f687aebc5b18f895ae7b71970a3c67b0274b605e5a79c5d",
+      "git_lf_bytes": 24843,
+      "git_lf_sha256": "bde453e84734251f0f687aebc5b18f895ae7b71970a3c67b0274b605e5a79c5d",
+      "role": "prospective closed definition/math source; not accepted runtime authority"
+    },
+    {
+      "path": "docs/decisions/022-piston-observed-review.md",
+      "bytes": 13304,
+      "sha256": "f99b12ce750192e58db7a1a25046c41175065d22863786953580e502425bd563",
+      "git_lf_bytes": 13304,
+      "git_lf_sha256": "f99b12ce750192e58db7a1a25046c41175065d22863786953580e502425bd563",
+      "role": "prospective closed definition/math source; not accepted runtime authority"
+    },
+    {
+      "path": "docs/decisions/026-durable-local-players-and-practice-history.md",
+      "bytes": 7068,
+      "sha256": "0d2ea8c0d88dbd7885bf73e8677d4acca509aba0f40517200407c2442299f4ef",
+      "git_lf_bytes": 7068,
+      "git_lf_sha256": "0d2ea8c0d88dbd7885bf73e8677d4acca509aba0f40517200407c2442299f4ef",
+      "role": "prospective closed definition/math source; not accepted runtime authority"
+    },
+    {
+      "path": "docs/contracts/local-players/records-and-lifetimes-v1.md",
+      "bytes": 48341,
+      "sha256": "1425add30c3bb66693f66ed1567cb5bbee8fd493e28df485d3c1b1962f47b9de",
+      "git_lf_bytes": 48341,
+      "git_lf_sha256": "1425add30c3bb66693f66ed1567cb5bbee8fd493e28df485d3c1b1962f47b9de",
+      "role": "prospective closed definition/math source; not accepted runtime authority"
+    },
+    {
+      "path": "docs/contracts/local-players/protocol-v1.md",
+      "bytes": 24243,
+      "sha256": "4a06cf33f70e86c5e07a389d4660a52fb2aefbd45ddaf51d95c5a5127fa2a4a4",
+      "git_lf_bytes": 24243,
+      "git_lf_sha256": "4a06cf33f70e86c5e07a389d4660a52fb2aefbd45ddaf51d95c5a5127fa2a4a4",
+      "role": "prospective closed definition/math source; not accepted runtime authority"
+    },
+    {
+      "path": "docs/contracts/local-players/full-record-reference-amendment-v1.md",
+      "bytes": 3077,
+      "sha256": "876edc5805f8ed9e497eed7e1bd99635d2441db9cd43b891dc4c2937d04ad91c",
+      "git_lf_bytes": 3077,
+      "git_lf_sha256": "876edc5805f8ed9e497eed7e1bd99635d2441db9cd43b891dc4c2937d04ad91c",
+      "role": "prospective closed definition/math source; not accepted runtime authority"
+    },
+    {
+      "path": "docs/contracts/local-players/service-lifecycle-amendment-v1.md",
+      "bytes": 16411,
+      "sha256": "5c42070514a49b3a2b678cbc039fdc832dfe69a6589969a9b675d1cfc5b83f3f",
+      "git_lf_bytes": 16411,
+      "git_lf_sha256": "5c42070514a49b3a2b678cbc039fdc832dfe69a6589969a9b675d1cfc5b83f3f",
+      "role": "prospective closed definition/math source; not accepted runtime authority"
+    },
+    {
+      "path": "schemas/save/local-players/v1/schema-v1.sql",
+      "bytes": 3860,
+      "sha256": "cbd00b3fe47b400e79635ed901d195abfe133a4131d5001feac8e3eedeb0562f",
+      "git_lf_bytes": 3860,
+      "git_lf_sha256": "cbd00b3fe47b400e79635ed901d195abfe133a4131d5001feac8e3eedeb0562f",
+      "role": "prospective closed definition/math source; not accepted runtime authority"
+    },
+    {
+      "path": "schemas/save/local-players/v1/preferences-codec-v1.json",
+      "bytes": 6986,
+      "sha256": "47711d41be89e233efe3c42e8f2cedd33f729e6e0e2c9a78a6026454022b0538",
+      "git_lf_bytes": 6986,
+      "git_lf_sha256": "47711d41be89e233efe3c42e8f2cedd33f729e6e0e2c9a78a6026454022b0538",
+      "role": "prospective closed definition/math source; not accepted runtime authority"
+    },
+    {
+      "path": "tests/world/taxi/start-reference/expected-v1.json",
+      "bytes": 28502,
+      "sha256": "fb543ddd1681c3cb040cdfd1c65ff404eb9409e73bb6f613c225a3a501f2e333",
+      "git_lf_bytes": 28502,
+      "git_lf_sha256": "fb543ddd1681c3cb040cdfd1c65ff404eb9409e73bb6f613c225a3a501f2e333",
+      "role": "prospective closed definition/math source; not accepted runtime authority"
+    }
+  ],
+  "older_reader_observations": [
+    {
+      "path": "app/cockpit/instruments/native_readings.gd",
+      "bytes": 11882,
+      "sha256": "3b2d500e65ecfa4a713d03f0427e6e80a6534ac4ff465d77a6a328f130dee5de",
+      "git_lf_bytes": 11882,
+      "git_lf_sha256": "3b2d500e65ecfa4a713d03f0427e6e80a6534ac4ff465d77a6a328f130dee5de",
+      "role": "unchanged older-reader/source observation; read only, never imported"
+    },
+    {
+      "path": "app/cockpit/instruments/engine_status.gd",
+      "bytes": 2889,
+      "sha256": "29dd20e2720edd4e3965ffd554f8e33cf53796428ed574456e08e1b7ef114e57",
+      "git_lf_bytes": 2889,
+      "git_lf_sha256": "29dd20e2720edd4e3965ffd554f8e33cf53796428ed574456e08e1b7ef114e57",
+      "role": "unchanged older-reader/source observation; read only, never imported"
+    },
+    {
+      "path": "app/simulation/wire_validation.gd",
+      "bytes": 11163,
+      "sha256": "196de144771ab5836381385e9095369f4b0bdccbf1082fdfc8bb5dc800728dc3",
+      "git_lf_bytes": 11163,
+      "git_lf_sha256": "196de144771ab5836381385e9095369f4b0bdccbf1082fdfc8bb5dc800728dc3",
+      "role": "unchanged older-reader/source observation; read only, never imported"
+    },
+    {
+      "path": "app/simulation/canonical_frames.gd",
+      "bytes": 6128,
+      "sha256": "8e9cd434a7c0adaa3f03817c5cd28adf7a4f22996323c1237ec7ab95638b36e0",
+      "git_lf_bytes": 6128,
+      "git_lf_sha256": "8e9cd434a7c0adaa3f03817c5cd28adf7a4f22996323c1237ec7ab95638b36e0",
+      "role": "unchanged older-reader/source observation; read only, never imported"
+    },
+    {
+      "path": "app/replay/observed/values.gd",
+      "bytes": 20486,
+      "sha256": "af6f992986f6b7da68224aa0b43c777138f6896c3ec0accf81d15e0f7a94dae1",
+      "git_lf_bytes": 20486,
+      "git_lf_sha256": "af6f992986f6b7da68224aa0b43c777138f6896c3ec0accf81d15e0f7a94dae1",
+      "role": "unchanged older-reader/source observation; read only, never imported"
+    },
+    {
+      "path": "app/replay/observed/recorder.gd",
+      "bytes": 6008,
+      "sha256": "616ef5b1c368891a7a93195742de90e94c93b0579dc298e073a80245047ec168",
+      "git_lf_bytes": 6008,
+      "git_lf_sha256": "616ef5b1c368891a7a93195742de90e94c93b0579dc298e073a80245047ec168",
+      "role": "unchanged older-reader/source observation; read only, never imported"
+    },
+    {
+      "path": "app/replay/observed_archive/codec.gd",
+      "bytes": 11114,
+      "sha256": "cead03af3caf04e1a833d8e2b5d58c5bf64fa613cb498c28541f81b28654faef",
+      "git_lf_bytes": 11114,
+      "git_lf_sha256": "cead03af3caf04e1a833d8e2b5d58c5bf64fa613cb498c28541f81b28654faef",
+      "role": "unchanged older-reader/source observation; read only, never imported"
+    }
+  ],
+  "immutable_reference_inputs": [
+    {
+      "path": "tests/wire_codec/reference.json",
+      "bytes": 19099,
+      "sha256": "1cab52841eb0cb063d547bf90e7a50f04a1871a5293bdfee4e0a78ddb8940ff6",
+      "git_lf_bytes": 19099,
+      "git_lf_sha256": "1cab52841eb0cb063d547bf90e7a50f04a1871a5293bdfee4e0a78ddb8940ff6",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/wire_codec/emit_reference.py",
+      "bytes": 2409,
+      "sha256": "69d314eca657aaa20029dc41a6ea739ae54f9306794b0ed8e8f065b4cc8c8834",
+      "git_lf_bytes": 2409,
+      "git_lf_sha256": "69d314eca657aaa20029dc41a6ea739ae54f9306794b0ed8e8f065b4cc8c8834",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/debrief/observed/expected-v1.json",
+      "bytes": 33688,
+      "sha256": "a4c3184c46f2eb76c85ff4ba43fc8aac49e772a447576eeec5663fff1ac78844",
+      "git_lf_bytes": 33688,
+      "git_lf_sha256": "a4c3184c46f2eb76c85ff4ba43fc8aac49e772a447576eeec5663fff1ac78844",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/debrief/observed/generate.py",
+      "bytes": 8824,
+      "sha256": "212ad8eac94b43db801ada0597b8a3e07982151bd8baa03ca75cbc04605e874c",
+      "git_lf_bytes": 8824,
+      "git_lf_sha256": "212ad8eac94b43db801ada0597b8a3e07982151bd8baa03ca75cbc04605e874c",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/debrief/observed_archive/reference/expected-text-v1.json",
+      "bytes": 53523,
+      "sha256": "961d8903f702f1d46374998db06b7517a1ca067333b3613bd2adbf3a8c06b15e",
+      "git_lf_bytes": 53523,
+      "git_lf_sha256": "961d8903f702f1d46374998db06b7517a1ca067333b3613bd2adbf3a8c06b15e",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/debrief/observed_archive/reference/expected-binary64-v1.json",
+      "bytes": 14434,
+      "sha256": "406b00475e444f71f6e1f57fd37100c52b86c076e0dccbf664bb5bfc05c028d8",
+      "git_lf_bytes": 14434,
+      "git_lf_sha256": "406b00475e444f71f6e1f57fd37100c52b86c076e0dccbf664bb5bfc05c028d8",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/debrief/observed_archive/reference/minimal.fsreview.json",
+      "bytes": 3023,
+      "sha256": "e830a36a899f216a44da263df16f59fc94611c7e44a3c610f3f968d0250965bf",
+      "git_lf_bytes": 3023,
+      "git_lf_sha256": "e830a36a899f216a44da263df16f59fc94611c7e44a3c610f3f968d0250965bf",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/debrief/observed_archive/reference/piston-small.fsreview.json",
+      "bytes": 10325,
+      "sha256": "b9b55515115d02b2eb6f4aa9426882b5cbe4633747f4d4e8788b4e5e3223a34b",
+      "git_lf_bytes": 10325,
+      "git_lf_sha256": "b9b55515115d02b2eb6f4aa9426882b5cbe4633747f4d4e8788b4e5e3223a34b",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "schemas/save/local-players/v1/design-fixtures-v2.json",
+      "bytes": 14985,
+      "sha256": "8969d0dd4bee47432606f54e1bb8f2b4ff805062e2ba4015a23ef0288973fb77",
+      "git_lf_bytes": 14985,
+      "git_lf_sha256": "8969d0dd4bee47432606f54e1bb8f2b4ff805062e2ba4015a23ef0288973fb77",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/persistence/local_players/reference/expected-v1.json",
+      "bytes": 54200,
+      "sha256": "1ffaa82ae54a18dc5c9ec3d6c49760ed3b2d6c27abf77783572c6a9b3902d962",
+      "git_lf_bytes": 54200,
+      "git_lf_sha256": "1ffaa82ae54a18dc5c9ec3d6c49760ed3b2d6c27abf77783572c6a9b3902d962",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/persistence/local_players/reference/generate.py",
+      "bytes": 17972,
+      "sha256": "a695fa0d06a8b91bed3b3117789c09b2fdb3df0e5e0afe7aa4bd9069d63374ed",
+      "git_lf_bytes": 17972,
+      "git_lf_sha256": "a695fa0d06a8b91bed3b3117789c09b2fdb3df0e5e0afe7aa4bd9069d63374ed",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/persistence/local_players/reference/source-binding-v1.json",
+      "bytes": 5128,
+      "sha256": "37d551c29b6e14c51f6d0c0ca37893680a57520b06ffa9f2f046919820eeaa95",
+      "git_lf_bytes": 5128,
+      "git_lf_sha256": "37d551c29b6e14c51f6d0c0ca37893680a57520b06ffa9f2f046919820eeaa95",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/persistence/local_players/reference/README.md",
+      "bytes": 4554,
+      "sha256": "70507f04f9fdaadd5677e5ff5636c9cc30fbacc0bd9de788c0d7f8234635ec72",
+      "git_lf_bytes": 4554,
+      "git_lf_sha256": "70507f04f9fdaadd5677e5ff5636c9cc30fbacc0bd9de788c0d7f8234635ec72",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/persistence/local_players/service_reference/expected-v1.json",
+      "bytes": 468270,
+      "sha256": "61078c6aea80de7d15b2d0fe8a94a796a24086ea270f64e98fa9074aa8aa7860",
+      "git_lf_bytes": 468270,
+      "git_lf_sha256": "61078c6aea80de7d15b2d0fe8a94a796a24086ea270f64e98fa9074aa8aa7860",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/persistence/local_players/service_reference/generate.py",
+      "bytes": 28357,
+      "sha256": "ecc26633c8f1569b4d5e854915c371f53aaee558e5bb22f6249d7e8440c86efd",
+      "git_lf_bytes": 28357,
+      "git_lf_sha256": "ecc26633c8f1569b4d5e854915c371f53aaee558e5bb22f6249d7e8440c86efd",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/persistence/local_players/service_reference/source-binding-v1.json",
+      "bytes": 7911,
+      "sha256": "0e431ecd198388e29ad40e2209327d68aa31c55b7407d1bc914e0f0a3bfb5c4c",
+      "git_lf_bytes": 7911,
+      "git_lf_sha256": "0e431ecd198388e29ad40e2209327d68aa31c55b7407d1bc914e0f0a3bfb5c4c",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/persistence/local_players/service_reference/README.md",
+      "bytes": 3245,
+      "sha256": "a6446d658d5d4b8def14cd77e87f2ec3f9c591091b8335b132db94ecdbacb783",
+      "git_lf_bytes": 3245,
+      "git_lf_sha256": "a6446d658d5d4b8def14cd77e87f2ec3f9c591091b8335b132db94ecdbacb783",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/persistence/local_players/full_record_reference/expected-v1.json",
+      "bytes": 3427125,
+      "sha256": "164aad9b74de33b04a6a69734116eab899dceaf696135137b9963f679968b722",
+      "git_lf_bytes": 3427125,
+      "git_lf_sha256": "164aad9b74de33b04a6a69734116eab899dceaf696135137b9963f679968b722",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/persistence/local_players/full_record_reference/generate.py",
+      "bytes": 30670,
+      "sha256": "431da3b2c7d752816653e7b78e887f7189b6d2fb548fd40f2c51b3f9d8b686e0",
+      "git_lf_bytes": 30670,
+      "git_lf_sha256": "431da3b2c7d752816653e7b78e887f7189b6d2fb548fd40f2c51b3f9d8b686e0",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/persistence/local_players/full_record_reference/source-binding-v1.json",
+      "bytes": 6050,
+      "sha256": "e8b1cf26e233bb0205a0cc918d8c62376aab9e861c8c7f7f76968811c3e39362",
+      "git_lf_bytes": 6050,
+      "git_lf_sha256": "e8b1cf26e233bb0205a0cc918d8c62376aab9e861c8c7f7f76968811c3e39362",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/persistence/local_players/full_record_reference/README.md",
+      "bytes": 6097,
+      "sha256": "e2cddabda7cdc6f4677a5830c547be6ac775cccf5f465d2a2bf0b0e7ee51e478",
+      "git_lf_bytes": 6097,
+      "git_lf_sha256": "e2cddabda7cdc6f4677a5830c547be6ac775cccf5f465d2a2bf0b0e7ee51e478",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/persistence/local_players/reservation_reference/expected-v1.json",
+      "bytes": 17582,
+      "sha256": "2bbe1ced7a5d30ae1a469eb5da1675779028fceaf9779fb309d78e356b22cd86",
+      "git_lf_bytes": 17582,
+      "git_lf_sha256": "2bbe1ced7a5d30ae1a469eb5da1675779028fceaf9779fb309d78e356b22cd86",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/persistence/local_players/reservation_reference/generate.py",
+      "bytes": 11714,
+      "sha256": "e9da454d83bf62f6e42a5746d414acc524df0f5616f2b9861cad01f00d274f50",
+      "git_lf_bytes": 11714,
+      "git_lf_sha256": "e9da454d83bf62f6e42a5746d414acc524df0f5616f2b9861cad01f00d274f50",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/persistence/local_players/reservation_reference/source-binding-v1.json",
+      "bytes": 4302,
+      "sha256": "af4d754440c4630afd09ccd71061868120e92325817c55a3a4e54b2c0bef19ed",
+      "git_lf_bytes": 4302,
+      "git_lf_sha256": "af4d754440c4630afd09ccd71061868120e92325817c55a3a4e54b2c0bef19ed",
+      "role": "immutable earlier reference input, not current producer qualification"
+    },
+    {
+      "path": "tests/persistence/local_players/reservation_reference/README.md",
+      "bytes": 2924,
+      "sha256": "03fe9f18d76edb7723687ffc5491e03ebebe7c10df75f20f3b46401c3128e1f7",
+      "git_lf_bytes": 2924,
+      "git_lf_sha256": "03fe9f18d76edb7723687ffc5491e03ebebe7c10df75f20f3b46401c3128e1f7",
+      "role": "immutable earlier reference input, not current producer qualification"
+    }
+  ],
+  "hypothetical_identity_rule": {
+    "recipe": "SHA256(canonical UTF8 original descriptor), exact descriptors in expected-v1.json",
+    "source_fingerprint": "44f5320f3d63e0ff6f9942ec4a4f29177f51b18cbf1c2742650294c45541054b",
+    "controls_fingerprint": "c9f64db83dd530bf5c774eb93802e7235258538bded9ad2af8f726032f3e5c79",
+    "different_source_fingerprint": "9d4b523090dcd39ab65f396fd19e20aaff1bd64005ab001c61c9628ffe3aacb6",
+    "actual_native_authority": false,
+    "production_identity_may_be_modified": false,
+    "real_source_mismatch_must_be_rejected": true
+  },
+  "external_pose_sha256": "fb543ddd1681c3cb040cdfd1c65ff404eb9409e73bb6f613c225a3a501f2e333",
+  "future_review_gates": [
+    "Independent whole-value source/reference review",
+    "Checked ADR027 acceptance before consumers",
+    "Actual current qualified native source/initialization and35camera/three-context integration separate"
+  ],
+  "source_authority": "Consolidated prospective ADR027 overrides only its explicit scoped domains after checked merge; historical ADR bytes and earlier immutable reference families are preserved. Current raw source pins are source definitions, not native/compiler/Godot/database observations. All identities in fixture values remain original synthetic descriptors.",
+  "predecessor": {
+    "purpose": "Preserved independent original whole-value reference; no historical rewrite",
+    "public_files": [
+      {
+        "path": "tests/world/taxi/compatibility-reference/expected-v1.json",
+        "bytes": 839233,
+        "sha256": "f53aa47c10c22e1a04e03661de69c015c80bd34d1a2ffe77ff321e7f6097c90a"
+      },
+      {
+        "path": "tests/world/taxi/compatibility-reference/generate.py",
+        "bytes": 27629,
+        "sha256": "5e147bd41d8c4fe81415d07bf3b9abed2d69aaa8ded52c6ce0211b680cd1d6c2"
+      },
+      {
+        "path": "tests/world/taxi/compatibility-reference/source-binding-v1.json",
+        "bytes": 19364,
+        "sha256": "7701cce4b2f839e84644766b08b48d5b7bc206ccff796e29fb868f55e717d681"
+      },
+      {
+        "path": "tests/world/taxi/compatibility-reference/README.md",
+        "bytes": 7941,
+        "sha256": "2e9f70d0056d65c9efe007b54434fcf52253ea27ad46885b9cb03f5068fbca58"
+      }
+    ],
+    "original_source_definitions": [
+      {
+        "path": "docs/decisions/027-synthetic-taxi-navigation.md",
+        "bytes": 30368,
+        "sha256": "6a16fd986ac0d243546d8de8e1c17667fe69941b207d9fa738bf744ad27dbf9b",
+        "git_lf_bytes": 30368,
+        "git_lf_sha256": "6a16fd986ac0d243546d8de8e1c17667fe69941b207d9fa738bf744ad27dbf9b",
+        "role": "prospective closed definition/math source; not accepted runtime authority"
+      },
+      {
+        "path": "docs/decisions/011-observed-flight-review.md",
+        "bytes": 25824,
+        "sha256": "947b784803a0b04a7ec92ebf96f7564d1a72b9e77a7c0921ce4b9747f34094cd",
+        "git_lf_bytes": 25824,
+        "git_lf_sha256": "947b784803a0b04a7ec92ebf96f7564d1a72b9e77a7c0921ce4b9747f34094cd",
+        "role": "prospective closed definition/math source; not accepted runtime authority"
+      },
+      {
+        "path": "docs/decisions/012-observed-review-interchange.md",
+        "bytes": 25384,
+        "sha256": "dc545ac8b60be779d5451b56bed4ff2601ddd0444e89598439e152a3332bd9c6",
+        "git_lf_bytes": 25384,
+        "git_lf_sha256": "dc545ac8b60be779d5451b56bed4ff2601ddd0444e89598439e152a3332bd9c6",
+        "role": "prospective closed definition/math source; not accepted runtime authority"
+      },
+      {
+        "path": "docs/decisions/022-piston-observed-review.md",
+        "bytes": 13797,
+        "sha256": "4b9385021578743b21be13a4e5b9db936efddc1d620daa526d1a9a15ec9e2067",
+        "git_lf_bytes": 13797,
+        "git_lf_sha256": "4b9385021578743b21be13a4e5b9db936efddc1d620daa526d1a9a15ec9e2067",
+        "role": "prospective closed definition/math source; not accepted runtime authority"
+      },
+      {
+        "path": "docs/decisions/026-durable-local-players-and-practice-history.md",
+        "bytes": 7698,
+        "sha256": "6e0deb6f36ccfed20dbe8b236afbe3c4ec8003f916b98a8d362c4c3f0189c464",
+        "git_lf_bytes": 7698,
+        "git_lf_sha256": "6e0deb6f36ccfed20dbe8b236afbe3c4ec8003f916b98a8d362c4c3f0189c464",
+        "role": "prospective closed definition/math source; not accepted runtime authority"
+      },
+      {
+        "path": "docs/contracts/local-players/records-and-lifetimes-v1.md",
+        "bytes": 48341,
+        "sha256": "1425add30c3bb66693f66ed1567cb5bbee8fd493e28df485d3c1b1962f47b9de",
+        "git_lf_bytes": 48341,
+        "git_lf_sha256": "1425add30c3bb66693f66ed1567cb5bbee8fd493e28df485d3c1b1962f47b9de",
+        "role": "prospective closed definition/math source; not accepted runtime authority"
+      },
+      {
+        "path": "docs/contracts/local-players/protocol-v1.md",
+        "bytes": 24243,
+        "sha256": "4a06cf33f70e86c5e07a389d4660a52fb2aefbd45ddaf51d95c5a5127fa2a4a4",
+        "git_lf_bytes": 24243,
+        "git_lf_sha256": "4a06cf33f70e86c5e07a389d4660a52fb2aefbd45ddaf51d95c5a5127fa2a4a4",
+        "role": "prospective closed definition/math source; not accepted runtime authority"
+      },
+      {
+        "path": "docs/contracts/local-players/full-record-reference-amendment-v1.md",
+        "bytes": 3077,
+        "sha256": "876edc5805f8ed9e497eed7e1bd99635d2441db9cd43b891dc4c2937d04ad91c",
+        "git_lf_bytes": 3077,
+        "git_lf_sha256": "876edc5805f8ed9e497eed7e1bd99635d2441db9cd43b891dc4c2937d04ad91c",
+        "role": "prospective closed definition/math source; not accepted runtime authority"
+      },
+      {
+        "path": "docs/contracts/local-players/service-lifecycle-amendment-v1.md",
+        "bytes": 16411,
+        "sha256": "5c42070514a49b3a2b678cbc039fdc832dfe69a6589969a9b675d1cfc5b83f3f",
+        "git_lf_bytes": 16411,
+        "git_lf_sha256": "5c42070514a49b3a2b678cbc039fdc832dfe69a6589969a9b675d1cfc5b83f3f",
+        "role": "prospective closed definition/math source; not accepted runtime authority"
+      },
+      {
+        "path": "schemas/save/local-players/v1/schema-v1.sql",
+        "bytes": 3860,
+        "sha256": "cbd00b3fe47b400e79635ed901d195abfe133a4131d5001feac8e3eedeb0562f",
+        "git_lf_bytes": 3860,
+        "git_lf_sha256": "cbd00b3fe47b400e79635ed901d195abfe133a4131d5001feac8e3eedeb0562f",
+        "role": "prospective closed definition/math source; not accepted runtime authority"
+      },
+      {
+        "path": "schemas/save/local-players/v1/preferences-codec-v1.json",
+        "bytes": 6986,
+        "sha256": "47711d41be89e233efe3c42e8f2cedd33f729e6e0e2c9a78a6026454022b0538",
+        "git_lf_bytes": 6986,
+        "git_lf_sha256": "47711d41be89e233efe3c42e8f2cedd33f729e6e0e2c9a78a6026454022b0538",
+        "role": "prospective closed definition/math source; not accepted runtime authority"
+      },
+      {
+        "path": "tests/world/taxi/start-reference/expected-v1.json",
+        "bytes": 28502,
+        "sha256": "fb543ddd1681c3cb040cdfd1c65ff404eb9409e73bb6f613c225a3a501f2e333",
+        "git_lf_bytes": 28502,
+        "git_lf_sha256": "fb543ddd1681c3cb040cdfd1c65ff404eb9409e73bb6f613c225a3a501f2e333",
+        "role": "prospective closed definition/math source; not accepted runtime authority"
+      }
+    ],
+    "original_raw_older_reader_observations": [
+      {
+        "path": "app/cockpit/instruments/native_readings.gd",
+        "bytes": 12081,
+        "sha256": "d0812d13018427dafa33f31a6a48e06d31e263ed11ebbdc4d64421433144934c",
+        "git_lf_bytes": 11882,
+        "git_lf_sha256": "3b2d500e65ecfa4a713d03f0427e6e80a6534ac4ff465d77a6a328f130dee5de",
+        "role": "unchanged older-reader/source observation; read only, never imported"
+      },
+      {
+        "path": "app/cockpit/instruments/engine_status.gd",
+        "bytes": 2944,
+        "sha256": "afa5f95ea18802164469d23c8bf8ec397827a85d45a7037a2ef2c62e4fcc5b06",
+        "git_lf_bytes": 2889,
+        "git_lf_sha256": "29dd20e2720edd4e3965ffd554f8e33cf53796428ed574456e08e1b7ef114e57",
+        "role": "unchanged older-reader/source observation; read only, never imported"
+      },
+      {
+        "path": "app/simulation/wire_validation.gd",
+        "bytes": 11377,
+        "sha256": "842513188e7941a80e05678a3d6d0c87d1f5af25619cbd14a0b415f09b21dfd4",
+        "git_lf_bytes": 11163,
+        "git_lf_sha256": "196de144771ab5836381385e9095369f4b0bdccbf1082fdfc8bb5dc800728dc3",
+        "role": "unchanged older-reader/source observation; read only, never imported"
+      },
+      {
+        "path": "app/simulation/canonical_frames.gd",
+        "bytes": 6271,
+        "sha256": "35371579ff400a2f9d07e2f5bb3e58e69d3040bc98fca77abdb29b11db699695",
+        "git_lf_bytes": 6128,
+        "git_lf_sha256": "8e9cd434a7c0adaa3f03817c5cd28adf7a4f22996323c1237ec7ab95638b36e0",
+        "role": "unchanged older-reader/source observation; read only, never imported"
+      },
+      {
+        "path": "app/replay/observed/values.gd",
+        "bytes": 20843,
+        "sha256": "4fb1fe4ca82567589a6ca2fd29c5a1e6a84016a95745fc477791e2145572dab9",
+        "git_lf_bytes": 20486,
+        "git_lf_sha256": "af6f992986f6b7da68224aa0b43c777138f6896c3ec0accf81d15e0f7a94dae1",
+        "role": "unchanged older-reader/source observation; read only, never imported"
+      },
+      {
+        "path": "app/replay/observed/recorder.gd",
+        "bytes": 6138,
+        "sha256": "0df6bef18e11e26ab4377093d88a598441a4cdd9db3b28c4a10c03150c322b7e",
+        "git_lf_bytes": 6008,
+        "git_lf_sha256": "616ef5b1c368891a7a93195742de90e94c93b0579dc298e073a80245047ec168",
+        "role": "unchanged older-reader/source observation; read only, never imported"
+      },
+      {
+        "path": "app/replay/observed_archive/codec.gd",
+        "bytes": 11302,
+        "sha256": "67d8f365c7e1abc4b43aa48d2a4fcf92019d69eea33d755aaced874087bfcc31",
+        "git_lf_bytes": 11114,
+        "git_lf_sha256": "cead03af3caf04e1a833d8e2b5d58c5bf64fa613cb498c28541f81b28654faef",
+        "role": "unchanged older-reader/source observation; read only, never imported"
+      }
+    ],
+    "preserved_values": 101,
+    "preserved_boundary_recipes": 62,
+    "preserved_lifecycle_recipes": 16
+  }
+}

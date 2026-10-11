@@ -87,6 +87,111 @@ inline unsigned run_wind(const std::filesystem::path& model,const std::filesyste
   }
   std::cout<<"steady-wind native checks "<<checks<<" PASS\n";return checks;
 }
+// ADR027 additive actual-native proof. Literal comparisons are mechanically
+// copied from the independently reviewed preconsumer pose reference fb543ddd.
+// This test never supplies a position/shaft/Running value to a live session.
+inline unsigned run_apron(const std::filesystem::path& legacy_model,const std::filesystem::path& piston_model,const std::filesystem::path& output_prefix) {
+  unsigned checks=0;const auto check=[&](bool ok,const char* why){require(ok,why);++checks;};
+  static_assert(static_cast<unsigned>(p::Start::ground)==0&&static_cast<unsigned>(p::Start::airborne)==1&&static_cast<unsigned>(p::Start::piston_cold_ground)==2);
+  constexpr std::array<p::Start,5> starts{p::Start::ground,p::Start::airborne,p::Start::piston_cold_ground,p::Start::apron_ready,p::Start::piston_cold_apron};
+  constexpr std::array<const char*,5> names{"ground-ready","airborne-prepared","piston-cold-ground","apron-ready","piston-cold-apron"};
+  constexpr std::array<p::SteadyWindProfile,4> winds{p::SteadyWindProfile::calm,p::SteadyWindProfile::from_north,p::SteadyWindProfile::from_west,p::SteadyWindProfile::from_east};
+  constexpr std::array<const char*,4> wind_names{"calm","from-north","from-west","from-east"};
+#if defined(FLIGHT_JSBSIM_COUPLED_MIDPOINT_SHAFT) && FLIGHT_JSBSIM_COUPLED_MIDPOINT_SHAFT
+  constexpr bool supports_piston=true;
+#else
+  constexpr bool supports_piston=false;
+#endif
+  constexpr std::array<double,3> expected_ecef{-0x1.c43a8d71338c7p+20,-0x1.ee19bf08e7c27p+21,0x1.15de6ab6aee79p+22};
+  constexpr std::array<double,3> expected_geod{0x1.99993ac0f4dc1p-1,-0x1.fffe68f2de9d9p+0,0x1.0d0a49c60fd0bp+0};
+  constexpr std::array<std::array<double,3>,3> nominal_frd{{{2,0,1},{-1,-1.3,1},{-1,1.3,1}}};
+  // Filled solely from frozen nominal_gears[].anchor_eus_m, not a helper output.
+  constexpr std::array<std::array<double,3>,3> expected_gear_eus{{{0x1.affff2719c328p+6,0x1.99a574b56fd2cp-5,0x1.fffffa12cf251p+3},{0x1.aaccccee6f540p+6,0x1.99c1c16b1903dp-5,0x1.300014c2e4f8dp+4},{0x1.b5333354c894dp+6,0x1.99659648b1ddcp-5,0x1.2fffe54faa138p+4}}};
+  const auto make_config=[&](unsigned profile,unsigned start,unsigned wind,bool valid){
+    p::Config cfg;cfg.profile=profile==0?p::Profile::legacy:p::Profile::piston;
+    cfg.model_root=valid?(profile==0?legacy_model:piston_model):std::filesystem::path("__invalid_tuple_must_not_read_model__");
+    cfg.surface=std::make_shared<FaultSurface>(p::SurfaceConfig{});cfg.start=starts[start];cfg.wind_profile=winds[wind];
+    cfg.session_id="apron-native-probe";if(profile==1){cfg.angular_method=p::AngularMethod::event_aware_coupled_midpoint_v1;}
+    if(start==1){cfg.requested_height_m=1000;cfg.forward_mps=55*std::cos(.02);cfg.down_mps=55*std::sin(.02);cfg.pitch_rad=.02;cfg.trim=true;}
+    return cfg;
+  };
+  std::ofstream evidence(output_prefix.string()+".apron.ndjson");if(!evidence){throw std::runtime_error("Apron evidence unavailable");}
+  evidence<<std::setprecision(17);
+  unsigned old_valid=0,new_valid=0;
+  for(unsigned profile=0;profile<2;++profile){for(unsigned start=0;start<5;++start){for(unsigned wind=0;wind<4;++wind){
+    // Independent closed tuple matrix: old8 legacy +old1 piston, new2 calm.
+    const bool wanted=profile==0?((start==0||start==1)||(start==3&&wind==0)):((start==2||start==4)&&wind==0&&supports_piston);
+    if(!wanted){
+      auto cfg=make_config(profile,start,wind,false);const auto provider=std::static_pointer_cast<const FaultSurface>(cfg.surface);
+      bool rejected=false;try{p::Session invalid(cfg);}catch(const std::invalid_argument&){rejected=true;}
+      check(rejected&&provider->queries==0,"Closed start/profile/wind rejection reached model/provider/solver");continue;
+    }
+    if(start<3){++old_valid;}else{++new_valid;}
+    std::string repeated_aircraft,repeated_atmosphere;
+    for(unsigned repeat=0;repeat<2;++repeat){
+      const auto cfg=make_config(profile,start,wind,true);p::Session session(cfg);
+      auto initial=session.latest();auto weather=session.atmosphere();const auto held=session.held();
+      check(session.live()&&!session.paused()&&initial.header.tick.value==0&&initial.elapsed_s==0,"Fresh native tuple did not start live at tick0");
+      check(c::valid(initial)&&c::valid(weather)&&initial.header.tick==weather.header.tick&&initial.header.session_id==weather.header.session_id&&initial.position.latitude_rad==weather.position.latitude_rad&&initial.position.longitude_rad==weather.position.longitude_rad&&initial.position.ellipsoid_height_m==weather.position.ellipsoid_height_m,"Fresh complete publication pair is inconsistent");
+      check(initial.clock.tick_rate_hz==120&&initial.clock.purpose==c::ClockPurpose::runtime&&weather.seed.value==42,"Fresh recipe clock/seed differs");
+      evidence<<"{\"profile\":"<<profile<<",\"start\":\""<<names[start]<<"\",\"wind\":\""<<wind_names[wind]<<"\",\"repeat\":"<<repeat<<",\"aircraft\":"<<p::snapshot_json(initial)<<",\"atmosphere\":"<<flight::fdm::transport::json(weather)<<"}\n";
+      auto normalized=initial;auto normalized_weather=weather;normalized.header.session_id="comparison";normalized_weather.header.session_id="comparison";
+      if(repeat==0){repeated_aircraft=p::snapshot_json(normalized);repeated_atmosphere=flight::fdm::transport::json(normalized_weather);}
+      else{check(p::snapshot_json(normalized)==repeated_aircraft&&flight::fdm::transport::json(normalized_weather)==repeated_atmosphere,"Fresh tuple repeated initialization differs");}
+      if(start==3||start==4){
+        const auto local=cfg.surface->coordinates(initial.ecef_position_m);
+        check(std::abs(local.y-108)<=1e-5&&std::abs(-local.z-1.05)<=1e-5&&std::abs(-local.x-18)<=1e-5,"Native apron canonical EUS differs from frozen stand");
+        const std::array<double,3> actual_ecef{initial.ecef_position_m.x,initial.ecef_position_m.y,initial.ecef_position_m.z};
+        for(unsigned k=0;k<3;++k){check(std::abs(actual_ecef[k]-expected_ecef[k])<=1e-5,"Native apron ECEF differs from independent preconsumer pose");}
+        check(std::abs(initial.position.ellipsoid_height_m-expected_geod[2])<=1e-5,"Apron ellipsoid height was confused with plane-up height");
+        check(std::abs(initial.orientation_body_to_ned.w-1)<=1e-12&&std::abs(initial.orientation_body_to_ned.x)<=1e-12&&std::abs(initial.orientation_body_to_ned.y)<=1e-12&&std::abs(initial.orientation_body_to_ned.z)<=1e-12,"Apron orientation is not zero query-local NED RPY");
+        check(c::magnitude(initial.velocity_body_mps)<=1e-6&&initial.angular_rate_body_radps.x==0&&initial.angular_rate_body_radps.y==0&&initial.angular_rate_body_radps.z==0,"Apron initial kinematics changed");
+        check(held.roll==0&&held.pitch==0&&held.yaw==0&&held.trim==0&&held.throttle==0&&held.left_brake==1&&held.right_brake==1&&held.mixture==(profile==0?1:0),"Apron held axes fell through to airborne controls");
+        check(weather.wind_toward_ned_mps.x==0&&weather.wind_toward_ned_mps.y==0&&weather.wind_toward_ned_mps.z==0,"Apron actual wind is not calm");
+        check(initial.contacts.size()==3,"Apron actual gear roster differs");
+        const double sp=std::sin(initial.position.latitude_rad),cp=std::cos(initial.position.latitude_rad),sl=std::sin(initial.position.longitude_rad),cl=std::cos(initial.position.longitude_rad);
+        for(unsigned gear=0;gear<3;++gear){
+          const auto arm=initial.contacts[gear].point_body_m;const std::array<double,3> actual_arm{arm.x,arm.y,arm.z};
+          for(unsigned k=0;k<3;++k){check(std::abs(actual_arm[k]-nominal_frd[gear][k])<=1e-4,"Actual model gear arm differs from frozen nominal source");}
+          const auto ned=c::rotate_body_to_ned(initial.orientation_body_to_ned,arm);
+          const c::EcefPosition gear_point{initial.ecef_position_m.x-sp*cl*ned.x-sl*ned.y-cp*cl*ned.z,initial.ecef_position_m.y-sp*sl*ned.x+cl*ned.y-cp*sl*ned.z,initial.ecef_position_m.z+cp*ned.x-sp*ned.z};
+          const auto gear_local=cfg.surface->coordinates(gear_point);const std::array<double,3> eus{gear_local.y,-gear_local.z,-gear_local.x};
+          for(unsigned k=0;k<3;++k){check(std::abs(eus[k]-expected_gear_eus[gear][k])<=1e-4,"Actual query-local gear projection differs from frozen source reference");}
+          const auto position=c::geodesy::from_ecef(gear_point);check(position.has_value(),"Gear geodetic projection failed");
+          check(std::holds_alternative<c::ValidGround>(cfg.surface->sample({initial.header,*position}).sample),"Actual transformed apron gear lacks plane coverage");
+        }
+        const auto number=[&](const char* id){const auto it=std::find_if(initial.systems.begin(),initial.systems.end(),[&](const auto& row){return row.id==id;});check(it!=initial.systems.end()&&it->validity==c::Validity::valid,"Required actual apron system unavailable");return std::get<double>(it->value);};
+        check(std::abs(number("fuel.total")-100)<=1e-10,"Apron initial original fuel changed");
+        if(profile==1){
+          check(session.angular_integration_method()==std::optional<std::string>{"event_aware_coupled_midpoint_v1"},"Cold apron actual angular method differs");
+          const auto flag=[&](const char* id){const auto it=std::find_if(initial.systems.begin(),initial.systems.end(),[&](const auto& row){return row.id==id;});check(it!=initial.systems.end()&&it->validity==c::Validity::valid&&it->quantity==c::Quantity::boolean,"Required actual cold apron flag unavailable");return std::get<bool>(it->value);};
+          check(number("propeller.angular_speed")==0&&number("engine.mixture")==0&&!flag("engine.running")&&!flag("engine.ignition_left")&&!flag("engine.ignition_right")&&!flag("engine.starter")&&flag("fuel.feed"),"Cold apron was prestarted or secretly advanced");
+        }else{check(!session.angular_integration_method(),"Legacy apron reported piston angular method");}
+        const auto before=p::snapshot_json(session.latest()),before_weather=flight::fdm::transport::json(session.atmosphere());
+        c::SessionControl pause{{initial.header.tick,cfg.session_id},{1},"session.owner",c::PauseControl{true}};
+        check(session.apply(pause)==c::SessionControlRejection::none&&session.step_fixed().status==p::Status::paused,"Apron pause rejected");
+        check(p::snapshot_json(session.latest())==before&&flight::fdm::transport::json(session.atmosphere())==before_weather,"Paused apron changed complete native publications");
+        pause.sequence={2};pause.payload=c::PauseControl{false};check(session.apply(pause)==c::SessionControlRejection::none,"Apron resume rejected");
+        for(unsigned tick=0;tick<60;++tick){check(session.step_fixed().status==p::Status::completed,"Ordinary apron full-brake continuation failed");}
+        check(session.latest().header.tick.value==60&&session.live(),"Apron continuation failed to advance actual ticks");
+        evidence<<"{\"profile\":"<<profile<<",\"start\":\""<<names[start]<<"\",\"repeat\":"<<repeat<<",\"aircraft\":"<<p::snapshot_json(session.latest())<<",\"atmosphere\":"<<flight::fdm::transport::json(session.atmosphere())<<"}\n";
+      }
+      session.close();check(!session.live(),"Apron tuple actual solver close failed");
+    }
+  }}}
+  check(old_valid==(supports_piston?9U:8U)&&new_valid==(supports_piston?2U:1U),"Native closed tuple counts differ from preconsumer matrix");
+  // Malformed new recipes must reject before model/provider access. No narrowed
+  // historical Config admission is inferred by these additive cases.
+  for(unsigned start:{3U,4U}){for(unsigned bad=0;bad<12;++bad){
+    auto cfg=make_config(start==3?0U:1U,start,0,false);const auto provider=std::static_pointer_cast<const FaultSurface>(cfg.surface);
+    switch(bad){case 0:cfg.seed={43};break;case 1:cfg.hz=60;break;case 2:cfg.purpose=c::ClockPurpose::convergence;break;case 3:cfg.trim=true;break;case 4:cfg.requested_height_m=std::nextafter(1.05,2.0);break;case 5:cfg.forward_mps=std::numeric_limits<double>::denorm_min();break;case 6:cfg.down_mps=1;break;case 7:cfg.pitch_rad=.01;break;case 8:cfg.requested_height_m=std::numeric_limits<double>::quiet_NaN();break;case 9:cfg.wind_profile=static_cast<p::SteadyWindProfile>(99);break;case 10:cfg.profile=start==3?p::Profile::piston:p::Profile::legacy;break;case 11:cfg.angular_method=start==3?p::AngularMethod::event_aware_coupled_midpoint_v1:p::AngularMethod::legacy_euler;break;default:throw std::logic_error("Unknown private apron negative");}
+    bool rejected=false;try{p::Session invalid(cfg);}catch(const std::invalid_argument&){rejected=true;}
+    check(rejected&&provider->queries==0,"Malformed fixed apron recipe reached allocation/provider");
+  }}
+  if(!evidence){throw std::runtime_error("Apron evidence write failed");}
+  std::cout<<"apron native checks "<<checks<<" PASS old="<<old_valid<<" new="<<new_valid<<'\n';return checks;
+}
+
 inline unsigned run(const std::filesystem::path& model,const std::filesystem::path& output_prefix){unsigned checks=0;const auto check=[&](bool x,const char* message){require(x,message);++checks;};
   for(const auto reason:{c::MissingGround::outside_coverage,c::MissingGround::not_loaded,c::MissingGround::datum_unresolved,c::MissingGround::invalid_data}){
     auto world=std::make_shared<FaultSurface>(p::SurfaceConfig{});p::Config cfg;cfg.model_root=model;cfg.surface=world;p::Session s(cfg);const auto before=p::snapshot_json(s.latest());const auto held=s.held();auto axes=held;axes.throttle=1;

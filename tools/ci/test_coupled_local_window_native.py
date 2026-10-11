@@ -11,6 +11,7 @@ import json
 import os
 import subprocess
 from pathlib import Path
+from types import SimpleNamespace
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -90,6 +91,14 @@ class ProvenanceTests(unittest.TestCase):
             self.config[label] = str(path)
         scalar=self.build/'bin'/('piston_local_window_native.exe' if os.name=='nt' else 'piston_local_window_native')
         scalar.parent.mkdir();scalar.write_bytes(b'synthetic scalar executable, never run')
+        self.apron = self.build/'bin'/('interactive_tests.exe' if os.name == 'nt' else 'interactive_tests')
+        self.apron.write_bytes(b'synthetic apron executable, never run')
+        for name in ('original-interactive', 'original-piston-prop'):
+            (self.repo/'native/fdm_jsbsim/models'/name).mkdir(parents=True, exist_ok=True)
+        (self.build/'interactive-proof').mkdir()
+        self.apron_command = [str(self.apron), str(self.repo/'native/fdm_jsbsim/models/original-interactive'),
+                              str(self.build/'interactive-proof/ctest-apron'), 'apron',
+                              str(self.repo/'native/fdm_jsbsim/models/original-piston-prop')]
         self.config['local_window']=str(scalar)
         self.dump(self.build/'coupled-probes-config.json',self.config)
         self.unit_auth = {'authorized':True,'schema':'coupled-probe-execution-local-window-v2',
@@ -114,7 +123,9 @@ class ProvenanceTests(unittest.TestCase):
         args = ['python',str(self.repo/'tests/engine/native-validate.py'),'--angular-method','event_aware_coupled_midpoint_v1',
              '--pretrial-ratification',str(self.work/'pretrial.json'),'--ratification',str(self.work/'physical-execution.json'),
              '--jsbsim-dll',self.config['dll'],'--native',self.config['native'],'--mechanism',self.config['mechanism']]
-        self.discovery = {'tests':[{'name':n,'command':args if n=='piston_engine_lifecycle' else [self.config['local_window']] if n=='piston_local_window_native_references' else ['unused']} for n in sorted(ci.REQUIRED)]}
+        self.discovery = {'tests':[{'name':n,'command':args if n=='piston_engine_lifecycle' else [self.config['local_window']] if n=='piston_local_window_native_references' else self.apron_command if n=='interactive_apron_starts' else ['unused']} for n in sorted(ci.REQUIRED)]}
+        next(row for row in self.discovery['tests'] if row['name']=='interactive_apron_starts')['properties'] = [
+            {'name':'ENVIRONMENT','value':['JSBSIM_DEBUG=0']}, {'name':'TIMEOUT','value':120.0}]
         for name,value in (('source_inputs',self.pins),('reference',lambda _:self.manifest),('command',self.fake_command)):
             handle = patch.object(ci,name,value);handle.start();self.addCleanup(handle.stop)
         env = patch.dict(os.environ, {'CL':'','_CL_':''});env.start();self.addCleanup(env.stop)
@@ -138,10 +149,12 @@ class ProvenanceTests(unittest.TestCase):
         names=('native_toolchain_smoke','contract_boundary','ground_contract','ground_contact_proof',
                'fdm_boundary','interactive_loop','interactive_negative_readback','piston_engine_lifecycle',
                'coupled_shaft_math','coupled_shaft_native','replay_reconstruction','wire_numbers_native',
-               'piston_local_window_native_references')
-        rows='\n'.join(f'{i}/13 Test #{i}: {n} ........ Passed 0.01 sec' for i,n in enumerate(names,1))
-        good=rows+'\n100% tests passed, 0 tests failed out of 13\n';ci.complete_ctests(good)
-        for bad in (good.replace('Passed','Skipped',1),good.replace(names[-1],names[0]),'\n'.join(good.splitlines()[1:]),good+'\n'+good.splitlines()[0],good.replace('out of 13','out of 12')):
+               'piston_local_window_native_references','interactive_apron_starts')
+        rows='\n'.join(f'{i}/14 Test #{i}: {n} ........ Passed 0.01 sec' for i,n in enumerate(names,1))
+        good=rows+'\n100% tests passed, 0 tests failed out of 14\n';ci.complete_ctests(good)
+        old_rows='\n'.join(f'{i}/13 Test #{i}: {n} ........ Passed 0.01 sec' for i,n in enumerate(names[:-1],1))
+        with self.assertRaises(ValueError):ci.complete_ctests(old_rows+'\n100% tests passed, 0 tests failed out of 13\n')
+        for bad in (good.replace('Passed','Skipped',1),good.replace(names[-1],names[0]),'\n'.join(good.splitlines()[1:]),good+'\n'+good.splitlines()[0],good.replace('out of 14','out of 13')):
             with self.assertRaises(ValueError):ci.complete_ctests(bad)
 
     def test_scalar_executable_substitution_rejected_after_authorization(self):
@@ -156,6 +169,88 @@ class ProvenanceTests(unittest.TestCase):
             with self.assertRaises(ValueError):ci.local_window_target(self.config,self.build,wrong)
         with self.assertRaises(ValueError):ci.local_window_target(self.config,self.build,self.discovery['tests']+[named])
         with self.assertRaises(ValueError):ci.local_window_target({**self.config,'local_window':self.config['kernel']},self.build,self.discovery['tests'])
+
+    def test_apron_command_measures_real_fixture_bytes_and_all_paths(self):
+        measured=ci.apron_target(self.repo,self.build,self.discovery['tests'])
+        self.assertEqual(measured,{'path':str(self.apron),'sha256':ci.sha(self.apron)})
+        self.assertFalse((self.build/'interactive-proof/ctest-apron').exists(), 'measurement must not create evidence')
+        original=next(row for row in self.discovery['tests'] if row['name']=='interactive_apron_starts')
+        for index,value in ((0,self.config['kernel']),(0,'bin/interactive_tests'),
+                            (1,str(self.repo/'native/fdm_jsbsim/models/original-piston-prop')),
+                            (2,str(self.build/'interactive-proof/ctest-ground')),
+                            (3,'negatives'),(4,str(self.repo/'native/fdm_jsbsim/models/original-interactive')),
+                            (4,'native/fdm_jsbsim/models/original-piston-prop')):
+            with self.subTest(index=index,value=value):
+                tests=copy.deepcopy(self.discovery['tests'])
+                next(row for row in tests if row['name']==original['name'])['command'][index]=value
+                with self.assertRaises(ValueError):ci.apron_target(self.repo,self.build,tests)
+        for argv in ([],self.apron_command[:-1],self.apron_command+['--skip'],[True,*self.apron_command[1:]]):
+            tests=copy.deepcopy(self.discovery['tests'])
+            next(row for row in tests if row['name']==original['name'])['command']=argv
+            with self.subTest(argv=argv),self.assertRaises(ValueError):ci.apron_target(self.repo,self.build,tests)
+        for tests in ([row for row in self.discovery['tests'] if row['name']!=original['name']],
+                      self.discovery['tests']+[copy.deepcopy(original)]):
+            with self.assertRaises(ValueError):ci.apron_target(self.repo,self.build,tests)
+
+    def test_apron_properties_are_exact_and_cannot_disguise_bool_timeout(self):
+        original=next(row for row in self.discovery['tests'] if row['name']=='interactive_apron_starts')
+        good=copy.deepcopy(original['properties'])
+        for timeout in (120,120.0):
+            original['properties']=[good[0],{'name':'TIMEOUT','value':timeout}]
+            ci.apron_target(self.repo,self.build,self.discovery['tests'])
+        bad_values=([],[good[0]],[good[1]],good+[good[0]],good+[good[1]],
+                    [{'name':'ENVIRONMENT','value':'JSBSIM_DEBUG=0'},good[1]],
+                    [{'name':'ENVIRONMENT','value':['JSBSIM_DEBUG=0','EXTRA=1']},good[1]],
+                    [{'name':'ENVIRONMENT','value':['JSBSIM_DEBUG=1']},good[1]])
+        bad_values+=tuple([good[0],{'name':'TIMEOUT','value':value}] for value in (True,False,'120',0,119,121,float('nan')))
+        for properties in bad_values:
+            original['properties']=properties
+            with self.subTest(properties=properties),self.assertRaises(ValueError):ci.apron_target(self.repo,self.build,self.discovery['tests'])
+        del original['properties']
+        with self.assertRaises(ValueError):ci.apron_target(self.repo,self.build,self.discovery['tests'])
+
+    def test_apron_missing_executable_and_model_directories_reject(self):
+        original=self.apron.read_bytes();self.apron.unlink()
+        with self.assertRaises(ValueError):ci.apron_target(self.repo,self.build,self.discovery['tests'])
+        self.apron.write_bytes(original)
+        for name in ('original-interactive','original-piston-prop'):
+            model=self.repo/'native/fdm_jsbsim/models'/name
+            model.rmdir()
+            with self.subTest(model=name),self.assertRaises(ValueError):ci.apron_target(self.repo,self.build,self.discovery['tests'])
+            model.mkdir()
+
+    def test_apron_topology_guards_reject_mocked_symlink_and_reparse_metadata(self):
+        # Portable guard-branch tests only, not actual Win32/symlink evidence.
+        is_symlink=Path.is_symlink
+        for blocked in (self.apron,self.apron.parent,self.repo/'native/fdm_jsbsim/models'):
+            with patch.object(Path,'is_symlink',autospec=True,side_effect=lambda path: path==blocked or is_symlink(path)):
+                with self.subTest(symlink=blocked),self.assertRaises(ValueError):ci.apron_target(self.repo,self.build,self.discovery['tests'])
+        lstat=Path.lstat
+        for blocked in (self.apron,self.apron.parent,self.repo/'native/fdm_jsbsim/models'):
+            def observed(path,*args,**kwargs):
+                value=lstat(path,*args,**kwargs)
+                if path==blocked:
+                    return SimpleNamespace(st_mode=value.st_mode,st_file_attributes=0x400)
+                return value
+            with patch.object(Path,'lstat',autospec=True,side_effect=observed):
+                with self.subTest(reparse=blocked),self.assertRaises(ValueError):ci.apron_target(self.repo,self.build,self.discovery['tests'])
+
+    def test_apron_executable_hash_drift_rejects_verify_before_result_admission(self):
+        ci.authorize(self.repo,self.work,True)
+        saved=ci.load(self.work/'evidence/qualification.json')['apron_target']
+        self.assertEqual(saved['sha256'],ci.sha(self.apron))
+        self.apron.write_bytes(b'changed synthetic apron executable; never executed')
+        with self.assertRaisesRegex(ValueError,'apron executable changed after authorization'):ci.verify(self.repo,self.work)
+        self.assertFalse((self.work/'evidence/ci-result.json').exists())
+
+    def test_discovery_requires_exact14_not_old13_extra_or_duplicate(self):
+        rows=copy.deepcopy(self.discovery['tests'])
+        bad=([row for row in rows if row['name']!='interactive_apron_starts'],
+             rows+[copy.deepcopy(rows[0])],rows+[{'name':'extra_test','command':['unused']}],
+             [{**row,'name':'replacement_test'} if row['name']=='interactive_apron_starts' else row for row in rows])
+        for tests in bad:
+            self.discovery['tests']=tests
+            with self.subTest(names=[row['name'] for row in tests]),self.assertRaisesRegex(ValueError,'fourteen real CTests'):ci.qualify(self.repo,self.work)
 
     def test_coherent_staged_identity(self):
         measured=ci.qualify(self.repo,self.work)
@@ -200,7 +295,7 @@ class ProvenanceTests(unittest.TestCase):
 
     def test_real_ctest_required_and_no_source_only_substitute(self):
         self.discovery['tests']=[t for t in self.discovery['tests'] if t['name']!='coupled_shaft_native']
-        with self.assertRaisesRegex(ValueError,'CTests missing'):ci.qualify(self.repo,self.work)
+        with self.assertRaisesRegex(ValueError,'fourteen real CTests'):ci.qualify(self.repo,self.work)
 
     def test_consumer_prefix_cannot_be_replaced_by_plausible_digest(self):
         (self.build/'interactive-source-fingerprint.txt').write_text('c'*64+'\n'+self.body)

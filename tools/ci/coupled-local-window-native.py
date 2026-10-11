@@ -18,7 +18,23 @@ VARIANT = 'jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2'
 SUITE = ('CMakeLists.txt', 'loaded-library.hpp', 'selected-method.hpp',
          'native.cpp', 'native-mechanism.cpp', 'native-validate.py',
          'native-limits.json', 'native-limits.hpp', 'native-generate.py')
-REQUIRED = {'piston_engine_lifecycle', 'coupled_shaft_math', 'coupled_shaft_native', 'piston_local_window_native_references'}
+REQUIRED = {
+    'native_toolchain_smoke',
+    'contract_boundary',
+    'ground_contract',
+    'ground_contact_proof',
+    'fdm_boundary',
+    'interactive_loop',
+    'interactive_negative_readback',
+    'piston_engine_lifecycle',
+    'coupled_shaft_math',
+    'coupled_shaft_native',
+    'replay_reconstruction',
+    'wire_numbers_native',
+    'piston_local_window_native_references',
+    'interactive_apron_starts'
+}
+APRON_LEGACY_INVENTORY = '98b30b5641ce86cc6f0af6298424606aa96a1e4a35ef3e9fcaf377bebb3f00cd'
 AUTH_KEYS = {'authorized', 'scope', 'native_sha256', 'mechanism_sha256',
              'jsbsim_dll_sha256', 'limits_sha256', 'source_fingerprint',
              'backend_identity_sha256', 'model_inventory_sha256',
@@ -154,7 +170,8 @@ def source_inputs(repo):
         paths.add(name)
     paths.update(cmake_paths(repo, 'tools/bootstrap/source-selection.cmake', 'JSBSIM_BUILD_CONTROL_PATHS'))
     paths.update(cmake_paths(repo, 'native/fdm_jsbsim/interactive/CMakeLists.txt', 'INTERACTIVE_SOURCE_PATHS'))
-    paths.update(('tools/ci/coupled-local-window-native.py', 'tools/ci/test_coupled_local_window_native.py',
+    paths.update(('tests/interactive/CMakeLists.txt',
+                 'tools/ci/coupled-local-window-native.py', 'tools/ci/test_coupled_local_window_native.py',
                  '.github/workflows/coupled-ci.yml',
                  'third_party/patches/jsbsim/event-aware-coupled-midpoint-local-window-v2/identity.json'))
     probes = 'tests/engine/shaft-method/probes-local-window-v2/'
@@ -182,6 +199,14 @@ def source_inputs(repo):
         path = contained(repo, model+pin['path'])
         require(sha(path) == pin['sha256'] and path.stat().st_size == pin['bytes'], 'model member changed')
         paths.add(model+pin['path'])
+    # The apron CTest passes both original model roots; pin the legacy model too.
+    legacy = 'native/fdm_jsbsim/models/original-interactive/'
+    require(sha(repo/legacy/'inventory.json') == APRON_LEGACY_INVENTORY, 'legacy apron model inventory changed')
+    paths.add(legacy+'inventory.json')
+    for pin in load(repo/legacy/'inventory.json')['files']:
+        path = contained(repo, legacy+pin['path'])
+        require(sha(path) == pin['sha256'] and path.stat().st_size == pin['bytes'], 'legacy apron model member changed')
+        paths.add(legacy+pin['path'])
     pins = {name: {'sha256': sha(contained(repo, name)), 'bytes': contained(repo, name).stat().st_size}
             for name in sorted(paths)}
     require(pins['tests/engine/native-limits.json']['sha256'] == LIMITS, 'physical budgets changed')
@@ -263,6 +288,42 @@ def local_window_target(config,build,tests):
     return {'path':str(configured.resolve()),'sha256':sha(configured)}
 
 
+def apron_target(repo, build, tests):
+    """Measure the actual fresh-build CTest command; this never executes it."""
+    repo, build = repo.resolve(), build.resolve()
+    rows = [row for row in tests if row['name'] == 'interactive_apron_starts']
+    require(len(rows) == 1, 'one actual apron CTest required')
+    argv = rows[0]['command']
+    require(type(argv) is list and len(argv) == 5 and all(type(value) is str for value in argv),
+            'apron CTest requires exactly five String arguments')
+    require(argv[3] == 'apron', 'actual apron driver mode required')
+    expected = (build/'bin'/('interactive_tests.exe' if os.name == 'nt' else 'interactive_tests'),
+                repo/'native/fdm_jsbsim/models/original-interactive',
+                build/'interactive-proof/ctest-apron', None,
+                repo/'native/fdm_jsbsim/models/original-piston-prop')
+    for index in (0, 1, 2, 4):
+        path = Path(argv[index])
+        require(path.is_absolute() and path == expected[index] and path.resolve() == expected[index],
+                'apron CTest executable/model/evidence path differs from declared target')
+        # Existing ancestors must be ordinary, including Windows junctions.
+        for parent in (path, *path.parents):
+            require(not parent.is_symlink(), 'apron CTest path has a symbolic-link ancestor')
+            if parent.exists():
+                require(not (getattr(parent.lstat(), 'st_file_attributes', 0) & 0x400),
+                        'apron CTest path has a reparse ancestor')
+        if index == 0:
+            require(path.is_file(), 'actual fresh-build apron executable missing')
+        elif index in (1, 4):
+            require(path.is_dir(), 'actual apron model root missing')
+    properties = rows[0].get('properties')
+    require(type(properties) is list, 'apron CTest properties missing')
+    for name, value in (('ENVIRONMENT', ['JSBSIM_DEBUG=0']), ('TIMEOUT', 120)):
+        matches = [row for row in properties if type(row) is dict and row.get('name') == name]
+        require(len(matches) == 1 and (type(matches[0].get('value')) in (int, float) if name == 'TIMEOUT' else type(matches[0].get('value')) is list) and matches[0]['value'] == value,
+                'apron CTest debug environment/120-second timeout differs')
+    return {'path': str(expected[0]), 'sha256': sha(expected[0])}
+
+
 def qualify(repo, work):
     before = load(work/'pretrial.json')
     check_pretrial(repo, before)
@@ -331,7 +392,8 @@ def qualify(repo, work):
     ctest = Path(tools['cmake']).with_name('ctest.exe' if os.name == 'nt' else 'ctest')
     discovery = json.loads(command([ctest, '--test-dir', build, '--show-only=json-v1'], repo))
     names = [x['name'] for x in discovery['tests']]
-    require(REQUIRED <= set(names) and len(names) == len(set(names)), 'required real CTests missing or duplicated')
+    require(len(names) == 14 and len(set(names)) == 14 and set(names) == REQUIRED, 'all fourteen real CTests required')
+    apron=apron_target(repo,build,discovery['tests'])
     scalar=local_window_target(unit_config,build,discovery['tests'])
     require(unit_auth.get('local_window_reference')==scalar,'qualified local-window scalar executable changed after authorization')
     test = next(x for x in discovery['tests'] if x['name'] == 'piston_engine_lifecycle')
@@ -347,7 +409,7 @@ def qualify(repo, work):
     require(sha(unit_config['dll']) == unit_auth['dll']['sha256'], 'qualified DLL changed')
     return {'selected': selected, 'consumer': consumer, 'control': control,
             'native': argument('--native'), 'mechanism': argument('--mechanism'),
-            'dll': argument('--jsbsim-dll'), 'ctests': names, 'unit_config': unit_config}
+            'dll': argument('--jsbsim-dll'), 'ctests': names, 'unit_config': unit_config, 'apron_target': apron}
 
 
 def physical_record(repo, work, measured):
@@ -372,7 +434,8 @@ def authorize(repo, work, approved):
     save(work/'evidence/qualification.json', {'passed': True, 'scope': 'measured source/build identities before execution',
          'backend_identity_sha256': record['backend_identity_sha256'], 'build_control_sha256': measured['control'],
          'consumer_fingerprint': measured['consumer'], 'physical_authorization_sha256': sha(work/'physical-execution.json'),
-         'unit_authorization_sha256': sha(work/'unit-execution.json'), 'ctests': measured['ctests']})
+         'unit_authorization_sha256': sha(work/'unit-execution.json'), 'ctests': measured['ctests'],
+         'apron_target': measured['apron_target']})
 
 
 def check_unit_receipt(directory, receipt, auth, auth_path):
@@ -396,19 +459,18 @@ def check_unit_receipt(directory, receipt, auth, auth_path):
 
 
 def complete_ctests(text):
-    expected={'native_toolchain_smoke','contract_boundary','ground_contract','ground_contact_proof',
-              'fdm_boundary','interactive_loop','interactive_negative_readback','piston_engine_lifecycle',
-              'coupled_shaft_math','coupled_shaft_native','replay_reconstruction','wire_numbers_native',
-              'piston_local_window_native_references'}
-    rows=re.findall(r'^\s*(\d+)/13 Test\s+#\d+:\s+([a-z_]+)\s+\.{2,}\s+Passed\b.*$',text,re.M)
-    require(len(rows)==13 and {int(row[0]) for row in rows}==set(range(1,14)) and {row[1] for row in rows}==expected,'thirteen unique actual passed CTests required')
-    require('100% tests passed, 0 tests failed out of 13' in text,'full CTest success summary required')
+    expected=REQUIRED
+    rows=re.findall(r'^\s*(\d+)/14 Test\s+#\d+:\s+([a-z_]+)\s+\.{2,}\s+Passed\b.*$',text,re.M)
+    require(len(rows)==14 and {int(row[0]) for row in rows}==set(range(1,15)) and {row[1] for row in rows}==expected,'fourteen unique actual passed CTests required')
+    require('100% tests passed, 0 tests failed out of 14' in text,'full CTest success summary required')
 
 
 def verify(repo, work):
     measured = qualify(repo, work)
     auth = load(work/'physical-execution.json')
     require(auth == physical_record(repo, work, measured), 'physical authorization no longer matches current measured inputs')
+    require(load(work/'evidence/qualification.json')['apron_target'] == measured['apron_target'],
+            'actual apron executable changed after authorization')
     complete_ctests((work/'build/native-ctest.log').read_text(encoding='utf-8'))
     physical_paths = list((work/'build/piston-engine-proof').glob('run-*/suite-receipt.json'))
     unit_paths = list((work/'build/coupled-unit-proof').glob('run-*/validation-result.json'))
@@ -429,7 +491,7 @@ def verify(repo, work):
             unit['source_binding_sha256'] == unit_auth['source_manifest_sha256'], 'unit result source/reference mismatch')
     save(work/'evidence/ci-result.json', {'passed': True, 'scope': 'coupled headless CI, not aircraft or phase acceptance',
          'physical_receipt_sha256': sha(physical_paths[0]), 'unit_result_sha256': sha(unit_paths[0]),
-         'physical_checks': physical['checks'], 'physical_processes': 12, 'ctests': 13, 'skipped': False,
+         'physical_checks': physical['checks'], 'physical_processes': 12, 'ctests': 14, 'skipped': False,
          'native_rows': 137, 'legacy_checks': 270, 'actual_chronology_rows': 12})
 
 
