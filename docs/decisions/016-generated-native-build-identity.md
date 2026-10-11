@@ -26,6 +26,7 @@ Placeholders above are substituted with one closed variant ID and three lowercas
 - `jsbsim-1.3.1-upstream`
 - `jsbsim-1.3.1-event-aware-constant-power-v1`
 - `jsbsim-1.3.1-event-aware-coupled-midpoint-v1`
+- `jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2`
 
 Shape alone never establishes a reviewed backend: the existing corresponding-source selector must verify the complete selected source closure and derive its canonical identity. Include the fixed template in declared build-control inputs. Do not include generated output in those inputs or create a fingerprint cycle. Preserve existing selected-backend/materializer derivation, compiler/configuration controls, prefix spelling and ordered LF source hashing. The canonical interactive body begins `verified-jsbsim-backend:<digest>\njsbsim-build-controls:<digest>\n`, followed by the twenty-five path/hash lines below; SHA256 of that UTF-8 body is SOURCE_FINGERPRINT. The compiled definition and `interactive-source-fingerprint.txt` must match it exactly.
 
@@ -93,6 +94,38 @@ New builds must freshly reproduce the expanded build/source digests and stage th
 
 Source-list changes require explicit review, rather than replacing the old count with an arbitrary new count. This LF/ordered identity is distinct from the FDM adapter's raw/sorted identity; do not interchange the algorithms.
 
+## ADR024 source allocation and build-control amendment (issue202)
+
+Status: **proposed, contract first**. This narrow [issue202](https://github.com/brettbergin/flight-simulator/issues/202) allocation consumes the accepted [ADR024](024-certified-local-decay-window.md) numerical policy. ADR024 requires a distinct source/patch/archive/runtime identity and final identifier review; it does not allocate this exact eighteen-file build-control roster. This amendment must receive its own independently reviewed protected documentation merge after the ADR023 twenty-five-source/fifteen-control integration and before consumer adoption. Private source materialization or review alone does not authorize tracked consumers or native execution.
+
+Allocate only the fourth closed variant listed above: `jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2`. Its bootstrap selector is exactly `event-aware-coupled-midpoint-local-window-v2`, rights component exactly `jsbsim-coupled-midpoint-local-window-v2`, and separately versioned corresponding-source directory `third_party/patches/jsbsim/event-aware-coupled-midpoint-local-window-v2/`. Preserve all three historical variants, every v1 patch/archive/reference byte, and their historical evidence. The numerical law/method ID remains `event_aware_coupled_midpoint_v1`; it cannot by itself identify this new domain policy.
+
+Keep the ordered twenty-five interactive source paths unchanged. Keep build controls1–15 in their exact existing order and append **only**:
+
+16. `tools/bootstrap/coupled-local-window-source-variant.py`
+17. `tools/bootstrap/build-local-window.ps1`
+18. `tests/engine/local-window-v2/CMakeLists.txt`
+
+The existing `tools/bootstrap/build.ps1`, `tests/engine/CMakeLists.txt`, all v1 probe/manifest files and reference packets remain unchanged. A distinct v2 bootstrap/suite/extraction/authorization route consumes the new source, keeping the old manifest's shared-source pins reproducible. These three paths are unconditional members of the new closed build-control identity; do not infer a variable roster from the selected backend, accept a subset, or relax exact consumers to a numeric count alone.
+
+The initial allocation is bound to these independently materialized **source-only** identities; none is an executable hash or runtime acceptance:
+
+| Item | Exact allocated value |
+|---|---|
+| Identity file raw SHA256 | `c6f96834a166d72300c999e84d95b1bc1da9127c097773e9731e25a094bba233` |
+| Derived selected-backend digest | `3d445058dca744fe44811fc02977b2722b42c7eabd861ecf5335ab50ee7db743` |
+| Corresponding-source archive SHA256 | `3b50427ed55b9f9ed0e1e5b48876813b34a5de743203b76b141f1c3839e5b1bb` |
+| Archive byte count | `3926779` |
+| Materializer SHA256 | `645fe299d160137b1e7dd4ace2d077ca26389253fa9242c4be5182451d01f42a` |
+| Source recipe SHA256 | `ef1fe03694d3ba9a6b4bd1999b5f6dfcf6b0ce0fa4ad61a6c9288a0372b3cf6d` |
+| Materialized vendor-tree SHA256 | `788186628d31d5ff314c5f11511010b94d59fa404d91488901989a3512d971bc` |
+
+Preserve the existing selected-backend derivation, LF-normalized path/hash concatenation, compiler/configuration suffix, twenty-five source records, six-line generated resource grammar, seven build witnesses and `PreviewNativeBuildIdentity/v2` closed fields. The identity-file hash and derived backend digest are different values with different roles. No final bridge/DLL/source-fingerprint/build-control digest is allocated in this contract: those depend on the final reviewed first-party source and actual toolchain and must be independently reproduced from a fresh build. A different archive/recipe/materializer/vendor allocation needs explicit source-contract review; replacement rights remain unchanged.
+
+Consumer integration must update each explicit closed variant/control consumer consistently, preserve unknown/extra/omitted/duplicate/conflicting rejection, and require actual source reconstruction and fresh generated resources. An old twenty-five-source/fifteen-control resource or old v1 package is immutable historical evidence and cannot be relabelled as eighteen-control/new-source qualification. Keep the separately approved ADR023 exact numeric decoder admission; the only Facade change for this allocation is the new closed source-variant token, never restoration of a superseded epsilon allowance.
+
+Source allocation does not prove repaired behavior. Require actual strict Windows/Linux compilation, the frozen17 scalar references **and** unchanged137/library/270-default/12-chronology/12-process physical criteria, original298-call replay, fresh editor/portable/rebuilt-replacement actual-module evidence and joined shutdown. Qualification must bind the scalar target's actual executable hash and exact CTest command rather than only discover its name. No model, coefficient, public schema/session method, profile selector, clock, wind domain, tolerance, default-source adoption, aircraft claim or phase gate changes through this documentation merge.
+
 ## PreviewNativeBuildIdentity/v2 evidence
 
 New staging evidence uses this exact closed top-level shape. All SHA256 values are lowercase64hex; byte counts are nonnegative integers. This is build-side provenance, not a native self-report or persistent flight format.
@@ -101,7 +134,7 @@ New staging evidence uses this exact closed top-level shape. All SHA256 values a
 |---|---|
 | schema | String `PreviewNativeBuildIdentity/v2` |
 | root | String absolute selected build directory; evidence only |
-| source_variant | String, one of the three IDs above |
+| source_variant | String, one of the four IDs above |
 | backend_identity_sha256 | String, independently derived selected backend digest |
 | build_control_sha256 | String, independently reproduced accepted compiler/build-control digest |
 | declared_source_fingerprint | String, independently reproduced interactive digest |
