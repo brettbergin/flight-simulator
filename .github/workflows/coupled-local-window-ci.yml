@@ -121,7 +121,7 @@ jobs:
         run: ./tools/bootstrap/build-local-window.ps1 -Python python -PatchedSourceVariant event-aware-coupled-midpoint-local-window-v2 -HeadlessNative -ConfigureAndBuildOnly -BuildDirectory .local/local-window-ci/build -SourcePreparationDirectory .local/local-window-ci/prepared-source -PretrialRatification .local/local-window-ci/pretrial.json -ExecutionRatification .local/local-window-ci/physical-execution.json -ProbeExecutionRatification .local/local-window-ci/unit-execution.json
       - name: Check exact new source archive and source-policy negatives
         run: |
-          $archives = @(Get-ChildItem -LiteralPath .local/local-window-ci/prepared-source -File -Filter '*.zip')
+          $archives = @(Get-ChildItem -LiteralPath .local/local-window-ci/prepared-source -File -Filter '*-library-source.zip')
           if ($archives.Count -ne 1) { throw 'Exactly one newly materialized source archive required' }
           node tests/export/selected-local-window-source.test.mjs $archives[0].FullName
           if ($LASTEXITCODE -ne 0) { throw 'Exact local-window source/policy fixtures failed' }
@@ -237,7 +237,7 @@ jobs:
         run: ./tools/bootstrap/build-local-window.ps1 -Python python -PatchedSourceVariant event-aware-coupled-midpoint-local-window-v2 -WithGodot -WithExportTemplates -ConfigureAndBuildOnly -BuildDirectory .local/local-window-player-ci/build -SourcePreparationDirectory .local/local-window-player-ci/prepared-source -PretrialRatification .local/local-window-player-ci/pretrial.json -ExecutionRatification .local/local-window-player-ci/physical-execution.json -ProbeExecutionRatification .local/local-window-player-ci/unit-execution.json
       - name: Check exact new source archive and source-policy negatives
         run: |
-          $archives = @(Get-ChildItem -LiteralPath .local/local-window-player-ci/prepared-source -File -Filter '*.zip')
+          $archives = @(Get-ChildItem -LiteralPath .local/local-window-player-ci/prepared-source -File -Filter '*-library-source.zip')
           if ($archives.Count -ne 1) { throw 'Exactly one newly materialized source archive required' }
           node tests/export/selected-local-window-source.test.mjs $archives[0].FullName
           if ($LASTEXITCODE -ne 0) { throw 'Exact local-window source/policy fixtures failed' }

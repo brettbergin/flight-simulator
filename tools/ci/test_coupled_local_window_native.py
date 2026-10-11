@@ -3,6 +3,7 @@
 Subprocess source-selector/CTest discovery is replaced by declared JSON fixtures.
 No compilation, reference generator, simulator, or native child is invoked.
 """
+import ast
 import copy
 import hashlib
 import importlib.util
@@ -263,6 +264,31 @@ class ProvenanceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'actual loaded module'):ci.check_unit_receipt(out,changed,self.unit_auth,self.work/'unit-execution.json')
         (out/'terminal.stdout').write_bytes(b'tampered log')
         with self.assertRaisesRegex(ValueError,'evidence changed'):ci.check_unit_receipt(out,receipt,self.unit_auth,self.work/'unit-execution.json')
+
+
+class ReviewedSourcePinTests(unittest.TestCase):
+    def test_public_qualifiers_pin_the_same_actual_source(self):
+        repo = Path(__file__).resolve().parents[2]
+        runner = repo/'tests/engine/shaft-method/probes-local-window-v2/run.py'
+        assignments = [node for node in ast.parse(runner.read_text(encoding='utf-8')).body
+                       if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == 'LOCAL_WINDOW_PINS' for t in node.targets)]
+        self.assertEqual(len(assignments), 1)
+        pins = ast.literal_eval(assignments[0].value)
+        self.assertEqual(pins, ci.LOCAL_WINDOW_PINS)
+        for name, expected in pins.items():
+            with self.subTest(source=name):
+                self.assertEqual(ci.sha(repo/name), expected)
+
+
+    def test_public_probe_manifest_matches_actual_source_closure(self):
+        repo = Path(__file__).resolve().parents[2]
+        directory = repo/'tests/engine/shaft-method/probes-local-window-v2'
+        manifest = json.loads((directory/'probe-manifest.json').read_text(encoding='utf-8'))
+        for base, rows in ((directory, manifest['files']), (repo, manifest['shared_sources'])):
+            for name, expected in rows.items():
+                with self.subTest(source=name):
+                    source = base/name
+                    self.assertEqual({'sha256':ci.sha(source), 'bytes':source.stat().st_size}, expected)
 
 
 class ScalarPreparationFreshnessTests(unittest.TestCase):
