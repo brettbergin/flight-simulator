@@ -5,6 +5,7 @@ const Help = preload("res://ui/first_flight/binding_help.gd")
 const Mapper = preload("res://input/input_mapper.gd")
 const Preset = preload("res://input/input_preset.gd")
 const Readings = preload("res://cockpit/instruments/native_readings.gd")
+const EngineStatus = preload("res://cockpit/instruments/engine_status.gd")
 var _host: Node
 var _checks: int = 0
 var _failures: Array[String] = []
@@ -36,6 +37,8 @@ func _preset(version: int) -> Dictionary:
 func _choice(id: String,session: String) -> void: _events.append(["choice",id,session])
 func _controls(session: String) -> void: _events.append(["controls",session])
 func _back(session: String) -> void: _events.append(["back",session])
+func _inside_scroll(control: Control, scroll: ScrollContainer) -> bool:
+	return control.is_visible_in_tree() and scroll.get_global_rect().encloses(control.get_global_rect())
 func run(host: Node, readback: Dictionary = {}) -> Dictionary:
 	_host=host; _checks=0; _failures=[]; _events=[]
 	for version in [1,2]:
@@ -102,6 +105,11 @@ func run(host: Node, readback: Dictionary = {}) -> Dictionary:
 	var window: Window = host.get_tree().root
 	var old_size: Vector2i = window.size
 	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	# The real Scene owns this child; use the same visible caption/height in this leaf fixture.
+	var circuit: CheckBox = CheckBox.new()
+	circuit.text="Show optional synthetic circuit reference (not evaluated)"
+	circuit.add_theme_font_size_override("font_size",16); circuit.custom_minimum_size.y=36
+	panel.circuit_slot.add_child(circuit)
 	var input_preset: Dictionary = _preset(1)
 	panel.set_state(readback,input_preset,"calm")
 	var copied_session: String = readback.session_id
@@ -109,12 +117,39 @@ func run(host: Node, readback: Dictionary = {}) -> Dictionary:
 	var mutable_readback: Dictionary = readback.duplicate(true); panel.set_state(mutable_readback,_preset(1),"calm")
 	mutable_readback.model_identity.id="changed"
 	_check(panel._readback.model_identity==readback.model_identity and panel._help.available,"panel_owned_inputs")
-	_check(panel._source_session()==copied_session and "wind NED" in panel._actual.text and "unavailable" not in panel._actual.text,"actual_adopted_readback")
+	_check(panel._qualified.state=="paused" and panel._source_session()==copied_session and "Model: "+str(readback.model_identity.id) in panel._actual.text and "wind NED" in panel._actual.text and "Wind preset: calm" in panel._actual.text and "True airspeed:" in panel._actual.text and "Native-held controls:" in panel._actual.text,"actual_adopted_readback")
+	_check(panel._tabs.get_child_count()==4 and panel._tabs.get_child(3).name=="Details","details_appended_existing_tab_order")
+	_check(panel._tabs.get_child(0).name=="Start & state" and panel._tabs.get_child(1).name=="Control help" and panel._tabs.get_child(2).name=="Software steps","existing_tab_indices")
+	_check(panel._choice_buttons.size()==3 and panel._cards.size()==3,"three_bounded_starting_points")
+	_check("Recorded flight and engine review available" in panel._card_facts[0].text and "Idealized starter supply" in panel._card_facts[0].text,"cold_current_review_and_starter_caveat")
+	_check("Startup is skipped" in panel._card_facts[1].text and "Legacy observed review available" in panel._card_facts[1].text,"ready_skipped_startup_and_review_caveat")
+	_check("Start, taxi and takeoff are skipped" in panel._card_facts[2].text and "initialized state" in panel._card_facts[2].text,"airborne_skipped_work_and_state_caveat")
+	for choice in FirstFlightPanel._fixture_check().value.choices:
+		for fact in choice.required_truth: _check(fact in panel._choice_details.text,"full_fixture_fact_in_details_"+fact)
+	_check("Source state:" in panel._details_source.text and copied_session in panel._details_source.text and "tick "+str(readback.tick) in panel._details_source.text,"complete_source_details")
+	_check(not copied_session in panel._status.text and not "tick " in panel._status.text and "Paused" in panel._summary.text,"compact_state_discloses_technical_source")
+	_check("Start:" in panel._summary.text and "Adopted wind: calm" in panel._summary.text and "TAS" in panel._summary.text,"actual_summary_labels")
+	if readback.model_identity!=Readings.PISTON_PROFILE:
+		_check("Engine status unavailable" in panel._summary.text,"legacy_engine_not_inferred_from_start")
+	elif readback.named_start=="piston-cold-ground":
+		# Inspect the actual supplied native channel; never infer stopped/running from this named start.
+		var engine: Dictionary = EngineStatus.from_readback(readback)
+		var running: Dictionary = engine.readings["engine.running"]
+		var expected_engine: String = ("Engine running" if running.value else "Engine off") if running.valid else "Engine status unavailable"
+		_check(expected_engine in panel._summary.text,"actual_piston_cold_summary_channel")
+		_check("Native engine.running: "+(str(running.value) if running.valid else "unavailable") in panel._actual.text and "Circuit reference unavailable for this start" in panel._actual.text,"actual_cold_engine_and_legitimate_circuit_limit")
+	panel._tabs.current_tab=3; panel.set_state(readback,_preset(1),"calm")
+	_check(panel._tabs.current_tab==3 and _events.is_empty(),"details_selection_retained_no_requests")
+	panel._tabs.current_tab=0
 	panel._change_step(1); panel.set_state(readback,_preset(1),"calm")
 	_check(panel._step_index==1 and _events.is_empty(),"manual_step_retained_no_events")
 	panel._change_step(999); _check(panel._step_index==3,"manual_upper_bound")
 	panel._change_step(-999); _check(panel._step_index==0,"manual_lower_bound")
 	panel._request_choice("READY-FLIGHT"); _check(_events.is_empty(),"unknown_request_no_event")
+	for i in FirstFlightPanel.CHOICE_IDS.size():
+		panel._choice_buttons[i].pressed.emit()
+		_check(_events.back()==["choice",FirstFlightPanel.CHOICE_IDS[i],copied_session],"actual_button_exact_choice_"+str(i))
+	_events.clear()
 	panel._request_choice("ready-flight"); panel._request_controls(); panel._request_back()
 	_check(_events==[["choice","ready-flight",copied_session],["controls",copied_session],["back",copied_session]],"only_bounded_signals")
 	panel.hide(); panel._request_choice("ready-flight"); panel._request_controls(); panel._request_back()
@@ -122,6 +157,39 @@ func run(host: Node, readback: Dictionary = {}) -> Dictionary:
 	panel.set_state(readback,_preset(1),"calm"); _check(not panel.visible,"set_state_does_not_show")
 	panel.show(); panel.set_state({},_preset(1),"calm")
 	_check(panel._source_session().is_empty() and "unavailable" in panel._actual.text.to_lower(),"invalid_visible_no_session")
+	_check("State unavailable" in panel._status.text and "Malformed exact Readback shape" in panel._summary.text,"malformed_empty_dictionary_is_invalid")
+	# Synthetic copied presentation states only; these do not claim native lifecycle transitions.
+	var empty: Dictionary = readback.duplicate(true)
+	for key in Readings.NULLABLE: empty[key]=null
+	empty.host_mode="closed"; empty.historical=true; empty.native_live=false; empty.paused=false; empty.debt_quanta=0; empty.time_scale=1.0
+	panel.set_state(empty,_preset(1),"calm")
+	_check(panel._qualified.state=="empty" and panel._source_session().is_empty() and "No current flight" in panel._status.text and "unavailable" in panel._summary.text.to_lower(),"qualified_empty_honest_summary")
+	var retained: Dictionary = readback.duplicate(true)
+	retained.host_mode="closed"; retained.historical=true; retained.native_live=false; retained.paused=false; retained.debt_quanta=0
+	panel.set_state(retained,_preset(1),"calm")
+	_check(panel._qualified.state=="historical" and panel._source_session().is_empty() and "Historical / view-only" in panel._status.text and "not a current flight" in panel._summary.text,"historical_not_current_summary")
+	_check(not panel._choice_buttons[0].disabled,"historical_preserves_fresh_choice_admission")
+	var live: Dictionary = readback.duplicate(true); live.host_mode="live"; live.paused=false
+	panel.set_state(live,_preset(1),"calm")
+	_check(panel._qualified.state=="live" and "Running" in panel._status.text and panel._source_session()==copied_session,"live_source_visible")
+	for button in panel._choice_buttons: _check(button.disabled,"live_choice_disabled")
+	var malformed: Dictionary = readback.duplicate(true); malformed.session_id=42
+	panel.set_state(malformed,_preset(1),"calm")
+	_check(panel._qualified.state=="invalid" and panel._source_session().is_empty() and "State unavailable" in panel._status.text,"invalid_visible_source_error")
+	for button in panel._choice_buttons: _check(button.disabled,"invalid_choice_disabled")
+	panel.set_state(readback,{},"calm")
+	_check("Binding help unavailable" in panel._binding_text.text and not panel._help.available,"invalid_bindings_no_defaults_visible")
+	panel.set_state(readback,_preset(1),"calm")
+	var fixture_bytes: PackedByteArray = FileAccess.get_file_as_bytes(FirstFlightPanel.FIXTURE_PATH)
+	_check(FirstFlightPanel.validate_fixture_bytes(fixture_bytes).ok,"exact_fixture_still_admitted")
+	var altered: PackedByteArray = fixture_bytes.duplicate(); altered.append(32)
+	_check(not FirstFlightPanel.validate_fixture_bytes(altered).ok,"changed_fixture_still_rejected")
+	# Explicit local content-error fixture; no file mutation and no native state fabrication.
+	panel._fixture={}; panel._fixture_error="Briefing unavailable: synthetic missing fixture"; panel._refresh()
+	_check("Starting points unavailable" in panel._status.text and "synthetic missing fixture" in panel._details_source.text,"fixture_error_visible_details")
+	for button in panel._choice_buttons: _check(button.disabled,"fixture_error_disables_choices")
+	_check("facts unavailable" in panel._card_facts[0].text and not "Recorded flight and engine review available" in panel._card_facts[0].text,"fixture_error_no_old_accepted_facts")
+	panel.set_state(readback,_preset(1),"calm")
 	for size_value in [Vector2i(960,540),Vector2i(1920,1080),Vector2i(2560,1440)]:
 		window.size=size_value; panel.set_state(readback,_preset(1),"calm")
 		await host.get_tree().process_frame; await host.get_tree().process_frame
@@ -132,8 +200,30 @@ func run(host: Node, readback: Dictionary = {}) -> Dictionary:
 		_check(panel._tabs.size.y>=150,"scroll_region_"+str(size_value))
 		for tab in panel._tabs.get_children():
 			_check(tab is ScrollContainer and tab.follow_focus,"scroll_focus_"+str(size_value))
+		_check(panel._shell.size.x<=1120 and panel._shell.size.y<=720,"bounded_surface_"+str(size_value))
+		_check(panel._shell.position.is_equal_approx((panel.size-panel._shell.size)*0.5),"centered_surface_"+str(size_value))
+		_check(panel._shell.position.x>=16 and panel._shell.position.y>=16,"viewport_clearance_"+str(size_value))
+		panel._tabs.current_tab=0
+		await host.get_tree().process_frame; await host.get_tree().process_frame
+		var start_scroll: ScrollContainer = panel._tabs.get_child(0)
+		_check(_inside_scroll(panel._summary,start_scroll) and _inside_scroll(circuit,start_scroll) and _inside_scroll(panel._circuit_hint,start_scroll),"start_context_and_circuit_visible_"+str(size_value))
+		for i in panel._cards.size():
+			_check(_inside_scroll(panel._cards[i],start_scroll) and _inside_scroll(panel._choice_buttons[i],start_scroll),"complete_card_cta_visible_"+str(size_value)+"_"+str(i))
+			_check(panel._card_titles[i].get_theme_font_size("font_size")==20 and panel._card_facts[i].get_theme_font_size("font_size")==13,"legible_card_fonts_"+str(size_value)+"_"+str(i))
+			_check(panel._choice_buttons[i].size.y>=36 and not panel._choice_buttons[i].disabled,"available_cta_hit_"+str(size_value)+"_"+str(i))
+			for caption in panel._cards[i].get_child(0).get_child(0).get_children():
+				if caption is Label:
+					_check(panel._cards[i].get_global_rect().encloses(caption.get_global_rect()) and caption.size.y>=caption.get_combined_minimum_size().y,"full_card_label_layout_"+str(size_value)+"_"+str(i)+"_"+caption.text)
+			if i>0: _check(panel._cards[i-1].get_global_rect().end.x<=panel._cards[i].get_global_rect().position.x,"separate_cards_"+str(size_value)+"_"+str(i))
+			panel._choice_buttons[i].grab_focus(); _check(panel._choice_buttons[i].has_focus(),"choice_focus_"+str(size_value)+"_"+str(i))
+		panel._tabs.current_tab=3
+		await host.get_tree().process_frame; await host.get_tree().process_frame
+		_check(panel._actual.is_visible_in_tree() and panel._details_source.is_visible_in_tree(),"details_accessible_"+str(size_value))
+		_check(panel._shell.get_global_rect().encloses(panel._limits.get_global_rect()),"persistent_limits_"+str(size_value))
+		panel._tabs.current_tab=0
 		panel.focus_back(); _check(panel._back.has_focus(),"back_focus_"+str(size_value))
 	_check(not panel.has_signal("resume_requested") and panel._back.tooltip_text.contains("still paused") and not panel._controls.tooltip_text.is_empty(),"no_resume_synchronous_tooltips")
+	_check(_events.size()==3,"presentation_changes_no_additional_requests")
 	_check(var_to_bytes(readback)==original,"full_supplied_readback_unchanged")
 	panel.queue_free(); window.size=old_size; await host.get_tree().process_frame
 	return {"passed":_failures.is_empty(),"checks":_checks,"failures":_failures,"limits":"Headless synthetic assignments and copied presentation; no native/lifecycle, GPU, hardware or pilot acceptance"}

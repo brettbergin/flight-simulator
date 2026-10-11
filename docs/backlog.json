@@ -6459,6 +6459,84 @@
         "Source-bound actual native cold observations, unchanged paused authority, selected Windows Save and fresh-process historical Open.",
         "Independent synthetic references plus production codec and strict boundary evidence; original UI images at supported dimensions and affected delivery/test receipts."
       ]
+    },
+    {
+      "key": "FLIGHT-SETUP-PRESENTATION",
+      "title": "Make First flight setup clear and compact",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Improve the existing paused briefing with three readable start cards, compact actual-state summary and complete Details. Preserve accepted APIs, fixture2, Scene lifecycle and circuit domain; bounded first-flight UX only.",
+      "depends_on": [
+        "FIRST-FLIGHT-FRONTEND-CONTRACT",
+        "FIRST-FLIGHT-BRIEFING",
+        "SYNTHETIC-CIRCUIT-REFERENCE",
+        "PISTON-OBSERVED-REVIEW"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:ui",
+        "priority:P1",
+        "status:ready"
+      ],
+      "owned_paths": [
+        "app/ui/first_flight/briefing_panel.gd",
+        "tests/ui/first_flight/briefing_checks.gd",
+        "tests/integration/first_flight/visual_checks.gd",
+        "tests/integration/first_flight/scene_checks.gd",
+        "tools/interactive-preview/simulation-staging.ps1",
+        "tools/interactive-preview/simulation-staging.test.ps1",
+        "tools/interactive-preview/run.ps1",
+        "tools/interactive-preview/package.mjs",
+        "tools/interactive-preview/verify.test.mjs",
+        "tools/interactive-preview/README.md",
+        "docs/evidence/P2/flight-setup-presentation.md",
+        "docs/README.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/phases/p2-first-flight.md",
+        "docs/agent-operations.md",
+        "docs/contracts.md",
+        "docs/evidence/P1/gate-review.md",
+        "docs/decisions/018-first-flight-briefing-and-circuit-aid.md",
+        "docs/decisions/019-ordinary-flight-overlay-layout.md",
+        "docs/decisions/022-piston-observed-review.md",
+        "docs/evidence/P2/first-flight-briefing.md",
+        "docs/evidence/P2/synthetic-circuit-reference.md",
+        "docs/evidence/P2/piston-observed-review.md",
+        "tools/interactive-preview/README.md"
+      ],
+      "requirements": [
+        "PRD-015",
+        "PRD-017",
+        "PRD-020",
+        "UX-002",
+        "UX-004",
+        "UX-005",
+        "UX-009",
+        "UX-010",
+        "UX-011",
+        "UX-013"
+      ],
+      "acceptance": [
+        "At 960x540, 1920x1080 and 2560x1440, provide a centered bounded-width opaque setup surface with readable headings, caveats and three distinct choice buttons. All three CTAs, compact actual status, Back and Controls fit the minimum window without scrolling Start & state. Establish fit with processed font/bounds checks and independently inspected original pixels, not proposed dimensions.",
+        "Preserve exact fixture2 bytes/hash, case-sensitive IDs, full profile/start/calm mappings and every required truth. Distinguish actual adopted state, requested start and historical/unavailable facts. Cold discloses idealized starter supply and recorded review availability; ready/airborne disclose skipped work. No recommended/default start, automatic engine start, assist, aircraft fidelity/procedure claim or IAS/AGL/MSL substitution.",
+        "Preserve set_state, validate_fixture_bytes, choice_for, focus_back, all three signals, source-session semantics and circuit_slot. Scene retains pause, validation, discard/default-Cancel, stale-request and tick0 adoption ownership. Circuit domain, unsupported reasons and session-local/non-archived choice remain unchanged. Add no input/native/preset/archive/shared interface or saved UI flag.",
+        "Keep Start & state/Control help/Software steps at indices 0/1/2 and append Details at 3. Preserve complete qualified model/version/session/tick/start/wind/NED/TAS/WGS84 ellipsoid/native-held/engine facts in _actual there. Keep actual pause/source status visible, errors navigable and manual step/tab state across refresh. Navigation emits no flight request; invalid bindings remain unavailable, never defaulted.",
+        "Extend existing UI checks for copied-source ownership, three actual Button requests, exact mappings, no automatic selection, focus/tab/scroll access, minimum-window glyph/button bounds, unavailable states and source immutability. Preserve immutable scenario checks and nonvacuous prerequisites/counts. Existing native adoption/confirm/Cancel/stale/input/modal regressions and normal staging/package closure pass; coordinator owns shared integration.",
+        "Retain nine independently reviewed GPU originals: eight over actual native paused sources and one explicitly synthetic unavailable presentation over an unchanged native session. Capture engine-off setup at 960x540/1920x1080/2560x1440; ready and airborne setup at 960x540; Details top/bottom and Control help at 960x540; and explicitly synthetic unavailable presentation at 960x540. Headless bounds checks cover every supported start at all three sizes. Bind original PNGs/full draw-truth pairs, source/PCK/native identities and joins. Complete three native package contexts and current required hosted checks. Report pending human feedback separately; close no aircraft/hardware/pilot or broad phase gate."
+      ],
+      "evidence": [
+        "Exact accepted base/source/immutable fixture pins, focused UI tests, existing native lifecycle/modal regressions, compiler/staging/package closure and three native contexts; current required hosted checks and independent exact-head source review.",
+        "Small reviewed actual-native original-image roster with full draw-truth/source/PCK/native/join bindings and independent original-pixel readability review. Explicitly label synthetic visual states, retained failures, pending human feedback and separate aircraft/hardware/pilot/phase gates."
+      ]
     }
   ]
 }
