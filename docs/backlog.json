@@ -7643,7 +7643,8 @@
         "docs/backlog.json",
         "docs/issue-index.md",
         "docs/requirements.md",
-        "docs/phases/p1-flight-core.md"
+        "docs/phases/p1-flight-core.md",
+        ".gitattributes"
       ],
       "acceptance": [
         "Pin actual report bytes/revision, original URLs, acquisition date, PDF/printed locators, 1974C172M N12800/run identity and source-rights policy. Public distribution does not establish blanket redistribution rights. Retain original factual derivations only; no report pages/images/table grids/code or manufacturer material in repository/releases.",
