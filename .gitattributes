@@ -47,3 +47,9 @@ tests/persistence/local_players/reference/** text eol=lf
 tests/persistence/local_players/service_reference/** text eol=lf
 tests/persistence/local_players/full_record_reference/** text eol=lf
 tests/persistence/local_players/reservation_reference/** text eol=lf
+
+# ADR027 original synthetic layout and independent immutable references.
+content/world/synthetic/taxi-layout-v1.json text eol=lf
+schemas/world/synthetic-taxi-layout-v1.schema.json text eol=lf
+tests/world/taxi/reference/** text eol=lf
+tests/world/taxi/start-reference/** text eol=lf

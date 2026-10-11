@@ -98,3 +98,7 @@ The implementation uses a **new isolated native build root**. Accepted caches, t
 The accepted local [interactive Config](../../native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp), [initializer](../../native/fdm_jsbsim/interactive/src/session.cpp), [bridge](../../native/godot_bridge/src/interactive_bridge.cpp) and [facade](../../app/simulation/session_facade.gd) currently admit the two calm starts. Historical flight-only InitialConditions cannot substitute for this combined model's gear/contact authority.
 
 Read-only inspected pinned JSBSim1.3.1 [FGInitialCondition.cpp](https://github.com/JSBSim-Team/jsbsim/blob/v1.3.1/src/initialization/FGInitialCondition.cpp), [FGFDMExec.cpp](https://github.com/JSBSim-Team/jsbsim/blob/v1.3.1/src/FGFDMExec.cpp) and [FGWinds.h](https://github.com/JSBSim-Team/jsbsim/blob/v1.3.1/src/models/atmosphere/FGWinds.h) expose component initialization, executive wind adoption and NED publication. API availability alone does not establish accepted physical signs, trim success or coupled nonzero-wind evidence. Actual RunIC/trim/air-relative checks above remain proof gates.
+
+## Prospective ADR027 additive apron-domain amendment
+
+PROPOSED, effective only after the checked [ADR027](027-synthetic-taxi-navigation.md) contract merges. New apron-ready and piston-cold-apron pairs are calm-only. Old legacy four-wind recipes, actual wind publication and all source-derived references/nominal1e-6 agreement criteria remain unchanged. Apron name is not permission to inject wind or move a running session.

@@ -1,0 +1,186 @@
+{
+  "schema": "ProspectiveApronPoseSourceBinding/v1",
+  "status": "proposed preconsumer original references; Root and independent review required",
+  "source_head": "c16b07810bfc4d967b50a7da32c197b20a059e41",
+  "sources": [
+    {
+      "path": "docs/decisions/003-geodesy-and-render-origin.md",
+      "raw_bytes": 2921,
+      "raw_sha256": "b934bb4ae74cfd73efa48e462438c50ec94b04b88abbbda7d2c2416ae8d659e6",
+      "git_lf_bytes": 2921,
+      "git_lf_sha256": "b934bb4ae74cfd73efa48e462438c50ec94b04b88abbbda7d2c2416ae8d659e6",
+      "roles": [
+        "WGS84/ECEF/NED/EUS and authoritative frames"
+      ]
+    },
+    {
+      "path": "docs/decisions/006-interactive-prototype.md",
+      "raw_bytes": 13917,
+      "raw_sha256": "c5b5e8c75b8012867c05633d2422bcc59f185a52a51427dbad59719d81dd7936",
+      "git_lf_bytes": 13917,
+      "git_lf_sha256": "c5b5e8c75b8012867c05633d2422bcc59f185a52a51427dbad59719d81dd7936",
+      "roles": [
+        "13-45: exact surface, original gear, old starts and1e-5 intake height"
+      ]
+    },
+    {
+      "path": "docs/decisions/013-steady-wind-starts.md",
+      "raw_bytes": 23198,
+      "raw_sha256": "64548f1c876f77d635bd116710fcd5ca44d27e436b8b6b105d0c66406ea20e8f",
+      "git_lf_bytes": 23198,
+      "git_lf_sha256": "64548f1c876f77d635bd116710fcd5ca44d27e436b8b6b105d0c66406ea20e8f",
+      "roles": [
+        "original two legacy starts x four wind profiles; calm-only future pair is new proposal"
+      ]
+    },
+    {
+      "path": "native/sim_core/contracts/include/flight/contracts/geodesy.hpp",
+      "raw_bytes": 2913,
+      "raw_sha256": "04e977a61ad870b66d7f229c3e71e0178c74eee321effb7696c6bcb3b63623a3",
+      "git_lf_bytes": 2866,
+      "git_lf_sha256": "fa020d241df03808f85bb626963ee2e034750aca4df76aeece9c04695b4936b1",
+      "roles": [
+        "6-45: WGS84 constants and canonical mapping"
+      ]
+    },
+    {
+      "path": "native/fdm_jsbsim/interactive/include/flight/interactive/surface.hpp",
+      "raw_bytes": 5993,
+      "raw_sha256": "77dd3744f242b6f299cff1c018ce16649603a15b93ec250fef8e6a1057883609",
+      "git_lf_bytes": 5906,
+      "git_lf_sha256": "8c5d74cda3828b90d3da7c84aa25064c6e7b2223de4fa045764f5582bb280694",
+      "roles": [
+        "17-28: basis and anchor",
+        "64-80: plane ray, coverage"
+      ]
+    },
+    {
+      "path": "native/fdm_jsbsim/interactive/src/session.cpp",
+      "raw_bytes": 43278,
+      "raw_sha256": "14f494c7e7c3caa62f710fdca0d327269f5892bd0d77c7f878987d90feb9df16",
+      "git_lf_bytes": 43278,
+      "git_lf_sha256": "14f494c7e7c3caa62f710fdca0d327269f5892bd0d77c7f878987d90feb9df16",
+      "roles": [
+        "147-185: old recipe admission/preflight/IC pose",
+        "208-230: RunIC and actual brakes/publication"
+      ]
+    },
+    {
+      "path": "native/godot_bridge/src/interactive_bridge.cpp",
+      "raw_bytes": 12255,
+      "raw_sha256": "183329ff2e51e926ad105b16e4a4d03b3c5a719d8c62bd4170bbad62b228d734",
+      "git_lf_bytes": 12255,
+      "git_lf_sha256": "183329ff2e51e926ad105b16e4a4d03b3c5a719d8c62bd4170bbad62b228d734",
+      "roles": [
+        "53-85: original String selectors, 9 admitted profile/start/wind tuples"
+      ]
+    },
+    {
+      "path": "app/simulation/canonical_frames.gd",
+      "raw_bytes": 6271,
+      "raw_sha256": "35371579ff400a2f9d07e2f5bb3e58e69d3040bc98fca77abdb29b11db699695",
+      "git_lf_bytes": 6128,
+      "git_lf_sha256": "8e9cd434a7c0adaa3f03817c5cd28adf7a4f22996323c1237ec7ab95638b36e0",
+      "roles": [
+        "14-26: anchor basis",
+        "68-103: query-local body projection",
+        "141-143: model right/up/aft mapping"
+      ]
+    },
+    {
+      "path": "app/proof/interactive/flight_world.gd",
+      "raw_bytes": 35736,
+      "raw_sha256": "ebcca950eb3ea7bebd17c3538d1ab6792fcfd3af06f5a5d1719725bb162ae7a3",
+      "git_lf_bytes": 35736,
+      "git_lf_sha256": "ebcca950eb3ea7bebd17c3538d1ab6792fcfd3af06f5a5d1719725bb162ae7a3",
+      "roles": [
+        "27-46: primitive extent definitions",
+        "65: cabin stations",
+        "163-214: original wing/fin/gear/propeller",
+        "331-333: apron paving",
+        "376-378: stand paint",
+        "423,675: hangar shape/placement"
+      ]
+    },
+    {
+      "path": "content/aircraft/prototype/ground-presentation.json",
+      "raw_bytes": 2842,
+      "raw_sha256": "8aaa11a2ec4c66b754597921ae34bff9a956554fa6cffa589ab7a56f05a4d738",
+      "git_lf_bytes": 2842,
+      "git_lf_sha256": "8aaa11a2ec4c66b754597921ae34bff9a956554fa6cffa589ab7a56f05a4d738",
+      "roles": [
+        "unchanged presentation/world provenance"
+      ]
+    },
+    {
+      "path": "native/fdm_jsbsim/models/original-interactive/inventory.json",
+      "raw_bytes": 1380,
+      "raw_sha256": "98b30b5641ce86cc6f0af6298424606aa96a1e4a35ef3e9fcaf377bebb3f00cd",
+      "git_lf_bytes": 1380,
+      "git_lf_sha256": "98b30b5641ce86cc6f0af6298424606aa96a1e4a35ef3e9fcaf377bebb3f00cd",
+      "roles": [
+        "immutable prototype identity/model byte pins"
+      ]
+    },
+    {
+      "path": "native/fdm_jsbsim/models/original-piston-prop/inventory.json",
+      "raw_bytes": 3307,
+      "raw_sha256": "f7766fda173d8ee83d4c4a8c02f6333124175a1f7064d3f4d8e78df3d17da12a",
+      "git_lf_bytes": 3307,
+      "git_lf_sha256": "f7766fda173d8ee83d4c4a8c02f6333124175a1f7064d3f4d8e78df3d17da12a",
+      "roles": [
+        "immutable piston prototype identity/model byte pins"
+      ]
+    },
+    {
+      "path": "native/fdm_jsbsim/models/original-interactive/aircraft/original-interactive/original-interactive.xml",
+      "raw_bytes": 6151,
+      "raw_sha256": "0213ab8c1176e5d20b01f980da9cb94913f3e9ad8866838adc7e77bf3130722a",
+      "git_lf_bytes": 6151,
+      "git_lf_sha256": "0213ab8c1176e5d20b01f980da9cb94913f3e9ad8866838adc7e77bf3130722a",
+      "roles": [
+        "6-7: CG and original gear"
+      ]
+    },
+    {
+      "path": "native/fdm_jsbsim/models/original-piston-prop/aircraft/original-piston-prop/original-piston-prop.xml",
+      "raw_bytes": 6784,
+      "raw_sha256": "b9a41861fcbca1917978312d73a192cbe2c2ea0e6ef0e13512c76148a6c9d4c5",
+      "git_lf_bytes": 6784,
+      "git_lf_sha256": "b9a41861fcbca1917978312d73a192cbe2c2ea0e6ef0e13512c76148a6c9d4c5",
+      "roles": [
+        "6-7: same unchanged CG and gear"
+      ]
+    },
+    {
+      "path": "tests/ground/fixtures/analytical-reference.json",
+      "raw_bytes": 12008,
+      "raw_sha256": "80d519138f8fc78432d63908f2b7523949ed3c57cb72a684e772fe6043763130",
+      "git_lf_bytes": 12008,
+      "git_lf_sha256": "80d519138f8fc78432d63908f2b7523949ed3c57cb72a684e772fe6043763130",
+      "roles": [
+        "source-derived1e-4 geometry budget"
+      ]
+    },
+    {
+      "path": "tests/ground/proof/native.cpp",
+      "raw_bytes": 17202,
+      "raw_sha256": "39fb2a7c1b5a04136210ea2a0edeb489ca0f4d54c5e6c7a81e601b3eddfa4613",
+      "git_lf_bytes": 17016,
+      "git_lf_sha256": "b67cbcaaa0666a5229ab1c0321b89f787ba3e9f8ad61f7d6d03d990f33131a44",
+      "roles": [
+        "129,135: existing1e-7 analytical plane comparison"
+      ]
+    }
+  ],
+  "prepared_world_sha256": "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5",
+  "source_variant_preserved": "jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2",
+  "public_future_root": "tests/world/taxi/start-reference",
+  "expected_sha256": "fb543ddd1681c3cb040cdfd1c65ff404eb9409e73bb6f613c225a3a501f2e333",
+  "generator_sha256": "da0e7b91bd3a3ea7df60f80b01b75df209bc4271950f6458fa462da4efba2645",
+  "review_gates": [
+    "Independent source/arithmetic review and Root ratification before publication/consumer outputs",
+    "Checked shared contract for new start domain before consumers",
+    "Future native/source fingerprint and actual qualification separately; no unwritten hashes invented"
+  ]
+}

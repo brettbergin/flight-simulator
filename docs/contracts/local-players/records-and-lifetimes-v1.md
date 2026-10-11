@@ -372,3 +372,7 @@ coercion. Export snapshot/spool buffers count toward the same 32 MiB owned-buffe
 ceiling alongside reserved requests/results; no unaccounted full export buffer
 or unlisted persistent scratch ownership is permitted. Exact implementation and
 actual source/NTFS qualification remain consumer evidence.
+
+## Prospective ADR027 closed source-domain amendment
+
+PROPOSED, effective only after checked [ADR027](../../decisions/027-synthetic-taxi-navigation.md) acceptance. Its exact two new Source pairs extend the existing named_start enumeration without changing eight-key DTO, SQL/codec/schema fingerprints. Legacy apron-ready requires calm/null method/original legacy model; piston-cold-apron requires calm/event_aware_coupled_midpoint_v1/jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2/original piston model. Existing cold-ground historical variants and all old Source fixtures remain accepted unchanged. Current source adoption still requires the actual reviewed first-party recipe closure and complete native Readback; history uses these closed semantics without equality to today's installed hash. Changed normative inputs require new source/CI/component binding, even though DDL/codec bytes stay exact. No physics resume, profile/source relabel or older-reader universal compatibility claim.

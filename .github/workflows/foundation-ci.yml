@@ -50,8 +50,8 @@ jobs:
         shell: pwsh
         run: |
           $localPlayerPins = @{
-            'docs/contracts/local-players/records-and-lifetimes-v1.md' = 'e29b1a9fc563ae58105a7b99c6ed158ada347cf506a5565e68c8f7a051d322e0'
-            'docs/contracts/local-players/protocol-v1.md' = 'd7a5bc7ee7820df6a3ce8addbc72c66b57b86db91355ad18555f53da6c152d36'
+            'docs/contracts/local-players/records-and-lifetimes-v1.md' = '1425add30c3bb66693f66ed1567cb5bbee8fd493e28df485d3c1b1962f47b9de'
+            'docs/contracts/local-players/protocol-v1.md' = '4a06cf33f70e86c5e07a389d4660a52fb2aefbd45ddaf51d95c5a5127fa2a4a4'
             'schemas/save/local-players/v1/schema-v1.sql' = 'cbd00b3fe47b400e79635ed901d195abfe133a4131d5001feac8e3eedeb0562f'
             'schemas/save/local-players/v1/preferences-codec-v1.json' = '47711d41be89e233efe3c42e8f2cedd33f729e6e0e2c9a78a6026454022b0538'
             'schemas/save/local-players/v1/schema-binding-v1.json' = '9353c034edafdb1bcc3984452bd9c2d4fcdbf283342e99bb5a5dd2d27792f049'
@@ -79,7 +79,7 @@ jobs:
             'docs/contracts/local-players/compiled-source-allocation-v1.json' = 'a3269f6ff8a4eddcdf4db45d0736e951d885e1c1fc11e7ecd2a0f2e22cd49ab1'
             'docs/contracts/local-players/test-capability-v1.md' = 'a7c66c5c588cd5984070781310f77906839c9b5ad703ab70a1db09a629620bed'
             'docs/contracts/local-players/recovery-v1.md' = 'd7349a672519a9c7e3d367d5f756adbcc0507a9138b800500805687782f90859'
-            'docs/decisions/026-durable-local-players-and-practice-history.md' = '0d2ea8c0d88dbd7885bf73e8677d4acca509aba0f40517200407c2442299f4ef'
+            'docs/decisions/026-durable-local-players-and-practice-history.md' = '6e0deb6f36ccfed20dbe8b236afbe3c4ec8003f916b98a8d362c4c3f0189c464'
           }
           foreach ($name in $localPlayerPins.Keys) {
             if ((Get-FileHash -LiteralPath $name -Algorithm SHA256).Hash.ToLowerInvariant() -cne $localPlayerPins[$name]) { throw 'Frozen local-player input changed; reviewed successor contract required' }
@@ -92,6 +92,33 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Independent local-player full-record reference reproduction failed' }
           python -B tests/persistence/local_players/reservation_reference/generate.py --check
           if ($LASTEXITCODE -ne 0) { throw 'Independent local-player reservation reference reproduction failed' }
+      - name: Verify original synthetic taxi source and pose references
+        shell: pwsh
+        run: |
+          $taxiPins = @{
+            'content/world/synthetic/taxi-layout-v1.json' = 'd8668af407885949a4eb05fbe170d41fe6c6752d3ce15670f9879a36063d355c'
+            'schemas/world/synthetic-taxi-layout-v1.schema.json' = '14d7a2d7836c76d7a1adb5841d153e6c1e06a101992ab94bc4363d50db581a36'
+            'docs/decisions/027-synthetic-taxi-navigation.md' = '6a16fd986ac0d243546d8de8e1c17667fe69941b207d9fa738bf744ad27dbf9b'
+            'tests/world/taxi/reference/generate.py' = '799fbcc5fc2144e713d295559e961d1614e245b7bf2a003135ce1234eedec558'
+            'tests/world/taxi/reference/expected-v1.json' = '9b9579b18c38ba3c1393af76798fa39b8683229fdf2eff553b1c12e0fd3ae37c'
+            'tests/world/taxi/reference/source-binding-v1.json' = '1366d0484be3eb6a6ca13028f7f431894d6c879c01dbe2a04f3107a7a7678c8b'
+            'tests/world/taxi/reference/README.md' = 'dd070ab6dcfcd45de6c2dd26129b2402c045cc7eb0b5ebfa6dd2a8ceee81df41'
+            'tests/world/taxi/start-reference/expected-v1.json' = 'fb543ddd1681c3cb040cdfd1c65ff404eb9409e73bb6f613c225a3a501f2e333'
+            'tests/world/taxi/start-reference/generate.py' = 'da0e7b91bd3a3ea7df60f80b01b75df209bc4271950f6458fa462da4efba2645'
+            'tests/world/taxi/start-reference/source-binding-v1.json' = '5b097ee7c6b727e0f19fe4079913c1e0c4ad6453de9628d01a9bc9588c08c230'
+            'tests/world/taxi/start-reference/README.md' = '4eb067f2cf2d7bae258984704685578a672be0cae697b6af0b1212bca980eeb6'
+            'tests/world/taxi/start-reference/prop-disk-v1.json' = '545c0dc04dfa8e5d10eebaef0458dbfb46bb12f53d2d5ab05cf02004bcfe6537'
+            'tests/world/taxi/start-reference/generate-prop-disk.py' = 'dd9aa4014416a2871cb13239fc74c29b1ff21c7d6f26e158ff0ad8bfcc02d8ff'
+          }
+          foreach ($name in $taxiPins.Keys) {
+            if ((Get-FileHash -LiteralPath $name -Algorithm SHA256).Hash.ToLowerInvariant() -cne $taxiPins[$name]) { throw 'Frozen original taxi source/reference changed; reviewed successor required' }
+          }
+          python -B tests/world/taxi/reference/generate.py --check
+          if ($LASTEXITCODE -ne 0) { throw 'Independent shared taxi content reference differs' }
+          python -B tests/world/taxi/start-reference/generate.py --check
+          if ($LASTEXITCODE -ne 0) { throw 'Independent apron pose reference differs' }
+          python -B tests/world/taxi/start-reference/generate-prop-disk.py --check
+          if ($LASTEXITCODE -ne 0) { throw 'Independent physical disk reference differs' }
       - name: Install locked contract validators
         run: npm ci --ignore-scripts --prefix schemas
       - name: Check reconstruction declaration rejection cases
