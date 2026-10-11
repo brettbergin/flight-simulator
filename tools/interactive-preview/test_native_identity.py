@@ -154,6 +154,13 @@ class IdentityTests(unittest.TestCase):
         return n.qualify(self.repo, self.build, lambda *_: self.selected)
 
     def test_windows_linux_all_closed_routes(self):
+        expected_variants = (
+            'jsbsim-1.3.1-upstream',
+            'jsbsim-1.3.1-event-aware-constant-power-v1',
+            'jsbsim-1.3.1-event-aware-coupled-midpoint-v1',
+            'jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2',
+        )
+        self.assertEqual(n.VARIANTS, expected_variants)
         fingerprints = []
         for i, (family, variant) in enumerate((f,v) for f in ('MSVC','GNU') for v in n.VARIANTS):
             root=self.root/str(i);root.mkdir()
@@ -168,7 +175,7 @@ class IdentityTests(unittest.TestCase):
                 'jsbsim-source-build-manifest.txt', 'interactive-source-fingerprint.txt',
                 'compile_commands.json'))
             fingerprints.append(expected)
-        self.assertEqual(len(set(fingerprints)),6)
+        self.assertEqual(len(set(fingerprints)),8)
 
     def test_number_helper_missing_and_changed_source(self):
         for name in EXPECTED_SOURCE_PATHS[-2:]:

@@ -67,9 +67,14 @@ async function fixture(t) {
   return { repositoryRoot, executable, build, accepted, declare, put };
 }
 
-test('interactive identity reproduces all three reviewed routes with ordered LF inputs and both prefixes', async t => {
+test('interactive identity reproduces all four reviewed routes with ordered LF inputs and both prefixes', async t => {
   const f = await fixture(t);
-  assert.equal(f.accepted.size,3);
+  assert.deepEqual([...f.accepted.keys()], [
+    'jsbsim-1.3.1-upstream',
+    'jsbsim-1.3.1-event-aware-constant-power-v1',
+    'jsbsim-1.3.1-event-aware-coupled-midpoint-v1',
+    'jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2',
+  ]);
   assert.deepEqual(interactiveSources,expectedInteractiveSources,'producer roster equals independent explicit ADR016 contract');
   for (const variant of f.accepted.keys()) {
     const expected = await f.declare(variant);
