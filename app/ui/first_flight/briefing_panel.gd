@@ -29,6 +29,20 @@ var _back: Button
 var _controls: Button
 var _choice_buttons: Array[Button] = []
 var _tabs: TabContainer
+var _shell: Panel
+var _summary: Label
+var _details_source: Label
+var _choice_details: Label
+var _limits: Label
+var _circuit_hint: Label
+var _cards: Array[PanelContainer] = []
+var _card_titles: Array[Label] = []
+var _card_facts: Array[Label] = []
+const _CARD_COPY = {
+	"cold-familiarization":{"title":"Engine off","description":"Explore the engine controls.","facts":"Idealized starter supply.\nRecorded flight and engine review available","action":"Choose engine-off flight"},
+	"ready-flight":{"title":"Engine running","description":"Begin at the runway with the engine prestarted.","facts":"Startup is skipped.\nLegacy observed review available","action":"Choose prestarted flight"},
+	"airborne-orientation":{"title":"Already airborne","description":"Explore the view and flight controls.","facts":"Start, taxi and takeoff are skipped. Read the initialized state.","action":"Choose airborne flight"}
+}
 
 static func validate_fixture_bytes(bytes: PackedByteArray) -> Dictionary:
 	if bytes.is_empty():
@@ -79,38 +93,68 @@ func _page(title: String) -> VBoxContainer:
 	scroll.follow_focus=true; _tabs.add_child(scroll)
 	var box: VBoxContainer = VBoxContainer.new()
 	box.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-	box.add_theme_constant_override("separation",12); scroll.add_child(box)
+	box.add_theme_constant_override("separation",6); scroll.add_child(box)
 	return box
+
+func _surface(color: String, border: String) -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color=Color(color); style.border_color=Color(border)
+	style.set_border_width_all(1); style.set_corner_radius_all(8)
+	return style
+
+func _layout_shell() -> void:
+	if not is_instance_valid(_shell): return
+	_shell.size=Vector2(minf(1120.0,maxf(0.0,size.x-32.0)),minf(720.0,maxf(0.0,size.y-32.0)))
+	_shell.position=(size-_shell.size)*0.5
 
 func _ready() -> void:
 	mouse_filter=Control.MOUSE_FILTER_STOP
 	var background: Panel = Panel.new()
-	var background_style := StyleBoxFlat.new()
-	background_style.bg_color=Color("101c29")
-	background.add_theme_stylebox_override("panel",background_style)
+	var backdrop_style: StyleBoxFlat = _surface("0a111a","0a111a")
+	backdrop_style.set_corner_radius_all(0); background.add_theme_stylebox_override("panel",backdrop_style)
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); add_child(background)
-	var margin: MarginContainer = MarginContainer.new()
+	# A plain Panel keeps child minimum sizes from enlarging the bounded shell.
+	_shell=Panel.new(); _shell.name="SetupSurface"; add_child(_shell)
+	_shell.add_theme_stylebox_override("panel",_surface("101c29","38516a"))
+	resized.connect(_layout_shell); _layout_shell()
+	var margin: MarginContainer = MarginContainer.new(); _shell.add_child(margin)
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side in ["left","top","right","bottom"]: margin.add_theme_constant_override("margin_"+side,16)
-	add_child(margin)
 	var layout: VBoxContainer = VBoxContainer.new()
-	layout.add_theme_constant_override("separation",8); margin.add_child(layout)
-	_label(layout,"First flight",28)
-	_label(layout,"Explore the controls and choose a starting point. These are original prototype flights, not aircraft checklists.",14)
-	_status=_label(layout,"State unavailable",16)
+	layout.add_theme_constant_override("separation",6); margin.add_child(layout)
+	var header: HBoxContainer = HBoxContainer.new(); header.custom_minimum_size.y=36
+	header.add_theme_constant_override("separation",12); layout.add_child(header)
+	var title: Label = _label(header,"First flight",24)
+	# This fixed short heading must keep its natural width in the horizontal header.
+	title.autowrap_mode=TextServer.AUTOWRAP_OFF
+	title.size_flags_horizontal=Control.SIZE_SHRINK_BEGIN; title.vertical_alignment=VERTICAL_ALIGNMENT_CENTER
+	_status=_label(header,"No current flight | Back returns paused",14)
+	_status.horizontal_alignment=HORIZONTAL_ALIGNMENT_RIGHT; _status.vertical_alignment=VERTICAL_ALIGNMENT_CENTER
 	_tabs=TabContainer.new(); _tabs.size_flags_vertical=Control.SIZE_EXPAND_FILL
 	_tabs.add_theme_font_size_override("font_size",16); layout.add_child(_tabs)
 	_tabs.get_tab_bar().focus_mode=Control.FOCUS_ALL
 	var overview: VBoxContainer = _page("Start & state")
-	_actual=_label(overview,"")
-	_label(overview,"Choose a starting point. Your new flight stays paused until you return to the menu and select Resume.")
+	overview.add_theme_constant_override("separation",4)
+	_summary=_label(overview,"Current flight unavailable",14); _summary.custom_minimum_size.y=42
+	var choices: HBoxContainer = HBoxContainer.new(); choices.name="StartingPoints"
+	choices.add_theme_constant_override("separation",12); overview.add_child(choices)
 	for id in CHOICE_IDS:
-		var choice: Dictionary = choice_for(id)
-		_label(overview,CHOICE_TITLES[id]+"\n"+" | ".join(choice.get("required_truth",[])))
-		var button: Button = _button(overview,"Choose: "+CHOICE_TITLES[id],"Request this exact original start; remain paused after successful adoption.",_request_choice.bind(id))
-		_choice_buttons.append(button)
+		var copy: Dictionary = _CARD_COPY[id]
+		var card: PanelContainer = PanelContainer.new(); card.name=id
+		card.size_flags_horizontal=Control.SIZE_EXPAND_FILL; card.custom_minimum_size.y=184
+		card.add_theme_stylebox_override("panel",_surface("17293a","3d5973")); choices.add_child(card)
+		_cards.append(card)
+		var inset: MarginContainer = MarginContainer.new(); card.add_child(inset)
+		for side in ["left","top","right","bottom"]: inset.add_theme_constant_override("margin_"+side,10)
+		var body: VBoxContainer = VBoxContainer.new(); body.add_theme_constant_override("separation",4); inset.add_child(body)
+		_card_titles.append(_label(body,copy.title,20))
+		_label(body,copy.description,14)
+		var facts: Label = _label(body,"Starting-point facts unavailable",13)
+		facts.size_flags_vertical=Control.SIZE_EXPAND_FILL; _card_facts.append(facts)
+		var button: Button = _button(body,copy.action,"Request this exact original start; remain paused after successful adoption.",_request_choice.bind(id))
+		button.size_flags_horizontal=Control.SIZE_EXPAND_FILL; _choice_buttons.append(button)
 	circuit_slot=VBoxContainer.new(); circuit_slot.name="CircuitOptions"; overview.add_child(circuit_slot)
-	_label(overview,"OPTIONAL SYNTHETIC CIRCUIT REFERENCE | not evaluated\nAvailable only for ready-flight / ground-ready / calm / runway36. Open paused First flight to disable it; map visibility uses the current map_toggle binding.")
+	_circuit_hint=_label(overview,"Not evaluated | ready-flight / ground-ready / calm / runway36 only.\nCircuit aid choice is session-local and is not stored in saved flight reviews.",12)
 	var controls_page: VBoxContainer = _page("Control help")
 	_label(controls_page,BindingHelp.AVAILABILITY)
 	_binding_text=_label(controls_page,"")
@@ -120,10 +164,21 @@ func _ready() -> void:
 	var step_buttons: HBoxContainer = HBoxContainer.new(); steps.add_child(step_buttons)
 	_previous=_button(step_buttons,"Previous step","Change only the manual software step.",_change_step.bind(-1))
 	_next=_button(step_buttons,"Next step","Change only the manual software step.",_change_step.bind(1))
-	_label(layout,"Original prototype | synthetic airfield | no aircraft-specific procedure or training credit.\nCircuit aid choice is session-local and is not stored in saved flight reviews.",14)
+	var details: VBoxContainer = _page("Details")
+	_details_source=_label(details,"")
+	_actual=_label(details,"")
+	_choice_details=_label(details,"")
+	_limits=_label(layout,"Original prototype models | synthetic airfield | no aircraft-specific checklist or training credit.\nNew choices stay paused. Return to the menu and choose Resume to continue.",13)
+	_limits.custom_minimum_size.y=32
 	var footer: HBoxContainer = HBoxContainer.new(); layout.add_child(footer)
 	_back=_button(footer,"Back to paused menu","Return still paused. Use the ordinary menu's explicit Resume to continue.",_request_back)
+	var spacer: Control = Control.new(); spacer.size_flags_horizontal=Control.SIZE_EXPAND_FILL; footer.add_child(spacer)
 	_controls=_button(footer,"Controls","Open paused Controls to inspect assignments and observed status.",_request_controls)
+	for i in _choice_buttons.size():
+		if i>0: _choice_buttons[i].focus_neighbor_left=_choice_buttons[i-1].get_path()
+		if i+1<_choice_buttons.size(): _choice_buttons[i].focus_neighbor_right=_choice_buttons[i+1].get_path()
+		_choice_buttons[i].focus_neighbor_bottom=(_back if i<2 else _controls).get_path()
+	_back.focus_neighbor_top=_choice_buttons[0].get_path(); _controls.focus_neighbor_top=_choice_buttons[2].get_path()
 	_refresh()
 
 func set_state(readback: Dictionary, preset: Dictionary, current_wind: String) -> void:
@@ -141,9 +196,14 @@ func _source_session() -> String:
 func _refresh() -> void:
 	if not is_instance_valid(_status): return
 	var state: String = _qualified.get("state","empty")
-	_status.text="%s | session %s | tick %s | Back returns still paused" % [state.to_upper(),str(_qualified.get("session_id")) if _qualified.get("session_id") != null else "unavailable",str(_qualified.get("tick")) if _qualified.get("tick") != null else "unavailable"]
-	if not _fixture_error.is_empty(): _status.text=_fixture_error
-	elif state in ["invalid","empty"]: _status.text += "\n"+str(_qualified.get("error","No qualified Readback"))
+	var status_name: String = {"paused":"Paused","live":"Running","historical":"Historical / view-only","empty":"No current flight","invalid":"State unavailable"}.get(state,"State unavailable")
+	_status.text=status_name+" | Back returns paused"
+	_details_source.text="Source state: %s | session %s | tick %s" % [state,str(_qualified.get("session_id")) if _qualified.get("session_id")!=null else "unavailable",str(_qualified.get("tick")) if _qualified.get("tick")!=null else "unavailable"]
+	if not _fixture_error.is_empty():
+		_status.text="Starting points unavailable | Back returns paused"
+		_details_source.text+="\n"+_fixture_error
+	elif state in ["invalid","empty"]: _details_source.text+="\n"+str(_qualified.get("error","No qualified Readback"))
+	_status.tooltip_text=_details_source.text
 	if state in ["live","paused","historical"]:
 		var start_name: String={"piston-cold-ground":"Ground, engine off","ground-ready":"Ground, engine already running","airborne-prepared":"Prepared airborne start"}.get(_readback.named_start,_readback.named_start)
 		var wind: Dictionary=_readback.atmosphere.wind_toward_ned_mps
@@ -160,6 +220,29 @@ func _refresh() -> void:
 		if _readback.named_start != "ground-ready" or _readback.model_identity.id != "original-interactive-prototype":
 			_actual.text += "\nCircuit reference unavailable for this start"
 	else: _actual.text="Actual start unavailable: "+str(_qualified.get("error","No qualified Readback"))
+	# Compact text uses the qualified publication, never a requested choice or draft.
+	_summary.text=status_name+" | Actual flight facts unavailable. Open Details."
+	if not _fixture_error.is_empty(): _summary.text+="\n"+_fixture_error
+	elif state in ["invalid","empty"]: _summary.text+="\n"+str(_qualified.get("error","No qualified Readback"))
+	if state in ["live","paused","historical"]:
+		var adopted_start: String = {"piston-cold-ground":"Engine-off start","ground-ready":"Prestarted runway start","airborne-prepared":"Prepared airborne start"}.get(_readback.named_start,_readback.named_start)
+		var tas: Dictionary = _qualified.readings.tas
+		var tas_text: String = ("%.1f kt TAS" % (tas.value*3600.0/1852.0)) if tas.valid else "TAS unavailable"
+		var engine_text: String = "Engine status unavailable"
+		if _readback.model_identity==Readings.PISTON_PROFILE:
+			var engine_view: Dictionary = EngineStatus.from_readback(_readback)
+			var actual_running: Dictionary = engine_view.readings["engine.running"]
+			if actual_running.valid: engine_text="Engine running" if actual_running.value else "Engine off"
+		_summary.text="%s | %s | %s\nStart: %s | Adopted wind: %s" % [status_name,tas_text,engine_text,adopted_start,_current_wind if not _current_wind.is_empty() else "unavailable"]
+		if state=="historical": _summary.text+=" | Historical facts, not a current flight"
+	var warning_lines: PackedStringArray = ["Starting-point facts (copied original content):"]
+	for i in CHOICE_IDS.size():
+		var admitted: Dictionary = {}
+		for choice in _fixture.get("choices",[]):
+			if choice.choice_id==CHOICE_IDS[i]: admitted=choice; break
+		_card_facts[i].text=_CARD_COPY[CHOICE_IDS[i]].facts if not admitted.is_empty() and _fixture_error.is_empty() else "Starting-point facts unavailable. Open Details."
+		if not admitted.is_empty(): warning_lines.append(CHOICE_TITLES[CHOICE_IDS[i]]+"\n"+" | ".join(admitted.required_truth))
+	_choice_details.text="\n\n".join(warning_lines) if _fixture_error.is_empty() else _fixture_error
 	var lines: PackedStringArray = [_help.get("reserved",BindingHelp.view({}).reserved)]
 	if not _help.get("available",false): lines.append("Binding help unavailable: "+str(_help.get("error","No validated preset")))
 	for group in ["actions","axes","systems"]:
