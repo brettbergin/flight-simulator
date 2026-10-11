@@ -168,6 +168,18 @@ func _ready() -> void:
 		button.size_flags_horizontal=Control.SIZE_EXPAND_FILL; _choice_buttons.append(button)
 	circuit_slot=VBoxContainer.new(); circuit_slot.name="CircuitOptions"; overview.add_child(circuit_slot)
 	_circuit_hint=_label(overview,"Not evaluated | ready-flight / ground-ready / calm / runway36 only.\nCircuit aid choice is session-local and is not stored in saved flight reviews.",12)
+	_label(overview,"Start at PARK1 on the apron",18)
+	_label(overview,"Calm wind · brakes held · original synthetic models. Use Taxi in the paused menu to choose a manual runway or parking itinerary.",14)
+	var apron_row:=HBoxContainer.new()
+	apron_row.name="ApronStartingPoints"
+	apron_row.add_theme_constant_override("separation",12)
+	overview.add_child(apron_row)
+	for id in APRON_CHOICE_IDS:
+		var caption: String="Apron ready — engine running" if id=="apron-ready" else "Apron cold — engine off"
+		var button: Button=_button(apron_row,caption,"Choose this exact PARK1 start; successful adoption stays paused.",_request_apron_choice.bind(id))
+		button.name=id
+		button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+		_apron_buttons.append(button)
 	var controls_page: VBoxContainer = _page("Control help")
 	_label(controls_page,BindingHelp.AVAILABILITY)
 	_binding_text=_label(controls_page,"")
@@ -181,19 +193,6 @@ func _ready() -> void:
 	_details_source=_label(details,"")
 	_actual=_label(details,"")
 	_choice_details=_label(details,"")
-	var apron_page: VBoxContainer = _page("Apron starts")
-	_label(apron_page,"Start at PARK1 on the apron",18)
-	_label(apron_page,"Calm wind · brakes held · original synthetic models. Use Taxi in the paused menu to choose a manual runway or parking itinerary.",14)
-	var apron_row:=HBoxContainer.new()
-	apron_row.name="ApronStartingPoints"
-	apron_row.add_theme_constant_override("separation",12)
-	apron_page.add_child(apron_row)
-	for id in APRON_CHOICE_IDS:
-		var caption: String="Apron ready — engine running" if id=="apron-ready" else "Apron cold — engine off"
-		var button: Button=_button(apron_row,caption,"Choose this exact PARK1 start; successful adoption stays paused.",_request_apron_choice.bind(id))
-		button.name=id
-		button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-		_apron_buttons.append(button)
 	_limits=_label(layout,"Original prototype models | synthetic airfield | no aircraft-specific checklist or training credit.\nNew choices stay paused. Return to the menu and choose Resume to continue.",13)
 	_limits.custom_minimum_size.y=32
 	var footer: HBoxContainer = HBoxContainer.new(); layout.add_child(footer)
