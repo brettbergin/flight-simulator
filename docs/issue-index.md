@@ -70,6 +70,7 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | CHASE-HUD-CAPTION-SPACING | [#184 Keep CHASE HUD unit captions clear of the next instrument row](https://github.com/brettbergin/flight-simulator/issues/184) | ORDINARY-FLIGHT-LAYOUT |
 | PROTOTYPE-AUDIO-CUE-CONTRACT | [#187 Freeze original audio cues, options and paused Audio panel contract](https://github.com/brettbergin/flight-simulator/issues/187) | SIM-LOOP, LICENSE-REGISTER, ORDINARY-FLIGHT-LAYOUT |
 | ORIGINAL-AUDIO-CUES | [#188 Add original TAS airflow and engine mix with paused Audio controls](https://github.com/brettbergin/flight-simulator/issues/188) | PROTOTYPE-AUDIO-CUE-CONTRACT, SIM-LOOP, LICENSE-REGISTER |
+| MANUAL-OVERLAY-DOCK-CONTRACT | [#192 Evaluate and freeze an explicit manual flight-overlay dock contract](https://github.com/brettbergin/flight-simulator/issues/192) | GAZE-OVERLAY-LAYOUT-DESIGN, ORDINARY-FLIGHT-LAYOUT, CHASE-HUD-CAPTION-SPACING, ORIGINAL-AUDIO-CUES |
 
 ## P3 — Complete circuit and durable progress
 

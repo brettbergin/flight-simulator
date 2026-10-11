@@ -6014,7 +6014,8 @@
         "docs/decisions/017-frontend-pointer-engine-controls.md",
         "docs/decisions/018-first-flight-briefing-and-circuit-aid.md",
         "docs/decisions/019-ordinary-flight-overlay-layout.md",
-        "docs/evidence/P2/ordinary-flight-layout.md"
+        "docs/evidence/P2/ordinary-flight-layout.md",
+        "docs/evidence/P2/gaze-overlay-layout-design.md"
       ],
       "requirements": [
         "PRD-015",
@@ -6032,7 +6033,8 @@
       ],
       "evidence": [
         "Source-pinned projection/font/hit measurements, original pixel review and negative collision fixtures.",
-        "Independent feasibility review, explicit remaining limits and downstream contract proposal; no runtime or phase acceptance."
+        "Independent feasibility review, explicit remaining limits and downstream contract proposal; no runtime or phase acceptance.",
+        "Reviewed current fixed-policy incompatibility, source-bound540-case diagnostic and42 original-image reviews; separate manual-dock contract spike192 requires its own alternate feasibility before any consumer."
       ]
     },
     {
@@ -6241,6 +6243,72 @@
         "Original synthesis/source register and supported cue/accessibility checklist, with live captions deferred.",
         "Production sample-partition and independent TAS/frequency tests, source/lifecycle negatives and bounded paused UI integration results.",
         "Actual package/source/notice closure and exact Windows output/listening scope, independent review and required CI."
+      ]
+    },
+    {
+      "key": "MANUAL-OVERLAY-DOCK-CONTRACT",
+      "title": "Evaluate and freeze an explicit manual flight-overlay dock contract",
+      "kind": "spike",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "First measure an explicit paused Default/Left/Right dock using private actual font/hit and source-bound original-pixel evidence; publish a bounded feasible contract or explicit incompatibility without implementing a consumer.",
+      "depends_on": [
+        "GAZE-OVERLAY-LAYOUT-DESIGN",
+        "ORDINARY-FLIGHT-LAYOUT",
+        "CHASE-HUD-CAPTION-SPACING",
+        "ORIGINAL-AUDIO-CUES"
+      ],
+      "labels": [
+        "type:spike",
+        "phase:P2",
+        "area:ui",
+        "priority:P1",
+        "status:blocked"
+      ],
+      "owned_paths": [
+        "docs/decisions/021-manual-flight-overlay-dock.md",
+        "docs/evidence/P2/manual-flight-overlay-dock-contract.md",
+        "docs/contracts.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/agent-operations.md",
+        "docs/phases/p2-first-flight.md",
+        "docs/contracts.md",
+        "docs/decisions/017-frontend-pointer-engine-controls.md",
+        "docs/decisions/018-first-flight-briefing-and-circuit-aid.md",
+        "docs/decisions/019-ordinary-flight-overlay-layout.md",
+        "docs/decisions/020-original-audio-cues.md",
+        "docs/evidence/P2/ordinary-flight-layout.md",
+        "docs/evidence/P2/hud-caption-spacing.md",
+        "docs/evidence/P2/original-audio-cues.md",
+        "docs/evidence/P2/gaze-overlay-layout-design.md",
+        "tools/interactive-preview/README.md"
+      ],
+      "requirements": [
+        "PRD-015",
+        "PRD-017",
+        "UX-009",
+        "UX-010",
+        "UX-011"
+      ],
+      "acceptance": [
+        "Wait for all four named dependencies to be accepted. Freeze the actual accepted source/package and known-negative originals from GAZE-OVERLAY-LAYOUT-DESIGN. Its540-row sweep measures only the current fixed docks, not an alternate candidate; never reuse it as alternate-layout feasibility or readability proof.",
+        "Before proposing a production API or consumer, perform a private, explicitly synthetic alternate-layout feasibility experiment for paused Default/Left/Right choices, fixed until another explicit choice. Use actual font metrics, full draw/hit regions and source/PCK-bound original pixels at960x540/1920x1080/2560x1440 in physical modes0/3, both original profiles, map open/closed and piston expanded/collapsed. Include recentered controls, the known opposite-gaze failures, representative legal FOV extrema and honest available/unavailable route/circuit states without an exhaustive new matrix. Independently review actual alternate originals; retain every failed attempt and incompatible case.",
+        "Preserve actual camera/FOV/projection and requested HUD/help/map/engine/circuit visibility, complete native status and control strips, engine A/R/P and usable hits, truthful source/denial/release text, wind when requested and complete current route/locator/source qualification. Separate camera behind/near/viewport clipping, conservative cell/font rectangles and actual exposed drawing occlusion. No forced HUD/recenter, automatic collapse/map closure, gaze-following targets, fabricated current guidance, native/input/preset/save/audio change or production implementation.",
+        "If independently measured feasible, freeze ADR021 with the exact bounded Default/Left/Right policy, paused entry and still-paused return, affected side/opposite status composition, preference lifetime/default/reset behavior, unchanged CHASE behavior, supported domain and known failures. Explicitly supersede only necessary ADR019 presentation constraints. Reuse existing copied widget APIs if sufficient; authorize no speculative shared setter or generic docking framework. If not feasible, publish an explicit scoped incompatibility result instead of promising an API or creating a consumer; this is a valid spike outcome.",
+        "Specify ADR017 capture safety before any later consumer: existing modal entry retires actual capture once before geometry, already-retired empty capture is not retired again for the choice, identical choices/gaze frames are generation-invariant, actual held rearm remains until complete Raw release then fresh press. No fabricated button-up, starter pulse, intent submission, native tick, implicit pause/Resume or stale gesture admission. Current gaze evidence has only idle capture and cannot prove this future interaction.",
+        "Document exact conditional consumer ownership and evidence gates, creating no consumer until a feasible independently reviewed ADR is accepted. Bound any later implementation to Scene paused menu/layout, existing Scene/pointer tests and scoped visual/delivery closure; exclude camera/physics/native/presets/save/audio and widget APIs unless separately contracted. Keep full source/mapper/latch/debt/origin/recorder invariance and actual capture/Raw tests distinct from passive pixel proof.",
+        "Obtain independent technical and semantic review of source-bound feasibility and exact documentation, run node tools/check-docs.mjs and current required documentation CI, and preserve all prior failures. Close only this spike for its reviewed bounded result; no runtime, arbitrary-gaze, parent, aircraft, hardware/pilot, training-credit or phase acceptance follows."
+      ],
+      "evidence": [
+        "Exact accepted source/package and current negative-original pins; separate actual alternate font/hit/original-image evidence and independent review with failed cases retained.",
+        "A feasible accepted bounded ADR or explicit incompatibility result; conditional consumer ownership only, with capture/rearm and delivery gates still pending."
       ]
     }
   ]
