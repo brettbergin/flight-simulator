@@ -289,7 +289,7 @@ jobs:
           $wireReceipt=Get-Content -LiteralPath (Join-Path $project 'wire-codec-receipt.json') -Raw | ConvertFrom-Json
           Assert-PreviewWireCodecReceipt -Receipt $wireReceipt -IncludePiston $false -ExpectedSourceFingerprint $nativeIdentity.declared_source_fingerprint
           if($IsWindows){
-            Invoke-PreviewGraphicalCameraChecks -Executable $environment.tools.godot -Arguments @('--path',$project,'--rendering-method','gl_compatibility','--rendering-driver','opengl3_angle','res://camera_checks.tscn') -Root $root -TargetPath $project -Evidence $evidence -Name 'active' -RepoRoot $PWD -ProjectRoot $project -NativeIdentityPath (Join-Path $evidence 'native-build-identity.json') -TimeoutSeconds 600 -RequireFullSupported $false
+            Invoke-PreviewGraphicalCameraChecks -Executable $environment.tools.godot -Arguments @('--path',$project,'--audio-driver','Dummy','--rendering-method','gl_compatibility','--rendering-driver','opengl3_angle','res://camera_checks.tscn') -Root $root -TargetPath $project -Evidence $evidence -Name 'active' -RepoRoot $PWD -ProjectRoot $project -NativeIdentityPath (Join-Path $evidence 'native-build-identity.json') -TimeoutSeconds 600 -RequireFullSupported $false
           } else {
             'Camera graphical gate: not executed on Linux; Windows job must qualify actual capture. Source/pure/headless checks are not camera runtime acceptance.' | Set-Content (Join-Path $evidence 'camera-graphical-gate-unavailable.txt')
           }

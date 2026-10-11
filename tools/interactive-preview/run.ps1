@@ -3,7 +3,10 @@
 param([Parameter(Mandatory)][string]$ExportProofRoot,[Parameter(Mandatory)][string]$ToolchainRoot,[string]$NativeBuildRoot="",[ValidateRange(120,600)][int]$FacadeCheckTimeoutSeconds=120,[ValidateSet('gl_compatibility','mobile','forward_plus')][string]$CameraRenderingMethod='gl_compatibility',[ValidateSet('opengl3','opengl3_angle','vulkan','d3d12')][string]$CameraRenderingDriver='opengl3')
 $ErrorActionPreference='Stop'
 if(($CameraRenderingMethod -ceq 'gl_compatibility') -ne ($CameraRenderingDriver -cin @('opengl3','opengl3_angle'))){throw 'Explicit camera rendering method/driver pair rejected'}
-$cameraRenderArguments=@('--rendering-method',$CameraRenderingMethod,'--rendering-driver',$CameraRenderingDriver)
+# Camera-only graphical checks do not require a physical audio endpoint. Keep
+# deterministic camera proof independent of hosted Windows WASAPI availability;
+# ordinary flight and the separate audio checks retain their existing drivers.
+$cameraRenderArguments=@('--audio-driver','Dummy','--rendering-method',$CameraRenderingMethod,'--rendering-driver',$CameraRenderingDriver)
 if(-not $IsWindows){throw 'Whole-flight portable preview currently targets Windows x64'}
 $repo=(Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 . (Join-Path $repo 'tools/export/common.ps1')
