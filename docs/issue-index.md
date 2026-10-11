@@ -111,6 +111,10 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | PISTON-MIXTURE-DECAY-COVERAGE | [#202 Preserve cold replay and qualify ordinary mixture-decay continuation](https://github.com/brettbergin/flight-simulator/issues/202) | ORIGINAL-PISTON-FLIGHT, PISTON-COUPLING-ACCURACY, PISTON-LOCAL-WINDOW-CONTRACT, PISTON-READINGS-DECIMAL-ADMISSION |
 | PISTON-LOCAL-WINDOW-CONTRACT | [#207 Ratify one certified local piston decay window before coverage repair](https://github.com/brettbergin/flight-simulator/issues/207) | ORIGINAL-PISTON-FLIGHT, PISTON-COUPLING-ACCURACY |
 
+| LOCAL-PLAYERS-CONTRACT | [#218 Ratify durable local players, explicit preference saves and truthful practice history](https://github.com/brettbergin/flight-simulator/issues/218) | CORE-CONTRACTS, INTERACTIVE-CONTRACT, SIM-LOOP-CONTRACT, INPUT-CONTROLS-CONTRACT, ORIGINAL-PISTON-CONTRACT, COCKPIT-READINGS-CONTRACT, OBSERVED-REVIEW-CONTRACT, OBSERVED-ARCHIVE-CONTRACT, STEADY-WIND-CONTRACT, PROTOTYPE-AUDIO-CUE-CONTRACT, PAUSED-VIEWS-CONTRACT, NATIVE-WIRE-NUMBER-CONTRACT, SAVE-PROOF |
+| LOCAL-PLAYERS-STORE | [#219 Implement isolated SQLite local-player storage and one-writer service](https://github.com/brettbergin/flight-simulator/issues/219) | LOCAL-PLAYERS-CONTRACT, TOOLCHAIN, LICENSE-REGISTER |
+| LOCAL-PLAYERS-JOURNEY | [#220 Deliver two named players and Guest with saved Controls/Audio and practice history](https://github.com/brettbergin/flight-simulator/issues/220) | LOCAL-PLAYERS-CONTRACT, LOCAL-PLAYERS-STORE, INPUT-CONTROLS-CONTRACT, POINTER-ENGINE-CONTROLS, ORIGINAL-AUDIO-CUES, OBSERVED-FLIGHT-REVIEW, OBSERVED-REVIEW-FILES, PAUSED-VIEWS, ORIGINAL-PISTON-FLIGHT, PISTON-MIXTURE-DECAY-COVERAGE |
+
 ## P4 — Regional navigation and environment
 
 | Key | Issue | Dependencies |

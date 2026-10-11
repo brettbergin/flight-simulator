@@ -1,0 +1,1769 @@
+{
+  "schema": "IndependentLocalPlayersValueReferences/v1",
+  "status": "PRECONSUMER_PROPOSED_UNRATIFIED",
+  "license": "Original MIT",
+  "scope": "Original independent exact byte/type/arithmetic expectations and explicit boundary recipes. No consumer, SQLite, Win32, worker, durability, crash, native flight or Godot execution.",
+  "binary64": [
+    {
+      "id": "B_positive_zero",
+      "input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "0000000000000000"
+      },
+      "finite_primitive": true,
+      "expected_tag": {
+        "$binary64_le": "0000000000000000"
+      },
+      "expected_restored": {
+        "type": "FLOAT",
+        "binary64_be_hex": "0000000000000000"
+      },
+      "exact_rational": {
+        "numerator": "0",
+        "denominator": "1"
+      },
+      "audio_gain_semantic_admission": true,
+      "scope": "Bit transport primitive; a finite tag alone does not admit any record/path."
+    },
+    {
+      "id": "B_negative_zero",
+      "input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "8000000000000000"
+      },
+      "finite_primitive": true,
+      "expected_tag": {
+        "$binary64_le": "0000000000000080"
+      },
+      "expected_restored": {
+        "type": "FLOAT",
+        "binary64_be_hex": "8000000000000000"
+      },
+      "exact_rational": {
+        "numerator": "0",
+        "denominator": "1"
+      },
+      "audio_gain_semantic_admission": true,
+      "scope": "Bit transport primitive; a finite tag alone does not admit any record/path."
+    },
+    {
+      "id": "B_smallest_positive_subnormal",
+      "input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "0000000000000001"
+      },
+      "finite_primitive": true,
+      "expected_tag": {
+        "$binary64_le": "0100000000000000"
+      },
+      "expected_restored": {
+        "type": "FLOAT",
+        "binary64_be_hex": "0000000000000001"
+      },
+      "exact_rational": {
+        "numerator": "1",
+        "denominator": "202402253307310618352495346718917307049556649764142118356901358027430339567995346891960383701437124495187077864316811911389808737385793476867013399940738509921517424276566361364466907742093216341239767678472745068562007483424692698618103355649159556340810056512358769552333414615230502532186327508646006263307707741093494784"
+      },
+      "audio_gain_semantic_admission": true,
+      "scope": "Bit transport primitive; a finite tag alone does not admit any record/path."
+    },
+    {
+      "id": "B_smallest_negative_subnormal",
+      "input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "8000000000000001"
+      },
+      "finite_primitive": true,
+      "expected_tag": {
+        "$binary64_le": "0100000000000080"
+      },
+      "expected_restored": {
+        "type": "FLOAT",
+        "binary64_be_hex": "8000000000000001"
+      },
+      "exact_rational": {
+        "numerator": "-1",
+        "denominator": "202402253307310618352495346718917307049556649764142118356901358027430339567995346891960383701437124495187077864316811911389808737385793476867013399940738509921517424276566361364466907742093216341239767678472745068562007483424692698618103355649159556340810056512358769552333414615230502532186327508646006263307707741093494784"
+      },
+      "audio_gain_semantic_admission": false,
+      "scope": "Bit transport primitive; a finite tag alone does not admit any record/path."
+    },
+    {
+      "id": "B_largest_subnormal",
+      "input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "000fffffffffffff"
+      },
+      "finite_primitive": true,
+      "expected_tag": {
+        "$binary64_le": "ffffffffffff0f00"
+      },
+      "expected_restored": {
+        "type": "FLOAT",
+        "binary64_be_hex": "000fffffffffffff"
+      },
+      "exact_rational": {
+        "numerator": "4503599627370495",
+        "denominator": "202402253307310618352495346718917307049556649764142118356901358027430339567995346891960383701437124495187077864316811911389808737385793476867013399940738509921517424276566361364466907742093216341239767678472745068562007483424692698618103355649159556340810056512358769552333414615230502532186327508646006263307707741093494784"
+      },
+      "audio_gain_semantic_admission": true,
+      "scope": "Bit transport primitive; a finite tag alone does not admit any record/path."
+    },
+    {
+      "id": "B_smallest_normal",
+      "input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "0010000000000000"
+      },
+      "finite_primitive": true,
+      "expected_tag": {
+        "$binary64_le": "0000000000001000"
+      },
+      "expected_restored": {
+        "type": "FLOAT",
+        "binary64_be_hex": "0010000000000000"
+      },
+      "exact_rational": {
+        "numerator": "1",
+        "denominator": "44942328371557897693232629769725618340449424473557664318357520289433168951375240783177119330601884005280028469967848339414697442203604155623211857659868531094441973356216371319075554900311523529863270738021251442209537670585615720368478277635206809290837627671146574559986811484619929076208839082406056034304"
+      },
+      "audio_gain_semantic_admission": true,
+      "scope": "Bit transport primitive; a finite tag alone does not admit any record/path."
+    },
+    {
+      "id": "B_mixture_point06",
+      "input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "3faeb851eb851eb8"
+      },
+      "finite_primitive": true,
+      "expected_tag": {
+        "$binary64_le": "b81e85eb51b8ae3f"
+      },
+      "expected_restored": {
+        "type": "FLOAT",
+        "binary64_be_hex": "3faeb851eb851eb8"
+      },
+      "exact_rational": {
+        "numerator": "1080863910568919",
+        "denominator": "18014398509481984"
+      },
+      "audio_gain_semantic_admission": true,
+      "scope": "Bit transport primitive; a finite tag alone does not admit any record/path."
+    },
+    {
+      "id": "B_threshold_point05",
+      "input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "3fa999999999999a"
+      },
+      "finite_primitive": true,
+      "expected_tag": {
+        "$binary64_le": "9a9999999999a93f"
+      },
+      "expected_restored": {
+        "type": "FLOAT",
+        "binary64_be_hex": "3fa999999999999a"
+      },
+      "exact_rational": {
+        "numerator": "3602879701896397",
+        "denominator": "72057594037927936"
+      },
+      "audio_gain_semantic_admission": true,
+      "scope": "Bit transport primitive; a finite tag alone does not admit any record/path."
+    },
+    {
+      "id": "B_deadzone_point4",
+      "input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "3fd999999999999a"
+      },
+      "finite_primitive": true,
+      "expected_tag": {
+        "$binary64_le": "9a9999999999d93f"
+      },
+      "expected_restored": {
+        "type": "FLOAT",
+        "binary64_be_hex": "3fd999999999999a"
+      },
+      "exact_rational": {
+        "numerator": "3602879701896397",
+        "denominator": "9007199254740992"
+      },
+      "audio_gain_semantic_admission": true,
+      "scope": "Bit transport primitive; a finite tag alone does not admit any record/path."
+    },
+    {
+      "id": "B_half",
+      "input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "3fe0000000000000"
+      },
+      "finite_primitive": true,
+      "expected_tag": {
+        "$binary64_le": "000000000000e03f"
+      },
+      "expected_restored": {
+        "type": "FLOAT",
+        "binary64_be_hex": "3fe0000000000000"
+      },
+      "exact_rational": {
+        "numerator": "1",
+        "denominator": "2"
+      },
+      "audio_gain_semantic_admission": true,
+      "scope": "Bit transport primitive; a finite tag alone does not admit any record/path."
+    },
+    {
+      "id": "B_one_below",
+      "input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "3fefffffffffffff"
+      },
+      "finite_primitive": true,
+      "expected_tag": {
+        "$binary64_le": "ffffffffffffef3f"
+      },
+      "expected_restored": {
+        "type": "FLOAT",
+        "binary64_be_hex": "3fefffffffffffff"
+      },
+      "exact_rational": {
+        "numerator": "9007199254740991",
+        "denominator": "9007199254740992"
+      },
+      "audio_gain_semantic_admission": true,
+      "scope": "Bit transport primitive; a finite tag alone does not admit any record/path."
+    },
+    {
+      "id": "B_one",
+      "input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "3ff0000000000000"
+      },
+      "finite_primitive": true,
+      "expected_tag": {
+        "$binary64_le": "000000000000f03f"
+      },
+      "expected_restored": {
+        "type": "FLOAT",
+        "binary64_be_hex": "3ff0000000000000"
+      },
+      "exact_rational": {
+        "numerator": "1",
+        "denominator": "1"
+      },
+      "audio_gain_semantic_admission": true,
+      "scope": "Bit transport primitive; a finite tag alone does not admit any record/path."
+    },
+    {
+      "id": "B_one_above",
+      "input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "3ff0000000000001"
+      },
+      "finite_primitive": true,
+      "expected_tag": {
+        "$binary64_le": "010000000000f03f"
+      },
+      "expected_restored": {
+        "type": "FLOAT",
+        "binary64_be_hex": "3ff0000000000001"
+      },
+      "exact_rational": {
+        "numerator": "4503599627370497",
+        "denominator": "4503599627370496"
+      },
+      "audio_gain_semantic_admission": false,
+      "scope": "Bit transport primitive; a finite tag alone does not admit any record/path."
+    },
+    {
+      "id": "B_negative_one",
+      "input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "bff0000000000000"
+      },
+      "finite_primitive": true,
+      "expected_tag": {
+        "$binary64_le": "000000000000f0bf"
+      },
+      "expected_restored": {
+        "type": "FLOAT",
+        "binary64_be_hex": "bff0000000000000"
+      },
+      "exact_rational": {
+        "numerator": "-1",
+        "denominator": "1"
+      },
+      "audio_gain_semantic_admission": false,
+      "scope": "Bit transport primitive; a finite tag alone does not admit any record/path."
+    },
+    {
+      "id": "B_largest_finite",
+      "input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "7fefffffffffffff"
+      },
+      "finite_primitive": true,
+      "expected_tag": {
+        "$binary64_le": "ffffffffffffef7f"
+      },
+      "expected_restored": {
+        "type": "FLOAT",
+        "binary64_be_hex": "7fefffffffffffff"
+      },
+      "exact_rational": {
+        "numerator": "179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368",
+        "denominator": "1"
+      },
+      "audio_gain_semantic_admission": false,
+      "scope": "Bit transport primitive; a finite tag alone does not admit any record/path."
+    },
+    {
+      "id": "B_positive_infinity",
+      "input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "7ff0000000000000"
+      },
+      "finite_primitive": false,
+      "expected_tag": null,
+      "expected_restored": null,
+      "exact_rational": null,
+      "audio_gain_semantic_admission": false,
+      "scope": "Bit transport primitive; a finite tag alone does not admit any record/path."
+    },
+    {
+      "id": "B_negative_infinity",
+      "input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "fff0000000000000"
+      },
+      "finite_primitive": false,
+      "expected_tag": null,
+      "expected_restored": null,
+      "exact_rational": null,
+      "audio_gain_semantic_admission": false,
+      "scope": "Bit transport primitive; a finite tag alone does not admit any record/path."
+    },
+    {
+      "id": "B_quiet_nan",
+      "input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "7ff8000000000001"
+      },
+      "finite_primitive": false,
+      "expected_tag": null,
+      "expected_restored": null,
+      "exact_rational": null,
+      "audio_gain_semantic_admission": false,
+      "scope": "Bit transport primitive; a finite tag alone does not admit any record/path."
+    }
+  ],
+  "numeric_families": [
+    {
+      "id": "T01",
+      "family": "preset_version",
+      "path": "$.legacy_input.version",
+      "context": {},
+      "admitted_field_input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "3ff0000000000000"
+      },
+      "expected_normalized_field": {
+        "type": "INT",
+        "decimal": "1"
+      },
+      "expected_storage": "1",
+      "rejected_field_input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "3ff8000000000000"
+      },
+      "rejection_basis": "Enum must be integral exact1; incoming FLOAT1 normalizes INT1.",
+      "scope": "Field-level witness, not a complete admitted preset."
+    },
+    {
+      "id": "T02",
+      "family": "fixed_signed",
+      "path": "$.legacy_input.axes[roll].value",
+      "context": {},
+      "admitted_field_input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "8000000000000000"
+      },
+      "expected_normalized_field": {
+        "type": "FLOAT",
+        "binary64_be_hex": "8000000000000000"
+      },
+      "expected_storage": {
+        "$binary64_le": "0000000000000080"
+      },
+      "rejected_field_input": {
+        "type": "INT",
+        "decimal": "-2"
+      },
+      "rejection_basis": "Signed field [-1,1]; continuous FLOAT negative zero retained.",
+      "scope": "Field-level witness, not a complete admitted preset."
+    },
+    {
+      "id": "T03",
+      "family": "fixed_unsigned",
+      "path": "$.legacy_input.axes[throttle].value",
+      "context": {},
+      "admitted_field_input": {
+        "type": "INT",
+        "decimal": "0"
+      },
+      "expected_normalized_field": {
+        "type": "INT",
+        "decimal": "0"
+      },
+      "expected_storage": "0",
+      "rejected_field_input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "8000000000000001"
+      },
+      "rejection_basis": "Negative subnormal is below0; actual INT0 remains INT.",
+      "scope": "Field-level witness, not a complete admitted preset."
+    },
+    {
+      "id": "T04",
+      "family": "fixed_mixture_v1",
+      "path": "$.legacy_input.axes[mixture].value",
+      "context": {},
+      "admitted_field_input": {
+        "type": "INT",
+        "decimal": "1"
+      },
+      "expected_normalized_field": {
+        "type": "INT",
+        "decimal": "1"
+      },
+      "expected_storage": "1",
+      "rejected_field_input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "3fefffffffffffff"
+      },
+      "rejection_basis": "Legacy mixture exactly1.",
+      "scope": "Field-level witness, not a complete admitted preset."
+    },
+    {
+      "id": "T05",
+      "family": "fixed_mixture_v2",
+      "path": "$.piston_input.axes[mixture].value",
+      "context": {},
+      "admitted_field_input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "3faeb851eb851eb8"
+      },
+      "expected_normalized_field": {
+        "type": "FLOAT",
+        "binary64_be_hex": "3faeb851eb851eb8"
+      },
+      "expected_storage": {
+        "$binary64_le": "b81e85eb51b8ae3f"
+      },
+      "rejected_field_input": {
+        "type": "INT",
+        "decimal": "2"
+      },
+      "rejection_basis": "Piston mixture0..1; binary64 .06 exact bits retained.",
+      "scope": "Field-level witness, not a complete admitted preset."
+    },
+    {
+      "id": "T06",
+      "family": "axis_key_code",
+      "path": "$.legacy_input.axes[pitch].negative[0]",
+      "context": {
+        "kind": "key_pair",
+        "physical_key_roundtrip_still_required": true
+      },
+      "admitted_field_input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "4050400000000000"
+      },
+      "expected_normalized_field": {
+        "type": "INT",
+        "decimal": "65"
+      },
+      "expected_storage": "65",
+      "rejected_field_input": {
+        "type": "INT",
+        "decimal": "2147483648"
+      },
+      "rejection_basis": "Above2147483647 rejects before backend key roundtrip.",
+      "scope": "Field-level witness, not a complete admitted preset."
+    },
+    {
+      "id": "T07",
+      "family": "key_pair_rate",
+      "path": "$.legacy_input.axes[pitch].rate",
+      "context": {},
+      "admitted_field_input": {
+        "type": "INT",
+        "decimal": "4"
+      },
+      "expected_normalized_field": {
+        "type": "INT",
+        "decimal": "4"
+      },
+      "expected_storage": "4",
+      "rejected_field_input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "8000000000000000"
+      },
+      "rejection_basis": "rate must be >0 and <=4.",
+      "scope": "Field-level witness, not a complete admitted preset."
+    },
+    {
+      "id": "T08",
+      "family": "axis_gain",
+      "path": "$.legacy_input.axes[pitch].gain",
+      "context": {},
+      "admitted_field_input": {
+        "type": "INT",
+        "decimal": "1"
+      },
+      "expected_normalized_field": {
+        "type": "INT",
+        "decimal": "1"
+      },
+      "expected_storage": "1",
+      "rejected_field_input": {
+        "type": "INT",
+        "decimal": "0"
+      },
+      "rejection_basis": "gain must be >0 and <=1.",
+      "scope": "Field-level witness, not a complete admitted preset."
+    },
+    {
+      "id": "T09",
+      "family": "joy_axis_index",
+      "path": "$.legacy_input.axes[roll].index",
+      "context": {
+        "kind": "joy_axis",
+        "slot": "Stick",
+        "slot_declared": true
+      },
+      "admitted_field_input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "8000000000000000"
+      },
+      "expected_normalized_field": {
+        "type": "INT",
+        "decimal": "0"
+      },
+      "expected_storage": "0",
+      "rejected_field_input": {
+        "type": "INT",
+        "decimal": "10"
+      },
+      "rejection_basis": "Index0..9; FLOAT -0 enum normalizes INT0.",
+      "scope": "Field-level witness, not a complete admitted preset."
+    },
+    {
+      "id": "T10",
+      "family": "joy_calibration",
+      "path": "$.legacy_input.axes[roll].{minimum,center,maximum}",
+      "context": {
+        "kind": "joy_axis",
+        "range": "centered",
+        "minimum": -1,
+        "center": 0,
+        "maximum": 1
+      },
+      "admitted_field_input": {
+        "type": "INT",
+        "decimal": "-1"
+      },
+      "expected_normalized_field": {
+        "type": "INT",
+        "decimal": "-1"
+      },
+      "expected_storage": "-1",
+      "rejected_field_input": {
+        "type": "INT",
+        "decimal": "-2"
+      },
+      "rejection_basis": "Each calibration field in[-1,1]; sibling-span constraint separate.",
+      "scope": "Field-level witness, not a complete admitted preset."
+    },
+    {
+      "id": "T11",
+      "family": "deadzone",
+      "path": "$.legacy_input.axes[roll].deadzone",
+      "context": {},
+      "admitted_field_input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "8000000000000000"
+      },
+      "expected_normalized_field": {
+        "type": "FLOAT",
+        "binary64_be_hex": "8000000000000000"
+      },
+      "expected_storage": {
+        "$binary64_le": "0000000000000080"
+      },
+      "rejected_field_input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "3fd999999999999b"
+      },
+      "rejection_basis": "deadzone0..binary64(0.4) inclusive.",
+      "scope": "Field-level witness, not a complete admitted preset."
+    },
+    {
+      "id": "T12",
+      "family": "saturation",
+      "path": "$.legacy_input.axes[roll].saturation",
+      "context": {
+        "deadzone": {
+          "type": "INT",
+          "decimal": "0"
+        }
+      },
+      "admitted_field_input": {
+        "type": "INT",
+        "decimal": "1"
+      },
+      "expected_normalized_field": {
+        "type": "INT",
+        "decimal": "1"
+      },
+      "expected_storage": "1",
+      "rejected_field_input": {
+        "type": "INT",
+        "decimal": "0"
+      },
+      "rejection_basis": "saturation strictly greater than sibling deadzone.",
+      "scope": "Field-level witness, not a complete admitted preset."
+    },
+    {
+      "id": "T13",
+      "family": "slew",
+      "path": "$.legacy_input.axes[roll].slew_per_s",
+      "context": {},
+      "admitted_field_input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "8000000000000000"
+      },
+      "expected_normalized_field": {
+        "type": "FLOAT",
+        "binary64_be_hex": "8000000000000000"
+      },
+      "expected_storage": {
+        "$binary64_le": "0000000000000080"
+      },
+      "rejected_field_input": {
+        "type": "INT",
+        "decimal": "5"
+      },
+      "rejection_basis": "slew0..4 inclusive; signed zero retained.",
+      "scope": "Field-level witness, not a complete admitted preset."
+    },
+    {
+      "id": "T14",
+      "family": "action_key_code",
+      "path": "$.legacy_input.actions[help].sources[0].keys[0]",
+      "context": {
+        "kind": "physical_keys",
+        "physical_key_roundtrip_still_required": true
+      },
+      "admitted_field_input": {
+        "type": "INT",
+        "decimal": "65"
+      },
+      "expected_normalized_field": {
+        "type": "INT",
+        "decimal": "65"
+      },
+      "expected_storage": "65",
+      "rejected_field_input": {
+        "type": "INT",
+        "decimal": "31"
+      },
+      "rejection_basis": "Key code<32 rejects; future actual OS roundtrip still required.",
+      "scope": "Field-level witness, not a complete admitted preset."
+    },
+    {
+      "id": "T15",
+      "family": "action_joy_button",
+      "path": "$.legacy_input.actions[help].sources[0].index",
+      "context": {
+        "kind": "joy_button",
+        "slot": "Stick",
+        "slot_declared": true
+      },
+      "admitted_field_input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "405fc00000000000"
+      },
+      "expected_normalized_field": {
+        "type": "INT",
+        "decimal": "127"
+      },
+      "expected_storage": "127",
+      "rejected_field_input": {
+        "type": "INT",
+        "decimal": "128"
+      },
+      "rejection_basis": "JOY_BUTTON_MAX128 means0..127.",
+      "scope": "Field-level witness, not a complete admitted preset."
+    },
+    {
+      "id": "T16",
+      "family": "action_mouse_button",
+      "path": "$.legacy_input.actions[help].sources[0].button",
+      "context": {},
+      "admitted_field_input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "4022000000000000"
+      },
+      "expected_normalized_field": {
+        "type": "INT",
+        "decimal": "9"
+      },
+      "expected_storage": "9",
+      "rejected_field_input": {
+        "type": "INT",
+        "decimal": "10"
+      },
+      "rejection_basis": "Action mouse button1..9.",
+      "scope": "Field-level witness, not a complete admitted preset."
+    },
+    {
+      "id": "T17",
+      "family": "system_key_code",
+      "path": "$.piston_input.systems[engine.fuel_feed].sources[0].keys[0]",
+      "context": {
+        "kind": "physical_keys",
+        "physical_key_roundtrip_still_required": true
+      },
+      "admitted_field_input": {
+        "type": "INT",
+        "decimal": "65"
+      },
+      "expected_normalized_field": {
+        "type": "INT",
+        "decimal": "65"
+      },
+      "expected_storage": "65",
+      "rejected_field_input": {
+        "type": "BOOL",
+        "value": true
+      },
+      "rejection_basis": "Boolean is not a key integer; aliases and Escape conflicts separate.",
+      "scope": "Field-level witness, not a complete admitted preset."
+    },
+    {
+      "id": "T18",
+      "family": "system_joy_button",
+      "path": "$.piston_input.systems[engine.fuel_feed].sources[0].index",
+      "context": {},
+      "admitted_field_input": {
+        "type": "INT",
+        "decimal": "0"
+      },
+      "expected_normalized_field": {
+        "type": "INT",
+        "decimal": "0"
+      },
+      "expected_storage": "0",
+      "rejected_field_input": {
+        "type": "INT",
+        "decimal": "-1"
+      },
+      "rejection_basis": "System joy button0..127; slot must be declared.",
+      "scope": "Field-level witness, not a complete admitted preset."
+    },
+    {
+      "id": "T19",
+      "family": "system_mouse_button",
+      "path": "$.piston_input.systems[engine.fuel_feed].sources[0].button",
+      "context": {},
+      "admitted_field_input": {
+        "type": "INT",
+        "decimal": "8"
+      },
+      "expected_normalized_field": {
+        "type": "INT",
+        "decimal": "8"
+      },
+      "expected_storage": "8",
+      "rejected_field_input": {
+        "type": "INT",
+        "decimal": "4"
+      },
+      "rejection_basis": "Persistent engine controls reject wheel buttons4..7.",
+      "scope": "Field-level witness, not a complete admitted preset."
+    },
+    {
+      "id": "T20",
+      "family": "audio_gain",
+      "path": "$.audio.engine_gain",
+      "context": {},
+      "admitted_field_input": {
+        "type": "FLOAT",
+        "binary64_be_hex": "8000000000000000"
+      },
+      "expected_normalized_field": {
+        "type": "FLOAT",
+        "binary64_be_hex": "8000000000000000"
+      },
+      "expected_storage": {
+        "$binary64_le": "0000000000000080"
+      },
+      "rejected_field_input": {
+        "type": "INT",
+        "decimal": "0"
+      },
+      "rejection_basis": "Audio gain requires actual FLOAT; INT0 is not accepted.",
+      "scope": "Field-level witness, not a complete admitted preset."
+    }
+  ],
+  "canonical_bundles": [
+    {
+      "id": "C_initial",
+      "expected_payload_utf8": "{\"audio\":{\"airflow_gain\":{\"$binary64_le\":\"000000000000f03f\"},\"enabled\":true,\"engine_gain\":{\"$binary64_le\":\"000000000000f03f\"},\"show_panel_captions\":true},\"legacy_input\":null,\"piston_input\":null,\"player_id\":\"0123456789abcdef0123456789abcdef\",\"revision\":\"1\",\"type\":\"LocalPlayerPreferences\",\"version\":1}",
+      "payload_bytes": 300,
+      "payload_sha256": "2777cfaa0a9f6a3b942774b4eac32e4af113a826e0140af115af66eaefa6eac2",
+      "expected_envelope_utf8": "{\"format\":\"LocalPlayerPreferences\",\"payload_json\":\"{\\\"audio\\\":{\\\"airflow_gain\\\":{\\\"$binary64_le\\\":\\\"000000000000f03f\\\"},\\\"enabled\\\":true,\\\"engine_gain\\\":{\\\"$binary64_le\\\":\\\"000000000000f03f\\\"},\\\"show_panel_captions\\\":true},\\\"legacy_input\\\":null,\\\"piston_input\\\":null,\\\"player_id\\\":\\\"0123456789abcdef0123456789abcdef\\\",\\\"revision\\\":\\\"1\\\",\\\"type\\\":\\\"LocalPlayerPreferences\\\",\\\"version\\\":1}\",\"payload_sha256\":\"2777cfaa0a9f6a3b942774b4eac32e4af113a826e0140af115af66eaefa6eac2\",\"version\":1}",
+      "envelope_bytes": 485,
+      "envelope_sha256": "90ac41e2012c688a3a39aab838bb2f4a53838e05b00c43642038157c299b6df7",
+      "restored_types": {
+        "version": "INT",
+        "revision": "String",
+        "audio.enabled": "BOOL",
+        "audio.engine_gain": {
+          "type": "FLOAT",
+          "binary64_be_hex": "3ff0000000000000"
+        },
+        "audio.airflow_gain": {
+          "type": "FLOAT",
+          "binary64_be_hex": "3ff0000000000000"
+        },
+        "legacy_input": "NIL",
+        "piston_input": "NIL"
+      },
+      "scope": "Whole closed preferences bundle with null preset slots; exact original byte oracle."
+    },
+    {
+      "id": "C_signed_zero",
+      "expected_payload_utf8": "{\"audio\":{\"airflow_gain\":{\"$binary64_le\":\"0000000000000000\"},\"enabled\":true,\"engine_gain\":{\"$binary64_le\":\"0000000000000080\"},\"show_panel_captions\":true},\"legacy_input\":null,\"piston_input\":null,\"player_id\":\"0123456789abcdef0123456789abcdef\",\"revision\":\"1\",\"type\":\"LocalPlayerPreferences\",\"version\":1}",
+      "payload_bytes": 300,
+      "payload_sha256": "2086cd4f8e63cdaf2e281bff8107bb3225a922f5a706449bfa81a4a736f3f53c",
+      "expected_envelope_utf8": "{\"format\":\"LocalPlayerPreferences\",\"payload_json\":\"{\\\"audio\\\":{\\\"airflow_gain\\\":{\\\"$binary64_le\\\":\\\"0000000000000000\\\"},\\\"enabled\\\":true,\\\"engine_gain\\\":{\\\"$binary64_le\\\":\\\"0000000000000080\\\"},\\\"show_panel_captions\\\":true},\\\"legacy_input\\\":null,\\\"piston_input\\\":null,\\\"player_id\\\":\\\"0123456789abcdef0123456789abcdef\\\",\\\"revision\\\":\\\"1\\\",\\\"type\\\":\\\"LocalPlayerPreferences\\\",\\\"version\\\":1}\",\"payload_sha256\":\"2086cd4f8e63cdaf2e281bff8107bb3225a922f5a706449bfa81a4a736f3f53c\",\"version\":1}",
+      "envelope_bytes": 485,
+      "envelope_sha256": "2149885fcd3dacbeea69ee5b5df9869cd195971aa6a844f668ea3cc3cda11735",
+      "restored_types": {
+        "version": "INT",
+        "revision": "String",
+        "audio.enabled": "BOOL",
+        "audio.engine_gain": {
+          "type": "FLOAT",
+          "binary64_be_hex": "8000000000000000"
+        },
+        "audio.airflow_gain": {
+          "type": "FLOAT",
+          "binary64_be_hex": "0000000000000000"
+        },
+        "legacy_input": "NIL",
+        "piston_input": "NIL"
+      },
+      "scope": "Whole closed preferences bundle with null preset slots; exact original byte oracle."
+    },
+    {
+      "id": "C_fraction_full_u64",
+      "expected_payload_utf8": "{\"audio\":{\"airflow_gain\":{\"$binary64_le\":\"0100000000000000\"},\"enabled\":true,\"engine_gain\":{\"$binary64_le\":\"b81e85eb51b8ae3f\"},\"show_panel_captions\":true},\"legacy_input\":null,\"piston_input\":null,\"player_id\":\"0123456789abcdef0123456789abcdef\",\"revision\":\"18446744073709551615\",\"type\":\"LocalPlayerPreferences\",\"version\":1}",
+      "payload_bytes": 319,
+      "payload_sha256": "e893bcc2ee4d5ab3b7477d1213e798d3b1c4fabccc892b9f13f43c9e78a5dd36",
+      "expected_envelope_utf8": "{\"format\":\"LocalPlayerPreferences\",\"payload_json\":\"{\\\"audio\\\":{\\\"airflow_gain\\\":{\\\"$binary64_le\\\":\\\"0100000000000000\\\"},\\\"enabled\\\":true,\\\"engine_gain\\\":{\\\"$binary64_le\\\":\\\"b81e85eb51b8ae3f\\\"},\\\"show_panel_captions\\\":true},\\\"legacy_input\\\":null,\\\"piston_input\\\":null,\\\"player_id\\\":\\\"0123456789abcdef0123456789abcdef\\\",\\\"revision\\\":\\\"18446744073709551615\\\",\\\"type\\\":\\\"LocalPlayerPreferences\\\",\\\"version\\\":1}\",\"payload_sha256\":\"e893bcc2ee4d5ab3b7477d1213e798d3b1c4fabccc892b9f13f43c9e78a5dd36\",\"version\":1}",
+      "envelope_bytes": 504,
+      "envelope_sha256": "23b46b908c13e310dfd074a401cb034f62f5de528301d51881e8286d48af0e6e",
+      "restored_types": {
+        "version": "INT",
+        "revision": "String",
+        "audio.enabled": "BOOL",
+        "audio.engine_gain": {
+          "type": "FLOAT",
+          "binary64_be_hex": "3faeb851eb851eb8"
+        },
+        "audio.airflow_gain": {
+          "type": "FLOAT",
+          "binary64_be_hex": "0000000000000001"
+        },
+        "legacy_input": "NIL",
+        "piston_input": "NIL"
+      },
+      "scope": "Whole closed preferences bundle with null preset slots; exact original byte oracle."
+    }
+  ],
+  "u64": [
+    {
+      "id": "U_valid_0",
+      "input": {
+        "type": "String",
+        "value": "0"
+      },
+      "canonical_u64": true,
+      "positive_revision": false
+    },
+    {
+      "id": "U_valid_1",
+      "input": {
+        "type": "String",
+        "value": "1"
+      },
+      "canonical_u64": true,
+      "positive_revision": true
+    },
+    {
+      "id": "U_valid_9007199254740991",
+      "input": {
+        "type": "String",
+        "value": "9007199254740991"
+      },
+      "canonical_u64": true,
+      "positive_revision": true
+    },
+    {
+      "id": "U_valid_9007199254740992",
+      "input": {
+        "type": "String",
+        "value": "9007199254740992"
+      },
+      "canonical_u64": true,
+      "positive_revision": true
+    },
+    {
+      "id": "U_valid_9007199254740993",
+      "input": {
+        "type": "String",
+        "value": "9007199254740993"
+      },
+      "canonical_u64": true,
+      "positive_revision": true
+    },
+    {
+      "id": "U_valid_9223372036854775808",
+      "input": {
+        "type": "String",
+        "value": "9223372036854775808"
+      },
+      "canonical_u64": true,
+      "positive_revision": true
+    },
+    {
+      "id": "U_valid_18446744073709551615",
+      "input": {
+        "type": "String",
+        "value": "18446744073709551615"
+      },
+      "canonical_u64": true,
+      "positive_revision": true
+    },
+    {
+      "id": "U_invalid_00",
+      "input": {
+        "type": "String",
+        "value": ""
+      },
+      "canonical_u64": false,
+      "positive_revision": false
+    },
+    {
+      "id": "U_invalid_01",
+      "input": {
+        "type": "String",
+        "value": "00"
+      },
+      "canonical_u64": false,
+      "positive_revision": false
+    },
+    {
+      "id": "U_invalid_02",
+      "input": {
+        "type": "String",
+        "value": "01"
+      },
+      "canonical_u64": false,
+      "positive_revision": false
+    },
+    {
+      "id": "U_invalid_03",
+      "input": {
+        "type": "String",
+        "value": "+1"
+      },
+      "canonical_u64": false,
+      "positive_revision": false
+    },
+    {
+      "id": "U_invalid_04",
+      "input": {
+        "type": "String",
+        "value": "-0"
+      },
+      "canonical_u64": false,
+      "positive_revision": false
+    },
+    {
+      "id": "U_invalid_05",
+      "input": {
+        "type": "String",
+        "value": "-1"
+      },
+      "canonical_u64": false,
+      "positive_revision": false
+    },
+    {
+      "id": "U_invalid_06",
+      "input": {
+        "type": "String",
+        "value": "1.0"
+      },
+      "canonical_u64": false,
+      "positive_revision": false
+    },
+    {
+      "id": "U_invalid_07",
+      "input": {
+        "type": "String",
+        "value": "1e0"
+      },
+      "canonical_u64": false,
+      "positive_revision": false
+    },
+    {
+      "id": "U_invalid_08",
+      "input": {
+        "type": "String",
+        "value": " 1"
+      },
+      "canonical_u64": false,
+      "positive_revision": false
+    },
+    {
+      "id": "U_invalid_09",
+      "input": {
+        "type": "String",
+        "value": "1\n"
+      },
+      "canonical_u64": false,
+      "positive_revision": false
+    },
+    {
+      "id": "U_invalid_10",
+      "input": {
+        "type": "String",
+        "value": "١"
+      },
+      "canonical_u64": false,
+      "positive_revision": false
+    },
+    {
+      "id": "U_invalid_11",
+      "input": {
+        "type": "String",
+        "value": "18446744073709551616"
+      },
+      "canonical_u64": false,
+      "positive_revision": false
+    },
+    {
+      "id": "U_wrong_INT",
+      "input": {
+        "type": "INT",
+        "value": 1
+      },
+      "canonical_u64": false,
+      "positive_revision": false
+    },
+    {
+      "id": "U_wrong_FLOAT",
+      "input": {
+        "type": "FLOAT",
+        "value": "3ff0000000000000"
+      },
+      "canonical_u64": false,
+      "positive_revision": false
+    },
+    {
+      "id": "U_wrong_BOOL",
+      "input": {
+        "type": "BOOL",
+        "value": true
+      },
+      "canonical_u64": false,
+      "positive_revision": false
+    },
+    {
+      "id": "U_wrong_StringName",
+      "input": {
+        "type": "StringName",
+        "value": "1"
+      },
+      "canonical_u64": false,
+      "positive_revision": false
+    }
+  ],
+  "arithmetic": [
+    {
+      "id": "A_add_0",
+      "operation": "checked_add",
+      "operands": [
+        "0",
+        "1"
+      ],
+      "accepted": true,
+      "expected": "1"
+    },
+    {
+      "id": "A_add_9007199254740992",
+      "operation": "checked_add",
+      "operands": [
+        "9007199254740992",
+        "1"
+      ],
+      "accepted": true,
+      "expected": "9007199254740993"
+    },
+    {
+      "id": "A_add_9223372036854775807",
+      "operation": "checked_add",
+      "operands": [
+        "9223372036854775807",
+        "1"
+      ],
+      "accepted": true,
+      "expected": "9223372036854775808"
+    },
+    {
+      "id": "A_add_18446744073709551614",
+      "operation": "checked_add",
+      "operands": [
+        "18446744073709551614",
+        "1"
+      ],
+      "accepted": true,
+      "expected": "18446744073709551615"
+    },
+    {
+      "id": "A_add_18446744073709551615",
+      "operation": "checked_add",
+      "operands": [
+        "18446744073709551615",
+        "1"
+      ],
+      "accepted": false,
+      "expected": null
+    },
+    {
+      "id": "A_sub_18446744073709551615_0",
+      "operation": "checked_subtract",
+      "operands": [
+        "18446744073709551615",
+        "0"
+      ],
+      "accepted": true,
+      "expected": "18446744073709551615"
+    },
+    {
+      "id": "A_sub_18446744073709551615_18446744073709551495",
+      "operation": "checked_subtract",
+      "operands": [
+        "18446744073709551615",
+        "18446744073709551495"
+      ],
+      "accepted": true,
+      "expected": "120"
+    },
+    {
+      "id": "A_sub_9007199254740993_9007199254740992",
+      "operation": "checked_subtract",
+      "operands": [
+        "9007199254740993",
+        "9007199254740992"
+      ],
+      "accepted": true,
+      "expected": "1"
+    },
+    {
+      "id": "A_sub_0_1",
+      "operation": "checked_subtract",
+      "operands": [
+        "0",
+        "1"
+      ],
+      "accepted": false,
+      "expected": null
+    },
+    {
+      "id": "A_compare_9_10",
+      "operation": "compare",
+      "operands": [
+        "9",
+        "10"
+      ],
+      "accepted": true,
+      "expected": -1
+    },
+    {
+      "id": "A_compare_9007199254740992_9007199254740993",
+      "operation": "compare",
+      "operands": [
+        "9007199254740992",
+        "9007199254740993"
+      ],
+      "accepted": true,
+      "expected": -1
+    },
+    {
+      "id": "A_compare_9223372036854775808_18446744073709551615",
+      "operation": "compare",
+      "operands": [
+        "9223372036854775808",
+        "18446744073709551615"
+      ],
+      "accepted": true,
+      "expected": -1
+    },
+    {
+      "id": "A_compare_18446744073709551615_18446744073709551615",
+      "operation": "compare",
+      "operands": [
+        "18446744073709551615",
+        "18446744073709551615"
+      ],
+      "accepted": true,
+      "expected": 0
+    }
+  ],
+  "paging": [
+    {
+      "id": "P_initial",
+      "records": [
+        {
+          "id": "old",
+          "creation_sequence": "9",
+          "commit_sequence": "100"
+        },
+        {
+          "id": "ten",
+          "creation_sequence": "10",
+          "commit_sequence": "10"
+        },
+        {
+          "id": "edited",
+          "creation_sequence": "11",
+          "commit_sequence": "18446744073709551615"
+        },
+        {
+          "id": "p53a",
+          "creation_sequence": "9007199254740992",
+          "commit_sequence": "9007199254740992"
+        },
+        {
+          "id": "p53b",
+          "creation_sequence": "9007199254740993",
+          "commit_sequence": "9007199254740993"
+        },
+        {
+          "id": "p63",
+          "creation_sequence": "9223372036854775808",
+          "commit_sequence": "9223372036854775808"
+        },
+        {
+          "id": "new",
+          "creation_sequence": "18446744073709551614",
+          "commit_sequence": "18446744073709551614"
+        }
+      ],
+      "before_creation_sequence": null,
+      "limit": {
+        "type": "INT",
+        "decimal": "3"
+      },
+      "expected_ids": [
+        "new",
+        "p63",
+        "p53b"
+      ],
+      "next_before_creation_sequence": "9007199254740993"
+    },
+    {
+      "id": "P_next",
+      "records": [
+        {
+          "id": "old",
+          "creation_sequence": "9",
+          "commit_sequence": "100"
+        },
+        {
+          "id": "ten",
+          "creation_sequence": "10",
+          "commit_sequence": "10"
+        },
+        {
+          "id": "edited",
+          "creation_sequence": "11",
+          "commit_sequence": "18446744073709551615"
+        },
+        {
+          "id": "p53a",
+          "creation_sequence": "9007199254740992",
+          "commit_sequence": "9007199254740992"
+        },
+        {
+          "id": "p53b",
+          "creation_sequence": "9007199254740993",
+          "commit_sequence": "9007199254740993"
+        },
+        {
+          "id": "p63",
+          "creation_sequence": "9223372036854775808",
+          "commit_sequence": "9223372036854775808"
+        },
+        {
+          "id": "new",
+          "creation_sequence": "18446744073709551614",
+          "commit_sequence": "18446744073709551614"
+        }
+      ],
+      "before_creation_sequence": "9007199254740993",
+      "limit": {
+        "type": "INT",
+        "decimal": "3"
+      },
+      "expected_ids": [
+        "p53a",
+        "edited",
+        "ten"
+      ],
+      "next_before_creation_sequence": "10"
+    },
+    {
+      "id": "P_last",
+      "records": [
+        {
+          "id": "old",
+          "creation_sequence": "9",
+          "commit_sequence": "100"
+        },
+        {
+          "id": "ten",
+          "creation_sequence": "10",
+          "commit_sequence": "10"
+        },
+        {
+          "id": "edited",
+          "creation_sequence": "11",
+          "commit_sequence": "18446744073709551615"
+        },
+        {
+          "id": "p53a",
+          "creation_sequence": "9007199254740992",
+          "commit_sequence": "9007199254740992"
+        },
+        {
+          "id": "p53b",
+          "creation_sequence": "9007199254740993",
+          "commit_sequence": "9007199254740993"
+        },
+        {
+          "id": "p63",
+          "creation_sequence": "9223372036854775808",
+          "commit_sequence": "9223372036854775808"
+        },
+        {
+          "id": "new",
+          "creation_sequence": "18446744073709551614",
+          "commit_sequence": "18446744073709551614"
+        }
+      ],
+      "before_creation_sequence": "10",
+      "limit": {
+        "type": "INT",
+        "decimal": "3"
+      },
+      "expected_ids": [
+        "old"
+      ],
+      "next_before_creation_sequence": null
+    },
+    {
+      "id": "P_newer_insert",
+      "records": [
+        {
+          "id": "old",
+          "creation_sequence": "9",
+          "commit_sequence": "100"
+        },
+        {
+          "id": "ten",
+          "creation_sequence": "10",
+          "commit_sequence": "10"
+        },
+        {
+          "id": "edited",
+          "creation_sequence": "11",
+          "commit_sequence": "18446744073709551615"
+        },
+        {
+          "id": "p53a",
+          "creation_sequence": "9007199254740992",
+          "commit_sequence": "9007199254740992"
+        },
+        {
+          "id": "p53b",
+          "creation_sequence": "9007199254740993",
+          "commit_sequence": "9007199254740993"
+        },
+        {
+          "id": "p63",
+          "creation_sequence": "9223372036854775808",
+          "commit_sequence": "9223372036854775808"
+        },
+        {
+          "id": "new",
+          "creation_sequence": "18446744073709551614",
+          "commit_sequence": "18446744073709551614"
+        },
+        {
+          "id": "later",
+          "creation_sequence": "18446744073709551615",
+          "commit_sequence": "18446744073709551615"
+        }
+      ],
+      "before_creation_sequence": "9007199254740993",
+      "limit": {
+        "type": "INT",
+        "decimal": "3"
+      },
+      "expected_ids": [
+        "p53a",
+        "edited",
+        "ten"
+      ],
+      "next_before_creation_sequence": "10"
+    },
+    {
+      "id": "P_deletion_between_reads",
+      "records": [
+        {
+          "id": "old",
+          "creation_sequence": "9",
+          "commit_sequence": "100"
+        },
+        {
+          "id": "ten",
+          "creation_sequence": "10",
+          "commit_sequence": "10"
+        },
+        {
+          "id": "p53a",
+          "creation_sequence": "9007199254740992",
+          "commit_sequence": "9007199254740992"
+        },
+        {
+          "id": "p53b",
+          "creation_sequence": "9007199254740993",
+          "commit_sequence": "9007199254740993"
+        },
+        {
+          "id": "p63",
+          "creation_sequence": "9223372036854775808",
+          "commit_sequence": "9223372036854775808"
+        },
+        {
+          "id": "new",
+          "creation_sequence": "18446744073709551614",
+          "commit_sequence": "18446744073709551614"
+        }
+      ],
+      "before_creation_sequence": "9007199254740993",
+      "limit": {
+        "type": "INT",
+        "decimal": "3"
+      },
+      "expected_ids": [
+        "p53a",
+        "ten",
+        "old"
+      ],
+      "next_before_creation_sequence": null
+    }
+  ],
+  "encoded_rejections": [
+    {
+      "id": "N_naked_fraction",
+      "context_path": "$.audio.engine_gain",
+      "encoded_fragment": "0.5",
+      "expected": "reject",
+      "basis": "FLOAT requires exact tag",
+      "scope": "Fragment/shape rejection only, not a whole-record codec test."
+    },
+    {
+      "id": "N_naked_exponent",
+      "context_path": "$.audio.engine_gain",
+      "encoded_fragment": "1e0",
+      "expected": "reject",
+      "basis": "Naked real/exponent forbidden",
+      "scope": "Fragment/shape rejection only, not a whole-record codec test."
+    },
+    {
+      "id": "N_negative_integer_zero",
+      "context_path": "$.legacy_input.axes[roll].value",
+      "encoded_fragment": "-0",
+      "expected": "reject",
+      "basis": "Canonical INT zero token is0",
+      "scope": "Fragment/shape rejection only, not a whole-record codec test."
+    },
+    {
+      "id": "N_leading_integer_zero",
+      "context_path": "$.legacy_input.axes[roll].value",
+      "encoded_fragment": "01",
+      "expected": "reject",
+      "basis": "Invalid RFC8259/canonical integer",
+      "scope": "Fragment/shape rejection only, not a whole-record codec test."
+    },
+    {
+      "id": "N_duplicate_key",
+      "context_path": "object",
+      "encoded_fragment": "{\"version\":1,\"version\":1}",
+      "expected": "reject",
+      "basis": "Duplicate object key",
+      "scope": "Fragment/shape rejection only, not a whole-record codec test."
+    },
+    {
+      "id": "N_escaped_key",
+      "context_path": "object",
+      "encoded_fragment": "{\"vers\\u0069on\":1}",
+      "expected": "reject",
+      "basis": "Escaped object keys forbidden",
+      "scope": "Fragment/shape rejection only, not a whole-record codec test."
+    },
+    {
+      "id": "N_wrong_tag_key",
+      "context_path": "$.audio.engine_gain",
+      "encoded_fragment": "{\"$binary64_be\":\"0000000000000000\"}",
+      "expected": "reject",
+      "basis": "Unknown tag",
+      "scope": "Fragment/shape rejection only, not a whole-record codec test."
+    },
+    {
+      "id": "N_uppercase_tag",
+      "context_path": "$.audio.engine_gain",
+      "encoded_fragment": "{\"$binary64_le\":\"B81E85EB51B8AE3F\"}",
+      "expected": "reject",
+      "basis": "Lowercase required",
+      "scope": "Fragment/shape rejection only, not a whole-record codec test."
+    },
+    {
+      "id": "N_short_tag",
+      "context_path": "$.audio.engine_gain",
+      "encoded_fragment": "{\"$binary64_le\":\"00\"}",
+      "expected": "reject",
+      "basis": "Exactly16lowerhex",
+      "scope": "Fragment/shape rejection only, not a whole-record codec test."
+    },
+    {
+      "id": "N_tag_extra",
+      "context_path": "$.audio.engine_gain",
+      "encoded_fragment": "{\"$binary64_le\":\"0000000000000000\",\"extra\":0}",
+      "expected": "reject",
+      "basis": "Closed singleton tag",
+      "scope": "Fragment/shape rejection only, not a whole-record codec test."
+    },
+    {
+      "id": "N_enum_tag",
+      "context_path": "$.legacy_input.version",
+      "encoded_fragment": "{\"$binary64_le\":\"000000000000f03f\"}",
+      "expected": "reject",
+      "basis": "Enum persisted as INT",
+      "scope": "Fragment/shape rejection only, not a whole-record codec test."
+    },
+    {
+      "id": "N_revision_number",
+      "context_path": "$.revision",
+      "encoded_fragment": "1",
+      "expected": "reject",
+      "basis": "Full U64 revision stays String",
+      "scope": "Fragment/shape rejection only, not a whole-record codec test."
+    },
+    {
+      "id": "N_digit_vendor_number",
+      "context_path": "$.legacy_input.devices[0].match.vendor_id",
+      "encoded_fragment": "1234",
+      "expected": "reject",
+      "basis": "Digit-looking vendor ID stays String",
+      "scope": "Fragment/shape rejection only, not a whole-record codec test."
+    },
+    {
+      "id": "N_lone_surrogate",
+      "context_path": "string",
+      "encoded_fragment": "\"\\ud800\"",
+      "expected": "reject",
+      "basis": "Unicode scalar admission",
+      "scope": "Fragment/shape rejection only, not a whole-record codec test."
+    },
+    {
+      "id": "N_trailing_comma",
+      "context_path": "object",
+      "encoded_fragment": "{\"version\":1,}",
+      "expected": "reject",
+      "basis": "Strict JSON",
+      "scope": "Fragment/shape rejection only, not a whole-record codec test."
+    },
+    {
+      "id": "N_trailing_root",
+      "context_path": "root",
+      "encoded_fragment": "{}{}",
+      "expected": "reject",
+      "basis": "Exactly one complete root",
+      "scope": "Fragment/shape rejection only, not a whole-record codec test."
+    }
+  ],
+  "revision_recipes": [
+    {
+      "id": "R_stale_identical",
+      "stored_revision": "7",
+      "expected_revision": "6",
+      "normalized_bits_equal": true,
+      "expected_outcome": "revision_conflict",
+      "resulting_revision": "7",
+      "durable_content_changed": false,
+      "scope": "Revision freshness precedes equality; no SQL/commit observation."
+    },
+    {
+      "id": "R_current_identical",
+      "stored_revision": "7",
+      "expected_revision": "7",
+      "normalized_bits_equal": true,
+      "expected_outcome": "no_change",
+      "resulting_revision": "7",
+      "durable_content_changed": false,
+      "scope": "Revision freshness precedes equality; no SQL/commit observation."
+    },
+    {
+      "id": "R_current_changed",
+      "stored_revision": "7",
+      "expected_revision": "7",
+      "normalized_bits_equal": false,
+      "expected_outcome": "committed",
+      "resulting_revision": "8",
+      "durable_content_changed": true,
+      "scope": "Revision freshness precedes equality; no SQL/commit observation."
+    },
+    {
+      "id": "R_max_identical",
+      "stored_revision": "18446744073709551615",
+      "expected_revision": "18446744073709551615",
+      "normalized_bits_equal": true,
+      "expected_outcome": "no_change",
+      "resulting_revision": "18446744073709551615",
+      "durable_content_changed": false,
+      "scope": "Revision freshness precedes equality; no SQL/commit observation."
+    },
+    {
+      "id": "R_max_changed",
+      "stored_revision": "18446744073709551615",
+      "expected_revision": "18446744073709551615",
+      "normalized_bits_equal": false,
+      "expected_outcome": "counter_exhausted",
+      "resulting_revision": "18446744073709551615",
+      "durable_content_changed": false,
+      "scope": "Revision freshness precedes equality; no SQL/commit observation."
+    }
+  ],
+  "copy_and_boundary_recipes": [
+    {
+      "id": "O_mutate_submit_after_accept",
+      "context": "accepted job DTO",
+      "stimulus": "later caller changes nested gain",
+      "expected": "reserved request keeps original exact gain bits",
+      "scope": "Future actual boundary/copy test recipe, unexecuted here."
+    },
+    {
+      "id": "O_mutate_load_result",
+      "context": "loaded owned bundle",
+      "stimulus": "caller changes nested axis key list",
+      "expected": "store and separately loaded bundle unchanged",
+      "scope": "Future actual boundary/copy test recipe, unexecuted here."
+    },
+    {
+      "id": "O_mutate_status_result",
+      "context": "status owned dictionary",
+      "stimulus": "caller changes count/state",
+      "expected": "service owner unchanged",
+      "scope": "Future actual boundary/copy test recipe, unexecuted here."
+    },
+    {
+      "id": "O_mutate_poll_result",
+      "context": "polled owned terminal value",
+      "stimulus": "caller changes nested preferences revision",
+      "expected": "store and other queued results unchanged",
+      "scope": "Future actual boundary/copy test recipe, unexecuted here."
+    },
+    {
+      "id": "O_foreign_poll",
+      "context": "foreign thread",
+      "stimulus": "poll actualINT8",
+      "expected": "null, no drain/owner state change",
+      "scope": "Future actual boundary/copy test recipe, unexecuted here."
+    },
+    {
+      "id": "O_float_poll",
+      "context": "owner thread",
+      "stimulus": "poll FLOAT8.0",
+      "expected": "null, no drain/owner state change",
+      "scope": "Future actual boundary/copy test recipe, unexecuted here."
+    },
+    {
+      "id": "O_stringname_key",
+      "context": "direct submit",
+      "stimulus": "actual StringName kind key",
+      "expected": "reject before queue/root/DB mutation",
+      "scope": "Future actual boundary/copy test recipe, unexecuted here."
+    },
+    {
+      "id": "O_boolean_counter",
+      "context": "direct submit",
+      "stimulus": "actual BOOL where INT limit/version required",
+      "expected": "reject without coercion",
+      "scope": "Future actual boundary/copy test recipe, unexecuted here."
+    }
+  ],
+  "string_spelling": [
+    {
+      "input_scalars": "Δ \"\\\u0001\n",
+      "expected_canonical_json": "\"Δ \\\"\\\\\\u0001\\u000a\""
+    },
+    {
+      "input_scalars": "é",
+      "expected_canonical_json": "\"é\""
+    },
+    {
+      "input_scalars": "é",
+      "expected_canonical_json": "\"é\""
+    }
+  ],
+  "limitations": [
+    "Twenty numeric-family witnesses are field-level; full presets, keys OS roundtrip, conflicts, devices and collection/cap checks remain required.",
+    "Exact calibration span binary64 comparisons require actual accepted validator qualification; no decimal rational substitution or epsilon.",
+    "Copy/revision recipes are logical requirements, not executed service traces. Paging is exact immutable-key arithmetic, not a concurrent SQLite snapshot test.",
+    "Storage IO, queue/thread ownership, KnownFolder, WAL, crash/recovery, exporter and same-process reopen require separately authorized actual tests.",
+    "No values or budgets learned from a future consumer. Source contract/publication and Root ratification remain pending."
+  ],
+  "case_counts": {
+    "binary64": 18,
+    "numeric_families": 20,
+    "canonical_bundles": 3,
+    "u64": 23,
+    "arithmetic": 13,
+    "paging": 5,
+    "encoded_rejections": 16,
+    "revision_recipes": 5,
+    "copy_and_boundary_recipes": 8,
+    "string_spelling": 3
+  },
+  "total_cases": 114
+}

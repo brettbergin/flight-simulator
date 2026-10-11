@@ -1,0 +1,173 @@
+{
+  "schema": "ProposedLocalPlayersPublicSourceBindings/v1",
+  "status": "PROPOSED_SOURCE_DESIGN_NOT_RUNTIME_QUALIFICATION",
+  "sources": [
+    {
+      "kind": "repository_source",
+      "path": "docs/decisions/004-persistence-and-replay.md",
+      "bytes_at_design_review": 5351,
+      "raw_sha256_at_design_review": "1ae6b807803a8e1fe57545cf400b1d67c610230a8bc5ef77317d66900c795fa8",
+      "git_lf_sha256": "1ae6b807803a8e1fe57545cf400b1d67c610230a8bc5ef77317d66900c795fa8"
+    },
+    {
+      "kind": "repository_source",
+      "path": "docs/decisions/008-input-presets.md",
+      "bytes_at_design_review": 19306,
+      "raw_sha256_at_design_review": "c7ca7ca400d1d59e05f9066a59531c75b4e2fd349e797d581fc233f6fb58793d",
+      "git_lf_sha256": "c7ca7ca400d1d59e05f9066a59531c75b4e2fd349e797d581fc233f6fb58793d"
+    },
+    {
+      "kind": "repository_source",
+      "path": "docs/decisions/010-original-piston-profile.md",
+      "bytes_at_design_review": 23116,
+      "raw_sha256_at_design_review": "9f94e9a7d95efd7b75a10598ab6b3700f332119a2e6019f4456152f35264a172",
+      "git_lf_sha256": "9f94e9a7d95efd7b75a10598ab6b3700f332119a2e6019f4456152f35264a172"
+    },
+    {
+      "kind": "repository_source",
+      "path": "docs/decisions/020-original-audio-cues.md",
+      "bytes_at_design_review": 14828,
+      "raw_sha256_at_design_review": "e07ffe6dbb91a40bb8149e64ac06ea3743ffbfa89db3141c74db518107e6624b",
+      "git_lf_sha256": "e07ffe6dbb91a40bb8149e64ac06ea3743ffbfa89db3141c74db518107e6624b"
+    },
+    {
+      "kind": "repository_source",
+      "path": "docs/decisions/025-paused-view-presets-and-comfort.md",
+      "bytes_at_design_review": 14876,
+      "raw_sha256_at_design_review": "2cd89a17541d574559be6a1892e7229e544f94ce1eb142f7f415662abc51ad36",
+      "git_lf_sha256": "2cd89a17541d574559be6a1892e7229e544f94ce1eb142f7f415662abc51ad36"
+    },
+    {
+      "kind": "repository_source",
+      "path": "docs/evidence/P1/save-proof.md",
+      "bytes_at_design_review": 4151,
+      "raw_sha256_at_design_review": "7ee0fa3c0de335999f4652d1cabd845e4aaea050aeb0298695385418cb620862",
+      "git_lf_sha256": "7ee0fa3c0de335999f4652d1cabd845e4aaea050aeb0298695385418cb620862"
+    },
+    {
+      "kind": "repository_source",
+      "path": "native/persistence/proof/README.md",
+      "bytes_at_design_review": 7226,
+      "raw_sha256_at_design_review": "2123e32966b2e934a1746d7d911f239678a6b8372b53580d184c64982fe9ca02",
+      "git_lf_sha256": "2123e32966b2e934a1746d7d911f239678a6b8372b53580d184c64982fe9ca02"
+    },
+    {
+      "kind": "repository_source",
+      "path": "docs/phases/p3-complete-circuit.md",
+      "bytes_at_design_review": 17928,
+      "raw_sha256_at_design_review": "c56619ff929baf878efc325c1695b2492759f8f5d421c61d829389f3c9d506dc",
+      "git_lf_sha256": "c56619ff929baf878efc325c1695b2492759f8f5d421c61d829389f3c9d506dc"
+    },
+    {
+      "kind": "repository_source",
+      "path": "docs/roadmap.md",
+      "bytes_at_design_review": 20061,
+      "raw_sha256_at_design_review": "636cd0d1cfe628691ce5609811a15561d3b27e553cf137cc42ac9f34669c152b",
+      "git_lf_sha256": "636cd0d1cfe628691ce5609811a15561d3b27e553cf137cc42ac9f34669c152b"
+    },
+    {
+      "kind": "repository_source",
+      "path": "schemas/registry.json",
+      "bytes_at_design_review": 3095,
+      "raw_sha256_at_design_review": "0f7dedf44b12b57916d6ba7afbf1f315ebdfa8e34ad02eed0188d2ac1fec4fcc",
+      "git_lf_sha256": "0f7dedf44b12b57916d6ba7afbf1f315ebdfa8e34ad02eed0188d2ac1fec4fcc"
+    },
+    {
+      "kind": "repository_source",
+      "path": "app/input/input_preset.gd",
+      "bytes_at_design_review": 28360,
+      "raw_sha256_at_design_review": "c07b20eb9f876228ca00196103822ab1e4c5001c0d1384f33c42635e3c5727d9",
+      "git_lf_sha256": "c07b20eb9f876228ca00196103822ab1e4c5001c0d1384f33c42635e3c5727d9"
+    },
+    {
+      "kind": "repository_source",
+      "path": "app/audio/audio_options.gd",
+      "bytes_at_design_review": 934,
+      "raw_sha256_at_design_review": "d6d3125d28ed47db967d12a8613911b0358f32632e6503bdcbc76817d58af4e4",
+      "git_lf_sha256": "d6d3125d28ed47db967d12a8613911b0358f32632e6503bdcbc76817d58af4e4"
+    },
+    {
+      "kind": "repository_source",
+      "path": "app/replay/observed_archive/files.gd",
+      "bytes_at_design_review": 12065,
+      "raw_sha256_at_design_review": "8ce6ae5652135e1d1f350a0c66175c4fae36580b53a231eac25c7046293a7b85",
+      "git_lf_sha256": "7a5f8d39468516303a8a2cad320ef0869b99651acc07bc9a12b6b9529e953222"
+    },
+    {
+      "kind": "repository_source",
+      "path": "app/cockpit/instruments/native_readings.gd",
+      "bytes_at_design_review": 11882,
+      "raw_sha256_at_design_review": "3b2d500e65ecfa4a713d03f0427e6e80a6534ac4ff465d77a6a328f130dee5de",
+      "git_lf_sha256": "3b2d500e65ecfa4a713d03f0427e6e80a6534ac4ff465d77a6a328f130dee5de"
+    },
+    {
+      "kind": "repository_source",
+      "path": "CMakeLists.txt",
+      "bytes_at_design_review": 7294,
+      "raw_sha256_at_design_review": "61df199ab9dde7cf3c687f3e4ed2db0b541effdddad3a2f620d084690622d948",
+      "git_lf_sha256": "baf5a9fe4cb405f08344c32bb8429bef8b05f4c45376a5e4958574ddff6dac68"
+    },
+    {
+      "kind": "repository_source",
+      "path": "third_party/dependencies.lock.json",
+      "bytes_at_design_review": 4246,
+      "raw_sha256_at_design_review": "1b0047773f31b30bb86804a7fd191dcad99a22ae01c724a33b4894f154a2fb7d",
+      "git_lf_sha256": "1b0047773f31b30bb86804a7fd191dcad99a22ae01c724a33b4894f154a2fb7d"
+    },
+    {
+      "kind": "external_pinned_dependency",
+      "name": "SQLite amalgamation sqlite3.c",
+      "bytes": 9515341,
+      "sha256": "b1dd5d74ec7f29055a6684fa06fb3c2f6821c87dd38f9a458dfd2e8a1db28189",
+      "version": "3.53.4",
+      "source_id": "bf7c7f30031888f4e796e429ab3978879485813aaca6f641c7b33e4e09459bcc",
+      "dependency_lock_path": "third_party/dependencies.lock.json",
+      "archive_sha256": "1e71ddf93849c6a6ecf58b827c0692073d2dd7ee40196158068f7b29f422e87d",
+      "reference_url": "https://www.sqlite.org/2026/sqlite-amalgamation-3530400.zip"
+    },
+    {
+      "kind": "historical_independent_analysis_digest",
+      "name": "initial seven-finding design review",
+      "bytes": 14899,
+      "sha256": "35c69ef05ad43b4d53b62ceac87c392147d7376d0172c4ca2205444d591a9bce",
+      "required_public_file": false,
+      "role": "Retained independent review provenance; no private pathname/runtime prerequisite. Normative choices are fully published in this contract."
+    },
+    {
+      "kind": "historical_independent_analysis_digest",
+      "name": "numeric-position source audit",
+      "bytes": 18331,
+      "sha256": "61efd739c77c7c33926bbcf470a544c9ae63e84333399a80163811500f765227",
+      "required_public_file": false,
+      "role": "Retained independent review provenance; no private pathname/runtime prerequisite. Normative choices are fully published in this contract."
+    },
+    {
+      "kind": "repository_source",
+      "path": "app/simulation/wire_validation.gd",
+      "bytes_at_design_review": 11377,
+      "raw_sha256_at_design_review": "842513188e7941a80e05678a3d6d0c87d1f5af25619cbd14a0b415f09b21dfd4",
+      "git_lf_sha256": "196de144771ab5836381385e9095369f4b0bdccbf1082fdfc8bb5dc800728dc3"
+    },
+    {
+      "kind": "repository_source",
+      "path": "docs/decisions/013-steady-wind-starts.md",
+      "bytes_at_design_review": 23198,
+      "raw_sha256_at_design_review": "64548f1c876f77d635bd116710fcd5ca44d27e436b8b6b105d0c66406ea20e8f",
+      "git_lf_sha256": "64548f1c876f77d635bd116710fcd5ca44d27e436b8b6b105d0c66406ea20e8f"
+    },
+    {
+      "kind": "repository_source",
+      "path": "docs/decisions/016-generated-native-build-identity.md",
+      "bytes_at_design_review": 23690,
+      "raw_sha256_at_design_review": "47065493776f34767ccad7cc57a9e088aba028b98d6ff1ba5af2d2b638db9a58",
+      "git_lf_sha256": "47065493776f34767ccad7cc57a9e088aba028b98d6ff1ba5af2d2b638db9a58"
+    }
+  ],
+  "normative_files": {
+    "schema-v1.sql": "cbd00b3fe47b400e79635ed901d195abfe133a4131d5001feac8e3eedeb0562f",
+    "preferences-codec-v1.json": "47711d41be89e233efe3c42e8f2cedd33f729e6e0e2c9a78a6026454022b0538",
+    "schema-binding-v1.json": "9353c034edafdb1bcc3984452bd9c2d4fcdbf283342e99bb5a5dd2d27792f049",
+    "design-fixtures-v2.json": "8969d0dd4bee47432606f54e1bb8f2b4ff805062e2ba4015a23ef0288973fb77"
+  },
+  "scope": "22 source/review bindings from the independent design review. Repository pins use portable paths and Git-LF digest for checkout portability; raw digest records the reviewed checkout. Existing native source closure must be requalified by future consumers; this file neither adds wire formats nor approves runtime."
+}

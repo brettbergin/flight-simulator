@@ -1,0 +1,32 @@
+{
+  "schema": "ProposedLocalPlayersSchemaBinding/v1",
+  "status": "PROPOSED_UNRATIFIED",
+  "application_id_hex": "46535031",
+  "application_id_decimal": 1179865137,
+  "user_version": 1,
+  "page_size": 4096,
+  "max_page_count": 65536,
+  "schema_fingerprint": "cbd00b3fe47b400e79635ed901d195abfe133a4131d5001feac8e3eedeb0562f",
+  "schema_fingerprint_recipe": "SHA256 exact schema-v1.sql UTF8 LF bytes including finalLF; store in meta; independently inspect actual schema too",
+  "codec_fingerprint": "47711d41be89e233efe3c42e8f2cedd33f729e6e0e2c9a78a6026454022b0538",
+  "meta_initial": {
+    "singleton": 1,
+    "schema_version": 1,
+    "schema_fingerprint": "cbd00b3fe47b400e79635ed901d195abfe133a4131d5001feac8e3eedeb0562f",
+    "codec_fingerprint": "47711d41be89e233efe3c42e8f2cedd33f729e6e0e2c9a78a6026454022b0538",
+    "store_id": "trusted fresh32hex",
+    "created_utc": "trusted actual UTC",
+    "commit_sequence": "1",
+    "owner_run_id": "trusted immutable native process-lifetime32hex; last active-practice owner stamp, not a lock"
+  },
+  "objects": [
+    "meta",
+    "players",
+    "preferences",
+    "practices",
+    "practices_one_active",
+    "practices_player_creation"
+  ],
+  "autoindexes": "only SQLite-created PK/UNIQUE autoindexes tied to exactly these DDL constraints; sql=NULL; no extra triggers/views/tables/indexes allowed",
+  "blob_codec": "players/practice canonical bounded closed current-record JSON with integer versions/rate and string U64s; preferences exact lossless tagged codec. SHA256 of stored bytes and duplicate indexed columns validated for equality. All blobs native owned bytes, not Godot Variant objects."
+}
