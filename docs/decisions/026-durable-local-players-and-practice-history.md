@@ -30,6 +30,20 @@ After this contract is accepted, [ADR020](020-original-audio-cues.md)'s applicat
 
 [ADR025](025-paused-view-presets-and-comfort.md) remains unchanged: Views/FOV/response/look are session-only, absent from PlayerPreferences, and reset only after fully successful fresh-session adoption. Player selection/save or failed restart cannot reset the camera. [ADR011](011-observed-flight-review.md) recordings retain original player/source ownership until their existing confirmed replacement/exit boundary; there is no invented clear or reassignment operation. [ADR012](012-observed-review-interchange.md) remains explicit interchange, not automatic recording persistence.
 
+## Fresh-store exclusive handle handoff amendment
+
+The [fresh database handle handoff](../contracts/local-players/records-and-lifetimes-v1.md#fresh-database-checked-exclusive-handle-handoff)
+is a narrow shared-interface prerequisite for [store #219](https://github.com/brettbergin/flight-simulator/issues/219), normative only after its checked contract PR merges.
+Keep actual CREATE_NEW identity and fixed exclusive=1 no-CREATE SQLite opening.
+Checked-retire the reservation handle, then verify the actual borrowed SQLite
+MAIN handle's read/write/identity/zero/topology before configuration or writes;
+SQLite retains sole ownership of that handle. Failed closes remain owned and
+cannot become successful joins. The close/open interval adds no atomic security
+claim. No public DTO/API, source/control/normative membership, old fixture,
+database schema or codec changes. New byte identities and full actual isolated
+storage qualification remain implementation gates; saved b07 failures are not
+acceptance evidence. No parent or phase gate closes with this amendment.
+
 ## Gates and limits
 
 The SQL/codec/recipes are proposed design inputs, not observed database output. Freeze independent exact type/bit, revision/queue/source/paging/recovery/export references before consumers. Qualify the actual pinned SQLite/Win32 source and isolated fault/crash/flush/COMMIT-unknown/join behavior, then the A/B/Guest complete relaunch/history/export/delete journey in editor, portable and rebuilt-library contexts. Test roots use the separate native test capability; production exposes no root override. Real Known Folder query is separately read-only; installed writes require a disposable authorized Windows account. Owner data must not be opened by tests.

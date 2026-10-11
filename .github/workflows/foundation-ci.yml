@@ -50,7 +50,7 @@ jobs:
         shell: pwsh
         run: |
           $localPlayerPins = @{
-            'docs/contracts/local-players/records-and-lifetimes-v1.md' = '1425add30c3bb66693f66ed1567cb5bbee8fd493e28df485d3c1b1962f47b9de'
+            'docs/contracts/local-players/records-and-lifetimes-v1.md' = 'ed96f42afbb752ea3c400da518fa6ddb226752d552d1e84acc3f8b998a74233a'
             'docs/contracts/local-players/protocol-v1.md' = '4a06cf33f70e86c5e07a389d4660a52fb2aefbd45ddaf51d95c5a5127fa2a4a4'
             'schemas/save/local-players/v1/schema-v1.sql' = 'cbd00b3fe47b400e79635ed901d195abfe133a4131d5001feac8e3eedeb0562f'
             'schemas/save/local-players/v1/preferences-codec-v1.json' = '47711d41be89e233efe3c42e8f2cedd33f729e6e0e2c9a78a6026454022b0538'
@@ -79,7 +79,7 @@ jobs:
             'docs/contracts/local-players/compiled-source-allocation-v1.json' = 'a3269f6ff8a4eddcdf4db45d0736e951d885e1c1fc11e7ecd2a0f2e22cd49ab1'
             'docs/contracts/local-players/test-capability-v1.md' = 'a7c66c5c588cd5984070781310f77906839c9b5ad703ab70a1db09a629620bed'
             'docs/contracts/local-players/recovery-v1.md' = 'd7349a672519a9c7e3d367d5f756adbcc0507a9138b800500805687782f90859'
-            'docs/decisions/026-durable-local-players-and-practice-history.md' = '0d2ea8c0d88dbd7885bf73e8677d4acca509aba0f40517200407c2442299f4ef'
+            'docs/decisions/026-durable-local-players-and-practice-history.md' = '34d2617ff70453b6679df3f9bd388334c39b38f55bd966b27ca975780c251a1b'
             'docs/decisions/027-synthetic-taxi-navigation.md' = '480ea9cbc9872ce7f2da74e92c7620646a4d28d40ba40540cecd461a10cae0f3'
           }
           foreach ($name in $localPlayerPins.Keys) {
