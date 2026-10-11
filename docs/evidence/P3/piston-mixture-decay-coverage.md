@@ -1,6 +1,6 @@
 # Ordinary piston mixture-decay continuation
 
-Status: **implementation integrated; native and player qualification pending** under [issue202](https://github.com/brettbergin/flight-simulator/issues/202). This correction targets the original engineering piston profile. It establishes no C172 calibration, pilot evaluation, training credit or P3 acceptance.
+Status: **automated Windows native/player qualification and independent package review passed; protected integration tracked in PR216** under [issue202](https://github.com/brettbergin/flight-simulator/issues/202). This correction targets the original engineering piston profile. It establishes no C172 calibration, pilot evaluation, training credit or P3 acceptance.
 
 ## Preserved failure and accepted policy
 
@@ -36,13 +36,13 @@ The first fresh bindings-ON build at `b88218f55a87dfa077a54b4282e8c46d9b252d99` 
 
 | Gate | Current evidence |
 |---|---|
-| Frozen17 amendment expectations | Accepted independently authored references; regeneration passes; new compiled consumer pending |
-| Old137/default270/library/chronology12/terminal/full-success compatibility | Unchanged criteria; new-source execution pending |
-| Strict Windows/Linux actual compilation and measured isolated executable | Retained b66 Windows build measured successfully; successor-source qualification pending |
-| Thirteen CTests and unchanged twelve-process60/120/240 physical suite | Retained b66 Windows trial: ten passed, two failed, physical dependency not run; successor pending |
-| Original298 / complete publications / final1607 / joined ownership | Mandatory in all three actual contexts; pending |
-| Generated identity, loaded library, source/PCK/model/rights/CRT and replacement closure | Fresh qualification pending |
-| Independent final package review and current protected/affected hosted CI | Pending |
+| Frozen17 amendment expectations | Immutable regeneration passes; the exact bound scalar CTest passed. Its individual successful stdout was not retained; no per-case runtime count is claimed |
+| Old137/default270/library/chronology12/terminal/full-success compatibility | All137 native rows,270 legacy checks,12 chronology rows and terminal criteria passed with unchanged expectations |
+| Strict Windows/Linux actual compilation and measured isolated executable | Fresh successor Windows build and independent actual-source/compiler/binary measurement passed at a2ebb; current-head hosted Linux native jobs also passed |
+| Thirteen CTests and unchanged twelve-process60/120/240 physical suite | Fresh successor: all13 CTests passed; unchanged12-process physical suite passed1,618,656 source-bound checks without skips. Earlier failed b66 trial remains preserved |
+| Original298 / complete publications / final1607 / joined ownership | Editor, portable and rebuilt-library original298 each passed11,292 receipt checks; call296 completed28 through1607 live/no fault and call297 joined |
+| Generated identity, loaded library, source/PCK/model/rights/CRT and replacement closure | Fresh export, source reconstruction, replacement and original public package audit passed; independent saved-packet review passed |
+| Independent final package review and current protected/affected hosted CI | Independent saved-packet review passed; current protected/affected checks and merge tracked in PR216 |
 | Aircraft, pilot, human/hardware and broad P3 acceptance | Separate open gates |
 
 Close only this coverage issue after the complete corrected continuation and qualification pass. The separate fuel-feed-cutoff movie, camera work, or a green documentation check cannot close this defect.
@@ -61,4 +61,29 @@ The separately reviewed [successor allocation PR217](https://github.com/brettber
 
 Hosted Windows checks also exposed an independent checkout problem: Git converted the new build entry's 232 LF endings to CRLF, exactly reproducing the unexpected 20,393-byte hash instead of the pinned 20,161-byte source. An exact-file LF attribute fixes checkout; strict raw-hash validation stays intact. A real private Git checkout regression covers LF success and missing-rule/CRLF-rule rejection with global/system configuration and attributes isolated. The retained hosted Ubuntu run reached CTest and failed the same K15 category comparison; it is a separate failure from Windows checkout drift.
 
-Fresh offline checks pass: 53 mathematical/tamper tests, 33 qualifier fixtures including the actual Windows-style Git checkout, 23 native-identity fixtures, 21 actual archive/source-policy checks and 72 rights checks. Five package-fixture junction cases could not create links inside the Windows sandbox; the complete 21-test package-fixture file then passed in the permitted environment. All other 94 Node cases, 15 replay-staging cases and process guard controls passed. A fresh strict successor build, all 13 CTests, the unchanged full physical suite, original replay and all delivery contexts remain pending. Every prior failed attempt and usable launch package remains preserved.
+Fresh offline checks pass: 53 mathematical/tamper tests, 33 qualifier fixtures including the actual Windows-style Git checkout, 23 native-identity fixtures, 21 actual archive/source-policy checks and 72 rights checks. Five package-fixture junction cases could not create links inside the Windows sandbox; the complete 21-test package-fixture file then passed in the permitted environment. All other 94 Node cases, 15 replay-staging cases and process guard controls passed. Those offline results preceded the fresh execution below. Every prior failed attempt and usable launch package remains preserved.
+
+## Fresh successor execution
+
+The fresh committed execution head is `a2ebb4b2708f362f35b5401cc9a62f3c6b17ec70`; later evidence-only commits must not be substituted for that actual build head. Public preparation, fresh bindings-ON compilation, measurement and explicit isolated/physical authorization passed. Independent compiler/source review binds all25 ordered sources,18 unconditional controls, seven build witnesses,58 binaries, strict modified/scalar compiler commands and all13 CTest definitions. Actual native fingerprint: `ab51d78a61e0c736e4dd99f5dcf1b39260e6b1d3e04c3637df994866a47441d1`; control identity: `513d6d5a496e6f7270194caaa2c4ed40843c67e9c1f1d3cd92800d0693e326cb`.
+
+All13 actual CTests passed in42.40 seconds, including the unchanged twelve-process physical lifecycle suite. Independent saved-artifact review rehashed authorization, actual binaries, logs and57 physical outputs; independently compared all137 native expected rows; verified270 legacy/12 chronology/terminal checks; and verified the repeated physical trace/commands byte-for-byte. The source-bound physical validator reports1,618,656 passing checks and no skipped cases/comparisons. The scalar target passed its exact measured CTest, but subsequent public show-only discovery reset LastTest.log and individual successful scalar stdout was not retained; its17 frozen expectations and supplement are source-bound, without an invented observed scalar check count.
+
+Fresh export, exact corresponding-source reconstruction and rebuilt DLL replacement passed. The fresh whole-flight runner then terminated with exit0. Its editor, portable and rebuilt-library contexts each preserved the original298 calls,138 binary64 argument fields,31 schema INTs and265 step INTs. Each separate full-precision receipt passed11,292 checks, completed all28 requested continuation ticks through1607 live/no fault, and joined close. A subsequent pure saved-receipt validation passed for all three exact context/model-root bindings; it launched no native process.
+
+| Final artifact | SHA256 |
+|---|---|
+| Whole-flight manifest | `55cced10203bb820afc9b084368c7c21ec82a717ae21d7748bd2fb335cf73758` |
+| Original public package audit | `df22806ba6b88ee0f88c95ce21bce6dce7ee30d21eca6d412be9819841e3010b` |
+| Editor original298 receipt | `e4d63c96d8b809d94bd024bcbfdfd1674b643bc10b0551c5cb07cfbf5634e1fc` |
+| Portable original298 receipt | `28609036a7e5ed8729322262744c74e7049eada3ad9ace452052bc752b33f9b0` |
+| Rebuilt-library original298 receipt | `e1ec23b0d996989e56f9b8fe9ec9f34ec624055c9582d655ebde82b532aac266` |
+| Independent actual compilation review | `c60834c76037ed4a6c0a968f121aabbecccce0469fa6b4e22dbb4bf44bc0bd88` |
+| Independent actual native-result review | `11f29d2de8fe8b551ce704fa749b4e9e30f8771c2d0a4f60b3b1d5c83390da32` |
+| Independent81-path frozen PR source review | `338e1864bfcd62f3ef4ca089d2c169e9c29d03008568b246292bca268f97dd6d` |
+
+The final manifest records556 shipping files and247 authoring bindings. The original public package audit passed source/model/notices/rights, actual seven-module containment, full PE/five-CRT closure, editor/portable exact repetition and actual rebuilt-library replacement. Independent final saved-packet review passed (SHA256 `5ba94b8db726098ac6de89bfdcf5343cf517a3636526deb587f77e7c34531e11`): 556 shipping files, 247 authoring bindings and 195 PCK entries were rehashed. All 29,415 legacy trace records validated; editor/portable normalized records were exact, and replacement records remained within the frozen comparison budgets. Complete original298 histories and source/native/model/rights/CRT/PE closure passed. The reviewer separately classified 21 generated post-copy evidence/notice files; only the two product DLL copies changed. Protected integration and current affected CI are tracked in [PR216](https://github.com/brettbergin/flight-simulator/pull/216).
+
+Two redundant manual audit attempts are retained as command/operation limitations: passing relative roots rejected the exact absolute model-root binding; using absolute roots on the completed packet reached a missing generated proof-evidence counterpart in the replacement tree. This package-audit command authors proof files and is not an idempotent saved-packet verifier. Both attempts stopped before its first write; they did not alter the successful original audit or justify weakening path/closure checks. Independent final review instead rehashes the completed packet and classifies generated proof outputs separately from shipping differences.
+
+These results repair the supported original engineering continuation. GPU appearance, C172 calibration, human hardware/pilot evaluation, training qualification and broad phase gates remain separate. Prior human sessions and historical usable packages are preserved.
