@@ -301,10 +301,7 @@ func _draw_classic_panel(top: float, height: float) -> void:
 	_text(Vector2(35, top + 28), "NATIVE FLIGHT STATE", 12, MUTED)
 	_text(Vector2(size.x * 0.5, top + 25), "FLIGHT INSTRUMENTS", 11, MUTED, true)
 	for index in range(6):
-		var col := index % 3
-		var row := index / 3
-		var cell := Rect2(left + col * slot, top + 34 + row * slot, slot, slot)
-		_draw_instrument(index, cell)
+		_draw_instrument(index, _hud_instrument_cells()[index])
 	var side_width := minf(left - 58.0, 300.0)
 	if side_width > 160.0:
 		_draw_engine(Rect2(maxf(34, left - side_width - 28), top + 62, side_width, height - 83))
@@ -312,10 +309,8 @@ func _draw_classic_panel(top: float, height: float) -> void:
 
 func _draw_compact_panel(top: float, height: float) -> void:
 	var usable := size.x - 56.0
-	var slot_width := usable / 6.0
-	var dial_height := height - 61.0
 	for index in range(6):
-		_draw_instrument(index, Rect2(28 + index * slot_width, top + 10, slot_width, dial_height))
+		_draw_instrument(index, _hud_instrument_cells()[index])
 	var baseline := size.y - 23.0
 	_text(Vector2(usable * 0.02, baseline), "THR %03d%%" % roundi(float(_held.get("throttle", 0.0)) * 100), 12, CYAN)
 	_text(Vector2(usable * 0.17, baseline), "BRAKES L %03d  R %03d" % [roundi(float(_held.get("left_brake", 0.0)) * 100), roundi(float(_held.get("right_brake", 0.0)) * 100)], 12, AMBER)
@@ -324,9 +319,47 @@ func _draw_compact_panel(top: float, height: float) -> void:
 	_text(Vector2(usable * 0.59, baseline), "FUEL "+_native_number(fuel,1)+" kg" if is_finite(fuel) else "FUEL —", 12, INK)
 	_text(Vector2(usable * 0.78, baseline), _ground_label(), 12, GREEN if int(_readings.get("ground_contacts", 0)) > 0 else MUTED)
 
+# Internal HUD allocation, also inspected by the focused original-glyph tests.
+# Physical texture cells and their separate captions never use these helpers.
+func _hud_instrument_cells() -> Array[Rect2]:
+	var height: float=minf(size.y*0.34,455.0)
+	var top: float=size.y-height
+	var cells: Array[Rect2]=[]
+	if size.y<900.0:
+		var width: float=(size.x-56.0)/6.0
+		# Reserve4px before the first ink of the unchanged12px footer.
+		var available: float=height-37.0-_font.get_ascent(12)
+		for index in 6: cells.append(Rect2(28.0+index*width,top+10.0,width,available))
+	else:
+		var slot: float=(height-44.0)*0.5
+		var left: float=(size.x-slot*3.0)*0.5
+		for index in 6: cells.append(Rect2(left+(index%3)*slot,top+34.0+(index/3)*slot,slot,slot))
+	return cells
+
+func _hud_caption_layout(cell: Rect2) -> Dictionary:
+	# Keep the original integer caption sizes independently of the fitted ring.
+	var reference: float=minf(cell.size.x*0.43,(cell.size.y-26.0)*0.5)
+	var title_pixels: int=maxi(10,roundi(clampf(reference*0.14,10.0,15.0)))
+	var unit_pixels: int=maxi(10,roundi(clampf(reference*0.115,10.0,12.0)))
+	var title_height: float=_font.get_ascent(title_pixels)+_font.get_descent(title_pixels)
+	var unit_height: float=_font.get_ascent(unit_pixels)+_font.get_descent(unit_pixels)
+	# Shadow reaches cell.y+2r+12. Two full metric lines,2px gaps and2px
+	# bottom padding occupy the remainder; no fixed13px baseline assumption.
+	var radius: float=minf(cell.size.x*0.43,(cell.size.y-18.0-title_height-unit_height)*0.5)
+	var center: Vector2=Vector2(cell.get_center().x,cell.position.y+radius+4.0)
+	var title_baseline: float=center.y+radius+10.0+_font.get_ascent(title_pixels)
+	var unit_baseline: float=title_baseline+_font.get_descent(title_pixels)+2.0+_font.get_ascent(unit_pixels)
+	return {"radius":radius,"center":center,"title_baseline":title_baseline,"unit_baseline":unit_baseline,
+		"title_pixels":title_pixels,"unit_pixels":unit_pixels}
+
 func _draw_instrument(index: int, cell: Rect2) -> void:
 	var radius := minf(cell.size.x * 0.43, (cell.size.y - 26.0) * 0.5)
 	var center := Vector2(cell.get_center().x, cell.position.y + radius + 4)
+	var hud: Dictionary={}
+	if not _cockpit_surface:
+		hud=_hud_caption_layout(cell)
+		radius=hud.radius
+		center=hud.center
 	draw_circle(center + Vector2(0, 4), radius + 4, Color(0, 0, 0, 0.45), true, -1, true)
 	draw_circle(center, radius + 3, Color("252b30") if _cockpit_surface else Color("364151"), true, -1, true)
 	draw_circle(center, radius + 1, Color("080d14"), true, -1, true)
@@ -349,13 +382,12 @@ func _draw_instrument(index: int, cell: Rect2) -> void:
 			5: _vertical_speed(center, radius)
 	var titles := ["TRUE AIRSPEED", "ATTITUDE", "ELLIPSOID ALT", "TRUE HEADING", "BODY YAW RATE", "VERTICAL SPEED"]
 	var units := ["kt · derived", "native truth", "ft · WGS84", "degrees", "°/s · body r", "ft/min · kinematic"]
-	var label_y := cell.position.y + radius * 2 + 20
 	if _cockpit_surface:
 		var caption: Dictionary = _physical_dial_caption(index,titles[index],units[index])
 		_text(Vector2(cell.get_center().x,caption.baseline),caption.text,caption.pixels,INK,true)
 	else:
-		_text(Vector2(cell.get_center().x, label_y), titles[index], clampf(radius * 0.14, 10, 15), INK, true)
-		_text(Vector2(cell.get_center().x, label_y + 13), units[index], clampf(radius * 0.115, 10, 12), MUTED, true)
+		_text(Vector2(cell.get_center().x,hud.title_baseline),titles[index],hud.title_pixels,INK,true)
+		_text(Vector2(cell.get_center().x,hud.unit_baseline),units[index],hud.unit_pixels,MUTED,true)
 
 func _physical_dial_caption(index: int, title: String, unit: String) -> Dictionary:
 	# Full qualifier in one line between projected rings; never ellipsize it.

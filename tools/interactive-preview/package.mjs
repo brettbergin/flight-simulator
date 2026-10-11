@@ -183,7 +183,7 @@ export const firstFlightSourceGroups=[
  ['tests/scenarios/first-flight','scenario_tests/first-flight',['briefing_checks.gd','circuit_checks.gd']],
  ['tests/ui/first_flight','first_flight_ui_tests',['briefing_checks.gd']],
  ['tests/world/synthetic','world_tests/synthetic',['circuit_checks.gd']],
- ['tests/integration/first_flight','first_flight_scene_tests',['scene_checks.gd','map_checks.gd','visual_checks.gd','layout_visual_checks.gd']],
+ ['tests/integration/first_flight','first_flight_scene_tests',['scene_checks.gd','map_checks.gd','visual_checks.gd','layout_visual_checks.gd','hud_caption_visual_checks.gd']],
 ];
 const circuitFixtureSHA='2a4540d99d4500e326a1b1f0673583bd6f8ea99d430b991fcca1130befbbddcc';
 const circuitCaptureSHA='58b1a7b0ec46161357c1268dbaeeaab27f84bbbd4de70def35571fd45ddb67f9';
@@ -256,7 +256,18 @@ export function validateFirstFlightReceipt(value,includePiston,expectedSourceFin
 }
 export function validateFirstFlightFacadeAdmission(receipt,includePiston,expectedSourceFingerprint){
  pointerKeys(receipt,facadeReceiptKeys,'Facade receipt');
+ validateHudCaptionReceipt(receipt.cockpit?.hud_caption);
  return validateFirstFlightReceipt(receipt.first_flight,includePiston,expectedSourceFingerprint);
+}
+export function validateHudCaptionReceipt(value){
+ assert(plain(value),'Mandatory HUD-caption checks');
+ pointerKeys(value,['passed','checks','failures','scope'],'HUD-caption result');
+ assert.equal(value.passed,true,'HUD-caption checks passed');
+ assert(Number.isSafeInteger(value.checks)&&value.checks>0,'Active HUD-caption checks');
+ assert.deepEqual(value.failures,[],'No HUD-caption failures');
+ assert.equal(typeof value.scope,'string');
+ assert(value.scope.trim().length>0&&value.scope.length<=1024,'Bounded HUD-caption scope');
+ return value.checks;
 }
 
 function audit(root,proof,build,python='python'){
