@@ -91,6 +91,50 @@ Root Scene adds `open_taxi()->bool`, `dismiss_taxi()->void`, `taxi_panel:Control
 `flight_map.gd` adds `set_taxi_navigation(value:Variant)->bool`: closed view or null only; owned copy on valid view, clear layer on null/unqualified/unavailable/hidden aids; malformed input returns false and clears this layer. It does not modify ownship/zoom/circuit/landmark/native state. Root synchronizes an explicitly chosen itinerary's nonnull runway once through the existing presentation selector. World adds `configure_taxi_layout(value:Variant)->bool` before constructing this field; validate/copy before mutation, false preserves existing geometry. Existing constructor signatures and original mesh/paint/paving operation paths remain intact. New signs attach under the existing world origin participant, not an independently translated frame. This method supplies shader/marking/sign IDs from the shared validated layout; it is not a native ground provider.
 
 
+## Historical contract bytes and additive overrides
+
+After checked #224 acceptance, the following scoped overrides are normative together with this ADR. The earlier ADR files remain byte-exact to their accepted historical definitions so their frozen independent references retain their original provenance. This preserves the old proof inputs; it does not preserve their narrower start-domain restrictions for newly qualified apron consumers. All unmentioned rules and old reference bytes remain unchanged. The two ADR026 records/protocol companions retain their explicit additive amendments and require fresh actual contract/storage hashes.
+
+### 006-interactive-prototype
+
+Fresh initializer domain additionally includes legacy apron-ready and piston-cold-apron exactly as ADR027; the new point branch uses displaced IC latitude/longitude/ellipsoid height and query-local NED. Existing three recipes/defaults/operation paths, flat plane/model/physics/wire definitions remain unchanged. Actual new producer qualification is separate.
+
+### 010-original-piston-profile
+
+Add piston-cold-apron only for the original piston profile, calm and ADR027 closed PARK1 recipe; every cold validation/zero-time engine/brake path includes both cold names. Old piston-cold-ground/model bytes/inventory/numerical references stay intact; no new engine behavior or arbitrary pose API.
+
+### 011-observed-flight-review
+
+Legacy Recording1 metadata/identity admission additionally accepts apron-ready; Recording/archive shapes, sampling grids, full uint64 arithmetic and old fixtures remain unchanged. Full actual new-start Readback/adoption is required before recording. New reader/old reader domain compatibility is explicitly defined by ADR027.
+
+### 012-observed-review-interchange
+
+Archive1 legacy domain additionally accepts apron-ready; archive2 piston domain additionally accepts piston-cold-apron through matching revised Values. Shapes/versions/tag paths/hash/strict caps/IO safety stay unchanged. This is forward-incompatible enum extension, not automatic migration: older readers reject unsupported new-start files intact; new readers keep old files valid.
+
+### 013-steady-wind-starts
+
+New apron-ready and piston-cold-apron pairs are calm-only. Old legacy four-wind recipes, actual wind publication and all source-derived references/nominal1e-6 agreement criteria remain unchanged. Apron name is not permission to inject wind or move a running session.
+
+### 016-generated-native-build-identity
+
+ADR027 keeps the exact ordered25source/18control roster membership while changing only assigned first-party start/admission code. Fresh content hashes/generated pins/full fingerprint/rebuilt binary qualification are required. New layout/schema/test references are reconstruction/staged-resource closure, not appended compilation sources. Backend local-window-v2/model/vendor/prepared-surface identity remains unchanged; source_variant alone does not prove new start support.
+
+### 018-first-flight-briefing-and-circuit-aid
+
+New explicit Apron ready/Apron cold entries use ADR027 exact selectors, separate from the original three local choice IDs/defaults. Successful actual adoption alone changes current label; rejected/canceled/failed replacement preserves honest retained ownership. Existing ground-ready circuit eligibility is unchanged; apron starts acquire no automatic circuit/clearance authority.
+
+### 022-piston-observed-review
+
+Piston Recording2 metadata/identity additionally accepts piston-cold-apron as explicitly allocated by ADR027. Full same-Readback EngineStatus remains required; archive2 shape/caps/types/old expected bytes unchanged. Older readers reject the unfamiliar new name; no relabeling to piston-cold-ground or current-source authorship claim.
+
+### 025-paused-view-presets-and-comfort
+
+Keep132 pure math references and original21 supported-start rows. ADR027 adds two apron starts x seven views as14 additive rows: source-qualified coupled35; upstream legacy21 plus explicit piston rejection does not qualify full35. Require the actual new recipe source closure; unchanged backend variant alone is insufficient. Settings/FOV/math/real-release/capture/lifetime remain session-only and unchanged.
+
+### 026-durable-local-players-and-practice-history
+
+ADR027 adds closed apron-ready/calm legacy and piston-cold-apron/calm coupled-local-window-v2 PracticeSource tuples with the same eight keys. Old historical source rules and original SQL/codec/fingerprints/fixtures remain; changed normative source/CI bindings and component qualification refresh honestly. This does not persist camera/taxi aid state or allow physics restore; accepted contract and actual adapter source are required before storing a new current session.
+
 ## Independent prerequisites and actual delivery acceptance
 
 Public source/checks must include all closed content/schema relationships, actual runnable immutable independent content+pose references and exact helper/result/view/signal/lifecycle contracts before consumers. The published tuple/pose/content recipes are not complete recording/archive/runtime qualification. Before modifying the corresponding recorder/archive/PracticeSource consumers, #225 must freeze distinct independently reviewed complete hypothetical Readback/record/archive/PracticeSource/export fixtures with explicit synthetic provenance, exact types and expected acceptance/rejection; never fabricate a native fingerprint or relabel a real observation. Actual source-qualified observations follow implementation separately. These additive whole-value fixtures exercise new complete Readback -> recorder, archive roundtrip and PracticeSource/export without deleting old rejection/copy/strict type rules. Malformed/foreign/historical/blocked/stalled/new-session/failed replacement cannot create guidance or reassign recordings. Source hash/data equality does not establish a backend result.

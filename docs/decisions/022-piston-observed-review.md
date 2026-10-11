@@ -63,7 +63,3 @@ Acceptance:
 5. Focused readable historical flight+engine views at960 and larger windows show profile/source/sample/units/unavailable states; affect only review presentation. Current legacy and audio/modal regressions remain active. Exact affected package/three-context checks and current protected CI pass before Root review/merge.
 
 Tests should cover new behavior and real boundaries, not reproduce the full prior IO/parser suite in a new framework. No unchanged physics calibration campaign or new source licensing is required for this app-only slice. No database/profile/auto-library/auto-save/new menu dock/physics seek/checklist/scoring work. Partial PRD-025/UX-017/UX-018/UX-021/UX-022 only; #75/#34/#35/#74 remain open.
-
-## Prospective ADR027 additive apron-domain amendment
-
-PROPOSED, effective only after the checked [ADR027](027-synthetic-taxi-navigation.md) contract merges. Piston Recording2 metadata/identity additionally accepts piston-cold-apron as explicitly allocated by ADR027. Full same-Readback EngineStatus remains required; archive2 shape/caps/types/old expected bytes unchanged. Older readers reject the unfamiliar new name; no relabeling to piston-cold-ground or current-source authorship claim.

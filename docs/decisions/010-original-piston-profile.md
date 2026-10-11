@@ -102,7 +102,3 @@ Required evidence includes untouched legacy model/fixtures; bad profile/hash/con
 ## Pointer control consumer boundary
 
 The proposed [ADR017](017-frontend-pointer-engine-controls.md) defines the six-control transient frontend seam for [#158](https://github.com/brettbergin/flight-simulator/issues/158). The mapper retains requested lever/switch intent; EngineStatus remains copied actual truth. Momentary pointer starter release follows the existing accepted false-before-resumed-Run path. No native/model/preset/source or numerical limit changes are introduced. Qualified #127 delivery and [#157](https://github.com/brettbergin/flight-simulator/issues/157) checked merge remain prerequisites.
-
-## Prospective ADR027 additive apron-domain amendment
-
-PROPOSED, effective only after the checked [ADR027](027-synthetic-taxi-navigation.md) contract merges. Add piston-cold-apron only for the original piston profile, calm and ADR027 closed PARK1 recipe; every cold validation/zero-time engine/brake path includes both cold names. Old piston-cold-ground/model bytes/inventory/numerical references stay intact; no new engine behavior or arbitrary pose API.
