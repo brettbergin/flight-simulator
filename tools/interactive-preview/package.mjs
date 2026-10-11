@@ -174,6 +174,77 @@ export function validateGroundMaterialSources(repository,project,source){
  }
  return expected;
 }
+// ADR020 mandatory source and active checks, independent of piston opt-in.
+export const audioSourceGroups=[
+ ['app/audio','audio',['audio_cues.gd','audio_options.gd','sample_renderer.gd']],
+ ['app/ui/audio','ui/audio',['audio_panel.gd']],
+ ['tests/audio','audio_tests',['audio_cues_checks.gd','audio_options_checks.gd','audio_panel_checks.gd','sample_renderer_checks.gd']],
+];
+export function validateAudioSources(repository,project,source){
+ const source_files={};
+ for(const [authored,mapped,required] of audioSourceGroups){
+  const expected=[...required].sort();
+  for(const [base,folder] of [[repository,authored],[source,mapped]])assert.deepEqual(ordinaryFiles(path.join(base,folder)).sort(),expected,'Closed audio source roster/'+folder);
+  const staged=ordinaryFiles(path.join(project,mapped));
+  for(const name of staged.filter(name=>!expected.includes(name))){
+   assert(name.endsWith('.gd.uid')&&expected.includes(name.slice(0,-4)),'Only bound generated audio UID allowed');
+   const raw=fs.readFileSync(path.join(project,mapped,name));assert(raw.length<=64);assert.match(raw.toString('utf8'),/^uid:\/\/[a-z0-9]{1,20}\r?\n?$/);
+  }
+  assert.deepEqual(staged.filter(name=>expected.includes(name)).sort(),expected,'Complete audio staged roster/'+mapped);
+  for(const name of expected){
+   const relative=authored+'/'+name,raw=fs.readFileSync(path.join(repository,relative));
+   source_files[relative]={bytes:raw.length,sha256:sha(raw)};
+   for(const base of [project,source])assert(fs.readFileSync(path.join(base,mapped,name)).equals(raw),'Audio actual corresponding bytes/'+mapped+'/'+name);
+  }
+ }
+ // Sound remains in the existing interactive source tree, not a duplicate emitter.
+ const sound='app/proof/interactive/flight_sound.gd';ordinaryAncestors(path.join(repository,sound));
+ const raw=fs.readFileSync(path.join(repository,sound));source_files[sound]={bytes:raw.length,sha256:sha(raw)};
+ for(const base of [project,source]){
+  const file=path.join(base,'interactive/flight_sound.gd');ordinaryAncestors(file);
+  assert(fs.readFileSync(file).equals(raw),'Actual staged/corresponding Sound differs');
+ }
+ return {source_files};
+}
+export function validateAudioSourceDescriptors(groups,sourceFiles){
+ assert(Array.isArray(groups)&&groups.length===audioSourceGroups.length,'All three audio source descriptors required');
+ const seen=new Set();
+ for(const group of groups){
+  pointerKeys(group,['source','destination','required','snapshot'],'Audio source descriptor');
+  assert.equal(typeof group.source,'string');assert(!seen.has(group.source),'Duplicate audio source descriptor');seen.add(group.source);
+  const definition=audioSourceGroups.find(([authored])=>authored===group.source);assert(definition,'Unknown audio source descriptor');
+  const [authored,mapped,required]=definition;assert.equal(group.destination,mapped);assert.deepEqual(group.required,required);
+  assert(Array.isArray(group.snapshot));assert.equal(group.snapshot.length,required.length);
+  assert.deepEqual(group.snapshot.map(file=>file.path),[...required].sort(),'Exact sorted recursive audio snapshot');
+  for(const file of group.snapshot){
+   pointerKeys(file,['path','bytes','sha256'],'Audio source pin');
+   assert.deepEqual({bytes:file.bytes,sha256:file.sha256},sourceFiles[authored+'/'+file.path],'Audio descriptor binds actual authoring bytes');
+   assert(Number.isSafeInteger(file.bytes)&&file.bytes>=0);assert.match(file.sha256,/^[a-f0-9]{64}$/);
+  }
+ }
+}
+export function isOriginalAudioSourcePath(file){
+ return ['source/whole-flight-preview/audio/sample_renderer.gd','source/whole-flight-preview/interactive/flight_sound.gd'].includes(file);
+}
+export function stageOriginalAudioNotice(repository,payload,entry){
+ assert.equal(entry?.id,'original-prototype-audio');assert.equal(entry.class,'audio-assets');assert.equal(entry.license,'MIT');
+ assert(Array.isArray(entry.notice_files)&&entry.notice_files.length===1);const notice=entry.notice_files[0];assert.equal(notice.path,'LICENSE');
+ const source=path.join(repository,notice.path);ordinaryAncestors(source);const raw=fs.readFileSync(source);assert.equal(sha(raw),notice.sha256,'Original audio MIT notice differs');
+ const file='notices/Original-Audio-MIT.txt',target=path.join(payload,file);fs.mkdirSync(path.dirname(target),{recursive:true});ordinaryAncestors(path.dirname(target));
+ if(fs.existsSync(target))ordinaryAncestors(target);fs.writeFileSync(target,raw);
+ return {file,register_path:notice.path,sha256:sha(raw)};
+}
+export function validateAudioReceipt(value){
+ const names=['cues','options','renderer','panel','lifecycle'];pointerKeys(value,names,'Audio mandatory groups');
+ let total=0;
+ for(const name of names){
+  const item=value[name];pointerKeys(item,['passed','checks','failures',...(name==='panel'?['scope']:[])],'Audio result/'+name);
+  assert.equal(item.passed,true);assert(Number.isSafeInteger(item.checks)&&item.checks>0,'Active audio checks/'+name);assert.deepEqual(item.failures,[]);
+  if(name==='panel'){assert.equal(typeof item.scope,'string');assert(item.scope.trim().length>0&&item.scope.length<=1024,'Bounded audio panel scope');}
+  total+=item.checks;assert(Number.isSafeInteger(total),'Audio aggregate safe integer');
+ }
+ return total;
+}
 // ADR018 delivery is mandatory; a skipped/partial child cannot admit a player.
 export const firstFlightSourceGroups=[
  ['app/ui/first_flight','ui/first_flight',['briefing_panel.gd','binding_help.gd','circuit_guide.gd']],
@@ -189,7 +260,7 @@ const circuitFixtureSHA='2a4540d99d4500e326a1b1f0673583bd6f8ea99d430b991fcca1130
 const circuitCaptureSHA='58b1a7b0ec46161357c1268dbaeeaab27f84bbbd4de70def35571fd45ddb67f9';
 const circuitCaptureSource='5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5';
 const firstFlightNames=['briefing','bindings','geometry','card','map','scene'];
-const facadeReceiptKeys=['schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive','wind','first_flight'];
+const facadeReceiptKeys=['schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive','wind','first_flight','audio'];
 const firstFlightChoices=[
  {id:'cold-familiarization',start:'piston-cold-ground',model_identity:{id:'original-piston-prop-v1',version:'0.1.0-prototype',backend_model:'original-piston-prop'}},
  {id:'ready-flight',start:'ground-ready',model_identity:{id:'original-interactive-prototype',version:'0.1.0-prototype',backend_model:'original-interactive'}},
@@ -256,6 +327,7 @@ export function validateFirstFlightReceipt(value,includePiston,expectedSourceFin
 }
 export function validateFirstFlightFacadeAdmission(receipt,includePiston,expectedSourceFingerprint){
  pointerKeys(receipt,facadeReceiptKeys,'Facade receipt');
+ validateAudioReceipt(receipt.audio);
  validateHudCaptionReceipt(receipt.cockpit?.hud_caption);
  return validateFirstFlightReceipt(receipt.first_flight,includePiston,expectedSourceFingerprint);
 }
@@ -320,6 +392,8 @@ function audit(root,proof,build,python='python'){
  const pointerEnabled=nativeIdentity.source_variant==='jsbsim-1.3.1-event-aware-coupled-midpoint-v1';
  const pointerReceipts=[];
  if(pointerEnabled){validatePointerSources(repo,path.join(root,'project'),reconstructionRoot);for(const context of ['editor','portable','replacement'])pointerReceipts.push({context,...validatePointerEvidence(path.join(evidence,context+'-pointer-check-receipt.json'),path.join(evidence,context+'-pointer-flight-trace.json'),repo,path.join(root,'project'),nativeIdentity)});}
+ const audioIdentity=validateAudioSources(repo,path.join(root,'project'),reconstructionRoot);
+ validateAudioSourceDescriptors(json(path.join(evidence,'audio-source-groups.json')),audioIdentity.source_files);
  const firstFlightIdentity=validateFirstFlightSources(repo,path.join(root,'project'),reconstructionRoot);
  const groundIdentity=validateGroundMaterialSources(repo,path.join(root,'project'),reconstructionRoot);
  const groundReceipts=['editor','portable','replacement'].map(context=>{
@@ -427,11 +501,20 @@ function audit(root,proof,build,python='python'){
   if(file.startsWith('piston-models/')){assert(pistonEnabled);declare(pistonModel.id,file,'content');}
   else if(file.startsWith('source/whole-flight-preview/piston-models/')){assert(pistonEnabled);declare(pistonModel.id,file,'source');}
   else if(file.startsWith('models/'))declare(model.id,file,'content');
+  else if(isOriginalAudioSourcePath(file)){
+   // Move these authored synthesis sources out of the prior aggregate declaration.
+   for(const owner of components)owner.files=owner.files.filter(item=>item.path!==file);
+   declare('original-prototype-audio',file,'source');
+  }
   else if(file.startsWith('source/whole-flight-preview/'))declare('native-export-proof',file,'source');
   else if(file.endsWith('.exe'))declare('godot',file,'binary');
   else if(file.endsWith('.pck')||['launch.ps1','README.md'].includes(file))declare('native-export-proof',file,'content');
   else if(['portable-smoke.log','smoke-receipt.json','loop.records.ndjson'].includes(file))declare('native-export-proof',file,'evidence');
  }
+ const audioNotice=stageOriginalAudioNotice(repo,payload,register.entries.find(entry=>entry.id==='original-prototype-audio'));
+ declare('original-prototype-audio',audioNotice.file,'notice');
+ const audioOwner=component('original-prototype-audio');audioOwner.notices=audioOwner.notices.filter(item=>item.register_path!==audioNotice.register_path);
+ audioOwner.notices.push({register_path:audioNotice.register_path,package_path:audioNotice.file});
  for(const notice of model.notice_files){const target='notices/'+path.basename(notice.path);fs.copyFileSync(path.join(repo,notice.path),path.join(payload,target));declare(model.id,target,'notice');component(model.id).notices.push({register_path:notice.path,package_path:target});}
  if(pistonEnabled){
   for(const notice of pistonModel.notice_files){
@@ -458,7 +541,7 @@ function audit(root,proof,build,python='python'){
  assert.deepEqual(auditRelease(register,manifest,{repoRoot:repo,packageRoot:payload}),[]);
  assert.deepEqual(auditDependencyLock(register,json(path.join(repo,'third_party/dependencies.lock.json'))),[]);
  write(path.join(evidence,'package-inventory.json'),manifest);
- write(path.join(evidence,'package-audit.json'),{schema_version:1,rights_integrity_passed:true,actual_combined_replacement_passed:true,model_pins_verified:true,actual_seven_modules_inside_payload:true,exact_editor_portable_repeat:true,observed_editor_portable_replacement_checks_passed:true,observed_source_closure_verified:true,first_flight_checks_passed:true,first_flight_source_closure_verified:true,first_flight_source_files:firstFlightIdentity.source_files,first_flight_contexts:uiReceipts.map((receipt,index)=>({context:['editor','portable','replacement'][index],checks:validateFirstFlightReceipt(receipt.first_flight,pointerEnabled,nativeIdentity.declared_source_fingerprint),route_scope:receipt.first_flight.scene.route_scope})),observed_archive_checks_passed:true,pointer_checks_enabled:pointerEnabled,...(pointerEnabled?{pointer_checks_passed:true,pointer_contexts:pointerReceipts.map(({context,raw,traceRaw,receipt,rows,commands})=>({context,checks:receipt.checks,rows,commands,summary:{bytes:raw.length,sha256:sha(raw)},trace:{path:context+'-pointer-flight-trace.json',bytes:traceRaw.length,sha256:sha(traceRaw)}}))}:{}),ground_material_checks_passed:true,ground_material_contexts:groundReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)})),...(pistonEnabled?{piston_model_pins_verified:true,piston_editor_portable_replacement_checks_passed:true,piston_contexts:coldReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)}))}:{}),runtime_verification:runtime,trace_records_compared:traces[0].length,selected_library:selection,native_build_identity:nativeIdentity});
+ write(path.join(evidence,'package-audit.json'),{schema_version:1,rights_integrity_passed:true,actual_combined_replacement_passed:true,model_pins_verified:true,actual_seven_modules_inside_payload:true,exact_editor_portable_repeat:true,observed_editor_portable_replacement_checks_passed:true,observed_source_closure_verified:true,audio_checks_passed:true,audio_source_closure_verified:true,audio_source_files:audioIdentity.source_files,audio_contexts:uiReceipts.map((receipt,index)=>({context:['editor','portable','replacement'][index],checks:validateAudioReceipt(receipt.audio)})),first_flight_checks_passed:true,first_flight_source_closure_verified:true,first_flight_source_files:firstFlightIdentity.source_files,first_flight_contexts:uiReceipts.map((receipt,index)=>({context:['editor','portable','replacement'][index],checks:validateFirstFlightReceipt(receipt.first_flight,pointerEnabled,nativeIdentity.declared_source_fingerprint),route_scope:receipt.first_flight.scene.route_scope})),observed_archive_checks_passed:true,pointer_checks_enabled:pointerEnabled,...(pointerEnabled?{pointer_checks_passed:true,pointer_contexts:pointerReceipts.map(({context,raw,traceRaw,receipt,rows,commands})=>({context,checks:receipt.checks,rows,commands,summary:{bytes:raw.length,sha256:sha(raw)},trace:{path:context+'-pointer-flight-trace.json',bytes:traceRaw.length,sha256:sha(traceRaw)}}))}:{}),ground_material_checks_passed:true,ground_material_contexts:groundReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)})),...(pistonEnabled?{piston_model_pins_verified:true,piston_editor_portable_replacement_checks_passed:true,piston_contexts:coldReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)}))}:{}),runtime_verification:runtime,trace_records_compared:traces[0].length,selected_library:selection,native_build_identity:nativeIdentity});
  console.log('PASS combined package model/source/notices/full PE+CRT closure and actual replacement loop');
 }
 

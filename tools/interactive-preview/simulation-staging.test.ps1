@@ -304,9 +304,29 @@ function New-FirstFlightReceiptFixture {
  $groups
 }
 $receipt|Add-Member -NotePropertyName first_flight -NotePropertyValue (New-FirstFlightReceiptFixture)
+function New-AudioReceiptFixture {
+ $groups=[pscustomobject]@{}
+ foreach($name in @('cues','options','renderer','panel','lifecycle')){
+  $value=[pscustomobject]@{passed=$true;checks=3;failures=@()}
+  if($name -eq 'panel'){$value|Add-Member -NotePropertyName scope -NotePropertyValue 'Synthetic audio receipt admission only'}
+  $groups|Add-Member -NotePropertyName $name -NotePropertyValue $value
+ }
+ $groups
+}
+$receipt|Add-Member -NotePropertyName audio -NotePropertyValue (New-AudioReceiptFixture)
 $hudFixture=[pscustomobject]@{passed=$true;checks=1;failures=@();scope='Synthetic receipt admission fixture'}
 $receipt.cockpit=[pscustomobject]@{hud_caption=$hudFixture}
 Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'
+foreach($change in @(
+ {param($r) $r.PSObject.Properties.Remove('audio')}, {param($r) $r.audio=$null},
+ {param($r) $r.audio=[pscustomobject]@{}}, {param($r) $r.audio.lifecycle.checks=0},
+ {param($r) $r.audio.lifecycle|Add-Member -NotePropertyName skipped -NotePropertyValue $true}
+)){
+ $bad=ConvertFrom-Json -InputObject ($receipt|ConvertTo-Json -Depth 20)
+ & $change $bad
+ Must-Reject {Assert-PreviewFacadeReceipt $bad -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} 'mandatory audio facade admission'
+}
+
 $hudMutations=@(
  {param($v) $v.cockpit=$null},
  {param($v) $v.cockpit.PSObject.Properties.Remove('hud_caption')},
@@ -688,3 +708,68 @@ Must-Reject {Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -
 Remove-Item -LiteralPath $firstFlightVisual
 Must-Reject {Assert-FirstFlightSourceGroups -DestinationRoot $firstFlightStage -Groups $firstFlightGroups -AllowGeneratedUIDs} 'omitted first-flight visual driver'
 Write-Output 'PASS first-flight full resource staging, exact capture/source tampering, missing visual and generated UID negatives'
+
+# ADR020 strict active receipt parity with the Node package admission validator.
+Assert-PreviewAudioReceipt (New-AudioReceiptFixture)
+foreach($value in @($null,@(),[pscustomobject]@{},$false)){Must-Reject {Assert-PreviewAudioReceipt $value} 'missing or nonobject audio groups'}
+foreach($name in @('cues','options','renderer','panel','lifecycle')){
+ foreach($change in @(
+  {param($r,$n) $r.PSObject.Properties.Remove($n)},
+  {param($r,$n) $r.$n=$null}, {param($r,$n) $r.$n=@()},
+  {param($r,$n) $r.$n.passed=$false}, {param($r,$n) $r.$n.passed='true'},
+  {param($r,$n) $r.$n.failures=$null}, {param($r,$n) $r.$n.failures=@('failed')}, {param($r,$n) $r.$n.failures=[pscustomobject]@{}},
+  {param($r,$n) $r.$n|Add-Member -NotePropertyName skipped -NotePropertyValue $true}
+ )){$bad=New-AudioReceiptFixture;& $change $bad $name;Must-Reject {Assert-PreviewAudioReceipt $bad} ('audio group mutation '+$name)}
+ foreach($value in @(0,-1,1.5,'1',$true,9007199254740992)){$bad=New-AudioReceiptFixture;$bad.$name.checks=$value;Must-Reject {Assert-PreviewAudioReceipt $bad} ('audio invalid count '+$name)}
+ foreach($key in @('passed','checks','failures')){$bad=New-AudioReceiptFixture;$bad.$name.PSObject.Properties.Remove($key);Must-Reject {Assert-PreviewAudioReceipt $bad} ('audio missing child key '+$name+'.'+$key)}
+}
+foreach($value in @($null,1,'','  ',('x'*1025))){$bad=New-AudioReceiptFixture;$bad.panel.scope=$value;Must-Reject {Assert-PreviewAudioReceipt $bad} 'audio bounded panel scope'}
+foreach($change in @(
+ {param($r) $r.panel.PSObject.Properties.Remove('scope')},
+ {param($r) $r.cues|Add-Member -NotePropertyName scope -NotePropertyValue 'unexpected'},
+ {param($r) $r|Add-Member -NotePropertyName runtime_skip -NotePropertyValue $true},
+ {param($r) $r.cues.checks=9007199254740991}
+)){$bad=New-AudioReceiptFixture;& $change $bad;Must-Reject {Assert-PreviewAudioReceipt $bad} 'audio closed shape or aggregate'}
+Write-Output 'PASS mandatory audio five-suite typed receipt, vacuous/malformed/skipped/aggregate/scope negatives.'
+$audioGroups=@(Get-AudioSourceGroups -RepoRoot $repo)
+if($audioGroups.Count -ne 3 -or @($audioGroups|ForEach-Object {$_.snapshot}).Count -ne 8){throw 'Exact three/eight audio sources required'}
+$audioStage=Join-Path $testRoot 'audio-stage';$audioSource=Join-Path $testRoot 'audio-source'
+Copy-AudioSourceGroups -RepoRoot $repo -DestinationRoot $audioStage -Groups $audioGroups
+Copy-AudioSourceGroups -RepoRoot $repo -DestinationRoot $audioSource -Groups $audioGroups
+Assert-AudioSourceGroups -DestinationRoot $repo -Groups $audioGroups -Authoring
+Assert-AudioSourceGroups -DestinationRoot $audioStage -Groups $audioGroups
+Assert-AudioSourceGroups -DestinationRoot $audioSource -Groups $audioGroups
+foreach($group in $audioGroups){foreach($pin in $group.snapshot){foreach($target in @($audioStage,$audioSource)){
+ $file=Join-Path $target ($group.destination+'/'+$pin.path);$raw=[IO.File]::ReadAllBytes($file)
+ [IO.File]::WriteAllText($file,'drift');Must-Reject {Assert-AudioSourceGroups $target $audioGroups} 'audio byte drift';[IO.File]::WriteAllBytes($file,$raw)
+ Remove-Item -LiteralPath $file;Must-Reject {Assert-AudioSourceGroups $target $audioGroups} 'audio missing resource';[IO.File]::WriteAllBytes($file,$raw)
+}}}
+foreach($group in $audioGroups){
+ $extra=Join-Path $audioStage ($group.destination+'/nested/unbound.gd');New-Item -ItemType Directory -Force (Split-Path $extra -Parent)|Out-Null
+ [IO.File]::WriteAllText($extra,'extends RefCounted');Must-Reject {Assert-AudioSourceGroups $audioStage $audioGroups -AllowGeneratedUIDs} 'audio unbound recursive resource'
+ Remove-Item -LiteralPath $extra;Remove-Item -LiteralPath (Split-Path $extra -Parent)
+}
+$uid=Join-Path $audioStage 'audio/audio_cues.gd.uid';[IO.File]::WriteAllText($uid,"uid://audiofixture`n")
+Assert-AudioSourceGroups $audioStage $audioGroups -AllowGeneratedUIDs
+Must-Reject {Assert-AudioSourceGroups $audioStage $audioGroups} 'audio generated UID in exact source'
+foreach($value in @('invalid',('uid://'+('a'*21)+"`n"),"uid://valid`nextra")){[IO.File]::WriteAllText($uid,$value);Must-Reject {Assert-AudioSourceGroups $audioStage $audioGroups -AllowGeneratedUIDs} 'audio malformed UID'}
+Remove-Item -LiteralPath $uid
+$orphan=Join-Path $audioStage 'audio/orphan.gd.uid';[IO.File]::WriteAllText($orphan,"uid://audiofixture`n")
+Must-Reject {Assert-AudioSourceGroups $audioStage $audioGroups -AllowGeneratedUIDs} 'audio orphan generated UID';Remove-Item -LiteralPath $orphan
+foreach($change in @(
+ {param($g) $g[1]=$g[0]}, {param($g) $g[0].destination='other'},
+ {param($g) $g[0].required=@('audio_cues.gd')}, {param($g) $g[0].snapshot=@()},
+ {param($g) $g[0].snapshot[0].sha256='a'*64}, {param($g) $g[0].snapshot[0].bytes=$true},
+ {param($g) $g[0]|Add-Member -NotePropertyName skipped -NotePropertyValue $true},
+ {param($g) $g[0].snapshot[0]|Add-Member -NotePropertyName skipped -NotePropertyValue $true},
+ {param($g) [array]::Reverse($g[0].snapshot)}
+)){
+ $bad=ConvertFrom-Json -InputObject ($audioGroups|ConvertTo-Json -Depth 10) -NoEnumerate;& $change $bad
+ Must-Reject {Assert-AudioSourceGroups $audioStage $bad} 'audio descriptor/actual snapshot drift'
+}
+Must-Reject {Assert-AudioSourceGroups $audioStage @($audioGroups[0],$audioGroups[1])} 'audio omitted source group'
+$audioHarness=Join-Path $testRoot 'audio-harness';New-Item -ItemType Directory -Force $audioHarness|Out-Null
+Write-SimulationCheckHarness -ProjectRoot $audioHarness -RepoRoot $repo
+$generated=[IO.File]::ReadAllText((Join-Path $audioHarness 'sim_loop_checks.gd'))
+foreach($required in @('res://audio','res://ui/audio','res://audio_tests','audio_cues_checks.gd','audio_options_checks.gd','sample_renderer_checks.gd','audio_panel_checks.gd','await audio_lifecycle_checks()','owner.set_paused(false)','run_sound(self,source)','owner.close()','"audio":audio_checks')){if(-not $generated.Contains($required)){throw 'Generated audio harness omitted '+$required}}
+Write-Output 'PASS audio exact recursive project/corresponding source, byte/set/descriptor/UID drift and actual lifecycle harness inclusion.'

@@ -227,9 +227,10 @@ test('first-flight scene binds the selected backend and complete nonduplicated a
  assert.throws(()=>validateFirstFlightReceipt(legacy,false,observedFirstFlightSource),'Upstream cannot claim coupled cold coverage');
 });
 test('facade closed shape makes first-flight mandatory without dropping previous groups',()=>{
- const keys=['schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive','wind'];
+ const keys=['schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive','wind','audio'];
  const good=Object.fromEntries(keys.map(name=>[name,null]));good.first_flight=firstFlightReceipt();
  good.cockpit={hud_caption:{passed:true,checks:1,failures:[],scope:'Synthetic receipt admission fixture'}};
+ good.audio=audioReceipt();
  assert.equal(validateFirstFlightFacadeAdmission(good,true,savedFirstFlightSource),18);
  for(const mode of [true,false])for(const source of [savedFirstFlightSource,observedFirstFlightSource]){
   const coherent=structuredClone(good);coherent.first_flight=firstFlightReceipt(mode,source);
@@ -288,4 +289,63 @@ test('all eight first-flight source groups bind exact authoring staged and corre
  for(const [base,name] of [[authored,originals[0]],[project,originals[1]],[source,originals[1]]])fs.writeFileSync(path.join(base,name),fs.readFileSync(path.join(repo,originals[0])));
  const folder=path.join(source,'first_flight_scene_tests'),outside=path.join(temporary,'outside');fs.renameSync(folder,outside);fs.symlinkSync(outside,folder,process.platform==='win32'?'junction':'dir');
  assert.throws(()=>validateFirstFlightSources(authored,project,source),/link/);
+});
+
+// ADR020 fixture admission only: no audio/native/Godot processes in these tests.
+import {audioSourceGroups,validateAudioSources,validateAudioSourceDescriptors,validateAudioReceipt} from './package.mjs';
+function audioReceipt(){
+ return Object.fromEntries(['cues','options','renderer','panel','lifecycle'].map(name=>[name,{passed:true,checks:3,failures:[],...(name==='panel'?{scope:'Synthetic audio receipt admission only'}:{})}]));
+}
+test('audio admission requires all five executed closed typed nonvacuous groups',()=>{
+ assert.equal(validateAudioReceipt(audioReceipt()),15);
+ for(const bad of [null,[],{},false])assert.throws(()=>validateAudioReceipt(bad));
+ for(const name of Object.keys(audioReceipt())){
+  for(const change of [
+   r=>delete r[name],r=>r[name]=null,r=>r[name]=[],r=>r[name].passed=false,r=>r[name].passed='true',
+   ...[0,-1,1.5,'1',true,Number.MAX_SAFE_INTEGER+1].map(value=>r=>r[name].checks=value),
+   r=>r[name].failures=null,r=>r[name].failures=['failed'],r=>r[name].failures={},r=>r[name].skipped=true,
+   ...['passed','checks','failures'].map(key=>r=>delete r[name][key]),
+  ]){const bad=audioReceipt();change(bad);assert.throws(()=>validateAudioReceipt(bad),name);}
+ }
+ for(const scope of [null,1,'','  ','x'.repeat(1025)]){const bad=audioReceipt();bad.panel.scope=scope;assert.throws(()=>validateAudioReceipt(bad));}
+ for(const change of [r=>delete r.panel.scope,r=>r.cues.scope='unexpected',r=>r.runtime_skip=true,r=>r.cues.checks=Number.MAX_SAFE_INTEGER]){const bad=audioReceipt();change(bad);assert.throws(()=>validateAudioReceipt(bad));}
+ const keys=['schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive','wind','first_flight'];
+ const good=Object.fromEntries(keys.map(name=>[name,null]));good.first_flight=firstFlightReceipt();good.cockpit={hud_caption:{passed:true,checks:1,failures:[],scope:'Fixture'}};good.audio=audioReceipt();
+ assert.doesNotThrow(()=>validateFirstFlightFacadeAdmission(good,true,savedFirstFlightSource));
+ for(const change of [r=>delete r.audio,r=>r.audio={},r=>r.audio=null,r=>r.audio.lifecycle.checks=0,r=>r.audio.lifecycle.skipped=true]){const bad=structuredClone(good);change(bad);assert.throws(()=>validateFirstFlightFacadeAdmission(bad,true,savedFirstFlightSource));}
+});
+test('audio recursive closure binds three groups eight scripts and existing Sound in three trees',()=>{
+ const temporary=fs.mkdtempSync(path.join(root,'audio-'));
+ const authored=path.join(temporary,'repo'),project=path.join(temporary,'project'),source=path.join(temporary,'source');
+ assert.equal(audioSourceGroups.length,3);
+ const mapping=audioSourceGroups.flatMap(([a,b,names])=>names.map(name=>[a+'/'+name,b+'/'+name]));assert.equal(mapping.length,8);
+ mapping.push(['app/proof/interactive/flight_sound.gd','interactive/flight_sound.gd']);
+ for(const [name,mapped] of mapping)for(const [base,relative] of [[authored,name],[project,mapped],[source,mapped]]){const target=path.join(base,relative);fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,'Original audio source fixture '+name+'\n');}
+ const identity=validateAudioSources(authored,project,source);assert.equal(Object.keys(identity.source_files).length,9);
+ const descriptors=audioSourceGroups.map(([a,b,required])=>({source:a,destination:b,required:[...required],snapshot:[...required].sort().map(name=>({path:name,...identity.source_files[a+'/'+name]}))}));
+ assert.doesNotThrow(()=>validateAudioSourceDescriptors(descriptors,identity.source_files));
+ for(const change of [g=>g.pop(),g=>g.push(structuredClone(g[0])),g=>g[1]=structuredClone(g[0]),g=>g[0].destination='other',g=>g[0].required.pop(),g=>g[0].snapshot.pop(),g=>g[0].snapshot[0].sha256='a'.repeat(64),g=>g[0].snapshot[0].bytes=true,g=>g[0].snapshot[0].skipped=true,g=>g[0].skipped=true,g=>g[0].snapshot.reverse()]){const bad=structuredClone(descriptors);change(bad);assert.throws(()=>validateAudioSourceDescriptors(bad,identity.source_files));}
+ for(const [name,mapped] of mapping)for(const [base,relative] of [[authored,name],[project,mapped],[source,mapped]]){
+  const file=path.join(base,relative),raw=fs.readFileSync(file);fs.appendFileSync(file,'drift');assert.throws(()=>validateAudioSources(authored,project,source));fs.writeFileSync(file,raw);
+  fs.unlinkSync(file);assert.throws(()=>validateAudioSources(authored,project,source));fs.writeFileSync(file,raw);
+ }
+ for(const [a,b] of audioSourceGroups)for(const [base,folder] of [[authored,a],[project,b],[source,b]]){const extra=path.join(base,folder,'nested','unbound.gd');fs.mkdirSync(path.dirname(extra),{recursive:true});fs.writeFileSync(extra,'extends RefCounted');assert.throws(()=>validateAudioSources(authored,project,source));fs.rmSync(path.dirname(extra),{recursive:true});}
+ const uid=path.join(project,'audio/audio_cues.gd.uid');fs.writeFileSync(uid,'uid://audioproof\n');assert.doesNotThrow(()=>validateAudioSources(authored,project,source));
+ for(const text of ['invalid','uid://'+'a'.repeat(21)+'\n','uid://valid\nextra']){fs.writeFileSync(uid,text);assert.throws(()=>validateAudioSources(authored,project,source));}fs.unlinkSync(uid);
+ for(const [base,folder] of [[authored,'app/audio'],[project,'audio'],[source,'audio']]){const orphan=path.join(base,folder,'orphan.gd.uid');fs.writeFileSync(orphan,'uid://audiofixture\n');assert.throws(()=>validateAudioSources(authored,project,source));fs.unlinkSync(orphan);}
+ const folder=path.join(source,'audio'),outside=path.join(temporary,'outside');fs.renameSync(folder,outside);fs.symlinkSync(outside,folder,process.platform==='win32'?'junction':'dir');assert.throws(()=>validateAudioSources(authored,project,source),/link/);
+});
+
+import {isOriginalAudioSourcePath,stageOriginalAudioNotice} from './package.mjs';
+test('original audio source attribution stages actual reviewed MIT notice without reclassifying PCK',()=>{
+ assert(isOriginalAudioSourcePath('source/whole-flight-preview/audio/sample_renderer.gd'));
+ assert(isOriginalAudioSourcePath('source/whole-flight-preview/interactive/flight_sound.gd'));
+ for(const name of ['WholeFlightPreview.pck','source/whole-flight-preview/audio/audio_cues.gd','source/whole-flight-preview/audio/sample_renderer.gd.uid','interactive/flight_sound.gd'])assert.equal(isOriginalAudioSourcePath(name),false);
+ const temporary=fs.mkdtempSync(path.join(root,'audio-notice-')),authored=path.join(temporary,'repo'),payload=path.join(temporary,'payload');fs.mkdirSync(authored);fs.mkdirSync(payload);
+ const entry=JSON.parse(fs.readFileSync(path.join(repo,'third_party/licenses/register.json'),'utf8')).entries.find(item=>item.id==='original-prototype-audio');
+ const raw=fs.readFileSync(path.join(repo,'LICENSE'));fs.writeFileSync(path.join(authored,'LICENSE'),raw);
+ const notice=stageOriginalAudioNotice(authored,payload,entry);assert.equal(notice.file,'notices/Original-Audio-MIT.txt');assert.equal(notice.register_path,'LICENSE');assert.equal(notice.sha256,entry.notice_files[0].sha256);assert(fs.readFileSync(path.join(payload,notice.file)).equals(raw));
+ assert.deepEqual(stageOriginalAudioNotice(authored,payload,entry),notice);
+ for(const change of [e=>e.id='other',e=>e.class='other',e=>e.license='GPL',e=>e.notice_files=[],e=>e.notice_files[0].path='../LICENSE',e=>e.notice_files[0].sha256='a'.repeat(64)]){const bad=structuredClone(entry);change(bad);assert.throws(()=>stageOriginalAudioNotice(authored,payload,bad));}
+ fs.appendFileSync(path.join(authored,'LICENSE'),'drift');assert.throws(()=>stageOriginalAudioNotice(authored,payload,entry));assert(fs.readFileSync(path.join(payload,notice.file)).equals(raw),'Rejected notice preserves staged bytes');
 });

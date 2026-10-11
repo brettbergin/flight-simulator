@@ -70,7 +70,7 @@
     {
       "id": "jsbsim-coupled-midpoint-v1",
       "class": "runtime",
-      "name": "JSBSim C++ shared library — reviewed coupled midpoint source",
+      "name": "JSBSim C++ shared library \u00e2\u20ac\u201d reviewed coupled midpoint source",
       "version": "1.3.1",
       "owner": "simulation-maintainer",
       "scope": "C++ library compiled by upstream src CMake; excludes aircraft/engine/system XML, tests, bindings and Unreal plugin; only four reviewed propulsion source modifications under ADR015; no model XML",
@@ -906,6 +906,36 @@
         "immutable_vendor_models_allowed": false,
         "audit_note": "Generic register audit validates notice integrity, not this exact content_policy. The source-only amendment publishes the implicit-Kelvin checker guard and additive v3 reference binding; independent final source review and protected CI are prerequisites to merge. See docs/evidence/P3/original-piston-loader-source.md. The preserved v3 reference changes source bindings, not the 55 numerical cases/budgets. Historical private one-suite authorization is not source merge, engine behavior, DLL loader, realism or phase acceptance; native/export admission must enforce separately reviewed exact source identities. No runtime pin header, backend execution or simulator executable is provided by this source amendment."
       }
+    },
+    {
+      "id": "original-prototype-audio",
+      "class": "audio-assets",
+      "name": "Original procedural prototype engine and airflow synthesis",
+      "version": "0.1.0-prototype",
+      "owner": "audio-maintainer",
+      "scope": "Project-authored synthesis in app/audio/sample_renderer.gd and app/proof/interactive/flight_sound.gd under ADR020; original synthetic profiles only. No recordings, sampled voice/engine assets, measured aircraft acoustics or installed warnings.",
+      "decision": "Original project code under MIT; exact implementation and corresponding-source bytes are bound by consumer delivery manifests. Separate Godot runtime and third-party obligations remain unchanged.",
+      "license": "MIT",
+      "redistribution": "permitted",
+      "evidence": "synthetic",
+      "source": {
+        "url": "https://github.com/brettbergin/flight-simulator/blob/1bbaa205d64c736456a733d16168e94078361c75/docs/decisions/020-original-audio-cues.md",
+        "revision": "1bbaa205d64c736456a733d16168e94078361c75",
+        "rights_url": "https://github.com/brettbergin/flight-simulator/blob/main/LICENSE",
+        "applicability": "Accepted original synthesis specification; implementation hashes require consumer package/source evidence, not this contract commit."
+      },
+      "obligations": [
+        "retain-notices",
+        "retain-source-attribution"
+      ],
+      "notice_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "b928476750e5c645f3013fe17948c503763dc06586aa28ffbfc291f027f59ffa",
+          "source_url": "https://github.com/brettbergin/flight-simulator/blob/main/LICENSE"
+        }
+      ],
+      "evidence_file": "docs/evidence/P2/original-audio-cues.md"
     }
   ]
 }

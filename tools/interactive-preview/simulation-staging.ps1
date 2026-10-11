@@ -224,11 +224,71 @@ print('PASS readonly observed reference regeneration:42 cases')
  & $Python -c $script $generator $expected
  if($LASTEXITCODE -ne 0){throw 'Readonly observed reference regeneration rejected'}
 }
+# ADR020 audio is always delivered, including upstream-native legacy exports.
+function Get-AudioSourceDefinitions {
+ @(
+  @{source='app/audio';destination='audio';required=@('audio_cues.gd','audio_options.gd','sample_renderer.gd')},
+  @{source='app/ui/audio';destination='ui/audio';required=@('audio_panel.gd')},
+  @{source='tests/audio';destination='audio_tests';required=@('audio_cues_checks.gd','audio_options_checks.gd','audio_panel_checks.gd','sample_renderer_checks.gd')}
+ )
+}
+function Assert-AudioSourceDescriptors {
+ param([Parameter(Mandatory)][object[]]$Groups)
+ $definitions=@(Get-AudioSourceDefinitions)
+ if($Groups.Count -ne 3){throw 'All three audio source groups are mandatory'}
+ $seen=[System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+ foreach($group in $Groups){
+  $keys=if($group -is [System.Collections.IDictionary]){@($group.Keys)}else{@($group.PSObject.Properties.Name)}
+  if((($keys|Sort-Object) -join "`n") -cne "destination`nrequired`nsnapshot`nsource" -or $group.source -isnot [string] -or $group.destination -isnot [string] -or $group.required -isnot [array] -or $group.snapshot -isnot [array]){throw 'Audio source descriptor closed shape rejected'}
+  $matching=@($definitions|Where-Object {$_.source -ceq $group.source})
+  if($matching.Count -ne 1 -or -not $seen.Add($group.source)){throw 'Audio source group unknown or duplicated'}
+  $definition=$matching[0]
+  if($group.destination -cne $definition.destination -or ($group.required -join "`n") -cne ($definition.required -join "`n")){throw 'Audio source destination/entrypoints differ'}
+  if($group.snapshot.Count -ne $definition.required.Count -or ($group.snapshot.path -join "`n") -cne (($definition.required|Sort-Object) -join "`n")){throw 'Audio recursive source roster must be exact'}
+  foreach($file in $group.snapshot){
+   if((($file.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "bytes`npath`nsha256" -or $file.path -isnot [string] -or ($file.bytes -isnot [long] -and $file.bytes -isnot [int]) -or $file.bytes -lt 0 -or $file.bytes -gt 9007199254740991 -or $file.sha256 -isnot [string] -or $file.sha256 -cnotmatch '^[0-9a-f]{64}$'){throw 'Audio source snapshot pin rejected'}
+  }
+ }
+}
+function Get-AudioSourceGroups {
+ param([Parameter(Mandatory)][string]$RepoRoot)
+ $groups=@(Get-AudioSourceDefinitions|ForEach-Object {$_.snapshot=@(Get-SimulationSourceSnapshot (Join-Path $RepoRoot $_.source) -RequiredEntries $_.required);$_})
+ Assert-AudioSourceDescriptors -Groups $groups
+ $groups
+}
+function Copy-AudioSourceGroups {
+ param([Parameter(Mandatory)][string]$RepoRoot,[Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Groups)
+ Assert-AudioSourceDescriptors -Groups $Groups
+ foreach($group in $Groups){Copy-SimulationSourceSnapshot (Join-Path $RepoRoot $group.source) (Join-Path $DestinationRoot $group.destination) $group.snapshot -RequiredEntries $group.required}
+}
+function Assert-AudioSourceGroups {
+ param([Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Groups,[switch]$Authoring,[switch]$AllowGeneratedUIDs)
+ Assert-AudioSourceDescriptors -Groups $Groups
+ foreach($group in $Groups){
+  $folder=if($Authoring){$group.source}else{$group.destination}
+  Assert-SimulationSourceSnapshot (Join-Path $DestinationRoot $folder) $group.snapshot -RequiredEntries $group.required -AllowGeneratedUIDs:$AllowGeneratedUIDs
+ }
+}
+function Assert-PreviewAudioReceipt {
+ param([Parameter(Mandatory)]$Receipt)
+ if($Receipt -isnot [pscustomobject] -or (($Receipt.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "cues`nlifecycle`noptions`npanel`nrenderer"){throw 'All five audio check groups are mandatory'}
+ $total=[long]0
+ foreach($name in @('cues','options','renderer','panel','lifecycle')){
+  $item=$Receipt.$name
+  $keys=@('passed','checks','failures');if($name -eq 'panel'){$keys+='scope'}
+  if($item -isnot [pscustomobject] -or (($item.PSObject.Properties.Name|Sort-Object) -join "`n") -cne (($keys|Sort-Object) -join "`n")){throw "Audio $name result closed shape rejected"}
+  if($item.passed -isnot [bool] -or -not $item.passed -or ($item.checks -isnot [long] -and $item.checks -isnot [int]) -or $item.checks -le 0 -or $item.checks -gt 9007199254740991 -or $item.failures -isnot [array] -or $item.failures.Count -ne 0){throw "Audio $name checks missing, vacuous or failed"}
+  if($name -eq 'panel' -and ($item.scope -isnot [string] -or [string]::IsNullOrWhiteSpace($item.scope) -or $item.scope.Length -gt 1024)){throw 'Bounded audio panel scope required'}
+  $total+=$item.checks
+  if($total -gt 9007199254740991){throw 'Audio check total exceeds safe integer range'}
+ }
+}
 function Assert-PreviewFacadeReceipt {
  param([Parameter(Mandatory)]$Receipt,[bool]$IncludePiston=$true,[string]$ExpectedSourceFingerprint='')
- $keys=@('schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive','wind','first_flight')
+ $keys=@('schema_version','scope','passed','checks','failures','facade','origin','participants','wire','scene','input','input_scene','instruments','cockpit','freeflight','observed','observed_archive','wind','first_flight','audio')
  if((($Receipt.PSObject.Properties.Name|Sort-Object) -join "`n") -cne (($keys|Sort-Object) -join "`n")){throw 'Facade receipt exact shape rejected'}
  if(($Receipt.schema_version -isnot [long] -and $Receipt.schema_version -isnot [int]) -or $Receipt.schema_version -ne 1 -or $Receipt.scope -isnot [string] -or [string]::IsNullOrWhiteSpace($Receipt.scope) -or $Receipt.scope.Length -gt 1024 -or $Receipt.passed -isnot [bool] -or -not $Receipt.passed -or ($Receipt.checks -isnot [long] -and $Receipt.checks -isnot [int]) -or $Receipt.checks -le 0 -or $Receipt.failures -isnot [array] -or $Receipt.failures.Count -ne 0){throw 'Facade receipt must contain actual passing checks'}
+ Assert-PreviewAudioReceipt -Receipt $Receipt.audio
  $hud=$Receipt.cockpit.hud_caption
  if($null -eq $hud -or (($hud.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "checks`nfailures`npassed`nscope"){throw 'Mandatory closed HUD-caption result required'}
  if($hud.passed -isnot [bool] -or -not $hud.passed -or ($hud.checks -isnot [long] -and $hud.checks -isnot [int]) -or $hud.checks -le 0 -or $hud.checks -gt 9007199254740991 -or $hud.failures -isnot [array] -or $hud.failures.Count -ne 0 -or $hud.scope -isnot [string] -or [string]::IsNullOrWhiteSpace($hud.scope) -or $hud.scope.Length -gt 1024){throw 'Actual passing HUD-caption checks required'}
@@ -622,6 +682,20 @@ func observed_first_flight_baseline() -> Dictionary:
  var admitted: Dictionary=load("res://world/synthetic/circuit_geometry.gd").view(value,"calm",36)
  check(admitted.available and value.get("tick")=="0" and value.get("debt_quanta")==0,"first_flight_observed_full_paused_source_baseline")
  return value if stopped.ok and not stopped.readback.native_live and admitted.available and value.get("tick")=="0" and value.get("debt_quanta")==0 else {}
+func audio_lifecycle_checks() -> Dictionary:
+ # Observe a real facade publication; never rewrite a captured fixture as live.
+ var owner=load("res://simulation/session_facade.gd").new()
+ var started: Dictionary=owner.start(ProjectSettings.globalize_path("res://models"),"ground-ready","calm","original-interactive-prototype")
+ var resumed: Dictionary=owner.set_paused(false) if started.ok else started
+ var source: Dictionary=owner.readback()
+ var cues: Dictionary=load("res://audio/audio_cues.gd").from_readback(source)
+ var eligible: bool=started.ok and resumed.ok and cues.state=="live" and cues.session_id==source.get("session_id") and source.get("native_source_fingerprint")==load("res://build/native_identity.gd").SOURCE_FINGERPRINT
+ check(eligible,"audio_actual_live_source_required")
+ var result: Dictionary={"passed":false,"checks":1,"failures":["actual_live_source_unavailable"]}
+ if eligible: result=await load("res://audio_tests/sample_renderer_checks.gd").run_sound(self,source)
+ var stopped: Dictionary=owner.close()
+ check(stopped.ok and stopped.readback.native_live==false,"audio_actual_source_worker_joined")
+ return result
 func execute() -> void:
  for argument in OS.get_cmdline_user_args():
   if argument.begins_with("--hud-caption-visual-output="):
@@ -663,7 +737,7 @@ func execute() -> void:
   return
  identity_file.store_string(JSON.stringify(identity_receipt))
  identity_file.close()
- for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests","res://world/wind","res://ui/wind","res://wind_tests","res://wind_scene_tests","res://ui/first_flight","res://world/synthetic","res://scenario_tests/first-flight","res://first_flight_ui_tests","res://world_tests/synthetic","res://first_flight_scene_tests"$pistonCompileFolder]:
+ for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests","res://world/wind","res://ui/wind","res://wind_tests","res://wind_scene_tests","res://audio","res://ui/audio","res://audio_tests","res://ui/first_flight","res://world/synthetic","res://scenario_tests/first-flight","res://first_flight_ui_tests","res://world_tests/synthetic","res://first_flight_scene_tests"$pistonCompileFolder]:
   for name in DirAccess.get_files_at(folder):
    if name.ends_with(".gd"):
     var script=load(folder.path_join(name)) as Script
@@ -716,6 +790,19 @@ func execute() -> void:
  var instruments: Dictionary=load("res://instrument_tests/instrument_checks.gd").run()
  stage("end","instruments")
  check(instruments.get("passed",false) and instruments.get("checks",0)>0 and instruments.get("failures",["missing"]).is_empty(),"native_truth_reading_checks")
+ var audio_checks: Dictionary={}
+ for name in ["cues","options","renderer","panel","lifecycle"]:
+  stage("begin","audio."+name)
+  var result: Dictionary
+  match name:
+   "cues": result=load("res://audio_tests/audio_cues_checks.gd").run()
+   "options": result=load("res://audio_tests/audio_options_checks.gd").run()
+   "renderer": result=load("res://audio_tests/sample_renderer_checks.gd").run()
+   "panel": result=await load("res://audio_tests/audio_panel_checks.gd").new().run(self)
+   "lifecycle": result=await audio_lifecycle_checks()
+  stage("end","audio."+name)
+  check(result.get("passed")==true and typeof(result.get("checks"))==TYPE_INT and result.checks>0 and result.get("failures") is Array and result.failures.is_empty(),"actual_audio_"+name+"_checks")
+  audio_checks[name]=result
  var cockpit_checks: Dictionary={}
  for name in ["adapter","scan","scene","hud_caption"]:
   var prior_failures: int=failures.size()
@@ -783,7 +870,7 @@ $pistonChecks
   stage("end","first_flight."+name)
   check(result.get("passed")==true and typeof(result.get("checks"))==TYPE_INT and result.checks>0 and result.get("failures") is Array and result.failures.is_empty(),"actual_first_flight_"+name+"_checks")
   first_flight_checks[name]=result
- var report: Dictionary={"schema_version":1,"scope":"Headless actual-native facade and synthetic wire/render fixtures; GPU and pilot qualification separate","passed":failures.is_empty(),"checks":checks,"failures":failures.duplicate(),"facade":facade,"origin":origin,"participants":participants,"wire":wire,"scene":scene,"input":input,"input_scene":input_scene,"instruments":instruments,"cockpit":cockpit_checks,"freeflight":freeflight_checks,"observed":observed_checks,"observed_archive":archive_checks,"wind":wind_checks,"first_flight":first_flight_checks}
+ var report: Dictionary={"schema_version":1,"scope":"Headless actual-native facade and synthetic wire/render fixtures; GPU and pilot qualification separate","passed":failures.is_empty(),"checks":checks,"failures":failures.duplicate(),"facade":facade,"origin":origin,"participants":participants,"wire":wire,"scene":scene,"input":input,"input_scene":input_scene,"instruments":instruments,"cockpit":cockpit_checks,"freeflight":freeflight_checks,"observed":observed_checks,"observed_archive":archive_checks,"wind":wind_checks,"first_flight":first_flight_checks,"audio":audio_checks}
  var output: String=ProjectSettings.globalize_path("res://facade-check-receipt.json") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("facade-check-receipt.json")
  for argument in OS.get_cmdline_user_args():
   if argument.begins_with("--facade-receipt="): output=argument.trim_prefix("--facade-receipt=")
