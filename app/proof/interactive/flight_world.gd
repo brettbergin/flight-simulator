@@ -61,36 +61,66 @@ func cabin_glass(z: float, angle: float) -> bool:
 
 func fuselage(parent: Node3D, paint: Material, glass: Material) -> MeshInstance3D:
 	# One elliptical shell partitioned into body and opaque glazing surfaces.
-	# Identical analytic normals at material seams preserve continuous lighting.
+	# Shared station derivatives smooth shading without moving the original shell.
 	var stations: Array[Vector4] = [Vector4(-3.02,0.00,0.25,0.29),Vector4(-2.65,0.02,0.45,0.44),Vector4(-1.72,0.04,0.59,0.56),Vector4(-0.80,0.10,0.68,0.67),Vector4(0.65,0.08,0.63,0.62),Vector4(1.30,0.05,0.44,0.44),Vector4(2.42,0.12,0.23,0.24),Vector4(3.55,0.18,0.07,0.12)]
+	# One derivative at each authored station is reused by both adjacent rows.
+	# These are shading derivatives only; station interpolation stays unchanged.
+	var derivatives: Array[Vector4] = []
+	for station_index in range(stations.size()):
+		var first: int = maxi(0,station_index-1)
+		var last: int = mini(stations.size()-1,station_index+1)
+		derivatives.append((stations[last]-stations[first])/(stations[last].x-stations[first].x))
+	# Body colors are the original sRGB palette, not a tint of shared wing ivory.
+	# The flag converts vertex sRGB in linear renderers; Compatibility keeps sRGB
+	# until its normal final albedo conversion. Glass receives no vertex colors.
+	var body_paint: StandardMaterial3D = paint.duplicate() as StandardMaterial3D
+	body_paint.albedo_color=Color.WHITE
+	body_paint.vertex_color_use_as_albedo=true
+	body_paint.vertex_color_is_srgb=true
 	var surfaces: Array[SurfaceTool] = [SurfaceTool.new(),SurfaceTool.new()]
 	for surface in surfaces:
 		surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	for row in range(stations.size()-1):
 		var a: Vector4 = stations[row]
 		var b: Vector4 = stations[row+1]
-		var slope: Vector4 = (b-a)/(b.x-a.x)
 		for span in range(16):
 			var start: Vector4 = a.lerp(b,span/16.0)
 			var end: Vector4 = a.lerp(b,(span+1)/16.0)
+			var start_slope: Vector4 = derivatives[row] if span==0 else derivatives[row].lerp(derivatives[row+1],span/16.0)
+			var end_slope: Vector4 = derivatives[row+1] if span==15 else derivatives[row].lerp(derivatives[row+1],(span+1)/16.0)
+			var slopes: Array[Vector4] = [start_slope,end_slope]
 			for segment in range(64):
 				var angle: float = TAU*(segment+0.5)/64.0
-				var surface: SurfaceTool = surfaces[1 if cabin_glass((start.x+end.x)*0.5,angle) else 0]
+				var is_glass: bool = cabin_glass((start.x+end.x)*0.5,angle)
+				var surface: SurfaceTool = surfaces[1 if is_glass else 0]
+				var color: Color = Color(0.91,0.94,0.93)
+				# Original flush side paint: below the window band, mirrored across X.
+				# One color per existing quad gives crisp edges, with no extra geometry.
+				var z: float = (start.x+end.x)*0.5
+				var side_band: bool = sin(angle)>-0.34 and sin(angle)<-0.12
+				if side_band and z>-1.65 and z<0.80:
+					color=Color(0.06,0.53,0.55)
+				elif side_band and z>1.18 and z<3.08:
+					color=Color(0.025,0.10,0.17)
 				var corners: Array[Vector3] = []
 				var normals: Array[Vector3] = []
-				for station in [start,end]:
+				for station_index in range(2):
+					var station: Vector4 = [start,end][station_index]
+					var slope: Vector4 = slopes[station_index]
 					for theta in [TAU*segment/64.0,TAU*(segment+1)/64.0]:
 						corners.append(Vector3(cos(theta)*station.z,station.y+sin(theta)*station.w,station.x))
 						var tangent: Vector3 = Vector3(-sin(theta)*station.z,cos(theta)*station.w,0)
 						var along: Vector3 = Vector3(cos(theta)*slope.z,slope.y+sin(theta)*slope.w,1)
 						normals.append(tangent.cross(along).normalized())
 				for index in [0,2,1,1,2,3]:
+					if not is_glass:
+						surface.set_color(color)
 					surface.set_normal(normals[index])
 					surface.add_vertex(corners[index])
 	var mesh := ArrayMesh.new()
 	for index in range(surfaces.size()):
 		surfaces[index].commit(mesh)
-		mesh.surface_set_material(index,paint if index==0 else glass)
+		mesh.surface_set_material(index,body_paint if index==0 else glass)
 	var node := MeshInstance3D.new()
 	node.name="ContinuousCabinShell"
 	node.mesh=mesh
@@ -137,9 +167,7 @@ func aircraft(parent: Node3D) -> Dictionary:
 	# Frames are the unglazed regions of the continuous cabin shell.
 	for side in [-1.0,1.0]:
 		rod(airplane,Vector3(side*0.51,-0.28,0.33),Vector3(side*2.65,0.92,0.04),0.032,ivory)
-		# Painted beltline, wingtip caps and trailing-edge seams.
-		rod(airplane,Vector3(side*0.575,-0.035,-1.65),Vector3(side*0.57,-0.035,0.80),0.045,teal)
-		rod(airplane,Vector3(side*0.46,0.01,1.18),Vector3(side*0.13,0.12,3.08),0.038,navy)
+		# Beltline paint belongs to the shell; retain wingtip caps and seams.
 		box(airplane,Vector3(0.36,0.055,1.19),Vector3(side*4.31,1.04,-0.19),teal)
 		rod(airplane,Vector3(side*0.91,0.902,0.43),Vector3(side*4.20,1.002,0.39),0.007,navy)
 		box(airplane,Vector3(0.13,0.035,0.03),Vector3(side*0.64,0.13,-0.36),metal)

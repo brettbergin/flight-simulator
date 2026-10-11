@@ -6828,6 +6828,62 @@
       "evidence": [
         "Reviewed ADR024 policy/work bounds and source-identity plan; independently frozen amendment packet and integrated review before outputs; retained original expected-failure replay and captured exact diagnosis, with implementation/phase limits explicit."
       ]
+    },
+    {
+      "key": "ORIGINAL-AIRFRAME-FINISH",
+      "title": "Refine the original exterior cabin finish without changing aircraft geometry",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Improve original cabin shading continuity and flush opaque-shell paint while preserving exact geometry, existing views and native authority; contributes partial presentation coverage only.",
+      "depends_on": [
+        "AIRCRAFT-GROUND-UX",
+        "PISTON-PROPELLER-PRESENTATION",
+        "LICENSE-REGISTER",
+        "RENDER-PROOF"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:aircraft",
+        "priority:P1",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "app/proof/interactive/flight_world.gd",
+        "app/proof/interactive/flight_aircraft_checks.gd",
+        "docs/evidence/P2/original-airframe-finish.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md",
+        "docs/README.md"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/phases/p2-first-flight.md",
+        "docs/evidence/P1/aircraft-ground-ux.md",
+        "docs/evidence/P2/propeller-presentation.md",
+        "docs/evidence/P2/original-airframe-finish.md"
+      ],
+      "requirements": [
+        "PRD-002",
+        "PRD-015",
+        "UX-010"
+      ],
+      "acceptance": [
+        "Use shared authored-station shading derivatives while preserving all original shell vertex positions, indices/winding, body/glass membership, two surfaces and finite unit outward normals.",
+        "Replace only the four decorative paint rods with a restrained mirrored original palette on existing opaque triangles; no floating overlays, glass paint, extra surfaces or shared wing-material mutation.",
+        "Preserve structural details, axes, native pose/contact origins, wing/gear/propeller geometry and handles/pivots/phase adapter, existing camera eye/envelope/FOV, controls and unrelated scenery.",
+        "Retain existing mesh/wing/native-handle checks and add meaningful baseline geometry/partition, station/wrap normal continuity, perturbed-boundary negative, palette and material-isolation regressions.",
+        "Pass isolated pinned script compilation, fresh frozen-source editor/export/rebuilt-library source/package/rights closure, and paired actual same-state/camera/light/renderer nose/side/aft/chase views at existing small/large sizes with independent useful-improvement review and required CI.",
+        "Record PRD-002/015 and UX-010 as partial state/view/presentation contributions only; no physics, manufacturer geometry, C172, pilot or phase acceptance. Retain first failures and unrelated engine/numeric coverage gaps."
+      ],
+      "evidence": [
+        "Exact baseline/candidate source and geometry bindings, focused mesh negative checks and preserved authority/handle comparisons.",
+        "Frozen editor/portable/rebuilt-library package/module/model/source/notices closure plus paired original images/receipts with independent visual review; verification remains pending until actually run."
+      ]
     }
   ]
 }
