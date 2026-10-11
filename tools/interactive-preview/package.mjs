@@ -1,4 +1,6 @@
 import fs from 'node:fs';
+import {variant as localWindowVariant,validateLocalWindowReplayReceipt,validateLocalWindowReplaySources} from './local-window-replay.mjs';
+import {validateContract} from '../../schemas/validate.mjs';
 import {selectedLibrary,verifyExportSelection} from '../export/selected-source.mjs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
@@ -145,7 +147,7 @@ export function validateResourceReceipt(receipt,resource){
 }
 export function stageAcceptedSourceIdentity(payload,acceptedPayload,acceptedLibrary,selection){
  if(selection.modified===false)return null;
- assert.equal(selection.modified,true);assert.equal(selection.component_id,'jsbsim-coupled-midpoint-v1');
+ assert.equal(selection.modified,true);assert(['jsbsim-coupled-midpoint-v1','jsbsim-coupled-midpoint-local-window-v2'].includes(selection.component_id),'Closed modified source policy required');
  assert.equal(acceptedLibrary.id,selection.component_id);assert.equal(acceptedLibrary.modified,true);
  assert.equal(acceptedLibrary.source_variant,selection.source_variant);
  const pin=register.entries.find(entry=>entry.id===selection.component_id).library_policy.source_identity;
@@ -430,7 +432,7 @@ function audit(root,proof,build,python='python'){
  const bridgeIdentity=nativeIdentity.build_witnesses.find(item=>item.path==='bin/flight_godot_bridge.dll');
  assert.equal(bridgeIdentity.sha256,modules.find(item=>item.name==='flight_godot_bridge.dll').sha256);
  assert.equal(bridgeIdentity.sha256,replacedModules.find(item=>item.name==='flight_godot_bridge.dll').sha256);
- const pointerEnabled=nativeIdentity.source_variant==='jsbsim-1.3.1-event-aware-coupled-midpoint-v1';
+ const pointerEnabled=['jsbsim-1.3.1-event-aware-coupled-midpoint-v1','jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2'].includes(nativeIdentity.source_variant);
  const pointerReceipts=[];
  if(pointerEnabled){validatePointerSources(repo,path.join(root,'project'),reconstructionRoot);for(const context of ['editor','portable','replacement'])pointerReceipts.push({context,...validatePointerEvidence(path.join(evidence,context+'-pointer-check-receipt.json'),path.join(evidence,context+'-pointer-flight-trace.json'),repo,path.join(root,'project'),nativeIdentity)});}
  const audioIdentity=validateAudioSources(repo,path.join(root,'project'),reconstructionRoot);
@@ -476,8 +478,21 @@ function audit(root,proof,build,python='python'){
   assert.equal(receipt.observed.recorder.reference_cases,42);
   assert.equal(receipt.observed.recorder.reference_sha256,'a4c3184c46f2eb76c85ff4ba43fc8aac49e772a447576eeec5663fff1ac78844');
  }
- const pistonEnabled=nativeIdentity.source_variant==='jsbsim-1.3.1-event-aware-coupled-midpoint-v1';
+ const pistonEnabled=['jsbsim-1.3.1-event-aware-coupled-midpoint-v1','jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2'].includes(nativeIdentity.source_variant);
  const wireCodecContexts=['editor','portable','replacement'].map(context=>({context,checks:validateWireCodecReceipt(json(path.join(evidence,context+'-wire-codec-receipt.json')),pistonEnabled,nativeIdentity.declared_source_fingerprint)}));
+ const localWindowReceipts=[];
+ if(nativeIdentity.source_variant===localWindowVariant){
+  validateLocalWindowReplaySources({repository:repo,project:path.join(root,'project'),sourceRoot:reconstructionRoot,nativeIdentity});
+  const recipeBytes=fs.readFileSync(path.join(repo,'tests/engine/local-window-replay/recipe.json'));
+  const argumentBytes=fs.readFileSync(path.join(repo,'tests/engine/local-window-replay/argument-binary64.json'));
+  for(const [context,contextRoot] of [['editor',path.join(root,'project')],['portable',payload],['replacement',replacement]]){
+   const file=path.join(evidence,context+'-local-window-replay-receipt.json');ordinaryAncestors(file);
+   const info=fs.lstatSync(file);assert(info.isFile()&&info.size>0&&info.size<=16777216);
+   const raw=fs.readFileSync(file),receipt=JSON.parse(raw);
+   const result=validateLocalWindowReplayReceipt(receipt,{recipeBytes,argumentBytes,sourceFingerprint:nativeIdentity.declared_source_fingerprint,sourceVariant:nativeIdentity.source_variant,modelRoot:path.join(contextRoot,'piston-models').replaceAll('\\','/'),validateContract});
+   localWindowReceipts.push({context,raw,...result});
+  }
+ }
  const coldReceipts=[];
  if(pistonEnabled){
   for(const modelRoot of [path.join(repo,pistonModel.content_policy.root),path.join(root,'project/piston-models'),path.join(payload,'piston-models'),path.join(replacement,'piston-models'),path.join(payload,'source/whole-flight-preview/piston-models')])validatePistonModelTree(modelRoot);
@@ -576,6 +591,7 @@ function audit(root,proof,build,python='python'){
   fs.writeFileSync(path.join(payload,target),raw);declare('native-export-proof',target,'evidence');
  }
  for(const {context,raw} of pointerReceipts){const target='evidence/'+context+'-pointer-check-receipt.json';fs.mkdirSync(path.dirname(path.join(payload,target)),{recursive:true});fs.writeFileSync(path.join(payload,target),raw);declare('native-export-proof',target,'evidence');}
+ for(const {context,raw} of localWindowReceipts){const target='evidence/'+context+'-local-window-replay-receipt.json';fs.mkdirSync(path.dirname(path.join(payload,target)),{recursive:true});fs.writeFileSync(path.join(payload,target),raw);declare('native-export-proof',target,'evidence');}
  stage('microsoft-vc143-crt','evidence/selected-runtime.json',runtime);stage('microsoft-vc143-crt','evidence/native-dependencies.json',dependencies);
  stage(libraryId,'evidence/jsbsim-replacement.json',replacementEvidence);stage(libraryId,'evidence/baseline-modules.json',modules);stage(libraryId,'evidence/replacement-modules.json',replacedModules);
  const sourceIdentity=stageAcceptedSourceIdentity(payload,path.join(proof,'payload'),acceptedLibrary,selection);
@@ -585,7 +601,7 @@ function audit(root,proof,build,python='python'){
  assert.deepEqual(auditRelease(register,manifest,{repoRoot:repo,packageRoot:payload}),[]);
  assert.deepEqual(auditDependencyLock(register,json(path.join(repo,'third_party/dependencies.lock.json'))),[]);
  write(path.join(evidence,'package-inventory.json'),manifest);
- write(path.join(evidence,'package-audit.json'),{schema_version:1,rights_integrity_passed:true,actual_combined_replacement_passed:true,wire_codec_checks_passed:true,wire_codec_source_closure_verified:true,wire_codec_contexts:wireCodecContexts,model_pins_verified:true,actual_seven_modules_inside_payload:true,exact_editor_portable_repeat:true,observed_editor_portable_replacement_checks_passed:true,observed_source_closure_verified:true,audio_checks_passed:true,audio_source_closure_verified:true,audio_source_files:audioIdentity.source_files,audio_contexts:uiReceipts.map((receipt,index)=>({context:['editor','portable','replacement'][index],checks:validateAudioReceipt(receipt.audio)})),first_flight_checks_passed:true,first_flight_source_closure_verified:true,first_flight_source_files:firstFlightIdentity.source_files,first_flight_contexts:uiReceipts.map((receipt,index)=>({context:['editor','portable','replacement'][index],checks:validateFirstFlightReceipt(receipt.first_flight,pointerEnabled,nativeIdentity.declared_source_fingerprint),route_scope:receipt.first_flight.scene.route_scope})),observed_archive_checks_passed:true,pointer_checks_enabled:pointerEnabled,...(pointerEnabled?{pointer_checks_passed:true,pointer_contexts:pointerReceipts.map(({context,raw,traceRaw,receipt,rows,commands})=>({context,checks:receipt.checks,rows,commands,summary:{bytes:raw.length,sha256:sha(raw)},trace:{path:context+'-pointer-flight-trace.json',bytes:traceRaw.length,sha256:sha(traceRaw)}}))}:{}),ground_material_checks_passed:true,ground_material_contexts:groundReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)})),...(pistonEnabled?{piston_model_pins_verified:true,piston_editor_portable_replacement_checks_passed:true,piston_contexts:coldReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)}))}:{}),runtime_verification:runtime,trace_records_compared:traces[0].length,selected_library:selection,native_build_identity:nativeIdentity});
+ write(path.join(evidence,'package-audit.json'),{schema_version:1,rights_integrity_passed:true,actual_combined_replacement_passed:true,wire_codec_checks_passed:true,wire_codec_source_closure_verified:true,wire_codec_contexts:wireCodecContexts,local_window_replay_enabled:nativeIdentity.source_variant===localWindowVariant,...(nativeIdentity.source_variant===localWindowVariant?{local_window_replay_contexts:localWindowReceipts.map(({context,raw,checks,calls,final_tick,continuation_completed,joined})=>({context,checks,calls,final_tick,continuation_completed,joined,bytes:raw.length,sha256:sha(raw)})),local_window_replay_source_closure_verified:true}:{}),model_pins_verified:true,actual_seven_modules_inside_payload:true,exact_editor_portable_repeat:true,observed_editor_portable_replacement_checks_passed:true,observed_source_closure_verified:true,audio_checks_passed:true,audio_source_closure_verified:true,audio_source_files:audioIdentity.source_files,audio_contexts:uiReceipts.map((receipt,index)=>({context:['editor','portable','replacement'][index],checks:validateAudioReceipt(receipt.audio)})),first_flight_checks_passed:true,first_flight_source_closure_verified:true,first_flight_source_files:firstFlightIdentity.source_files,first_flight_contexts:uiReceipts.map((receipt,index)=>({context:['editor','portable','replacement'][index],checks:validateFirstFlightReceipt(receipt.first_flight,pointerEnabled,nativeIdentity.declared_source_fingerprint),route_scope:receipt.first_flight.scene.route_scope})),observed_archive_checks_passed:true,pointer_checks_enabled:pointerEnabled,...(pointerEnabled?{pointer_checks_passed:true,pointer_contexts:pointerReceipts.map(({context,raw,traceRaw,receipt,rows,commands})=>({context,checks:receipt.checks,rows,commands,summary:{bytes:raw.length,sha256:sha(raw)},trace:{path:context+'-pointer-flight-trace.json',bytes:traceRaw.length,sha256:sha(traceRaw)}}))}:{}),ground_material_checks_passed:true,ground_material_contexts:groundReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)})),...(pistonEnabled?{piston_model_pins_verified:true,piston_editor_portable_replacement_checks_passed:true,piston_contexts:coldReceipts.map(({context,raw,checks})=>({context,checks,bytes:raw.length,sha256:sha(raw)}))}:{}),runtime_verification:runtime,trace_records_compared:traces[0].length,selected_library:selection,native_build_identity:nativeIdentity});
  console.log('PASS combined package model/source/notices/full PE+CRT closure and actual replacement loop');
 }
 

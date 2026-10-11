@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import { COUPLED_ID, auditCoupledRegister, auditCoupledRelease } from './modified-jsbsim.mjs';
+import { LOCAL_WINDOW_ID, auditLocalWindowRegister, auditLocalWindowRelease } from './modified-jsbsim-local-window.mjs';
 import { auditRuntimeRelease, runtimeNames } from '../export/check-runtime.mjs';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -109,10 +110,14 @@ export function auditRegister(register, { repoRoot } = {}) {
     }
     if (entry.obligations?.includes('stage-third-party-notices') && entry.notice_files.length < 2) errors.push(`${label}: bundled third-party notice file missing`);
     const releasePolicy = entry.library_policy?.release_policy;
-    if (releasePolicy !== undefined && (releasePolicy !== COUPLED_ID || entry.id !== COUPLED_ID)) errors.push(`${label}: unknown or misplaced release policy`);
+    if (releasePolicy !== undefined && (![COUPLED_ID, LOCAL_WINDOW_ID].includes(releasePolicy) || entry.id !== releasePolicy)) errors.push(`${label}: unknown or misplaced release policy`);
     if (entry.id === COUPLED_ID) {
       if (!entry.obligations.includes('include-corresponding-source')) errors.push(`${label}: reserved source obligations missing`);
       auditCoupledRegister(entry, { repoRoot, errors, checkedFile });
+    }
+    if (entry.id === LOCAL_WINDOW_ID) {
+      if (!entry.obligations.includes('include-corresponding-source')) errors.push(`${label}: reserved source obligations missing`);
+      auditLocalWindowRegister(entry, { repoRoot, errors, checkedFile });
     }
     if (entry.obligations?.includes('include-corresponding-source')) {
       if (!plain(entry.library_policy) || entry.library_policy.linkage !== 'dynamic' ||
@@ -191,10 +196,11 @@ export function auditRelease(register, manifest, { repoRoot, packageRoot } = {})
       if (!replacement || replacement.role !== 'evidence') errors.push(`${label}: DLL replacement test evidence missing`);
       if (component.reverse_engineering_permitted !== true) errors.push(`${label}: modification/debugging permission not recorded`);
       if (component.id === COUPLED_ID) auditCoupledRelease(entry, component, { repoRoot, packageRoot, componentFiles, errors, checkedFile });
+      else if (component.id === LOCAL_WINDOW_ID) auditLocalWindowRelease(entry, component, { repoRoot, packageRoot, componentFiles, errors, checkedFile });
       else if (component.modified !== false) errors.push(`${label}: modified library needs new reviewed source digest and modification policy`);
     }
   }
-  if (components.has('jsbsim') && components.has(COUPLED_ID)) errors.push('release: pristine and coupled JSBSim components cannot coexist');
+  if (['jsbsim', COUPLED_ID, LOCAL_WINDOW_ID].filter(id => components.has(id)).length > 1) errors.push('release: pristine and coupled JSBSim components cannot coexist');
   for (const file of scanFiles(packageRoot, errors)) {
     if (!declared.has(file)) errors.push(`package: undeclared file ${file}`);
     if (/^(?:msvcp|vcruntime).*\\.dll$/i.test(path.posix.basename(file)) && !components.has('microsoft-vc143-crt')) errors.push('package: Microsoft CRT requires exact-runtime policy component');

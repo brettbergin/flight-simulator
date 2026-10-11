@@ -7,6 +7,8 @@ import {auditRegister,sha256} from '../license-audit/audit.mjs';
 export const UPSTREAM='jsbsim-1.3.1-upstream';
 export const COUPLED='jsbsim-1.3.1-event-aware-coupled-midpoint-v1';
 const POLICY='jsbsim-coupled-midpoint-v1';
+export const LOCAL_WINDOW='jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2';
+const LOCAL_WINDOW_POLICY='jsbsim-coupled-midpoint-local-window-v2';
 const canonical=value=>Array.isArray(value)?value.map(canonical):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(key=>[key,canonical(value[key])])):value;
 const json=file=>JSON.parse(fs.readFileSync(file,'utf8').replace(/^\uFEFF/,''));
 
@@ -24,17 +26,17 @@ export function selectedLibrary(register,nativeIdentity,repoRoot){
  assert.equal(nativeIdentity.schema,'PreviewNativeBuildIdentity/v2');
  assert.match(nativeIdentity.backend_identity_sha256,/^[a-f0-9]{64}$/);
  const variant=nativeIdentity.source_variant;
- assert([UPSTREAM,COUPLED].includes(variant),'No release policy for selected source variant');
- const id=variant===UPSTREAM?'jsbsim':POLICY;
+ assert([UPSTREAM,COUPLED,LOCAL_WINDOW].includes(variant),'No release policy for selected source variant');
+ const id=variant===UPSTREAM?'jsbsim':variant===COUPLED?POLICY:LOCAL_WINDOW_POLICY;
  const entry=register.entries.find(item=>item.id===id);assert(entry,'Selected source ledger missing');
  const policy=entry.library_policy;
- const result={schema:'SelectedLibraryRelease/v1',component_id:id,source_variant:variant,backend_identity_sha256:nativeIdentity.backend_identity_sha256,source_archive_sha256:policy.source_archive_sha256,source_archive_name:variant===UPSTREAM?'jsbsim-1.3.1-library-source.zip':COUPLED+'-library-source.zip',modified:variant===COUPLED};
- if(variant===COUPLED){
-  assert.equal(policy.release_policy,POLICY);
+ const result={schema:'SelectedLibraryRelease/v1',component_id:id,source_variant:variant,backend_identity_sha256:nativeIdentity.backend_identity_sha256,source_archive_sha256:policy.source_archive_sha256,source_archive_name:variant===UPSTREAM?'jsbsim-1.3.1-library-source.zip':variant+'-library-source.zip',modified:variant!==UPSTREAM};
+ if(variant!==UPSTREAM){
+  assert.equal(policy.release_policy,id);
   const raw=fs.readFileSync(path.join(repoRoot,policy.source_identity.path));
   assert.equal(sha256(raw),policy.source_identity.sha256);
   const identity=JSON.parse(raw);
-  assert.equal(identity.source_variant,COUPLED);
+  assert.equal(identity.source_variant,variant);
   assert.equal(identity.source_archive_sha256,policy.source_archive_sha256);
   assert.equal(coupledBackend(identity,raw),nativeIdentity.backend_identity_sha256,'Selected native backend differs from renewed source');
   Object.assign(result,{source_archive_bytes:identity.source_archive_bytes,source_identity:policy.source_identity,source_manifest_schema:3,bundle_files:293,vendor_files:279,unchanged_vendor_files:275,modified_vendor_files:4});

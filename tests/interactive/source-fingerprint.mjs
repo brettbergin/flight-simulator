@@ -38,8 +38,8 @@ export async function currentInteractiveIdentity(executable, { repositoryRoot = 
   const build = resolve(dirname(executable), '..');
   const manifestBytes = await readFile(join(build, 'jsbsim-source-build-manifest.txt'));
   const identity = parseBuildIdentity(manifestBytes.toString('utf8'));
-  const transport = identity.variant === 'jsbsim-1.3.1-event-aware-coupled-midpoint-v1'
-    ? 'event-aware-coupled-midpoint-v1' : 'event-aware-constant-power-v1';
+  const transport = identity.variant === 'jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2' ? 'event-aware-coupled-midpoint-local-window-v2'
+    : identity.variant === 'jsbsim-1.3.1-event-aware-coupled-midpoint-v1' ? 'event-aware-coupled-midpoint-v1' : 'event-aware-constant-power-v1';
   const accepted = backendIdentities(
     await readFile(join(repositoryRoot, `third_party/patches/jsbsim/${transport}/identity.json`)),
     await readFile(join(repositoryRoot, 'tools/export/jsbsim/upstream-file-inventory.json')));

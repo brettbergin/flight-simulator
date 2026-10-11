@@ -115,6 +115,15 @@ def fixture(root, family='MSVC', variant=n.VARIANTS[0]):
 
 
 class IdentityTests(unittest.TestCase):
+    def test_local_window_explicit_controls_and_variant_rosters(self):
+        self.assertEqual(n.CONTROLS, ('CMakeLists.txt', 'CMakePresets.json', 'third_party/dependencies.lock.json', 'tools/bootstrap/source-selection.cmake', 'tools/bootstrap/source-variant.py', 'tools/bootstrap/coupled-source-variant.py', 'tools/bootstrap/build.ps1', 'tools/bootstrap/bootstrap.py', 'native/fdm_jsbsim/CMakeLists.txt', 'native/fdm_jsbsim/ground/CMakeLists.txt', 'native/fdm_jsbsim/interactive/CMakeLists.txt', 'tests/fdm/CMakeLists.txt', 'native/fdm_jsbsim/interactive/native_identity.gd.in', 'native/godot_bridge/CMakeLists.txt', 'tests/wire_codec/CMakeLists.txt', 'tools/bootstrap/coupled-local-window-source-variant.py', 'tools/bootstrap/build-local-window.ps1', 'tests/engine/local-window-v2/CMakeLists.txt'))
+        self.assertEqual(n.VARIANTS, ('jsbsim-1.3.1-upstream', 'jsbsim-1.3.1-event-aware-constant-power-v1', 'jsbsim-1.3.1-event-aware-coupled-midpoint-v1', 'jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2'))
+        values=n.cache_values(self.build)
+        self.assertEqual(n.route(dict(values,FLIGHT_JSBSIM_VARIANT='event-aware-coupled-midpoint-local-window-v2')), 'jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2')
+        for selected in ('event-aware-coupled-midpoint-local-window-v1','event-aware-coupled-midpoint-v2','event-aware-coupled-midpoint-local-window-v3'):
+            with self.assertRaises(ValueError):n.route(dict(values,FLIGHT_JSBSIM_VARIANT=selected))
+        with self.assertRaises(ValueError):n.route(dict(values,FLIGHT_JSBSIM_VARIANT='event-aware-coupled-midpoint-local-window-v2',FLIGHT_USE_EVENT_AWARE_JSBSIM='ON'))
+
     def setUp(self):
         WORKSPACE.mkdir(parents=True, exist_ok=True)
         self.temp = tempfile.TemporaryDirectory(prefix='case-', dir=WORKSPACE)
@@ -145,6 +154,13 @@ class IdentityTests(unittest.TestCase):
         return n.qualify(self.repo, self.build, lambda *_: self.selected)
 
     def test_windows_linux_all_closed_routes(self):
+        expected_variants = (
+            'jsbsim-1.3.1-upstream',
+            'jsbsim-1.3.1-event-aware-constant-power-v1',
+            'jsbsim-1.3.1-event-aware-coupled-midpoint-v1',
+            'jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2',
+        )
+        self.assertEqual(n.VARIANTS, expected_variants)
         fingerprints = []
         for i, (family, variant) in enumerate((f,v) for f in ('MSVC','GNU') for v in n.VARIANTS):
             root=self.root/str(i);root.mkdir()
@@ -159,7 +175,7 @@ class IdentityTests(unittest.TestCase):
                 'jsbsim-source-build-manifest.txt', 'interactive-source-fingerprint.txt',
                 'compile_commands.json'))
             fingerprints.append(expected)
-        self.assertEqual(len(set(fingerprints)),6)
+        self.assertEqual(len(set(fingerprints)),8)
 
     def test_number_helper_missing_and_changed_source(self):
         for name in EXPECTED_SOURCE_PATHS[-2:]:
@@ -355,6 +371,8 @@ class IdentityTests(unittest.TestCase):
                 self.assertTrue(Path(kwargs['env']['TEMP']).is_relative_to(repo/'.local'))
                 self.assertEqual('--coupled-midpoint' in argv,variant==n.VARIANTS[2])
                 self.assertEqual('--event-aware' in argv,variant==n.VARIANTS[1])
+                self.assertEqual('--coupled-local-window' in argv,variant==n.VARIANTS[3])
+                if variant==n.VARIANTS[3]:self.assertIn(str(repo/'tools/bootstrap/coupled-local-window-source-variant.py'),argv)
                 return type('Result',(),{'returncode':0,'stdout':json.dumps(selected).encode()})()
             with patch.object(n.subprocess,'run',side_effect=process):
                 self.assertEqual(n.selected_source(repo,build,n.cache_values(build)),selected)

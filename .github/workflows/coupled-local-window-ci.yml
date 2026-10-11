@@ -1,0 +1,358 @@
+name: Coupled local window CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: coupled-local-window-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  reference:
+    name: local-window-reference
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12.5'
+      - name: Check all twenty-four independent mathematical tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .local/local-window-reference-ci
+          python -B -m unittest discover -s tests/engine/shaft-method/coupled-midpoint-v1 -p 'test_*.py' -v 2>&1 | tee .local/local-window-reference-ci/selftests.log
+      - name: Reproduce immutable independent reference packet
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -B tests/engine/shaft-method/coupled-midpoint-v1/generate.py --repo-root . --check tests/engine/shaft-method/coupled-midpoint-v1/references.json 2>&1 | tee .local/local-window-reference-ci/generation.log
+          sha256sum tests/engine/shaft-method/coupled-midpoint-v1/references.json > .local/local-window-reference-ci/packet.sha256
+          sha256sum tests/engine/shaft-method/coupled-midpoint-v1/generate.py tests/engine/shaft-method/coupled-midpoint-v1/exact.py tests/engine/shaft-method/coupled-midpoint-v1/native_fixture.py > .local/local-window-reference-ci/generator-sources.sha256
+      - name: Reproduce the immutable seventeen local-window certificate references
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -B docs/evidence/P3/piston-local-window-reference/generate.py --check 2>&1 | tee .local/local-window-reference-ci/local-window-generation.log
+          sha256sum docs/evidence/P3/piston-local-window-reference/generate.py docs/evidence/P3/piston-local-window-reference/expected.json docs/evidence/P3/piston-local-window-reference/manifest.json > .local/local-window-reference-ci/local-window-reference.sha256
+      - name: Preserve mathematical evidence including failed generation logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: local-window-reference-evidence
+          if-no-files-found: warn
+          path: |
+            .local/local-window-reference-ci/*.log
+            .local/local-window-reference-ci/*.sha256
+  local-window-native:
+    name: local-window-native (${{ matrix.os }})
+    needs: reference
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2022]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      JSBSIM_DEBUG: '0'
+      FLIGHT_LOCAL_WINDOW_CONTRACT_MERGE: '2f7f36ede4356b24e98d7676daab7819c01cc130'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12.5'
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+      - name: Bind additive workflow and accepted local-window contract before compilation
+        run: |
+          git merge-base --is-ancestor $env:FLIGHT_LOCAL_WINDOW_CONTRACT_MERGE HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'Accepted ADR024 contract is not an ancestor' }
+          $path = '.github/workflows/coupled-local-window-ci.yml'
+          $hash = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()
+          if (Test-Path -LiteralPath .local/local-window-workflow) { throw 'Fresh workflow evidence required' }
+          New-Item -ItemType Directory .local/local-window-workflow | Out-Null
+          @{path=$path;sha256=$hash;contract_merge=$env:FLIGHT_LOCAL_WINDOW_CONTRACT_MERGE} | ConvertTo-Json | Set-Content .local/local-window-workflow/pin.json -Encoding utf8
+          "FLIGHT_WORKFLOW_SHA256=$hash" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Install locked schema validator dependencies
+        run: |
+          npm ci --ignore-scripts --prefix schemas
+          if ($LASTEXITCODE -ne 0) { throw 'Schema dependency installation failed' }
+      - name: Pin headless Linux compiler family
+        if: runner.os == 'Linux'
+        run: |
+          'CC=gcc-13' | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          'CXX=g++-13' | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Check independent mathematical and tamper tests
+        run: |
+          python -B tests/engine/shaft-method/probes-local-window-v2/run.py math
+          if ($LASTEXITCODE -ne 0) { throw 'Coupled mathematical or tamper tests failed' }
+          python -B -m unittest discover -s tools/ci -p 'test_coupled_local_window_native.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'CI qualification guard tests failed' }
+          node tools/license-audit/test.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Rights admission fixtures failed' }
+          node --test tests/fdm/source-fingerprint.test.mjs tests/interactive/source-fingerprint.test.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Ordered source/control fingerprint fixtures failed' }
+          python -B -m unittest discover -s tools/interactive-preview -p 'test_native_identity.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'Independent25-source18-control fixtures failed' }
+      - name: Bind source and unchanged physical budgets before compilation
+        run: |
+          python -B tools/ci/coupled-local-window-native.py pretrial --work-root .local/local-window-ci
+          if ($LASTEXITCODE -ne 0) { throw 'Coupled CI identity gate failed' }
+      - name: Compile fresh qualified headless modified backend without testing
+        run: ./tools/bootstrap/build-local-window.ps1 -Python python -PatchedSourceVariant event-aware-coupled-midpoint-local-window-v2 -HeadlessNative -ConfigureAndBuildOnly -BuildDirectory .local/local-window-ci/build -SourcePreparationDirectory .local/local-window-ci/prepared-source -PretrialRatification .local/local-window-ci/pretrial.json -ExecutionRatification .local/local-window-ci/physical-execution.json -ProbeExecutionRatification .local/local-window-ci/unit-execution.json
+      - name: Check exact new source archive and source-policy negatives
+        run: |
+          $archives = @(Get-ChildItem -LiteralPath .local/local-window-ci/prepared-source -File -Filter '*-library-source.zip')
+          if ($archives.Count -ne 1) { throw 'Exactly one newly materialized source archive required' }
+          node tests/export/selected-local-window-source.test.mjs $archives[0].FullName
+          if ($LASTEXITCODE -ne 0) { throw 'Exact local-window source/policy fixtures failed' }
+      - name: Explicitly authorize measured isolated unit binaries
+        run: |
+          python -B tests/engine/shaft-method/probes-local-window-v2/run.py authorize --config .local/local-window-ci/build/coupled-probes-config.json --ratification .local/local-window-ci/unit-execution.json --approve-execution
+          if ($LASTEXITCODE -ne 0) { throw 'Measured coupled unit authorization failed' }
+      - name: Independently qualify actual compiler routes and authorize physical binaries
+        run: |
+          python -B tools/ci/coupled-local-window-native.py authorize --work-root .local/local-window-ci --approve-execution
+          if ($LASTEXITCODE -ne 0) { throw 'Coupled CI identity gate failed' }
+      - name: Execute full headless CTest with both explicit authorization records
+        run: ./tools/bootstrap/build-local-window.ps1 -Python python -PatchedSourceVariant event-aware-coupled-midpoint-local-window-v2 -HeadlessNative -RunTestsOnly -BuildDirectory .local/local-window-ci/build -SourceBundleRoot .local/local-window-ci/prepared-source/source -PretrialRatification .local/local-window-ci/pretrial.json -ExecutionRatification .local/local-window-ci/physical-execution.json -ProbeExecutionRatification .local/local-window-ci/unit-execution.json
+      - name: Verify original twelve-process physical gate and isolated unit results
+        run: |
+          python -B tools/ci/coupled-local-window-native.py verify --work-root .local/local-window-ci
+          if ($LASTEXITCODE -ne 0) { throw 'Coupled CI identity gate failed' }
+      - name: Check additive workflow bytes after qualification
+        run: |
+          $actual = (Get-FileHash -LiteralPath .github/workflows/coupled-local-window-ci.yml -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actual -cne $env:FLIGHT_WORKFLOW_SHA256) { throw 'Additive workflow changed during qualification' }
+      - name: Preserve headless qualification evidence without simulator binaries
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: local-window-shaft-evidence-${{ matrix.os }}
+          if-no-files-found: warn
+          path: |
+            .local/local-window-workflow/pin.json
+            .local/local-window-ci/pretrial.json
+            .local/local-window-ci/*-execution.json
+            .local/local-window-ci/evidence/*.json
+            .local/local-window-ci/build/event-aware-route.json
+            .local/local-window-ci/build/event-aware-build-result.json
+            .local/local-window-ci/build/CMakeCache.txt
+            .local/local-window-ci/build/compile_commands.json
+            .local/local-window-ci/build/native-verbose-build.log
+            .local/local-window-ci/build/native-ctest.log
+            .local/local-window-ci/build/toolchain-build-manifest.txt
+            .local/local-window-ci/build/jsbsim-source-build-manifest.txt
+            .local/local-window-ci/build/interactive-source-fingerprint.txt
+            .local/local-window-ci/build/coupled-probes-config.json
+            .local/local-window-ci/build/tests/engine/local-window-v2/coupled-probes/generated/*.json
+            .local/local-window-ci/build/tests/engine/local-window-v2/local-window-references/generated/source-binding.json
+            .local/local-window-ci/prepared-source/source-bundle-evidence.json
+            .local/local-window-ci/build/Testing/Temporary/*.log
+            .local/local-window-ci/build/piston-engine-proof/**
+            .local/local-window-ci/build/coupled-unit-proof/**
+            .local/toolchain/environment.json
+  # Additive v2 bindings-ON qualification. Existing 149/155 ancestry pins remain;
+  # accepted207/ADR024 is checked separately before any new source compilation.
+  local-window-player:
+    name: local-window-player (windows-2022)
+    needs: reference
+    runs-on: windows-2022
+    timeout-minutes: 90
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      JSBSIM_DEBUG: '0'
+      FLIGHT_LOCAL_WINDOW_CONTRACT_MERGE: '2f7f36ede4356b24e98d7676daab7819c01cc130'
+      FLIGHT_NUMERICS_MERGE: '8a4a01adb4ef1e04535c70667b8377e19ace8d51'
+      FLIGHT_DELIVERY_MERGE: '2a8d1b4427eb6a5ccdf385cb22f3915388cc9870'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12.5'
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+      - name: Bind additive workflow and accepted local-window contract before compilation
+        run: |
+          git merge-base --is-ancestor $env:FLIGHT_LOCAL_WINDOW_CONTRACT_MERGE HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'Accepted ADR024 contract is not an ancestor' }
+          $path = '.github/workflows/coupled-local-window-ci.yml'
+          $hash = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()
+          if (Test-Path -LiteralPath .local/local-window-workflow) { throw 'Fresh workflow evidence required' }
+          New-Item -ItemType Directory .local/local-window-workflow | Out-Null
+          @{path=$path;sha256=$hash;contract_merge=$env:FLIGHT_LOCAL_WINDOW_CONTRACT_MERGE} | ConvertTo-Json | Set-Content .local/local-window-workflow/pin.json -Encoding utf8
+          "FLIGHT_WORKFLOW_SHA256=$hash" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Install locked schema validators and check source admission fixtures
+        run: |
+          npm ci --ignore-scripts --prefix schemas
+          if ($LASTEXITCODE -ne 0) { throw 'Locked schema installation failed' }
+          node tools/license-audit/test.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Rights-source admission fixtures failed' }
+          node --test tools/interactive-preview/verify.test.mjs tests/export/runtime.test.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Player model/receipt/runtime admission fixtures failed' }
+          python -B -m unittest discover -s tools/interactive-preview -p 'test_native_identity.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'Independent native identity fixtures failed' }
+          python -B -m unittest discover -s tools/ci -p 'test_coupled_local_window_player.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'Bindings-ON qualifier fixtures failed' }
+          python -B tests/engine/shaft-method/probes-local-window-v2/run.py math
+          if ($LASTEXITCODE -ne 0) { throw 'Fixed mathematical/tamper fixtures failed' }
+          node --test tools/interactive-preview/local-window-replay.test.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Original298 source/history admission negatives failed' }
+          New-Item -ItemType Directory -Path .local/local-window-replay-staging-tests -Force | Out-Null
+          ./tools/interactive-preview/local-window-replay-staging.test.ps1 -RepoRoot . -FixtureRoot (Join-Path $PWD 'tests/engine/local-window-replay') -WorkRoot (Join-Path $PWD '.local/local-window-replay-staging-tests')
+          ./tools/interactive-preview/simulation-staging.test.ps1
+          ./tools/interactive-preview/check-guards.ps1
+          ./tools/interactive-preview/piston-staging.test.ps1 -StagingScript tools/interactive-preview/simulation-staging.ps1 -RepoRoot .
+      - name: Bind accepted source and fixed budgets before fresh bindings-ON compilation
+        run: |
+          python -B tools/ci/coupled-local-window-player.py pretrial --work-root .local/local-window-player-ci --numerics-merge $env:FLIGHT_NUMERICS_MERGE --delivery-contract-merge $env:FLIGHT_DELIVERY_MERGE
+          if ($LASTEXITCODE -ne 0) { throw 'Player source/pretrial gate failed' }
+      - name: Compile fresh coupled backend and Godot bridge without running tests
+        run: ./tools/bootstrap/build-local-window.ps1 -Python python -PatchedSourceVariant event-aware-coupled-midpoint-local-window-v2 -WithGodot -WithExportTemplates -ConfigureAndBuildOnly -BuildDirectory .local/local-window-player-ci/build -SourcePreparationDirectory .local/local-window-player-ci/prepared-source -PretrialRatification .local/local-window-player-ci/pretrial.json -ExecutionRatification .local/local-window-player-ci/physical-execution.json -ProbeExecutionRatification .local/local-window-player-ci/unit-execution.json
+      - name: Check exact new source archive and source-policy negatives
+        run: |
+          $archives = @(Get-ChildItem -LiteralPath .local/local-window-player-ci/prepared-source -File -Filter '*-library-source.zip')
+          if ($archives.Count -ne 1) { throw 'Exactly one newly materialized source archive required' }
+          node tests/export/selected-local-window-source.test.mjs $archives[0].FullName
+          if ($LASTEXITCODE -ne 0) { throw 'Exact local-window source/policy fixtures failed' }
+      - name: Independently measure selected source compiler commands binaries and bindings-ON route
+        run: |
+          python -B tools/ci/coupled-local-window-player.py measure --work-root .local/local-window-player-ci
+          if ($LASTEXITCODE -ne 0) { throw 'Player compiled source/route/module qualification failed' }
+      - name: Explicitly authorize measured isolated unit binaries
+        run: |
+          python -B tests/engine/shaft-method/probes-local-window-v2/run.py authorize --config .local/local-window-player-ci/build/coupled-probes-config.json --ratification .local/local-window-player-ci/unit-execution.json --approve-execution
+          if ($LASTEXITCODE -ne 0) { throw 'Measured player unit authorization failed' }
+      - name: Explicitly authorize unchanged physical suite for this measured ON build
+        run: |
+          python -B tools/ci/coupled-local-window-player.py authorize --work-root .local/local-window-player-ci --approve-execution
+          if ($LASTEXITCODE -ne 0) { throw 'Measured player physical authorization failed' }
+      - name: Execute every CTest with both exact authorization records
+        run: ./tools/bootstrap/build-local-window.ps1 -Python python -PatchedSourceVariant event-aware-coupled-midpoint-local-window-v2 -WithGodot -WithExportTemplates -RunTestsOnly -BuildDirectory .local/local-window-player-ci/build -SourceBundleRoot .local/local-window-player-ci/prepared-source/source -PretrialRatification .local/local-window-player-ci/pretrial.json -ExecutionRatification .local/local-window-player-ci/physical-execution.json -ProbeExecutionRatification .local/local-window-player-ci/unit-execution.json
+      - name: Verify all thirteen native tests and unchanged unit and twelve-process physical receipts
+        run: |
+          python -B tools/ci/coupled-local-window-player.py verify --work-root .local/local-window-player-ci
+          if ($LASTEXITCODE -ne 0) { throw 'Player native qualification failed or skipped checks' }
+      - name: Qualify actual editor export clean and Unicode relocation with this source and bridge ABI
+        run: |
+          node tests/export/make-initializer.mjs --check
+          if ($LASTEXITCODE -ne 0) { throw 'Initializer fixture drift' }
+          if (Test-Path -LiteralPath .local/export-proof/latest-run.json) { throw 'Fresh matching export baseline required' }
+          ./tools/export/proof.ps1 -Python python -NativeBuildRoot .local/local-window-player-ci/build -ToolchainRoot .local/toolchain
+          Copy-Item -LiteralPath .local/export-proof/latest-run.json -Destination .local/local-window-player-ci/evidence/export-baseline.json
+      - name: Reconstruct reviewed corresponding source and qualify actual rebuilt DLL replacement and rights
+        run: |
+          python -B tools/export/jsbsim-coupled-midpoint-local-window/verify.py --root .local/local-window-player-ci/prepared-source/source
+          if ($LASTEXITCODE -ne 0) { throw 'Corresponding source reconstruction failed' }
+          $baseline = Get-Content .local/local-window-player-ci/evidence/export-baseline.json -Raw | ConvertFrom-Json
+          $latest = Get-Content .local/export-proof/latest-run.json -Raw | ConvertFrom-Json
+          if ($latest.root -cne $baseline.root) { throw 'Matching fresh export root changed' }
+          $selected = Get-Content (Join-Path $baseline.evidence 'selected-library-release.json') -Raw | ConvertFrom-Json
+          $source = Get-Content .local/local-window-player-ci/prepared-source/source-bundle-evidence.json -Raw | ConvertFrom-Json
+          $registry = Get-Content third_party/licenses/register.json -Raw | ConvertFrom-Json
+          $entry = @($registry.entries | Where-Object id -ceq 'jsbsim-coupled-midpoint-local-window-v2')
+          if ($entry.Count -ne 1) { throw 'Reserved modified library ledger missing/duplicated' }
+          if ($selected.component_id -cne 'jsbsim-coupled-midpoint-local-window-v2' -or $selected.modified -isnot [bool] -or -not $selected.modified -or $selected.source_archive_sha256 -cne $entry[0].library_policy.source_archive_sha256 -or $source.source_archive_sha256 -cne $selected.source_archive_sha256) { throw 'Reviewed renewed source selection mismatch' }
+          $archive = Join-Path .local/local-window-player-ci/prepared-source $selected.source_archive_name
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -cne $selected.source_archive_sha256 -or (Get-Item -LiteralPath $archive).Length -ne $selected.source_archive_bytes) { throw 'Actual matching source archive bytes differ' }
+          ./tools/export/replacement.ps1 -SourceArchive $archive -SourceSHA256 $selected.source_archive_sha256 -Python python
+          $latest = Get-Content .local/export-proof/latest-run.json -Raw | ConvertFrom-Json
+          if ($latest.root -cne $baseline.root) { throw 'Replacement changed selected baseline root' }
+          node tools/export/package.mjs .local/local-window-player-ci/prepared-source
+          if ($LASTEXITCODE -ne 0) { throw 'Real coupled baseline/source-replacement/rights qualification failed' }
+      - name: Run all legacy and eight cold groups in actual editor portable and rebuilt-library player contexts
+        run: |
+          $proof = Get-Content .local/local-window-player-ci/evidence/export-baseline.json -Raw | ConvertFrom-Json
+          $latest = Get-Content .local/export-proof/latest-run.json -Raw | ConvertFrom-Json
+          if ($latest.root -cne $proof.root) { throw 'Whole-flight matching baseline root changed' }
+          ./tools/interactive-preview/run.ps1 -ExportProofRoot $proof.root -ToolchainRoot .local/toolchain -NativeBuildRoot .local/local-window-player-ci/build -FacadeCheckTimeoutSeconds 600
+      - name: Recheck real payload rights and all three focused cold receipts
+        run: |
+          . ./tools/interactive-preview/simulation-staging.ps1
+          $flight = Get-Content .local/interactive-preview/latest-run.json -Raw | ConvertFrom-Json
+          $manifest = Get-Content (Join-Path $flight.evidence 'manifest.json') -Raw | ConvertFrom-Json
+          if ($manifest.passed -isnot [bool] -or -not $manifest.passed) { throw 'Whole-flight manifest is not passing' }
+          if ($manifest.selected_library.source_variant -cne 'jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2') { throw 'Whole-flight source variant mismatch' }
+          if ($manifest.piston_checks_enabled -isnot [bool] -or -not $manifest.piston_checks_enabled) { throw 'Cold test route was not enabled' }
+          if ($manifest.local_window_replay_enabled -isnot [bool] -or -not $manifest.local_window_replay_enabled) { throw 'Mandatory original298 route was not enabled' }
+          $replayGroups=@(Get-LocalWindowReplaySourceGroups -RepoRoot $PWD)
+          Assert-LocalWindowReplaySourceGroups -Root $PWD -Groups $replayGroups -Authoring
+          Assert-LocalWindowReplaySourceGroups -Root $flight.project -Groups $replayGroups -AllowGeneratedUIDs
+          Assert-LocalWindowReplaySourceGroups -Root (Join-Path $flight.payload 'source/whole-flight-preview') -Groups $replayGroups
+          foreach ($context in @('editor','portable','replacement')) {
+            $contextRoot=switch($context){'editor'{$flight.project};'portable'{$flight.payload};'replacement'{Join-Path $flight.root 'Replacement space — Δ飛行'}}
+            Assert-PreviewLocalWindowReplayReceiptFile -ReceiptPath (Join-Path $flight.evidence ($context+'-local-window-replay-receipt.json')) -RepoRoot $PWD -Node 'node' -ExpectedSourceFingerprint $manifest.native_build_identity.declared_source_fingerprint -SourceVariant $manifest.native_build_identity.source_variant -ModelRoot ((Join-Path $contextRoot 'piston-models').Replace([char]92,[char]47))
+            $receipt = Get-Content (Join-Path $flight.evidence ($context+'-piston-receipt.json')) -Raw | ConvertFrom-Json
+            Assert-PreviewPistonReceipt -Receipt $receipt
+            $facade = Get-Content (Join-Path $flight.evidence ($context+'-facade-receipt.json')) -Raw | ConvertFrom-Json
+            Assert-PreviewFacadeReceipt -Receipt $facade -IncludePiston $true -ExpectedSourceFingerprint $manifest.native_build_identity.declared_source_fingerprint
+            $wire = Get-Content (Join-Path $flight.evidence ($context+'-wire-codec-receipt.json')) -Raw | ConvertFrom-Json
+            Assert-PreviewWireCodecReceipt -Receipt $wire -IncludePiston $true -ExpectedSourceFingerprint $manifest.native_build_identity.declared_source_fingerprint
+          }
+          node tools/license-audit/audit.mjs --repo-root . --release (Join-Path $flight.evidence 'package-inventory.json') --package-root $flight.payload --dependency-lock third_party/dependencies.lock.json
+          if ($LASTEXITCODE -ne 0) { throw 'Final real cold payload rights audit failed' }
+      - name: Check additive workflow bytes after qualification
+        run: |
+          $actual = (Get-FileHash -LiteralPath .github/workflows/coupled-local-window-ci.yml -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actual -cne $env:FLIGHT_WORKFLOW_SHA256) { throw 'Additive workflow changed during qualification' }
+      - name: Preserve qualification evidence and failures without simulator binaries or user profiles
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: local-window-player-evidence-windows-2022
+          if-no-files-found: warn
+          path: |
+            .local/local-window-workflow/pin.json
+            .local/local-window-player-ci/pretrial.json
+            .local/local-window-player-ci/source-gates.json
+            .local/local-window-player-ci/*-execution.json
+            .local/local-window-player-ci/evidence/*.json
+            .local/local-window-player-ci/build/event-aware-route.json
+            .local/local-window-player-ci/build/event-aware-build-result.json
+            .local/local-window-player-ci/build/compile_commands.json
+            .local/local-window-player-ci/build/CMakeCache.txt
+            .local/local-window-player-ci/build/native-verbose-build.log
+            .local/local-window-player-ci/build/native-ctest.log
+            .local/local-window-player-ci/build/native-identity.gd
+            .local/local-window-player-ci/build/*-manifest.txt
+            .local/local-window-player-ci/build/interactive-source-fingerprint.txt
+            .local/local-window-player-ci/build/coupled-probes-config.json
+            .local/local-window-player-ci/build/tests/engine/local-window-v2/coupled-probes/generated/*.json
+            .local/local-window-player-ci/build/tests/engine/local-window-v2/local-window-references/generated/source-binding.json
+            .local/local-window-player-ci/prepared-source/source-bundle-evidence.json
+            .local/local-window-player-ci/build/Testing/Temporary/*.log
+            .local/local-window-player-ci/build/piston-engine-proof/**/*.json
+            .local/local-window-player-ci/build/piston-engine-proof/**/*.log
+            .local/local-window-player-ci/build/coupled-unit-proof/**/*.json
+            .local/local-window-player-ci/build/coupled-unit-proof/**/*.stdout
+            .local/local-window-player-ci/build/coupled-unit-proof/**/*.stderr
+            .local/export-proof/run-*/evidence/**
+            .local/interactive-preview/run-*/evidence/*.json
+            .local/interactive-preview/run-*/evidence/*.log
+            .local/interactive-preview/run-*/evidence/*.ndjson
