@@ -6288,7 +6288,9 @@
         "docs/evidence/P2/hud-caption-spacing.md",
         "docs/evidence/P2/original-audio-cues.md",
         "docs/evidence/P2/gaze-overlay-layout-design.md",
-        "tools/interactive-preview/README.md"
+        "tools/interactive-preview/README.md",
+        "docs/decisions/021-manual-flight-overlay-dock.md",
+        "docs/evidence/P2/manual-flight-overlay-dock-contract.md"
       ],
       "requirements": [
         "PRD-015",
@@ -6308,7 +6310,8 @@
       ],
       "evidence": [
         "Exact accepted source/package and current negative-original pins; separate actual alternate font/hit/original-image evidence and independent review with failed cases retained.",
-        "A feasible accepted bounded ADR or explicit incompatibility result; conditional consumer ownership only, with capture/rearm and delivery gates still pending."
+        "A feasible accepted bounded ADR or explicit incompatibility result; conditional consumer ownership only, with capture/rearm and delivery gates still pending.",
+        "docs/evidence/P2/manual-flight-overlay-dock-contract.md: reviewed initial eight-original whole-mirror incompatibility; mandatory960 piston PANEL heading occlusion retained, wider configurations unmeasured; no API or consumer."
       ]
     }
   ]
