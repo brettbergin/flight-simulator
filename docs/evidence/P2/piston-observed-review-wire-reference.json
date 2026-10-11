@@ -1,0 +1,29 @@
+{
+  "schema": "SyntheticPistonWireReference/v1",
+  "synthetic": true,
+  "is_native_trace": false,
+  "is_production_codec_output": false,
+  "generator": "piston-observed-review-reference.py",
+  "base_reference": {
+    "path": "tests/debrief/observed_archive/reference/dense-2401.fsreview.json",
+    "bytes": 4643883,
+    "sha256": "33d5e338aa0dd7b57157dcb0bce613e3d1a1126170c5045a0dfb8b2b93ea8afc"
+  },
+  "output": {
+    "file": "dense-v2.reference.fsreview.json",
+    "bytes": 7419985,
+    "sha256": "72af4ea7ad6caabaf7d8238b9bf74b2fc3084e2d7d4a1015cfbfaf915c4266c1"
+  },
+  "payload_sha256": "1310367bb02f6e725a4833c3b2c9b69a492343ee799af67548fb824cb1d2a4cf",
+  "payload_bytes": 6339255,
+  "payload_values": 372186,
+  "sample_values": 155,
+  "engine_status_values": 61,
+  "samples": 2401,
+  "v1_reference_values": 225725,
+  "fits_proposed_v2_400000_values": true,
+  "fits_existing_v1_250000_values": false,
+  "both_byte_caps": 8388608,
+  "both_byte_caps_pass": true,
+  "qualification": "Actual independently serialized synthetic wire fixture bytes and counts, not native data or new production codec proof. Contract requires independent review; consumer must later prove actual encoder/decoder and strict policy boundaries."
+}

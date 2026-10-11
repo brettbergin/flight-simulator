@@ -171,3 +171,7 @@ The proposed [ADR017 pointer extension](decisions/017-frontend-pointer-engine-co
 ## Initial manual overlay mirror result
 
 [ADR021](decisions/021-manual-flight-overlay-dock.md), [#192](https://github.com/brettbergin/flight-simulator/issues/192), rejects the tested whole-horizontal-mirror candidate after actual minimum-window piston PANEL feedback still covers exposed heading drawing. The [bounded evidence](evidence/P2/manual-flight-overlay-dock-contract.md) preserves the improved three pairs, remaining camera clipping and unmeasured wider configurations. It introduces no API, setting or consumer and supersedes none of ADR019. A different candidate must establish independent actual feasibility before implementation; future ADR017 capture/rearm behavior remains separately unproved.
+
+## Original piston recorded observations and archive
+
+Proposed [ADR022](decisions/022-piston-observed-review.md), [#195](https://github.com/brettbergin/flight-simulator/issues/195), defines piston-only Recording2/archive2 over full same-Readback EngineStatus while preserving legacy1. Its explicit400,000 inner-value policy follows closed recognized envelope admission; v1 remains250,000 and both8MiB caps stay fixed. The [independently reproduced authored wire reference](evidence/P2/piston-observed-review-contract.md) establishes format density only. Actual native recording, production codecs, paused historical UI/file authority and delivery remain a separate blocked consumer; #75 and aggregate gates stay open.
