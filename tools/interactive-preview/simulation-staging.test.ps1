@@ -909,3 +909,85 @@ if($cameraCode -notmatch 'OS.get_cmdline_user_args\(\)' -or $cameraCode -match '
 Pass 'render_transport_generated_closed_user_ack_and_actual_guard'
 @{passed=$true;scope='Offline source/staging fixtures only; no Godot/native/graphical runtime';checks=$checks.Count;names=@($checks);fixture=$fixture}|ConvertTo-Json -Depth 5
 } $repo $PSScriptRoot
+
+
+# Actual offline reconstruction producer -> unchanged camera source consumer.
+# No generated resource is loaded; authored camera/reference bytes remain exact.
+& {
+ param([string]$hostRepo,[string]$sourceTools,[string]$pythonExe)
+ $fixture=Join-Path $hostRepo ('.local/camera-reconstruction-test/'+[Guid]::NewGuid().ToString('N'))
+ New-Item -ItemType Directory -Path $fixture|Out-Null
+ $project=Join-Path $fixture 'project'
+ $corresponding=Join-Path $fixture 'corresponding'
+ $groups=@(Get-CameraSourceGroups -RepoRoot $hostRepo)
+ Copy-CameraSourceGroups -RepoRoot $hostRepo -DestinationRoot $project -Groups $groups
+ Copy-CameraSourceGroups -RepoRoot $hostRepo -DestinationRoot $corresponding -Groups $groups
+ Write-PreviewCameraCheckHarness -ProjectRoot $project -Groups $groups -IncludePiston $true
+ Copy-Item -LiteralPath (Join-Path $project 'camera_checks.gd'),(Join-Path $project 'camera_checks.tscn') -Destination $corresponding
+ $producer=Join-Path $fixture 'producer.py'
+ $producerCode=@'
+from pathlib import Path
+import importlib.util, sys
+spec=importlib.util.spec_from_file_location('camera_reconstruction_producer',sys.argv[1])
+n=importlib.util.module_from_spec(spec)
+spec.loader.exec_module(n)
+repo,destination=Path(sys.argv[2]),Path(sys.argv[3])
+if sys.argv[4]=='copy': n.reconstruction(repo,destination)
+elif sys.argv[4]=='check': n.check_reconstruction(repo,destination)
+else: raise ValueError('Closed fixture operation required')
+'@
+ [IO.File]::WriteAllText($producer,$producerCode,[Text.UTF8Encoding]::new($false))
+ $consumer=Join-Path $fixture 'consumer.mjs'
+ $consumerCode=@'
+import assert from 'node:assert/strict';
+import {pathToFileURL} from 'node:url';
+const [modulePath,repository,project,sourceRoot]=process.argv.slice(2);
+const {validateCameraSources}=await import(pathToFileURL(modulePath).href);
+const result=validateCameraSources({repository,project,sourceRoot});
+assert.equal(Object.keys(result.source_files).length,10);
+assert.equal(Object.keys(result.harness_files).length,2);
+'@
+ [IO.File]::WriteAllText($consumer,$consumerCode,[Text.UTF8Encoding]::new($false))
+ $identityModule=Join-Path $sourceTools 'native-identity.py'
+ $cameraModule=Join-Path $sourceTools 'camera-receipt.mjs'
+ $checks=[Collections.Generic.List[string]]::new()
+ function Producer([string]$mode,[bool]$mustReject,[string]$name){
+  & $pythonExe -B $producer $identityModule $hostRepo $corresponding $mode *> (Join-Path $fixture ($name+'.log'))
+  if(($LASTEXITCODE -eq 0) -eq $mustReject){throw 'Camera reconstruction producer fixture failed: '+$name}
+  $checks.Add($name)
+ }
+ function Consumer([bool]$mustReject,[string]$name){
+  & node $consumer $cameraModule $hostRepo $project $corresponding *> (Join-Path $fixture ($name+'.log'))
+  if(($LASTEXITCODE -eq 0) -eq $mustReject){throw 'Camera corresponding-source consumer fixture failed: '+$name}
+  $checks.Add($name)
+ }
+ Producer 'copy' $false 'actual_native_reconstruction_producer'
+ Producer 'check' $false 'actual_exact_reconstruction_admission'
+ Consumer $false 'actual_unchanged_camera_consumer_accepts_producer'
+ $binding=Get-Content -LiteralPath (Join-Path $corresponding 'native-reconstruction.json') -Raw|ConvertFrom-Json
+ $expected=@($groups|ForEach-Object {$group=$_;foreach($file in $group.snapshot){$group.source+'/'+$file.path}}|Sort-Object)
+ $cameraRows=@($binding.files|Where-Object {$_.path -cmatch '^(app/camera/|app/ui/camera/|tests/camera/)'}|Sort-Object path)
+ if($expected.Count -ne 11 -or $cameraRows.Count -ne 11 -or ($cameraRows.path -join "`n") -cne ($expected -join "`n")){throw 'Exact eleven authored camera reconstruction rows required'}
+ Assert-CameraSourceGroups -Root (Join-Path $corresponding 'repository') -Groups $groups -Authoring
+ $checks.Add('exact_eleven_authoring_snapshot_without_uid')
+ Producer 'copy' $true 'repeat_reconstruction_destination_rejected'
+ $policy=Join-Path $corresponding 'repository/app/camera/view_policy.gd'
+ $original=[IO.File]::ReadAllBytes($policy)
+ Remove-Item -LiteralPath $policy
+ Producer 'check' $true 'missing_authored_copy_rejected_by_producer_check'
+ Consumer $true 'missing_authored_copy_rejected_by_camera_consumer'
+ [IO.File]::WriteAllBytes($policy,$original)
+ [IO.File]::AppendAllText($policy,'# changed corresponding source')
+ Producer 'check' $true 'changed_authored_copy_rejected_by_producer_check'
+ Consumer $true 'changed_authored_copy_rejected_by_camera_consumer'
+ [IO.File]::WriteAllBytes($policy,$original)
+ $uid=$policy+'.uid'
+ [IO.File]::WriteAllText($uid,"uid://abc123`n",[Text.UTF8Encoding]::new($false))
+ Producer 'check' $true 'extra_authored_uid_rejected_by_exact_reconstruction'
+ Must-Reject {Assert-CameraSourceGroups -Root (Join-Path $corresponding 'repository') -Groups $groups -Authoring} 'camera authored UID'
+ Remove-Item -LiteralPath $uid
+ Producer 'check' $false 'restored_exact_reconstruction_admission'
+ Consumer $false 'restored_unchanged_camera_consumer_admission'
+ Assert-CameraSourceGroups -Root $hostRepo -Groups $groups -Authoring
+ @{passed=$true;scope='Offline reconstruction producer and unchanged source-consumer seam; no native/Godot execution';checks=$checks.Count;names=@($checks);fixture=$fixture}|ConvertTo-Json -Depth 5
+} $repo $PSScriptRoot $Python
