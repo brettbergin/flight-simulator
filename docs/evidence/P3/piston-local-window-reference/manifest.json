@@ -1,0 +1,96 @@
+{
+  "format": "PistonLocalWindowReferenceManifest/v1",
+  "issue": 207,
+  "status": "Independently reviewed exact expectations, Root-ratified generator/data before implementation; checked contract acceptance and source qualification remain required",
+  "case_count": 17,
+  "files": [
+    {
+      "path": "docs/evidence/P3/piston-local-window-reference/generate.py",
+      "bytes": 11511,
+      "sha256": "01d4b45c3abee53d3cf72804540973aec7b27171a8b23cd7d82d63bf22782699"
+    },
+    {
+      "path": "docs/evidence/P3/piston-local-window-reference/expected.json",
+      "bytes": 63890,
+      "sha256": "da53acdff9600e2577832d1e3d110d8cfd221c45e8d1576ff088ef59514bdd7b"
+    },
+    {
+      "path": "docs/evidence/P3/piston-local-window-reference/README.md",
+      "bytes": 8716,
+      "sha256": "dea84d14bac0969bed480cd9e5c442d260628d1ac3fe1c1d48790ef6341913d5"
+    }
+  ],
+  "source_inputs": [
+    {
+      "path": "third_party/patches/jsbsim/event-aware-coupled-midpoint-v1/vendor/src/models/propulsion/FGPropeller.cpp",
+      "bytes": 54782,
+      "sha256": "e0ff11682070f2fa5a40ed7f14dbfcf56719a186089eb03185af8cdf9227d9f4"
+    },
+    {
+      "path": "tests/engine/shaft-method/probes/driver.template.cpp",
+      "bytes": 9471,
+      "sha256": "0cfb84e5b8097d2de19939b51fe7694cc32bf917f1b4071d85d8c09481e64d5b"
+    },
+    {
+      "path": "tests/engine/shaft-method/coupled-midpoint-v1/references.json",
+      "bytes": 1638204,
+      "sha256": "9496b4d4ed0930f0cb0fb0f994b66806ce45e18beaca439c92bda1b056fc8437"
+    },
+    {
+      "path": "tests/engine/shaft-method/coupled-midpoint-v1/native_fixture.py",
+      "bytes": 25125,
+      "sha256": "24aff9ed415b03da7f0f4795c6f8cf410413244821c9e8b19cd45ceeedb40c1f"
+    },
+    {
+      "path": "docs/decisions/015-source-law-coupled-shaft.md",
+      "bytes": 39090,
+      "sha256": "a1e71c20faf5a648990c2bf06c538fa6a9d328f6ab02029b694a4b8d7af595de"
+    },
+    {
+      "path": "docs/decisions/024-certified-local-decay-window.md",
+      "bytes": 9379,
+      "sha256": "3404f1198d34b4faa3c1d640988be88dd8b3839fdfaff0f4e70213798d6db55b"
+    }
+  ],
+  "origins": [
+    {
+      "description": "Actual diagnostic failed scalar frame",
+      "sha256": "01a8cbc256bbc30a5a53265362d5af89a7297cc5d6f5f065cd1b53d9d3458e8b",
+      "public_issue": "https://github.com/brettbergin/flight-simulator/issues/207"
+    },
+    {
+      "description": "Source-only independent policy and exact-diagnosis review; not amendment-reference acceptance",
+      "sha256": "6bb13c40a4a913205c6cabb01b2c40a04acd9821e929474904fbf2bdce334a5b",
+      "public_issue": "https://github.com/brettbergin/flight-simulator/issues/207"
+    },
+    {
+      "description": "Original prospective reference authoring manifest, preserved unchanged",
+      "sha256": "a7bc0e530ba8b76b77f849ee04d2f7e58969286192dad75951845cd23c120f97"
+    },
+    {
+      "description": "Pre-freeze L07 endpoint assertion authoring note; no fixture existed at that assertion failure",
+      "sha256": "fc239daac7a043c6c22bc9ff27c058a32e1c93be0e83a9dd975c0a9a76175e2d"
+    },
+    {
+      "description": "Independent exact amendment-reference review; no candidate implementation outputs",
+      "sha256": "b7452f7b24c38ea8a66c9d6194e387db199f373fe1dfd799eeb3c1fcdc80346d",
+      "public_issue": "https://github.com/brettbergin/flight-simulator/issues/207"
+    }
+  ],
+  "native_angular_goldens": false,
+  "physical_or_arithmetic_tolerance_changes": false,
+  "regenerate_read_only": "python -B docs/evidence/P3/piston-local-window-reference/generate.py --check",
+  "limits": [
+    "Independent exact rational admission/certificate expectations only; no native solver output or guaranteed angular-output bits.",
+    "The generator and expected JSON are byte-identical to the pre-implementation frozen authoring packet. README/manifest are relocatable public derivatives.",
+    "No private diagnostic source variant is adopted and no issue202/aircraft/pilot/phase acceptance is implied."
+  ],
+  "ratification": {
+    "scope": "Frozen exact mathematical generator/expected data only; no source variant/runtime/aircraft acceptance",
+    "owner": "Root integrator",
+    "generator_sha256": "01d4b45c3abee53d3cf72804540973aec7b27171a8b23cd7d82d63bf22782699",
+    "expected_sha256": "da53acdff9600e2577832d1e3d110d8cfd221c45e8d1576ff088ef59514bdd7b",
+    "independent_review_sha256": "b7452f7b24c38ea8a66c9d6194e387db199f373fe1dfd799eeb3c1fcdc80346d",
+    "consumer_gate": "Checked ADR024 contract merge and separate source review before implementation outputs"
+  }
+}
