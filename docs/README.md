@@ -58,7 +58,7 @@ The accepted [ordinary-flight overlay layout contract](decisions/019-ordinary-fl
 
 [Issue159](https://github.com/brettbergin/flight-simulator/issues/159) separately schedules original cockpit bezels, matte materials and physical-panel readability after qualified startup delivery. It preserves the current eye point, camera limits, native readings and controls, and does not claim manufacturer geometry or broad cockpit acceptance.
 
-The [CHASE HUD caption correction](evidence/P2/hud-caption-spacing.md) is in progress under [issue184](https://github.com/brettbergin/flight-simulator/issues/184). It separates complete title/unit bands from adjacent dials while preserving the physical dashboard and native state; focused checks, Windows image review and delivery qualification remain separately recorded.
+The [CHASE HUD caption correction](evidence/P2/hud-caption-spacing.md) separates complete title/unit bands from adjacent dials while preserving the physical dashboard and native state. Runtime [PR185](https://github.com/brettbergin/flight-simulator/pull/185) merged after all eight hosted checks passed. Focused checks, three-context Windows delivery and image review passed; the evidence records preserved failures and remaining aircraft, hardware/pilot and phase gates separately.
 
 The [filtered original ground materials](evidence/P2/ground-materials.md) add modest grass, soil and asphalt detail with distance filtering over the same synthetic flat contact plane. Actual Windows editor, portable and rebuilt-library resources passed the focused material and existing flight checks; terrain, airport and pilot qualification remain separate.
 
