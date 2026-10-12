@@ -395,3 +395,84 @@ checks/actual_events are their checked sums. Each child_events is positive and
 <= 16384; their sum is <= 32768. Arithmetic overflow, drift from either admitted
 observed_result, missing/extra keys or rows, reused capability identity, a timeout,
 failed join or any failed child rejects the entire store CTest and retains records.
+
+
+## Proposed bounded logical fault evidence amendment
+
+This separate proposed amendment requires checked merge and adoption before
+consumers. It preserves the checked remaining-row definitions without changing
+their fixed IDs/receipts/limits. See the exact finite cases
+and permanent physical-failure exclusions in
+[the scheduler](test-scheduler-v1.md#proposed-bounded-logical-fault-qualification).
+No consumer or execution result is published by this amendment.
+
+Only the existing first local_players_store child gains the two already-permitted
+actual selected SQLite interruption cases and one newly permitted, source-fixed
+synthetic export-flush stage refusal. This is one narrow exception to the prior
+no-result-substitution seam: it bypasses ONLY the selected export flush operation
+and takes the existing file_flush_failed stage path, explicitly as synthetic.
+It does not supply a fabricated BOOL/DWORD or actual-OS-return claim. No new
+production DTO/error/receipt/API, VFS, environment switch, generic action,
+ClassDB method, actor, target or source path is allocated. The one-shot native
+observer method `take_export_flush_refusal_request() noexcept -> bool`, with
+default false, is consumed only under an admitted isolated capability and
+exact selected source-bound native context. A null production observer always
+takes the existing actual FlushFileBuffers path. Existing test-only observer
+implementations/factories remain absent shipping compile/link/registration.
+
+The original eight first-child case IDs, original Service prefix0..15, descriptor,
+six-key NativeTestPlan, executable/role/store CLI and existing aggregate stdout
+receipt remain. Append six Service offsets16..21 for the two SQL cases; the
+synthetic flush case reuses the existing first Service. Second-child17 IDs,
+31 lifetimes/offsets0..30, exact second receipt and two-child store rollup remain
+byte-semantically unchanged. Original first-child checks include all three new
+cases; no separately added observer record is hidden outside its16,384 ceiling.
+
+Only the synthetic flush case adds reporting: the first child emits exactly one
+closed JSON provenance line before its existing final summary. It has exactly
+ten keys: `schema`, `pid`, `nonce`, `descriptor_sha256`, `plan_sha256`,
+`selector`, `consumed_once`, `operation_attempted`, `classification`,
+`win32_error`. Schema is `LocalPlayersSyntheticExportFlushEvidence/v1`; pid is
+the actual observed positive child PID, nonce and input digests match the same
+Root capability/context. Selector has exactly seven keys
+`service_ordinal`, `request_ordinal`, `kind`, `scope`, `phase`, `edge`,
+`occurrence`, with the positive numeric ordinals and closed enums fixed by
+source/plan before compilation as the scheduler requires. consumed_once is
+actual BOOLtrue, operation_attempted is BOOLfalse, classification is exactly
+`synthetic_export_flush_refusal` and win32_error is null. Missing/extra/duplicate
+fields, multiple evidence lines or different stdout/PID/input bindings fail.
+The two already-permitted actual SQLite cases retain their source-bound actual
+result/state/reconciliation assertions and existing aggregate evidence; no new
+SQL return schema or redundant count rollup is introduced.
+
+The synthetic terminal is failed/file_flush_failed. Its exact selected stage's
+before/after observations have null error because no OS flush was attempted,
+with actual temp ownership and existing fields otherwise unchanged. No other
+ordinary after-event rule is relaxed. Full actual writes/temp retention, no
+verify/move, unchanged DB, ready state, credit/ACK/join and actual unarmed retry
+must be source-bound assertions and checked saved witnesses, not inferred from
+this provenance line alone. Refusal is consumed once only on its worker.
+
+Before execution, source review freezes the complete auxiliary receipt parser,
+ordinary event grammar exception at this exact selector only, all phase/SQL/
+ownership/reconciliation predicates, exact selector numbers and total conditional
+event pre-count. Root authorizes the fresh same-source native stage after measured
+build review; all raw failures remain. No future success/hash is invented here.
+
+Bounded acceptance is actual API-non-success handling plus labelled synthetic
+export-flush error propagation through real previously written/retained effects.
+Physical rollback IO failure, observed FlushFileBuffers(false), disk-full/device
+faults and power-loss durability remain permanently unclaimed. Catastrophic
+engine/OS OOM stays excluded by the reservation contract; native T/D ownership
+and normal poll transfer remain distinct existing tests. Installed #220 player
+journeys and broad persistence/phase/pilot acceptance remain separate.
+
+For the unchanged atomic delivery requirement, bounded #219 evidence requires
+source-reviewed pre-ACK guard ordering, actual two-result complete FIFO caller-copy
+transfer surviving a later poll, and existing native whole-batch abandon/repeek/
+ACK ownership tests. Actual recoverable Godot output-construction-failure execution
+remains unqualified; these tests do not certify it or prove the state unreachable.
+No new engine allocator fault fixture is required by this bounded disposition.
+Public behavior still forbids removing any terminal before successful whole-batch
+caller construction. Only the already accepted catastrophic engine/OS OOM exclusion
+applies; native T/D refusal cannot masquerade as an observed engine failure.

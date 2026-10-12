@@ -59,3 +59,14 @@ The generated requirements mapping and existing #219 ownership remain unchanged:
 PRD-027, PRD-028, PRD-029, UX-001, UX-002, UX-016, UX-017, UX-018, UX-019, UX-020,
 UX-022, SAFE-028 and SAFE-029. This amendment supplies qualification planning for
 those existing requirements and does not mark them accepted.
+
+
+## Proposed bounded logical fault evidence
+
+The separate proposed [capability amendment](../../contracts/local-players/test-capability-v1.md#proposed-bounded-logical-fault-evidence-amendment), [scheduler](../../contracts/local-players/test-scheduler-v1.md#proposed-bounded-logical-fault-qualification) and [allocation](../../contracts/local-players/compiled-source-allocation-v1.json) define two already-permitted real SQLite API interruption cases and one newly permitted, explicitly synthetic export-flush stage refusal. The latter retains real writes/temp ownership and tests error propagation, without attempting or fabricating a FlushFileBuffers return. Exact closed provenance, whole-state reconciliation, actual ACK/join/credits and an ordinary unarmed real-flush retry are mandatory.
+
+This is source-only proposed design, not executed fault or storage acceptance. Checked merge/adoption precedes consumers; the checked fixed-row definitions remain unchanged. The conditional SQL-case estimate is 3,095 added to 11,970, or 15,065 records before any flush additions. Consumer source must independently freeze the flush contribution and complete total within the unchanged 16,384 first-child gate before output. The remaining-row child, combined limits, all five CTests and original nineteen crash recipes remain intact.
+
+After fresh qualification these cases may satisfy bounded #219 logical error propagation. Physical rollback IO failure, observed FlushFileBuffers(false), disk-full/device failure and power-loss durability remain permanent exclusions, never passing mocks or implied fault observations. Native allocator/copy/worker-loss and normal poll-transfer evidence remain distinct; catastrophic engine/OS OOM is not certified. This proposal does not accept #219, installed #220 journeys, parents, aircraft or phase gates.
+
+Bounded atomic-delivery evidence requires reviewed pre-ACK guards, actual complete two-result caller copies surviving another poll, and native whole-batch abandon/repeek/ACK tests. Actual recoverable engine output-construction-failure execution remains unqualified; no unreachable-state proof or engine allocator failure result is claimed. Public atomic transfer semantics stay unchanged, without inventing a new allocator fault framework or extending the accepted catastrophic-OOM exclusion.
