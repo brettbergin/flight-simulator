@@ -3246,9 +3246,9 @@ class CockpitAssetVisualObserver extends "res://instrument_tests/cockpit_visual.
 		if not _check(not _output.is_empty() and not _context.is_empty(),"fresh_external_output_and_closed_context"): await _finish();return
 		if not _check(OS.has_feature("editor")==(_context=="editor"),"actual_editor_feature_matches_context"): await _finish();return
 		if not _check(OS.get_name()=="Windows" and DisplayServer.get_name()!="headless" and RenderingServer.get_current_rendering_method()=="gl_compatibility","actual_Windows_Compatibility_GPU"): await _finish();return
-		var engine_args: PackedStringArray=OS.get_cmdline_args()
-		var driver_at: int=engine_args.find("--rendering-driver")
-		if not _check(driver_at>=0 and driver_at+1<engine_args.size() and engine_args.count("--rendering-driver")==1 and engine_args[driver_at+1]==RenderingServer.get_current_rendering_driver_name(),"actual_driver_matches_explicit_engine_request"): await _finish();return
+		# Godot consumes renderer CLI flags; Root separately witnesses explicit launch argv.
+		# Observe the fixed capture policy directly, with no fallback driver accepted.
+		if not _check(RenderingServer.get_current_rendering_driver_name()=="opengl3","actual_opengl3_driver_matches_fixed_capture_policy"): await _finish();return
 		var adapter: String=RenderingServer.get_video_adapter_name().to_lower()
 		if not _check(not adapter.is_empty(),"actual_adapter_present"): await _finish();return
 		for fallback: String in ["llvmpipe","softpipe","software","warp","microsoft basic render"]:
