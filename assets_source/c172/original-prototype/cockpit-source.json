@@ -1,0 +1,63 @@
+{
+  "schema": "OriginalCockpitSourceGeneration/v1",
+  "license": "MIT",
+  "author": "Flight Simulator contributors",
+  "manufacturer_geometry": false,
+  "blender_version": "4.5.14 LTS",
+  "blender_build": "62c1db4208e8",
+  "generator": {
+    "path": "C:\\Users\\brett\\.codex\\worktrees\\8abd\\flight-simulator\\.local\\resume\\original-cockpit-asset-implementation-source-v6\\after\\assets_source\\c172\\original-prototype\\generate_cockpit.py",
+    "bytes": 26294,
+    "sha256": "b4b9bfa198cab4bc81276a694e12ebaa0d715e4ac6df8bb5436f02f3c2459086"
+  },
+  "baseline": {
+    "path": "C:\\Users\\brett\\.codex\\worktrees\\8abd\\flight-simulator\\.local\\resume\\cockpit-original-baseline-actual-4f35c9aaba1b4125ac04638b73127acb\\baseline-envelope.json",
+    "bytes": 3179173,
+    "sha256": "fbe01696c09d17042079060739d5599d649e30164727c4a414492c1402a88eba"
+  },
+  "baseline_review": {
+    "path": "C:\\Users\\brett\\.codex\\worktrees\\8abd\\flight-simulator\\.local\\resume\\cockpit-baseline-independent-review-v1\\review.json",
+    "bytes": 4294,
+    "sha256": "1544eb65a2380794075fb95bb7814a53f72112a4fb1419fd3da533176a327070"
+  },
+  "texture_sharing": {
+    "operation": "closed8-to2-alias-canonicalization",
+    "raw_blender_export_sha256": "58d3c43789266b70843fa58ef39341eed6d70215ad49f00409aeec8b2fc448e3",
+    "bin_chunk_byte_exact": true,
+    "json_inverse_checked": true
+  },
+  "contract_acceptance": {
+    "path": "C:\\Users\\brett\\.codex\\worktrees\\8abd\\flight-simulator\\.local\\resume\\cockpit-original-baseline-actual-4f35c9aaba1b4125ac04638b73127acb\\accepted-contract.json",
+    "bytes": 314,
+    "sha256": "cfb7adcfddc29dfb501b6aed9c1b999da8a5ac32ae7c43a66d28dc24222239f2"
+  },
+  "reference": {
+    "path": "C:\\Users\\brett\\.codex\\worktrees\\8abd\\flight-simulator\\.local\\resume\\cockpit-original-baseline-actual-4f35c9aaba1b4125ac04638b73127acb\\accepted-reference.json",
+    "bytes": 37627,
+    "sha256": "76a44bb463dfd04a883e4f93f9db81ee6fc0f4c0a2bd004a6c05e8fb64cee57c"
+  },
+  "outputs": [
+    {
+      "path": "C:\\Users\\brett\\.codex\\worktrees\\8abd\\flight-simulator\\.local\\resume\\cockpit-export-actual-0bca77f5293d4b3488379c4ae03b2a2b\\generated\\assets_source\\c172\\original-prototype\\original-cockpit.blend",
+      "bytes": 2324285,
+      "sha256": "375cf88fc65141f6e29052f52f86817b7b35dce60759e618faefa7d078d5809a"
+    },
+    {
+      "path": "C:\\Users\\brett\\.codex\\worktrees\\8abd\\flight-simulator\\.local\\resume\\cockpit-export-actual-0bca77f5293d4b3488379c4ae03b2a2b\\generated\\app\\cockpit\\assets\\original-cockpit.glb",
+      "bytes": 634348,
+      "sha256": "fe12aa451d9e2105683a22a0c5353c9cf318b2dca6f46011f83ce3dea0f8d621"
+    },
+    {
+      "path": "C:\\Users\\brett\\.codex\\worktrees\\8abd\\flight-simulator\\.local\\resume\\cockpit-export-actual-0bca77f5293d4b3488379c4ae03b2a2b\\generated\\assets_source\\c172\\original-prototype\\textures\\original-surface-albedo.png",
+      "bytes": 1510,
+      "sha256": "a4bd6bbfb99fcc74a719a9858d73947c47e01ebedc9cb7120840734b9a40b19c"
+    },
+    {
+      "path": "C:\\Users\\brett\\.codex\\worktrees\\8abd\\flight-simulator\\.local\\resume\\cockpit-export-actual-0bca77f5293d4b3488379c4ae03b2a2b\\generated\\assets_source\\c172\\original-prototype\\textures\\original-surface-roughness.png",
+      "bytes": 1743,
+      "sha256": "c473720a64a8a0d8e9dbcd4d94b3073d423a4fbdbbc9551642cd7c416faf945e"
+    }
+  ],
+  "geometry": "independent source-baseline arrays; composed parent-local geometry; two frozen original SeatBack center/Xrotation frames; sphere flat-storage with explicit frozen custom normals; CW to CCW index reversal; (x,-z,y) basis",
+  "scope": "Generated only. Independent GLB topology/UV/color/import/readability/rights/delivery checks pending."
+}

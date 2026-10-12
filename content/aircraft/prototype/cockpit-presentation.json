@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "id": "original-conventional-cockpit-presentation",
-  "version": "0.2.0-prototype",
+  "version": "0.3.0-prototype",
   "kind": "original-presentation-provenance",
-  "status": "generic procedural engineering cockpit; no manufacturer dimensions or sight-picture qualification",
+  "status": "generic original imported engineering cockpit; no manufacturer dimensions or sight-picture qualification",
   "author": "Flight Simulator contributors",
   "license": "MIT",
   "license_source": "LICENSE",
@@ -22,7 +22,12 @@
     "app/proof/interactive/flight_cockpit.gd",
     "app/proof/interactive/flight_panel.gd",
     "app/proof/interactive/preview.gd",
-    "app/simulation/flight_scene.gd"
+    "app/simulation/flight_scene.gd",
+    "app/cockpit/assets/original_asset.gd",
+    "app/cockpit/assets/original-cockpit.glb",
+    "assets_source/c172/original-prototype/generate_cockpit.py",
+    "assets_source/c172/original-prototype/cockpit-reference-v1.json",
+    "assets_source/c172/original-prototype/cockpit-source.json"
   ],
   "geometry": {
     "roof_size_m": [
@@ -133,7 +138,7 @@
   ],
   "readings_status": "Native truth / prototype; TAS, WGS84 ellipsoid height, true heading, kinematic VSI and body yaw are distinct from sensed instruments.",
   "limitations": [
-    "No source-specific cockpit geometry, GLB export or manufacturer asset is represented.",
+    "Original generic geometry and original subtle surface textures; no manufacturer geometry, aircraft-variant applicability or pilot sight-picture qualification.",
     "No IAS, MSL/barometric altitude, magnetic compass, powered instrument, sensor failure or lag is established by this manifest.",
     "Geometry has no aircraft collider or flight-authority role; animated controls copy native-held fractions.",
     "Physical controller walkthrough, pilot review and phase acceptance remain separate."
@@ -145,7 +150,7 @@
     "bezel_roughness": 0.9,
     "bezel_metallic": 0.08,
     "upholstery_roughness": 0.92,
-    "status": "original opaque matte/satin choices; no manufacturer materials"
+    "status": "seven original shared opaque materials; two shared original 256x256 surface textures on Cloth, Leather, Dark and Black; no manufacturer materials"
   },
   "panel_logical_px": [
     1024,
@@ -161,5 +166,20 @@
     "upper_divider_y_px": 199,
     "status": "copied native EngineStatus; same unit conversion and unavailable labels"
   },
-  "texture_allocation_note": "8 MiB calculated RGBA8 color plane only; actual exposed format/dimensions and global rendering counters are qualified separately; exact driver allocation is unobserved."
+  "texture_allocation_note": "8 MiB calculated RGBA8 color plane only; actual exposed format/dimensions and global rendering counters are qualified separately; exact driver allocation is unobserved.",
+  "asset": {
+    "resource": "res://cockpit/assets/original-cockpit.glb",
+    "source": "assets_source/c172/original-prototype/original-cockpit.blend",
+    "contract": "docs/contracts/cockpit/original-asset-v1.md",
+    "mesh_parts": 74,
+    "asset_nodes": 84,
+    "shared_materials": 7,
+    "source_texture_count": 2,
+    "source_texture_size_px": [
+      256,
+      256
+    ],
+    "authority": "presentation only; fixed asset admitted before ordinary native flight creation",
+    "runtime_additions": "unchanged live read-only panel plus six shared open bezels"
+  }
 }

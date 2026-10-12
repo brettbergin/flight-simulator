@@ -84,8 +84,8 @@ function Assert-InputSourceGroups {
 function Get-CockpitSourceGroups {
  param([Parameter(Mandatory)][string]$RepoRoot)
  @(
-  @{source='app/cockpit';destination='cockpit';required=@('instruments/native_readings.gd','instruments/scan_panel.gd','instruments/engine_status.gd','engine_controls.gd')},
-  @{source='tests/instruments';destination='instrument_tests';required=@('instrument_checks.gd','adapter_checks.gd','cockpit_geometry_checks.gd','cockpit_visual.gd','scan_checks.gd','scene_checks.gd','hud_caption_checks.gd','engine_status_checks.gd','reference.json','preparation-manifest.json')},
+  @{source='app/cockpit';destination='cockpit';required=@('instruments/native_readings.gd','instruments/scan_panel.gd','instruments/engine_status.gd','engine_controls.gd','assets/original-cockpit.glb','assets/original_asset.gd')},
+  @{source='tests/instruments';destination='instrument_tests';required=@('instrument_checks.gd','adapter_checks.gd','cockpit_geometry_checks.gd','cockpit_visual.gd','scan_checks.gd','scene_checks.gd','hud_caption_checks.gd','engine_status_checks.gd','reference.json','preparation-manifest.json','cockpit_asset_baseline.gd','cockpit_asset_checks.gd','cockpit_asset_visual.gd')},
   @{source='content/aircraft/prototype';destination='content/aircraft/prototype';required=@('cockpit-presentation.json')}
  )|ForEach-Object {
   $_.snapshot=@(Get-SimulationSourceSnapshot (Join-Path $RepoRoot $_.source) -RequiredEntries $_.required)
@@ -97,12 +97,307 @@ function Copy-CockpitSourceGroups {
  foreach($group in $Groups){Copy-SimulationSourceSnapshot (Join-Path $RepoRoot $group.source) (Join-Path $DestinationRoot $group.destination) $group.snapshot -RequiredEntries $group.required}
 }
 function Assert-CockpitSourceGroups {
- param([Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Groups,[switch]$Authoring,[switch]$AllowGeneratedUIDs)
+ param([Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Groups,[switch]$Authoring,[switch]$AllowGeneratedUIDs,$ImportReceipt=$null)
+ if($null -ne $ImportReceipt){
+  if($Authoring){throw 'Generated cockpit import records cannot enter authoring source'}
+  if($Groups.Count -ne 3 -or $Groups[0].source -cne 'app/cockpit' -or $Groups[0].destination -cne 'cockpit'){throw 'Original closed cockpit runtime groups required'}
+  Assert-CockpitImportReceipt -ProjectRoot $DestinationRoot -CockpitGroups $Groups -Receipt $ImportReceipt
+ }
  foreach($group in $Groups){
   $path=if($Authoring){$group.source}else{$group.destination}
-  Assert-SimulationSourceSnapshot (Join-Path $DestinationRoot $path) $group.snapshot -RequiredEntries $group.required -AllowGeneratedUIDs:$AllowGeneratedUIDs
+  $snapshot=@($group.snapshot)
+  if($null -ne $ImportReceipt -and $group.source -ceq 'app/cockpit'){
+   # Only the five individually bound fixed-resource outputs join this snapshot.
+   $snapshot+=@(0..4|ForEach-Object {$file=$ImportReceipt.files[$_];[pscustomobject]@{path=[IO.Path]::GetRelativePath((Join-Path $DestinationRoot 'cockpit'),$file.path).Replace([char]92,[char]47);bytes=$file.bytes;sha256=$file.sha256}})
+   $snapshot=@($snapshot|Sort-Object path)
+  }
+  Assert-SimulationSourceSnapshot (Join-Path $DestinationRoot $path) $snapshot -RequiredEntries $group.required -AllowGeneratedUIDs:$AllowGeneratedUIDs
  }
 }
+function Get-CockpitImportRecipes {
+ @(
+  [pscustomobject]@{path='cockpit/assets/original-cockpit.glb.import';text=@'
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+path="res://.godot/imported/original-cockpit.glb-382397f0d6316786c39bbefa92a42ce9.scn"
+
+[deps]
+
+source_file="res://cockpit/assets/original-cockpit.glb"
+dest_files=["res://.godot/imported/original-cockpit.glb-382397f0d6316786c39bbefa92a42ce9.scn"]
+
+[params]
+
+nodes/root_type=""
+nodes/root_name=""
+nodes/root_script=null
+mesh_library/use_node_names_as_mesh_names=false
+array_mesh/deduplicate_surfaces=true
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+nodes/import_as_skeleton_bones=false
+nodes/use_name_suffixes=true
+nodes/use_node_type_suffixes=true
+meshes/ensure_tangents=false
+meshes/generate_lods=false
+meshes/create_shadow_meshes=false
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=true
+skins/use_named_skins=true
+animation/import=false
+animation/fps=30
+animation/trimming=false
+animation/remove_immutable_tracks=true
+animation/import_rest_as_RESET=false
+import_script/path=""
+materials/extract=0
+materials/extract_format=0
+materials/extract_path=""
+_subresources={}
+gltf/naming_version=2
+gltf/embedded_image_handling=1
+gltf/texture_map_mode=1
+'@
+  },
+  [pscustomobject]@{path='cockpit/assets/original-cockpit_original-surface-albedo.png.import';text=@'
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+path="res://.godot/imported/original-cockpit_original-surface-albedo.png-88caf3cdbed4794a12a850ca1e6b1798.ctex"
+metadata={
+"vram_texture": false
+}
+generator_parameters={
+"md5": ""
+}
+
+[deps]
+
+source_file="res://cockpit/assets/original-cockpit_original-surface-albedo.png"
+dest_files=["res://.godot/imported/original-cockpit_original-surface-albedo.png-88caf3cdbed4794a12a850ca1e6b1798.ctex"]
+
+[params]
+
+compress/mode=0
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/uastc_level=0
+compress/rdo_quality_loss=0.0
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=true
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/channel_remap/red=0
+process/channel_remap/green=1
+process/channel_remap/blue=2
+process/channel_remap/alpha=3
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=0
+'@
+  },
+  [pscustomobject]@{path='cockpit/assets/original-cockpit_original-surface-roughness.png.import';text=@'
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+path="res://.godot/imported/original-cockpit_original-surface-roughness.png-5b25a9a450515bf31d8a916c2e373bd3.ctex"
+metadata={
+"vram_texture": false
+}
+generator_parameters={
+"md5": ""
+}
+
+[deps]
+
+source_file="res://cockpit/assets/original-cockpit_original-surface-roughness.png"
+dest_files=["res://.godot/imported/original-cockpit_original-surface-roughness.png-5b25a9a450515bf31d8a916c2e373bd3.ctex"]
+
+[params]
+
+compress/mode=0
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/uastc_level=0
+compress/rdo_quality_loss=0.0
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=true
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/channel_remap/red=0
+process/channel_remap/green=1
+process/channel_remap/blue=2
+process/channel_remap/alpha=3
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=0
+'@
+  }
+ )
+}
+# Original cockpit import records have one fixed recipe and a closed artifact roster.
+# No extension-based exception is added to the generic script UID policy.
+function Get-CockpitAuthoringSourceGroups {
+ param([Parameter(Mandatory)][string]$RepoRoot)
+ $required=@('cockpit-reference-v1.json','generate_cockpit.py','original-cockpit.blend','cockpit-source.json','README.md','textures/original-surface-albedo.png','textures/original-surface-roughness.png')
+ $group=@{source='assets_source/c172/original-prototype';destination='assets_source/c172/original-prototype';required=$required}
+ $group.snapshot=@(Get-SimulationSourceSnapshot (Join-Path $RepoRoot $group.source) -RequiredEntries $required)
+ if((($group.snapshot.path|Sort-Object) -join "`n") -cne (($required|Sort-Object) -join "`n")){throw 'Exactly seven original cockpit authoring files required'}
+ @($group)
+}
+function Assert-CockpitAuthoringSourceGroups {
+ param([Parameter(Mandatory)][string]$Root,[Parameter(Mandatory)][object[]]$Groups)
+ $expected=@('cockpit-reference-v1.json','generate_cockpit.py','original-cockpit.blend','cockpit-source.json','README.md','textures/original-surface-albedo.png','textures/original-surface-roughness.png')
+ if(($Groups.Count -ne 1) -or $Groups[0].required -isnot [array] -or $Groups[0].snapshot -isnot [array] -or $Groups[0].snapshot.Count -ne 7 -or $Groups[0].source -cne 'assets_source/c172/original-prototype' -or $Groups[0].destination -cne 'assets_source/c172/original-prototype' -or ($Groups[0].required -join "`n") -cne ($expected -join "`n") -or (($Groups[0].snapshot.path|Sort-Object) -join "`n") -cne (($expected|Sort-Object) -join "`n")){throw 'Closed original cockpit authoring descriptor required'}
+ $groupKeys=if($Groups[0] -is [Collections.IDictionary]){@($Groups[0].Keys)}else{@($Groups[0].PSObject.Properties.Name)}
+ if((($groupKeys|Sort-Object) -join "`n") -cne "destination`nrequired`nsnapshot`nsource"){throw 'Closed original authoring group keys required'}
+ foreach($relative in $expected){Get-CockpitBoundFilePin (Join-Path $Root ($Groups[0].source+'/'+$relative))|Out-Null}
+ foreach($row in $Groups[0].snapshot){if((($row.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "bytes`npath`nsha256" -or ($row.bytes -isnot [int] -and $row.bytes -isnot [long]) -or $row.bytes -le 0 -or $row.sha256 -isnot [string] -or $row.sha256 -cnotmatch '^[0-9a-f]{64}$'){throw 'Closed nonempty original authoring source pin required'}}
+ Assert-SimulationSourceSnapshot (Join-Path $Root $Groups[0].source) $Groups[0].snapshot -RequiredEntries $expected
+}
+function Copy-CockpitAuthoringSourceGroups {
+ param([Parameter(Mandatory)][string]$RepoRoot,[Parameter(Mandatory)][string]$CorrespondingSourceRoot,[Parameter(Mandatory)][object[]]$Groups)
+ Assert-CockpitAuthoringSourceGroups $RepoRoot $Groups
+ Copy-SimulationSourceSnapshot (Join-Path $RepoRoot $Groups[0].source) (Join-Path $CorrespondingSourceRoot $Groups[0].destination) $Groups[0].snapshot -RequiredEntries $Groups[0].required
+ Assert-CockpitAuthoringSourceGroups $CorrespondingSourceRoot $Groups
+ Assert-CockpitAuthoringSourceGroups $RepoRoot $Groups
+}
+function Get-CockpitBoundFilePin {
+ param([Parameter(Mandatory)][string]$Path)
+ $file=Get-Item -Force -LiteralPath $Path -ErrorAction Stop
+ if($file.PSIsContainer -or ($file.Attributes -band [IO.FileAttributes]::ReparsePoint) -or $file.LinkType -eq 'HardLink'){throw 'Cockpit import pin must be an ordinary unaliased file'}
+ $parent=$file.Directory
+ while($null -ne $parent){if($parent.Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'Cockpit import ancestor is a reparse point'};$parent=$parent.Parent}
+ [pscustomobject]@{path=$file.FullName;bytes=$file.Length;sha256=(Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}
+}
+function Assert-CockpitBoundFilePin {
+ param([Parameter(Mandatory)]$Pin)
+ if((($Pin.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "bytes`npath`nsha256" -or $Pin.path -isnot [string] -or -not [IO.Path]::IsPathFullyQualified($Pin.path) -or ($Pin.bytes -isnot [long] -and $Pin.bytes -isnot [int]) -or $Pin.bytes -lt 0 -or $Pin.sha256 -isnot [string] -or $Pin.sha256 -cnotmatch '^[0-9a-f]{64}$'){throw 'Closed absolute cockpit import pin required'}
+ $actual=Get-CockpitBoundFilePin $Pin.path
+ if($actual.path -cne $Pin.path -or $actual.bytes -ne $Pin.bytes -or $actual.sha256 -cne $Pin.sha256){throw 'Cockpit import input, producer or output bytes drifted'}
+}
+function Read-CockpitImportMap {
+ param([Parameter(Mandatory)][string]$Text)
+ if($Text.Length -gt 65536){throw 'Cockpit import metadata exceeds fixed bound'}
+ $map=@{};$sections=@();$section='';$pending='';$key=''
+ foreach($line in ($Text -split '\r?\n')){
+  if($line.Length -eq 0){continue}
+  if($pending){
+   $pending+=$line
+   if($line -ceq '}'){$map[$key]=$pending;$pending=''}
+   continue
+  }
+  if($line -cmatch '^\[(remap|deps|params)\]$'){if($sections -ccontains $Matches[1]){throw 'Duplicate cockpit import section'};$section=$Matches[1];$sections+=$section;continue}
+  if(-not $section -or $line -cnotmatch '^([A-Za-z0-9_/]+)=(.*)$'){throw 'Closed cockpit import syntax required'}
+  $key=$section+'/'+$Matches[1];$value=$Matches[2]
+  if($map.ContainsKey($key)){throw 'Duplicate cockpit import key'}
+  if($value -ceq '{'){$pending='{'}else{$map[$key]=$value}
+ }
+ if($pending -or -not $map.Count){throw 'Truncated cockpit import metadata'}
+ $map
+}
+function Assert-CockpitImportMap {
+ param([Parameter(Mandatory)][string]$Text,[Parameter(Mandatory)]$Recipe)
+ $expected=Read-CockpitImportMap $Recipe.text;$actual=Read-CockpitImportMap $Text
+ $keys=@($expected.Keys)+@('remap/uid')
+ if((($actual.Keys|Sort-Object) -join "`n") -cne (($keys|Sort-Object) -join "`n")){throw 'Cockpit import metadata keys differ from fixed recipe'}
+ foreach($key in $expected.Keys){
+  if($key -ceq 'remap/generator_parameters'){
+   if($actual[$key] -cnotmatch '^\{"md5": "[0-9a-f]{32}"\}$'){throw 'Actual GLB-owned texture generator identity required'}
+  }elseif($actual[$key] -cne $expected[$key]){throw "Cockpit import recipe changed: $key"}
+ }
+ if($actual['remap/uid'] -cnotmatch '^"uid://[a-z0-9]{1,20}"$'){throw 'Actual generated cockpit resource UID required'}
+}
+function Get-CockpitImportArtifactPaths {
+ @(
+  'cockpit/assets/original-cockpit.glb.import',
+  'cockpit/assets/original-cockpit_original-surface-albedo.png',
+  'cockpit/assets/original-cockpit_original-surface-albedo.png.import',
+  'cockpit/assets/original-cockpit_original-surface-roughness.png',
+  'cockpit/assets/original-cockpit_original-surface-roughness.png.import',
+  '.godot/imported/original-cockpit.glb-382397f0d6316786c39bbefa92a42ce9.scn',
+  '.godot/imported/original-cockpit.glb-382397f0d6316786c39bbefa92a42ce9.md5',
+  '.godot/imported/original-cockpit_original-surface-albedo.png-88caf3cdbed4794a12a850ca1e6b1798.ctex',
+  '.godot/imported/original-cockpit_original-surface-albedo.png-88caf3cdbed4794a12a850ca1e6b1798.md5',
+  '.godot/imported/original-cockpit_original-surface-roughness.png-5b25a9a450515bf31d8a916c2e373bd3.ctex',
+  '.godot/imported/original-cockpit_original-surface-roughness.png-5b25a9a450515bf31d8a916c2e373bd3.md5'
+ )
+}
+function Set-CockpitImportRecipe {
+ param([Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)][object[]]$CockpitGroups)
+ Assert-CockpitSourceGroups $ProjectRoot $CockpitGroups
+ foreach($path in Get-CockpitImportArtifactPaths){if(Test-Path -LiteralPath (Join-Path $ProjectRoot $path)){throw 'Cockpit import recipe requires fresh original resource artifacts'}}
+ foreach($recipe in Get-CockpitImportRecipes){[IO.File]::WriteAllText((Join-Path $ProjectRoot $recipe.path),$recipe.text,[Text.UTF8Encoding]::new($false))}
+}
+function Assert-CockpitImportProducer {
+ param([Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)]$Producer)
+ if((($Producer.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "arguments`nexecutable`nexit_code`nlog" -or ($Producer.exit_code -isnot [int] -and $Producer.exit_code -isnot [long]) -or $Producer.exit_code -ne 0 -or $Producer.arguments -isnot [array]){throw 'Actual completed pinned cockpit editor import required'}
+ Assert-CockpitBoundFilePin $Producer.executable;Assert-CockpitBoundFilePin $Producer.log
+ if($Producer.executable.bytes -ne 198152 -or $Producer.executable.sha256 -cne 'c8f0a6bc45a19b33541501e57f6f7cd972ab18453743266339d495cbbe846643'){throw 'Existing pinned Godot 4.7.2 console producer required'}
+ $expected=@('--headless','--path',$ProjectRoot,'--editor','--quit-after','120','--frame-delay','100')
+ if(($Producer.arguments -join "`n") -cne ($expected -join "`n")){throw 'Actual cockpit import arguments differ from fixed editor producer'}
+ $log=[IO.File]::ReadAllText($Producer.log.path)
+ if($log -notmatch 'Godot Engine v4\.7\.2\.stable' -or $log -match 'ERROR:|SCRIPT ERROR:|FATAL|ObjectDB instances? (?:(?:was|were) )?leaked|RID allocations leaked|resources still in use|Assertion failed'){throw 'Pinned actual cockpit import did not finish cleanly'}
+}
+function Get-CockpitImportReceipt {
+ param([Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)][string]$RepoRoot,[Parameter(Mandatory)][object[]]$CockpitGroups,[Parameter(Mandatory)][object[]]$AuthoringGroups,[Parameter(Mandatory)]$Producer)
+ Assert-CockpitImportProducer $ProjectRoot $Producer
+ Assert-CockpitAuthoringSourceGroups $RepoRoot $AuthoringGroups
+ $glb=@($CockpitGroups[0].snapshot|Where-Object path -CEQ 'assets/original-cockpit.glb')
+ if($glb.Count -ne 1){throw 'Actual bound original GLB input required'}
+ $input=Get-CockpitBoundFilePin ([IO.Path]::GetFullPath((Join-Path $ProjectRoot 'cockpit/assets/original-cockpit.glb')))
+ if($input.bytes -ne $glb[0].bytes -or $input.sha256 -cne $glb[0].sha256){throw 'Imported cockpit GLB input drifted'}
+ foreach($recipe in Get-CockpitImportRecipes){Assert-CockpitImportMap ([IO.File]::ReadAllText((Join-Path $ProjectRoot $recipe.path))) $recipe}
+ $tiles=@()
+ foreach($name in @('albedo','roughness')){
+  $source=@($AuthoringGroups[0].snapshot|Where-Object path -CEQ ('textures/original-surface-'+$name+'.png'))
+  $generated=Get-CockpitBoundFilePin (Join-Path $ProjectRoot ('cockpit/assets/original-cockpit_original-surface-'+$name+'.png'))
+  if($source.Count -ne 1 -or $generated.bytes -ne $source[0].bytes -or $generated.sha256 -cne $source[0].sha256){throw 'Actual extracted texture is not the exact bound original PNG'}
+  $tiles+=[pscustomobject]@{source=$source[0];generated=$generated}
+ }
+ $artifacts=@(Get-CockpitImportArtifactPaths|ForEach-Object {Get-CockpitBoundFilePin (Join-Path $ProjectRoot $_)})
+ [pscustomobject]@{schema_version=1;kind='original-cockpit-import-artifacts';project_root=$ProjectRoot;authoring_root=$RepoRoot;authoring_groups=$AuthoringGroups;producer=$Producer;input_glb=$input;input_tiles=$tiles;files=$artifacts;scope='Actual pinned editor producer and fixed import artifacts only; real geometry/RGBA8/full-mips/material/runtime/pixel checks remain required.'}
+}
+function Assert-CockpitImportReceipt {
+ param([Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)][object[]]$CockpitGroups,[Parameter(Mandatory)]$Receipt)
+ $keys=@('schema_version','kind','project_root','authoring_root','authoring_groups','producer','input_glb','input_tiles','files','scope')
+ if((($Receipt.PSObject.Properties.Name|Sort-Object) -join "`n") -cne (($keys|Sort-Object) -join "`n") -or ($Receipt.schema_version -isnot [int] -and $Receipt.schema_version -isnot [long]) -or $Receipt.schema_version -ne 1 -or $Receipt.kind -cne 'original-cockpit-import-artifacts' -or $Receipt.project_root -cne $ProjectRoot -or $Receipt.files -isnot [array] -or $Receipt.input_tiles -isnot [array] -or $Receipt.input_tiles.Count -ne 2 -or $Receipt.authoring_groups -isnot [array] -or $Receipt.authoring_root -isnot [string] -or -not [IO.Path]::IsPathFullyQualified($Receipt.authoring_root) -or $Receipt.scope -isnot [string] -or [string]::IsNullOrWhiteSpace($Receipt.scope) -or $Receipt.scope.Length -gt 1024){throw 'Closed actual cockpit import receipt required'}
+ Assert-CockpitImportProducer $ProjectRoot $Receipt.producer;Assert-CockpitBoundFilePin $Receipt.input_glb
+ Assert-CockpitAuthoringSourceGroups $Receipt.authoring_root $Receipt.authoring_groups
+ $glb=@($CockpitGroups[0].snapshot|Where-Object path -CEQ 'assets/original-cockpit.glb')
+ if($glb.Count -ne 1 -or $Receipt.input_glb.path -cne ([IO.Path]::GetFullPath((Join-Path $ProjectRoot 'cockpit/assets/original-cockpit.glb'))) -or $Receipt.input_glb.bytes -ne $glb[0].bytes -or $Receipt.input_glb.sha256 -cne $glb[0].sha256){throw 'Receipt original GLB input no longer bound'}
+ $paths=@(Get-CockpitImportArtifactPaths|ForEach-Object {[IO.Path]::GetFullPath((Join-Path $ProjectRoot $_))})
+ if(($Receipt.files.path -join "`n") -cne ($paths -join "`n")){throw 'Exact ordered eleven cockpit import artifacts required'}
+ foreach($file in $Receipt.files){Assert-CockpitBoundFilePin $file}
+ foreach($recipe in Get-CockpitImportRecipes){Assert-CockpitImportMap ([IO.File]::ReadAllText((Join-Path $ProjectRoot $recipe.path))) $recipe}
+ for($i=0;$i -lt 2;$i++){
+  $tile=$Receipt.input_tiles[$i];$name=@('albedo','roughness')[$i]
+  $bound=@($Receipt.authoring_groups[0].snapshot|Where-Object path -CEQ ('textures/original-surface-'+$name+'.png'))
+  if($bound.Count -ne 1 -or (($tile.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "generated`nsource" -or (($tile.source.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "bytes`npath`nsha256" -or ($tile.source.bytes -isnot [int] -and $tile.source.bytes -isnot [long]) -or $tile.source.sha256 -isnot [string] -or $tile.source.bytes -cne $bound[0].bytes -or $tile.source.sha256 -cne $bound[0].sha256 -or $tile.source.path -cne ('textures/original-surface-'+$name+'.png') -or $tile.generated.path -cne [IO.Path]::GetFullPath((Join-Path $ProjectRoot ('cockpit/assets/original-cockpit_original-surface-'+$name+'.png'))) -or $tile.source.bytes -ne $tile.generated.bytes -or $tile.source.sha256 -cne $tile.generated.sha256){throw 'Exact original source/generated texture correspondence required'}
+  Assert-CockpitBoundFilePin $tile.generated
+ }
+}
+
 # Session-local landmark UI and frozen geometry use the same exact source policy.
 function Get-FreeflightSourceGroups {
  param([Parameter(Mandatory)][string]$RepoRoot)
@@ -292,6 +587,10 @@ function Assert-PreviewFacadeReceipt {
  if((($Receipt.PSObject.Properties.Name|Sort-Object) -join "`n") -cne (($keys|Sort-Object) -join "`n")){throw 'Facade receipt exact shape rejected'}
  if(($Receipt.schema_version -isnot [long] -and $Receipt.schema_version -isnot [int]) -or $Receipt.schema_version -ne 1 -or $Receipt.scope -isnot [string] -or [string]::IsNullOrWhiteSpace($Receipt.scope) -or $Receipt.scope.Length -gt 1024 -or $Receipt.passed -isnot [bool] -or -not $Receipt.passed -or ($Receipt.checks -isnot [long] -and $Receipt.checks -isnot [int]) -or $Receipt.checks -le 0 -or $Receipt.failures -isnot [array] -or $Receipt.failures.Count -ne 0){throw 'Facade receipt must contain actual passing checks'}
  Assert-PreviewAudioReceipt -Receipt $Receipt.audio
+ if((($Receipt.cockpit.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "adapter`nasset`nhud_caption`nscan`nscene"){throw 'All five cockpit test groups are mandatory'}
+ $asset=$Receipt.cockpit.asset
+ if($null -eq $asset -or (($asset.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "baseline_sha256`nchecks`nfailures`npassed`nschema`nscope"){throw 'Mandatory closed actual imported cockpit result required'}
+ if($asset.schema -isnot [string] -or $asset.schema -cne 'OriginalCockpitActualImportChecks/v1' -or $asset.baseline_sha256 -isnot [string] -or $asset.baseline_sha256 -cne 'fbe01696c09d17042079060739d5599d649e30164727c4a414492c1402a88eba' -or $asset.passed -isnot [bool] -or -not $asset.passed -or ($asset.checks -isnot [long] -and $asset.checks -isnot [int]) -or $asset.checks -le 0 -or $asset.checks -gt 9007199254740991 -or $asset.failures -isnot [array] -or $asset.failures.Count -ne 0 -or $asset.scope -isnot [string] -or [string]::IsNullOrWhiteSpace($asset.scope) -or $asset.scope.Length -gt 1024){throw 'Actual original baseline geometry/material/RGBA8/full-mips checks required'}
  $hud=$Receipt.cockpit.hud_caption
  if($null -eq $hud -or (($hud.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "checks`nfailures`npassed`nscope"){throw 'Mandatory closed HUD-caption result required'}
  if($hud.passed -isnot [bool] -or -not $hud.passed -or ($hud.checks -isnot [long] -and $hud.checks -isnot [int]) -or $hud.checks -le 0 -or $hud.checks -gt 9007199254740991 -or $hud.failures -isnot [array] -or $hud.failures.Count -ne 0 -or $hud.scope -isnot [string] -or [string]::IsNullOrWhiteSpace($hud.scope) -or $hud.scope.Length -gt 1024){throw 'Actual passing HUD-caption checks required'}
@@ -935,7 +1234,7 @@ func execute() -> void:
   return
  identity_file.store_string(JSON.stringify(identity_receipt))
  identity_file.close()
- for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests","res://world/wind","res://ui/wind","res://wind_tests","res://wind_scene_tests","res://audio","res://ui/audio","res://audio_tests","res://ui/first_flight","res://world/synthetic","res://world/taxi","res://ui/taxi","res://taxi_tests","res://taxi_scene_tests","res://scenario_tests/first-flight","res://first_flight_ui_tests","res://world_tests/synthetic","res://first_flight_scene_tests","res://wire_codec_tests","res://camera","res://ui/camera","res://camera_tests"$pistonCompileFolder$localWindowReplayCompileFolder]:
+ for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://cockpit/assets","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests","res://world/wind","res://ui/wind","res://wind_tests","res://wind_scene_tests","res://audio","res://ui/audio","res://audio_tests","res://ui/first_flight","res://world/synthetic","res://world/taxi","res://ui/taxi","res://taxi_tests","res://taxi_scene_tests","res://scenario_tests/first-flight","res://first_flight_ui_tests","res://world_tests/synthetic","res://first_flight_scene_tests","res://wire_codec_tests","res://camera","res://ui/camera","res://camera_tests"$pistonCompileFolder$localWindowReplayCompileFolder]:
   for name in DirAccess.get_files_at(folder):
    if name.ends_with(".gd"):
     var script=load(folder.path_join(name)) as Script
@@ -1011,6 +1310,12 @@ func execute() -> void:
   stage("end","cockpit."+name)
   check(failures.size()==prior_failures and result.get("passed",false) and result.get("checks",0)>0 and result.get("failures",["missing"]).is_empty(),"actual_cockpit_"+name+"_checks")
   cockpit_checks[name]=result
+ var asset_prior_failures: int=failures.size()
+ stage("begin","cockpit.asset")
+ var asset_result: Dictionary=await load("res://instrument_tests/cockpit_asset_checks.gd").new().run(self)
+ stage("end","cockpit.asset")
+ check(failures.size()==asset_prior_failures and asset_result.get("passed")==true and typeof(asset_result.get("checks"))==TYPE_INT and asset_result.checks>0 and asset_result.get("failures") is Array and asset_result.failures.is_empty(),"actual_cockpit_asset_checks")
+ cockpit_checks.asset=asset_result
  var freeflight_checks: Dictionary={}
  for item in [{"name":"geometry","script":"landmark_checks.gd"},{"name":"scene","script":"scene_checks.gd"}]:
   var before: int=failures.size()
