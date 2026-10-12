@@ -402,7 +402,7 @@ constexpr std::array<std::string_view,8> service_case_ids={"same_token_create_re
 constexpr std::array<std::string_view,8> store_case_ids={"two_players_revisions","typed_audio_signed_zero","source_identifier_admission","exact_tick_history","creation_cursor_archive","selected_export_receipt","prune_delete_isolation","real_close_reopen_recovery"};
 [[maybe_unused]] bool plan_from(std::string_view bytes,Plan&out,std::string_view suite)noexcept{
  auto p=parse(bytes);if(!p)return false;auto d=p.value;auto n=d.root;std::uint64_t events{};
- if(closed(d,n,{"schema","nonce","first_service_ordinal","maximum_actual_events","suite","cases"})!=Error::none||!d.string_is(d.member(n,"schema"),"LocalPlayersNativeTestPlan/v1")||!d.string_is(d.member(n,"suite"),suite)||!out.nonce.from(d,d.member(n,"nonce"))||!lower_hex(out.nonce.view(),32)||!positive_int(d,d.member(n,"first_service_ordinal"),INT64_MAX-8,out.service)||!positive_int(d,d.member(n,"maximum_actual_events"),16384,events)||events!=16384)return false;
+ if(closed(d,n,{"schema","nonce","first_service_ordinal","maximum_actual_events","suite","cases"})!=Error::none||!d.string_is(d.member(n,"schema"),"LocalPlayersNativeTestPlan/v1")||!d.string_is(d.member(n,"suite"),suite)||!out.nonce.from(d,d.member(n,"nonce"))||!lower_hex(out.nonce.view(),32)||!positive_int(d,d.member(n,"first_service_ordinal"),suite=="store"?INT64_MAX-12:INT64_MAX-8,out.service)||!positive_int(d,d.member(n,"maximum_actual_events"),16384,events)||events!=16384)return false;
  out.events=static_cast<std::size_t>(events);auto a=d.member(n,"cases");auto c=d.at(a);if(!c||c->kind!=ValueKind::array)return false;auto i=c->first;
  if(suite=="crash")return i!=no_cell&&out.stage.from(d,i)&&d.at(i)->next==no_cell&&crash_stage_name(out.stage.view());auto&ids=suite=="service"?service_case_ids:store_case_ids;
  for(auto name:ids){if(i==no_cell||!d.string_is(i,name))return false;i=d.at(i)->next;}return i==no_cell;
@@ -458,6 +458,7 @@ __declspec(noinline) void long_export_cases(Service* service,const std::string&a
 }
 
 void export_sharing_cases(Service*,Probe&,const std::string&,const std::string&,const std::string&,const std::string&);
+void export_range_lock_cases(Service*,Probe&,const std::string&,const std::string&,const std::string&,const std::string&);
 void full_record_store_cases(TrustedRoots&,std::string_view,std::string_view,std::uint64_t,std::size_t,const std::string&,const std::string&);
 void u64_fixture_setup(const std::string&);
 void u64_exhaustion_cases(Service*,Probe&);
@@ -522,6 +523,7 @@ void cursor_refusal(Service*service,Probe&p,JobKind kind,V payload,std::string_v
  auto exists=job(f.service,JobKind::export_player,V::o({{"player_id",V::s(alice)},{"expected_revision",V::s("3")},{"target_absolute_path",V::s(target)}}),"failed","target_exists");{Raw r(exists);auto v=value(r);require(field(r.d,v,"outcome")=="not_saved"&&r.d.at(member(r.d,v,"installed"))->scalar==0,"no-overwrite known failure stays file-specific");}
 
  export_sharing_cases(f.service,p,alice,root,target,ex);
+ export_range_lock_cases(f.service,p,alice,root,target,ex);
  long_export_cases(f.service,alice,root,target,ex);
  job(f.service,JobKind::prune_practice,V::o({{"player_id",V::s(alice)},{"practice_ids",V::a({V::s(one),V::s(std::string(32,'f'))})}}),"failed","not_found");{Raw r(job(f.service,JobKind::load_practice,V::o({{"player_id",V::s(alice)},{"practice_id",V::s(one)}}),"read"));require(!nil(r.d,member(r.d,practice(r),"archive")),"failed prune all-or-nothing and full archive retained");}
  job(f.service,JobKind::prune_practice,V::o({{"player_id",V::s(alice)},{"practice_ids",V::a({V::s(one)})}}),"committed","","12");job(f.service,JobKind::delete_player,V::o({{"player_id",V::s(bob)},{"expected_revision",V::s("1")}}),"committed","","13");
@@ -632,6 +634,77 @@ __declspec(noinline) void export_sharing_cases(Service*service,Probe&p,const std
   require(export_owned_temporaries(parent)==std::vector<std::string>{retained_temp},"neither retry/failure silently removes retained temporary or leaks another");
  }
  require(whole_state()==selected_before,"all selected Player/preferences and two full Practice records unchanged by file failures and retries");ready();
+}
+
+// Original MIT. Real synchronous byte-range IO failures on the worker's temp.
+// This second handle does not replace syscall results or throw from observers.
+struct ExportRangeLock {
+ Handle handle;
+ OVERLAPPED range{};
+ bool locked{};
+ bool close()noexcept {
+  if(locked){if(!UnlockFileEx(handle.value,0,1,0,&range))return false;locked=false;}
+  return handle.close();
+ }
+ ~ExportRangeLock(){if(!close())std::terminate();}
+};
+__declspec(noinline) void export_range_lock_cases(Service*service,Probe&p,const std::string&alice,const std::string&root,const std::string&target,const std::string&original_receipt){
+ p.wait_published(p.last_request());
+ const auto slash=target.find_last_of('\\');require(slash!=target.npos,"range-lock isolated export parent");const auto parent=target.substr(0,slash);
+ const auto baseline=crash_file(target,65536,true);Raw original(original_receipt);auto ov=value(original);
+ require(baseline.present&&baseline.length>0&&baseline.length==natural(original.d,member(original.d,ov,"bytes"),65536)&&baseline.hash==field(original.d,ov,"sha256"),"range-lock uses full independently verified nonempty original export");
+ const auto prior_names=export_owned_temporaries(parent);require(prior_names.size()==1,"prior sharing failure's owned temporary is retained");const auto prior=crash_file(prior_names[0],65536,true);
+ require(prior.present&&prior.bytes==baseline.bytes&&prior.hash==baseline.hash,"prior sharing temporary remains complete before range-lock cases");
+ auto payload=[&](const std::string&path){require(valid_local_absolute_path(path)&&!at_or_within(path,root),"range-lock export stays outside protected root");return V::o({{"player_id",V::s(alice)},{"expected_revision",V::s("3")},{"target_absolute_path",V::s(path)}});};
+ auto ready=[&]{p.wait_published(p.last_request());auto state=status(service);require(state.state==ServiceState::ready&&state.error==Error::none&&state.writer_alive&&state.pending==0&&state.undelivered==0&&p.reserved_bytes()==2097152,"range-lock ACK restores permanent-only ready ownership");};
+ auto whole_state=[&]{std::array<std::string,3> rows;{Raw pair(job(service,JobKind::load_player,V::o({{"player_id",V::s(alice)}}),"read"));rows[0]=canonical(pair.d,value(pair));}
+  for(unsigned i=0;i<2;++i){Raw row(job(service,JobKind::load_practice,V::o({{"player_id",V::s(alice)},{"practice_id",V::s(std::string(32,i?'4':'3'))}}),"read"));rows[i+1]=canonical(row.d,value(row));}ready();return rows;};
+ const auto selected_before=whole_state();
+ for(bool verify_read:{false,true}){
+  ready();require(export_owned_temporaries(parent)==prior_names,"new IO case preserves bounded prior temporary roster");
+  const auto phase=verify_read?Phase::export_verify_target:Phase::export_write;const auto kind=verify_read?IoKind::read:IoKind::write;
+  const std::string failed_target=target+(verify_read?".temp-read-locked":".temp-write-locked");require(!crash_file(failed_target,65536).present,"fresh range-lock selected target absent");
+  const auto events_begin=p.event_count();p.arm(JobKind::export_player,phase,Edge::before);ExportGateRetirement retire{p};
+  Capture input(JobKind::export_player,payload(failed_target));auto admission=service->submit(input);require(admission.accepted&&admission.error==Error::none,"range-lock request admitted to existing first Service");const auto request=p.last_request();p.wait();
+  NativeObservation held;{std::lock_guard lock(p.mutex);require(p.events.size()>events_begin,"actual held IO observation exists");held=p.events.back();}
+  require(held.kind==JobKind::export_player&&held.phase==phase&&held.scope==Scope::export_file&&held.edge==Edge::before&&held.role==FileRole::temp&&held.io_kind==kind&&held.chunk_index==1&&held.request_ordinal==request&&held.owned_handle&&held.identity.valid&&held.identity.links==1&&held.has_requested&&held.requested>0&&held.requested<=65536&&!held.has_completed&&!held.has_win32_error,"exact first synchronous worker temp IO held before syscall");
+  const auto names=export_owned_temporaries(parent);std::string temporary;for(const auto&name:names)if(std::find(prior_names.begin(),prior_names.end(),name)==prior_names.end()){require(temporary.empty(),"only one new owned temp");temporary=name;}
+  require(names.size()==prior_names.size()+1&&!temporary.empty(),"closed at-most-two discovery identifies only new temp");
+  ExportRangeLock blocker;require(open_ordinary(temporary,blocker.handle,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE),"compatible second synchronous READ handle does not deny writer sharing");
+  FileIdentity identity;LARGE_INTEGER size{};require(observe_identity(blocker.handle.value,false,identity)&&same_identity(identity,held.identity)&&GetFileSizeEx(blocker.handle.value,&size)&&size.QuadPart==static_cast<LONGLONG>(verify_read?baseline.length:0),"blocker is exact single-link temp; write empty or flushed read complete");
+  if(verify_read){std::string bytes(static_cast<std::size_t>(baseline.length),'\0');std::size_t offset=0;while(offset<bytes.size()){DWORD got{};const auto wanted=static_cast<DWORD>(bytes.size()-offset);require(ReadFile(blocker.handle.value,bytes.data()+offset,wanted,&got,nullptr)&&got>0&&got<=wanted,"independent temp read before lock");offset+=got;}DWORD extra{};char byte{};require(ReadFile(blocker.handle.value,&byte,1,&extra,nullptr)&&extra==0&&bytes==baseline.bytes&&digest_text(bytes)==baseline.hash,"full flushed temp bytes/hash/EOF before locking verification read");}
+  // Offset zero, length one: first positive worker syscall must overlap.
+  // Beyond-EOF locks are valid for the still-empty first-write case.
+  const BOOL locked=LockFileEx(blocker.handle.value,LOCKFILE_EXCLUSIVE_LOCK|LOCKFILE_FAIL_IMMEDIATELY,0,1,0,&blocker.range);const DWORD lock_error=locked?ERROR_SUCCESS:GetLastError();blocker.locked=locked!=0;
+  require(locked&&lock_error==ERROR_SUCCESS,"actual immediate exclusive one-byte lock acquired on separate owned handle");
+  p.release();auto delivered=receive(service,1);result(delivered[0],admission.request_id.view(),JobKind::export_player,"failed",verify_read?"file_verify_failed":"file_write_failed");p.wait_published(request);
+  {Raw receipt(delivered[0]);auto v=value(receipt);auto installed=receipt.d.at(member(receipt.d,v,"installed"));
+   require(field(receipt.d,v,"operation_id")==admission.request_id.view()&&field(receipt.d,v,"outcome")=="not_saved"&&field(receipt.d,v,"phase")== (verify_read?"verify_temp":"write")&&field(receipt.d,v,"target_absolute_path")==failed_target&&field(receipt.d,v,"temporary_absolute_path")==temporary&&installed&&installed->kind==ValueKind::boolean&&installed->scalar==0,"known pre-move file failure retains exact temp and never claims installation");
+   require(nil(receipt.d,member(receipt.d,v,"bytes"))&&nil(receipt.d,member(receipt.d,v,"sha256"))&&field(receipt.d,v,"player_id")==alice&&field(receipt.d,v,"preferences_revision")=="3"&&natural(receipt.d,member(receipt.d,v,"practice_count"),2)==2,"uncompleted digest exposes null verified bytes/hash and unchanged coherent snapshot metadata");
+  }
+  {std::lock_guard lock(p.mutex);unsigned io_before=0,io_after=0,commits=0,flush_before=0,flush_after=0;
+   for(std::size_t i=events_begin;i<p.events.size();++i){const auto&o=p.events[i];require(o.request_ordinal==request&&o.service_ordinal==held.service_ordinal&&o.kind==JobKind::export_player,"range failure trace bound to exact request and Service");
+    require(o.phase!=Phase::row_write&&o.phase!=Phase::rollback&&o.phase!=Phase::postverify&&o.phase!=Phase::export_move,"range failure neither SQL mutation/rollback/postverify nor move");
+    if(o.scope==Scope::original&&o.phase==Phase::after_commit){require(o.edge==Edge::after&&o.has_result&&o.sqlite_result==SQLITE_DONE&&o.autocommit&&o.txn_state==SQLITE_TXN_NONE&&io_before==0,"real coherent read COMMIT completed before any locked file IO");++commits;}
+    if(o.phase==Phase::export_flush){require(verify_read&&o.scope==Scope::export_file&&o.role==FileRole::temp&&same_identity(o.identity,held.identity),"read failure follows actual flush of same temp");if(o.edge==Edge::before)++flush_before;else{++flush_after;require(o.has_win32_error&&o.win32_error==ERROR_SUCCESS,"flush really succeeded; not a flush-failure claim");}}
+    if(o.scope==Scope::export_file&&o.phase==phase){require(o.role==FileRole::temp&&o.io_kind==kind&&o.chunk_index==1&&o.occurrence==held.occurrence&&o.has_requested&&o.requested==held.requested&&o.owned_handle&&same_identity(o.identity,held.identity),"exact paired first IO kind/count/file identity");
+     if(o.edge==Edge::before){++io_before;require(!o.has_completed&&!o.has_win32_error,"before IO has no fabricated result");}else{++io_after;require(o.has_completed&&o.completed==0&&o.has_win32_error&&o.win32_error==ERROR_LOCK_VIOLATION,"actual synchronous ReadFile/WriteFile denied with Win32 lock violation33 and zero bytes");}}
+    if(o.scope==Scope::export_file&&o.io_kind!=IoKind::not_applicable&&o.phase!=phase)require(verify_read&&o.phase==Phase::export_write&&o.io_kind==IoKind::write&&(o.edge==Edge::before||(o.has_completed&&o.completed>0&&o.completed<=o.requested&&o.has_win32_error&&o.win32_error==ERROR_SUCCESS)),"only successful earlier writes may precede temp-read failure");
+   }require(commits==1&&io_before==1&&io_after==1&&flush_before==(verify_read?1U:0U)&&flush_after==(verify_read?1U:0U),"one actual failed IO pair, with flush only for verify-read case");
+  }
+  ready();require(blocker.close(),"explicit exact-range unlock and checked blocker close after failure ACK");
+  const auto failed=crash_file(temporary,65536,true);require(failed.present&&same_identity(failed.identity,held.identity)&&failed.length==(verify_read?baseline.length:0)&&failed.bytes==(verify_read?baseline.bytes:std::string{})&&failed.hash==(verify_read?baseline.hash:digest_text("")),"whole failed temp retained unchanged: zero-byte write failure or complete unverified read failure");
+  require(!crash_file(failed_target,65536).present,"known pre-move IO failure leaves selected target absent");
+  const std::string fresh=failed_target+".retry";require(!crash_file(fresh,65536).present,"explicit fresh retry target absent");Raw retried(job(service,JobKind::export_player,payload(fresh),"read"));auto rv=value(retried);
+  require(field(retried.d,rv,"outcome")=="saved"&&field(retried.d,rv,"phase")=="done"&&field(retried.d,rv,"target_absolute_path")==fresh&&retried.d.at(member(retried.d,rv,"installed"))->kind==ValueKind::boolean&&retried.d.at(member(retried.d,rv,"installed"))->scalar==1&&nil(retried.d,member(retried.d,rv,"temporary_absolute_path"))&&field(retried.d,rv,"sha256")==baseline.hash&&natural(retried.d,member(retried.d,rv,"bytes"),65536)==baseline.length,"fresh explicit retry saved complete unchanged snapshot after blocker retired");ready();
+  const auto saved=crash_file(fresh,65536,true);require(saved.present&&saved.length==baseline.length&&saved.hash==baseline.hash&&saved.bytes==baseline.bytes,"independent whole retry file verification");
+  const auto retained=crash_file(temporary,65536,true);require(retained.present&&same_identity(retained.identity,failed.identity)&&retained.length==failed.length&&retained.bytes==failed.bytes&&retained.hash==failed.hash,"retry does not silently erase or alter failed temp");
+  // Test-owned cleanup is explicit, after full retained-byte proof and unlock.
+  auto own_temp=std::make_unique<Wide>();require(own_temp->set(temporary),"exact independently discovered owned temp cleanup operand");auto own_operand=std::make_unique<ExtendedFileOperand>(*own_temp);require(DeleteFileW(own_operand->value.data())!=0,"explicit test cleanup of only new failed temp");
+  require(!crash_file(temporary,65536).present&&export_owned_temporaries(parent)==prior_names,"cleanup restores unchanged at-most-two enumeration bound; prior temp not deleted");
+  const auto old=crash_file(prior_names[0],65536,true),original_file=crash_file(target,65536,true);require(old.present&&same_identity(old.identity,prior.identity)&&old.bytes==prior.bytes&&old.hash==prior.hash&&original_file.present&&same_identity(original_file.identity,baseline.identity)&&original_file.bytes==baseline.bytes&&original_file.hash==baseline.hash,"original export and previous sharing temp retain full bytes and identity");
+ }
+ require(whole_state()==selected_before,"actual IO failures/retries preserve complete Player/Preferences and both Practice records");ready();
 }
 
 void crash_record_file(std::string_view label,const CrashFile&f){
@@ -1228,6 +1301,48 @@ __declspec(noinline) void dense_dual_preset_cases(Service* service,Probe& probe)
  require(digest_text(owned)==saved_hash&&probe.reserved_bytes()==2097152,"dense returned copy survives subsequent native slot reuse and exact release");
 }
 
+// Original MIT. Exact DN_hash_mismatch and DN_shared_revision frozen inputs.
+// expected-v1.json SHA164aad9b74de33b04a6a69734116eab899dceaf696135137b9963f679968b722.
+constexpr std::string_view rejected_shared_player=R"LPREJECT({"created_utc":"2000-02-29T00:00:00Z","id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","name":"Ana \"Δ\" \\ 飛行","revision":"4","type":"LocalPlayer","updated_utc":"2026-10-11T06:00:00Z","version":1})LPREJECT";
+constexpr std::string_view rejected_shared_hash="8beae7b38e81159de0590449182d41cc766e80528da90f425cfa2b4e2dbde870";
+void full_rejected_record_mutation(sqlite3*db,bool shared_revision){
+ const std::string zero_hash(64,'0');sqlite3_stmt*raw{};
+ const char*sql=shared_revision?"UPDATE players SET revision='4',record=?1,record_sha256=?2 WHERE id='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'":"UPDATE practices SET record_sha256=?1 WHERE id='11111111111111111111111111111111'";
+ const int prepared=sqlite3_prepare_v2(db,sql,-1,&raw,nullptr);std::unique_ptr<sqlite3_stmt,decltype(&sqlite3_finalize)> statement(raw,sqlite3_finalize);
+ require(prepared==SQLITE_OK&&statement,"closed exact frozen mutant statement");
+ if(shared_revision){
+  require(sqlite3_bind_blob(statement.get(),1,rejected_shared_player.data(),static_cast<int>(rejected_shared_player.size()),SQLITE_STATIC)==SQLITE_OK&&sqlite3_bind_text(statement.get(),2,rejected_shared_hash.data(),static_cast<int>(rejected_shared_hash.size()),SQLITE_STATIC)==SQLITE_OK,"exact frozen internally coherent Player BLOB/hash");
+ }else require(sqlite3_bind_text(statement.get(),1,zero_hash.data(),static_cast<int>(zero_hash.size()),SQLITE_STATIC)==SQLITE_OK,"frozen all-zero Practice hash conflict");
+ require(sqlite3_step(statement.get())==SQLITE_DONE&&sqlite3_changes(db)==1,"exactly one selected row changed");require(sqlite3_finalize(statement.release())==SQLITE_OK,"mutant statement retired before inspection");
+ raw=nullptr;sql=shared_revision?"SELECT record,record_sha256,revision FROM players WHERE id='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'":"SELECT record,record_sha256,revision FROM practices WHERE id='11111111111111111111111111111111'";
+ const int checked=sqlite3_prepare_v2(db,sql,-1,&raw,nullptr);statement.reset(raw);
+ require(checked==SQLITE_OK&&statement&&sqlite3_step(statement.get())==SQLITE_ROW&&sqlite3_column_type(statement.get(),0)==SQLITE_BLOB&&sqlite3_column_type(statement.get(),1)==SQLITE_TEXT&&sqlite3_column_type(statement.get(),2)==SQLITE_TEXT,"actual selected mutant BLOB/TEXT branches");
+ const auto*blob=static_cast<const char*>(sqlite3_column_blob(statement.get(),0));const auto*hash=sqlite3_column_text(statement.get(),1);const auto*revision=sqlite3_column_text(statement.get(),2);
+ const auto expected_record=shared_revision?rejected_shared_player:full_fixture_practices[0].record;const auto expected_hash=shared_revision?rejected_shared_hash:std::string_view(zero_hash);
+ require(blob&&hash&&revision&&std::string_view(blob,static_cast<std::size_t>(sqlite3_column_bytes(statement.get(),0)))==expected_record&&std::string_view(reinterpret_cast<const char*>(hash),static_cast<std::size_t>(sqlite3_column_bytes(statement.get(),1)))==expected_hash&&std::string_view(reinterpret_cast<const char*>(revision),static_cast<std::size_t>(sqlite3_column_bytes(statement.get(),2)))==(shared_revision?"4":"2"),"exact frozen selected row BLOB/hash/revision");
+ require(sqlite3_step(statement.get())==SQLITE_DONE&&sqlite3_finalize(statement.release())==SQLITE_OK,"one exact selected row inspection retired");
+}
+__declspec(noinline) void full_rejected_record_setup(const std::string&root,bool shared_revision){
+ // The file must already exist as the joined synthetic store. No SQLite CREATE.
+ auto before=crash_file(root+"\\players.sqlite3",33554432);require(before.present,"existing isolated main before independent row setup");
+ std::string uri="file:";constexpr char hex[]="0123456789ABCDEF";
+ for(unsigned char c:root+"\\players.sqlite3"){
+  if(c=='\\')uri+='/';else if((c>='A'&&c<='Z')||(c>='a'&&c<='z')||(c>='0'&&c<='9')||c=='/'||c==':'||c=='-'||c=='_'||c=='.')uri+=static_cast<char>(c);
+  else{uri+='%';uri+=hex[c>>4];uri+=hex[c&15];}
+ }
+ uri+="?exclusive=1";FullFixtureDb db;
+ require(sqlite3_open_v2(uri.c_str(),&db.value,SQLITE_OPEN_READWRITE|SQLITE_OPEN_URI|SQLITE_OPEN_NOMUTEX,nullptr)==SQLITE_OK,"actual existing-only test SQLite open");
+ full_fixture_schema_check(db.value,!shared_revision); // first follows exact SQLN_extra_trigger; second follows SQL_exact
+ full_fixture_exec(db.value,"PRAGMA locking_mode=EXCLUSIVE;PRAGMA foreign_keys=ON;BEGIN IMMEDIATE;");
+ if(!shared_revision)full_fixture_exec(db.value,"DROP TRIGGER extra;");
+ full_fixture_exec(db.value,"DELETE FROM practices;DELETE FROM preferences;DELETE FROM players;DELETE FROM meta;");
+ for(auto sql:full_fixture_inserts)full_fixture_exec(db.value,sql);
+ full_rejected_record_mutation(db.value,shared_revision);
+ full_fixture_exec(db.value,"COMMIT;");full_fixture_schema_check(db.value,false);full_fixture_exec(db.value,"VACUUM;");db.close();
+ auto after=crash_file(root+"\\players.sqlite3",33554432);require(after.present&&same_identity(before.identity,after.identity)&&after.length<=524288,"fixture setup keeps main identity and explicitly shrinks reset D01 for bounded failure copies");
+ for(unsigned i=1;i<4;++i)require(!crash_file(root+"\\"+std::string(crash_data_names[i]),crash_caps[i]).present,"fully closed fixed fixture leaves no SQLite sidecar before qualification");
+}
+
 __declspec(noinline) void full_record_store_cases(TrustedRoots&trust,std::string_view descriptor,std::string_view digest,std::uint64_t ordinal,std::size_t cap,const std::string&root,const std::string&target){
  require(crash_directories(root).empty(),"existing joined fixture management cleanup finished");
  full_fixture_setup(root,false,false);
@@ -1252,6 +1367,16 @@ __declspec(noinline) void full_record_store_cases(TrustedRoots&trust,std::string
  require(actual_events.load()<=cap,"unchanged16384 aggregate actual-event ceiling for expanded store driver");
  // Final malformed original + recovery/WORK and both verified sibling raw
  // failure copies remain for Root inspection. No repair or cleanup is a pass.
+ // Original .dn/.schema proof copies above stay byte-exact. Explicit management
+ // retires each known linked retained/WORK pair before restoring the next
+ // closed reference input; only the last new rejected set stays retained.
+ full_fixture_management_cleanup(trust,descriptor,digest,ordinal,cap,root);
+ full_rejected_record_setup(root,false);
+ full_fixture_failed_start(trust,descriptor,digest,ordinal,cap,root,target+".dn-hash","corrupt_store");
+ full_fixture_management_cleanup(trust,descriptor,digest,ordinal,cap,root);
+ full_rejected_record_setup(root,true);
+ full_fixture_failed_start(trust,descriptor,digest,ordinal,cap,root,target+".dn-shared","corrupt_store");
+ require(actual_events.load()<=cap,"two appended full-record negatives retain unchanged16384 actual-event ceiling");
 }
 void crash_postverify_scopes(Probe&p){std::lock_guard lock(p.mutex);for(auto scope:{Scope::qualification_copy,Scope::original})require(std::any_of(p.events.begin(),p.events.end(),[&](const NativeObservation&o){return o.kind==JobKind::start&&o.scope==scope&&o.phase==Phase::postverify&&o.edge==Edge::after;}),"actual WORK and original full postverify notifications");}
 bool crash_stage_name(std::string_view stage){
