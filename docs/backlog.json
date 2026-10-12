@@ -7567,6 +7567,7 @@
         "tools/interactive-preview/test_native_identity.py",
         "tools/interactive-preview/simulation-staging.ps1",
         "tools/interactive-preview/simulation-staging.test.ps1",
+        "tools/interactive-preview/camera-staging.ps1",
         "tools/interactive-preview/camera-receipt.mjs",
         "tools/interactive-preview/camera-receipt.test.mjs",
         "tools/interactive-preview/run.ps1",
@@ -7608,7 +7609,8 @@
         "docs/contracts.md",
         "docs/decisions/027-synthetic-taxi-navigation.md",
         "tests/world/taxi/reference/README.md",
-        "tests/world/taxi/start-reference/README.md"
+        "tests/world/taxi/start-reference/README.md",
+        "docs/contracts/world/synthetic-taxi-observer-v1.md"
       ],
       "requirements": [
         "PRD-006",
