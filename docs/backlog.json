@@ -1289,12 +1289,15 @@
       "owned_paths": [
         "app/audio/",
         "assets_source/audio/",
-        "tests/audio/"
+        "tests/audio/",
+        "docs/contracts/audio/live-captions-v1.md",
+        "docs/contracts.md"
       ],
       "docs": [
         "docs/experience-and-progress.md",
         "docs/realism-and-validation.md",
-        "docs/roadmap.md"
+        "docs/roadmap.md",
+        "docs/contracts/audio/live-captions-v1.md"
       ],
       "requirements": [
         "REAL-020",
