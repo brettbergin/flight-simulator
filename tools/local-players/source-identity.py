@@ -19,7 +19,7 @@ import sys
 import zipfile
 
 ALLOCATION = "docs/contracts/local-players/compiled-source-allocation-v1.json"
-ALLOCATION_SHA256 = "a3269f6ff8a4eddcdf4db45d0736e951d885e1c1fc11e7ecd2a0f2e22cd49ab1"
+ALLOCATION_SHA256 = "ac04b370a2861213b008680eedb1b62f8a434c61468e2d913c9e05e9a522192a"
 SCALARS = (
     "c_compiler_id", "c_compiler_version", "c_compiler_executable_sha256",
     "cxx_compiler_id", "cxx_compiler_version", "cxx_compiler_executable_sha256",

@@ -230,7 +230,43 @@ func _records(host: Node, object: Object) -> void:
 	var cursor: Dictionary = await _terminal(host, object, object.call("submit", {"kind": "list_practice", "payload": {"player_id": id, "before_creation_sequence": "0", "limit": 1}}))
 	_check(cursor.get("state") == "read" and _closed(cursor.get("value"), ["practice", "next_before_creation_sequence"]) and cursor.value.practice == [] and cursor.value.next_before_creation_sequence == null, "actual full-U64 zero cursor read")
 
+	await _two_result_transfer(host, object, id)
 	await _numeric_preferences(host, object, id)
+
+
+# Two real queued read results transfer together through the shared boundary.
+# Independent complete values use the fixed pre-numeric revision2 fixture.
+func _two_result_transfer(host: Node, object: Object, id: String) -> void:
+	var first: Variant = object.call("submit", {"kind":"load_player", "payload":{"player_id":id}})
+	var second: Variant = object.call("submit", {"kind":"list_practice", "payload":{"player_id":id, "before_creation_sequence":"0", "limit":1}})
+	var admitted: bool = _admission(first,true,"") and _admission(second,true,"") and first.request_id != second.request_id
+	_check(admitted, "two-result batch has distinct actually accepted request IDs")
+	if not admitted:
+		return
+	var deadline: int = Time.get_ticks_msec() + 30000
+	var ready: Variant = object.call("status")
+	while Time.get_ticks_msec() < deadline:
+		ready = object.call("status")
+		if _status(ready) and ready.state == "ready" and ready.pending == 0 and ready.undelivered == 2:
+			break
+		await host.get_tree().process_frame
+	var both_ready: bool = _status(ready) and ready.state == "ready" and ready.pending == 0 and ready.undelivered == 2
+	_check(both_ready, "both actual FIFO terminals ready before one batch poll")
+	if not both_ready:
+		return
+	var values: Variant = object.call("poll",2)
+	_check(typeof(values) == TYPE_ARRAY and values.size() == 2, "one actual ClassDB poll transfers exactly two results")
+	if typeof(values) != TYPE_ARRAY or values.size() != 2:
+		return
+	var pair: Dictionary = {"player":{"type":"LocalPlayer", "version":1, "id":id, "name":"Bridge A", "created_utc":"2026-10-11T12:00:00Z", "updated_utc":"2026-10-11T12:00:01Z", "revision":"2"}, "preferences":{"type":"LocalPlayerPreferences", "version":1, "player_id":id, "revision":"2", "legacy_input":null, "piston_input":null, "audio":{"enabled":true, "engine_gain":-0.0, "airflow_gain":0.5, "show_panel_captions":false}}}
+	var expected: Array = [{"request_id":first.request_id, "kind":"load_player", "state":"read", "error_code":"", "commit_sequence":null, "value":pair}, {"request_id":second.request_id, "kind":"list_practice", "state":"read", "error_code":"", "commit_sequence":null, "value":{"practice":[], "next_before_creation_sequence":null}}]
+	_check(_typed_equal(values,expected), "two-result FIFO complete envelopes and independent value/type/binary64 expectations")
+	var drained: Variant = object.call("status")
+	_check(_status(drained) and drained.pending == 0 and drained.undelivered == 0 and object.call("poll",2) == [], "whole batch ACK drains both terminals without a prefix or duplicate")
+	var next: Variant = object.call("submit", {"kind":"load_player", "payload":{"player_id":id}})
+	var reread: Dictionary = await _terminal(host,object,next)
+	var expected_next: Dictionary = {"request_id":next.request_id, "kind":"load_player", "state":"read", "error_code":"", "commit_sequence":null, "value":pair}
+	_check(_typed_equal(reread,expected_next) and _typed_equal(values,expected), "entire returned two-result caller-owned batch survives next native poll and slot reuse")
 
 # Gap5: frozen ORIGINAL/full-record descriptors, never consumer output/goldens.
 # Fixture FLOATs are decoded directly from eight LE bytes, never JSON decimals.

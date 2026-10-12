@@ -335,7 +335,7 @@ if(WIN32 AND FLIGHT_LOCAL_PLAYERS_QUALIFICATION_MODE STREQUAL "windows")
   file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/local-players-test-policy-$<CONFIG>.json"
     CONTENT "{\"schema\":\"LocalPlayersTestCompilePolicy/v1\",\"configuration\":\"$<CONFIG>\",\"production_policy\":\"${CMAKE_BINARY_DIR}/local-players-compile-policy-$<CONFIG>.json\",\"executable_rule\":${original_rule_vs_link_exe},\"shared_rule\":${original_rule_vs_link_dll},\"targets\":${targets_json}}\n")
   set_tests_properties(local_players_codec PROPERTIES TIMEOUT 120)
-  set_tests_properties(local_players_store PROPERTIES TIMEOUT 600)
+  set_tests_properties(local_players_store PROPERTIES TIMEOUT 1200)
   set_tests_properties(local_players_service PROPERTIES TIMEOUT 900)
   set_tests_properties(local_players_windows PROPERTIES TIMEOUT 900)
   set_tests_properties(local_players_crash PROPERTIES TIMEOUT 7200)

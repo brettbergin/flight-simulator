@@ -186,7 +186,7 @@ for value in (repo_arg, deps_arg, build_arg):
         raise ValueError("absolute Root-declared input required")
 repo = Path(repo_arg)
 tool = repo / "tools/local-players/source-identity.py"
-expected_tool_sha = "e1715ba5683c4d5e95f98e84b6e87a5c3896be66c14ad3ab2b6df1109eca1a61"
+expected_tool_sha = "23b4494799d795b77bede1c0b4b4cf43421f5b592b312f1f8f60c3a0dd2965a3"
 # Inspect every ancestor before importing the explicitly reviewed tool. No
 # environment module path, source-root sys.path injection or unpinned helper.
 import hashlib
@@ -2194,7 +2194,7 @@ if ($Stage -ceq 'BuildTests') {
     $controlsSha=(Get-RootFilePin $controls).sha256
     $null=Invoke-RootObservedProcess publish-identity-plan $PythonExecutable $PythonSha256 @('-I','-B','-c',$publish,$RepositoryRoot,$DependencyRoot,$BuildRoot,$Configuration,$controlsSha) $RepositoryRoot $processes 120
     $identityTool=Join-Path $RepositoryRoot 'tools/local-players/source-identity.py'
-    if ((Get-RootFilePin $identityTool).sha256 -cne 'e1715ba5683c4d5e95f98e84b6e87a5c3896be66c14ad3ab2b6df1109eca1a61') { throw 'Reviewed identity producer changed' }
+    if ((Get-RootFilePin $identityTool).sha256 -cne '23b4494799d795b77bede1c0b4b4cf43421f5b592b312f1f8f60c3a0dd2965a3') { throw 'Reviewed identity producer changed' }
     $null=Invoke-RootObservedProcess publish-identity $PythonExecutable $PythonSha256 @('-I','-B',$identityTool,'--repo-root',$RepositoryRoot,'--dependency-root',$DependencyRoot,'--build-plan',(Join-Path $BuildRoot 'local-players-precompile-plan.json'),'--output-root',(Join-Path $BuildRoot 'local-players-identity')) $RepositoryRoot $processes 120
     $manifest=Join-Path $BuildRoot 'local-players-identity/local-players-source-identity.json'
     $manifestSha=(Get-RootFilePin $manifest).sha256
@@ -2322,7 +2322,7 @@ if ($Stage -ceq 'Build') {
     $controlsSha=(Get-RootFilePin $controls).sha256
     $null=Invoke-RootObservedProcess publish-identity-plan $PythonExecutable $PythonSha256 @('-I','-B','-c',$publish,$RepositoryRoot,$DependencyRoot,$BuildRoot,$Configuration,$controlsSha) $RepositoryRoot $processes 120
     $identityTool=Join-Path $RepositoryRoot 'tools/local-players/source-identity.py'
-    if ((Get-RootFilePin $identityTool).sha256 -cne 'e1715ba5683c4d5e95f98e84b6e87a5c3896be66c14ad3ab2b6df1109eca1a61') { throw 'Reviewed identity producer changed' }
+    if ((Get-RootFilePin $identityTool).sha256 -cne '23b4494799d795b77bede1c0b4b4cf43421f5b592b312f1f8f60c3a0dd2965a3') { throw 'Reviewed identity producer changed' }
     $null=Invoke-RootObservedProcess publish-identity $PythonExecutable $PythonSha256 @('-I','-B',$identityTool,'--repo-root',$RepositoryRoot,'--dependency-root',$DependencyRoot,'--build-plan',(Join-Path $BuildRoot 'local-players-precompile-plan.json'),'--output-root',(Join-Path $BuildRoot 'local-players-identity')) $RepositoryRoot $processes 120
     $manifest=Join-Path $BuildRoot 'local-players-identity/local-players-source-identity.json'
     $manifestSha=(Get-RootFilePin $manifest).sha256
@@ -2414,7 +2414,7 @@ for value in (repo_arg, deps_arg, build_arg):
         raise ValueError("absolute Root-declared input required")
 repo = Path(repo_arg)
 tool = repo / "tools/local-players/source-identity.py"
-expected_tool_sha = "e1715ba5683c4d5e95f98e84b6e87a5c3896be66c14ad3ab2b6df1109eca1a61"
+expected_tool_sha = "23b4494799d795b77bede1c0b4b4cf43421f5b592b312f1f8f60c3a0dd2965a3"
 # Inspect every ancestor before importing the explicitly reviewed tool. No
 # environment module path, source-root sys.path injection or unpinned helper.
 import hashlib
@@ -2495,7 +2495,7 @@ if ((Get-FileHash -LiteralPath $PythonExecutable -Algorithm SHA256).Hash.ToLower
     throw "Pinned Python changed before source reconstruction"
 }
 $identityTool = Join-Path $RepositoryRoot "tools/local-players/source-identity.py"
-if ((Get-FileHash -LiteralPath $identityTool -Algorithm SHA256).Hash.ToLowerInvariant() -cne "e1715ba5683c4d5e95f98e84b6e87a5c3896be66c14ad3ab2b6df1109eca1a61") {
+if ((Get-FileHash -LiteralPath $identityTool -Algorithm SHA256).Hash.ToLowerInvariant() -cne "23b4494799d795b77bede1c0b4b4cf43421f5b592b312f1f8f60c3a0dd2965a3") {
     throw "Reviewed identity tool changed before source reconstruction"
 }
 & $PythonExecutable -I -B $identityTool --repo-root $RepositoryRoot --dependency-root $DependencyRoot `

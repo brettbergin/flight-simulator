@@ -733,9 +733,11 @@ Variant LocalPlayersBoundary::poll(const Variant& maximum) {
  // Whole unique batch remains outstanding until every final owned tree passes.
  // Never deliver a prefix or acknowledge a partly converted result.
  try {
-  for(std::uint8_t i=0;i<count;++i){Variant dto;if(!convert(views[i],dto))return Variant();delivered.append(dto);}
+  for(std::uint8_t i=0;i<count;++i){Variant dto;if(!convert(views[i],dto))return Variant();delivered.append(dto);if(delivered.size()!=static_cast<std::int64_t>(i)+1)return Variant();}
+  Variant completed(delivered);
+  if(completed.get_type()!=Variant::ARRAY||Array(completed).size()!=static_cast<std::int64_t>(count))return Variant();
   if(!service_->acknowledge(batch))return Variant();
-  held.active=false;return delivered;
+  held.active=false;return completed;
  } catch(...) {
   // A catchable caller-output construction failure cannot consume the batch.
   // Engine-level fatal allocation failure is not misrepresented as recoverable.

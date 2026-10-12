@@ -48,7 +48,8 @@ struct ReservationObservation {
  std::uint32_t requested{},rounded{},reserved_pages{},live_pages{};
 };
 // Only a separately linked test factory may install this observer. Callbacks
-// cannot substitute SQL/Win32 values; allocation refusal occurs before claims.
+// cannot substitute SQL/Win32 values; the named synthetic flush exception below
+// skips that operation only. Allocation refusal occurs before claims.
 class QualificationObserver {
  public:
   virtual ~QualificationObserver()=default;
@@ -61,6 +62,9 @@ class QualificationObserver {
   // actual progress callback during a statement. A request is not evidence that
   // interruption occurred: the actual statement return/transaction is recorded.
   virtual bool take_sqlite_interrupt_request() noexcept {return false;}
+  // Accepted isolated-test-only synthetic stage refusal. True skips only the
+  // selected export flush; no OS return value is fabricated. Shipping is null.
+  virtual bool take_export_flush_refusal_request() noexcept {return false;}
 };
 class StoreAccess {
  public:
