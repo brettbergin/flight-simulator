@@ -2,7 +2,6 @@ extends RefCounted
 # Original MIT. Fixed original resource; never reads simulation, input or clocks.
 # The independent GLB/source/import checks remain mandatory before distribution.
 const ASSET := "res://cockpit/assets/original-cockpit.glb"
-const MAX_GLB_BYTES := 12*1024*1024
 const MAX_DECODED_ARRAY_BYTES := 8*1024*1024
 const MAX_TRIANGLES := 20000
 const MARKERS := {
@@ -139,14 +138,9 @@ static func _reject(root: Node) -> Node3D:
 	return null
 
 static func instantiate() -> Node3D:
-	if not FileAccess.file_exists(ASSET):
-		return null
-	var raw := FileAccess.open(ASSET, FileAccess.READ)
-	if raw == null:
-		return null
-	var length: int = raw.get_length()
-	raw.close()
-	if length < 28 or length > MAX_GLB_BYTES or not ResourceLoader.exists(ASSET, "PackedScene"):
+	# Exports retain the fixed imported PackedScene and its remap, not raw GLB bytes.
+	# Source GLB size/provenance remain enforced by the offline source/import checks.
+	if not ResourceLoader.exists(ASSET, "PackedScene"):
 		return null
 	var scene := ResourceLoader.load(ASSET, "PackedScene") as PackedScene
 	if scene == null:

@@ -353,7 +353,11 @@ function Assert-CockpitImportProducer {
  param([Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)]$Producer)
  if((($Producer.PSObject.Properties.Name|Sort-Object) -join "`n") -cne "arguments`nexecutable`nexit_code`nlog" -or ($Producer.exit_code -isnot [int] -and $Producer.exit_code -isnot [long]) -or $Producer.exit_code -ne 0 -or $Producer.arguments -isnot [array]){throw 'Actual completed pinned cockpit editor import required'}
  Assert-CockpitBoundFilePin $Producer.executable;Assert-CockpitBoundFilePin $Producer.log
- if($Producer.executable.bytes -ne 198152 -or $Producer.executable.sha256 -cne 'c8f0a6bc45a19b33541501e57f6f7cd972ab18453743266339d495cbbe846643'){throw 'Existing pinned Godot 4.7.2 console producer required'}
+ $windowsProducer=$Producer.executable.bytes -eq 198152 -and $Producer.executable.sha256 -ceq 'c8f0a6bc45a19b33541501e57f6f7cd972ab18453743266339d495cbbe846643'
+ # Linux hash is the exact bootstrap-qualified 4.7.2 executable from hosted evidence.
+ # The actual ordinary-file length remains recorded; no unobserved size is invented.
+ $linuxProducer=$Producer.executable.bytes -gt 0 -and $Producer.executable.bytes -le 512MB -and $Producer.executable.sha256 -ceq '8d106cbe6144c2dc7e881d61d2429c1a8a76e6b22ef48bd5e48dcf934953f71e'
+ if(-not ($windowsProducer -or $linuxProducer)){throw 'Existing pinned Godot 4.7.2 Windows console or Linux producer required'}
  $expected=@('--headless','--path',$ProjectRoot,'--editor','--quit-after','120','--frame-delay','100')
  if(($Producer.arguments -join "`n") -cne ($expected -join "`n")){throw 'Actual cockpit import arguments differ from fixed editor producer'}
  $log=[IO.File]::ReadAllText($Producer.log.path)
