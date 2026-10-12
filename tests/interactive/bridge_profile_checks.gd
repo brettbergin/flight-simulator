@@ -95,8 +95,15 @@ func run(legacy_root: String, piston_root: String) -> Dictionary:
 	for pair in unsupported_pairs:
 		var pair_rejected: Dictionary=bridge.call("open_session","invalid-model-path",pair[0],pair[1],pair[2])
 		rejected(pair_rejected,"Fresh unsupported pair rejection")
-		var expected_error: String="Piston profile supports only piston-cold-ground with calm wind" if pair[2]==PISTON else "Only ground-ready and airborne-prepared starts are supported"
+		var expected_error: String="Piston profile supports only piston-cold-ground or piston-cold-apron with calm wind" if pair[2]==PISTON else "Unknown legacy named start"
 		check(pair_rejected.get("error")==expected_error,"Unsupported pair rejects before native model allocation")
+	# ADR027 extends the admitted starts; invalid apron combinations must still
+	# reject before inspecting the model path or allocating a native worker.
+	for pair in [["apron-ready","from-north",LEGACY],["apron-ready","from-west",LEGACY],["apron-ready","from-east",LEGACY],["piston-cold-apron","from-north",PISTON],["piston-cold-apron","from-west",PISTON],["piston-cold-apron","from-east",PISTON],["apron-ready","calm",PISTON],["piston-cold-apron","calm",LEGACY]]:
+		var apron_rejected: Dictionary=bridge.call("open_session","invalid-model-path",pair[0],pair[1],pair[2])
+		rejected(apron_rejected,"Fresh unsupported apron combination rejection")
+		var expected_apron_error: String="Apron starts require calm wind" if pair[1]!="calm" else ("Piston profile supports only piston-cold-ground or piston-cold-apron with calm wind" if pair[2]==PISTON else "Unknown legacy named start")
+		check(apron_rejected.get("error")==expected_apron_error,"Unsupported apron rejects before native model allocation")
 	for bad in bad_values:
 		var wind_rejected: Dictionary=bridge.call("open_session","invalid-model-path","ground-ready",bad)
 		rejected(wind_rejected,"Fresh third selector rejection")

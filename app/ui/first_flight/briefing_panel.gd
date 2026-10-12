@@ -3,6 +3,9 @@ extends Control
 const Readings = preload("res://cockpit/instruments/native_readings.gd")
 const EngineStatus = preload("res://cockpit/instruments/engine_status.gd")
 const BindingHelp = preload("res://ui/first_flight/binding_help.gd")
+const TaxiLayout = preload("res://world/taxi/taxi_layout.gd")
+const APRON_CHOICE_IDS = ["apron-ready","piston-cold-apron"]
+var _apron_buttons: Array[Button]=[]
 const FIXTURE_PATH = "res://content/scenarios/first-flight/briefing.json"
 const FIXTURE_SHA256 = "d75704a7aa6b50724561202bf817e1b74a0d7693ec2043347300cba8a29492c4"
 const CHOICE_IDS = ["cold-familiarization","ready-flight","airborne-orientation"]
@@ -70,6 +73,16 @@ static func choice_for(choice_id: String) -> Dictionary:
 	if not checked.ok: return {}
 	for choice in checked.value.choices:
 		if choice.choice_id == choice_id: return choice.duplicate(true)
+	return {}
+
+static func apron_choice_for(choice_id: String) -> Dictionary:
+	if not APRON_CHOICE_IDS.has(choice_id): return {}
+	var admitted: Dictionary=TaxiLayout.load()
+	if not admitted.ok: return {}
+	for start in admitted.value.starts:
+		if start.named_start==choice_id:
+			var profile: Dictionary=Readings.PISTON_PROFILE if start.profile_id==Readings.PISTON_PROFILE.id else Readings.LEGACY_PROFILE
+			return {"choice_id":choice_id,"named_start":start.named_start,"model_identity":profile.duplicate(true),"wind":start.wind_profile}
 	return {}
 
 func _label(parent: Node, text: String, font_size: int = 16) -> Label:
@@ -155,6 +168,18 @@ func _ready() -> void:
 		button.size_flags_horizontal=Control.SIZE_EXPAND_FILL; _choice_buttons.append(button)
 	circuit_slot=VBoxContainer.new(); circuit_slot.name="CircuitOptions"; overview.add_child(circuit_slot)
 	_circuit_hint=_label(overview,"Not evaluated | ready-flight / ground-ready / calm / runway36 only.\nCircuit aid choice is session-local and is not stored in saved flight reviews.",12)
+	_label(overview,"Start at PARK1 on the apron",18)
+	_label(overview,"Calm wind · brakes held · original synthetic models. Use Taxi in the paused menu to choose a manual runway or parking itinerary.",14)
+	var apron_row:=HBoxContainer.new()
+	apron_row.name="ApronStartingPoints"
+	apron_row.add_theme_constant_override("separation",12)
+	overview.add_child(apron_row)
+	for id in APRON_CHOICE_IDS:
+		var caption: String="Apron ready — engine running" if id=="apron-ready" else "Apron cold — engine off"
+		var button: Button=_button(apron_row,caption,"Choose this exact PARK1 start; successful adoption stays paused.",_request_apron_choice.bind(id))
+		button.name=id
+		button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+		_apron_buttons.append(button)
 	var controls_page: VBoxContainer = _page("Control help")
 	_label(controls_page,BindingHelp.AVAILABILITY)
 	_binding_text=_label(controls_page,"")
@@ -179,6 +204,10 @@ func _ready() -> void:
 		if i+1<_choice_buttons.size(): _choice_buttons[i].focus_neighbor_right=_choice_buttons[i+1].get_path()
 		_choice_buttons[i].focus_neighbor_bottom=(_back if i<2 else _controls).get_path()
 	_back.focus_neighbor_top=_choice_buttons[0].get_path(); _controls.focus_neighbor_top=_choice_buttons[2].get_path()
+	for i in _apron_buttons.size():
+		if i>0: _apron_buttons[i].focus_neighbor_left=_apron_buttons[i-1].get_path()
+		if i+1<_apron_buttons.size(): _apron_buttons[i].focus_neighbor_right=_apron_buttons[i+1].get_path()
+		_apron_buttons[i].focus_neighbor_bottom=(_back if i==0 else _controls).get_path()
 	_refresh()
 
 func set_state(readback: Dictionary, preset: Dictionary, current_wind: String) -> void:
@@ -205,7 +234,7 @@ func _refresh() -> void:
 	elif state in ["invalid","empty"]: _details_source.text+="\n"+str(_qualified.get("error","No qualified Readback"))
 	_status.tooltip_text=_details_source.text
 	if state in ["live","paused","historical"]:
-		var start_name: String={"piston-cold-ground":"Ground, engine off","ground-ready":"Ground, engine already running","airborne-prepared":"Prepared airborne start"}.get(_readback.named_start,_readback.named_start)
+		var start_name: String={"piston-cold-ground":"Ground, engine off","ground-ready":"Ground, engine already running","airborne-prepared":"Prepared airborne start","apron-ready":"Apron ready, engine already running","piston-cold-apron":"Apron cold, engine off"}.get(_readback.named_start,_readback.named_start)
 		var wind: Dictionary=_readback.atmosphere.wind_toward_ned_mps
 		_actual.text="Current aircraft state (%s)\nModel: %s · %s\nStart: %s | Wind preset: %s\nActual wind NED: north %.1f / east %.1f / down %.1f m/s" % [state,_readback.model_identity.id,_readback.model_identity.version,start_name,_current_wind,wind.x,wind.y,wind.z]
 		var speed: Dictionary=_qualified.readings.tas
@@ -225,7 +254,7 @@ func _refresh() -> void:
 	if not _fixture_error.is_empty(): _summary.text+="\n"+_fixture_error
 	elif state in ["invalid","empty"]: _summary.text+="\n"+str(_qualified.get("error","No qualified Readback"))
 	if state in ["live","paused","historical"]:
-		var adopted_start: String = {"piston-cold-ground":"Engine-off start","ground-ready":"Prestarted runway start","airborne-prepared":"Prepared airborne start"}.get(_readback.named_start,_readback.named_start)
+		var adopted_start: String = {"piston-cold-ground":"Engine-off start","ground-ready":"Prestarted runway start","airborne-prepared":"Prepared airborne start","apron-ready":"Apron ready, engine already running","piston-cold-apron":"Apron cold, engine off"}.get(_readback.named_start,_readback.named_start)
 		var tas: Dictionary = _qualified.readings.tas
 		var tas_text: String = ("%.1f kt TAS" % (tas.value*3600.0/1852.0)) if tas.valid else "TAS unavailable"
 		var engine_text: String = "Engine status unavailable"
@@ -250,6 +279,8 @@ func _refresh() -> void:
 		for row in _help.get(group,[]): lines.append(row.id+": "+row.text)
 	_binding_text.text="\n".join(lines)
 	for button in _choice_buttons: button.disabled=not _fixture_error.is_empty() or state in ["live","invalid"]
+	for i in _apron_buttons.size():
+		_apron_buttons[i].disabled=state in ["live","invalid"] or apron_choice_for(APRON_CHOICE_IDS[i]).is_empty()
 	var step_count: int = _fixture.get("steps",[]).size()
 	_step_index=clampi(_step_index,0,maxi(0,step_count-1))
 	_step_text.text="Software steps unavailable: "+_fixture_error
@@ -267,6 +298,10 @@ func _request_choice(choice_id: String) -> void:
 	if not checked.ok:
 		_fixture={}; _fixture_error=checked.error; _refresh(); return
 	if not is_visible_in_tree() or _qualified.get("state") in ["live","invalid"] or choice_for(choice_id).is_empty(): return
+	choice_requested.emit(choice_id,_source_session())
+
+func _request_apron_choice(choice_id: String) -> void:
+	if not is_visible_in_tree() or _qualified.get("state") in ["live","invalid"] or apron_choice_for(choice_id).is_empty(): return
 	choice_requested.emit(choice_id,_source_session())
 
 func _request_controls() -> void:

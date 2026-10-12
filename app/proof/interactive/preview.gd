@@ -553,8 +553,11 @@ func visual_position() -> Vector3:
 func visual_basis(q: Quaternion) -> Basis:
 	return Basis(ned_to_view(q * Vector3(0,1,0)), ned_to_view(q * Vector3(0,0,-1)), ned_to_view(q * Vector3(-1,0,0)))
 
+func _make_world_presentation() -> Dictionary:
+	return load("res://interactive/flight_world.gd").new().build(self)
+
 func make_world() -> void:
-	var scene: Dictionary = load("res://interactive/flight_world.gd").new().build(self)
+	var scene: Dictionary = _make_world_presentation()
 	airplane=scene.airplane
 	camera=scene.camera
 	gears=scene.gears

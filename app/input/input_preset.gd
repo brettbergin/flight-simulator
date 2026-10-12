@@ -187,6 +187,27 @@ static func encode(preset: Dictionary) -> Dictionary:
  var bytes: PackedByteArray=JSON.stringify(checked.value,"  ").to_utf8_buffer()
  if bytes.size()>MAX_BYTES: return _bad("Encoded preset exceeds64KiB")
  return _good(bytes)
+# Internal transport formatter only. Never append arbitrary child stdout to UI errors.
+static func _save_failure_diagnostic(output: Array) -> String:
+ if output.size()!=1 or typeof(output[0])!=TYPE_STRING or output[0].length()>4096: return "unavailable"
+ var marker: String="PRESET_SAVE_FAILURE "
+ for line in output[0].split("\n"):
+  if not line.begins_with(marker): continue
+  var parser:=JSON.new()
+  if parser.parse(line.substr(marker.length()))!=OK: return "unavailable"
+  var value: Variant=parser.data
+  if not _closed(value,["stage","chain"]) or typeof(value.stage)!=TYPE_STRING or value.stage not in ["canonical_source","canonical_target","drive","ancestor_guards","target_attributes","install"]: return "unavailable"
+  if not value.chain is Array or value.chain.size()<1 or value.chain.size()>8: return "unavailable"
+  var safe_chain: Array=[]
+  for entry in value.chain:
+   if not _closed(entry,["type","hresult"]) or typeof(entry.type)!=TYPE_STRING or entry.type.length()<1 or entry.type.length()>128 or not _integer(entry.hresult,-2147483648,2147483647): return "unavailable"
+   for i in entry.type.length():
+    var code: int=entry.type.unicode_at(i)
+    if not (code>=65 and code<=90 or code>=97 and code<=122 or code>=48 and code<=57 or code in [95,46,43,96]): return "unavailable"
+   safe_chain.append({"type":entry.type,"hresult":int(entry.hresult)})
+  return marker+JSON.stringify({"stage":value.stage,"chain":safe_chain})
+ return "unavailable"
+
 static func save(path: String, preset: Dictionary) -> Dictionary:
  if path.is_empty() or not path.is_absolute_path() or path.begins_with("res://") or path.begins_with("user://"): return {"ok":false,"error":"Choose an explicit absolute interchange path"}
  var encoded: Dictionary=encode(preset)
@@ -207,11 +228,12 @@ static func save(path: String, preset: Dictionary) -> Dictionary:
  var target64: String=Marshalls.raw_to_base64(path.to_utf8_buffer())
  # Only base64 data enters the fixed helper script. No interpreted user path and
  # no delete/rename fallback: pinned Godot Windows rename deletes first.
- var command: String="$ErrorActionPreference='Stop';try{$source=[IO.Path]::GetFullPath([Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('"+source64+"')));$target=[IO.Path]::GetFullPath([Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('"+target64+"')));$drive=[IO.Path]::GetPathRoot($target);if($drive.StartsWith('\\') -or ([IO.DriveInfo]::new($drive)).DriveFormat -ne 'NTFS'){throw 'Only local NTFS is qualified'};if(-not [String]::Equals([IO.Path]::GetDirectoryName($source),[IO.Path]::GetDirectoryName($target),[StringComparison]::OrdinalIgnoreCase)){throw 'Temporary must share target directory'};if([IO.Directory]::Exists($target)){throw 'Target is a directory'};$parent=[IO.DirectoryInfo]::new([IO.Path]::GetDirectoryName($target));while($null -ne $parent){if(($parent.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0){throw 'Reparse parents are unqualified'};$parent=$parent.Parent};if([IO.File]::Exists($target) -and (([IO.File]::GetAttributes($target) -band [IO.FileAttributes]::ReparsePoint) -ne 0)){throw 'Reparse targets are unqualified'};if([IO.File]::Exists($target)){[IO.File]::Replace($source,$target,[NullString]::Value)}else{[IO.File]::Move($source,$target)};Write-Output 'ATOMIC_PRESET_SAVED';exit 0}catch{exit 2}"
+ var command: String="$ErrorActionPreference='Stop';$env:PSModulePath=[IO.Path]::Combine($PSHOME,'Modules');try{$stage='canonical_source';$source=[IO.Path]::GetFullPath([Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('"+source64+"')));$stage='canonical_target';$target=[IO.Path]::GetFullPath([Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('"+target64+"')));$stage='drive';$drive=[IO.Path]::GetPathRoot($target);if($drive.StartsWith('\\') -or ([IO.DriveInfo]::new($drive)).DriveFormat -ne 'NTFS'){throw 'Only local NTFS is qualified'};if(-not [String]::Equals([IO.Path]::GetDirectoryName($source),[IO.Path]::GetDirectoryName($target),[StringComparison]::OrdinalIgnoreCase)){throw 'Temporary must share target directory'};if([IO.Directory]::Exists($target)){throw 'Target is a directory'};$stage='ancestor_guards';$parent=[IO.DirectoryInfo]::new([IO.Path]::GetDirectoryName($target));while($null -ne $parent){if(($parent.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0){throw 'Reparse parents are unqualified'};$parent=$parent.Parent};$stage='target_attributes';if([IO.File]::Exists($target) -and (([IO.File]::GetAttributes($target) -band [IO.FileAttributes]::ReparsePoint) -ne 0)){throw 'Reparse targets are unqualified'};$stage='install';if([IO.File]::Exists($target)){[IO.File]::Replace($source,$target,[NullString]::Value)}else{[IO.File]::Move($source,$target)};Write-Output 'ATOMIC_PRESET_SAVED';exit 0}catch{$e=$_.Exception;$chain=@();$n=0;while($null -ne $e -and $n -lt 8){$type=$e.GetType().FullName;if($type.Length -gt 128 -or $type -notmatch '^[A-Za-z0-9_.+`]+$'){$type='unrecognized_type'};$chain+=@{type=$type;hresult=$e.HResult};$e=$e.InnerException;$n++};Write-Output ('PRESET_SAVE_FAILURE '+(@{stage=$stage;chain=$chain}|ConvertTo-Json -Depth 5 -Compress));exit 2}"
  var output: Array=[]
  var result: int=OS.execute(executable,PackedStringArray(["-NoProfile","-NonInteractive","-Command",command]),output,true,false)
  if result!=0 or output.is_empty() or not str(output[0]).contains("ATOMIC_PRESET_SAVED"):
-  return {"ok":false,"error":"Atomic local-NTFS replace failed or unsupported; target preserved, temporary retained"}
+  var diagnostic: String=_save_failure_diagnostic(output)
+  return {"ok":false,"error":"Preset not saved: atomic local-NTFS replacement failed or unsupported; original target preserved, temporary retained; helper_exit="+str(result)+"; helper_output="+diagnostic}
  return {"ok":true,"error":""}
 # ADR010 is an explicit capability-qualified extension. Legacy entry points stay v1.
 const PISTON_PROFILE={"id":"original-piston-prop-v1","version":"0.1.0-prototype","backend_model":"original-piston-prop"}
@@ -374,9 +396,10 @@ static func save_v2(path: String, preset: Dictionary) -> Dictionary:
  var target64: String=Marshalls.raw_to_base64(path.to_utf8_buffer())
  # Only base64 data enters the fixed helper script. No interpreted user path and
  # no delete/rename fallback: pinned Godot Windows rename deletes first.
- var command: String="$ErrorActionPreference='Stop';try{$source=[IO.Path]::GetFullPath([Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('"+source64+"')));$target=[IO.Path]::GetFullPath([Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('"+target64+"')));$drive=[IO.Path]::GetPathRoot($target);if($drive.StartsWith('\\') -or ([IO.DriveInfo]::new($drive)).DriveFormat -ne 'NTFS'){throw 'Only local NTFS is qualified'};if(-not [String]::Equals([IO.Path]::GetDirectoryName($source),[IO.Path]::GetDirectoryName($target),[StringComparison]::OrdinalIgnoreCase)){throw 'Temporary must share target directory'};if([IO.Directory]::Exists($target)){throw 'Target is a directory'};$parent=[IO.DirectoryInfo]::new([IO.Path]::GetDirectoryName($target));while($null -ne $parent){if(($parent.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0){throw 'Reparse parents are unqualified'};$parent=$parent.Parent};if([IO.File]::Exists($target) -and (([IO.File]::GetAttributes($target) -band [IO.FileAttributes]::ReparsePoint) -ne 0)){throw 'Reparse targets are unqualified'};if([IO.File]::Exists($target)){[IO.File]::Replace($source,$target,[NullString]::Value)}else{[IO.File]::Move($source,$target)};Write-Output 'ATOMIC_PRESET_SAVED';exit 0}catch{exit 2}"
+ var command: String="$ErrorActionPreference='Stop';$env:PSModulePath=[IO.Path]::Combine($PSHOME,'Modules');try{$stage='canonical_source';$source=[IO.Path]::GetFullPath([Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('"+source64+"')));$stage='canonical_target';$target=[IO.Path]::GetFullPath([Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('"+target64+"')));$stage='drive';$drive=[IO.Path]::GetPathRoot($target);if($drive.StartsWith('\\') -or ([IO.DriveInfo]::new($drive)).DriveFormat -ne 'NTFS'){throw 'Only local NTFS is qualified'};if(-not [String]::Equals([IO.Path]::GetDirectoryName($source),[IO.Path]::GetDirectoryName($target),[StringComparison]::OrdinalIgnoreCase)){throw 'Temporary must share target directory'};if([IO.Directory]::Exists($target)){throw 'Target is a directory'};$stage='ancestor_guards';$parent=[IO.DirectoryInfo]::new([IO.Path]::GetDirectoryName($target));while($null -ne $parent){if(($parent.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0){throw 'Reparse parents are unqualified'};$parent=$parent.Parent};$stage='target_attributes';if([IO.File]::Exists($target) -and (([IO.File]::GetAttributes($target) -band [IO.FileAttributes]::ReparsePoint) -ne 0)){throw 'Reparse targets are unqualified'};$stage='install';if([IO.File]::Exists($target)){[IO.File]::Replace($source,$target,[NullString]::Value)}else{[IO.File]::Move($source,$target)};Write-Output 'ATOMIC_PRESET_SAVED';exit 0}catch{$e=$_.Exception;$chain=@();$n=0;while($null -ne $e -and $n -lt 8){$type=$e.GetType().FullName;if($type.Length -gt 128 -or $type -notmatch '^[A-Za-z0-9_.+`]+$'){$type='unrecognized_type'};$chain+=@{type=$type;hresult=$e.HResult};$e=$e.InnerException;$n++};Write-Output ('PRESET_SAVE_FAILURE '+(@{stage=$stage;chain=$chain}|ConvertTo-Json -Depth 5 -Compress));exit 2}"
  var output: Array=[]
  var result: int=OS.execute(executable,PackedStringArray(["-NoProfile","-NonInteractive","-Command",command]),output,true,false)
  if result!=0 or output.is_empty() or not str(output[0]).contains("ATOMIC_PRESET_SAVED"):
-  return {"ok":false,"error":"Atomic local-NTFS replace failed or unsupported; target preserved, temporary retained"}
+  var diagnostic: String=_save_failure_diagnostic(output)
+  return {"ok":false,"error":"Preset not saved: atomic local-NTFS replacement failed or unsupported; original target preserved, temporary retained; helper_exit="+str(result)+"; helper_output="+diagnostic}
  return {"ok":true,"error":""}

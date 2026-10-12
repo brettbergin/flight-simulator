@@ -73,6 +73,16 @@ EXPECTED_CAMERA_RECONSTRUCTION_PATHS = (
 )
 
 
+# Explicit synthetic authoring paths, independent of the reconstruction walker.
+EXPECTED_TAXI_RECONSTRUCTION_PATHS = (
+    'app/world/taxi/taxi_layout.gd',
+    'app/world/taxi/taxi_navigation.gd',
+    'app/ui/taxi/taxi_panel.gd',
+    'tests/world/taxi/reference/synthetic.json',
+    'tests/integration/taxi/scene_checks.gd',
+)
+
+
 def fixture(root, family='MSVC', variant=n.VARIANTS[0]):
     repo, build = root / 'repo', root / 'build'
     repo.mkdir(); build.mkdir()
@@ -85,6 +95,8 @@ def fixture(root, family='MSVC', variant=n.VARIANTS[0]):
     put(repo, n.TEMPLATE, n.TEMPLATE_BYTES)
     for name in EXPECTED_CAMERA_RECONSTRUCTION_PATHS:
         put(repo, name, 'synthetic camera authoring ' + name + '\n')
+    for name in EXPECTED_TAXI_RECONSTRUCTION_PATHS:
+        put(repo, name, 'Synthetic taxi corresponding-source fixture ' + name + '\n')
     (repo/'deps/jsbsim').mkdir(parents=True)
     (repo/'bundle/vendor').mkdir(parents=True)
     source = repo / ('deps/jsbsim' if variant == n.VARIANTS[0] else 'bundle/vendor')
@@ -462,6 +474,31 @@ class IdentityTests(unittest.TestCase):
         with patch.object(n.subprocess, 'check_output', return_value='1'*40+'\n'):
             with self.assertRaises((ValueError, FileNotFoundError)):
                 n.reconstruction(self.repo, destination)
+
+    def test_taxi_reconstruction_closed_source_and_each_copy_drift(self):
+        destination=self.root/'taxi-source';destination.mkdir()
+        qualified_before=self.qualify()
+        with patch.object(n.subprocess,'check_output',return_value='1'*40+'\n'):
+            n.reconstruction(self.repo,destination)
+            n.check_reconstruction(self.repo,destination)
+            rows=json.loads((destination/'native-reconstruction.json').read_bytes())['files']
+            taxi_rows=[r for r in rows if r['path'].startswith(('app/world/taxi/','app/ui/taxi/','tests/world/taxi/','tests/integration/taxi/'))]
+            self.assertEqual([r['path'] for r in taxi_rows],sorted(EXPECTED_TAXI_RECONSTRUCTION_PATHS))
+            for row in taxi_rows:
+                original=self.repo/row['path'];copy_path=destination/'repository'/row['path'];source_bytes=original.read_bytes()
+                self.assertEqual(row['sha256'],sha(source_bytes));self.assertEqual(copy_path.read_bytes(),source_bytes)
+                for target in (original,copy_path):
+                    target.write_bytes(source_bytes+b'drift')
+                    with self.assertRaises(ValueError):n.check_reconstruction(self.repo,destination)
+                    target.write_bytes(source_bytes)
+                    target.unlink()
+                    with self.assertRaises((ValueError,FileNotFoundError)):n.check_reconstruction(self.repo,destination)
+                    target.write_bytes(source_bytes)
+            put(destination/'repository','app/world/taxi/extra.gd',b'unbound synthetic extra')
+            with self.assertRaises(ValueError):n.check_reconstruction(self.repo,destination)
+            (destination/'repository/app/world/taxi/extra.gd').unlink()
+            n.check_reconstruction(self.repo,destination)
+        self.assertEqual(self.qualify(),qualified_before,'Taxi reconstruction cannot alter compiled native identity')
 
     def test_reconstruction_complete_current_overlay_and_tampering(self):
         destination=self.root/'source';destination.mkdir()
