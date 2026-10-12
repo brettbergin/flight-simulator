@@ -118,6 +118,23 @@ struct Probe final:QualificationObserver {
  struct AllocationSelector {AllocationCategory category;std::uint64_t service,request,ordinal;};
  std::optional<AllocationSelector> denied;std::size_t denied_count{};
  std::uint64_t throw_publish_request{};
+ // Test-owned exact selector; requests a real SQLite progress interruption.
+ struct InterruptSelection {std::uint64_t service,request;};
+ std::optional<InterruptSelection> interrupt_selection;
+ bool interrupt_commit{},interrupt_pending{},interrupt_finished{},interrupt_bad{};
+ unsigned interrupt_commit_count{},interrupt_before_count{},interrupt_after_count{},interrupt_consumed{};
+ std::thread::id interrupt_worker;
+ void select_postcommit_interrupt(std::uint64_t service,std::uint64_t request){
+  std::lock_guard lock(mutex);require(!interrupt_selection&&request==2,"one fixed second-request postcommit selector");interrupt_selection=InterruptSelection{service,request};
+ }
+ bool take_sqlite_interrupt_request()noexcept override {
+  std::lock_guard lock(mutex);if(!interrupt_pending)return false;
+  interrupt_pending=false;if(std::this_thread::get_id()!=interrupt_worker){interrupt_bad=true;return false;}
+  ++interrupt_consumed;return true;
+ }
+ void verify_postcommit_interrupt(){
+  std::lock_guard lock(mutex);require(interrupt_selection&&interrupt_commit&&!interrupt_pending&&interrupt_finished&&!interrupt_bad&&interrupt_commit_count==1&&interrupt_before_count==1&&interrupt_after_count==1&&interrupt_consumed==1,"exact same-worker one-shot actual COMMIT-to-postverify interruption");
+ }
  void deny_allocation(AllocationCategory category,std::uint64_t service,std::uint64_t request,std::uint64_t ordinal){std::lock_guard lock(mutex);require(!denied,"one exact refusal selector");denied=AllocationSelector{category,service,request,ordinal};}
  void throw_publish_for(std::uint64_t request){std::lock_guard lock(mutex);require(request&&!throw_publish_request,"one exact ACK observer throw");throw_publish_request=request;}
  std::size_t event_count(){std::lock_guard lock(mutex);return events.size();}
@@ -150,6 +167,11 @@ struct Probe final:QualificationObserver {
  void hold(std::unique_lock<std::mutex>&lock){arrived=true;++arrivals;cv.notify_all();bool ok=cv.wait_for(lock,std::chrono::seconds(30),[&]{return released;});armed=false;if(next_gate_request){gate_request=next_gate_request;next_gate_request.reset();armed=true;arrived=false;released=false;}if(!ok)throw std::runtime_error("test barrier expired");if(throw_after_release){throw_after_release=false;throw std::runtime_error("selected actual observer throw");}}
  void observe(const NativeObservation&o)override {
   std::unique_lock lock(mutex);if(actual_events.fetch_add(1)>=maximum||events.size()>=maximum){overflow=true;throw std::runtime_error("test observation capacity");}events.push_back(o);cv.notify_all();
+  if(interrupt_selection&&o.service_ordinal==interrupt_selection->service&&o.request_ordinal==interrupt_selection->request&&o.kind==JobKind::rename_player&&o.scope==Scope::original){
+   if(o.phase==Phase::after_commit&&o.edge==Edge::after){++interrupt_commit_count;interrupt_worker=std::this_thread::get_id();interrupt_commit=o.has_result&&o.sqlite_result==SQLITE_DONE&&o.autocommit&&o.txn_state==SQLITE_TXN_NONE;if(!interrupt_commit)interrupt_bad=true;}
+   if(o.phase==Phase::postverify&&o.edge==Edge::before){++interrupt_before_count;if(!interrupt_commit||interrupt_finished||std::this_thread::get_id()!=interrupt_worker)interrupt_bad=true;else interrupt_pending=true;}
+   if(o.phase==Phase::postverify&&o.edge==Edge::after){++interrupt_after_count;interrupt_pending=false;interrupt_finished=true;if(std::this_thread::get_id()!=interrupt_worker||!o.has_result||o.sqlite_result!=SQLITE_INTERRUPT||!o.autocommit||o.txn_state!=SQLITE_TXN_NONE||o.verified_rows!=0)interrupt_bad=true;}
+  }
   if(throw_publish_request&&o.request_ordinal==throw_publish_request&&o.phase==Phase::publish_ack&&o.edge==Edge::before){throw_publish_request=0;throw std::runtime_error("selected actual publish observer throw");}
   if(armed&&o.kind==gate_kind&&o.phase==gate_phase&&o.edge==gate_edge&&(!gate_request||o.request_ordinal==*gate_request))hold(lock);
  }
@@ -402,7 +424,7 @@ constexpr std::array<std::string_view,8> service_case_ids={"same_token_create_re
 constexpr std::array<std::string_view,8> store_case_ids={"two_players_revisions","typed_audio_signed_zero","source_identifier_admission","exact_tick_history","creation_cursor_archive","selected_export_receipt","prune_delete_isolation","real_close_reopen_recovery"};
 [[maybe_unused]] bool plan_from(std::string_view bytes,Plan&out,std::string_view suite)noexcept{
  auto p=parse(bytes);if(!p)return false;auto d=p.value;auto n=d.root;std::uint64_t events{};
- if(closed(d,n,{"schema","nonce","first_service_ordinal","maximum_actual_events","suite","cases"})!=Error::none||!d.string_is(d.member(n,"schema"),"LocalPlayersNativeTestPlan/v1")||!d.string_is(d.member(n,"suite"),suite)||!out.nonce.from(d,d.member(n,"nonce"))||!lower_hex(out.nonce.view(),32)||!positive_int(d,d.member(n,"first_service_ordinal"),suite=="store"?INT64_MAX-12:INT64_MAX-8,out.service)||!positive_int(d,d.member(n,"maximum_actual_events"),16384,events)||events!=16384)return false;
+ if(closed(d,n,{"schema","nonce","first_service_ordinal","maximum_actual_events","suite","cases"})!=Error::none||!d.string_is(d.member(n,"schema"),"LocalPlayersNativeTestPlan/v1")||!d.string_is(d.member(n,"suite"),suite)||!out.nonce.from(d,d.member(n,"nonce"))||!lower_hex(out.nonce.view(),32)||!positive_int(d,d.member(n,"first_service_ordinal"),suite=="store"?INT64_MAX-15:INT64_MAX-8,out.service)||!positive_int(d,d.member(n,"maximum_actual_events"),16384,events)||events!=16384)return false;
  out.events=static_cast<std::size_t>(events);auto a=d.member(n,"cases");auto c=d.at(a);if(!c||c->kind!=ValueKind::array)return false;auto i=c->first;
  if(suite=="crash")return i!=no_cell&&out.stage.from(d,i)&&d.at(i)->next==no_cell&&crash_stage_name(out.stage.view());auto&ids=suite=="service"?service_case_ids:store_case_ids;
  for(auto name:ids){if(i==no_cell||!d.string_is(i,name))return false;i=d.at(i)->next;}return i==no_cell;
@@ -1343,6 +1365,53 @@ __declspec(noinline) void full_rejected_record_setup(const std::string&root,bool
  for(unsigned i=1;i<4;++i)require(!crash_file(root+"\\"+std::string(crash_data_names[i]),crash_caps[i]).present,"fully closed fixed fixture leaves no SQLite sidecar before qualification");
 }
 
+// Real progress-handler interruption after COMMIT, never a replaced SQL return.
+// Complete deterministic expected bytes are authored from frozen D01.
+constexpr std::string_view postcommit_pairs[]={
+R"PCFIX({"player":{"created_utc":"2000-02-29T00:00:00Z","id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","name":"Postverify committed","revision":"4","type":"LocalPlayer","updated_utc":"2026-10-03T12:03:00Z","version":1},"preferences":{"audio":{"airflow_gain":{"$binary64_le":"000000000000e03f"},"enabled":true,"engine_gain":{"$binary64_le":"0000000000000080"},"show_panel_captions":false},"legacy_input":{"actions":[{"id":"recenter","sources":[{"keys":[82],"kind":"physical_keys"}]},{"id":"look_hold","sources":[{"button":2,"kind":"mouse_button"}]},{"id":"view_cycle","sources":[{"index":127,"kind":"joy_button","slot":"stick-A"}]}],"axes":[{"gain":1,"kind":"key_pair","negative":[65],"positive":[68],"rate":{"$binary64_le":"0000000000001040"},"return_to_start":true,"target":"roll"},{"center":{"$binary64_le":"0000000000000080"},"deadzone":{"$binary64_le":"0000000000000080"},"gain":{"$binary64_le":"000000000000e03f"},"index":0,"invert":false,"kind":"joy_axis","maximum":{"$binary64_le":"000000000000f03f"},"minimum":-1,"range":"centered","saturation":{"$binary64_le":"000000000000f03f"},"slew_per_s":4,"slot":"stick-A","target":"pitch"},{"kind":"fixed","target":"yaw","value":-1},{"center":{"$binary64_le":"0000000000000080"},"deadzone":{"$binary64_le":"0000000000000080"},"gain":{"$binary64_le":"000000000000e03f"},"index":1,"invert":false,"kind":"joy_axis","maximum":{"$binary64_le":"000000000000f03f"},"minimum":0,"range":"unsigned","saturation":{"$binary64_le":"000000000000f03f"},"slew_per_s":4,"slot":"stick-A","target":"throttle"},{"kind":"fixed","target":"mixture","value":{"$binary64_le":"000000000000f03f"}},{"gain":{"$binary64_le":"000000000000e03f"},"kind":"key_pair","negative":[74],"positive":[75],"rate":1,"return_to_start":false,"target":"left_brake"},{"kind":"fixed","target":"right_brake","value":0},{"kind":"fixed","target":"trim","value":{"$binary64_le":"0000000000000080"}}],"devices":[{"label":"Yoke Δ","match":{"guid":"fixture-guid","name":"Fixture device\u0009飛行","product_id":"00ab","vendor_id":"0123"},"slot":"stick-A"}],"name":"Original \"Δ\" \\ 飛行","type":"InputPreset","version":1},"piston_input":{"actions":[{"id":"recenter","sources":[{"keys":[82],"kind":"physical_keys"}]},{"id":"look_hold","sources":[{"button":2,"kind":"mouse_button"}]},{"id":"view_cycle","sources":[{"index":127,"kind":"joy_button","slot":"stick-A"}]}],"axes":[{"gain":1,"kind":"key_pair","negative":[65],"positive":[68],"rate":{"$binary64_le":"0000000000001040"},"return_to_start":true,"target":"roll"},{"center":{"$binary64_le":"0000000000000080"},"deadzone":{"$binary64_le":"0000000000000080"},"gain":{"$binary64_le":"000000000000e03f"},"index":0,"invert":false,"kind":"joy_axis","maximum":{"$binary64_le":"000000000000f03f"},"minimum":-1,"range":"centered","saturation":{"$binary64_le":"000000000000f03f"},"slew_per_s":4,"slot":"stick-A","target":"pitch"},{"kind":"fixed","target":"yaw","value":-1},{"center":{"$binary64_le":"0000000000000080"},"deadzone":{"$binary64_le":"0000000000000080"},"gain":{"$binary64_le":"000000000000e03f"},"index":1,"invert":false,"kind":"joy_axis","maximum":{"$binary64_le":"000000000000f03f"},"minimum":0,"range":"unsigned","saturation":{"$binary64_le":"000000000000f03f"},"slew_per_s":4,"slot":"stick-A","target":"throttle"},{"gain":{"$binary64_le":"000000000000e03f"},"kind":"key_pair","negative":[77],"positive":[78],"rate":{"$binary64_le":"0100000000000000"},"return_to_start":false,"target":"mixture"},{"gain":{"$binary64_le":"000000000000e03f"},"kind":"key_pair","negative":[74],"positive":[75],"rate":1,"return_to_start":false,"target":"left_brake"},{"kind":"fixed","target":"right_brake","value":0},{"kind":"fixed","target":"trim","value":{"$binary64_le":"0000000000000080"}}],"capability_revision":"piston-controls-v1","devices":[{"label":"Yoke Δ","match":{"guid":"fixture-guid","name":"Fixture device\u0009飛行","product_id":"00ab","vendor_id":"0123"},"slot":"stick-A"}],"name":"Original \"Δ\" \\ 飛行","profile":{"backend_model":"original-piston-prop","id":"original-piston-prop-v1","version":"0.1.0-prototype"},"systems":[{"id":"engine.ignition_left","kind":"toggle","sources":[{"keys":[73],"kind":"physical_keys"}]},{"id":"engine.ignition_right","kind":"toggle","sources":[{"keys":[79],"kind":"physical_keys"}]},{"id":"engine.starter","kind":"momentary","sources":[{"keys":[83],"kind":"physical_keys"}]},{"id":"fuel.feed","kind":"toggle","sources":[{"keys":[70],"kind":"physical_keys"}]}],"type":"InputPreset","version":2},"player_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","revision":"4","type":"LocalPlayerPreferences","version":1}})PCFIX",
+R"PCFIX({"player":{"created_utc":"2000-02-29T00:00:00Z","id":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","name":"Ana \"Δ\" \\ 飛行","revision":"1","type":"LocalPlayer","updated_utc":"2026-10-11T06:00:00Z","version":1},"preferences":{"audio":{"airflow_gain":{"$binary64_le":"000000000000e03f"},"enabled":true,"engine_gain":{"$binary64_le":"0000000000000080"},"show_panel_captions":false},"legacy_input":null,"piston_input":null,"player_id":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","revision":"1","type":"LocalPlayerPreferences","version":1}})PCFIX"
+};
+void postcommit_plan_boundary(){
+ auto make_plan=[](std::uint64_t first){std::string raw="{\"schema\":\"LocalPlayersNativeTestPlan/v1\",\"nonce\":\"11111111111111111111111111111111\",\"first_service_ordinal\":"+std::to_string(first)+",\"maximum_actual_events\":16384,\"suite\":\"store\",\"cases\":[";for(auto id:store_case_ids){if(raw.back()!='[')raw+=',';raw+='\"';raw+=id;raw+='\"';}raw+="]}";return raw;};
+ Plan accepted,rejected;const auto edge=static_cast<std::uint64_t>(INT64_MAX)-15;
+ require(plan_from(make_plan(edge),accepted,"store")&&accepted.service==edge,"store offset15 accepts MAX-15 boundary");require(!plan_from(make_plan(edge+1),rejected,"store"),"store offset15 rejects next overflowing first ordinal");
+}
+std::string postcommit_closed_meta(const std::string&root,std::string_view previous_owner={}){
+ FullFixtureDb db;u64_fixture_open(root,db);full_fixture_schema_check(db.value,false);sqlite3_stmt*statement{};
+ require(sqlite3_prepare_v2(db.value,"SELECT schema_version,schema_fingerprint,codec_fingerprint,store_id,created_utc,commit_sequence,owner_run_id FROM meta WHERE singleton=1",-1,&statement,nullptr)==SQLITE_OK,"joined independent whole-meta prepare");
+ require(sqlite3_step(statement)==SQLITE_ROW&&sqlite3_column_type(statement,0)==SQLITE_INTEGER&&sqlite3_column_int64(statement,0)==1,"whole-meta fixed schema version");
+ constexpr std::string_view expected[]={"cbd00b3fe47b400e79635ed901d195abfe133a4131d5001feac8e3eedeb0562f","47711d41be89e233efe3c42e8f2cedd33f729e6e0e2c9a78a6026454022b0538","77777777777777777777777777777777","2026-10-11T06:00:00Z","13"};
+ for(int i=1;i<6;++i){const auto*bytes=sqlite3_column_text(statement,i);require(sqlite3_column_type(statement,i)==SQLITE_TEXT&&bytes&&std::string_view(reinterpret_cast<const char*>(bytes),static_cast<std::size_t>(sqlite3_column_bytes(statement,i)))==expected[static_cast<unsigned>(i)-1],"whole-meta exact independent deterministic field");}
+ const auto*owner_bytes=sqlite3_column_text(statement,6);require(sqlite3_column_type(statement,6)==SQLITE_TEXT&&owner_bytes,"actual process-random owner has TEXT bytes");std::string owner(reinterpret_cast<const char*>(owner_bytes),static_cast<std::size_t>(sqlite3_column_bytes(statement,6)));require(lower_hex(owner,32)&&(previous_owner.empty()||owner==previous_owner),"dynamic owner valid and preserved across fresh reopen, not a literal oracle");
+ require(sqlite3_step(statement)==SQLITE_DONE&&sqlite3_finalize(statement)==SQLITE_OK,"whole-meta reader fully retires");
+ require(sqlite3_prepare_v2(db.value,"SELECT commit_sequence,revision FROM players ORDER BY id COLLATE BINARY",-1,&statement,nullptr)==SQLITE_OK,"paired redundant columns prepare");
+ constexpr std::pair<std::string_view,std::string_view> redundant[]={{"13","4"},{"3","1"}};
+ for(const auto&row:redundant){require(sqlite3_step(statement)==SQLITE_ROW,"exact two player sequence rows");for(int i=0;i<2;++i){const auto*bytes=sqlite3_column_text(statement,i);require(sqlite3_column_type(statement,i)==SQLITE_TEXT&&bytes&&std::string_view(reinterpret_cast<const char*>(bytes),static_cast<std::size_t>(sqlite3_column_bytes(statement,i)))==(i?row.second:row.first),"independent exact redundant player sequence and revision");}}
+ require(sqlite3_step(statement)==SQLITE_DONE&&sqlite3_finalize(statement)==SQLITE_OK,"paired redundant reader fully retires");db.close();return owner;
+}
+void postcommit_interrupt_case(TrustedRoots&trust,std::string_view descriptor,std::string_view digest,std::uint64_t&ordinal,std::size_t cap,const std::string&root){
+ postcommit_plan_boundary();full_fixture_management_cleanup(trust,descriptor,digest,ordinal,cap,root);full_fixture_setup(root,false,false);
+ Probe selected(cap);const auto selected_ordinal=ordinal++;
+ {Fixture f(trust,descriptor,digest,selected,selected_ordinal);crash_start(f);selected.wait_published(1);
+  require(selected.reserved_bytes()==2097152,"selected start releases all nonpermanent reservations");selected.select_postcommit_interrupt(selected_ordinal,2);
+  Capture rename(JobKind::rename_player,rename_seed(std::string(32,'a'),"3","Postverify committed"));auto admitted=f.service->submit(rename);require(admitted.accepted&&selected.last_request()==2,"selected second rename request admitted");
+  auto rows=receive(f.service,1);result(rows[0],admitted.request_id.view(),JobKind::rename_player,"uncertain","verification_failed");selected.wait_published(2);selected.verify_postcommit_interrupt();
+  const auto before=status(f.service);require(before.state==ServiceState::read_only&&before.error==Error::verification_failed&&before.pending==0&&before.undelivered==0,"actual uncertainty becomes quiescent read-only");
+  const auto allocations=selected.allocation_count(),events=selected.event_count();require(selected.reserved_bytes()==2097152,"uncertain result ACK releases R T and D before refused write");
+  Capture forbidden(JobKind::rename_player,rename_seed(std::string(32,'a'),"4","Must remain refused"));auto refused=f.service->submit(forbidden);
+  require(!refused.accepted&&refused.error==Error::invalid_state&&refused.request_id.view().empty()&&same_status(before,status(f.service))&&selected.allocation_count()==allocations&&selected.event_count()==events&&selected.last_request()==2&&selected.reserved_bytes()==2097152,"read-only changing request refused without queue or reservation effects");f.close();selected.verify_postcommit_interrupt();
+ }
+ require(selected.reserved_bytes()==0,"selected actual join and destroy release permanent storage");
+ const auto closed=crash_original(root);require(closed[0].present&&closed[0].length<=524288,"fresh reconciliation enforces predeclared small-main bound");for(unsigned i=1;i<4;++i)require(!closed[i].present,"selected join leaves no sidecar before fresh qualification");
+ const auto selected_owner=postcommit_closed_meta(root);Probe reopened(cap);
+ {Fixture f(trust,descriptor,digest,reopened,ordinal++);crash_start(f);reopened.wait_published(1);
+  for(unsigned i=0;i<2;++i){Raw row(job(f.service,JobKind::load_player,V::o({{"player_id",V::s(std::string(full_fixture_pairs[i].id))}}),"read"));reopened.wait_published(reopened.last_request());require(canonical(row.d,value(row))==postcommit_pairs[i],"fresh complete player/preferences equal independent committed D01 bytes");}
+  for(const auto&expected:full_fixture_practices){Raw row(job(f.service,JobKind::load_practice,V::o({{"player_id",V::s(std::string(expected.owner))},{"practice_id",V::s(std::string(expected.id))}}),"read"));reopened.wait_published(reopened.last_request());require(canonical(row.d,practice(row))==expected.record,"fresh whole three D01 practices unchanged with no active-start interruption");}
+  require(status(f.service).state==ServiceState::ready&&reopened.reserved_bytes()==2097152,"fresh read reconciliation releases each complete request");f.close();
+ }
+ require(reopened.reserved_bytes()==0,"fresh reconciler joins and destroys before independent final SQL");postcommit_closed_meta(root,selected_owner);require(actual_events.load()<=cap,"postcommit interruption retains unchanged16384 hard event gate");
+}
+
 __declspec(noinline) void full_record_store_cases(TrustedRoots&trust,std::string_view descriptor,std::string_view digest,std::uint64_t ordinal,std::size_t cap,const std::string&root,const std::string&target){
  require(crash_directories(root).empty(),"existing joined fixture management cleanup finished");
  full_fixture_setup(root,false,false);
@@ -1377,6 +1446,7 @@ __declspec(noinline) void full_record_store_cases(TrustedRoots&trust,std::string
  full_rejected_record_setup(root,true);
  full_fixture_failed_start(trust,descriptor,digest,ordinal,cap,root,target+".dn-shared","corrupt_store");
  require(actual_events.load()<=cap,"two appended full-record negatives retain unchanged16384 actual-event ceiling");
+ postcommit_interrupt_case(trust,descriptor,digest,ordinal,cap,root);
 }
 void crash_postverify_scopes(Probe&p){std::lock_guard lock(p.mutex);for(auto scope:{Scope::qualification_copy,Scope::original})require(std::any_of(p.events.begin(),p.events.end(),[&](const NativeObservation&o){return o.kind==JobKind::start&&o.scope==scope&&o.phase==Phase::postverify&&o.edge==Edge::after;}),"actual WORK and original full postverify notifications");}
 bool crash_stage_name(std::string_view stage){

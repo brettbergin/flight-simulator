@@ -60,10 +60,15 @@ struct Lease {
 struct SqlTrace;
 thread_local SqlTrace* active_sql_trace{};
 struct SqlTrace {
- SqlTrace* previous{active_sql_trace};int result{};bool actual{};
+ SqlTrace* previous{active_sql_trace};int result{},first_failure{};bool actual{},failed{};
+ int observed_result()const noexcept{return failed?first_failure:result;}
  SqlTrace()noexcept{active_sql_trace=this;}~SqlTrace(){active_sql_trace=previous;}
 };
-int trace_sql(int rc)noexcept {if(active_sql_trace){active_sql_trace->result=rc;active_sql_trace->actual=true;}return rc;}
+int trace_sql(int rc)noexcept {
+ if(active_sql_trace){auto& trace=*active_sql_trace;trace.result=rc;trace.actual=true;const int primary=rc&255;
+  if(!trace.failed&&primary!=SQLITE_OK&&primary!=SQLITE_ROW&&primary!=SQLITE_DONE){trace.first_failure=rc;trace.failed=true;}}
+ return rc;
+}
 struct Statement {
  sqlite3_stmt* p{};int rc{SQLITE_OK};
  Statement(sqlite3* db,std::string_view sql) noexcept {const char* tail{};rc=trace_sql(sqlite3_prepare_v3(db,sql.data(),static_cast<int>(sql.size()),0,&p,&tail));if(rc==SQLITE_OK&&tail!=sql.data()+sql.size()){sqlite3_finalize(p);p=nullptr;rc=SQLITE_MISUSE;}}
@@ -291,7 +296,7 @@ Error Store::qualify(Writer& scratch,NativeContext& c,Scope scope) {
  if(scalar(db_,"SELECT count(*) FROM preferences",v)!=SQLITE_OK)return Error::corrupt_store;std::int64_t players{};if(scalar(db_,"SELECT count(*) FROM players",players)!=SQLITE_OK||players!=v)return Error::corrupt_store;
  scratch.reset();return Error::none;
  };
- auto result=inspect();auto o=observation(db_,Phase::postverify,scope,Edge::after,occurrence,trace.result,trace.actual);o.verified_rows=verified;c.event(o);return result;
+ auto result=inspect();auto o=observation(db_,Phase::postverify,scope,Edge::after,occurrence,trace.observed_result(),trace.actual);o.verified_rows=verified;c.event(o);return result;
 }
 Error Store::initialize(Writer& scratch,NativeContext& c) {
  auto rc=observed_exec(db_,"BEGIN IMMEDIATE",Phase::before_begin,c,&frame(memory_).effects);if(rc!=SQLITE_DONE)return sql_error(rc);
@@ -457,7 +462,7 @@ RepositoryResult Store::transact(RequestView request,Writer& terminal,std::span<
  if(p.kind==JobKind::delete_player){auto& absent=renew(frame(memory_).rows[1]);verified&=fetch(db_,false,p.player.view(),absent)==Error::not_found;terminal.raw("{\"deleted_player_id\":");terminal.string(p.player.view());terminal.character('}');}
  else if(p.kind==JobKind::prune_practice){terminal.raw("{\"deleted_ids\":[");for(unsigned i=0;i<p.count;++i){auto& absent=renew(frame(memory_).rows[1]);verified&=fetch(db_,true,p.ids[i].view(),absent)==Error::not_found;if(i)terminal.character(',');terminal.string(p.ids[i].view());}terminal.raw("]}");}
  else {auto& actual=renew(frame(memory_).rows[1]);e=fetch(db_,!player_operation,row.id.view(),actual);verified&=e==Error::none&&actual.bytes.view()==row.bytes.view()&&validate_row(actual,!player_operation,memory_)==Error::none;if(player_operation){e=pair(db_,row,terminal,memory_);verified&=e==Error::none;}else{terminal.raw("{\"practice\":");terminal.raw(row.bytes.view());terminal.character('}');}}
- auto o=observation(db_,Phase::postverify,Scope::original,Edge::after,verify_occurrence,verification.result,verification.actual);o.verified_rows=verified?1:0;c.event(o);
+ auto o=observation(db_,Phase::postverify,Scope::original,Edge::after,verify_occurrence,verification.observed_result(),verification.actual);o.verified_rows=verified?1:0;c.event(o);
  if(!verified||!terminal.good()){read_only_=true;terminal.reset();terminal.raw("null");return {ResultState::uncertain,Error::verification_failed,{},false,0,true,false,true};}
  return result(ResultState::committed,next);
 }
