@@ -63,12 +63,13 @@ class CameraCheckHost extends Node:
 '@
 }
 function Get-PreviewCameraHarnessChecks {
- param([Parameter(Mandatory)][object[]]$Groups,[Parameter(Mandatory)][bool]$IncludePiston)
+ param([Parameter(Mandatory)][object[]]$Groups,[Parameter(Mandatory)][bool]$IncludePiston,[bool]$IncludeApron=$false)
  $sourceFiles=[ordered]@{}
  # Literal source-only transport exception: Godot does not export dotfiles.
  foreach($group in $Groups){foreach($file in $group.snapshot){if($group.source -ceq 'tests/camera' -and $file.path -ceq '.gitattributes'){continue};$sourceFiles[$group.destination+'/'+$file.path]=@{bytes=$file.bytes;sha256=$file.sha256}}}
  $sourceLiteral=$sourceFiles|ConvertTo-Json -Depth 8 -Compress
  $coldLiteral=$IncludePiston.ToString().ToLowerInvariant()
+ $apronLiteral=$IncludeApron.ToString().ToLowerInvariant()
  @"
  stage("begin","camera")
  var camera_sources: Dictionary=$sourceLiteral
@@ -92,7 +93,7 @@ function Get-PreviewCameraHarnessChecks {
  var camera_groups: Dictionary={}
  camera_groups.policy=load("res://camera_tests/policy_checks.gd").run()
  camera_groups.panel=await load("res://camera_tests/panel_checks.gd").new().run(camera_host)
- camera_groups.scene=await load("res://camera_tests/scene_checks.gd").new().run(camera_host,$coldLiteral)
+ camera_groups.scene=await load("res://camera_tests/scene_checks.gd").new().run(camera_host,$coldLiteral,$apronLiteral)
  var camera_failures: Array=Array(camera_host.failures)
  var camera_checks: int=0
  for group_name in ["policy","panel","scene"]:
@@ -127,10 +128,52 @@ function Get-PreviewCameraHarnessChecks {
 "@
 }
 
+function Get-PreviewPackedTaxiObserverDispatch {
+ @'
+func dispatch_packed_taxi_observer(arguments: PackedStringArray)->bool:
+ var selected: bool=false
+ for argument in arguments:
+  if argument.begins_with("--taxi-observer"): selected=true
+ if not selected: return false
+ var gate: Script=load("res://taxi_tests/shipping_probe.gd") as Script
+ if gate==null or not gate.can_instantiate():
+  push_error("TAXI_PACKED_GATE_UNAVAILABLE")
+  get_tree().quit(1)
+  return true
+ var request: Dictionary=gate.request(arguments)
+ if request.is_empty():
+  push_error("TAXI_PACKED_REQUEST_INVALID")
+  get_tree().quit(1)
+  return true
+ var binding: Dictionary=gate.admit(request.binding_path,request.binding_sha256,request.mode)
+ if binding.is_empty():
+  push_error("TAXI_PACKED_BINDING_INVALID")
+  get_tree().quit(1)
+  return true
+ var observer: Node
+ match request.mode:
+  "probe": observer=gate.new()
+  "capture":
+   var capture: Script=load("res://taxi_tests/shipping_observer.gd") as Script
+   if capture==null or not capture.can_instantiate():
+    push_error("TAXI_PACKED_CAPTURE_UNAVAILABLE")
+    get_tree().quit(1)
+    return true
+   observer=capture.new()
+  _:
+   get_tree().quit(1)
+   return true
+ add_child(observer)
+ await observer.execute(request.binding_path,binding.output_root,request.driver)
+ return true
+'@
+}
+
 function Write-PreviewCameraCheckHarness {
- param([Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)][object[]]$Groups,[Parameter(Mandatory)][bool]$IncludePiston)
+ param([Parameter(Mandatory)][string]$ProjectRoot,[Parameter(Mandatory)][object[]]$Groups,[Parameter(Mandatory)][bool]$IncludePiston,[bool]$IncludeApron=$false)
  $class=Get-PreviewCameraHarnessClass
- $checks=Get-PreviewCameraHarnessChecks -Groups $Groups -IncludePiston $IncludePiston
+ $checks=Get-PreviewCameraHarnessChecks -Groups $Groups -IncludePiston $IncludePiston -IncludeApron $IncludeApron
+ $packed=Get-PreviewPackedTaxiObserverDispatch
  $script=@"
 extends Node
 # Original MIT. Separate graphical qualification; never part of Facade/v1.
@@ -138,6 +181,7 @@ $class
 var checks: int=0
 var failures: Array=[]
 var capture_observed: bool=false
+$packed
 func check(value: bool,label: String)->void:
  checks+=1
  if not value: failures.append(label)
@@ -146,6 +190,7 @@ func stage(boundary: String,label: String)->void:
 func _ready()->void:
  call_deferred("execute")
 func execute()->void:
+ if await dispatch_packed_taxi_observer(OS.get_cmdline_user_args()): return
  # An unavailable display is a missing mandatory gate, never a headless pass.
  if OS.get_name()!="Windows" or DisplayServer.get_name()=="headless":
   push_error("CAMERA_GRAPHICAL_GATE_UNAVAILABLE: Windows graphical display required")

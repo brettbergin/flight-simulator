@@ -591,7 +591,7 @@ func _retire(scene: Node) -> void:
 	if scene.sound!=null: _check(bool(await scene.sound.call("shutdown")),"final_actual_audio_join")
 	scene.free()
 
-func run(host: Node,include_piston: bool=true) -> Dictionary:
+func run(host: Node,include_piston: bool=true,include_apron: bool=false) -> Dictionary:
 	_host=host
 	_result=Checks.receipt("Actual production Scene/native paused page matrix plus labelled synthetic display/failure fixtures; no pilot/GPU qualification")
 	_refs=Checks.references(_result)
@@ -608,6 +608,10 @@ func run(host: Node,include_piston: bool=true) -> Dictionary:
 		return _receipt()
 	var starts: Array=[["original-interactive-prototype","ground-ready"],["original-interactive-prototype","airborne-prepared"]]
 	if include_piston: starts.append(["original-piston-prop-v1","piston-cold-ground"])
+	# IncludeApron comes from independently qualified first-party build bindings.
+	if include_apron:
+		starts.append(["original-interactive-prototype","apron-ready"])
+		if include_piston: starts.append(["original-piston-prop-v1","piston-cold-apron"])
 	for pair in starts:
 		var opened: bool=scene.restart(true,"calm",pair[0],pair[1])
 		_check(opened,"fresh_"+pair[0]+"_"+pair[1])
@@ -627,7 +631,7 @@ func run(host: Node,include_piston: bool=true) -> Dictionary:
 		_check(scene.pause_session(false) and scene.advance_wall_us(25000) and scene.pause_session(true),"explicit_resume_three_ticks_"+pair[1])
 		_check(scene.facade.readback().tick==str(int(tick)+3),"actual_three_ticks_"+pair[1])
 		scene.open_menu()
-	_check(_coverage.size()==(21 if include_piston else 14),"actual_supported_coverage_not_metadata")
+	_check(_coverage.size()==starts.size()*7,"actual_supported_coverage_not_metadata")
 	_display_observers(scene)
 	_origin_observer(scene)
 	_release_and_focus(scene,include_piston)

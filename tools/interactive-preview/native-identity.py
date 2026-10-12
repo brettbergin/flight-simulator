@@ -403,7 +403,9 @@ def reconstruction_paths(repo):
         'tests/camera/panel_checks.gd',
         'tests/camera/scene_checks.gd',
     ))
-    for folder in ('native', 'tests/engine', 'tests/interactive', 'tools/bootstrap'):
+    for folder in ('native', 'tests/engine', 'tests/interactive', 'tools/bootstrap',
+                   'app/world/taxi', 'app/ui/taxi', 'tests/world/taxi',
+                   'tests/integration/taxi'):
         root = ordinary(repo / folder, True)
         for path in root.rglob('*'):
             ordinary(path, path.is_dir())

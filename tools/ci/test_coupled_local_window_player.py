@@ -1,4 +1,5 @@
 """Offline admission fixtures: no compiler, native child, Godot or source generator."""
+import copy
 import importlib.util
 import json
 from pathlib import Path
@@ -39,9 +40,13 @@ class AdmissionTests(unittest.TestCase):
         # Duplicate real invocations remain two rows: the measure gate rejects them.
         self.assertEqual(len(q.actual_compile_rows(slash+'\n'+dash,selected)),2)
 
-    def test_all_thirteen_actual_pass_rows_and_full_summary_are_required(self):
-        rows='\n'.join(f'{i}/13 Test #{i}: {name} ........ Passed 0.01 sec' for i,name in enumerate(q.CTESTS,1))
-        text=rows+'\n100% tests passed, 0 tests failed out of 13\n';q.ctest_complete(text)
+    def test_all_fourteen_actual_pass_rows_and_full_summary_are_required(self):
+        self.assertEqual(q.CTESTS[-1],'interactive_apron_starts')
+        self.assertEqual(len(q.CTESTS),14)
+        rows='\n'.join(f'{i}/14 Test #{i}: {name} ........ Passed 0.01 sec' for i,name in enumerate(q.CTESTS,1))
+        text=rows+'\n100% tests passed, 0 tests failed out of 14\n';q.ctest_complete(text)
+        old_rows='\n'.join(f'{i}/13 Test #{i}: {name} ........ Passed 0.01 sec' for i,name in enumerate(q.CTESTS[:-1],1))
+        with self.assertRaises(ValueError):q.ctest_complete(old_rows+'\n100% tests passed, 0 tests failed out of 13\n')
         for bad in (text.replace('100% tests passed','99% tests passed'),text.replace('Passed','Skipped',1),text.replace(q.CTESTS[-1],q.CTESTS[0]),'\n'.join(text.splitlines()[1:]),text+'\n'+text.splitlines()[0]):
             with self.assertRaises(ValueError):q.ctest_complete(bad)
 
@@ -115,6 +120,29 @@ class AdmissionTests(unittest.TestCase):
                 with self.assertRaises(ValueError):q.current_measurement(work,work,None,identity,None)
             with patch.object(q,'measure',return_value=({**measurement,'different':True},unit)):
                 with self.assertRaises(ValueError):q.current_measurement(work,work,None,identity,None)
+
+    def test_apron_command_and_binary_measurement_changes_are_rejected(self):
+        # An isolated measurement-consumer fixture, not a build/measure claim.
+        with tempfile.TemporaryDirectory() as directory:
+            work=Path(directory);measurement,unit=self.measurement_fixture(work)
+            measurement['ctests']=[{'name':'interactive_apron_starts','command':[
+                str(work/'build/bin/interactive_tests.exe'),str(work/'source/native/fdm_jsbsim/models/original-interactive'),
+                str(work/'build/interactive-proof/ctest-apron'),'apron',
+                str(work/'source/native/fdm_jsbsim/models/original-piston-prop')]}]
+            measurement['compiled_binary_roster']={'bin/interactive_tests.exe':{'bytes':19,'sha256':'a'*64}}
+            (work/'evidence/compile-measurement.json').write_text(json.dumps(measurement))
+            identity=SimpleNamespace(contained=contained)
+            with patch.object(q,'measure',return_value=(measurement,unit)):
+                self.assertEqual(q.current_measurement(work,work,None,identity,None),(measurement,unit))
+            changed=[]
+            for index in range(5):
+                value=copy.deepcopy(measurement);value['ctests'][0]['command'][index]='changed argument'
+                changed.append(value)
+            value=copy.deepcopy(measurement);value['compiled_binary_roster']['bin/interactive_tests.exe']['sha256']='b'*64;changed.append(value)
+            value=copy.deepcopy(measurement);value['compiled_binary_roster']['bin/interactive_tests.exe']['bytes']=20;changed.append(value)
+            for value in changed:
+                with patch.object(q,'measure',return_value=(value,unit)),self.assertRaisesRegex(ValueError,'compiled measured inputs changed'):
+                    q.current_measurement(work,work,None,identity,None)
 
     def test_authorization_requires_explicit_approval_and_current_unit_record(self):
         with tempfile.TemporaryDirectory() as directory:

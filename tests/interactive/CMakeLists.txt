@@ -11,4 +11,10 @@ set(INTERACTIVE_EVIDENCE "${CMAKE_BINARY_DIR}/interactive-proof")
 file(MAKE_DIRECTORY "${INTERACTIVE_EVIDENCE}")
 add_test(NAME interactive_loop COMMAND interactive_tests "${INTERACTIVE_MODELS}" "${INTERACTIVE_EVIDENCE}/ctest-ground")
 add_test(NAME interactive_negative_readback COMMAND interactive_tests "${INTERACTIVE_MODELS}" "${INTERACTIVE_EVIDENCE}/ctest-checks" negatives)
-set_tests_properties(interactive_loop interactive_negative_readback PROPERTIES ENVIRONMENT "JSBSIM_DEBUG=0" TIMEOUT 120)
+# ADR027: actual closed old/new start matrix and independent PARK1 pose/gear.
+# Pristine qualifies legacy only and asserts both piston recipes reject.
+add_test(NAME interactive_apron_starts COMMAND interactive_tests
+  "${INTERACTIVE_MODELS}" "${INTERACTIVE_EVIDENCE}/ctest-apron" apron
+  "${CMAKE_SOURCE_DIR}/native/fdm_jsbsim/models/original-piston-prop")
+set_tests_properties(interactive_loop interactive_negative_readback interactive_apron_starts
+  PROPERTIES ENVIRONMENT "JSBSIM_DEBUG=0" TIMEOUT 120)

@@ -10,6 +10,9 @@ const CYAN := Color("79d7e4")
 const CircuitGeometry = preload("res://world/synthetic/circuit_geometry.gd")
 const U64 = preload("res://simulation/uint64.gd")
 const SUMMARY_KEYS = ["session_id","tick","paused","historical","available","error","route_labels","leg_index","leg_count","target_label","target_anchor_eus_m","planar_range_m","bearing_deg","complete","active","aid_visible"]
+const TAXI_VIEW_KEYS = ["layout_id", "layout_revision", "state", "session_id", "tick", "qualified", "paused", "historical", "itinerary_id", "itinerary_label", "runway", "point_index", "point_count", "target_id", "target_label", "target_eus_m", "points", "planar_range_m", "anchor_bearing_deg", "available", "aids_visible", "error"]
+var _taxi_navigation: Dictionary={}
+var _taxi_owner: int=OS.get_thread_caller_id()
 var extent_m := 8000.0
 var _session := ""
 var _sample_tick := -SAMPLE_TICKS
@@ -191,6 +194,106 @@ func _draw_circuit(chart: Rect2) -> void:
 		var width: float=_font.get_string_size(text,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x
 		if chart.grow(-5).encloses(Rect2(at-Vector2(0,11),Vector2(width,14))):
 			_text(at,text,color,10)
+
+static func _taxi_text(value: Variant, limit: int=80) -> bool:
+	if not value is String or value.is_empty() or value.length()>limit: return false
+	for index in value.length():
+		if value.unicode_at(index)<32 or value.unicode_at(index)>126: return false
+	return true
+
+static func _taxi_id(value: Variant) -> bool:
+	if not _taxi_text(value,48): return false
+	for index in value.length():
+		var code: int=value.unicode_at(index)
+		if not (code>=97 and code<=122 or code>=48 and code<=57 or code==45): return false
+	return true
+
+static func _taxi_point(value: Variant) -> bool:
+	if not value is Array or value.size()!=3: return false
+	for scalar in value:
+		if typeof(scalar)!=TYPE_FLOAT or not is_finite(scalar) or absf(scalar)>2000.0: return false
+	return value[1]==0.0
+
+static func _closed_taxi_view(value: Variant) -> bool:
+	if not value is Dictionary or value.size()!=TAXI_VIEW_KEYS.size(): return false
+	for key in value:
+		if not key is String or key not in TAXI_VIEW_KEYS: return false
+	if typeof(value.layout_id)!=TYPE_STRING or value.layout_id!="original-taxi-navigation" or typeof(value.layout_revision)!=TYPE_INT or value.layout_revision!=1: return false
+	if not value.state is String or value.state not in ["empty","active","manual-ended"]: return false
+	if not value.error is String or value.error not in ["","invalid_relationship","wrong_thread","not_configured","invalid_readback","source_unqualified","session_mismatch","not_paused","invalid_selection","no_active_itinerary"]: return false
+	for key in ["qualified","paused","historical","available","aids_visible"]:
+		if typeof(value[key])!=TYPE_BOOL: return false
+	if value.session_id!=null and (not value.session_id is String or value.session_id.is_empty() or value.session_id.length()>128): return false
+	if value.tick!=null and not U64.valid(value.tick): return false
+	if (value.session_id==null)!=(value.tick==null): return false
+	if value.qualified:
+		if value.session_id==null or value.historical or value.error not in ["","invalid_selection","no_active_itinerary","not_paused"]: return false
+		if value.error=="not_paused" and value.paused: return false
+	else:
+		if value.session_id!=null or value.available or value.paused or value.error.is_empty(): return false
+	if typeof(value.point_index)!=TYPE_INT or typeof(value.point_count)!=TYPE_INT or value.point_count<0 or value.point_count>8: return false
+	if value.point_index<0 or (value.point_count==0 and value.point_index!=0) or (value.point_count>0 and value.point_index>=value.point_count): return false
+	if not value.points is Array: return false
+	if value.runway!=null and (typeof(value.runway)!=TYPE_INT or value.runway not in [18,36]): return false
+	if value.state=="empty":
+		if value.point_count!=0 or value.itinerary_id!=null or value.itinerary_label!=null or value.runway!=null: return false
+	else:
+		if value.point_count==0 or not _taxi_id(value.itinerary_id) or not _taxi_text(value.itinerary_label): return false
+		if value.state=="manual-ended" and value.point_index!=value.point_count-1: return false
+	if value.available:
+		if not value.qualified or value.state!="active" or value.historical or value.points.size()!=value.point_count: return false
+		var ids: Dictionary={}
+		for point in value.points:
+			if not point is Dictionary or point.size()!=3 or not point.has_all(["id","label","point_eus_m"]): return false
+			for key in point:
+				if typeof(key)!=TYPE_STRING or key not in ["id","label","point_eus_m"]: return false
+			if not _taxi_id(point.id) or ids.has(point.id) or not _taxi_text(point.label) or not _taxi_point(point.point_eus_m): return false
+			ids[point.id]=true
+		var target: Dictionary=value.points[value.point_index]
+		if not _taxi_id(value.target_id) or not _taxi_text(value.target_label) or value.target_id!=target.id or value.target_label!=target.label or not _taxi_point(value.target_eus_m) or value.target_eus_m!=target.point_eus_m: return false
+		if typeof(value.planar_range_m)!=TYPE_FLOAT or not is_finite(value.planar_range_m) or value.planar_range_m<0.0: return false
+		if value.planar_range_m==0.0:
+			if value.anchor_bearing_deg!=null: return false
+		elif typeof(value.anchor_bearing_deg)!=TYPE_FLOAT or not is_finite(value.anchor_bearing_deg) or value.anchor_bearing_deg<0.0 or value.anchor_bearing_deg>=360.0: return false
+	else:
+		if not value.points.is_empty() or (value.qualified and value.state=="active"): return false
+		for key in ["target_id","target_label","target_eus_m","planar_range_m","anchor_bearing_deg"]:
+			if value[key]!=null: return false
+	return true
+
+func set_taxi_navigation(value: Variant) -> bool:
+	if not Thread.is_main_thread() or OS.get_thread_caller_id()!=_taxi_owner: return false
+	_taxi_navigation.clear()
+	if value==null:
+		queue_redraw()
+		return true
+	if not _closed_taxi_view(value):
+		queue_redraw()
+		return false
+	if value.qualified and value.available and value.aids_visible:
+		_taxi_navigation=value.duplicate(true)
+	queue_redraw()
+	return true
+
+func _draw_taxi_navigation(chart: Rect2) -> void:
+	if _taxi_navigation.is_empty() or not _valid or _retained: return
+	# This layer cannot make an old or different-session route look current.
+	if _taxi_navigation.session_id!=_session or _taxi_navigation.tick!=_publication_tick: return
+	var color := Color("f6d778")
+	var points: Array=_taxi_navigation.points
+	for index in range(1,points.size()):
+		var a: Array=points[index-1].point_eus_m
+		var b: Array=points[index].point_eus_m
+		var segment: Array=_clip_circuit_segment(_point(Vector2(a[0],a[2]),chart),_point(Vector2(b[0],b[2]),chart),chart.grow(-1.5))
+		if segment.size()==2: draw_line(segment[0],segment[1],color,2.0,true)
+	var target: Array=_taxi_navigation.target_eus_m
+	var at: Vector2=_point(Vector2(target[0],target[2]),chart)
+	if _inset_contains(chart,at,8.0):
+		draw_arc(at,6,0,TAU,24,color,2.0,true)
+		var label: String=_taxi_navigation.target_label
+		var width: float=_font.get_string_size(label,HORIZONTAL_ALIGNMENT_LEFT,-1,11).x
+		var box_at := Vector2(at.x+9,at.y-5)
+		if chart.grow(-4).encloses(Rect2(box_at-Vector2(0,12),Vector2(width,15))): _text(box_at,label,color,11)
 
 func set_wind_cue(value: Dictionary) -> void:
 	_wind_cue=value.duplicate(true)
@@ -542,6 +645,7 @@ func _draw_chart(chart: Rect2) -> void:
 		draw_line(chart.get_center(),visible_target,Color("c9b8ff"),1.5,true)
 		draw_arc(visible_target,7,0,TAU,24,Color("c9b8ff"),2.0,true)
 	_draw_circuit(chart)
+	_draw_taxi_navigation(chart)
 	for i in range(1,_trail.size() if _valid and not _retained else 0):
 		var a := _point(_trail[i-1],chart)
 		var b := _point(_trail[i],chart)

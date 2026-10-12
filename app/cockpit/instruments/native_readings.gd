@@ -114,7 +114,7 @@ static func _validate(value: Variant) -> String:
 				return "Original piston mixture contradicts native-held axes"
 	if not value.native_outcome is String or not ["completed","paused","coverage_blocked","discarded"].has(value.native_outcome):
 		return "Missing or unknown native outcome"
-	if not value.named_start is String or (value.named_start!="piston-cold-ground" if piston else not ["ground-ready","airborne-prepared"].has(value.named_start)):
+	if not value.named_start is String or (not ["piston-cold-ground","piston-cold-apron"].has(value.named_start) if piston else not ["ground-ready","airborne-prepared","apron-ready"].has(value.named_start)):
 		return "Unknown named start"
 	# Fingerprint structure is checked here; the leaf cannot prove binary authority.
 	if not _hex(value.native_source_fingerprint) or not _hex(value.prepared_world_sha256) or value.prepared_world_sha256!=WORLD:

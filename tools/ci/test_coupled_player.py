@@ -39,11 +39,25 @@ class AdmissionTests(unittest.TestCase):
         # Duplicate real invocations remain two rows: the measure gate rejects them.
         self.assertEqual(len(q.actual_compile_rows(slash+'\n'+dash,selected)),2)
 
-    def test_all_twelve_actual_pass_rows_and_full_summary_are_required(self):
-        rows='\n'.join(f'{i}/12 Test #{i}: {name} ........ Passed 0.01 sec' for i,name in enumerate(q.CTESTS,1))
-        text=rows+'\n100% tests passed, 0 tests failed out of 12\n';q.ctest_complete(text)
+    def test_all_thirteen_actual_pass_rows_and_full_summary_are_required(self):
+        rows='\n'.join(f'{i}/13 Test #{i}: {name} ........ Passed 0.01 sec' for i,name in enumerate(q.CTESTS,1))
+        text=rows+'\n100% tests passed, 0 tests failed out of 13\n';q.ctest_complete(text)
         for bad in (text.replace('100% tests passed','99% tests passed'),text.replace('Passed','Skipped',1),text.replace(q.CTESTS[-1],q.CTESTS[0]),'\n'.join(text.splitlines()[1:]),text+'\n'+text.splitlines()[0]):
             with self.assertRaises(ValueError):q.ctest_complete(bad)
+
+    def test_exact_v1_route_adds_only_apron_to_old_twelve(self):
+        expected=('native_toolchain_smoke','contract_boundary','ground_contract','ground_contact_proof',
+                  'fdm_boundary','interactive_loop','interactive_negative_readback','piston_engine_lifecycle',
+                  'coupled_shaft_math','coupled_shaft_native','replay_reconstruction','wire_numbers_native',
+                  'interactive_apron_starts')
+        self.assertEqual(q.CTESTS,expected)
+        old='\n'.join(f'{i}/12 Test #{i}: {name} ........ Passed 0.01 sec' for i,name in enumerate(expected[:-1],1))
+        with self.assertRaises(ValueError):q.ctest_complete(old+'\n100% tests passed, 0 tests failed out of 12\n')
+        # This route has no local-window scalar target: fourteen belongs only
+        # to the distinct local-window-v2 route, not a larger allowed roster.
+        other=expected+('piston_local_window_native_references',)
+        local='\n'.join(f'{i}/14 Test #{i}: {name} ........ Passed 0.01 sec' for i,name in enumerate(other,1))
+        with self.assertRaises(ValueError):q.ctest_complete(local+'\n100% tests passed, 0 tests failed out of 14\n')
 
     def test_json_duplicate_fields_and_nonfinite_values_rejected(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -25,6 +25,18 @@ const AudioOptions = preload("res://audio/audio_options.gd")
 const AudioPanel = preload("res://ui/audio/audio_panel.gd")
 const ViewPolicy = preload("res://camera/view_policy.gd")
 const ViewsPanel = preload("res://ui/camera/views_panel.gd")
+const TaxiLayout = preload("res://world/taxi/taxi_layout.gd")
+const TaxiNavigation = preload("res://world/taxi/taxi_navigation.gd")
+const TaxiPanel = preload("res://ui/taxi/taxi_panel.gd")
+var taxi_panel: Control
+var taxi_navigation: RefCounted
+var taxi_button: Button
+var taxi_open: bool=false
+var _taxi_layout: Dictionary={}
+var _taxi_opening: Dictionary={}
+var _taxi_callbacks: Dictionary={}
+var _taxi_owner: int=OS.get_thread_caller_id()
+var _taxi_marker: Node3D
 var view_settings: Dictionary=ViewPolicy.defaults()
 var views_panel: Control
 var views_button: Button
@@ -190,6 +202,17 @@ func _ready() -> void:
 		set_process(false)
 		call_deferred("run_input_visual")
 
+func _make_world_presentation() -> Dictionary:
+	if legacy_proof: return super._make_world_presentation()
+	var builder: RefCounted=load("res://interactive/flight_world.gd").new()
+	var admitted: Dictionary=TaxiLayout.load()
+	if admitted.ok and builder.configure_taxi_layout(admitted.value):
+		_taxi_layout=admitted.value.duplicate(true)
+		taxi_navigation=TaxiNavigation.new()
+		if not taxi_navigation.configure(_taxi_layout).ok:
+			taxi_navigation=null
+	return builder.build(self)
+
 func make_world() -> void:
 	super.make_world()
 	if legacy_proof:
@@ -209,14 +232,41 @@ func make_world() -> void:
 		if child is Node3D and child!=airplane and child!=camera and child!=cockpit.root:
 			child.reparent(light_root if child is Light3D else world_root,true)
 	windsock_visual=world_root.find_child("SteadyWindsock",true,false) as MeshInstance3D
+	_taxi_marker=Node3D.new()
+	_taxi_marker.name="OptionalTaxiReference"
+	world_root.add_child(_taxi_marker)
+	var ring:=MeshInstance3D.new()
+	var mesh:=TorusMesh.new()
+	mesh.inner_radius=1.7
+	mesh.outer_radius=2.0
+	ring.mesh=mesh
+	var material:=StandardMaterial3D.new()
+	material.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color=Color(0.2,0.9,1.0,0.8)
+	ring.material_override=material
+	ring.position.y=0.08
+	_taxi_marker.add_child(ring)
+	var caption:=Label3D.new()
+	caption.name="ReferenceLabel"
+	caption.position.y=2.5
+	caption.billboard=BaseMaterial3D.BILLBOARD_ENABLED
+	caption.font_size=42
+	caption.pixel_size=0.014
+	caption.no_depth_test=false
+	_taxi_marker.add_child(caption)
+	_taxi_marker.hide()
 
 func close_session() -> bool:
 	if legacy_proof:
 		return super.close_session()
 	if not archive_operation.is_empty(): return false
+	retire_taxi_panel()
 	retire_views_panel()
 	retire_audio_panel()
 	retire_first_flight()
+	if taxi_navigation!=null: taxi_navigation.retire()
+	if flight_map!=null: flight_map.set_taxi_navigation(null)
+	if _taxi_marker!=null: _taxi_marker.hide()
 	clear_circuit_reference("Session closing")
 	if facade!=null: invalidate_engine_pointer("Session closing")
 	render_pose.clear()
@@ -251,6 +301,7 @@ func _make_facade() -> RefCounted:
 func restart(replace_confirmed: bool=false, selected_wind: Variant=null, requested_profile: Variant=null, requested_start: Variant=null) -> bool:
 	if legacy_proof:
 		return super.restart()
+	if taxi_open: return false
 	if not archive_operation.is_empty(): return false
 	var next_profile: Variant=selected_profile if requested_profile==null else requested_profile
 	var next_start: Variant=named_start if requested_start==null else requested_start
@@ -358,6 +409,8 @@ func restart(replace_confirmed: bool=false, selected_wind: Variant=null, request
 	selected_profile=next_profile
 	named_start=next_start
 	adopted_session_id=result.readback.session_id
+	# Bind only after recorder/source/mapper adoption has succeeded.
+	if taxi_navigation!=null: taxi_navigation.fresh_session(facade.readback())
 	review_joined=false
 	current_wind_profile=requested_wind
 	circuit_aid_enabled=false
@@ -407,7 +460,7 @@ func suspend_mapper(reason: String) -> void:
 	# This clears only local intent. Facade owns release admission before resume.
 
 func choose_profile() -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	if audio_open: return
 	# Draft selection remains separate from the current adopted profile and preset.
 	if not paused or facade==null or facade.readback().host_mode!="paused": return
@@ -496,7 +549,7 @@ func adopt_result(result: Dictionary) -> void:
 func pause_session(value: bool) -> bool:
 	if legacy_proof:
 		return super.pause_session(value)
-	if views_open: return false
+	if views_open or taxi_open: return false
 	if audio_open and not value: return false
 	if not archive_operation.is_empty(): return false
 	if facade==null:
@@ -544,7 +597,7 @@ func pause_session(value: bool) -> bool:
 func submit_axes(axes: Dictionary) -> bool:
 	if legacy_proof:
 		return super.submit_axes(axes)
-	if views_open: return false
+	if views_open or taxi_open: return false
 	var result: Dictionary=facade.set_axes(axes)
 	adopt_result(result)
 	return result.ok
@@ -552,7 +605,7 @@ func submit_axes(axes: Dictionary) -> bool:
 func advance_wall_us(elapsed_us: int) -> bool:
 	if legacy_proof:
 		return super.advance_wall_us(elapsed_us)
-	if views_open: return false
+	if views_open or taxi_open: return false
 	var result: Dictionary=facade.advance_wall_us(elapsed_us)
 	adopt_result(result)
 	return result.ok
@@ -568,7 +621,7 @@ func _process(delta: float) -> void:
 	show_state(clampf(float(elapsed)/1000000.0,0.0,0.25))
 
 func process_input_interval(elapsed: int) -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	if not archive_operation.is_empty(): return
 	if facade==null or mapper==null:
 		return
@@ -696,6 +749,19 @@ func make_menu(canvas: CanvasLayer) -> void:
 	views_button.add_theme_font_size_override("font_size",18)
 	views_button.pressed.connect(open_views)
 	speed_audio_row.add_child(views_button)
+	taxi_button=Button.new()
+	taxi_button.name="Taxi"
+	taxi_button.text="Taxi"
+	taxi_button.tooltip_text="Paused synthetic taxi diagram and manual runway/parking references"
+	taxi_button.custom_minimum_size=Vector2(76,32)
+	taxi_button.add_theme_font_size_override("font_size",18)
+	taxi_button.pressed.connect(open_taxi)
+	taxi_button.disabled=taxi_navigation==null
+	speed_audio_row.add_child(taxi_button)
+	taxi_panel=TaxiPanel.new()
+	canvas.add_child(taxi_panel)
+	taxi_panel.z_index=3
+	taxi_panel.hide()
 	views_panel=ViewsPanel.new()
 	canvas.add_child(views_panel)
 	views_panel.z_index=3
@@ -803,7 +869,7 @@ func make_menu(canvas: CanvasLayer) -> void:
 	menu.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	menu.custom_minimum_size=Vector2(560,490)
 	layout_flight_menu()
-	for page in [menu,first_flight_panel,controls_panel,wind_panel,observed_panel,discard_layer,scan_panel,audio_panel,views_panel]:
+	for page in [menu,first_flight_panel,controls_panel,wind_panel,observed_panel,discard_layer,scan_panel,audio_panel,views_panel,taxi_panel]:
 		page.visibility_changed.connect(func():
 			if look_release_label!=null and not pointer_modal_free(): look_release_label.hide())
 
@@ -815,7 +881,7 @@ func layout_flight_menu() -> void:
 	menu.position=Vector2(maxf(8.0,(available.x-menu.size.x)*0.5),maxf(8.0,(available.y-menu.size.y)*0.5))
 
 func set_flight_scale(value: float) -> bool:
-	if views_open: return false
+	if views_open or taxi_open: return false
 	if facade==null:
 		return false
 	var now: int=Time.get_ticks_usec()
@@ -840,7 +906,7 @@ func cycle_flight_scale() -> void:
 func _input(event: InputEvent) -> void:
 	if legacy_proof:
 		return
-	if views_open: return
+	if views_open or taxi_open: return
 	# _input precedes GUI handling, while Input polling still sees that click.
 	# Disabled binding paint must not allow the mapped flight action to fire.
 	if event is InputEventMouseButton and event.pressed and event.button_index==MOUSE_BUTTON_LEFT:
@@ -867,6 +933,11 @@ func _input(event: InputEvent) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if legacy_proof:
 		super._unhandled_input(event)
+		return
+	if taxi_open:
+		if event is InputEventJoypadButton and event.pressed:
+			if _views_cancel_event(event): dismiss_taxi()
+			get_viewport().set_input_as_handled()
 		return
 	if views_open:
 		if event is InputEventJoypadButton and event.pressed:
@@ -908,6 +979,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		super._unhandled_key_input(event)
 		return
 	if not event is InputEventKey or not event.pressed or event.echo:
+		return
+	if taxi_open:
+		if _views_cancel_event(event): dismiss_taxi()
+		get_viewport().set_input_as_handled()
 		return
 	if views_open:
 		if _views_cancel_event(event):
@@ -975,6 +1050,9 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func dispatch_input_action(action: String) -> void:
+	if taxi_open:
+		if action=="pause_menu": dismiss_taxi()
+		return
 	if views_open:
 		if action=="pause_menu": dismiss_views()
 		return
@@ -1059,12 +1137,14 @@ func on_focus_lost() -> void:
 	if legacy_proof:
 		super.on_focus_lost()
 		return
+	retire_taxi_panel()
 	retire_views_panel()
 	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
 	if facade!=null:
 		pause_for_input("Window inactive; release controls and confirm Resume")
 
 func pause_for_input(reason: String) -> void:
+	retire_taxi_panel()
 	retire_views_panel()
 	if not archive_operation.is_empty(): return
 	input_blocked=true
@@ -1130,7 +1210,7 @@ func controls_diagnostics() -> Dictionary:
 	return info
 
 func select_input_device(slot: String, device: int) -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	if not archive_operation.is_empty(): return
 	if not paused or facade==null or facade.readback().host_mode!="paused":
 		return
@@ -1169,7 +1249,7 @@ func set_camera_mode(value: int) -> void:
 	if legacy_proof:
 		super.set_camera_mode(value)
 		return
-	if views_open: return
+	if views_open or taxi_open: return
 	var response: String=view_settings.external_response
 	super.set_camera_mode(value)
 	var traditional: Array[String]=["cockpit","chase","orbit","panel"]
@@ -1194,7 +1274,7 @@ func _views_current_source() -> Dictionary:
 
 func _views_entry_source() -> Dictionary:
 	if mapper==null or not menu_open or menu==null or not menu.visible or views_panel==null: return {}
-	if views_open or audio_open or first_flight_open or scan_open or route_open or review_open or not archive_operation.is_empty() or not pending_discard.is_empty(): return {}
+	if views_open or taxi_open or audio_open or first_flight_open or scan_open or route_open or review_open or not archive_operation.is_empty() or not pending_discard.is_empty(): return {}
 	if (controls_panel!=null and controls_panel.visible) or (wind_panel!=null and wind_panel.visible): return {}
 	if engine_pointer_look_active or not engine_pointer_terminal.is_empty() or Input.mouse_mode!=Input.MOUSE_MODE_VISIBLE: return {}
 	if mapper.pointer_view().capture!=null or not mapper.get("_pointer_pending").is_empty(): return {}
@@ -1246,7 +1326,7 @@ func _views_request_valid(source_session: Variant, widget: Control, opening: Dic
 	if not views_open or widget!=views_panel or not widget.is_visible_in_tree() or not menu_open: return false
 	if source_session!=opening.get("session") or source_session!=adopted_session_id: return false
 	if not archive_operation.is_empty() or not pending_discard.is_empty(): return false
-	if audio_open or first_flight_open or scan_open or route_open or review_open: return false
+	if taxi_open or audio_open or first_flight_open or scan_open or route_open or review_open: return false
 	if (controls_panel!=null and controls_panel.visible) or (wind_panel!=null and wind_panel.visible): return false
 	if engine_pointer_look_active or not engine_pointer_terminal.is_empty() or Input.mouse_mode!=Input.MOUSE_MODE_VISIBLE or mapper==null: return false
 	if mapper.pointer_view().capture!=null or not mapper.get("_pointer_pending").is_empty(): return false
@@ -1282,6 +1362,7 @@ func retire_views_panel() -> void:
 
 func dismiss_views() -> void:
 	if not views_open: return
+	retire_taxi_panel()
 	retire_views_panel()
 	menu_open=true
 	menu.show()
@@ -1291,6 +1372,7 @@ func _observe_views_source() -> void:
 	if not views_open: return
 	var source_valid: bool=not _views_current_source().is_empty()
 	if not source_valid or views_panel==null or not views_panel.is_visible_in_tree():
+		retire_taxi_panel()
 		retire_views_panel()
 		# Source loss grants no pause/resume action, just an honest menu.
 		menu_open=true
@@ -1299,8 +1381,118 @@ func _observe_views_source() -> void:
 			menu_title.text="Flight paused" if source_valid else "View source changed · inspect current flight"
 			resume_button.disabled=not source_valid
 
+func _taxi_foreign() -> bool:
+	return not Thread.is_main_thread() or OS.get_thread_caller_id()!=_taxi_owner
+
+func _taxi_entry_source() -> Dictionary:
+	if _taxi_foreign() or taxi_navigation==null or taxi_panel==null or _taxi_layout.is_empty(): return {}
+	if taxi_open or views_open or audio_open or first_flight_open or scan_open or route_open or review_open: return {}
+	if not archive_operation.is_empty() or not pending_discard.is_empty(): return {}
+	if (controls_panel!=null and controls_panel.visible) or (wind_panel!=null and wind_panel.visible): return {}
+	if mapper==null or engine_pointer_look_active or not engine_pointer_terminal.is_empty(): return {}
+	if Input.mouse_mode!=Input.MOUSE_MODE_VISIBLE or mapper.pointer_view().capture!=null or not mapper.get("_pointer_pending").is_empty(): return {}
+	if engine_controls!=null and not engine_controls.get("_capture").is_empty(): return {}
+	return _views_current_source()
+
+func open_taxi() -> bool:
+	if _taxi_foreign() or legacy_proof or taxi_navigation==null or taxi_panel==null or facade==null: return false
+	if taxi_open or views_open or audio_open or first_flight_open or scan_open or route_open or review_open or quitting or initializing_recording: return false
+	if not archive_operation.is_empty() or not pending_discard.is_empty(): return false
+	if (controls_panel!=null and controls_panel.visible) or (wind_panel!=null and wind_panel.visible): return false
+	# Only live entry performs the ordinary explicit pause/release transaction.
+	# An already paused page entry never samples input or calls the worker.
+	if not paused: open_menu("Flight paused")
+	var source: Dictionary=_taxi_entry_source()
+	if source.is_empty(): return false
+	var view: Variant=taxi_navigation.observe(source)
+	var widget: Control=taxi_panel
+	if not widget.open(_taxi_layout,view,adopted_session_id): return false
+	var opening: Dictionary={"active":true,"session":adopted_session_id,"token":RefCounted.new()}
+	_taxi_opening=opening
+	_taxi_callbacks={
+		"route_requested":func(id: Variant, session: Variant): _on_taxi_request("choose",id,session,widget,opening),
+		"next_requested":func(session: Variant): _on_taxi_request("next",null,session,widget,opening),
+		"stop_requested":func(session: Variant): _on_taxi_request("stop",null,session,widget,opening),
+		"aids_requested":func(value: Variant, session: Variant): _on_taxi_request("aids",value,session,widget,opening),
+		"dismissed":func(session: Variant):
+			if _taxi_request_valid(session,widget,opening): dismiss_taxi()
+	}
+	for signal_name in _taxi_callbacks: widget.connect(signal_name,_taxi_callbacks[signal_name])
+	taxi_open=true
+	menu_open=true
+	menu.hide()
+	widget.focus_back()
+	return true
+
+func _taxi_request_valid(session: Variant, widget: Control, opening: Dictionary) -> bool:
+	if _taxi_foreign() or typeof(session)!=TYPE_STRING or session.is_empty(): return false
+	if not opening.get("active",false) or _taxi_opening.is_empty() or opening.get("token")!=_taxi_opening.get("token"): return false
+	if not taxi_open or widget!=taxi_panel or not widget.is_visible_in_tree() or not menu_open: return false
+	if session!=opening.get("session") or session!=adopted_session_id or taxi_navigation==null: return false
+	if views_open or audio_open or first_flight_open or scan_open or route_open or review_open: return false
+	if not archive_operation.is_empty() or not pending_discard.is_empty(): return false
+	if (controls_panel!=null and controls_panel.visible) or (wind_panel!=null and wind_panel.visible): return false
+	return not _views_current_source().is_empty()
+
+func _on_taxi_request(action: String, value: Variant, session: Variant, widget: Control, opening: Dictionary) -> void:
+	if not _taxi_request_valid(session,widget,opening): return
+	var source: Dictionary=_views_current_source()
+	var result: Dictionary
+	match action:
+		"choose": result=taxi_navigation.choose(value,source)
+		"next": result=taxi_navigation.next(source)
+		"stop": result=taxi_navigation.stop(source)
+		"aids": result=taxi_navigation.set_aids_visible(value,source)
+		_: return
+	widget.present(result.view)
+	# A deliberate Begin is the sole synchronization point for runway selection.
+	if action=="choose" and result.ok and result.view.runway!=null:
+		flight_map.select_runway(result.view.runway)
+	publish_taxi_navigation()
+
+func retire_taxi_panel() -> void:
+	if _taxi_foreign(): return
+	if not _taxi_opening.is_empty(): _taxi_opening.active=false
+	_taxi_opening={}
+	if taxi_panel!=null:
+		for signal_name in _taxi_callbacks:
+			var callback: Callable=_taxi_callbacks[signal_name]
+			if taxi_panel.is_connected(signal_name,callback): taxi_panel.disconnect(signal_name,callback)
+		taxi_panel.retire()
+	_taxi_callbacks.clear()
+	taxi_open=false
+
+func dismiss_taxi() -> void:
+	if _taxi_foreign() or not taxi_open: return
+	retire_taxi_panel()
+	menu_open=true
+	if menu!=null: menu.show()
+	if taxi_button!=null: taxi_button.grab_focus()
+
+func publish_taxi_navigation() -> void:
+	if _taxi_foreign(): return
+	var source: Dictionary=facade.readback() if facade!=null else {}
+	var view: Variant=taxi_navigation.observe(source) if taxi_navigation!=null else null
+	if flight_map!=null: flight_map.set_taxi_navigation(view)
+	if _taxi_marker!=null:
+		var available: bool=view!=null and view.qualified and view.available and view.aids_visible
+		_taxi_marker.visible=available
+		if available:
+			var point: Array=view.target_eus_m
+			_taxi_marker.position=Vector3(float(point[0]),float(point[1]),float(point[2]))
+			_taxi_marker.get_node("ReferenceLabel").text="SYNTHETIC REFERENCE\n"+view.target_label
+	if not taxi_open: return
+	if view==null or not view.qualified or not view.paused or view.session_id!=_taxi_opening.get("session"):
+		retire_taxi_panel()
+		menu_open=true
+		if menu!=null:
+			menu.show()
+			menu_title.text="Taxi source changed · inspect current flight"
+			resume_button.disabled=true
+	elif taxi_panel!=null: taxi_panel.present(view)
+
 func set_audio_options(value: Variant) -> bool:
-	if views_open: return false
+	if views_open or taxi_open: return false
 	var checked: Dictionary=AudioOptions.validate(value)
 	if not checked.ok: return false
 	if sound!=null and not sound.set_options(checked.value): return false
@@ -1312,7 +1504,7 @@ func set_audio_options(value: Variant) -> bool:
 
 func _audio_entry_source() -> Dictionary:
 	if legacy_proof or facade==null or mapper==null or initializing_recording or quitting or not paused or not menu_open or menu==null or not menu.visible: return {}
-	if views_open or audio_open or first_flight_open or scan_open or route_open or review_open or not archive_operation.is_empty() or not pending_discard.is_empty(): return {}
+	if views_open or taxi_open or audio_open or first_flight_open or scan_open or route_open or review_open or not archive_operation.is_empty() or not pending_discard.is_empty(): return {}
 	if (controls_panel!=null and controls_panel.visible) or (wind_panel!=null and wind_panel.visible): return {}
 	if engine_pointer_look_active or not engine_pointer_terminal.is_empty() or Input.mouse_mode==Input.MOUSE_MODE_CAPTURED: return {}
 	if mapper.pointer_view().capture!=null or not mapper.get("_pointer_pending").is_empty(): return {}
@@ -1366,13 +1558,14 @@ func dismiss_audio() -> void:
 
 func fail(message: String) -> bool:
 	if not legacy_proof:
+		retire_taxi_panel()
 		retire_views_panel()
 		retire_audio_panel()
 		if sound!=null: sound.observe({})
 	return super.fail(message)
 
 func open_controls() -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	if audio_open: return
 	if not archive_operation.is_empty(): return
 	if controls_panel==null or facade==null:
@@ -1395,7 +1588,7 @@ func open_controls() -> void:
 	controls_panel.update_diagnostics(collect_input_raw(),held_controls,held_controls,controls_diagnostics())
 
 func open_wind() -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	if audio_open: return
 	if legacy_proof or wind_panel==null or facade==null or not archive_operation.is_empty() or not pending_discard.is_empty(): return
 	if review_open or scan_open or route_open or (controls_panel!=null and controls_panel.visible): return
@@ -1409,12 +1602,12 @@ func open_wind() -> void:
 	wind_panel.open(wind_draft,current_wind_profile,WindCue.from_readback(facade.readback()),review_boundary())
 
 func select_wind_draft(value: Variant) -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	if not Facade.valid_wind_profile(value) or not archive_operation.is_empty() or not pending_discard.is_empty(): return
 	wind_draft=value
 
 func start_wind_draft(start: String) -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	if wind_panel==null or not wind_panel.visible: return
 	if selected_profile==Facade.PISTON_PROFILE.id:
 		if start!="ground-ready" and start!="piston-cold-ground":
@@ -1424,7 +1617,7 @@ func start_wind_draft(start: String) -> void:
 	request_discard("restart",start,wind_draft,selected_profile)
 
 func dismiss_wind() -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	if wind_panel==null or not wind_panel.visible or not pending_discard.is_empty(): return
 	wind_panel.hide()
 	open_menu("Wind draft retained · current flight paused")
@@ -1460,7 +1653,7 @@ func update_wind_presentation(readback: Dictionary) -> void:
 	windsock_visual.position=Vector3(-52,6.8,80)+direction
 
 func apply_controls(preset: Dictionary) -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	if not archive_operation.is_empty(): return
 	if facade==null or mapper==null or facade.readback().host_mode!="paused":
 		return
@@ -1479,7 +1672,7 @@ func apply_controls(preset: Dictionary) -> void:
 	open_menu("Controls applied · guest preset")
 
 func dismiss_controls() -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	if not archive_operation.is_empty(): return
 	selected_slots=controls_selection_backup.duplicate(true)
 	controls_selection_backup.clear()
@@ -1491,7 +1684,7 @@ func select_controller() -> void:
 	else: open_controls()
 
 func start_flight(start: String) -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	if legacy_proof:
 		super.start_flight(start)
 		return
@@ -1503,7 +1696,7 @@ func start_flight(start: String) -> void:
 	request_discard("restart",start,wind_draft,selected_profile)
 
 func perform_start(start: String, selected_wind: Variant=null, requested_profile: Variant=null, first_flight_continuation: bool=false) -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	if audio_open: return
 	if not archive_operation.is_empty(): return
 	var next_profile: Variant=selected_profile if requested_profile==null else requested_profile
@@ -1539,7 +1732,7 @@ func first_flight_source_session() -> String:
 	return readings.session_id
 
 func first_flight_request_valid(widget: Object, source_session: String) -> bool:
-	if views_open: return false
+	if views_open or taxi_open: return false
 	if widget!=first_flight_panel and widget!=circuit_card: return false
 	if first_flight_panel==null or not first_flight_panel.visible or not first_flight_open or not menu_open: return false
 	if not archive_operation.is_empty() or initializing_recording or not pending_discard.is_empty(): return false
@@ -1557,7 +1750,7 @@ func retire_first_flight() -> void:
 	if first_flight_panel!=null: first_flight_panel.hide()
 
 func open_first_flight() -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	if audio_open: return
 	if legacy_proof or first_flight_panel==null or initializing_recording or not archive_operation.is_empty() or not pending_discard.is_empty(): return
 	if review_open or scan_open or route_open or (controls_panel!=null and controls_panel.visible) or (wind_panel!=null and wind_panel.visible): return
@@ -1593,7 +1786,7 @@ func on_first_flight_controls(source_session: String, widget: Object) -> void:
 
 func on_first_flight_choice(choice_id: String, source_session: String, widget: Object) -> void:
 	if widget!=first_flight_panel or not first_flight_request_valid(widget,source_session): return
-	var choice: Dictionary=FirstFlightPanel.choice_for(choice_id)
+	var choice: Dictionary=FirstFlightPanel.apron_choice_for(choice_id) if choice_id in FirstFlightPanel.APRON_CHOICE_IDS else FirstFlightPanel.choice_for(choice_id)
 	if choice.is_empty(): return
 	var profile: Variant=choice.get("model_identity")
 	if profile!=Facade.LEGACY_PROFILE and profile!=Facade.PISTON_PROFILE: return
@@ -1777,6 +1970,7 @@ func suppress_geometry() -> void:
 		cockpit.root.hide()
 
 func show_state(seconds: float=0.0) -> void:
+	if not legacy_proof: publish_taxi_navigation()
 	if legacy_proof:
 		super.show_state(seconds)
 		return
@@ -2030,7 +2224,7 @@ func publish_landmark_route(readback: Dictionary, info: Dictionary={}) -> void:
 	flight_map.call("set_route",route_view if route_aids_visible else {})
 
 func open_landmark_route() -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	if audio_open: return
 	if legacy_proof or facade==null or landmark_board==null:
 		return
@@ -2051,7 +2245,7 @@ func open_landmark_route() -> void:
 	landmark_board.set_open(route_open)
 
 func _route_edit_source() -> Dictionary:
-	if views_open: return {}
+	if views_open or taxi_open: return {}
 	if not route_open or not paused or facade==null or landmark_board==null:
 		return {}
 	var source: Dictionary=facade.readback()
@@ -2088,7 +2282,7 @@ func return_to_runway(runway: int) -> void:
 		dismiss_landmark_route()
 
 func set_route_aids_visible(value: bool) -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	if landmark_board==null:
 		return
 	route_aids_visible=value
@@ -2097,7 +2291,7 @@ func set_route_aids_visible(value: bool) -> void:
 		publish_landmark_route(facade.readback())
 
 func dismiss_landmark_route() -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	if legacy_proof or not paused or landmark_board==null:
 		return
 	route_open=false
@@ -2126,7 +2320,7 @@ func publish_readings(readback: Dictionary, info: Dictionary) -> void:
 		scan_panel.z_index=-1 if menu_open and not scan_open else 1
 
 func open_instrument_scan() -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	if audio_open: return
 	# Selection belongs to an already paused menu. Never pauses native flight,
 	# primes mapper edges, suppresses mouse bindings or changes the prior camera.
@@ -2142,7 +2336,7 @@ func open_instrument_scan() -> void:
 	show_state(0)
 
 func dismiss_instrument_scan() -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	if legacy_proof or not paused:
 		return
 	scan_open=false
@@ -2156,7 +2350,9 @@ func on_instrument_selected(_instrument: String) -> void:
 	dismiss_instrument_scan()
 
 func open_menu(title: String="Flight paused") -> void:
+	if taxi_open: return
 	if not archive_operation.is_empty(): return
+	if not legacy_proof: retire_taxi_panel()
 	if not legacy_proof: retire_views_panel()
 	if not legacy_proof: retire_audio_panel()
 	if not legacy_proof:
@@ -2175,6 +2371,9 @@ func open_menu(title: String="Flight paused") -> void:
 
 func close_menu() -> void:
 	if not archive_operation.is_empty(): return
+	if not legacy_proof and taxi_open:
+		dismiss_taxi()
+		return
 	if not legacy_proof and views_open:
 		dismiss_views()
 		return
@@ -2204,6 +2403,7 @@ func close_menu() -> void:
 	super.close_menu()
 
 func restart_failed(message: String) -> bool:
+	retire_taxi_panel()
 	retire_views_panel()
 	retire_audio_panel()
 	_observe_audio({})
@@ -2247,7 +2447,7 @@ func review_boundary() -> bool:
 	return (state.host_mode=="paused" and state.native_live and state.paused and not state.historical) or (state.host_mode=="closed" and not state.native_live and review_joined)
 
 func ensure_review_boundary() -> bool:
-	if views_open: return false
+	if views_open or taxi_open: return false
 	if review_boundary(): return true
 	if facade==null: return false
 	var state: Dictionary=facade.readback()
@@ -2261,7 +2461,7 @@ func ensure_review_boundary() -> bool:
 	return false
 
 func open_observed_review() -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	if audio_open: return
 	if legacy_proof or observed_panel==null or not pending_discard.is_empty() or not archive_operation.is_empty(): return
 	if controls_panel!=null and controls_panel.visible: return
@@ -2288,7 +2488,7 @@ func open_observed_review() -> void:
 	observed_panel.set_open(true)
 
 func dismiss_observed_review() -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	if not review_open or not pending_discard.is_empty() or not archive_operation.is_empty(): return
 	observed_panel.set_open(false)
 	review_open=false
@@ -2296,7 +2496,7 @@ func dismiss_observed_review() -> void:
 	open_menu("Recorded flight retained · paused")
 
 func clear_imported_review() -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	# Dismiss releases imported copies without copying the current live history.
 	if archive_imported and observed_panel!=null:
 		observed_panel.set_recording(ObservedValues.empty_recording())
@@ -2305,7 +2505,7 @@ func clear_imported_review() -> void:
 	if observed_panel!=null: observed_panel.set_file_context(false)
 
 func show_current_review() -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	if not review_open or not archive_operation.is_empty() or not review_boundary(): return
 	var current: Variant=observed_recorder.recording()
 	if observed_panel.set_recording(current):
@@ -2314,7 +2514,7 @@ func show_current_review() -> void:
 		observed_panel.set_file_context(false,archive_message)
 
 func begin_archive_operation(action: String, show_dialog: bool=true) -> bool:
-	if views_open: return false
+	if views_open or taxi_open: return false
 	if audio_open: return false
 	if legacy_proof or not review_open or not archive_operation.is_empty() or not pending_discard.is_empty() or not action in ["save","open"]: return false
 	if initializing_recording or not review_boundary():
@@ -2430,7 +2630,7 @@ func make_discard_confirmation(canvas: CanvasLayer) -> void:
 	discard_layer.hide()
 
 func request_discard(action: String, start: String="", selected_wind: Variant=null, requested_profile: Variant=null, first_flight_continuation: bool=false) -> void:
-	if views_open: return
+	if views_open or taxi_open: return
 	if audio_open: return
 	if not archive_operation.is_empty(): return
 	if not pending_discard.is_empty() or not action in ["restart","quit"]: return
@@ -2494,7 +2694,9 @@ func confirm_discard() -> void:
 	else: await perform_quit()
 
 func quit_flight() -> void:
+	if taxi_open: return
 	if not legacy_proof:
+		retire_taxi_panel()
 		retire_views_panel()
 		retire_audio_panel()
 	if legacy_proof:
@@ -2504,6 +2706,7 @@ func quit_flight() -> void:
 
 func perform_quit() -> void:
 	if not archive_operation.is_empty(): return
+	retire_taxi_panel()
 	retire_views_panel()
 	retire_audio_panel()
 	retire_first_flight()
@@ -2512,6 +2715,7 @@ func perform_quit() -> void:
 
 func _exit_tree() -> void:
 	quitting=true
+	retire_taxi_panel()
 	retire_views_panel()
 	retire_audio_panel()
 	invalidate_engine_pointer("Scene retired")
@@ -2740,7 +2944,7 @@ func pointer_session_live() -> bool:
 	return source.get("host_mode")=="live" and source.get("native_live")==true and source.get("paused")==false and source.get("session_id")==adopted_session_id and mapper.pointer_view().session_id==adopted_session_id and pointer_modal_free()
 
 func pointer_modal_free() -> bool:
-	return not menu_open and not views_open and not audio_open and not first_flight_open and not scan_open and not route_open and not review_open and archive_operation.is_empty() and pending_discard.is_empty() and (controls_panel==null or not controls_panel.visible) and (wind_panel==null or not wind_panel.visible)
+	return not menu_open and not views_open and not taxi_open and not audio_open and not first_flight_open and not scan_open and not route_open and not review_open and archive_operation.is_empty() and pending_discard.is_empty() and (controls_panel==null or not controls_panel.visible) and (wind_panel==null or not wind_panel.visible)
 
 func pointer_ui_eligible() -> bool:
 	return pointer_session_live() and engine_pointer_rearm.is_empty() and not engine_pointer_look_active and Input.mouse_mode==Input.MOUSE_MODE_VISIBLE
