@@ -303,3 +303,103 @@ installed KnownFolder, rollback/flush fault evidence, aircraft or phase gates.
 The closed second-child JSON receipt and exact store coverage fields are defined
 in the capability amendment above. They bind actual stdout/PID/input hashes and
 all 17 frozen cases. They cannot be deferred to an unreviewed later receipt shape.
+
+
+## Proposed bounded logical fault qualification
+
+This separate public amendment is proposed pending checked merge and adoption.
+It preserves the checked fixed remaining-row definitions above; this separate
+proposal is not accepted or implemented merely by publication. This section changes only
+the narrowly named synthetic-stage permission and bounded #219 evidence
+disposition below. Ordinary SQL/Win32 observations, production protocol and all
+earlier real-operation rules retain their meaning.
+
+Two source-fixed actual SQLite interruption cases use the EXISTING one-shot
+progress-callback permission, not a new action, error override or VFS. After
+the original first store child's Service offsets0..15, append exactly six
+sequential joined lifetimes: management16, selected17, fresh reconciliation18;
+then management19, selected20, fresh reconciliation21. Each selected Service
+uses request2, kind rename_player, scope original, edge before, occurrence1.
+The first selects phase rollback after actual BEGIN and a wrong-revision
+semantic refusal with no row writes/COMMIT. The second selects before_commit
+after the valid rename's actual row writes. Each arm and callback consumption
+occurs exactly once on that selected worker; unused/extra/foreign consumption
+fails. Require actual SQLite return9, not an intended or substituted result.
+
+The rollback case requires its actual rollback-after result/state, then
+uncertain/commit_unknown with null value/sequence, read_only, no-effects write
+refusal, ACK/credit retirement and joined close. Fresh whole D01 reconciliation
+must prove unchanged two Player/Preferences pairs, three manually_ended Practice
+rows and deterministic meta. The COMMIT case records the same actual non-DONE
+return at before_commit/after and after_commit/after, no postverify, and the
+subsequent actual ROLLBACK return/autocommit/txn_state. Its terminal is failed/
+io_error and ready ONLY when rollback returned OK or DONE AND autocommit1 AND
+txn_state NONE; otherwise uncertain/commit_unknown and read_only. Never infer
+successful rollback from state alone or unknown COMMIT from an armed flag.
+Before outputs, freeze complete independent allowed whole-state reconciliation
+oracles and exact phase/state predicates for the selected pinned SQLite path.
+Every unexpected durable result fails; no output-fitted oracle or retry of a
+possibly committed mutation is allowed. Each ever-created worker actually joins
+before fixture SQL or the next lifetime. Actual owner_run_id is independently
+validated/stable as required, not guessed or substituted into deterministic rows.
+
+One additional source-fixed native case may use a SYNTHETIC export-flush stage
+refusal through the existing nullable QualificationObserver. A new narrowly
+named one-shot native decision is permitted only for export_player, scope
+export_file, phase export_flush, edge before, occurrence1 in the existing first
+store Service. Its sole new interface is
+`virtual bool take_export_flush_refusal_request() noexcept`, defaulting to false;
+the exact selected before observation arms it and the adjacent stage consumes
+it once on that same worker. Freeze its exact numeric service/request selector with source
+before compilation; no wildcard, caller-provided path, generic action parser,
+global API interception or general failure callback is authorized. The sealed
+test factory alone installs the observer; shipping factory remains null and
+shipping and test targets compile the SAME reusable core bytes. This permission
+does not alter the four existing common scheduler actions or any crash recipe.
+
+The selected refusal runs after actual CreateNew and complete real bounded
+writes, before FlushFileBuffers. It does NOT attempt that OS call. Both stage
+edges retain actual live temp handle/file identity; the synthetic after edge
+has win32_error=null, requested_bytes=null and completed_bytes=null. No DWORD,
+synthetic zero, SQLite return or invented operation success is reported. Only
+this exact consumed selector may have that synthetic after edge, bound to the
+closed provenance record in the capability companion. Every ordinary attempted
+flush-after still requires its actual immediate DWORD. Unmatched selection,
+ordinary after with missing error, duplicate consumption or drift fails.
+
+Require failed/file_flush_failed, ExportFileReceipt phase flush/outcome
+not_saved/installed=false, actual retained temp path and null receipt bytes/hash
+(no verification has occurred). There must be no verify_temp/move/verify_target
+operation for this request. Full real written bytes and actual temp identity
+are independently observed after its worker handle closes against the existing
+export oracle; that read is not a claim that the skipped flush succeeded.
+Original DB/rows remain unchanged, file failure alone leaves the worker ready,
+and publication/ACK retires all transient credits. Explicitly disarm/consume
+once, then retry to a new target through the ordinary OS path: actual flush-after
+DWORD0, complete temp/target verification, no-replace move and exact final bytes
+are required. Preserve the prior retained temp; do not overwrite a target or
+reuse its failed receipt. Actual ACK/closed handles/join remain mandatory.
+
+These three cases can satisfy #219's bounded logical rollback/COMMIT-error and
+flush-error PROPAGATION gates only after fresh source-bound actual qualification
+and independent review. They permanently do NOT certify physical rollback IO
+failure, an observed FlushFileBuffers(false), IOERR/disk-full, storage-device
+failure, arbitrary partial IO or power-loss durability. The first two are real
+SQLite API interruptions; the third is explicitly synthetic stage refusal.
+Neither is relabelled OS-failure evidence. No missing broad physical outcome is
+silently reported PASS; the bounded logical disposition and these exclusions
+must remain in public exit evidence. All existing real OS/SQLite/lock/death and
+recovery tests remain required; their outcomes cannot be replaced by this case.
+
+The first-child ordinal guard is first_service_ordinal <= INT64_MAX-21; the
+crash/service MAX-8 guards and second row child's MAX-30 guard are unchanged.
+First-child16,384, second-child16,384, combined32,768 records;600 seconds each,
+store CTest1200 and overall Native14400 remain hard. The two interruption cases'
+conditional source estimate is3095 added to11970, or15065 BEFORE any added flush
+events. This is not an observed count or universal partial-IO bound. Before
+consumer output, independently reconcile complete source/fixture operations and
+freeze the flush contribution and total within the unchanged first-child cap.
+If they do not fit, STOP; do not raise limits, regroup observed records, shorten
+fixtures or silently drop cases. Preserve the fixed remaining-row child, all17
+IDs/oracles, five CTests,19 crash recipes/20 actors/38 stages and all source/control/
+normative roster membership. Changed same-path bytes need fresh qualification.

@@ -234,8 +234,8 @@
       },
       {
         "path": "docs/contracts/local-players/test-scheduler-v1.md",
-        "bytes": 21641,
-        "sha256": "a59f1a714a7d47f037f9bdc2e34d908094f2ae8adb20c64f8a2d16da656aaa90",
+        "bytes": 28603,
+        "sha256": "9670f0d7d61fcf0d40afc2102eab6047798e6079bb42d47f02a9afa25d215433",
         "role": "normative companion; proposed until checked adoption"
       },
       {
@@ -977,5 +977,48 @@
       "scope": "Actual Windows same-core isolated capability; qualifier validates exact command/executable/source/reference hashes, creates one unique child capability then runs/join-observes actual process. No production root fallback."
     }
   ],
-  "ctest_policy": "These exact five CTest names/target commands are required for Windows. Any missing/duplicate/extra replacement target or command fails qualification. The qualifier is the already allocated Root runner backend, not a new independent harness; fixed Root-reviewed proof root/authorization substituted as data. Build-only stage never runs CTest/actors. NativeChecks requires explicit authorization and exact actual executable hashes, five discovery commands plus both actor hashes/closed arguments, descriptor/nonce and observed exits. Linux runs local_players_codec only and records remaining four Windows-only gates unavailable; neither absent tests nor core compilation yields Windows green. Test bridge/journey checks are separate actual Godot gates, never renamed CTests."
+  "ctest_policy": "These exact five CTest names/target commands are required for Windows. Any missing/duplicate/extra replacement target or command fails qualification. The qualifier is the already allocated Root runner backend, not a new independent harness; fixed Root-reviewed proof root/authorization substituted as data. Build-only stage never runs CTest/actors. NativeChecks requires explicit authorization and exact actual executable hashes, five discovery commands plus both actor hashes/closed arguments, descriptor/nonce and observed exits. Linux runs local_players_codec only and records remaining four Windows-only gates unavailable; neither absent tests nor core compilation yields Windows green. Test bridge/journey checks are separate actual Godot gates, never renamed CTests.",
+  "bounded_logical_fault_qualification": {
+    "status": "PROPOSED_PUBLIC_AMENDMENT_PENDING_CHECKED_MERGE_AND_ADOPTION_NO_CONSUMERS",
+    "ctest": "local_players_store",
+    "child": "original_store",
+    "case_ids": ["rollback_interrupt", "commit_interrupt", "synthetic_export_flush_refusal"],
+    "first_child_existing_service_offsets_preserved": [0, 15],
+    "first_child_appended_service_offsets": [16, 17, 18, 19, 20, 21],
+    "first_child_maximum_service_offset": 21,
+    "selected_sql_service_offsets": [17, 20],
+    "sql_request_ordinal": 2,
+    "sql_kind": "rename_player",
+    "sql_scope": "original",
+    "sql_edge": "before",
+    "sql_occurrence": 1,
+    "sql_phases": ["rollback", "before_commit"],
+    "sql_mechanism": "Existing one-shot actual SQLite progress interruption only; not a new action, API override, VFS or physical IO fault. Actual result9 and state/strict rollback/reconciliation predicates required.",
+    "synthetic_flush": {
+      "service": "existing first store Service; no additional lifetime",
+      "selector_keys": ["service_ordinal", "request_ordinal", "kind", "scope", "phase", "edge", "occurrence"],
+      "kind": "export_player",
+      "scope": "export_file",
+      "phase": "export_flush",
+      "edge": "before",
+      "occurrence": 1,
+      "numeric_selector": "Exact positive numeric service/request frozen with independently reviewed consumer source before compile; no wildcard or caller selection",
+      "mechanism": "QualificationObserver::take_export_flush_refusal_request() noexcept -> bool, default false; one source-fixed native decision, sealed test factory only, shipping null and identical reusable core bytes",
+      "classification": "synthetic_export_flush_refusal",
+      "consumed_once": true,
+      "operation_attempted": false,
+      "win32_error": null,
+      "receipt": "Existing failed/file_flush_failed, phase flush, not_saved, installed=false; actual retained temp and null bytes/hash; no verify/move; real written temp/original DB identity/bytes preserved; ready/ACK/credits/join and ordinary unarmed actualflush0/retry required"
+    },
+    "auxiliary_receipt_schema": "LocalPlayersSyntheticExportFlushEvidence/v1",
+    "auxiliary_receipt_keys": ["schema", "pid", "nonce", "descriptor_sha256", "plan_sha256", "selector", "consumed_once", "operation_attempted", "classification", "win32_error"],
+    "receipt_details": "test-capability-v1.md#proposed-bounded-logical-fault-evidence-amendment; exactly one synthetic-only provenance line, SQL cases retain existing actual observation/aggregate evidence, no redundant count rollup",
+    "existing_owned_consumer_paths": ["native/persistence/local_players/include/flight/local_players/store_access.hpp", "native/persistence/local_players/src/windows_filesystem.cpp", "tests/persistence/local_players/native.cpp", "tools/local-players/qualify.py"],
+    "unchanged": "17 production/15 controls/11 normative memberships, public protocol/API/error/receipt, common scheduler actions, fixed remaining-row17 IDs/31 lifetimes/second receipt, five targets,19 crash recipes/20 actors/38 stages; no new VFS/helper/actor/framework",
+    "limits": "First and second child each16384; exact two-child sum32768;600 seconds each/storeCTest1200/Native14400. First-childMAX-21, crash/serviceMAX-8, secondMAX-30.",
+    "conditional_precount": {"prior_first_child":11970,"two_sql_cases_added":3095,"before_flush_total":15065,"flush_addition":null,"not_observed":true,"complete_source_reconciliation_required_before_output":true},
+    "bounded_219_disposition": "After actual fresh qualified evidence, the two real API9 cases plus labelled synthetic flush stage refusal may satisfy bounded logical error propagation only; preserve all existing actual operation tests and public physical exclusions.",
+    "atomic_delivery_evidence_disposition": "Unchanged public atomic transfer behavior requires source-reviewed pre-ACK guards, actual complete two-result caller-copy transfer surviving a later poll, and existing native whole-batch abandon/repeek/ACK. Actual recoverable engine construction-failure execution remains unqualified, no unreachable-state proof or fabricated engine allocator result. No newly required engine allocator fault fixture; accepted catastrophic engine/OS OOM exclusion unchanged.",
+    "permanent_exclusions": ["physical rollback IO failure", "observed FlushFileBuffers(false)", "IOERR/disk-full or storage-device fault", "arbitrary partial IO", "power-loss durability", "catastrophic engine/OS OOM certification", "installed220 or aircraft/phase/pilot acceptance"]
+  }
 }
