@@ -7298,7 +7298,7 @@
         "phase:P3",
         "area:persistence",
         "priority:P1",
-        "status:blocked"
+        "status:needs-review"
       ],
       "owned_paths": [
         "native/persistence/local_players/",
@@ -7378,7 +7378,7 @@
         "Root reviews build-only then explicitly authorizes native checks, binding checks and fresh source/flags/SQLite/VFS/CRT/component/aggregate qualification, including affected flight controls. No old 25/18 digest relabeling; frontend and installed-user journey remain later gates."
       ],
       "evidence": [
-        "Future source-bound independent real native/SQLite/Win32/process or UI/journey qualification with retained failures, exact module/resource/rights closure and joined ownership. No evidence is claimed by this plan amendment."
+        "Source-bound Build44 compile, five native CTests/fixed remaining-row child, actual ClassDB and root-free shipping qualification passed independent review; canonical evidence: docs/evidence/P3/local-players-store.md. Required final-head CI and checked merge remain pending. Full combined package/UI/install journey remains #220."
       ]
     },
     {

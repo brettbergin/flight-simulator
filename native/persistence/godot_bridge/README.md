@@ -51,10 +51,15 @@ compile-policy JSON exports configuration flag tokens and ordered target/source
 arrays. Compile database file/directory/output metadata may identify object
 locations; its command string never supplies expected arguments.
 
-[Storage implementation progress](../../../docs/evidence/P3/local-players-storage-progress.md)
-records measured source/build snapshots and outstanding gates. Snapshot results
-do not qualify different source bytes or a later current-main integration;
-fresh combined flight/storage qualification and required CI remain necessary.
-Issue #219 remains a draft implementation until its complete acceptance gates
-hold. The installed player/Guest journey and UI in #220, broader phase gates,
-aircraft fidelity and pilot acceptance remain separate.
+[Backend qualification](../../../docs/evidence/P3/local-players-store.md) and
+[implementation progress](../../../docs/evidence/P3/local-players-storage-progress.md)
+records measured source/build snapshots and outstanding gates. For #219, fresh
+current-source native/ClassDB and root-free production API checks, exact
+source/SQLite/VFS/compiler/CRT/rights identity, affected flight/shared-control
+qualification and required CI precede checked store acceptance. Old snapshots
+do not qualify changed source or a later integration. #220 then implements the
+UI and delivery: the accepted twelve-role package aggregate, both-extension
+corresponding source, actual editor/portable/rebuilt-replacement PCK and module
+receipts, storage rebuild/replacement, relaunch and installed-user journey remain
+mandatory there. No combined shipping-package result is claimed by this backend
+report. Broader phase gates, aircraft fidelity and pilot acceptance remain separate.
