@@ -457,7 +457,31 @@ __declspec(noinline) void long_export_cases(Service* service,const std::string&a
  {Wide path;require(path.set(protected_long),"independent protected long operand");HANDLE denied=CreateFileW(ExtendedFileOperand(path).value.data(),GENERIC_READ,FILE_SHARE_READ,nullptr,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT,nullptr);const DWORD error=denied==INVALID_HANDLE_VALUE?GetLastError():ERROR_SUCCESS;Handle owned(denied);require(owned.close(),"unexpected protected handle retained/closed");require(denied==INVALID_HANDLE_VALUE&&error==ERROR_FILE_NOT_FOUND,"protected long target remains actually absent");}
 }
 
+void export_sharing_cases(Service*,Probe&,const std::string&,const std::string&,const std::string&,const std::string&);
 void full_record_store_cases(TrustedRoots&,std::string_view,std::string_view,std::uint64_t,std::size_t,const std::string&,const std::string&);
+void u64_fixture_setup(const std::string&);
+void u64_exhaustion_cases(Service*,Probe&);
+void u64_fixture_final(const std::string&);
+// Real query-cursor refusals: callbacks observe actual SQLite work only.
+void cursor_refusal(Service*service,Probe&p,JobKind kind,V payload,std::string_view error,const std::string&owner,const std::string&existing){
+ auto ready=[&]{p.wait_published(p.last_request());auto state=status(service);require(state.state==ServiceState::ready&&state.pending==0&&state.undelivered==0&&state.writer_alive&&p.reserved_bytes()==2097152,"cursor refusal ACK retires all request ownership; worker remains ready");};
+ auto snapshot=[&]{std::array<std::string,2> saved;
+  {Raw row(job(service,JobKind::load_player,V::o({{"player_id",V::s(owner)}}),"read"));saved[0]=canonical(row.d,value(row));}
+  {Raw row(job(service,JobKind::load_practice,V::o({{"player_id",V::s(owner)},{"practice_id",V::s(existing)}}),"read"));saved[1]=canonical(row.d,value(row));}
+  ready();return saved;};
+ const auto before=snapshot();Capture capture(kind,std::move(payload));auto admission=service->submit(capture);require(admission.accepted,"cursor refusal admitted to actual worker transaction");const auto request=p.last_request();auto rows=receive(service,1);result(rows[0],admission.request_id.view(),kind,"failed",error);{Raw row(rows[0]);require(nil(row.d,value(row)),"known cursor refusal has null value and no commit sequence");}ready();
+ {std::array<unsigned,4> counts{};std::lock_guard lock(p.mutex);
+  for(const auto&o:p.events)if(o.request_ordinal==request&&o.kind==kind){
+   require(o.phase!=Phase::row_write&&o.phase!=Phase::before_commit&&o.phase!=Phase::after_commit&&o.phase!=Phase::postverify,"cursor refusal has no SQL row write/COMMIT/postverify");
+   if(o.scope==Scope::original&&(o.phase==Phase::before_begin||o.phase==Phase::rollback)){
+    const unsigned at=(o.phase==Phase::rollback?2U:0U)+(o.edge==Edge::after?1U:0U);++counts[at];
+    if(o.edge==Edge::after)require(o.has_result&&o.sqlite_result==SQLITE_DONE&&(o.phase==Phase::rollback?(o.autocommit&&o.txn_state==SQLITE_TXN_NONE):(!o.autocommit&&o.txn_state==SQLITE_TXN_WRITE)),"cursor refusal observes actual successful BEGIN/ROLLBACK and exact SQLite transaction state");
+   }
+  }
+  require(counts==std::array<unsigned,4>{1,1,1,1},"cursor refusal performs exactly one real BEGIN and one clean rollback");
+ }
+ require(snapshot()==before,"cursor refusal preserves whole Player/Preferences and existing Practice bytes");
+}
 [[maybe_unused]] void store_cases(TrustedRoots&trust,std::string_view descriptor,std::string_view digest,std::uint64_t ordinal,std::size_t cap,const std::string&root,const std::string&target){
  const std::string alice(32,'1'),bob(32,'2'),one(32,'3'),two(32,'4');Probe p(cap);Fixture f(trust,descriptor,digest,p,ordinal++);start(f,false,true);
  auto created=job(f.service,JobKind::create_player,player_seed(alice),"committed","","2");paired(created,alice,"1","Alice");job(f.service,JobKind::create_player,player_seed(alice),"no_change","","2");job(f.service,JobKind::create_player,player_seed(bob,"Bob"),"committed","","3");job(f.service,JobKind::create_player,player_seed(alice,"Other"),"failed","identity_conflict");
@@ -466,9 +490,11 @@ void full_record_store_cases(TrustedRoots&,std::string_view,std::string_view,std
  job(f.service,JobKind::save_preferences,V::o({{"player_id",V::s(alice)},{"expected_revision",V::s("2")},{"seed",seed_audio(UINT64_C(0x8000000000000000))},{"utc",V::s("2026-10-03T12:04:00Z")}}),"failed","revision_conflict");job(f.service,JobKind::save_preferences,V::o({{"player_id",V::s(alice)},{"expected_revision",V::s("3")},{"seed",seed_audio(UINT64_C(0x8000000000000000))},{"utc",V::s("2026-10-03T12:04:00Z")}}),"no_change","","5");paired(job(f.service,JobKind::load_player,V::o({{"player_id",V::s(alice)}}),"read"),alice,"3","Alice two");
  for(const auto&session:std::array<std::string,5>{"Upper","two--separators","trailing-","1leading","nonascii-\xc3\xa9"}){auto seed=begin_seed(one,alice,session);refused(f.service,JobKind::begin_practice,std::move(seed),Error::invalid_record);}auto old=begin_seed(one,alice);old.get("seed").get("source").get("named_start")=V::s("ground-rest");refused(f.service,JobKind::begin_practice,std::move(old),Error::invalid_record);
  auto began=job(f.service,JobKind::begin_practice,begin_seed(one,alice),"committed","","6");{Raw r(began);auto n=practice(r);require(field(r.d,n,"first_tick")=="9007199254740993"&&field(r.d,n,"last_tick")=="9007199254740993"&&field(r.d,n,"observed_ticks")=="0"&&field(r.d,n,"creation_sequence")=="6","exact beyond-binary64 tick seed and immutable creation");}
+ cursor_refusal(f.service,p,JobKind::delete_player,V::o({{"player_id",V::s(alice)},{"expected_revision",V::s("3")}}),"active_practice",alice,one);
  job(f.service,JobKind::observe_practice,observe_seed(one,alice,"1","9007199254741000","foreign-session"),"failed","source_mismatch");auto observed=job(f.service,JobKind::observe_practice,observe_seed(one,alice,"1"),"committed","","7");{Raw r(observed);auto n=practice(r);require(field(r.d,n,"observed_ticks")=="7"&&field(r.d,n,"revision")=="2"&&field(r.d,n,"creation_sequence")=="6","exact U64 subtraction and revision");}
  auto equal=observe_seed(one,alice,"2");equal.get("utc")=V::s("2026-10-03T11:00:00Z");auto eq=job(f.service,JobKind::observe_practice,std::move(equal),"no_change","","7");{Raw r(eq);require(field(r.d,practice(r),"last_observed_utc")=="2026-10-03T12:02:00Z","equal tick preserves real observation UTC");}job(f.service,JobKind::observe_practice,observe_seed(one,alice,"1"),"failed","revision_conflict");
  auto ended=job(f.service,JobKind::end_practice,end_seed(one,alice,"2"),"committed","","8");{Raw r(ended);auto n=practice(r);require(field(r.d,n,"status")=="manually_ended"&&field(r.d,n,"end_reason")=="user_end"&&field(r.d,n,"revision")=="3","explicit manually ended history");}job(f.service,JobKind::end_practice,end_seed(one,alice,"3"),"no_change","","8");job(f.service,JobKind::observe_practice,observe_seed(one,alice,"3"),"failed","invalid_transition");auto dup=job(f.service,JobKind::begin_practice,begin_seed(one,alice),"no_change","","8");{Raw r(dup);require(field(r.d,practice(r),"status")=="manually_ended","duplicate seed returns progressed terminal without resetting");}
+ cursor_refusal(f.service,p,JobKind::begin_practice,begin_seed(std::string(32,'d'),alice),"identity_conflict",alice,one);
  // Synthetic association is a repository DTO test, not a real Save/recording
  // authority witness. The nonexistent link must remain unopened on queries.
  V archive=V::o({{"type",V::s("ExternalRecordedReview")},{"version",V::i(1)},{"absolute_path",V::s(root+"\\missing-review.json")},{"payload_sha256",V::s(std::string(64,'3'))},{"recording_session_id",V::s("synthetic-service-reference-1")},{"first_tick",V::s("9007199254740993")},{"last_tick",V::s("9007199254741000")},{"linked_utc",V::s("2026-10-03T12:05:00Z")}});
@@ -495,6 +521,7 @@ void full_record_store_cases(TrustedRoots&,std::string_view,std::string_view,std
   require(alice!=bob&&payload.find(bob)!=payload.npos,"synthetic other-player ID collision is exercised without exporting that player's records");require(file.handle.close(),"actual export read handle closed");}
  auto exists=job(f.service,JobKind::export_player,V::o({{"player_id",V::s(alice)},{"expected_revision",V::s("3")},{"target_absolute_path",V::s(target)}}),"failed","target_exists");{Raw r(exists);auto v=value(r);require(field(r.d,v,"outcome")=="not_saved"&&r.d.at(member(r.d,v,"installed"))->scalar==0,"no-overwrite known failure stays file-specific");}
 
+ export_sharing_cases(f.service,p,alice,root,target,ex);
  long_export_cases(f.service,alice,root,target,ex);
  job(f.service,JobKind::prune_practice,V::o({{"player_id",V::s(alice)},{"practice_ids",V::a({V::s(one),V::s(std::string(32,'f'))})}}),"failed","not_found");{Raw r(job(f.service,JobKind::load_practice,V::o({{"player_id",V::s(alice)},{"practice_id",V::s(one)}}),"read"));require(!nil(r.d,member(r.d,practice(r),"archive")),"failed prune all-or-nothing and full archive retained");}
  job(f.service,JobKind::prune_practice,V::o({{"player_id",V::s(alice)},{"practice_ids",V::a({V::s(one)})}}),"committed","","12");job(f.service,JobKind::delete_player,V::o({{"player_id",V::s(bob)},{"expected_revision",V::s("1")}}),"committed","","13");
@@ -502,7 +529,8 @@ void full_record_store_cases(TrustedRoots&,std::string_view,std::string_view,std
  // Equality must distinguish the two IEEE zero signs, not just 1.0 from zero.
  job(f.service,JobKind::save_preferences,V::o({{"player_id",V::s(alice)},{"expected_revision",V::s("3")},{"seed",seed_audio(0)},{"utc",V::s("2026-10-03T12:06:00Z")}}),"committed","","14");job(f.service,JobKind::save_preferences,V::o({{"player_id",V::s(alice)},{"expected_revision",V::s("4")},{"seed",seed_audio(UINT64_C(0x8000000000000000))},{"utc",V::s("2026-10-03T12:07:00Z")}}),"committed","","15");
  f.close(); // prior fixture remains alive but has relinquished the actual lock
- Probe reopened(cap);Fixture again(trust,descriptor,digest,reopened,ordinal++);start(again);paired(job(again.service,JobKind::load_player,V::o({{"player_id",V::s(alice)}}),"read"),alice,"5","Alice two");{Raw r(job(again.service,JobKind::load_practice,V::o({{"player_id",V::s(alice)},{"practice_id",V::s(two)}}),"read"));require(field(r.d,practice(r),"status")=="manually_ended","same-process actual close/reopen preserves durable terminal");}again.close();
+ u64_fixture_setup(root);
+ Probe reopened(cap);Fixture again(trust,descriptor,digest,reopened,ordinal++);start(again);paired(job(again.service,JobKind::load_player,V::o({{"player_id",V::s(alice)}}),"read"),alice,"5","Alice two");{Raw r(job(again.service,JobKind::load_practice,V::o({{"player_id",V::s(alice)},{"practice_id",V::s(two)}}),"read"));require(field(r.d,practice(r),"status")=="manually_ended","same-process actual close/reopen preserves durable terminal");}u64_exhaustion_cases(again.service,reopened);again.close();u64_fixture_final(root);
  Probe mp(cap);Fixture management(trust,descriptor,digest,mp,ordinal++);start(management,true);auto snapshots=job(management.service,JobKind::list_recovery,V::o({}),"read");{Raw r(snapshots);auto rows=array(r.d,member(r.d,value(r),"snapshots"));require(!rows.empty()&&rows.size()<=2,"actual reopen retained recovery set visible");std::vector<V> ids;for(auto n:rows){require(closed(r.d,n,{"id","state","created_utc","bytes","manifest_sha256"})==Error::none,"actual closed recovery summary");auto bytes=natural(r.d,member(r.d,n,"bytes"),337U*1024U*1024U);require(bytes>0,"actual retained-only byte observation");ids.push_back(V::s(field(r.d,n,"id")));}auto deleted=job(management.service,JobKind::delete_recovery,V::o({{"snapshot_ids",V::a(std::move(ids))}}),"read");Raw d(deleted);auto v=value(d);require(array(d.d,member(d.d,v,"retained_ids")).empty(),"actual requested recovery sets completely deleted");}management.close();
  full_record_store_cases(trust,descriptor,digest,ordinal,cap,root,target);
 }
@@ -535,6 +563,77 @@ CrashFile crash_file(const std::string&path,std::uint64_t cap,bool retain=false)
  while(total<out.length){DWORD got{};auto wanted=static_cast<DWORD>(std::min<std::uint64_t>(chunk.size(),out.length-total));require(ReadFile(h.value,chunk.data(),wanted,&got,nullptr)&&got&&got<=wanted,"actual bounded crash read");hash.update(std::span<const std::byte>(chunk).first(got));if(retain)out.bytes.append(reinterpret_cast<const char*>(chunk.data()),got);total+=got;}
  DWORD extra{};std::byte byte{};require(ReadFile(h.value,&byte,1,&extra,nullptr)&&extra==0,"actual exact EOF");FileIdentity again;LARGE_INTEGER after{};require(observe_identity(h.value,false,again)&&same_identity(out.identity,again)&&GetFileSizeEx(h.value,&after)&&after.QuadPart==size.QuadPart,"read identity/length stable");auto raw=hash.finish();constexpr char hex[]="0123456789abcdef";out.hash.resize(64);for(unsigned i=0;i<32;++i){auto b=std::to_integer<unsigned>(raw[i]);out.hash[2*i]=hex[b>>4];out.hash[2*i+1]=hex[b&15];}require(h.close(),"actual crash read handle close");return out;
 }
+// Original MIT. Actual Win32 sharing failures, not injected return codes.
+// Only the first already-open Service is used; every path is a proof sibling.
+struct ExportGateRetirement {
+ Probe& probe;
+ ~ExportGateRetirement(){probe.release();}
+};
+std::vector<std::string> export_owned_temporaries(const std::string&parent){
+ FixedEnumerationOperand pattern;require(pattern.set(parent,L"\\.fsplayers-*.tmp"),"bounded literal owned-export temporary wildcard");
+ WIN32_FIND_DATAW data{};HANDLE find=FindFirstFileW(pattern.value.data(),&data);std::vector<std::string> names;
+ if(find==INVALID_HANDLE_VALUE){require(GetLastError()==ERROR_FILE_NOT_FOUND,"temporary enumeration has only ordinary no-match absence");return names;}
+ bool valid=true;do{FixedText<4096> leaf;if(!utf8(std::wstring_view(data.cFileName),leaf)){valid=false;break;}auto name=leaf.view();
+  if(name.size()!=47||!name.starts_with(".fsplayers-")||!name.ends_with(".tmp")||!lower_hex(name.substr(11,32),32)||(data.dwFileAttributes&(FILE_ATTRIBUTE_DIRECTORY|FILE_ATTRIBUTE_REPARSE_POINT))||names.size()>=2){valid=false;break;}
+  names.emplace_back(parent+"\\"+std::string(name));
+ }while(FindNextFileW(find,&data));const auto error=GetLastError();require(FindClose(find)!=0,"owned temporary enumeration retired");
+ require(valid&&error==ERROR_NO_MORE_FILES,"closed at-most-two owned temporary discovery");std::sort(names.begin(),names.end());return names;
+}
+__declspec(noinline) void export_sharing_cases(Service*service,Probe&p,const std::string&alice,const std::string&root,const std::string&target,const std::string&original_receipt){
+ p.wait_published(p.last_request());
+ const auto slash=target.find_last_of('\\');require(slash!=target.npos,"owned export proof parent");const auto parent=target.substr(0,slash);
+ const auto baseline=crash_file(target,65536,true);Raw original(original_receipt);auto ov=value(original);
+ require(baseline.present&&baseline.length==natural(original.d,member(original.d,ov,"bytes"),65536)&&baseline.hash==field(original.d,ov,"sha256"),"reuse independently verified first-Service complete export, not new generated expectations");
+ require(field(original.d,ov,"player_id")==alice&&field(original.d,ov,"preferences_revision")=="3"&&natural(original.d,member(original.d,ov,"practice_count"),2)==2,"fault snapshot is exact original selected revision3/two-practice snapshot");
+ require(export_owned_temporaries(parent).empty(),"no previous retained export before first sharing failure");
+ auto payload=[&](const std::string&path){require(valid_local_absolute_path(path)&&!at_or_within(path,root),"self-owned export proof stays outside protected root");return V::o({{"player_id",V::s(alice)},{"expected_revision",V::s("3")},{"target_absolute_path",V::s(path)}});};
+ auto ready=[&]{p.wait_published(p.last_request());auto s=status(service);require(s.state==ServiceState::ready&&s.error==Error::none&&s.writer_alive&&s.pending==0&&s.undelivered==0&&p.reserved_bytes()==2097152,"file failure/ack leaves ready worker and original permanent reservations");};
+ auto unchanged=[&](const std::string&path,const FileIdentity&identity){auto file=crash_file(path,65536,true);require(file.present&&file.length==baseline.length&&file.hash==baseline.hash&&file.bytes==baseline.bytes&&same_identity(file.identity,identity),"whole original export bytes/identity retained without overwrite or implicit deletion");};
+ auto whole_state=[&]{std::array<std::string,3> rows;Raw pair(job(service,JobKind::load_player,V::o({{"player_id",V::s(alice)}}),"read"));rows[0]=canonical(pair.d,value(pair));
+  for(unsigned i=0;i<2;++i){Raw practice_row(job(service,JobKind::load_practice,V::o({{"player_id",V::s(alice)},{"practice_id",V::s(std::string(32,i?'4':'3'))}}),"read"));rows[i+1]=canonical(practice_row.d,value(practice_row));}ready();return rows;};
+ const auto selected_before=whole_state();std::string retained_temp;FileIdentity retained_identity;
+ for(bool reopen:{false,true}){
+  ready();const auto names_before=export_owned_temporaries(parent);require(names_before.size()==(reopen?1U:0U)&&(!reopen||names_before[0]==retained_temp),"only prior owned retained temporary may precede next operation");
+  const std::string failed_target=target+(reopen?".reopen-sharing":".move-sharing");require(!crash_file(failed_target,65536).present,"fresh fault target is actually absent");
+  const auto events_begin=p.event_count();p.arm(JobKind::export_player,Phase::export_move,reopen?Edge::after:Edge::before);ExportGateRetirement retire{p};
+  Capture input(JobKind::export_player,payload(failed_target));auto admission=service->submit(input);require(admission.accepted&&admission.error==Error::none,"fault export accepted by existing first Service");const auto request=p.last_request();p.wait();
+  NativeObservation held;{std::lock_guard lock(p.mutex);require(p.events.size()>events_begin,"held actual move notification exists");held=p.events.back();}
+  require(held.kind==JobKind::export_player&&held.phase==Phase::export_move&&held.edge==(reopen?Edge::after:Edge::before)&&held.scope==Scope::export_file&&held.role==FileRole::target&&held.request_ordinal==request&&held.owned_handle&&held.identity.valid&&held.identity.links==1,"barrier bound to actual owned move identity and exact admitted request");
+  require(reopen?(held.has_win32_error&&held.win32_error==ERROR_SUCCESS&&held.installed==1):(!held.has_win32_error&&held.installed==0),"before/after move distinction reflects actual installation, never guessed from target existence");
+  std::string blocked_path=failed_target;
+  if(!reopen){auto names=export_owned_temporaries(parent);require(names.size()==1,"discover exactly one actual random owned temporary");blocked_path=names[0];auto temp=crash_file(blocked_path,65536,true);require(temp.present&&same_identity(temp.identity,held.identity)&&temp.bytes==baseline.bytes&&temp.hash==baseline.hash,"actual temp bound to move event identity/full original export");require(!crash_file(failed_target,65536).present,"before move target remains absent");}
+  Handle blocker;require(open_ordinary(blocked_path,blocker,reopen?DELETE:GENERIC_READ,reopen?(FILE_SHARE_READ|FILE_SHARE_DELETE):FILE_SHARE_READ),"actual compatible blocker opened while production read guard remains owned");
+  FileIdentity blocker_identity;require(observe_identity(blocker.value,false,blocker_identity)&&same_identity(blocker_identity,held.identity),"blocker targets the exact worker-owned file");
+  // Temp READ/shareREAD denies rename DELETE. Target DELETE/shareREAD|DELETE
+  // coexists with guard READ/shareREAD|DELETE, but denies later READ/shareREAD.
+  p.release();auto delivered=receive(service,1);result(delivered[0],admission.request_id.view(),JobKind::export_player,"recovery_required","file_recovery_required");p.wait_published(request);
+  {Raw receipt(delivered[0]);auto v=value(receipt);require(field(receipt.d,v,"outcome")=="recovery_required"&&field(receipt.d,v,"phase")== (reopen?"verify_target":"move")&&field(receipt.d,v,"target_absolute_path")==failed_target,"exact file-only recovery outcome/phase/target");
+   auto installed=member(receipt.d,v,"installed");require(reopen?(receipt.d.at(installed)->kind==ValueKind::boolean&&receipt.d.at(installed)->scalar==1):nil(receipt.d,installed),"failed move reports unknown installation; failed reopen preserves historical actual successful move");
+   require(field(receipt.d,v,"player_id")==alice&&field(receipt.d,v,"preferences_revision")=="3"&&natural(receipt.d,member(receipt.d,v,"practice_count"),2)==2&&natural(receipt.d,member(receipt.d,v,"bytes"),65536)==baseline.length&&field(receipt.d,v,"sha256")==baseline.hash,"completed snapshot/temp verification metadata survives both actual failures");
+   auto temporary=field(receipt.d,v,"temporary_absolute_path");const auto temp_slash=temporary.find_last_of('\\');require(temp_slash!=temporary.npos&&temporary.substr(0,temp_slash)==parent,"receipt temporary belongs to exact isolated proof parent");auto leaf=std::string_view(temporary).substr(temp_slash+1);require(leaf.size()==47&&leaf.starts_with(".fsplayers-")&&leaf.ends_with(".tmp")&&lower_hex(leaf.substr(11,32),32),"receipt retains canonical actual random-temporary grammar");
+   if(!reopen){require(temporary==blocked_path,"failed move retains the independently discovered exact temporary path");retained_temp=temporary;retained_identity=held.identity;}
+   else{require(temporary!=retained_temp&&!crash_file(temporary,65536).present,"reopen receipt's historical temporary was actually moved, not silently erased after failure");}
+  }
+  {std::lock_guard lock(p.mutex);unsigned before_move=0,after_move=0,before_open=0,after_open=0,commits=0;
+   for(std::size_t i=events_begin;i<p.events.size();++i){const auto&o=p.events[i];require(o.request_ordinal==request&&o.service_ordinal==held.service_ordinal&&o.kind==JobKind::export_player,"all operation observations remain exact first-Service/request identity");
+    require(o.phase!=Phase::row_write&&o.phase!=Phase::rollback,"file recovery does not inject SQL write/rollback failure");
+    if(o.scope==Scope::original&&o.phase==Phase::after_commit){require(o.edge==Edge::after&&o.has_result&&o.sqlite_result==SQLITE_DONE&&o.autocommit&&o.txn_state==SQLITE_TXN_NONE&&before_move==0,"coherent read snapshot actually committed before target fault, no DB uncertainty");++commits;}
+    if(o.phase==Phase::export_move){require(o.scope==Scope::export_file&&o.role==FileRole::target&&same_identity(o.identity,held.identity),"paired move observations preserve exact file identity");if(o.edge==Edge::before)++before_move;else{++after_move;require(o.has_win32_error&&o.win32_error==static_cast<std::uint32_t>(reopen?ERROR_SUCCESS:ERROR_SHARING_VIOLATION)&&o.installed==(reopen?1:-1),"actual MoveFileEx result/error32, not simulated IO result");}}
+    if(o.phase==Phase::export_verify_target&&o.role==FileRole::target){require(reopen&&o.scope==Scope::export_file&&o.installed==1,"target reopen occurs only after actual successful install");if(o.edge==Edge::before)++before_open;else{++after_open;require(o.has_win32_error&&o.win32_error==ERROR_SHARING_VIOLATION&&!o.owned_handle&&!o.identity.valid,"actual failed target CreateFileW reports32 without fabricated file ownership");}}
+   }require(commits==1&&before_move==1&&after_move==1&&before_open==(reopen?1U:0U)&&after_open==(reopen?1U:0U),"exact paired move/reopen and snapshot-commit counts");
+  }
+  ready();require(blocker.close(),"test-owned blocker explicitly retired after recovery receipt ACK");
+  if(reopen){unchanged(failed_target,held.identity);Raw collision(job(service,JobKind::export_player,payload(failed_target),"failed","target_exists"));auto v=value(collision);require(field(collision.d,v,"outcome")=="not_saved"&&collision.d.at(member(collision.d,v,"installed"))->kind==ValueKind::boolean&&collision.d.at(member(collision.d,v,"installed"))->scalar==0&&nil(collision.d,member(collision.d,v,"temporary_absolute_path")),"explicit same-target retry refuses overwrite and creates no new temporary");ready();unchanged(failed_target,held.identity);}
+  else require(!crash_file(failed_target,65536).present,"failed move never creates selected target");
+  unchanged(retained_temp,retained_identity);
+  const std::string fresh=failed_target+".retry";require(!crash_file(fresh,65536).present,"explicit retry chooses separate actually absent proof sibling");Raw retried(job(service,JobKind::export_player,payload(fresh),"read"));auto rv=value(retried);
+  require(field(retried.d,rv,"outcome")=="saved"&&field(retried.d,rv,"phase")=="done"&&field(retried.d,rv,"target_absolute_path")==fresh&&retried.d.at(member(retried.d,rv,"installed"))->kind==ValueKind::boolean&&retried.d.at(member(retried.d,rv,"installed"))->scalar==1&&nil(retried.d,member(retried.d,rv,"temporary_absolute_path"))&&field(retried.d,rv,"sha256")==baseline.hash&&natural(retried.d,member(retried.d,rv,"bytes"),65536)==baseline.length,"new target explicit retry actually saved same complete snapshot");
+  ready();auto saved_file=crash_file(fresh,65536,true);require(saved_file.present&&saved_file.bytes==baseline.bytes&&saved_file.hash==baseline.hash&&saved_file.length==baseline.length,"whole fresh retry file equals independently checked original export");unchanged(retained_temp,retained_identity);unchanged(target,baseline.identity);
+  require(export_owned_temporaries(parent)==std::vector<std::string>{retained_temp},"neither retry/failure silently removes retained temporary or leaks another");
+ }
+ require(whole_state()==selected_before,"all selected Player/preferences and two full Practice records unchanged by file failures and retries");ready();
+}
+
 void crash_record_file(std::string_view label,const CrashFile&f){
  require(crash_observations.size()<128,"finite observation roster");std::string row="{\"label\":"+crash_quote(label)+",\"present\":"+(f.present?"true":"false")+",\"bytes\":"+(f.present?std::to_string(f.length):"null")+",\"sha256\":"+(f.present?crash_quote(f.hash):"null")+",\"identity\":"+(f.present?crash_identity(f.identity):"null")+"}";crash_observations.push_back(std::move(row));
 }
@@ -889,6 +988,78 @@ void full_fixture_setup(const std::string&root,bool bad_revision,bool extra_trig
  auto after=crash_file(root+"\\players.sqlite3",33554432);require(after.present&&same_identity(before.identity,after.identity)&&(!maximum?after.length<=524288:after.length<=6291456),"fixture setup keeps main identity and explicitly shrinks reset D01 for bounded failure copies");
  for(unsigned i=1;i<4;++i)require(!crash_file(root+"\\"+std::string(crash_data_names[i]),crash_caps[i]).present,"fully closed fixed fixture leaves no SQLite sidecar before qualification");
 }
+
+// Independent valid-state U64 boundary fixture. The contract cross-checks paired
+// revisions and latest<=meta; this does not claim replaying 2^64 historical jobs.
+constexpr std::string_view u64_high_player=R"U64FIX({"created_utc":"2026-10-03T12:00:00Z","id":"22222222222222222222222222222222","name":"Maximum revision","revision":"18446744073709551615","type":"LocalPlayer","updated_utc":"2026-10-03T12:00:00Z","version":1})U64FIX";
+constexpr std::string_view u64_high_preferences=R"U64FIX({"format":"LocalPlayerPreferences","payload_json":"{\"audio\":{\"airflow_gain\":{\"$binary64_le\":\"000000000000f03f\"},\"enabled\":true,\"engine_gain\":{\"$binary64_le\":\"000000000000f03f\"},\"show_panel_captions\":true},\"legacy_input\":null,\"piston_input\":null,\"player_id\":\"22222222222222222222222222222222\",\"revision\":\"18446744073709551615\",\"type\":\"LocalPlayerPreferences\",\"version\":1}","payload_sha256":"1345d6b862182785adadbc73f49827f7825ec05a362a7fcd024dddd18b17abd9","version":1})U64FIX";
+constexpr std::string_view u64_almost_player=R"U64FIX({"created_utc":"2026-10-03T12:00:00Z","id":"cccccccccccccccccccccccccccccccc","name":"Before maximum","revision":"18446744073709551614","type":"LocalPlayer","updated_utc":"2026-10-03T12:00:00Z","version":1})U64FIX";
+constexpr std::string_view u64_almost_preferences=R"U64FIX({"format":"LocalPlayerPreferences","payload_json":"{\"audio\":{\"airflow_gain\":{\"$binary64_le\":\"000000000000f03f\"},\"enabled\":true,\"engine_gain\":{\"$binary64_le\":\"000000000000f03f\"},\"show_panel_captions\":true},\"legacy_input\":null,\"piston_input\":null,\"player_id\":\"cccccccccccccccccccccccccccccccc\",\"revision\":\"18446744073709551614\",\"type\":\"LocalPlayerPreferences\",\"version\":1}","payload_sha256":"e3b900c07883e07dcfa3ec93926752b23dd662d02459bdc6f178456ff22c774d","version":1})U64FIX";
+constexpr std::string_view u64_high_pair=R"U64FIX({"player":{"created_utc":"2026-10-03T12:00:00Z","id":"22222222222222222222222222222222","name":"Maximum revision","revision":"18446744073709551615","type":"LocalPlayer","updated_utc":"2026-10-03T12:00:00Z","version":1},"preferences":{"audio":{"airflow_gain":{"$binary64_le":"000000000000f03f"},"enabled":true,"engine_gain":{"$binary64_le":"000000000000f03f"},"show_panel_captions":true},"legacy_input":null,"piston_input":null,"player_id":"22222222222222222222222222222222","revision":"18446744073709551615","type":"LocalPlayerPreferences","version":1}})U64FIX";
+constexpr std::string_view u64_changed_pair=R"U64FIX({"player":{"created_utc":"2026-10-03T12:00:00Z","id":"cccccccccccccccccccccccccccccccc","name":"Now maximum","revision":"18446744073709551615","type":"LocalPlayer","updated_utc":"2026-10-03T12:03:00Z","version":1},"preferences":{"audio":{"airflow_gain":{"$binary64_le":"000000000000f03f"},"enabled":true,"engine_gain":{"$binary64_le":"000000000000f03f"},"show_panel_captions":true},"legacy_input":null,"piston_input":null,"player_id":"cccccccccccccccccccccccccccccccc","revision":"18446744073709551615","type":"LocalPlayerPreferences","version":1}})U64FIX";
+constexpr std::string_view u64_alice_pair=R"U64FIX({"player":{"created_utc":"2026-10-03T12:00:00Z","id":"11111111111111111111111111111111","name":"Counter final","revision":"6","type":"LocalPlayer","updated_utc":"2026-10-03T12:03:00Z","version":1},"preferences":{"audio":{"airflow_gain":{"$binary64_le":"000000000000f03f"},"enabled":true,"engine_gain":{"$binary64_le":"0000000000000080"},"show_panel_captions":true},"legacy_input":null,"piston_input":null,"player_id":"11111111111111111111111111111111","revision":"6","type":"LocalPlayerPreferences","version":1}})U64FIX";
+void u64_fixture_open(const std::string&root,FullFixtureDb&db){
+ std::string uri="file:";constexpr char digits[]="0123456789ABCDEF";
+ for(unsigned char c:root+"\\players.sqlite3"){
+  if(c=='\\')uri+='/';else if((c>='A'&&c<='Z')||(c>='a'&&c<='z')||(c>='0'&&c<='9')||c=='/'||c==':'||c=='-'||c=='_'||c=='.')uri+=static_cast<char>(c);
+  else{uri+='%';uri+=digits[c>>4];uri+=digits[c&15];}
+ }
+ uri+="?exclusive=1";
+ require(sqlite3_open_v2(uri.c_str(),&db.value,SQLITE_OPEN_READWRITE|SQLITE_OPEN_URI|SQLITE_OPEN_NOMUTEX,nullptr)==SQLITE_OK,"existing-only fixed U64 fixture SQLite open after join");
+}
+__declspec(noinline) void u64_fixture_setup(const std::string&root){
+ auto before=crash_file(root+"\\players.sqlite3",33554432);require(before.present,"U64 fixture preserves existing joined store");FullFixtureDb db;u64_fixture_open(root,db);
+ full_fixture_exec(db.value,"PRAGMA locking_mode=EXCLUSIVE;PRAGMA foreign_keys=ON;BEGIN IMMEDIATE;");
+ struct Row {std::string_view id,revision,player,preferences;};
+ const Row rows[]={{"22222222222222222222222222222222","18446744073709551615",u64_high_player,u64_high_preferences},{"cccccccccccccccccccccccccccccccc","18446744073709551614",u64_almost_player,u64_almost_preferences}};
+ for(const auto&row:rows){
+  for(bool preferences:{false,true}){
+   sqlite3_stmt*statement{};const auto sql=preferences?"INSERT INTO preferences(player_id,revision,record,record_sha256) VALUES(?1,?2,?3,?4)":"INSERT INTO players(id,revision,record,record_sha256,commit_sequence) VALUES(?1,?2,?3,?4,'18446744073709551613')";
+   require(sqlite3_prepare_v2(db.value,sql,-1,&statement,nullptr)==SQLITE_OK,"fixed U64 paired insert prepares");const auto record=preferences?row.preferences:row.player;const auto hash=digest_text(record);
+   require(sqlite3_bind_text(statement,1,row.id.data(),static_cast<int>(row.id.size()),SQLITE_STATIC)==SQLITE_OK&&sqlite3_bind_text(statement,2,row.revision.data(),static_cast<int>(row.revision.size()),SQLITE_STATIC)==SQLITE_OK&&sqlite3_bind_blob(statement,3,record.data(),static_cast<int>(record.size()),SQLITE_STATIC)==SQLITE_OK&&sqlite3_bind_text(statement,4,hash.data(),static_cast<int>(hash.size()),SQLITE_STATIC)==SQLITE_OK,"fixed independent U64 BLOB and hash binds");
+   require(sqlite3_step(statement)==SQLITE_DONE&&sqlite3_finalize(statement)==SQLITE_OK,"exact U64 row inserted and statement retired");
+  }
+ }
+ full_fixture_exec(db.value,"UPDATE meta SET commit_sequence='18446744073709551613' WHERE singleton=1;COMMIT;");full_fixture_schema_check(db.value,false);db.close();
+ auto after=crash_file(root+"\\players.sqlite3",33554432);require(after.present&&same_identity(before.identity,after.identity),"U64 fixture retains original MAIN identity");
+ for(unsigned i=1;i<4;++i)require(!crash_file(root+"\\"+std::string(crash_data_names[i]),crash_caps[i]).present,"closed U64 fixture has no sidecar before real reopen");
+}
+void u64_pair(std::string bytes,std::string_view expected){Raw row(std::move(bytes));require(canonical(row.d,value(row))==expected,"whole U64 paired player/options equals independent frozen bytes");}
+void u64_refusal(Service*service,Probe&p,JobKind kind,V payload){
+ p.wait_published(p.last_request());Capture capture(kind,std::move(payload));auto admission=service->submit(capture);require(admission.accepted,"U64 boundary request accepted before real SQLite refusal");const auto request=p.last_request();auto rows=receive(service,1);result(rows[0],admission.request_id.view(),kind,"failed","counter_exhausted");{Raw row(rows[0]);require(nil(row.d,value(row)),"counter exhaustion has null value and sequence");}p.wait_published(request);
+ std::array<unsigned,4> counts{};std::lock_guard lock(p.mutex);
+ for(const auto&o:p.events)if(o.request_ordinal==request&&o.kind==kind){
+  require(o.phase!=Phase::row_write&&o.phase!=Phase::before_commit&&o.phase!=Phase::after_commit&&o.phase!=Phase::postverify,"exhausted mutation performs no row write/COMMIT/postverify");
+  if(o.scope==Scope::original&&(o.phase==Phase::before_begin||o.phase==Phase::rollback)){
+   const unsigned at=(o.phase==Phase::rollback?2U:0U)+(o.edge==Edge::after?1U:0U);++counts[at];
+   if(o.edge==Edge::after)require(o.has_result&&o.sqlite_result==SQLITE_DONE&&(o.phase==Phase::rollback?(o.autocommit&&o.txn_state==SQLITE_TXN_NONE):(!o.autocommit&&o.txn_state==SQLITE_TXN_WRITE)),"actual BEGIN/ROLLBACK results and autocommit/transaction states");
+  }
+ }
+ require(counts==std::array<unsigned,4>{1,1,1,1},"one real BEGIN and one successful real rollback for exact exhausted request");
+}
+__declspec(noinline) void u64_exhaustion_cases(Service*service,Probe&p){
+ const std::string high(32,'2'),almost(32,'c'),alice(32,'1');
+ u64_pair(job(service,JobKind::load_player,V::o({{"player_id",V::s(high)}}),"read"),u64_high_pair);
+ u64_refusal(service,p,JobKind::rename_player,rename_seed(high,"18446744073709551615","Refused revision"));
+ u64_refusal(service,p,JobKind::save_preferences,V::o({{"player_id",V::s(high)},{"expected_revision",V::s("18446744073709551615")},{"seed",seed_audio(0)},{"utc",V::s("2026-10-03T12:04:00Z")}}));
+ u64_pair(job(service,JobKind::rename_player,rename_seed(almost,"18446744073709551614","Now maximum"),"committed","","18446744073709551614"),u64_changed_pair);
+ u64_pair(job(service,JobKind::rename_player,rename_seed(alice,"5","Counter final"),"committed","","18446744073709551615"),u64_alice_pair);
+ u64_pair(job(service,JobKind::rename_player,rename_seed(high,"18446744073709551615","Maximum revision"),"no_change","","18446744073709551613"),u64_high_pair);
+ u64_pair(job(service,JobKind::rename_player,rename_seed(alice,"6","Counter final"),"no_change","","18446744073709551615"),u64_alice_pair);
+ u64_refusal(service,p,JobKind::rename_player,rename_seed(alice,"6","Refused global counter"));
+ u64_refusal(service,p,JobKind::save_preferences,V::o({{"player_id",V::s(almost)},{"expected_revision",V::s("18446744073709551615")},{"seed",seed_audio(0)},{"utc",V::s("2026-10-03T12:04:00Z")}}));
+ u64_refusal(service,p,JobKind::delete_player,V::o({{"player_id",V::s(high)},{"expected_revision",V::s("18446744073709551615")}}));
+ u64_pair(job(service,JobKind::load_player,V::o({{"player_id",V::s(high)}}),"read"),u64_high_pair);
+ u64_pair(job(service,JobKind::load_player,V::o({{"player_id",V::s(almost)}}),"read"),u64_changed_pair);
+ u64_pair(job(service,JobKind::load_player,V::o({{"player_id",V::s(alice)}}),"read"),u64_alice_pair);
+ p.wait_published(p.last_request());require(status(service).state==ServiceState::ready&&p.reserved_bytes()==2097152,"exhaustion preserves ready reads and retires all transient reservations");
+}
+__declspec(noinline) void u64_fixture_final(const std::string&root){
+ FullFixtureDb db;u64_fixture_open(root,db);sqlite3_stmt*statement{};require(sqlite3_prepare_v2(db.value,"SELECT commit_sequence FROM meta WHERE singleton=1",-1,&statement,nullptr)==SQLITE_OK,"closed actual U64 final meta read");
+ require(sqlite3_step(statement)==SQLITE_ROW&&sqlite3_column_type(statement,0)==SQLITE_TEXT,"actual final meta has TEXT U64");const auto*bytes=sqlite3_column_text(statement,0);require(bytes&&std::string_view(reinterpret_cast<const char*>(bytes),static_cast<std::size_t>(sqlite3_column_bytes(statement,0)))=="18446744073709551615","actual final meta stays MAX without wrapping or hidden increments");
+ require(sqlite3_step(statement)==SQLITE_DONE&&sqlite3_finalize(statement)==SQLITE_OK,"final U64 meta reader retires");db.close();
+}
+
 void full_fixture_preserve(const std::string&root,const std::string&target,const std::array<CrashFile,4>&original){
  require(original[0].present&&original[0].length<=524288&&!at_or_within(target,root),"bounded synthetic failure preservation outside protected root");
  for(unsigned i=1;i<4;++i)require(!original[i].present,"failure fixture source has explicit absent sidecars");
@@ -973,6 +1144,90 @@ __declspec(noinline) void full_maximum_cases(TrustedRoots&trust,std::string_view
  f.close();require(actual_events.load()<=cap,"maximum path retains original16384 actual-event ceiling");
 }
 
+// Original independent dense-valid fixture. Exact oracle is private expected.json;
+// no MAX_R, device availability, calibration or Godot conversion-OOM claim.
+std::string dense_slot(unsigned index){require(index<8,"dense declared slot index");return std::string("Slot")+static_cast<char>('A'+index)+std::string(27,'a');}
+V dense_sources(unsigned first){
+ std::vector<V> out;for(unsigned i=first;i<first+4;++i)out.push_back(V::o({{"kind",V::s("joy_button")},{"slot",V::s(dense_slot(i%8))},{"index",V::i(i/8)}}));return V::a(std::move(out));
+}
+V dense_preset(unsigned version){
+ require(version==1||version==2,"dense closed preset version");
+ constexpr std::string_view targets[]={"roll","pitch","yaw","throttle","mixture","left_brake","right_brake","trim"};
+ constexpr std::string_view actions[]={"pause_menu","restart","start_ground","start_airborne","idle","left_brake","right_brake","both_brakes","brake_hold","view_cycle","view_cockpit","view_chase","view_orbit","view_panel","map_toggle","runway_toggle","map_zoom_in","map_zoom_out","look_hold","view_zoom_in","view_zoom_out","recenter","help","overlay","controller_select","audio","fullscreen","speed_down","speed_up","controls_panel"};
+ constexpr std::string_view systems[]={"engine.ignition_left","engine.ignition_right","engine.starter","fuel.feed"};
+ std::vector<V> devices,axes,bindings,held;
+ for(unsigned i=0;i<8;++i)devices.push_back(V::o({{"slot",V::s(dense_slot(i))},{"label",V::s(std::string(64,'\1'))},{"match",V::o({{"guid",V::s(std::string(128,'\1'))},{"name",V::s(std::string(128,'\1'))},{"vendor_id",V::s(std::string(16,'\1'))},{"product_id",V::s(std::string(16,'\1'))}})}}));
+ for(unsigned i=0;i<8;++i){
+  if(version==1&&i==4){axes.push_back(V::o({{"target",V::s("mixture")},{"kind",V::s("fixed")},{"value",V::f(UINT64_C(0x3ff0000000000000))}}));continue;}
+  const bool centered=i<3||i==7;
+  axes.push_back(V::o({{"target",V::s(std::string(targets[i]))},{"kind",V::s("joy_axis")},{"slot",V::s(dense_slot(i))},{"index",V::i(i)},{"range",V::s(centered?"centered":"unsigned")},
+   {"minimum",V::f(centered?UINT64_C(0xbff0000000000000):UINT64_C(0))},{"center",V::f(UINT64_C(0x8000000000000000))},{"maximum",V::f(UINT64_C(0x3ff0000000000000))},
+   {"invert",V::b(false)},{"deadzone",V::f(UINT64_C(0x8000000000000000))},{"saturation",V::f(UINT64_C(0x3ff0000000000000))},{"gain",V::f(UINT64_C(0x3ff0000000000000))},{"slew_per_s",V::f(UINT64_C(1))}}));
+ }
+ for(unsigned i=0;i<std::size(actions);++i)bindings.push_back(V::o({{"id",V::s(std::string(actions[i]))},{"sources",dense_sources(4*i)}}));
+ V out=V::o({{"type",V::s("InputPreset")},{"version",V::i(version)},{"name",V::s(std::string(64,'\1'))},{"devices",V::a(std::move(devices))},{"axes",V::a(std::move(axes))},{"actions",V::a(std::move(bindings))}});
+ if(version==2){
+  for(unsigned i=0;i<std::size(systems);++i)held.push_back(V::o({{"id",V::s(std::string(systems[i]))},{"kind",V::s(i==2?"momentary":"toggle")},{"sources",dense_sources(120+4*i)}}));
+  out.fields.emplace_back("profile",V::o({{"id",V::s("original-piston-prop-v1")},{"version",V::s("0.1.0-prototype")},{"backend_model",V::s("original-piston-prop")}}));
+  out.fields.emplace_back("capability_revision",V::s("piston-controls-v1"));out.fields.emplace_back("systems",V::a(std::move(held)));
+ }
+ return out;
+}
+__declspec(noinline) void dense_dual_preset_cases(Service* service,Probe& probe){
+ const std::string owner(32,'c');
+ V seed=V::o({{"legacy_input",dense_preset(1)},{"piston_input",dense_preset(2)},{"audio",V::o({{"enabled",V::b(true)},{"engine_gain",V::f(UINT64_C(0x8000000000000000))},{"airflow_gain",V::f(UINT64_C(1))},{"show_panel_captions",V::b(false)}})}});
+ Capture input(JobKind::save_preferences,V::o({{"player_id",V::s(owner)},{"expected_revision",V::s("2")},{"seed",std::move(seed)},{"utc",V::s("2026-10-03T12:05:00Z")}}));
+ // Constructor versus independently authored exact oracle, before admission.
+ {std::vector<JsonCell> cells(8192);std::vector<char> text_buffer(max_message),encoded(max_message);DocumentView document;RequestView request;
+  require(input.capture(cells,text_buffer,document)==Error::none,"dense constructor bounded capture");
+  require(validate_capture(document,Limits{max_message,30000,12,4096,4096})==Error::none&&validate_request(document,request,false,cells)==Error::none,"dense full closed Controls/Audio record validation before queue");
+  Writer writer(encoded);require(writer.value(document,document.root)&&writer.bytes().size()==65078&&digest_text(writer.bytes())=="c1a10be4bc7076abdf78672ecadf756a46bc95a24539cd7e39a2bc1095962545","whole independent dense canonical request exact size/hash");
+  auto actual_seed=member(document,member(document,document.root,"payload"),"seed");
+  require(digest_text(canonical(document,actual_seed))=="fe8ea7c187d4965ac0b87e70ea07f632a34334271924e7a7e61449e3e51d5f02","whole independent dense seed exact bits and fields");
+ }
+ probe.wait_published(probe.last_request()); // Prior rename ACK may precede its R-release notification.
+ require(probe.reserved_bytes()==2097152,"dense fixture starts with only permanent arena ownership");
+ probe.arm(JobKind::save_preferences,Phase::before_begin,Edge::before);
+ auto admitted=service->submit(input);require(admitted.accepted&&admitted.error==Error::none,"dense valid request admitted");const auto request=probe.last_request();probe.wait();
+ require(probe.reserved_bytes()==3473408,"dense actual R65536 plus T/D655360 each and permanent arena");
+ {std::lock_guard lock(probe.mutex);std::array<unsigned,3> found{};
+  for(const auto& observation:probe.allocations)if(observation.request_ordinal==request){
+   if(observation.category==AllocationCategory::request){require(observation.requested==65206&&observation.rounded==65536,"dense R65078 plus128 header rounds to sixteen actual pages");++found[0];}
+   else if(observation.category==AllocationCategory::terminal){require(observation.requested==655360&&observation.rounded==655360,"dense full real T reservation");++found[1];}
+   else if(observation.category==AllocationCategory::delivery){require(observation.requested==655360&&observation.rounded==655360,"dense full real D reservation");++found[2];}
+   else require(false,"dense request has no export credit or replacement arena allocation");
+  }
+  require(found==std::array<unsigned,3>{1,1,1},"exact three dense admission allocation observations");
+ }
+ input.value=V::null(); // Destroy caller tree while worker is held before BEGIN.
+ probe.release();probe.wait_published(request);
+ require(probe.reserved_bytes()==3407872,"dense completed R released while full T/D remain");
+ auto check_pair=[&](const std::string& bytes,JobKind kind,std::string_view id){
+  result(bytes,id,kind,kind==JobKind::save_preferences?"committed":"read","",kind==JobKind::save_preferences?"20":"");
+  require(bytes.size()==(kind==JobKind::save_preferences?65396u:65386u),"dense entire terminal encoded length includes complete fixed envelope");
+  Raw actual(bytes);auto pair=value(actual);auto canonical_pair=canonical(actual.d,pair);
+  require(canonical_pair.size()==65253&&digest_text(canonical_pair)=="27227b52665b91b44266fa48584e6fa56c6527c22b2a3a8efcc137f3bb147a55","whole dense player and preferences frozen oracle equality");
+  auto preferences=member(actual.d,pair,"preferences");auto canonical_preferences=canonical(actual.d,preferences);
+  require(canonical_preferences.size()==65037&&digest_text(canonical_preferences)=="616055be5c185a11f3f2352b32d3cd93a0abb0631395066cb67c2af5316dc71b","all dense preference fields and exact FLOAT tags preserved");
+  require(validate_preferences(actual.d,preferences,true,actual.cells)==Error::none,"dense restored full typed preferences");
+  std::vector<char> payload(max_message),storage(max_preferences);Writer envelope(storage);
+  require(encode_preferences(actual.d,preferences,envelope,payload)==Error::none&&envelope.bytes().size()==75354&&digest_text(envelope.bytes())=="c3ad783f81be754456094fe992ca7a9d29a906c5cc37e492bceadd6a7d401d7c","dense reconstructed canonical storage envelope exact independent size/hash");
+ };
+ std::array<DeliveryView,1> views{};std::uint8_t count{};const auto allocations=probe.allocation_count();
+ require(service->peek(1,views,count)&&count==1,"dense owner peeks entire prepaid delivery");std::string owned(views[0].bytes);const auto saved_hash=digest_text(owned);const auto old_lease=views[0].lease;
+ check_pair(owned,JobKind::save_preferences,admitted.request_id.view());
+ require(probe.allocation_count()==allocations&&probe.reserved_bytes()==3407872,"dense peek retains T/D and requires no new native allocation");
+ std::array<std::uint64_t,1> leases={old_lease};require(service->abandon(leases),"dense caller deliberately declines delivery; no manufactured engine OOM");
+ require(status(service).pending==0&&status(service).undelivered==1&&probe.reserved_bytes()==3407872,"dense abandon preserves queued terminal and T/D");
+ require(service->peek(1,views,count)&&count==1&&views[0].lease!=old_lease&&views[0].bytes==owned,"dense exact bytes reacquired under a fresh delivery lease");
+ require(probe.allocation_count()==allocations&&probe.reserved_bytes()==3407872,"dense retry still uses original T/D");
+ leases[0]=views[0].lease;require(service->acknowledge(leases)&&probe.reserved_bytes()==2097152,"dense successful transfer releases exactly original T/D");
+ Capture load(JobKind::load_player,V::o({{"player_id",V::s(owner)}}));auto read=service->submit(load);require(read.accepted&&read.error==Error::none,"dense SQL-backed reload admitted after delivery retirement");const auto load_request=probe.last_request();
+ auto rows=receive(service,1);require(rows.size()==1,"dense one complete SQL-backed load result");check_pair(rows[0],JobKind::load_player,read.request_id.view());
+ probe.wait_published(load_request); // Wait for the exact reload R-release notification, beyond ACK.
+ require(digest_text(owned)==saved_hash&&probe.reserved_bytes()==2097152,"dense returned copy survives subsequent native slot reuse and exact release");
+}
+
 __declspec(noinline) void full_record_store_cases(TrustedRoots&trust,std::string_view descriptor,std::string_view digest,std::uint64_t ordinal,std::size_t cap,const std::string&root,const std::string&target){
  require(crash_directories(root).empty(),"existing joined fixture management cleanup finished");
  full_fixture_setup(root,false,false);
@@ -985,7 +1240,7 @@ __declspec(noinline) void full_record_store_cases(TrustedRoots&trust,std::string
   auto before=job(f.service,JobKind::list_players,V::o({}),"read");job(f.service,JobKind::create_player,player_seed(std::string(32,'2'),"Ninth"),"failed","player_limit");auto after=job(f.service,JobKind::list_players,V::o({}),"read");
   Raw b(before),a(after);require(canonical(b.d,value(b))==canonical(a.d,value(a))&&array(a.d,member(a.d,value(a),"players")).size()==8,"ninth-player refusal preserves exact eight-player summaries");
   job(f.service,JobKind::create_player,player_seed(std::string(32,'c'),"Boundary0"),"no_change","","13");
-  paired(job(f.service,JobKind::rename_player,rename_seed(std::string(32,'c'),"1","Boundary0 renamed"),"committed","","19"),std::string(32,'c'),"2","Boundary0 renamed");f.close();
+  paired(job(f.service,JobKind::rename_player,rename_seed(std::string(32,'c'),"1","Boundary0 renamed"),"committed","","19"),std::string(32,'c'),"2","Boundary0 renamed");dense_dual_preset_cases(f.service,p);f.close();
  }
  full_maximum_cases(trust,descriptor,digest,ordinal,cap,root,target);
  full_fixture_management_cleanup(trust,descriptor,digest,ordinal,cap,root,2);
