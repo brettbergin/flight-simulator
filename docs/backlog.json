@@ -1155,7 +1155,8 @@
         "EPIC-P1",
         "LICENSE-REGISTER",
         "RENDER-PROOF",
-        "COCKPIT-READINGS-CONTRACT"
+        "COCKPIT-READINGS-CONTRACT",
+        "ORIGINAL-COCKPIT-ASSET-CONTRACT"
       ],
       "labels": [
         "type:task",
@@ -1167,12 +1168,39 @@
       "owned_paths": [
         "assets_source/c172/",
         "app/cockpit/",
-        "content/aircraft/prototype/"
+        "content/aircraft/prototype/",
+        "assets_source/c172/original-prototype/generate_cockpit.py",
+        "assets_source/c172/original-prototype/original-cockpit.blend",
+        "assets_source/c172/original-prototype/cockpit-source.json",
+        "assets_source/c172/original-prototype/README.md",
+        "assets_source/c172/original-prototype/textures/original-surface-albedo.png",
+        "assets_source/c172/original-prototype/textures/original-surface-roughness.png",
+        "app/cockpit/assets/original-cockpit.glb",
+        "app/cockpit/assets/original_asset.gd",
+        "tests/instruments/cockpit_asset_baseline.gd",
+        "tests/instruments/cockpit_asset_checks.gd",
+        "tests/instruments/cockpit_asset_visual.gd",
+        "tools/benchmark/pipeline/check_cockpit_asset.py",
+        "tools/benchmark/pipeline/test_cockpit_asset.py",
+        "app/proof/interactive/flight_cockpit.gd",
+        "app/proof/interactive/preview.gd",
+        "app/simulation/flight_scene.gd",
+        "tests/instruments/cockpit_geometry_checks.gd",
+        "content/aircraft/prototype/cockpit-presentation.json",
+        "tools/interactive-preview/simulation-staging.ps1",
+        "tools/interactive-preview/simulation-staging.test.ps1",
+        "tools/interactive-preview/run.ps1",
+        "tools/interactive-preview/package.mjs",
+        "tools/interactive-preview/verify.test.mjs",
+        "third_party/licenses/register.json",
+        "third_party/licenses/evidence/original-cockpit-asset.md",
+        "docs/evidence/P2/original-cockpit-asset.md"
       ],
       "docs": [
         "docs/experience-and-progress.md",
         "docs/realism-and-validation.md",
-        "docs/roadmap.md"
+        "docs/roadmap.md",
+        "docs/contracts/cockpit/original-asset-v1.md"
       ],
       "requirements": [
         "REAL-019",
@@ -1185,7 +1213,8 @@
       "acceptance": [
         "Cockpit dimensions, eye point, controls and instrument layout identify evidence/prototype status.",
         "GLB export maintains units, material/animation bindings and bounded texture memory.",
-        "Supported FOV/display presets allow readable gauges and runway view; interaction supports enlarged UI."
+        "Supported FOV/display presets allow readable gauges and runway view; interaction supports enlarged UI.",
+        "The bounded original interior GLB contribution waits checked ORIGINAL-COCKPIT-ASSET-CONTRACT acceptance, independent pre-output baseline/reference fixtures and Root dispatch of its exact26-file asset/check/shared-integration allocation. Preserve the live panel/six bezels, eye/window/control/exterior geometry and native authority; no C172 or parent/phase acceptance follows. Historical broad owned roots do not expand this leaf; future source-specific work needs separate reviewed allocation."
       ],
       "evidence": [
         "Asset provenance manifest, export checks and readability review."
@@ -1260,12 +1289,15 @@
       "owned_paths": [
         "app/audio/",
         "assets_source/audio/",
-        "tests/audio/"
+        "tests/audio/",
+        "docs/contracts/audio/live-captions-v1.md",
+        "docs/contracts.md"
       ],
       "docs": [
         "docs/experience-and-progress.md",
         "docs/realism-and-validation.md",
-        "docs/roadmap.md"
+        "docs/roadmap.md",
+        "docs/contracts/audio/live-captions-v1.md"
       ],
       "requirements": [
         "REAL-020",
@@ -7622,6 +7654,67 @@
         "WORLD-014",
         "WORLD-015",
         "WORLD-017"
+      ]
+    },
+    {
+      "key": "ORIGINAL-COCKPIT-ASSET-CONTRACT",
+      "title": "Ratify the original cockpit GLB and copied-control attachment seam",
+      "kind": "task",
+      "phase": "P2",
+      "parent": "EPIC-P2",
+      "summary": "Define one source-derived original cockpit GLB, exact copied-control attachments and small original UV/material contribution before #23 consumers; preserve eye/window/panel/bezels/exterior and native authority. Reversible contract preparation does not accept source-specific geometry or a phase.",
+      "depends_on": [
+        "LICENSE-REGISTER",
+        "RENDER-PROOF",
+        "COCKPIT-READINGS-CONTRACT",
+        "SIM-LOOP-CONTRACT",
+        "INPUT-CONTROLS-CONTRACT",
+        "PAUSED-VIEWS-CONTRACT"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P2",
+        "area:cockpit",
+        "priority:P0",
+        "status:ready"
+      ],
+      "owned_paths": [
+        "docs/contracts/cockpit/original-asset-v1.md",
+        "assets_source/c172/original-prototype/cockpit-reference-v1.json",
+        "docs/contracts.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p2-first-flight.md"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/agent-operations.md",
+        "docs/evidence/P1/gate-review.md",
+        "docs/decisions/005-content-and-aircraft-expansion.md",
+        "docs/decisions/007-sim-loop-facade.md",
+        "docs/decisions/009-cockpit-readings.md",
+        "docs/decisions/025-paused-view-presets-and-comfort.md",
+        "docs/contracts/cockpit/original-asset-v1.md"
+      ],
+      "requirements": [
+        "REAL-019",
+        "REAL-021",
+        "PRD-015",
+        "UX-009",
+        "UX-010",
+        "UX-011"
+      ],
+      "acceptance": [
+        "Freeze meter/right-up-aft original geometry, exact named markers/pivots, copied-held mappings and failure/lifetime behavior for one fixed GLB. Keep existing build success keys, live panel/six bezels, eye/window/control/exterior behavior and native/reading/input authority; invalid asset startup stops before native creation without procedural fallback.",
+        "Close74-part/7-material asset, original UV/texture/export/import/provenance bounds and editable-source handoff. Distinguish calculated texel planes from observed memory/performance; no manufacturer art or unsupported C172/sensed-instrument claim.",
+        "Require independent actual existing-builder arrays/default properties and negative fixtures before asset output, then independent GLB/import/control-invariance checks and predeclared three-context readability/complete source-rights-delivery attribution.",
+        "Publish exact future26-file #23 asset/check/Root integration allocation while preserving its original acceptance, blocked P1 dependency and broader source-specific/hardware/pilot/phase gates. Other existing canonical issue objects remain exact.",
+        "Independent exact-source/data/allocation review, documentation/schema checks and protected CI precede checked merge; only separate Root dispatch may start consumers. Contract publication cannot close #23 or accept a cockpit/aircraft/phase."
+      ],
+      "evidence": [
+        "Reviewed original contract/data and source/version/provenance pins, canonical allocation/diff and check results. No generated asset, runtime, C172 or human/phase acceptance; future baseline/export/import/rights/readability evidence remains required."
       ]
     },
     {
