@@ -62,5 +62,8 @@ native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp text eol=lf
 native/fdm_jsbsim/interactive/src/session.cpp text eol=lf
 tests/world/ground-materials/checks.gd text eol=lf
 
+# Preserve original NASA research CSV hashes across Windows checkouts.
+tests/reference/nasa-c172m/*.csv text eol=lf
+
 # Keep original cockpit generator provenance exact in Windows checkouts.
 assets_source/c172/original-prototype/generate_cockpit.py text eol=lf

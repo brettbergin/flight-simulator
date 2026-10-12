@@ -1,0 +1,2537 @@
+{
+  "schema": "NASAResearchExtractionReview/provisional-v1",
+  "issue": 231,
+  "disposition": "NEGATIVE_RESEARCH_RESULT_NO_COMPLETE_BENCHMARK",
+  "final_publication_review": "APPROVED_BOUNDED_ORIGINAL_FACTUAL_RESEARCH_PUBLICATION",
+  "publication_review_provenance": {
+    "record": "bounded-factual-research-publication-review",
+    "bytes": 4168,
+    "sha256": "4ed617641c4893be512836c15d6e713acfd43312ed0fb1eb901321144b593f09",
+    "disposition": "APPROVE_SOURCE_ONLY_BOUNDED_FACTUAL_RESEARCH_PUBLICATION",
+    "scope": "Original factual CSV derivations and original research prose/metadata only; no source artwork/report code/table grids, blanket contractor license, legal guarantee or NASA endorsement.",
+    "role_limit": "Publication reviewer authored blind Pass A and the post-freeze comparison; this approval is not independent certification of its own A calibration/ordinates or benchmark acceptance. Independent calibration/derived-disposition reviews remain separately recorded."
+  },
+  "preservation": "Each combined CSV is original A bytes followed by B bytes excluding only the repeated header. All original row strings/pass labels/status/reason/calibration IDs/order/SI blanks remain exact. Derived eligibility below does not rewrite a row.",
+  "original_hashes": [
+    {
+      "record": "pass-A-freeze",
+      "bytes": 17706,
+      "sha256": "bfbad77e6b5a27253b1b0b354388a91b622ed460ea90c3ae54b95b7fba4c7e77"
+    },
+    {
+      "record": "pass-B-freeze",
+      "bytes": 6074,
+      "sha256": "85297a8918c765d870592fecca88f63bccbaadb0fe24511e75bce1c3b10b25c5"
+    },
+    {
+      "record": "pass-A-independence",
+      "bytes": 942,
+      "sha256": "ef08e2ee0889b9f43b809b0dd8672eac0290e550eb27bfc50d374abb821431ab"
+    },
+    {
+      "record": "pass-B-original-freeze",
+      "bytes": 1257,
+      "sha256": "09896596953a2c2a0d4ddbd2642e9ebed36755da6dda4564ce4169b6d52bc4c2"
+    },
+    {
+      "record": "pass-A-calibration",
+      "bytes": 21447,
+      "sha256": "db105729b549675c67e54eef02867c4aa7b13f8d68ab6fca7da42b891326f7d1"
+    },
+    {
+      "record": "pass-B-calibration",
+      "bytes": 29779,
+      "sha256": "9f2d2111f0737cdd928d76269d6c1a8d06c4923606366fdec6f76b5b33e0025b"
+    },
+    {
+      "record": "pass-A-source-specific-extractor",
+      "bytes": 10800,
+      "sha256": "e78e01d65f5e1129affaf5bf07cfd0840787b8e9e16ac466837f8f6eae5a5d0c"
+    },
+    {
+      "record": "pass-B-source-specific-extractor",
+      "bytes": 13775,
+      "sha256": "8c00da1935b2aab5e832b011ef1321caf777d98e89c04b7866bda7dd66c96f12"
+    },
+    {
+      "record": "2a-3-A-original",
+      "bytes": 256544,
+      "sha256": "2f8c164d456a9b05b74b12c6f10e2aad12ce4c5242e5e82e7beabb1ab0ea98c3"
+    },
+    {
+      "record": "2a-3-B-original",
+      "bytes": 270572,
+      "sha256": "9f9362de7227d7de4a50d2b390b2f127ac26e525688d9dfb7dfa580a9a455daf"
+    },
+    {
+      "record": "2a-4-A-original",
+      "bytes": 401234,
+      "sha256": "4fbf7c73620a4f11fa3c28d2947509cc5c506ab9d63a2b381f3a4f0de233e8a7"
+    },
+    {
+      "record": "2a-4-B-original",
+      "bytes": 423495,
+      "sha256": "80ac892a158759af515f1414ab71ac7f6e4b383e896eaa29b4a6a655c911e181"
+    }
+  ],
+  "derivation_input_hashes": [
+    {
+      "record": "post-freeze-comparison-freeze",
+      "bytes": 5273,
+      "sha256": "897d922514ef92acfc8153484be09277b395c3250f23f75c7e98069354ea732d"
+    },
+    {
+      "record": "post-freeze-original-differences",
+      "bytes": 12945,
+      "sha256": "579528b95995028373f388727d010dbf499da1474e40800818a1050040fdd039"
+    },
+    {
+      "record": "independent-source-calibration-disposition",
+      "bytes": 20212,
+      "sha256": "984c8dce9c115db6ab88797cc2cbacc3ecfc8f3f25bfa797a7f9854533d9c851"
+    },
+    {
+      "record": "pre-extraction-method-v2",
+      "bytes": 16117,
+      "sha256": "e00468da7eb0e164e278a41d40523bad0f404ec3f29201841508010363b405a7"
+    },
+    {
+      "record": "pre-extraction-grid-sizing",
+      "bytes": 61377,
+      "sha256": "9a3b777c8549216daa2f068c8919954d17ecccba909036b27abc7431720e8993"
+    },
+    {
+      "record": "method-independent-review",
+      "bytes": 1794,
+      "sha256": "7d15c053fd7f4826de289f7785a7f9be4189ba3f422943526a8d2e37ff3040ca"
+    },
+    {
+      "record": "grid-independent-review",
+      "bytes": 4062,
+      "sha256": "07f7be9430fe362248705148a8042b6893e5a920b3d3ecc73bf62d55ad45e93d"
+    }
+  ],
+  "independence": {
+    "A_original_freeze_UTC": "2026-10-11T22:52:49.677326+00:00",
+    "B_original_freeze_UTC": "2026-10-11T22:56:05.487575+00:00",
+    "B_handoff_freeze_UTC": "2026-10-11T22:58:24.283339+00:00",
+    "first_comparison_UTC": "2026-10-11T22:59:15.375286+00:00"
+  },
+  "panel_eligibility": [
+    {
+      "channel": "q",
+      "panel_status": "PROVISIONAL_GRAPH_SOURCE_CANDIDATE_ONLY",
+      "quantitative_native_comparison": false
+    },
+    {
+      "channel": "theta",
+      "panel_status": "PROVISIONAL_GRAPH_SOURCE_CANDIDATE_ONLY",
+      "quantitative_native_comparison": false
+    },
+    {
+      "channel": "delta_E",
+      "panel_status": "PROVISIONAL_GRAPH_SOURCE_CANDIDATE_ONLY",
+      "quantitative_native_comparison": false
+    },
+    {
+      "channel": "p",
+      "panel_status": "PROVISIONAL_GRAPH_SOURCE_CANDIDATE_ONLY",
+      "quantitative_native_comparison": false
+    },
+    {
+      "channel": "delta_R",
+      "panel_status": "PROVISIONAL_GRAPH_SOURCE_CANDIDATE_ONLY",
+      "quantitative_native_comparison": false
+    },
+    {
+      "channel": "r",
+      "panel_status": "UNAVAILABLE",
+      "finding": "C1",
+      "reason": "A proposed10s tick merges with descending measured curve/axis; no independently legible third time tick. B declined. Original215 A measured classifications remain historical and ineligible."
+    },
+    {
+      "channel": "delta_A",
+      "panel_status": "UNAVAILABLE",
+      "finding": "C2",
+      "reason": "B proposed vertical-zero printed label is damaged; adjacent horizontal time0.00 is not that label. A declined. Original761 B measured classifications remain historical and ineligible."
+    },
+    {
+      "channel": "phi",
+      "panel_status": "UNAVAILABLE",
+      "finding": "C3",
+      "reason": "Both passes decline third time calibration because measured curve crosses tick/glyph."
+    }
+  ],
+  "schedule": {
+    "target_seconds": "i/50, i=0..1000 inclusive",
+    "step_seconds": "0.02",
+    "not_sensor_rate": true,
+    "sizing": "Largest common1-2-5 step no greater than shortest independently resolvable feature/4. Controlling delta_R notch lower duration13/73.2=0.1775956284s;0.05s exceeds duration/4,0.02s satisfies it. Stroke widths constrain ambiguity, not forced oversampling. Sampling does not reconstruct hidden fast features."
+  },
+  "coordinate_conventions": {
+    "origin": "original decoded figure image upper-left; x right/y down",
+    "A_bounds": "outer pixel edges; low integer/high exclusive",
+    "B_bounds": "inclusive first/last pixel centers, half integers",
+    "source_units": "q/p/r deg/s; theta/delta_E/delta_A/delta_R/phi deg. SI cells intentionally blank; frame/sign/sensor identity unresolved."
+  },
+  "original_calibrations": {
+    "A": [
+      {
+        "channel": "q",
+        "run": "2A-3",
+        "page": 122,
+        "panel": 1,
+        "unit": "deg/s",
+        "x0": 692.5,
+        "x10": 1419.5,
+        "x20": 2148.5,
+        "yplus": 552.5,
+        "yzero": 647.5,
+        "yminus": 743.5,
+        "limit": 20,
+        "yend": 658.0,
+        "quantum": "0.5",
+        "ranges": [
+          [
+            840,
+            1450,
+            595,
+            708
+          ]
+        ],
+        "state": "calibrated",
+        "calibration_id": "A-q-original1",
+        "mapping_status": "unresolved; SI and native mapping not admitted in this pass",
+        "time_anchors": [
+          {
+            "printed": "0",
+            "x_px": 692.5,
+            "y_axis_px": 647.5,
+            "role": "fit"
+          },
+          {
+            "printed": "10",
+            "x_px": 1419.5,
+            "y_axis_px": null,
+            "role": "independent check"
+          },
+          {
+            "printed": "20",
+            "x_px": 2148.5,
+            "y_axis_px": 658.0,
+            "role": "fit"
+          }
+        ],
+        "vertical_anchors": [
+          {
+            "printed": "20",
+            "x_px": 692.5,
+            "y_px": 552.5,
+            "role": "fit"
+          },
+          {
+            "printed": "0",
+            "x_px": 692.5,
+            "y_px": 647.5,
+            "role": "independent check"
+          },
+          {
+            "printed": "-20",
+            "x_px": 692.5,
+            "y_px": 743.5,
+            "role": "fit"
+          }
+        ],
+        "affine": {
+          "time_s_per_x_px": "0.01373626373626373626373626374",
+          "time_intercept_s": "-9.512362637362637362637362640",
+          "value_per_y_px": "-0.2094240837696335078534031414",
+          "value_per_x_px": "0.001510269834877164720096657270",
+          "value_intercept": "134.6609444220700765203383004",
+          "equations": [
+            "t=20*(x-x0)/(x20-x0)",
+            "v=(vertical_origin + axis_slope*(x-x0) - y)/px_per_unit"
+          ],
+          "axis_slope_y_per_x": "0.007211538461538461538461538462",
+          "px_per_unit": "4.775",
+          "vertical_origin_px": "648.0"
+        },
+        "check_residuals": {
+          "time10_s": "-0.013736263736263736263736261",
+          "time10_pixels": "-1.0",
+          "vertical_zero_source_units": "0.1047120418848167539267015707",
+          "vertical_zero_pixels": "-0.5"
+        },
+        "selection": {
+          "axis_exclusion_half_width_px": 8,
+          "minimum_ink_run_px": 3,
+          "maximum_ink_run_px": 18,
+          "require_unique_run": true,
+          "adjacent_columns": "each immediate column has ink within selected vertical band; never filled if absent",
+          "manual_ranges": "original source coordinates; outside these is not asserted measured",
+          "rounding_quantum_source_units": "0.5",
+          "rounding": "nearest quantum, ties away from zero",
+          "pixel_center": "nearest original column center; vertical center midpoint of original contiguous black pixel band; pixel outer bounds retained",
+          "black": "original decoded monochrome ink (<128), no resampling/threshold adaptation",
+          "local_deformation": "third-anchor residuals retained; no fit to curve. Endpoint baseline reading in p/r merges with late trace and is limited to visible lower axis/end projection, not a curve reading. Tick/stroke coordinate ambiguity is not an absolute accuracy estimate."
+        }
+      },
+      {
+        "channel": "theta",
+        "run": "2A-3",
+        "page": 122,
+        "panel": 4,
+        "unit": "deg",
+        "x0": 688.5,
+        "x10": 1413.5,
+        "x20": 2145.5,
+        "yplus": 1242.5,
+        "yzero": 1339.0,
+        "yminus": 1435.0,
+        "limit": 10,
+        "yend": 1348.0,
+        "quantum": "0.2",
+        "ranges": [
+          [
+            850,
+            1520,
+            1245,
+            1406
+          ]
+        ],
+        "state": "calibrated",
+        "calibration_id": "A-theta-original1",
+        "mapping_status": "unresolved; SI and native mapping not admitted in this pass",
+        "time_anchors": [
+          {
+            "printed": "0",
+            "x_px": 688.5,
+            "y_axis_px": 1339.0,
+            "role": "fit"
+          },
+          {
+            "printed": "10",
+            "x_px": 1413.5,
+            "y_axis_px": null,
+            "role": "independent check"
+          },
+          {
+            "printed": "20",
+            "x_px": 2145.5,
+            "y_axis_px": 1348.0,
+            "role": "fit"
+          }
+        ],
+        "vertical_anchors": [
+          {
+            "printed": "10",
+            "x_px": 688.5,
+            "y_px": 1242.5,
+            "role": "fit"
+          },
+          {
+            "printed": "0",
+            "x_px": 688.5,
+            "y_px": 1339.0,
+            "role": "independent check"
+          },
+          {
+            "printed": "-10",
+            "x_px": 688.5,
+            "y_px": 1435.0,
+            "role": "fit"
+          }
+        ],
+        "affine": {
+          "time_s_per_x_px": "0.01372683596431022649279341112",
+          "time_intercept_s": "-9.450926561427590940288263556",
+          "value_per_y_px": "-0.1038961038961038961038961039",
+          "value_per_x_px": "0.0006417741489807378620007309094",
+          "value_intercept": "138.6490475893358528911034058",
+          "equations": [
+            "t=20*(x-x0)/(x20-x0)",
+            "v=(vertical_origin + axis_slope*(x-x0) - y)/px_per_unit"
+          ],
+          "axis_slope_y_per_x": "0.006177076183939601921757035003",
+          "px_per_unit": "9.625",
+          "vertical_origin_px": "1338.75"
+        },
+        "check_residuals": {
+          "time10_s": "-0.048043925875085792724776938",
+          "time10_pixels": "-3.5",
+          "vertical_zero_source_units": "-0.02597402597402597402597402597",
+          "vertical_zero_pixels": "0.25"
+        },
+        "selection": {
+          "axis_exclusion_half_width_px": 8,
+          "minimum_ink_run_px": 3,
+          "maximum_ink_run_px": 18,
+          "require_unique_run": true,
+          "adjacent_columns": "each immediate column has ink within selected vertical band; never filled if absent",
+          "manual_ranges": "original source coordinates; outside these is not asserted measured",
+          "rounding_quantum_source_units": "0.2",
+          "rounding": "nearest quantum, ties away from zero",
+          "pixel_center": "nearest original column center; vertical center midpoint of original contiguous black pixel band; pixel outer bounds retained",
+          "black": "original decoded monochrome ink (<128), no resampling/threshold adaptation",
+          "local_deformation": "third-anchor residuals retained; no fit to curve. Endpoint baseline reading in p/r merges with late trace and is limited to visible lower axis/end projection, not a curve reading. Tick/stroke coordinate ambiguity is not an absolute accuracy estimate."
+        }
+      },
+      {
+        "channel": "delta_E",
+        "run": "2A-3",
+        "page": 122,
+        "panel": 8,
+        "unit": "deg",
+        "x0": 676.5,
+        "x10": 1405.5,
+        "x20": 2134.5,
+        "yplus": 2167.0,
+        "yzero": 2263.0,
+        "yminus": 2359.0,
+        "limit": 10,
+        "yend": 2270.5,
+        "quantum": "0.2",
+        "ranges": [
+          [
+            820,
+            1425,
+            2190,
+            2262
+          ],
+          [
+            1480,
+            1975,
+            2210,
+            2262
+          ]
+        ],
+        "state": "calibrated",
+        "calibration_id": "A-delta_E-original1",
+        "mapping_status": "unresolved; SI and native mapping not admitted in this pass",
+        "time_anchors": [
+          {
+            "printed": "0",
+            "x_px": 676.5,
+            "y_axis_px": 2263.0,
+            "role": "fit"
+          },
+          {
+            "printed": "10",
+            "x_px": 1405.5,
+            "y_axis_px": null,
+            "role": "independent check"
+          },
+          {
+            "printed": "20",
+            "x_px": 2134.5,
+            "y_axis_px": 2270.5,
+            "role": "fit"
+          }
+        ],
+        "vertical_anchors": [
+          {
+            "printed": "10",
+            "x_px": 676.5,
+            "y_px": 2167.0,
+            "role": "fit"
+          },
+          {
+            "printed": "0",
+            "x_px": 676.5,
+            "y_px": 2263.0,
+            "role": "independent check"
+          },
+          {
+            "printed": "-10",
+            "x_px": 676.5,
+            "y_px": 2359.0,
+            "role": "fit"
+          }
+        ],
+        "affine": {
+          "time_s_per_x_px": "0.01371742112482853223593964335",
+          "time_intercept_s": "-9.279835390946502057613168726",
+          "value_per_y_px": "-0.1041666666666666666666666667",
+          "value_per_x_px": "0.0005358367626886145404663923182",
+          "value_intercept": "235.3666730967078189300411523",
+          "equations": [
+            "t=20*(x-x0)/(x20-x0)",
+            "v=(vertical_origin + axis_slope*(x-x0) - y)/px_per_unit"
+          ],
+          "axis_slope_y_per_x": "0.005144032921810699588477366255",
+          "px_per_unit": "9.6",
+          "vertical_origin_px": "2263.0"
+        },
+        "check_residuals": {
+          "time10_s": "0E-26",
+          "time10_pixels": "0.0",
+          "vertical_zero_source_units": "0",
+          "vertical_zero_pixels": "0.0"
+        },
+        "selection": {
+          "axis_exclusion_half_width_px": 8,
+          "minimum_ink_run_px": 3,
+          "maximum_ink_run_px": 18,
+          "require_unique_run": true,
+          "adjacent_columns": "each immediate column has ink within selected vertical band; never filled if absent",
+          "manual_ranges": "original source coordinates; outside these is not asserted measured",
+          "rounding_quantum_source_units": "0.2",
+          "rounding": "nearest quantum, ties away from zero",
+          "pixel_center": "nearest original column center; vertical center midpoint of original contiguous black pixel band; pixel outer bounds retained",
+          "black": "original decoded monochrome ink (<128), no resampling/threshold adaptation",
+          "local_deformation": "third-anchor residuals retained; no fit to curve. Endpoint baseline reading in p/r merges with late trace and is limited to visible lower axis/end projection, not a curve reading. Tick/stroke coordinate ambiguity is not an absolute accuracy estimate."
+        }
+      },
+      {
+        "channel": "p",
+        "run": "2A-4",
+        "page": 123,
+        "panel": 1,
+        "unit": "deg/s",
+        "x0": 718.5,
+        "x10": 1448.5,
+        "x20": 2177.5,
+        "yplus": 398.0,
+        "yzero": 494.0,
+        "yminus": 589.5,
+        "limit": 20,
+        "yend": 490.0,
+        "quantum": "0.5",
+        "ranges": [
+          [
+            930,
+            1710,
+            398,
+            572
+          ]
+        ],
+        "state": "calibrated",
+        "calibration_id": "A-p-original1",
+        "mapping_status": "unresolved; SI and native mapping not admitted in this pass",
+        "time_anchors": [
+          {
+            "printed": "0",
+            "x_px": 718.5,
+            "y_axis_px": 494.0,
+            "role": "fit"
+          },
+          {
+            "printed": "10",
+            "x_px": 1448.5,
+            "y_axis_px": null,
+            "role": "independent check"
+          },
+          {
+            "printed": "20",
+            "x_px": 2177.5,
+            "y_axis_px": 490.0,
+            "role": "fit"
+          }
+        ],
+        "vertical_anchors": [
+          {
+            "printed": "20",
+            "x_px": 718.5,
+            "y_px": 398.0,
+            "role": "fit"
+          },
+          {
+            "printed": "0",
+            "x_px": 718.5,
+            "y_px": 494.0,
+            "role": "independent check"
+          },
+          {
+            "printed": "-20",
+            "x_px": 718.5,
+            "y_px": 589.5,
+            "role": "fit"
+          }
+        ],
+        "affine": {
+          "time_s_per_x_px": "0.01370801919122686771761480466",
+          "time_intercept_s": "-9.849211788896504455106237148",
+          "value_per_y_px": "-0.2088772845953002610966057441",
+          "value_per_x_px": "-0.0005726587651687464320674592025",
+          "value_intercept": "103.5446145917032482278895556",
+          "equations": [
+            "t=20*(x-x0)/(x20-x0)",
+            "v=(vertical_origin + axis_slope*(x-x0) - y)/px_per_unit"
+          ],
+          "axis_slope_y_per_x": "-0.002741603838245373543522960932",
+          "px_per_unit": "4.7875",
+          "vertical_origin_px": "493.75"
+        },
+        "check_residuals": {
+          "time10_s": "0.00685400959561343385880740",
+          "time10_pixels": "0.5",
+          "vertical_zero_source_units": "-0.05221932114882506527415143603",
+          "vertical_zero_pixels": "0.25"
+        },
+        "selection": {
+          "axis_exclusion_half_width_px": 8,
+          "minimum_ink_run_px": 3,
+          "maximum_ink_run_px": 18,
+          "require_unique_run": true,
+          "adjacent_columns": "each immediate column has ink within selected vertical band; never filled if absent",
+          "manual_ranges": "original source coordinates; outside these is not asserted measured",
+          "rounding_quantum_source_units": "0.5",
+          "rounding": "nearest quantum, ties away from zero",
+          "pixel_center": "nearest original column center; vertical center midpoint of original contiguous black pixel band; pixel outer bounds retained",
+          "black": "original decoded monochrome ink (<128), no resampling/threshold adaptation",
+          "local_deformation": "third-anchor residuals retained; no fit to curve. Endpoint baseline reading in p/r merges with late trace and is limited to visible lower axis/end projection, not a curve reading. Tick/stroke coordinate ambiguity is not an absolute accuracy estimate."
+        }
+      },
+      {
+        "channel": "r",
+        "run": "2A-4",
+        "page": 123,
+        "panel": 2,
+        "unit": "deg/s",
+        "x0": 720.5,
+        "x10": 1449.5,
+        "x20": 2179.5,
+        "yplus": 628.5,
+        "yzero": 724.5,
+        "yminus": 820.0,
+        "limit": 20,
+        "yend": 719.5,
+        "quantum": "0.5",
+        "ranges": [
+          [
+            910,
+            1700,
+            658,
+            797
+          ]
+        ],
+        "state": "calibrated",
+        "calibration_id": "A-r-original1",
+        "mapping_status": "unresolved; SI and native mapping not admitted in this pass",
+        "time_anchors": [
+          {
+            "printed": "0",
+            "x_px": 720.5,
+            "y_axis_px": 724.5,
+            "role": "fit"
+          },
+          {
+            "printed": "10",
+            "x_px": 1449.5,
+            "y_axis_px": null,
+            "role": "independent check"
+          },
+          {
+            "printed": "20",
+            "x_px": 2179.5,
+            "y_axis_px": 719.5,
+            "role": "fit"
+          }
+        ],
+        "vertical_anchors": [
+          {
+            "printed": "20",
+            "x_px": 720.5,
+            "y_px": 628.5,
+            "role": "fit"
+          },
+          {
+            "printed": "0",
+            "x_px": 720.5,
+            "y_px": 724.5,
+            "role": "independent check"
+          },
+          {
+            "printed": "-20",
+            "x_px": 720.5,
+            "y_px": 820.0,
+            "role": "fit"
+          }
+        ],
+        "affine": {
+          "time_s_per_x_px": "0.01370801919122686771761480466",
+          "time_intercept_s": "-9.876627827278958190541466758",
+          "value_per_y_px": "-0.2088772845953002610966057441",
+          "value_per_x_px": "-0.0007158234564609330400843240031",
+          "value_intercept": "151.7951241685263163545974656",
+          "equations": [
+            "t=20*(x-x0)/(x20-x0)",
+            "v=(vertical_origin + axis_slope*(x-x0) - y)/px_per_unit"
+          ],
+          "axis_slope_y_per_x": "-0.003427004797806716929403701165",
+          "px_per_unit": "4.7875",
+          "vertical_origin_px": "724.25"
+        },
+        "check_residuals": {
+          "time10_s": "-0.006854009595613433858807403",
+          "time10_pixels": "-0.5",
+          "vertical_zero_source_units": "-0.05221932114882506527415143603",
+          "vertical_zero_pixels": "0.25"
+        },
+        "selection": {
+          "axis_exclusion_half_width_px": 8,
+          "minimum_ink_run_px": 3,
+          "maximum_ink_run_px": 18,
+          "require_unique_run": true,
+          "adjacent_columns": "each immediate column has ink within selected vertical band; never filled if absent",
+          "manual_ranges": "original source coordinates; outside these is not asserted measured",
+          "rounding_quantum_source_units": "0.5",
+          "rounding": "nearest quantum, ties away from zero",
+          "pixel_center": "nearest original column center; vertical center midpoint of original contiguous black pixel band; pixel outer bounds retained",
+          "black": "original decoded monochrome ink (<128), no resampling/threshold adaptation",
+          "local_deformation": "third-anchor residuals retained; no fit to curve. Endpoint baseline reading in p/r merges with late trace and is limited to visible lower axis/end projection, not a curve reading. Tick/stroke coordinate ambiguity is not an absolute accuracy estimate."
+        }
+      },
+      {
+        "channel": "phi",
+        "run": "2A-4",
+        "page": 123,
+        "panel": 4,
+        "unit": "deg",
+        "state": "unavailable",
+        "reason": "illegible_axis",
+        "gap": "Printed 10.00 label is crossed by the rising response. Its time-axis tick is merged with that response: only 0.00 and 20.00 projections are independently identifiable. No third time anchor is inferred.",
+        "evidence": [
+          "123-phi-panel.png",
+          "123-phi-time10.png",
+          "phi-vertical-anchors.png"
+        ],
+        "calibration_id": "A-phi-original1",
+        "mapping_status": "unresolved; SI and native mapping not admitted in this pass"
+      },
+      {
+        "channel": "delta_A",
+        "run": "2A-4",
+        "page": 123,
+        "panel": 8,
+        "unit": "deg",
+        "state": "unavailable",
+        "reason": "illegible_axis",
+        "gap": "Printed vertical zero label is damaged/erased through the digits. Only +10.00 and -10.00 are fully legible vertical labels. The intermediate tick is unlabeled and cannot replace the third printed anchor.",
+        "evidence": [
+          "123-delta_A-panel.png",
+          "delta_A-vertical-anchors.png"
+        ],
+        "calibration_id": "A-delta_A-original1",
+        "mapping_status": "unresolved; SI and native mapping not admitted in this pass"
+      },
+      {
+        "channel": "delta_R",
+        "run": "2A-4",
+        "page": 123,
+        "panel": 9,
+        "unit": "deg",
+        "x0": 729.5,
+        "x10": 1457.5,
+        "x20": 2188.5,
+        "yplus": 2294.0,
+        "yzero": 2389.5,
+        "yminus": 2486.5,
+        "limit": 10,
+        "yend": 2382.0,
+        "quantum": "0.2",
+        "ranges": [
+          [
+            745,
+            1410,
+            2305,
+            2388
+          ],
+          [
+            1490,
+            2180,
+            2305,
+            2388
+          ]
+        ],
+        "state": "calibrated",
+        "calibration_id": "A-delta_R-original1",
+        "mapping_status": "unresolved; SI and native mapping not admitted in this pass",
+        "time_anchors": [
+          {
+            "printed": "0",
+            "x_px": 729.5,
+            "y_axis_px": 2389.5,
+            "role": "fit"
+          },
+          {
+            "printed": "10",
+            "x_px": 1457.5,
+            "y_axis_px": null,
+            "role": "independent check"
+          },
+          {
+            "printed": "20",
+            "x_px": 2188.5,
+            "y_axis_px": 2382.0,
+            "role": "fit"
+          }
+        ],
+        "vertical_anchors": [
+          {
+            "printed": "10",
+            "x_px": 729.5,
+            "y_px": 2294.0,
+            "role": "fit"
+          },
+          {
+            "printed": "0",
+            "x_px": 729.5,
+            "y_px": 2389.5,
+            "role": "independent check"
+          },
+          {
+            "printed": "-10",
+            "x_px": 729.5,
+            "y_px": 2486.5,
+            "role": "fit"
+          }
+        ],
+        "affine": {
+          "time_s_per_x_px": "0.01370801919122686771761480466",
+          "time_intercept_s": "-9.999999999999999999999999999",
+          "value_per_y_px": "-0.1038961038961038961038961039",
+          "value_per_x_px": "-0.0005340786697880597812057716102",
+          "value_intercept": "248.7272727272727272727272727",
+          "equations": [
+            "t=20*(x-x0)/(x20-x0)",
+            "v=(vertical_origin + axis_slope*(x-x0) - y)/px_per_unit"
+          ],
+          "axis_slope_y_per_x": "-0.005140507196710075394105551748",
+          "px_per_unit": "9.625",
+          "vertical_origin_px": "2390.25"
+        },
+        "check_residuals": {
+          "time10_s": "-0.020562028786840301576422208",
+          "time10_pixels": "-1.5",
+          "vertical_zero_source_units": "0.07792207792207792207792207792",
+          "vertical_zero_pixels": "-0.75"
+        },
+        "selection": {
+          "axis_exclusion_half_width_px": 8,
+          "minimum_ink_run_px": 3,
+          "maximum_ink_run_px": 18,
+          "require_unique_run": true,
+          "adjacent_columns": "each immediate column has ink within selected vertical band; never filled if absent",
+          "manual_ranges": "original source coordinates; outside these is not asserted measured",
+          "rounding_quantum_source_units": "0.2",
+          "rounding": "nearest quantum, ties away from zero",
+          "pixel_center": "nearest original column center; vertical center midpoint of original contiguous black pixel band; pixel outer bounds retained",
+          "black": "original decoded monochrome ink (<128), no resampling/threshold adaptation",
+          "local_deformation": "third-anchor residuals retained; no fit to curve. Endpoint baseline reading in p/r merges with late trace and is limited to visible lower axis/end projection, not a curve reading. Tick/stroke coordinate ambiguity is not an absolute accuracy estimate."
+        }
+      }
+    ],
+    "B": [
+      {
+        "id": "B-q-original-v1",
+        "pass_id": "B",
+        "channel": "q",
+        "run": "2A-3",
+        "pdf_page": 122,
+        "panel": 1,
+        "source_unit": "deg/s",
+        "status": "original_graph_reading_candidate",
+        "unavailable_reason": null,
+        "ticks": [
+          {
+            "printed_label": "time 0.00 / vertical 0.00",
+            "point_xy": [
+              692.5,
+              647.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 0,
+            "expected_value_source": 0,
+            "pixel_center_band": [
+              689.5,
+              644.5,
+              696.5,
+              650.5
+            ],
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "time 20.00 / zero axis",
+            "point_xy": [
+              2148.5,
+              657.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 20,
+            "expected_value_source": 0,
+            "pixel_center_band": [
+              2145.5,
+              654.5,
+              2150.5,
+              661.5
+            ],
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "vertical +20.00",
+            "point_xy": [
+              691.5,
+              552.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 0,
+            "expected_value_source": 20,
+            "pixel_center_band": [
+              688.5,
+              550.5,
+              693.5,
+              554.5
+            ],
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "time 10.00 / zero axis",
+            "point_xy": [
+              1420.5,
+              652.5
+            ],
+            "used_for_transform": false,
+            "expected_time_s": 10,
+            "expected_value_source": 0,
+            "pixel_center_band": [
+              1417.5,
+              649.5,
+              1424.5,
+              655.5
+            ],
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "vertical -20.00",
+            "point_xy": [
+              692.5,
+              743.5
+            ],
+            "used_for_transform": false,
+            "expected_time_s": 0,
+            "expected_value_source": -20,
+            "pixel_center_band": [
+              689.5,
+              741.5,
+              694.5,
+              745.5
+            ],
+            "time_residual_s": "-0.013882",
+            "value_residual_source": "-0.211988"
+          }
+        ],
+        "time_axis_direction": "increasing right",
+        "value_axis_direction": "increasing up",
+        "coefficients_rational": {
+          "time_x": "190/13831",
+          "time_y": "-2/13831",
+          "time_constant": "-130280/13831",
+          "value_x": "20/13831",
+          "value_y": "-2912/13831",
+          "value_constant": "1871670/13831"
+        },
+        "equation": "time_s=time_x*x+time_y*y+time_constant; value_source=value_x*x+value_y*y+value_constant",
+        "transform": "2D affine from O, X and V; 10-second and negative vertical anchors NOT used in solve",
+        "rounding": {
+          "source_quantum": "1",
+          "time_quantum_s": "0.01",
+          "rule": "nearest, half away from zero; negative zero canonicalized to zero"
+        },
+        "mapping_status": "unresolved",
+        "value_si": null,
+        "mapping_reason": "No independent report sensor/figure/frame/sign resolution is claimed here. Source-convention values retained; SI admission deferred to separate mapping review.",
+        "selected_source_windows_xyxy": [
+          [
+            850,
+            1005,
+            610,
+            641
+          ],
+          [
+            1040,
+            1205,
+            664,
+            689
+          ],
+          [
+            1230,
+            1370,
+            615,
+            641
+          ]
+        ],
+        "maximum_readable_column_span_px": 7,
+        "precision": "Tick bands and visible stroke bounds are graph locators, not confidence intervals. Check residuals reported without invented acceptance tolerance. No accuracy is inferred from grid density."
+      },
+      {
+        "id": "B-theta-original-v1",
+        "pass_id": "B",
+        "channel": "theta",
+        "run": "2A-3",
+        "pdf_page": 122,
+        "panel": 4,
+        "source_unit": "deg",
+        "status": "original_graph_reading_candidate",
+        "unavailable_reason": null,
+        "ticks": [
+          {
+            "printed_label": "time 0.00 / vertical 0.00",
+            "point_xy": [
+              688.5,
+              1338.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 0,
+            "expected_value_source": 0,
+            "pixel_center_band": [
+              685.5,
+              1335.5,
+              691.5,
+              1341.5
+            ],
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "time 20.00 / zero axis",
+            "point_xy": [
+              2144.5,
+              1347.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 20,
+            "expected_value_source": 0,
+            "pixel_center_band": [
+              2142.5,
+              1344.5,
+              2147.5,
+              1351.5
+            ],
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "vertical +10.00",
+            "point_xy": [
+              688.5,
+              1243.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 0,
+            "expected_value_source": 10,
+            "pixel_center_band": [
+              686.5,
+              1241.5,
+              690.5,
+              1244.5
+            ],
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "time 10.00 / zero axis",
+            "point_xy": [
+              1417.5,
+              1343.5
+            ],
+            "used_for_transform": false,
+            "expected_time_s": 10,
+            "expected_value_source": 0,
+            "pixel_center_band": [
+              1414.5,
+              1340.5,
+              1419.5,
+              1346.5
+            ],
+            "time_residual_s": "0.013736",
+            "value_residual_source": "-0.051981"
+          },
+          {
+            "printed_label": "vertical -10.00",
+            "point_xy": [
+              687.5,
+              1434.5
+            ],
+            "used_for_transform": false,
+            "expected_time_s": 0,
+            "expected_value_source": -10,
+            "pixel_center_band": [
+              685.5,
+              1432.5,
+              690.5,
+              1436.5
+            ],
+            "time_residual_s": "-0.013736",
+            "value_residual_source": "-0.105914"
+          }
+        ],
+        "time_axis_direction": "increasing right",
+        "value_axis_direction": "increasing up",
+        "coefficients_rational": {
+          "time_x": "5/364",
+          "time_y": "0/1",
+          "time_constant": "-6885/728",
+          "value_x": "9/13832",
+          "value_y": "-2/19",
+          "value_constant": "3885319/27664"
+        },
+        "equation": "time_s=time_x*x+time_y*y+time_constant; value_source=value_x*x+value_y*y+value_constant",
+        "transform": "2D affine from O, X and V; 10-second and negative vertical anchors NOT used in solve",
+        "rounding": {
+          "source_quantum": "0.5",
+          "time_quantum_s": "0.01",
+          "rule": "nearest, half away from zero; negative zero canonicalized to zero"
+        },
+        "mapping_status": "unresolved",
+        "value_si": null,
+        "mapping_reason": "No independent report sensor/figure/frame/sign resolution is claimed here. Source-convention values retained; SI admission deferred to separate mapping review.",
+        "selected_source_windows_xyxy": [
+          [
+            710,
+            840,
+            1347,
+            1361
+          ],
+          [
+            875,
+            1100,
+            1250,
+            1325
+          ],
+          [
+            1145,
+            1290,
+            1352,
+            1398
+          ],
+          [
+            1340,
+            1450,
+            1306,
+            1331
+          ]
+        ],
+        "maximum_readable_column_span_px": 7,
+        "precision": "Tick bands and visible stroke bounds are graph locators, not confidence intervals. Check residuals reported without invented acceptance tolerance. No accuracy is inferred from grid density."
+      },
+      {
+        "id": "B-delta_E-original-v1",
+        "pass_id": "B",
+        "channel": "delta_E",
+        "run": "2A-3",
+        "pdf_page": 122,
+        "panel": 8,
+        "source_unit": "deg",
+        "status": "original_graph_reading_candidate",
+        "unavailable_reason": null,
+        "ticks": [
+          {
+            "printed_label": "time 0.00 / vertical 0.00",
+            "point_xy": [
+              677.5,
+              2263.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 0,
+            "expected_value_source": 0,
+            "pixel_center_band": [
+              674.5,
+              2260.5,
+              679.5,
+              2265.5
+            ],
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "time 20.00 / zero axis",
+            "point_xy": [
+              2134.5,
+              2270.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 20,
+            "expected_value_source": 0,
+            "pixel_center_band": [
+              2132.5,
+              2267.5,
+              2136.5,
+              2274.5
+            ],
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "vertical +10.00",
+            "point_xy": [
+              677.5,
+              2167.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 0,
+            "expected_value_source": 10,
+            "pixel_center_band": [
+              675.5,
+              2164.5,
+              679.5,
+              2169.5
+            ],
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "time 10.00 / zero axis",
+            "point_xy": [
+              1405.5,
+              2266.5
+            ],
+            "used_for_transform": false,
+            "expected_time_s": 10,
+            "expected_value_source": 0,
+            "pixel_center_band": [
+              1402.5,
+              2263.5,
+              1408.5,
+              2269.5
+            ],
+            "time_residual_s": "-0.006863",
+            "value_residual_source": "0.051833"
+          },
+          {
+            "printed_label": "vertical -10.00",
+            "point_xy": [
+              677.5,
+              2358.5
+            ],
+            "used_for_transform": false,
+            "expected_time_s": 0,
+            "expected_value_source": -10,
+            "pixel_center_band": [
+              675.5,
+              2356.5,
+              679.5,
+              2360.5
+            ],
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.104167"
+          }
+        ],
+        "time_axis_direction": "increasing right",
+        "value_axis_direction": "increasing up",
+        "coefficients_rational": {
+          "time_x": "20/1457",
+          "time_y": "0/1",
+          "time_constant": "-13550/1457",
+          "value_x": "35/69936",
+          "value_y": "-5/48",
+          "value_constant": "16465885/69936"
+        },
+        "equation": "time_s=time_x*x+time_y*y+time_constant; value_source=value_x*x+value_y*y+value_constant",
+        "transform": "2D affine from O, X and V; 10-second and negative vertical anchors NOT used in solve",
+        "rounding": {
+          "source_quantum": "0.5",
+          "time_quantum_s": "0.01",
+          "rule": "nearest, half away from zero; negative zero canonicalized to zero"
+        },
+        "mapping_status": "unresolved",
+        "value_si": null,
+        "mapping_reason": "No independent report sensor/figure/frame/sign resolution is claimed here. Source-convention values retained; SI admission deferred to separate mapping review.",
+        "selected_source_windows_xyxy": [
+          [
+            700,
+            1982,
+            2180,
+            2258
+          ]
+        ],
+        "maximum_readable_column_span_px": 14,
+        "precision": "Tick bands and visible stroke bounds are graph locators, not confidence intervals. Check residuals reported without invented acceptance tolerance. No accuracy is inferred from grid density."
+      },
+      {
+        "id": "B-p-original-v1",
+        "pass_id": "B",
+        "channel": "p",
+        "run": "2A-4",
+        "pdf_page": 123,
+        "panel": 1,
+        "source_unit": "deg/s",
+        "status": "original_graph_reading_candidate",
+        "unavailable_reason": null,
+        "ticks": [
+          {
+            "printed_label": "time 0.00 / vertical 0.00",
+            "point_xy": [
+              718.5,
+              493.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 0,
+            "expected_value_source": 0,
+            "pixel_center_band": [
+              715.5,
+              490.5,
+              721.5,
+              497.5
+            ],
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "time 20.00 / zero axis",
+            "point_xy": [
+              2177.5,
+              489.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 20,
+            "expected_value_source": 0,
+            "pixel_center_band": [
+              2175.5,
+              486.5,
+              2179.5,
+              492.5
+            ],
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "vertical +20.00",
+            "point_xy": [
+              717.5,
+              398.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 0,
+            "expected_value_source": 20,
+            "pixel_center_band": [
+              715.5,
+              397.5,
+              719.5,
+              399.5
+            ],
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "time 10.00 / zero axis",
+            "point_xy": [
+              1448.5,
+              491.5
+            ],
+            "used_for_transform": false,
+            "expected_time_s": 10,
+            "expected_value_source": 0,
+            "pixel_center_band": [
+              1445.5,
+              488.5,
+              1452.5,
+              494.5
+            ],
+            "time_residual_s": "0.006854",
+            "value_residual_source": "-0.000289"
+          },
+          {
+            "printed_label": "vertical -20.00",
+            "point_xy": [
+              719.5,
+              589.5
+            ],
+            "used_for_transform": false,
+            "expected_time_s": 0,
+            "expected_value_source": -20,
+            "pixel_center_band": [
+              716.5,
+              587.5,
+              721.5,
+              591.5
+            ],
+            "time_residual_s": "-0.000144",
+            "value_residual_source": "-0.210520"
+          }
+        ],
+        "time_axis_direction": "increasing right",
+        "value_axis_direction": "increasing up",
+        "coefficients_rational": {
+          "time_x": "1900/138609",
+          "time_y": "-20/138609",
+          "time_constant": "-451760/46203",
+          "value_x": "-80/138609",
+          "value_y": "-29180/138609",
+          "value_constant": "4819270/46203"
+        },
+        "equation": "time_s=time_x*x+time_y*y+time_constant; value_source=value_x*x+value_y*y+value_constant",
+        "transform": "2D affine from O, X and V; 10-second and negative vertical anchors NOT used in solve",
+        "rounding": {
+          "source_quantum": "1",
+          "time_quantum_s": "0.01",
+          "rule": "nearest, half away from zero; negative zero canonicalized to zero"
+        },
+        "mapping_status": "unresolved",
+        "value_si": null,
+        "mapping_reason": "No independent report sensor/figure/frame/sign resolution is claimed here. Source-convention values retained; SI admission deferred to separate mapping review.",
+        "selected_source_windows_xyxy": [
+          [
+            920,
+            1005,
+            520,
+            555
+          ],
+          [
+            1040,
+            1150,
+            403,
+            470
+          ],
+          [
+            1190,
+            1350,
+            508,
+            560
+          ],
+          [
+            1390,
+            1505,
+            431,
+            474
+          ],
+          [
+            1540,
+            1595,
+            503,
+            520
+          ]
+        ],
+        "maximum_readable_column_span_px": 7,
+        "precision": "Tick bands and visible stroke bounds are graph locators, not confidence intervals. Check residuals reported without invented acceptance tolerance. No accuracy is inferred from grid density."
+      },
+      {
+        "id": "B-r-original-v1",
+        "pass_id": "B",
+        "channel": "r",
+        "run": "2A-4",
+        "pdf_page": 123,
+        "panel": 2,
+        "source_unit": "deg/s",
+        "status": "unavailable",
+        "unavailable_reason": "The printed 10.00 label is legible, but a descending response merges with the zero axis at its tick. I cannot independently separate the tick center from that crossing. No third time anchor is admitted; its location is not inferred from equal spacing.",
+        "ticks": [
+          {
+            "printed_label": "time 0.00 / vertical 0.00",
+            "point_xy": [
+              719.5,
+              724.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 0,
+            "expected_value_source": 0,
+            "pixel_center_band": null,
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "time 20.00 / zero axis",
+            "point_xy": [
+              2180.5,
+              718.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 20,
+            "expected_value_source": 0,
+            "pixel_center_band": null,
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "vertical +20.00",
+            "point_xy": [
+              718.5,
+              628.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 0,
+            "expected_value_source": 20,
+            "pixel_center_band": null,
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "time 10.00 / zero axis",
+            "point_xy": null,
+            "used_for_transform": false,
+            "expected_time_s": 10,
+            "expected_value_source": 0,
+            "pixel_center_band": null,
+            "reason": "illegible_axis",
+            "time_residual_s": null,
+            "value_residual_source": null
+          },
+          {
+            "printed_label": "vertical -20.00",
+            "point_xy": [
+              720.5,
+              819.5
+            ],
+            "used_for_transform": false,
+            "expected_time_s": 0,
+            "expected_value_source": -20,
+            "pixel_center_band": null,
+            "time_residual_s": "0.000143",
+            "value_residual_source": "0.208324"
+          }
+        ],
+        "time_axis_direction": "increasing right",
+        "value_axis_direction": "increasing up",
+        "coefficients_rational": null,
+        "equation": "time_s=time_x*x+time_y*y+time_constant; value_source=value_x*x+value_y*y+value_constant",
+        "transform": "2D affine from O, X and V; 10-second and negative vertical anchors NOT used in solve",
+        "rounding": {
+          "source_quantum": "1",
+          "time_quantum_s": "0.01",
+          "rule": "nearest, half away from zero; negative zero canonicalized to zero"
+        },
+        "mapping_status": "unresolved",
+        "value_si": null,
+        "mapping_reason": "No independent report sensor/figure/frame/sign resolution is claimed here. Source-convention values retained; SI admission deferred to separate mapping review.",
+        "selected_source_windows_xyxy": [],
+        "maximum_readable_column_span_px": 7,
+        "precision": "Tick bands and visible stroke bounds are graph locators, not confidence intervals. Check residuals reported without invented acceptance tolerance. No accuracy is inferred from grid density."
+      },
+      {
+        "id": "B-phi-original-v1",
+        "pass_id": "B",
+        "channel": "phi",
+        "run": "2A-4",
+        "pdf_page": 123,
+        "panel": 4,
+        "source_unit": "deg",
+        "status": "unavailable",
+        "unavailable_reason": "The response crosses the time axis and printed 10.00 glyph region. No separate 10-second tick center is identifiable in my original-image inspection. Label position alone is not an anchor; no equal-spacing inference is made.",
+        "ticks": [
+          {
+            "printed_label": "time 0.00 / vertical 0.00",
+            "point_xy": [
+              720.5,
+              1184.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 0,
+            "expected_value_source": 0,
+            "pixel_center_band": null,
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "time 20.00 / zero axis",
+            "point_xy": [
+              2180.5,
+              1178.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 20,
+            "expected_value_source": 0,
+            "pixel_center_band": null,
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "vertical +10.00",
+            "point_xy": [
+              719.5,
+              1089.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 0,
+            "expected_value_source": 10,
+            "pixel_center_band": null,
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "time 10.00 / zero axis",
+            "point_xy": null,
+            "used_for_transform": false,
+            "expected_time_s": 10,
+            "expected_value_source": 0,
+            "pixel_center_band": null,
+            "reason": "illegible_axis",
+            "time_residual_s": null,
+            "value_residual_source": null
+          },
+          {
+            "printed_label": "vertical -10.00",
+            "point_xy": [
+              721.5,
+              1281.5
+            ],
+            "used_for_transform": false,
+            "expected_time_s": 0,
+            "expected_value_source": -10,
+            "pixel_center_band": null,
+            "time_residual_s": "-0.000288",
+            "value_residual_source": "-0.210517"
+          }
+        ],
+        "time_axis_direction": "increasing right",
+        "value_axis_direction": "increasing up",
+        "coefficients_rational": null,
+        "equation": "time_s=time_x*x+time_y*y+time_constant; value_source=value_x*x+value_y*y+value_constant",
+        "transform": "2D affine from O, X and V; 10-second and negative vertical anchors NOT used in solve",
+        "rounding": {
+          "source_quantum": "0.5",
+          "time_quantum_s": "0.01",
+          "rule": "nearest, half away from zero; negative zero canonicalized to zero"
+        },
+        "mapping_status": "unresolved",
+        "value_si": null,
+        "mapping_reason": "No independent report sensor/figure/frame/sign resolution is claimed here. Source-convention values retained; SI admission deferred to separate mapping review.",
+        "selected_source_windows_xyxy": [],
+        "maximum_readable_column_span_px": 7,
+        "precision": "Tick bands and visible stroke bounds are graph locators, not confidence intervals. Check residuals reported without invented acceptance tolerance. No accuracy is inferred from grid density."
+      },
+      {
+        "id": "B-delta_A-original-v1",
+        "pass_id": "B",
+        "channel": "delta_A",
+        "run": "2A-4",
+        "pdf_page": 123,
+        "panel": 8,
+        "source_unit": "deg",
+        "status": "original_graph_reading_candidate",
+        "unavailable_reason": null,
+        "ticks": [
+          {
+            "printed_label": "time 0.00 / vertical 0.00",
+            "point_xy": [
+              727.5,
+              2158.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 0,
+            "expected_value_source": 0,
+            "pixel_center_band": [
+              724.5,
+              2156.5,
+              730.5,
+              2161.5
+            ],
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "time 20.00 / zero axis",
+            "point_xy": [
+              2186.5,
+              2151.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 20,
+            "expected_value_source": 0,
+            "pixel_center_band": [
+              2183.5,
+              2147.5,
+              2188.5,
+              2155.5
+            ],
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "vertical +10.00",
+            "point_xy": [
+              726.5,
+              2063.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 0,
+            "expected_value_source": 10,
+            "pixel_center_band": [
+              724.5,
+              2061.5,
+              729.5,
+              2065.5
+            ],
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "time 10.00 / zero axis",
+            "point_xy": [
+              1457.5,
+              2155.5
+            ],
+            "used_for_transform": false,
+            "expected_time_s": 10,
+            "expected_value_source": 0,
+            "pixel_center_band": [
+              1454.5,
+              2152.5,
+              1461.5,
+              2157.5
+            ],
+            "time_residual_s": "0.006782",
+            "value_residual_source": "-0.052881"
+          },
+          {
+            "printed_label": "vertical -10.00",
+            "point_xy": [
+              728.5,
+              2255.5
+            ],
+            "used_for_transform": false,
+            "expected_time_s": 0,
+            "expected_value_source": -10,
+            "pixel_center_band": [
+              725.5,
+              2252.5,
+              731.5,
+              2257.5
+            ],
+            "time_residual_s": "-0.000289",
+            "value_residual_source": "-0.210516"
+          }
+        ],
+        "time_axis_direction": "increasing right",
+        "value_axis_direction": "increasing up",
+        "coefficients_rational": {
+          "time_x": "475/34653",
+          "time_y": "-5/34653",
+          "time_constant": "-111590/11551",
+          "value_x": "-35/69306",
+          "value_y": "-7295/69306",
+          "value_constant": "2628620/11551"
+        },
+        "equation": "time_s=time_x*x+time_y*y+time_constant; value_source=value_x*x+value_y*y+value_constant",
+        "transform": "2D affine from O, X and V; 10-second and negative vertical anchors NOT used in solve",
+        "rounding": {
+          "source_quantum": "0.5",
+          "time_quantum_s": "0.01",
+          "rule": "nearest, half away from zero; negative zero canonicalized to zero"
+        },
+        "mapping_status": "unresolved",
+        "value_si": null,
+        "mapping_reason": "No independent report sensor/figure/frame/sign resolution is claimed here. Source-convention values retained; SI admission deferred to separate mapping review.",
+        "selected_source_windows_xyxy": [
+          [
+            740,
+            1035,
+            2164,
+            2210
+          ],
+          [
+            1160,
+            1380,
+            2164,
+            2210
+          ],
+          [
+            1540,
+            2180,
+            2162,
+            2200
+          ]
+        ],
+        "maximum_readable_column_span_px": 14,
+        "precision": "Tick bands and visible stroke bounds are graph locators, not confidence intervals. Check residuals reported without invented acceptance tolerance. No accuracy is inferred from grid density."
+      },
+      {
+        "id": "B-delta_R-original-v1",
+        "pass_id": "B",
+        "channel": "delta_R",
+        "run": "2A-4",
+        "pdf_page": 123,
+        "panel": 9,
+        "source_unit": "deg",
+        "status": "original_graph_reading_candidate",
+        "unavailable_reason": null,
+        "ticks": [
+          {
+            "printed_label": "time 0.00 / vertical 0.00",
+            "point_xy": [
+              729.5,
+              2389.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 0,
+            "expected_value_source": 0,
+            "pixel_center_band": [
+              726.5,
+              2386.5,
+              732.5,
+              2393.5
+            ],
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "time 20.00 / zero axis",
+            "point_xy": [
+              2188.5,
+              2383.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 20,
+            "expected_value_source": 0,
+            "pixel_center_band": [
+              2186.5,
+              2379.5,
+              2190.5,
+              2387.5
+            ],
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "vertical +10.00",
+            "point_xy": [
+              728.5,
+              2294.5
+            ],
+            "used_for_transform": true,
+            "expected_time_s": 0,
+            "expected_value_source": 10,
+            "pixel_center_band": [
+              726.5,
+              2291.5,
+              731.5,
+              2296.5
+            ],
+            "time_residual_s": "0.000000",
+            "value_residual_source": "0.000000"
+          },
+          {
+            "printed_label": "time 10.00 / zero axis",
+            "point_xy": [
+              1459.5,
+              2386.5
+            ],
+            "used_for_transform": false,
+            "expected_time_s": 10,
+            "expected_value_source": 0,
+            "pixel_center_band": [
+              1457.5,
+              2383.5,
+              1462.5,
+              2388.5
+            ],
+            "time_residual_s": "0.006854",
+            "value_residual_source": "-0.000216"
+          },
+          {
+            "printed_label": "vertical -10.00",
+            "point_xy": [
+              730.5,
+              2486.5
+            ],
+            "used_for_transform": false,
+            "expected_time_s": 0,
+            "expected_value_source": -10,
+            "pixel_center_band": [
+              728.5,
+              2484.5,
+              733.5,
+              2488.5
+            ],
+            "time_residual_s": "-0.000289",
+            "value_residual_source": "-0.210517"
+          }
+        ],
+        "time_axis_direction": "increasing right",
+        "value_axis_direction": "increasing up",
+        "coefficients_rational": {
+          "time_x": "1900/138611",
+          "time_y": "-20/138611",
+          "time_constant": "-121660/12601",
+          "value_x": "-60/138611",
+          "value_y": "-14590/138611",
+          "value_constant": "3173325/12601"
+        },
+        "equation": "time_s=time_x*x+time_y*y+time_constant; value_source=value_x*x+value_y*y+value_constant",
+        "transform": "2D affine from O, X and V; 10-second and negative vertical anchors NOT used in solve",
+        "rounding": {
+          "source_quantum": "0.5",
+          "time_quantum_s": "0.01",
+          "rule": "nearest, half away from zero; negative zero canonicalized to zero"
+        },
+        "mapping_status": "unresolved",
+        "value_si": null,
+        "mapping_reason": "No independent report sensor/figure/frame/sign resolution is claimed here. Source-convention values retained; SI admission deferred to separate mapping review.",
+        "selected_source_windows_xyxy": [
+          [
+            740,
+            2180,
+            2300,
+            2380
+          ]
+        ],
+        "maximum_readable_column_span_px": 14,
+        "precision": "Tick bands and visible stroke bounds are graph locators, not confidence intervals. Check residuals reported without invented acceptance tolerance. No accuracy is inferred from grid density."
+      }
+    ]
+  },
+  "calibration_arithmetic": "A uses recorded affine coefficients/equations and original fit/check anchors; B uses recorded rational two-dimensional affine coefficients with used_for_transform versus independent ticks. Apply each pass coefficients to its original x/y; never refit or select an average. Preserve recorded source rounding. All original coefficients/anchors/check residuals are included here for audit.",
+  "independent_check_observations": [
+    {
+      "pass": "A",
+      "channel": "q",
+      "recorded_time_check_s": "-5/364",
+      "recorded_vertical_check_source": "20/191",
+      "no_refit": true
+    },
+    {
+      "pass": "A",
+      "channel": "theta",
+      "recorded_time_check_s": "-70/1457",
+      "recorded_vertical_check_source": "-2/77",
+      "no_refit": true
+    },
+    {
+      "pass": "A",
+      "channel": "delta_E",
+      "recorded_time_check_s": "0",
+      "recorded_vertical_check_source": "0",
+      "no_refit": true
+    },
+    {
+      "pass": "A",
+      "channel": "p",
+      "recorded_time_check_s": "10/1459",
+      "recorded_vertical_check_source": "-20/383",
+      "no_refit": true
+    },
+    {
+      "pass": "A",
+      "channel": "r",
+      "recorded_time_check_s": "-10/1459",
+      "recorded_vertical_check_source": "-20/383",
+      "no_refit": true
+    },
+    {
+      "pass": "A",
+      "channel": "delta_R",
+      "recorded_time_check_s": "-30/1459",
+      "recorded_vertical_check_source": "6/77",
+      "no_refit": true
+    },
+    {
+      "pass": "B",
+      "channel": "q",
+      "printed_check": "time 10.00 / zero axis",
+      "residual_time_s": "0",
+      "residual_source": "0",
+      "predicted_check_within_declared_band": true,
+      "no_refit": true
+    },
+    {
+      "pass": "B",
+      "channel": "q",
+      "printed_check": "vertical -20.00",
+      "residual_time_s": "-192/13831",
+      "residual_source": "-2932/13831",
+      "predicted_check_within_declared_band": true,
+      "no_refit": true
+    },
+    {
+      "pass": "B",
+      "channel": "theta",
+      "printed_check": "time 10.00 / zero axis",
+      "residual_time_s": "5/364",
+      "residual_source": "-719/13832",
+      "predicted_check_within_declared_band": true,
+      "no_refit": true
+    },
+    {
+      "pass": "B",
+      "channel": "theta",
+      "printed_check": "vertical -10.00",
+      "residual_time_s": "-5/364",
+      "residual_source": "-1465/13832",
+      "predicted_check_within_declared_band": true,
+      "no_refit": true
+    },
+    {
+      "pass": "B",
+      "channel": "delta_E",
+      "printed_check": "time 10.00 / zero axis",
+      "residual_time_s": "-10/1457",
+      "residual_source": "3625/69936",
+      "predicted_check_within_declared_band": true,
+      "no_refit": true
+    },
+    {
+      "pass": "B",
+      "channel": "delta_E",
+      "printed_check": "vertical -10.00",
+      "residual_time_s": "0",
+      "residual_source": "5/48",
+      "predicted_check_within_declared_band": true,
+      "no_refit": true
+    },
+    {
+      "pass": "B",
+      "channel": "p",
+      "printed_check": "time 10.00 / zero axis",
+      "residual_time_s": "950/138609",
+      "residual_source": "-40/138609",
+      "predicted_check_within_declared_band": true,
+      "no_refit": true
+    },
+    {
+      "pass": "B",
+      "channel": "p",
+      "printed_check": "vertical -20.00",
+      "residual_time_s": "-20/138609",
+      "residual_source": "-29180/138609",
+      "predicted_check_within_declared_band": true,
+      "no_refit": true
+    },
+    {
+      "pass": "B",
+      "channel": "delta_A",
+      "printed_check": "time 10.00 / zero axis",
+      "residual_time_s": "235/34653",
+      "residual_source": "-3665/69306",
+      "predicted_check_within_declared_band": true,
+      "no_refit": true
+    },
+    {
+      "pass": "B",
+      "channel": "delta_A",
+      "printed_check": "vertical -10.00",
+      "residual_time_s": "-10/34653",
+      "residual_source": "-7295/34653",
+      "predicted_check_within_declared_band": true,
+      "no_refit": true
+    },
+    {
+      "pass": "B",
+      "channel": "delta_R",
+      "printed_check": "time 10.00 / zero axis",
+      "residual_time_s": "950/138611",
+      "residual_source": "-30/138611",
+      "predicted_check_within_declared_band": true,
+      "no_refit": true
+    },
+    {
+      "pass": "B",
+      "channel": "delta_R",
+      "printed_check": "vertical -10.00",
+      "residual_time_s": "-40/138611",
+      "residual_source": "-29180/138611",
+      "predicted_check_within_declared_band": true,
+      "no_refit": true
+    }
+  ],
+  "time_origin_ambiguity": "A theta10s residual -70/1457s (~-0.04804s, -3.5px) versus B +5/364s (~0.01374s). Tiny-hook/band choices are systematic timing ambiguity, not repeatability or a confidence interval.",
+  "original_postfreeze_discrepancies": {
+    "candidate_rows": {
+      "run-2a-3": 6006,
+      "run-2a-4": 10010,
+      "total": 16016
+    },
+    "paired_grid_positions": 8008,
+    "per_channel": {
+      "q": {
+        "A": {
+          "measured": 303,
+          "ambiguous": 698,
+          "unavailable": 0
+        },
+        "B": {
+          "measured": 210,
+          "ambiguous": 791,
+          "unavailable": 0
+        },
+        "pairs": {
+          "both_measured": 203,
+          "A_only_measured": 100,
+          "B_only_measured": 7,
+          "neither_measured": 691
+        },
+        "both_measured_raw_B_minus_A": {
+          "x_px": {
+            "count": 203,
+            "minimum_signed": "0.0",
+            "maximum_signed": "0.0",
+            "nonzero_count": 0
+          },
+          "y_px": {
+            "count": 203,
+            "minimum_signed": "0.0",
+            "maximum_signed": "0.0",
+            "nonzero_count": 0
+          },
+          "y_low_px": {
+            "count": 203,
+            "minimum_signed": "0.5",
+            "maximum_signed": "0.5",
+            "nonzero_count": 203
+          },
+          "y_high_px": {
+            "count": 203,
+            "minimum_signed": "-0.5",
+            "maximum_signed": "-0.5",
+            "nonzero_count": 203
+          },
+          "time_source_s": {
+            "count": 203,
+            "minimum_signed": "-0.008791",
+            "maximum_signed": "0.007802",
+            "nonzero_count": 202
+          },
+          "value_source": {
+            "count": 203,
+            "minimum_signed": "-0.5",
+            "maximum_signed": "0.5",
+            "nonzero_count": 69
+          }
+        },
+        "source_unit": "deg/s"
+      },
+      "theta": {
+        "A": {
+          "measured": 234,
+          "ambiguous": 767,
+          "unavailable": 0
+        },
+        "B": {
+          "measured": 212,
+          "ambiguous": 789,
+          "unavailable": 0
+        },
+        "pairs": {
+          "both_measured": 121,
+          "A_only_measured": 113,
+          "B_only_measured": 91,
+          "neither_measured": 676
+        },
+        "both_measured_raw_B_minus_A": {
+          "x_px": {
+            "count": 121,
+            "minimum_signed": "-1.0",
+            "maximum_signed": "0.0",
+            "nonzero_count": 34
+          },
+          "y_px": {
+            "count": 121,
+            "minimum_signed": "-1.5",
+            "maximum_signed": "1.0",
+            "nonzero_count": 22
+          },
+          "y_low_px": {
+            "count": 121,
+            "minimum_signed": "-1.5",
+            "maximum_signed": "1.5",
+            "nonzero_count": 121
+          },
+          "y_high_px": {
+            "count": 121,
+            "minimum_signed": "-2.5",
+            "maximum_signed": "0.5",
+            "nonzero_count": 121
+          },
+          "time_source_s": {
+            "count": 121,
+            "minimum_signed": "-0.016177",
+            "maximum_signed": "0.009684",
+            "nonzero_count": 121
+          },
+          "value_source": {
+            "count": 121,
+            "minimum_signed": "-0.3",
+            "maximum_signed": "0.3",
+            "nonzero_count": 100
+          }
+        },
+        "source_unit": "deg"
+      },
+      "delta_E": {
+        "A": {
+          "measured": 625,
+          "ambiguous": 266,
+          "unavailable": 110
+        },
+        "B": {
+          "measured": 850,
+          "ambiguous": 47,
+          "unavailable": 104
+        },
+        "pairs": {
+          "both_measured": 625,
+          "A_only_measured": 0,
+          "B_only_measured": 225,
+          "neither_measured": 151
+        },
+        "both_measured_raw_B_minus_A": {
+          "x_px": {
+            "count": 625,
+            "minimum_signed": "0.0",
+            "maximum_signed": "1.0",
+            "nonzero_count": 284
+          },
+          "y_px": {
+            "count": 625,
+            "minimum_signed": "-2.0",
+            "maximum_signed": "1.5",
+            "nonzero_count": 114
+          },
+          "y_low_px": {
+            "count": 625,
+            "minimum_signed": "-2.5",
+            "maximum_signed": "1.5",
+            "nonzero_count": 625
+          },
+          "y_high_px": {
+            "count": 625,
+            "minimum_signed": "-2.5",
+            "maximum_signed": "1.5",
+            "nonzero_count": 625
+          },
+          "time_source_s": {
+            "count": 625,
+            "minimum_signed": "-0.016831",
+            "maximum_signed": "0.016831",
+            "nonzero_count": 625
+          },
+          "value_source": {
+            "count": 625,
+            "minimum_signed": "-0.4",
+            "maximum_signed": "0.5",
+            "nonzero_count": 596
+          }
+        },
+        "source_unit": "deg"
+      },
+      "p": {
+        "A": {
+          "measured": 282,
+          "ambiguous": 719,
+          "unavailable": 0
+        },
+        "B": {
+          "measured": 111,
+          "ambiguous": 890,
+          "unavailable": 0
+        },
+        "pairs": {
+          "both_measured": 85,
+          "A_only_measured": 197,
+          "B_only_measured": 26,
+          "neither_measured": 693
+        },
+        "both_measured_raw_B_minus_A": {
+          "x_px": {
+            "count": 85,
+            "minimum_signed": "0.0",
+            "maximum_signed": "0.0",
+            "nonzero_count": 0
+          },
+          "y_px": {
+            "count": 85,
+            "minimum_signed": "0.0",
+            "maximum_signed": "0.0",
+            "nonzero_count": 0
+          },
+          "y_low_px": {
+            "count": 85,
+            "minimum_signed": "0.5",
+            "maximum_signed": "0.5",
+            "nonzero_count": 85
+          },
+          "y_high_px": {
+            "count": 85,
+            "minimum_signed": "-0.5",
+            "maximum_signed": "-0.5",
+            "nonzero_count": 85
+          },
+          "time_source_s": {
+            "count": 85,
+            "minimum_signed": "-0.013557",
+            "maximum_signed": "0.015113",
+            "nonzero_count": 85
+          },
+          "value_source": {
+            "count": 85,
+            "minimum_signed": "-0.5",
+            "maximum_signed": "0.5",
+            "nonzero_count": 33
+          }
+        },
+        "source_unit": "deg/s"
+      },
+      "r": {
+        "A": {
+          "measured": 215,
+          "ambiguous": 786,
+          "unavailable": 0
+        },
+        "B": {
+          "measured": 0,
+          "ambiguous": 0,
+          "unavailable": 1001
+        },
+        "pairs": {
+          "both_measured": 0,
+          "A_only_measured": 215,
+          "B_only_measured": 0,
+          "neither_measured": 786
+        },
+        "both_measured_raw_B_minus_A": {
+          "x_px": {
+            "count": 0,
+            "minimum_signed": null,
+            "maximum_signed": null,
+            "nonzero_count": 0
+          },
+          "y_px": {
+            "count": 0,
+            "minimum_signed": null,
+            "maximum_signed": null,
+            "nonzero_count": 0
+          },
+          "y_low_px": {
+            "count": 0,
+            "minimum_signed": null,
+            "maximum_signed": null,
+            "nonzero_count": 0
+          },
+          "y_high_px": {
+            "count": 0,
+            "minimum_signed": null,
+            "maximum_signed": null,
+            "nonzero_count": 0
+          },
+          "time_source_s": {
+            "count": 0,
+            "minimum_signed": null,
+            "maximum_signed": null,
+            "nonzero_count": 0
+          },
+          "value_source": {
+            "count": 0,
+            "minimum_signed": null,
+            "maximum_signed": null,
+            "nonzero_count": 0
+          }
+        },
+        "source_unit": "deg/s"
+      },
+      "phi": {
+        "A": {
+          "measured": 0,
+          "ambiguous": 0,
+          "unavailable": 1001
+        },
+        "B": {
+          "measured": 0,
+          "ambiguous": 0,
+          "unavailable": 1001
+        },
+        "pairs": {
+          "both_measured": 0,
+          "A_only_measured": 0,
+          "B_only_measured": 0,
+          "neither_measured": 1001
+        },
+        "both_measured_raw_B_minus_A": {
+          "x_px": {
+            "count": 0,
+            "minimum_signed": null,
+            "maximum_signed": null,
+            "nonzero_count": 0
+          },
+          "y_px": {
+            "count": 0,
+            "minimum_signed": null,
+            "maximum_signed": null,
+            "nonzero_count": 0
+          },
+          "y_low_px": {
+            "count": 0,
+            "minimum_signed": null,
+            "maximum_signed": null,
+            "nonzero_count": 0
+          },
+          "y_high_px": {
+            "count": 0,
+            "minimum_signed": null,
+            "maximum_signed": null,
+            "nonzero_count": 0
+          },
+          "time_source_s": {
+            "count": 0,
+            "minimum_signed": null,
+            "maximum_signed": null,
+            "nonzero_count": 0
+          },
+          "value_source": {
+            "count": 0,
+            "minimum_signed": null,
+            "maximum_signed": null,
+            "nonzero_count": 0
+          }
+        },
+        "source_unit": "deg"
+      },
+      "delta_A": {
+        "A": {
+          "measured": 0,
+          "ambiguous": 0,
+          "unavailable": 1001
+        },
+        "B": {
+          "measured": 761,
+          "ambiguous": 240,
+          "unavailable": 0
+        },
+        "pairs": {
+          "both_measured": 0,
+          "A_only_measured": 0,
+          "B_only_measured": 761,
+          "neither_measured": 240
+        },
+        "both_measured_raw_B_minus_A": {
+          "x_px": {
+            "count": 0,
+            "minimum_signed": null,
+            "maximum_signed": null,
+            "nonzero_count": 0
+          },
+          "y_px": {
+            "count": 0,
+            "minimum_signed": null,
+            "maximum_signed": null,
+            "nonzero_count": 0
+          },
+          "y_low_px": {
+            "count": 0,
+            "minimum_signed": null,
+            "maximum_signed": null,
+            "nonzero_count": 0
+          },
+          "y_high_px": {
+            "count": 0,
+            "minimum_signed": null,
+            "maximum_signed": null,
+            "nonzero_count": 0
+          },
+          "time_source_s": {
+            "count": 0,
+            "minimum_signed": null,
+            "maximum_signed": null,
+            "nonzero_count": 0
+          },
+          "value_source": {
+            "count": 0,
+            "minimum_signed": null,
+            "maximum_signed": null,
+            "nonzero_count": 0
+          }
+        },
+        "source_unit": "deg"
+      },
+      "delta_R": {
+        "A": {
+          "measured": 901,
+          "ambiguous": 100,
+          "unavailable": 0
+        },
+        "B": {
+          "measured": 741,
+          "ambiguous": 260,
+          "unavailable": 0
+        },
+        "pairs": {
+          "both_measured": 697,
+          "A_only_measured": 204,
+          "B_only_measured": 44,
+          "neither_measured": 56
+        },
+        "both_measured_raw_B_minus_A": {
+          "x_px": {
+            "count": 697,
+            "minimum_signed": "0.0",
+            "maximum_signed": "0.0",
+            "nonzero_count": 0
+          },
+          "y_px": {
+            "count": 697,
+            "minimum_signed": "0.0",
+            "maximum_signed": "0.0",
+            "nonzero_count": 0
+          },
+          "y_low_px": {
+            "count": 697,
+            "minimum_signed": "0.5",
+            "maximum_signed": "0.5",
+            "nonzero_count": 697
+          },
+          "y_high_px": {
+            "count": 697,
+            "minimum_signed": "-0.5",
+            "maximum_signed": "-0.5",
+            "nonzero_count": 697
+          },
+          "time_source_s": {
+            "count": 697,
+            "minimum_signed": "-0.001672",
+            "maximum_signed": "0.014517",
+            "nonzero_count": 697
+          },
+          "value_source": {
+            "count": 697,
+            "minimum_signed": "-0.3",
+            "maximum_signed": "0.4",
+            "nonzero_count": 584
+          }
+        },
+        "source_unit": "deg"
+      }
+    },
+    "totals": {
+      "A": {
+        "measured": 2560,
+        "ambiguous": 3336,
+        "unavailable": 2112
+      },
+      "B": {
+        "measured": 2885,
+        "ambiguous": 3017,
+        "unavailable": 2106
+      }
+    },
+    "pixel_bounds_conventions": {
+      "A": "outer pixel edges, integer low and exclusive high",
+      "B": "inclusive first/last pixel centers, half integer",
+      "comparison": "raw endpoints only; convention offsets are not physical disagreement or confidence bounds"
+    }
+  },
+  "discrepancy_interpretation": "Signed exact-decimal B-A only where BOTH original rows are measured;1,731 such positions. Target-time equality does not imply identical actual source time. Raw bound differences include endpoint-convention offsets. No selection/average, agreement threshold, smoothing or model output.",
+  "uncertainty_components": {
+    "line_width_and_resolution": "original pixel runs, windows and rounding quanta retained; grid rows strongly correlated",
+    "axis_calibration_skew": "recorded independent checks/bands, not a fitted accuracy guarantee",
+    "time_zero_and_alignment": "unknown absolute timing and pass-specific residuals",
+    "sensor_and_control_calibration": "unknown run-linked transfer, sensor-axis identities/signs unresolved",
+    "repeatability": "two original readings only; not absolute accuracy",
+    "systematic_and_applicability": "unknown and not replaced by estimator bounds or derivative percentages"
+  },
+  "mapping_caveats": [
+    "Table3.3 PDF41 names p pitch/q roll; FigureC.1 PDF238 depicts p roll/q pitch. No automatic sensor accuracy or native axis assignment.",
+    "FigureC.1 control conventions (positive aileron positive roll; positive rudder negative yaw) are not native pilot-intent commands.",
+    "Predicted alpha/beta and fitted derivatives are not measured truth. No run IC borrowed from Flight4/PhaseII/other variants."
+  ],
+  "negative_result": "Three of eight planned channels fail independent printed-anchor eligibility, and the other five contain substantial unpaired/occluded/gapped regions. No complete measured input/response pair is admitted for native replay or aircraft validation.",
+  "bounded_next_action": "Retain these five research artifacts; seek a better legible primary original or published raw run data/errata identifying exact sensors, control signs, IC/configuration and calibration. Reassess only affected source eligibility through independent review; no invented curve/IC/tolerance or model tuning.",
+  "not_claimed": [
+    "SI/native mapping",
+    "model/aircraft fidelity",
+    "C172S/P applicability",
+    "benchmark/reference acceptance",
+    "pilot/training/phase acceptance",
+    "blanket source-material license or legal guarantee"
+  ]
+}
