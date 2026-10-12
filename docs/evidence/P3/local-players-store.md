@@ -1,6 +1,6 @@
 # Local-player storage backend
 
-Status: backend qualification complete for the measured Build44 source; #219 is under review. Required CI on the final integrated PR head and checked merge remain pending. This is not the player-selection UI or P3 acceptance.
+Status: checked backend accepted through [PR239](https://github.com/brettbergin/flight-simulator/pull/239), merged 2026-10-12 as `783e8fc1576b0a5758a967ccdc5333c7ba1636e8`. All twelve CI checks passed on final head `f2da3aaa44b604b5a3e41083603c8e411dce9aa8`; the merged tree is identical. #219 is closed. Player-selection UI, the combined #220 delivery journey and P3 acceptance remain separate.
 
 ## Backend handoff
 
@@ -46,4 +46,4 @@ Build41 stopped before compilation on stale public-runner producer pins. Build42
 
 Actual physical rollback failure, an observed OS flush failure, disk-full, hardware power loss, catastrophic engine/OS OOM and arbitrary partial-I/O behavior are not claimed. The synthetic flush case records `operation_attempted=false` and a null Win32 error; it proves the declared logical refusal/retention/retry path. Its logical typed/SQL before/after proofs do not claim a live physical original-four snapshot. Process-crash coverage is not hardware power-loss qualification. No owner profile is published or opened by the root-free probe.
 
-Issue #219 hands off checked backend source after required affected-flight/shared-control CI. #220 must still deliver the accepted twelve-role `LocalPlayersPackageAggregate/v1`, both-extension corresponding source/SQLite/CRT/notices closure, actual editor/portable/rebuilt-replacement PCK/module and storage-replacement evidence, A/B/Guest screens, relaunch and disposable installed-user KnownFolder journey. These mandatory exits are not inferred from separate component receipts. Parent #34/#74/#36, broad P2/P3, aircraft fidelity and pilot evaluation remain open. Final exact-head CI and merge status belong to [PR239](https://github.com/brettbergin/flight-simulator/pull/239); no merge is claimed here.
+Issue #219 hands off checked backend source after required affected-flight/shared-control CI. #220 must still deliver the accepted twelve-role `LocalPlayersPackageAggregate/v1`, both-extension corresponding source/SQLite/CRT/notices closure, actual editor/portable/rebuilt-replacement PCK/module and storage-replacement evidence, A/B/Guest screens, relaunch and disposable installed-user KnownFolder journey. These mandatory exits are not inferred from separate component receipts. Parent #34/#74/#36, broad P2/P3, aircraft fidelity and pilot evaluation remain open. Final exact-head CI and checked backend merge are recorded in [PR239](https://github.com/brettbergin/flight-simulator/pull/239).
