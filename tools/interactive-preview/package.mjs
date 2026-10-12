@@ -336,7 +336,7 @@ export function validateFirstFlightSources(repository,project,source){
 export const taxiSourceGroups=[
  ['app/world/taxi','world/taxi',['taxi_layout.gd','taxi_navigation.gd']],
  ['app/ui/taxi','ui/taxi',['taxi_panel.gd']],
- ['tests/world/taxi','taxi_tests',['layout_checks.gd','navigation_checks.gd','panel_checks.gd','map_checks.gd','reference/expected-v1.json','reference/generate.py','reference/source-binding-v1.json','reference/README.md','start-reference/expected-v1.json','start-reference/generate.py','start-reference/source-binding-v1.json','start-reference/README.md','start-reference/prop-disk-v1.json','start-reference/generate-prop-disk.py','compatibility-reference/expected-v1.json','compatibility-reference/generate.py','compatibility-reference/source-binding-v1.json','compatibility-reference/README.md']],
+ ['tests/world/taxi','taxi_tests',['shipping_probe.gd','shipping_observer.gd','pilot_journey.gd','layout_checks.gd','navigation_checks.gd','panel_checks.gd','map_checks.gd','reference/expected-v1.json','reference/generate.py','reference/source-binding-v1.json','reference/README.md','start-reference/expected-v1.json','start-reference/generate.py','start-reference/source-binding-v1.json','start-reference/README.md','start-reference/prop-disk-v1.json','start-reference/generate-prop-disk.py','compatibility-reference/expected-v1.json','compatibility-reference/generate.py','compatibility-reference/source-binding-v1.json','compatibility-reference/README.md']],
  ['tests/integration/taxi','taxi_scene_tests',['scene_checks.gd']],
 ];
 export const taxiStartSourcePins={

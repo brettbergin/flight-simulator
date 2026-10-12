@@ -1021,7 +1021,7 @@ assert.equal(Object.keys(result.harness_files).length,2);
 
 # ADR027 closed taxi resources and pure delivery admission (never native proof).
 $taxiSourceGroups=@(Get-TaxiSourceGroups -RepoRoot $repo)
-if($taxiSourceGroups.Count -ne 4 -or @($taxiSourceGroups|ForEach-Object {$_.snapshot}).Count -ne 22){throw 'Exact taxi module/test/reference roster required'}
+if($taxiSourceGroups.Count -ne 4 -or @($taxiSourceGroups|ForEach-Object {$_.snapshot}).Count -ne 25){throw 'Exact taxi module/test/reference roster required'}
 $taxiProjectFixture=Join-Path $testRoot 'taxi-project'
 $taxiSourceFixture=Join-Path $testRoot 'taxi-source'
 Copy-TaxiSourceGroups -RepoRoot $repo -DestinationRoot $taxiProjectFixture -Groups $taxiSourceGroups
@@ -1115,3 +1115,26 @@ console.log('PASS pure taxi source/receipt admissions; negatives='+negatives+'; 
 & node --input-type=module -e $taxiNodeChecks 'taxi-admission-fixture' (Join-Path $PSScriptRoot 'package.mjs') $repo $taxiProjectFixture $taxiSourceFixture
 if($LASTEXITCODE -ne 0){throw 'Pure taxi delivery admission tests failed'}
 Write-Output 'PASS taxi composite/closed source, original content prerequisite, narrow UID, independent source pin and exact receipt tests; no runtime qualification'
+
+# Fixed packed taxi observer: each added source participates in exact snapshots.
+foreach($entry in @('shipping_probe.gd','shipping_observer.gd','pilot_journey.gd')){
+ $file=Join-Path $taxiProjectFixture ('taxi_tests/'+$entry)
+ $bytes=[IO.File]::ReadAllBytes($file)
+ Remove-Item -LiteralPath $file
+ Must-Reject {Assert-TaxiSourceGroups -Root $taxiProjectFixture -Groups $taxiSourceGroups} ('missing packed observer '+$entry)
+ [IO.File]::WriteAllBytes($file,$bytes)
+ $drift=[byte[]]$bytes.Clone();$drift[0]=$drift[0] -bxor 1
+ [IO.File]::WriteAllBytes($file,$drift)
+ Must-Reject {Assert-TaxiSourceGroups -Root $taxiProjectFixture -Groups $taxiSourceGroups} ('drifted packed observer '+$entry)
+ [IO.File]::WriteAllBytes($file,$bytes)
+ $extra=$file+'.unexpected'
+ [IO.File]::WriteAllText($extra,'unbound')
+ Must-Reject {Assert-TaxiSourceGroups -Root $taxiProjectFixture -Groups $taxiSourceGroups} ('extra packed observer '+$entry)
+ Remove-Item -LiteralPath $extra
+}
+Assert-TaxiSourceGroups -Root $taxiProjectFixture -Groups $taxiSourceGroups
+$packedDispatch=Get-PreviewPackedTaxiObserverDispatch
+if($packedDispatch -notmatch 'if not selected: return false' -or $packedDispatch -notmatch 'gate.request\(arguments\)' -or $packedDispatch -notmatch 'gate.admit\(request.binding_path,request.binding_sha256,request.mode\)' -or $packedDispatch -notmatch 'await observer.execute' -or $packedDispatch -match 'load\(request|load\(binding'){
+ throw 'Packed dispatch must preserve default branch and fixed-resource/request/binding admission before execution'
+}
+Write-Output 'PASS packed observer exact three resources/missing/drift/extra and fixed dispatch source; pure GDScript request/binding cases execute in compile-all, not this offline fixture'

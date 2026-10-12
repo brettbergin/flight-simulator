@@ -586,7 +586,7 @@ function Get-TaxiSourceDefinitions {
  @(
   @{source='app/world/taxi';destination='world/taxi';required=@('taxi_layout.gd','taxi_navigation.gd')},
   @{source='app/ui/taxi';destination='ui/taxi';required=@('taxi_panel.gd')},
-  @{source='tests/world/taxi';destination='taxi_tests';required=@('layout_checks.gd','navigation_checks.gd','panel_checks.gd','map_checks.gd','reference/expected-v1.json','reference/generate.py','reference/source-binding-v1.json','reference/README.md','start-reference/expected-v1.json','start-reference/generate.py','start-reference/source-binding-v1.json','start-reference/README.md','start-reference/prop-disk-v1.json','start-reference/generate-prop-disk.py','compatibility-reference/expected-v1.json','compatibility-reference/generate.py','compatibility-reference/source-binding-v1.json','compatibility-reference/README.md')},
+  @{source='tests/world/taxi';destination='taxi_tests';required=@('shipping_probe.gd','shipping_observer.gd','pilot_journey.gd','layout_checks.gd','navigation_checks.gd','panel_checks.gd','map_checks.gd','reference/expected-v1.json','reference/generate.py','reference/source-binding-v1.json','reference/README.md','start-reference/expected-v1.json','start-reference/generate.py','start-reference/source-binding-v1.json','start-reference/README.md','start-reference/prop-disk-v1.json','start-reference/generate-prop-disk.py','compatibility-reference/expected-v1.json','compatibility-reference/generate.py','compatibility-reference/source-binding-v1.json','compatibility-reference/README.md')},
   @{source='tests/integration/taxi';destination='taxi_scene_tests';required=@('scene_checks.gd')}
  )
 }
