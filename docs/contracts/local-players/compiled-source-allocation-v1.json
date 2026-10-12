@@ -234,8 +234,8 @@
       },
       {
         "path": "docs/contracts/local-players/test-scheduler-v1.md",
-        "bytes": 16743,
-        "sha256": "ca6f1bec9002b14235e6c0997e7dd89823f630f885372548a9c44adfd0dde2fd",
+        "bytes": 28603,
+        "sha256": "9670f0d7d61fcf0d40afc2102eab6047798e6079bb42d47f02a9afa25d215433",
         "role": "normative companion; proposed until checked adoption"
       },
       {
@@ -732,6 +732,139 @@
     "ClassDB arguments requiring exact types (especially poll max_results) must arrive as Variant and be checked BEFORE any Godot binder conversion; a typed int binding that silently accepts FLOAT8.0 fails the existing contract. No new protocol coercion is allocated.",
     "Five fixed public CTest names and real crash/lock actor target slots are part of source allocation. Native execution is separately authorized; actors/test factory objects never enter shipping target. Changed C compiler/C flags/SQLite target properties must change storage controls; post-build archive/object/link witnesses stay outside compiled hash cycle."
   ],
+  "fixed_remaining_row_qualification": {
+    "status": "PROPOSED_PUBLIC_AMENDMENT_PENDING_CHECKED_MERGE_AND_ADOPTION_NO_CONSUMERS",
+    "ctest": "local_players_store",
+    "executable_role": "store",
+    "suite": "store",
+    "executable_target": "local_players_store_native",
+    "fixed_child_count": 2,
+    "ordered_child_plans": [
+      "LocalPlayersNativeTestPlan/v1",
+      "LocalPlayersRemainingRowsTestPlan/v1"
+    ],
+    "second_capability_namespace": "store-remaining-rows",
+    "second_case_ids": [
+      "DN_column_prefs_revision",
+      "DN_column_practice_status",
+      "DN_column_source_session",
+      "DN_column_source_fingerprint",
+      "DN_column_creation",
+      "DN_column_commit",
+      "DN_column_practice_revision",
+      "DN_column_practice_owner",
+      "DN_meta_behind",
+      "DN_missing_preferences",
+      "DN_semantic_corruption_rehashed",
+      "SQLN_not_strict",
+      "SQLN_fk_missing_cascade",
+      "SQLN_active_index_not_unique",
+      "SQLN_mutable_cursor_index",
+      "DN_column_player_id",
+      "DN_column_prefs_owner"
+    ],
+    "loadable_ids": [
+      "DN_column_prefs_revision",
+      "DN_column_practice_status",
+      "DN_column_source_session",
+      "DN_column_source_fingerprint",
+      "DN_column_creation",
+      "DN_column_commit",
+      "DN_column_practice_revision",
+      "DN_column_practice_owner",
+      "DN_meta_behind",
+      "DN_missing_preferences",
+      "DN_semantic_corruption_rehashed",
+      "SQLN_not_strict",
+      "SQLN_fk_missing_cascade",
+      "SQLN_active_index_not_unique",
+      "SQLN_mutable_cursor_index"
+    ],
+    "constraint_applicability_ids": [
+      "DN_column_player_id",
+      "DN_column_prefs_owner"
+    ],
+    "second_plan_keys": [
+      "schema",
+      "nonce",
+      "first_service_ordinal",
+      "maximum_actual_events",
+      "suite",
+      "cases"
+    ],
+    "second_maximum_service_offset": 30,
+    "second_service_lifetimes": 31,
+    "events_per_child": 16384,
+    "combined_events": 32768,
+    "child_seconds": 600,
+    "store_ctest_seconds": 1200,
+    "overall_native_seconds": 14400,
+    "other_ctest_seconds": {
+      "codec": 120,
+      "service": 900,
+      "windows": 900,
+      "crash": 7200
+    },
+    "authorization": "Existing exact NativeAuth keys, children output roster and limits retained; native_case_seconds.store remains per-child 600 seconds. Context role store and --suite store unchanged. No new actor/EXE/CLI override.",
+    "required_existing_consumer_paths": [
+      "tests/persistence/local_players/native.cpp",
+      "tools/local-players/qualify.py",
+      "tests/persistence/local_players/CMakeLists.txt"
+    ],
+    "source_rosters": "17 production/15 controls/11 normative memberships unchanged; same-path amended bytes require fresh identity. Existing five names/argv unchanged; store TIMEOUT alone changes600 to 1200.",
+    "conditional_precount": {
+      "failed_start": 321,
+      "management": 337,
+      "pairs": 15,
+      "initialization": 30,
+      "total": 9900,
+      "not_observed": true,
+      "complete_future_source_and_fixed_setup_reconciliation_required": true
+    },
+    "failure_rule": "Either child, deadline, missing case, unexpected receipt shape, overflow, unmatched reference, failed cleanup/join or source drift fails whole CTest; retain raw evidence. No count fitting.",
+    "separate_gate": "No first-error SQLite witness change or acceptance; no full #219, #220 or phase acceptance.",
+    "second_receipt": {
+      "schema": "LocalPlayersRemainingRowsReceipt/v1",
+      "keys": [
+        "schema",
+        "pid",
+        "nonce",
+        "descriptor_sha256",
+        "plan_sha256",
+        "checks",
+        "actual_events",
+        "joined",
+        "cases"
+      ],
+      "case_keys": [
+        "id",
+        "disposition",
+        "reference_input_sha256",
+        "reference_expected_sha256",
+        "checks",
+        "actual_events",
+        "sqlite_result",
+        "error"
+      ],
+      "canonical_reference_hash_encoding": "full_record_reference canonical: sorted ASCII keys, compact UTF-8, lowercase C0 unicode escapes, no BOM or final LF; entire frozen input/expected values",
+      "loadable_disposition": "failed_store_qualification",
+      "PK_disposition": "setup_constraint_inapplicable_to_loadable_store",
+      "PK_actual_extended_sqlite_result": 1555,
+      "PK_error": null,
+      "PK_observer_events": 0,
+      "source_of_loadable_sqlite_result": "Actual qualification-copy postverify-after INT or actual absent-result NULL; no synthesized SQLite error",
+      "normative_details": "test-capability-v1.md#closed-second-child-receipt-and-store-rollup"
+    },
+    "store_coverage_keys": [
+      "fixed_cases",
+      "remaining_row_cases",
+      "checks",
+      "actual_events",
+      "child_checks",
+      "child_actual_events"
+    ],
+    "store_receipt_topology": "Existing case top keys unchanged; root_capabilities/invocations/driver_results each exactly2 in child order; actors empty; actual stdout/PID/context/input hashes/exit/join bound. Coverage child arrays exactly2 INTs and checked sums."
+  },
   "ctest_definitions": [
     {
       "name": "local_players_codec",
@@ -768,7 +901,7 @@
         "--suite",
         "store"
       ],
-      "scope": "Actual Windows same-core isolated capability; qualifier validates exact command/executable/source/reference hashes, creates one unique child capability then runs/join-observes actual process. No production root fallback."
+      "scope": "Actual Windows same-core isolated capability; exactly two sequential fixed children and distinct fresh capabilities under fixed_remaining_row_qualification. Bind actual command/executable/source/reference hashes and actual process exits. No production root fallback."
     },
     {
       "name": "local_players_service",
@@ -844,5 +977,48 @@
       "scope": "Actual Windows same-core isolated capability; qualifier validates exact command/executable/source/reference hashes, creates one unique child capability then runs/join-observes actual process. No production root fallback."
     }
   ],
-  "ctest_policy": "These exact five CTest names/target commands are required for Windows. Any missing/duplicate/extra replacement target or command fails qualification. The qualifier is the already allocated Root runner backend, not a new independent harness; fixed Root-reviewed proof root/authorization substituted as data. Build-only stage never runs CTest/actors. NativeChecks requires explicit authorization and exact actual executable hashes, five discovery commands plus both actor hashes/closed arguments, descriptor/nonce and observed exits. Linux runs local_players_codec only and records remaining four Windows-only gates unavailable; neither absent tests nor core compilation yields Windows green. Test bridge/journey checks are separate actual Godot gates, never renamed CTests."
+  "ctest_policy": "These exact five CTest names/target commands are required for Windows. Any missing/duplicate/extra replacement target or command fails qualification. The qualifier is the already allocated Root runner backend, not a new independent harness; fixed Root-reviewed proof root/authorization substituted as data. Build-only stage never runs CTest/actors. NativeChecks requires explicit authorization and exact actual executable hashes, five discovery commands plus both actor hashes/closed arguments, descriptor/nonce and observed exits. Linux runs local_players_codec only and records remaining four Windows-only gates unavailable; neither absent tests nor core compilation yields Windows green. Test bridge/journey checks are separate actual Godot gates, never renamed CTests.",
+  "bounded_logical_fault_qualification": {
+    "status": "PROPOSED_PUBLIC_AMENDMENT_PENDING_CHECKED_MERGE_AND_ADOPTION_NO_CONSUMERS",
+    "ctest": "local_players_store",
+    "child": "original_store",
+    "case_ids": ["rollback_interrupt", "commit_interrupt", "synthetic_export_flush_refusal"],
+    "first_child_existing_service_offsets_preserved": [0, 15],
+    "first_child_appended_service_offsets": [16, 17, 18, 19, 20, 21],
+    "first_child_maximum_service_offset": 21,
+    "selected_sql_service_offsets": [17, 20],
+    "sql_request_ordinal": 2,
+    "sql_kind": "rename_player",
+    "sql_scope": "original",
+    "sql_edge": "before",
+    "sql_occurrence": 1,
+    "sql_phases": ["rollback", "before_commit"],
+    "sql_mechanism": "Existing one-shot actual SQLite progress interruption only; not a new action, API override, VFS or physical IO fault. Actual result9 and state/strict rollback/reconciliation predicates required.",
+    "synthetic_flush": {
+      "service": "existing first store Service; no additional lifetime",
+      "selector_keys": ["service_ordinal", "request_ordinal", "kind", "scope", "phase", "edge", "occurrence"],
+      "kind": "export_player",
+      "scope": "export_file",
+      "phase": "export_flush",
+      "edge": "before",
+      "occurrence": 1,
+      "numeric_selector": "Exact positive numeric service/request frozen with independently reviewed consumer source before compile; no wildcard or caller selection",
+      "mechanism": "QualificationObserver::take_export_flush_refusal_request() noexcept -> bool, default false; one source-fixed native decision, sealed test factory only, shipping null and identical reusable core bytes",
+      "classification": "synthetic_export_flush_refusal",
+      "consumed_once": true,
+      "operation_attempted": false,
+      "win32_error": null,
+      "receipt": "Existing failed/file_flush_failed, phase flush, not_saved, installed=false; actual retained temp and null bytes/hash; no verify/move; real written temp/original DB identity/bytes preserved; ready/ACK/credits/join and ordinary unarmed actualflush0/retry required"
+    },
+    "auxiliary_receipt_schema": "LocalPlayersSyntheticExportFlushEvidence/v1",
+    "auxiliary_receipt_keys": ["schema", "pid", "nonce", "descriptor_sha256", "plan_sha256", "selector", "consumed_once", "operation_attempted", "classification", "win32_error"],
+    "receipt_details": "test-capability-v1.md#proposed-bounded-logical-fault-evidence-amendment; exactly one synthetic-only provenance line, SQL cases retain existing actual observation/aggregate evidence, no redundant count rollup",
+    "existing_owned_consumer_paths": ["native/persistence/local_players/include/flight/local_players/store_access.hpp", "native/persistence/local_players/src/windows_filesystem.cpp", "tests/persistence/local_players/native.cpp", "tools/local-players/qualify.py"],
+    "unchanged": "17 production/15 controls/11 normative memberships, public protocol/API/error/receipt, common scheduler actions, fixed remaining-row17 IDs/31 lifetimes/second receipt, five targets,19 crash recipes/20 actors/38 stages; no new VFS/helper/actor/framework",
+    "limits": "First and second child each16384; exact two-child sum32768;600 seconds each/storeCTest1200/Native14400. First-childMAX-21, crash/serviceMAX-8, secondMAX-30.",
+    "conditional_precount": {"prior_first_child":11970,"two_sql_cases_added":3095,"before_flush_total":15065,"flush_addition":null,"not_observed":true,"complete_source_reconciliation_required_before_output":true},
+    "bounded_219_disposition": "After actual fresh qualified evidence, the two real API9 cases plus labelled synthetic flush stage refusal may satisfy bounded logical error propagation only; preserve all existing actual operation tests and public physical exclusions.",
+    "atomic_delivery_evidence_disposition": "Unchanged public atomic transfer behavior requires source-reviewed pre-ACK guards, actual complete two-result caller-copy transfer surviving a later poll, and existing native whole-batch abandon/repeek/ACK. Actual recoverable engine construction-failure execution remains unqualified, no unreachable-state proof or fabricated engine allocator result. No newly required engine allocator fault fixture; accepted catastrophic engine/OS OOM exclusion unchanged.",
+    "permanent_exclusions": ["physical rollback IO failure", "observed FlushFileBuffers(false)", "IOERR/disk-full or storage-device fault", "arbitrary partial IO", "power-loss durability", "catastrophic engine/OS OOM certification", "installed220 or aircraft/phase/pilot acceptance"]
+  }
 }

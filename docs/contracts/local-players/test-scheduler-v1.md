@@ -232,3 +232,174 @@ capabilities, actor exes and five CTest commands are bound after build and befor
 Root execution, not invented as design acceptance. Actual service/DB/Win32/ClassDB and installed-user/three-context
 journeys remain separate gates. Original114/72/66 and all flight evidence stay
 immutable; no parents/phase/pilot acceptance follows.
+
+
+## Proposed finite remaining-row qualification campaign
+
+This proposed public amendment, pending checked merge and adoption, defines the
+fixed second store child described in
+[test-capability-v1.md](test-capability-v1.md). Its exact 17 IDs and successor plan
+are normative there; allocation metadata repeats them for fail-closed admission.
+The existing scheduler event/action/return grammar is unchanged. This campaign
+adds no injected fault, VFS, SQLite error substitution or first-error trace hook.
+
+For each first 15 ID, independently materialize D01 plus exactly that accepted
+reference delta while the previous worker is joined and no service owns SQLite.
+Use only the exact frozen input DDL/rows; SQLN cases reconstruct their declared
+variant DDL on the same owned main file, not sqlite_schema writes. Before opening,
+assert canonical expected input, closed statements/connections, main <= 524288 bytes,
+absent WAL/SHM/journal and exact four-file identity/length/hash witness. Do not
+combine mutations or rewrite the frozen oracle. Actual failed start must observe
+qualification-copy open and no original SQLite open; require unavailable state,
+failed/null terminal, unchanged originals, retained/WORK artifacts and joined
+shutdown. DN expects `corrupt_store`; SQLN's frozen expected is
+`matches_allocated_schema=false`, with `foreign_store` separately justified by
+Store's exact-DDL check. Keep an immutable full original proof for every case;
+explicit management cleanup retires the known retained+WORK pair before next setup.
+All 15 failures plus cleanup must occur, with exact per-case records and no skip.
+
+Then reset exact D01 for each last two IDs and attempt its exact frozen key
+mutation under the allocated DDL. Require actual primary-key constraint rejection
+and its actual extended result, rollback, closed connection, and whole logical
+rows/BLOB/hash equality to D01. `DN_column_player_id` duplicates the existing
+player primary key; `DN_column_prefs_owner` duplicates the existing preferences
+primary key. These two inputs cannot be loaded under that schema: report
+`setup_constraint_inapplicable_to_loadable_store`, never Store qualified/rejected
+or oracle passed. Do not use REPLACE, remove the collided row, disable/drop a
+key, corrupt pages or change expected IDs. Their pure semantic-invalid oracle
+remains unchanged. Every case record binds the frozen reference ID/input/expected.
+
+Conditional pre-count (source-based, NOT fitted to actual38):15 failed-start /
+management pairs * (321 + 337) = 9870 observed records; fresh empty initialization
+has 30 records, for 9900 in the second child. The 321/337 terms include all permanent,
+request/delivery/terminal allocation notices, ACK publication, sentinel/header,
+two copy passes/digests, metadata writes and retained/WORK audits plus real SQLite
+open/qualification pairs. Initialization 30 = 6 permanent allow/claim/release + 11
+request/delivery/ACK + 2 sentinel-read + 2 original-open + 2 BEGIN + 2 meta-row-write
++ 2 COMMIT + 1 after-COMMIT + 2 postverify. Close joins/finalizes without a new
+observer event. Source scope: Store start/initialize/open/qualify; Service create,
+submit/peek/ACK/publish/destroy; Windows sentinel/snapshot/audit/list/delete.
+
+This bound requires one main <= 512 KiB with no sidecars, each generated metadata
+file <= 24576 bytes, full-progress 65536-byte copy/digest reads/writes and 8192-byte audit reads,
+and one EOF per digest. Original proof/setup helper calls are explicitly outside
+the production observer stream; bind their finite fixed SQL/API operations and
+closed handles separately before execution, never misreport them as observed
+Service events. Before compile/execution, independent source review must reconcile
+EVERY implemented event-emitting path with these terms and freeze all fixed setup
+operations/partial-progress guards. If the conditional bound fails, stop before
+output and amend the finite plan; no observed-count regrouping or increased cap.
+Actual partial IO remains permitted by production but may invalidate this planning
+condition: 16384 is always hard failure, not an unconditional partial-call theorem.
+
+Do not infer readiness or count from a prior passing aggregate. Original child
+retains its own 16384 gate; the exact two-process store rollup is <= 32768, with
+600 seconds each / 1200 seconds combined and Native 14400 seconds. All old 19 crash recipes, 20 actor
+processes, 38 stages and their original ordinals/deadlines remain separate and exact.
+Neither this campaign nor the two constraint outcomes accepts all of #219, #220,
+installed KnownFolder, rollback/flush fault evidence, aircraft or phase gates.
+
+
+The closed second-child JSON receipt and exact store coverage fields are defined
+in the capability amendment above. They bind actual stdout/PID/input hashes and
+all 17 frozen cases. They cannot be deferred to an unreviewed later receipt shape.
+
+
+## Proposed bounded logical fault qualification
+
+This separate public amendment is proposed pending checked merge and adoption.
+It preserves the checked fixed remaining-row definitions above; this separate
+proposal is not accepted or implemented merely by publication. This section changes only
+the narrowly named synthetic-stage permission and bounded #219 evidence
+disposition below. Ordinary SQL/Win32 observations, production protocol and all
+earlier real-operation rules retain their meaning.
+
+Two source-fixed actual SQLite interruption cases use the EXISTING one-shot
+progress-callback permission, not a new action, error override or VFS. After
+the original first store child's Service offsets0..15, append exactly six
+sequential joined lifetimes: management16, selected17, fresh reconciliation18;
+then management19, selected20, fresh reconciliation21. Each selected Service
+uses request2, kind rename_player, scope original, edge before, occurrence1.
+The first selects phase rollback after actual BEGIN and a wrong-revision
+semantic refusal with no row writes/COMMIT. The second selects before_commit
+after the valid rename's actual row writes. Each arm and callback consumption
+occurs exactly once on that selected worker; unused/extra/foreign consumption
+fails. Require actual SQLite return9, not an intended or substituted result.
+
+The rollback case requires its actual rollback-after result/state, then
+uncertain/commit_unknown with null value/sequence, read_only, no-effects write
+refusal, ACK/credit retirement and joined close. Fresh whole D01 reconciliation
+must prove unchanged two Player/Preferences pairs, three manually_ended Practice
+rows and deterministic meta. The COMMIT case records the same actual non-DONE
+return at before_commit/after and after_commit/after, no postverify, and the
+subsequent actual ROLLBACK return/autocommit/txn_state. Its terminal is failed/
+io_error and ready ONLY when rollback returned OK or DONE AND autocommit1 AND
+txn_state NONE; otherwise uncertain/commit_unknown and read_only. Never infer
+successful rollback from state alone or unknown COMMIT from an armed flag.
+Before outputs, freeze complete independent allowed whole-state reconciliation
+oracles and exact phase/state predicates for the selected pinned SQLite path.
+Every unexpected durable result fails; no output-fitted oracle or retry of a
+possibly committed mutation is allowed. Each ever-created worker actually joins
+before fixture SQL or the next lifetime. Actual owner_run_id is independently
+validated/stable as required, not guessed or substituted into deterministic rows.
+
+One additional source-fixed native case may use a SYNTHETIC export-flush stage
+refusal through the existing nullable QualificationObserver. A new narrowly
+named one-shot native decision is permitted only for export_player, scope
+export_file, phase export_flush, edge before, occurrence1 in the existing first
+store Service. Its sole new interface is
+`virtual bool take_export_flush_refusal_request() noexcept`, defaulting to false;
+the exact selected before observation arms it and the adjacent stage consumes
+it once on that same worker. Freeze its exact numeric service/request selector with source
+before compilation; no wildcard, caller-provided path, generic action parser,
+global API interception or general failure callback is authorized. The sealed
+test factory alone installs the observer; shipping factory remains null and
+shipping and test targets compile the SAME reusable core bytes. This permission
+does not alter the four existing common scheduler actions or any crash recipe.
+
+The selected refusal runs after actual CreateNew and complete real bounded
+writes, before FlushFileBuffers. It does NOT attempt that OS call. Both stage
+edges retain actual live temp handle/file identity; the synthetic after edge
+has win32_error=null, requested_bytes=null and completed_bytes=null. No DWORD,
+synthetic zero, SQLite return or invented operation success is reported. Only
+this exact consumed selector may have that synthetic after edge, bound to the
+closed provenance record in the capability companion. Every ordinary attempted
+flush-after still requires its actual immediate DWORD. Unmatched selection,
+ordinary after with missing error, duplicate consumption or drift fails.
+
+Require failed/file_flush_failed, ExportFileReceipt phase flush/outcome
+not_saved/installed=false, actual retained temp path and null receipt bytes/hash
+(no verification has occurred). There must be no verify_temp/move/verify_target
+operation for this request. Full real written bytes and actual temp identity
+are independently observed after its worker handle closes against the existing
+export oracle; that read is not a claim that the skipped flush succeeded.
+Original DB/rows remain unchanged, file failure alone leaves the worker ready,
+and publication/ACK retires all transient credits. Explicitly disarm/consume
+once, then retry to a new target through the ordinary OS path: actual flush-after
+DWORD0, complete temp/target verification, no-replace move and exact final bytes
+are required. Preserve the prior retained temp; do not overwrite a target or
+reuse its failed receipt. Actual ACK/closed handles/join remain mandatory.
+
+These three cases can satisfy #219's bounded logical rollback/COMMIT-error and
+flush-error PROPAGATION gates only after fresh source-bound actual qualification
+and independent review. They permanently do NOT certify physical rollback IO
+failure, an observed FlushFileBuffers(false), IOERR/disk-full, storage-device
+failure, arbitrary partial IO or power-loss durability. The first two are real
+SQLite API interruptions; the third is explicitly synthetic stage refusal.
+Neither is relabelled OS-failure evidence. No missing broad physical outcome is
+silently reported PASS; the bounded logical disposition and these exclusions
+must remain in public exit evidence. All existing real OS/SQLite/lock/death and
+recovery tests remain required; their outcomes cannot be replaced by this case.
+
+The first-child ordinal guard is first_service_ordinal <= INT64_MAX-21; the
+crash/service MAX-8 guards and second row child's MAX-30 guard are unchanged.
+First-child16,384, second-child16,384, combined32,768 records;600 seconds each,
+store CTest1200 and overall Native14400 remain hard. The two interruption cases'
+conditional source estimate is3095 added to11970, or15065 BEFORE any added flush
+events. This is not an observed count or universal partial-IO bound. Before
+consumer output, independently reconcile complete source/fixture operations and
+freeze the flush contribution and total within the unchanged first-child cap.
+If they do not fit, STOP; do not raise limits, regroup observed records, shorten
+fixtures or silently drop cases. Preserve the fixed remaining-row child, all17
+IDs/oracles, five CTests,19 crash recipes/20 actors/38 stages and all source/control/
+normative roster membership. Changed same-path bytes need fresh qualification.

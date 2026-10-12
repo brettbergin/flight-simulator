@@ -45,3 +45,28 @@ Root read-only checks reproduced all110 full-record cases and the16 arithmetic/1
 Under #219, author and independently source-review the actual layout, canonical encoder, allocator/ownership, SQLite/VFS/Win32 operation sites, source/control identity and compiler/SQLite closure before compile/execution. Then qualify the real native storage service, all five CTests at their actual platform scope, failure/COMMIT-unknown/crash/recovery/lock/join behavior and shipping absence of test capabilities using authorized disposable roots/users. Under #220, qualify the complete A/B/Guest preference/history/relaunch/export/delete journey in editor, portable and rebuilt-library contexts. No production database IO, queue/thread, native storage build, Windows capability, installed-user or UI result is reported here.
 
 SaveProof17 remains historical flight-only reconstruction, not current piston/contact restore. #34/#74/#36, aircraft applicability/fidelity, hardware/pilot and P2/P3 gates remain open. No official flight hours or training credit are awarded.
+
+
+## Proposed remaining-row qualification amendment
+
+The proposed [capability amendment](../../contracts/local-players/test-capability-v1.md#proposed-fixed-remaining-row-qualification-amendment), [scheduler terms](../../contracts/local-players/test-scheduler-v1.md#proposed-finite-remaining-row-qualification-campaign) and [compiled allocation](../../contracts/local-players/compiled-source-allocation-v1.json) define a second fixed child of the existing store CTest. Fifteen exact loadable reference cases require actual failed Store qualification; two exact primary-key collisions are setup applicability outcomes, never passing Store corruption tests. Frozen reference bytes and expected outcomes remain unchanged.
+
+Each child retains a hard 16,384-event ceiling and 600-second supervisor deadline; the combined store limits are 32,768 events and an explicit 1,200-second CTest timeout. Other CTest deadlines and the 14,400-second overall Native limit remain unchanged. The conditional source pre-count is 9,900 records for the new child, subject to complete implementation/setup reconciliation before execution and hard overflow failure. These are proposed limits and source arithmetic, not observed runtime results.
+
+Checked contract merge and adoption must precede consumers. Fresh compiled source/control/contract identities and actual qualification remain [#219](https://github.com/brettbergin/flight-simulator/issues/219) gates; actual player UI/relaunch/installed-account evidence remains [#220](https://github.com/brettbergin/flight-simulator/issues/220). This amendment adds no storage consumer, new fault hook, first-error SQLite witness or parent/phase acceptance.
+
+The generated requirements mapping and existing #219 ownership remain unchanged:
+PRD-027, PRD-028, PRD-029, UX-001, UX-002, UX-016, UX-017, UX-018, UX-019, UX-020,
+UX-022, SAFE-028 and SAFE-029. This amendment supplies qualification planning for
+those existing requirements and does not mark them accepted.
+
+
+## Proposed bounded logical fault evidence
+
+The separate proposed [capability amendment](../../contracts/local-players/test-capability-v1.md#proposed-bounded-logical-fault-evidence-amendment), [scheduler](../../contracts/local-players/test-scheduler-v1.md#proposed-bounded-logical-fault-qualification) and [allocation](../../contracts/local-players/compiled-source-allocation-v1.json) define two already-permitted real SQLite API interruption cases and one newly permitted, explicitly synthetic export-flush stage refusal. The latter retains real writes/temp ownership and tests error propagation, without attempting or fabricating a FlushFileBuffers return. Exact closed provenance, whole-state reconciliation, actual ACK/join/credits and an ordinary unarmed real-flush retry are mandatory.
+
+This is source-only proposed design, not executed fault or storage acceptance. Checked merge/adoption precedes consumers; the checked fixed-row definitions remain unchanged. The conditional SQL-case estimate is 3,095 added to 11,970, or 15,065 records before any flush additions. Consumer source must independently freeze the flush contribution and complete total within the unchanged 16,384 first-child gate before output. The remaining-row child, combined limits, all five CTests and original nineteen crash recipes remain intact.
+
+After fresh qualification these cases may satisfy bounded #219 logical error propagation. Physical rollback IO failure, observed FlushFileBuffers(false), disk-full/device failure and power-loss durability remain permanent exclusions, never passing mocks or implied fault observations. Native allocator/copy/worker-loss and normal poll-transfer evidence remain distinct; catastrophic engine/OS OOM is not certified. This proposal does not accept #219, installed #220 journeys, parents, aircraft or phase gates.
+
+Bounded atomic-delivery evidence requires reviewed pre-ACK guards, actual complete two-result caller copies surviving another poll, and native whole-batch abandon/repeek/ACK tests. Actual recoverable engine output-construction-failure execution remains unqualified; no unreachable-state proof or engine allocator failure result is claimed. Public atomic transfer semantics stay unchanged, without inventing a new allocator fault framework or extending the accepted catastrophic-OOM exclusion.
