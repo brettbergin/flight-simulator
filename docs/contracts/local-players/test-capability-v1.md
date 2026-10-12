@@ -250,3 +250,148 @@ circular prerequisite for contract authoring. Actual compiled source/link closur
 five CTests, service/SQLite/NTFS/ClassDB and installed-player journeys remain
 separate gates. This proposed publication alone neither closes218 nor unlocks
 219/220, accepts runtime storage, or changes native flight authority.
+
+
+## Proposed fixed remaining-row qualification amendment
+
+This public contract amendment is proposed pending checked merge and adoption.
+It allocates source-only test evidence; consumers wait for that acceptance.
+This publication contains no consumer implementation or execution evidence. The previous five CTest names and commands, eight compiled
+test output roles, 19 crash recipes/20 actors/38 stages and all 17 production
+source paths remain unchanged. The first-error SQLite witness proposal is separate.
+
+`local_players_store` has exactly two sequential children of the SAME reviewed
+`local_players_store_native` executable: original store child, then remaining-row
+child. No concurrent child, replacement of the first child, new executable/CTest,
+actor, production method or factory is allocated. Both retain context role
+`store`, CLI `--suite store`, the existing NativeAuth `children.store` pin and
+actual parent/PID/start/exit/Job retirement/input lease requirements.
+
+The original child keeps its existing `LocalPlayersNativeTestPlan/v1`, eight
+case IDs, first-Service ordinal prefix and 16,384-event gate. The second child
+has a distinct fresh physical capability root/parent/nonce/sentinel and retained
+context/descriptor/plan hashes, not another counter in the original process.
+Root's qualifier derives only the additional fixed case namespace
+`store-remaining-rows`, before launching it; it is not caller-selectable.
+
+The second plan has exactly the existing six String keys `schema`, `nonce`,
+`first_service_ordinal`, `maximum_actual_events`, `suite`, `cases`.
+`schema="LocalPlayersRemainingRowsTestPlan/v1"` is the sole new discriminator;
+`suite="store"`, `maximum_actual_events` is INT 16384 and `first_service_ordinal`
+is a positive INT <= INT64_MAX-30. No FLOAT coercion, other suite/role/schema or
+extra key is admitted. `cases` is exactly this 17-String ordered list, with no
+omission, substitution, reorder, duplicate, wildcard or arbitrary SQL:
+
+1. `DN_column_prefs_revision`
+2. `DN_column_practice_status`
+3. `DN_column_source_session`
+4. `DN_column_source_fingerprint`
+5. `DN_column_creation`
+6. `DN_column_commit`
+7. `DN_column_practice_revision`
+8. `DN_column_practice_owner`
+9. `DN_meta_behind`
+10. `DN_missing_preferences`
+11. `DN_semantic_corruption_rehashed`
+12. `SQLN_not_strict`
+13. `SQLN_fk_missing_cascade`
+14. `SQLN_active_index_not_unique`
+15. `SQLN_mutable_cursor_index`
+16. `DN_column_player_id`
+17. `DN_column_prefs_owner`
+
+The first 15 IDs are distinct failed Store-start qualification cases. The final
+two are exact-schema SETUP applicability cases, not passing Store corruption
+tests. Keep the full frozen 110-case reference bytes/expected outcomes unchanged.
+
+The additional child uses 31 sequential Service lifetimes: genuine empty-store
+initialization at offset 0, then failed-start/management-cleanup pairs at offsets
+1/2 through 29/30 in listed loadable order. These 31 Service lifetimes use ONE capability/root, not 31 roots:
+one capability encloses all 31 lifetimes. Every worker joins; no ownership overlap.
+The original store child and crash/service ordinal guards do not shift.
+
+Each process independently fails on any event beyond 16,384. The store CTest
+rollup is the sum of both actual counts and fails above 32,768; no counter reset,
+unmetered observer, truncated event buffer or success after either child failure.
+Each child has a 600-second supervisor deadline. The store CTest TIMEOUT changes
+explicitly from 600 to 1,200 seconds, measured from its start and including preparation/cleanup;
+this is a finite bound, not an extra 1,200 seconds after a child deadline. The other four
+CTest timeouts stay 120/900/900/7200 seconds; overall Native remains 14,400 seconds. Root supervisor
+must stop launching if the combined deadline is exhausted and preserve failures.
+NativeAuth exact keys/children/limits grammar stays unchanged: its existing
+`native_case_seconds.store=600` remains the per-child bound, not the CTest bound.
+
+The existing qualifier source must explicitly admit the new namespace and
+successor plan, retain two invocations/capabilities/results in order, and validate
+actual exact output/reference dispositions. No source-only plan or successful
+setup constraint substitutes for actual Store failure. Required future consumer
+changes are confined to already allocated `tests/persistence/local_players/native.cpp`,
+`tools/local-players/qualify.py` and `tests/persistence/local_players/CMakeLists.txt`
+(the existing 15-control slot for the store timeout). Actual source/control/contract
+identities must be freshly reconstructed and qualified. No consumer implementation
+or new source slot accompanies this contract proposal.
+
+
+### Closed second-child receipt and store rollup
+
+The original store child's stdout remains its exact existing text record. The
+second child writes one compact JSON value and one final LF, with no other stdout.
+Its schema is `LocalPlayersRemainingRowsReceipt/v1` and its exact keys are
+`schema`, `pid`, `nonce`, `descriptor_sha256`, `plan_sha256`, `checks`,
+`actual_events`, `joined`, `cases`. PID is the actual positive Windows process
+ID, nonce is the bound 32-lowercase-hex capability nonce, both hashes are the
+actual 64-lowercase-hex retained inputs, checks is a positive INT <= INT64_MAX,
+actual_events is a positive INT <= 16384 and joined is BOOL true only after
+all ever-created workers actually joined. A successful exit without this full
+receipt, or a receipt with an unjoined worker, is failure.
+
+`cases` is exactly 17 ordered closed records, one per plan ID. Each has exactly
+`id`, `disposition`, `reference_input_sha256`, `reference_expected_sha256`,
+`checks`, `actual_events`, `sqlite_result`, `error`. Hashes are independently
+reproduced from that frozen row's entire `input` and `expected` values, not from
+consumer output. Use the existing full-record reference `canonical` encoding:
+ASCII dictionary keys sorted lexically; array order retained; lowercase JSON
+literals and base-10 INT; compact separators; quotes/backslashes escaped; every
+C0 scalar encoded as lowercase `\u00xx`; other Unicode emitted as UTF-8;
+no whitespace, BOM or final LF. Hash the exact encoded UTF-8 bytes with SHA256.
+No FLOAT re-encoding is needed or permitted for these frozen tagged values.
+
+Each case checks is a positive INT <= INT64_MAX. For the first 15 records,
+disposition is exactly `failed_store_qualification`, actual_events is the positive
+whole observer delta for that failed-start AND its joined management cleanup,
+and error is the actual failed terminal's String: `corrupt_store` for the first
+11, `foreign_store` for the next 4. sqlite_result is the INT or NULL actually
+observed in the qualification-copy postverify-after record; NULL is allowed only
+when that actual record has no SQLite result. Do not synthesize an API error from
+the semantic rejection, or substitute a label for witnessed terminal/worker truth.
+
+For the final two records, disposition is exactly
+`setup_constraint_inapplicable_to_loadable_store`, actual_events is INT 0,
+sqlite_result is the actual extended primary-key result INT 1555 and error is
+NULL. Require actual exact-schema mutation refusal and whole-state rollback proof;
+this is a setup outcome, not a Store test pass. The native receipt preserves its
+real result, while the qualifier independently verifies every reference hash,
+ID, ordered disposition, exact counts/types and allowed error/null combination.
+
+The sum of all case actual_events plus the separately accounted fresh
+initialization observer delta equals receipt actual_events. Context/admission and
+initialization assertions may add checks beyond the sum of per-case checks;
+the top checks must be at least that sum. Setup operations outside the Service
+observer stream are labelled separately, not added as fake observer events.
+
+The existing `LocalPlayersCTestCase/v1` top-level keys remain unchanged. For store,
+`root_capabilities`, `invocations` and `driver_results` each contain exactly two
+records in original-child/remaining-row-child order; actors is exactly empty.
+The original observed_result shape stays unchanged; the second observed_result
+is the complete admitted JSON receipt above, cross-bound to its actual child PID,
+context, descriptor/plan hashes, terminal exit 0 and joined Job/process evidence.
+Neither a printed passed label nor missing raw stdout can qualify a result.
+
+Store coverage has exactly `fixed_cases`, `remaining_row_cases`, `checks`,
+`actual_events`, `child_checks`, `child_actual_events`. fixed_cases remains the
+original ordered eight IDs; remaining_row_cases is the exact ordered 17-ID list.
+child_checks and child_actual_events are exact two-INT arrays in child order;
+checks/actual_events are their checked sums. Each child_events is positive and
+<= 16384; their sum is <= 32768. Arithmetic overflow, drift from either admitted
+observed_result, missing/extra keys or rows, reused capability identity, a timeout,
+failed join or any failed child rejects the entire store CTest and retains records.
