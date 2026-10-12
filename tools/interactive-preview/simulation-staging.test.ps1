@@ -69,6 +69,73 @@ Copy-SimulationSourceSnapshot -SourceRoot $authoring -DestinationRoot $uidCleanS
 Must-Reject {Assert-SimulationSourceSnapshot $uidCleanStage $snapshot -AllowGeneratedUIDs} 'changed authored script with valid UID metadata'
 Write-Output 'PASS destination-only generated UID sidecars; exact-source, malformed/orphan UID and script-tampering negatives.'
 
+# Metadata-only fixtures do not claim a Godot import or aircraft validation.
+$cockpitFixture=Join-Path $testRoot 'cockpit-repo'
+$cockpitRequired=@(
+ @{source='app/cockpit';required=@('instruments/native_readings.gd','instruments/scan_panel.gd','instruments/engine_status.gd','engine_controls.gd','assets/original-cockpit.glb','assets/original_asset.gd')},
+ @{source='tests/instruments';required=@('instrument_checks.gd','adapter_checks.gd','cockpit_geometry_checks.gd','cockpit_visual.gd','scan_checks.gd','scene_checks.gd','hud_caption_checks.gd','engine_status_checks.gd','reference.json','preparation-manifest.json','cockpit_asset_baseline.gd','cockpit_asset_checks.gd','cockpit_asset_visual.gd')},
+ @{source='content/aircraft/prototype';required=@('cockpit-presentation.json')}
+)
+foreach($definition in $cockpitRequired){foreach($entry in $definition.required){
+ $file=Join-Path $cockpitFixture ($definition.source+'/'+$entry)
+ New-Item -ItemType Directory -Path (Split-Path $file) -Force|Out-Null
+ [IO.File]::WriteAllText($file,'Metadata staging fixture '+$entry)
+}}
+$cockpitGroups=@(Get-CockpitSourceGroups $cockpitFixture)
+foreach($relative in @('app/cockpit/assets/original-cockpit.glb','app/cockpit/assets/original_asset.gd','tests/instruments/cockpit_asset_baseline.gd','tests/instruments/cockpit_asset_checks.gd','tests/instruments/cockpit_asset_visual.gd')){
+ $file=Join-Path $cockpitFixture $relative;$bytes=[IO.File]::ReadAllBytes($file)
+ Remove-Item -LiteralPath $file
+ Must-Reject {Get-CockpitSourceGroups $cockpitFixture} ('missing mandatory original cockpit '+$relative)
+ [IO.File]::WriteAllBytes($file,$bytes)
+}
+$cockpitProject=Join-Path $testRoot 'cockpit-project'
+Copy-CockpitSourceGroups $cockpitFixture $cockpitProject $cockpitGroups
+Assert-CockpitSourceGroups $cockpitProject $cockpitGroups
+if(Test-Path -LiteralPath (Join-Path $cockpitProject 'assets_source')){throw 'Authoring files entered runtime cockpit copy'}
+$authoringRelative='assets_source/c172/original-prototype'
+$authoringRequired=@('cockpit-reference-v1.json','generate_cockpit.py','original-cockpit.blend','cockpit-source.json','README.md','textures/original-surface-albedo.png','textures/original-surface-roughness.png')
+foreach($relative in $authoringRequired){
+ $file=Join-Path $cockpitFixture ($authoringRelative+'/'+$relative)
+ New-Item -ItemType Directory -Path (Split-Path $file) -Force|Out-Null
+ [IO.File]::WriteAllText($file,'Authoring-only metadata fixture '+$relative)
+}
+$authoringGroups=@(Get-CockpitAuthoringSourceGroups $cockpitFixture)
+$cockpitCorrespondingSource=Join-Path $testRoot 'cockpit-corresponding-source'
+Copy-CockpitAuthoringSourceGroups $cockpitFixture $cockpitCorrespondingSource $authoringGroups
+Assert-CockpitAuthoringSourceGroups $cockpitCorrespondingSource $authoringGroups
+foreach($relative in $authoringRequired){
+ $file=Join-Path $cockpitFixture ($authoringRelative+'/'+$relative);$bytes=[IO.File]::ReadAllBytes($file)
+ Remove-Item -LiteralPath $file
+ Must-Reject {Get-CockpitAuthoringSourceGroups $cockpitFixture} ('missing closed authoring file '+$relative)
+ [IO.File]::WriteAllBytes($file,$bytes)
+}
+$extra=Join-Path $cockpitFixture ($authoringRelative+'/unowned.txt')
+[IO.File]::WriteAllText($extra,'unbound')
+Must-Reject {Get-CockpitAuthoringSourceGroups $cockpitFixture} 'extra authoring file'
+Remove-Item -LiteralPath $extra
+Set-CockpitImportRecipe $cockpitProject $cockpitGroups
+Must-Reject {Set-CockpitImportRecipe $cockpitProject $cockpitGroups} 'nonfresh cockpit import artifacts'
+Must-Reject {Assert-CockpitSourceGroups $cockpitProject $cockpitGroups -AllowGeneratedUIDs} 'resource import metadata disguised as generated script UID'
+Must-Reject {Assert-CockpitSourceGroups $cockpitProject $cockpitGroups -Authoring -ImportReceipt ([pscustomobject]@{})} 'import metadata admitted to authoring source'
+$recipes=@(Get-CockpitImportRecipes)
+if($recipes.Count -ne 3 -or @(Get-CockpitImportArtifactPaths).Count -ne 11){throw 'Fixed original cockpit recipe/artifact roster drifted'}
+foreach($recipe in $recipes){
+ # Simulate only importer metadata syntax, never actual resource production.
+ $text=$recipe.text.Replace('[remap]',"[remap]`nuid=`"uid://fixtureabc`"").Replace('"md5": ""','"md5": "0123456789abcdef0123456789abcdef"')
+ Assert-CockpitImportMap $text $recipe
+ foreach($wrong in @($text.Replace('uid://fixtureabc','uid://BAD'),($text+"`n[params]`n"),($text+"`nunknown/key=true`n"),$text.Replace('source_file="res://cockpit/assets/','source_file="res://unbound/'),$text.Replace('path="res://.godot/imported/','path="res://unbound/'))){
+  Must-Reject {Assert-CockpitImportMap $wrong $recipe} 'changed UID/section/key/source/cache path in fixed import metadata'
+ }
+ if($recipe.path.EndsWith('.glb.import')){
+  foreach($key in @('meshes/generate_lods=false','meshes/create_shadow_meshes=false','animation/import=false','meshes/ensure_tangents=false')){Must-Reject {Assert-CockpitImportMap ($text.Replace($key,$key.Replace('=false','=true'))) $recipe} ('changed fixed '+$key)}
+  Must-Reject {Assert-CockpitImportMap ($text.Replace('meshes/force_disable_compression=true','meshes/force_disable_compression=false')) $recipe} 'lossy original mesh compression'
+  Must-Reject {Assert-CockpitImportMap ($text.Replace('gltf/embedded_image_handling=1','gltf/embedded_image_handling=3')) $recipe} 'nonmipmapped embedded uncompressed texture branch'
+ }else{
+  foreach($pair in @(@('mipmaps/generate=true','mipmaps/generate=false'),@('mipmaps/limit=-1','mipmaps/limit=1'),@('compress/mode=0','compress/mode=2'),@('detect_3d/compress_to=0','detect_3d/compress_to=1'),@('"md5": "0123456789abcdef0123456789abcdef"','"md5": ""'))){Must-Reject {Assert-CockpitImportMap ($text.Replace($pair[0],$pair[1])) $recipe} ('changed fixed texture '+$pair[0])}
+ }
+}
+Write-Output 'PASS source-only closed cockpit runtime/authoring groups and import-metadata fixture negatives; no actual importer qualification claimed.'
+
 # Exercise recursive landmark staging without loading Godot or native code.
 $freeflightFixture=Join-Path $testRoot 'freeflight-repo'
 foreach($entry in @('app/ui/freeflight/landmark_board.gd','app/ui/freeflight/nested/resource.txt','tests/ui/freeflight/landmark_checks.gd','tests/ui/freeflight/scene_checks.gd','tests/ui/freeflight/reference.json','tests/ui/freeflight/reference-generator.py')){
@@ -344,7 +411,8 @@ function New-AudioReceiptFixture {
 }
 $receipt|Add-Member -NotePropertyName audio -NotePropertyValue (New-AudioReceiptFixture)
 $hudFixture=[pscustomobject]@{passed=$true;checks=1;failures=@();scope='Synthetic receipt admission fixture'}
-$receipt.cockpit=[pscustomobject]@{hud_caption=$hudFixture}
+$assetFixture=[pscustomobject]@{schema='OriginalCockpitActualImportChecks/v1';checks=1;failures=@();passed=$true;baseline_sha256='fbe01696c09d17042079060739d5599d649e30164727c4a414492c1402a88eba';scope='Synthetic actual-import receipt admission fixture only'}
+$receipt.cockpit=[pscustomobject]@{adapter=[pscustomobject]@{};scan=[pscustomobject]@{};scene=[pscustomobject]@{};hud_caption=$hudFixture;asset=$assetFixture}
 Assert-PreviewFacadeReceipt $receipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'
 foreach($change in @(
  {param($r) $r.PSObject.Properties.Remove('audio')}, {param($r) $r.audio=$null},
@@ -355,6 +423,33 @@ foreach($change in @(
  & $change $bad
  Must-Reject {Assert-PreviewFacadeReceipt $bad -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} 'mandatory audio facade admission'
 }
+
+$assetMutations=@(
+ {param($v) $v.cockpit.PSObject.Properties.Remove('asset')},
+ {param($v) $v.cockpit.asset=$null},
+ {param($v) $v.cockpit|Add-Member -NotePropertyName skipped -NotePropertyValue $true},
+ {param($v) $v.cockpit.asset.schema='Other/v1'},
+ {param($v) $v.cockpit.asset.baseline_sha256=('f'*64)},
+ {param($v) $v.cockpit.asset.passed=$false},
+ {param($v) $v.cockpit.asset.passed='true'},
+ {param($v) $v.cockpit.asset.checks=0},
+ {param($v) $v.cockpit.asset.checks=-1},
+ {param($v) $v.cockpit.asset.checks=[double]1.5},
+ {param($v) $v.cockpit.asset.checks='1'},
+ {param($v) $v.cockpit.asset.checks=[long]9007199254740992},
+ {param($v) $v.cockpit.asset.failures=@('failed')},
+ {param($v) $v.cockpit.asset.failures=$null},
+ {param($v) $v.cockpit.asset.scope=' '},
+ {param($v) $v.cockpit.asset.scope=('x'*1025)},
+ {param($v) $v.cockpit.asset.PSObject.Properties.Remove('checks')},
+ {param($v) $v.cockpit.asset|Add-Member -NotePropertyName skipped -NotePropertyValue $true}
+)
+foreach($mutate in $assetMutations){
+ $assetReceipt=$receipt|ConvertTo-Json -Depth 20|ConvertFrom-Json
+ & $mutate $assetReceipt
+ Must-Reject {Assert-PreviewFacadeReceipt $assetReceipt -ExpectedSourceFingerprint '5e0abfeae9ffd249f8be3f4410d9903f30736698fcb276bdf72f3630132102e5'} 'missing skipped failed or malformed actual imported cockpit checks'
+}
+Write-Output ('PASS original baseline asset receipt admission and '+$assetMutations.Count+' metadata-only negatives')
 
 $hudMutations=@(
  {param($v) $v.cockpit=$null},

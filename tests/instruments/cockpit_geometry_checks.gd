@@ -1,5 +1,5 @@
 extends RefCounted
-# Original MIT. Inspect actual procedural builder output, not a parallel mesh fixture.
+# Original MIT. Inspect actual runtime builder output and its unchanged live panel/bezels.
 const Cockpit = preload("res://interactive/flight_cockpit.gd")
 const CENTERS: Array[Vector3] = [
  Vector3(-0.41540283203125,0.375221826171875,-1.534),
@@ -29,6 +29,10 @@ func run(host: Node) -> Dictionary:
  host.add_child(parent)
  var builder = Cockpit.new()
  var result: Dictionary = builder.build(parent,null)
+ _check(result.has("root"),"geometry_fixed_cockpit_asset_admitted")
+ if not result.has("root"):
+  parent.free()
+  return {"passed":false,"checks":checks,"failures":failures}
  var root: Node3D = result.root
  _check(result.eye==Vector3(-0.27,0.67,-0.92) and result.panel_focus==Vector3(-0.08,0.255,-1.535),"geometry_frozen_eye_focus")
  _check(_view_only(root),"geometry_only_spatial_mesh_nodes_no_input_colliders")
@@ -42,14 +46,19 @@ func run(host: Node) -> Dictionary:
  var rings: Array[MeshInstance3D] = []
  var layer_found: Dictionary = {}
  for node in all:
-  materials[node.material_override.get_instance_id()]=true
+  var material: Material=node.get_active_material(0)
+  _check(material is StandardMaterial3D,"geometry_standard_material_"+str(node.name))
+  if not material is StandardMaterial3D: continue
+  materials[material.get_instance_id()]=true
   if str(node.name).begins_with("OriginalDialBezel"): rings.append(node)
-  if node.position.is_equal_approx(Vector3(0,0.55,-1.755)):
-   _check(node.material_override.roughness>=0.85 and node.material_override.metallic==0.0,"geometry_matte_glare_shield")
-  if node.mesh is BoxMesh:
-   for z in [-1.552,-1.569,-1.605]:
-    if absf(node.position.z-z)<0.000001:
-     layer_found[z]=node.position.z+node.mesh.size.z*0.5
+  if node.name=="GlareTop":
+   _check(material.roughness>=0.85 and material.metallic==0.0,"geometry_matte_glare_shield")
+  var layers: Dictionary={"PanelFrameBlack":-1.552,"PanelFrameMetal":-1.569,"PanelBacking":-1.605}
+  if layers.has(str(node.name)):
+   var actual_bounds: AABB=(root.global_transform.affine_inverse()*node.global_transform)*node.get_aabb()
+   var z: float=layers[str(node.name)]
+   _check(absf(actual_bounds.get_center().z-z)<0.000001,"geometry_original_backing_center_"+str(node.name))
+   layer_found[z]=actual_bounds.end.z
  _check(materials.size()==9 and rings.size()==6,"geometry_closed_material_and_bezel_counts")
  _check(layer_found.size()==3,"geometry_three_original_backing_layers_present")
  if layer_found.size()==3:
@@ -119,4 +128,4 @@ func run(host: Node) -> Dictionary:
  _check(builder.pedals.size()==2 and builder.pedals[0].name=="CopiedLeftPedal" and builder.pedals[1].name=="CopiedRightPedal" and absf(builder.pedals[0].rotation.x+0.084)<0.000001 and absf(builder.pedals[1].position.z+1.499)<0.000001,"geometry_original_pedal_animation")
  _check(builder.trim_wheel.name=="CopiedTrimWheel" and absf(builder.trim_wheel.rotation.x+0.4*PI)<0.000001,"geometry_original_trim_animation")
  parent.free()
- return {"passed":failures.is_empty(),"checks":checks,"failures":failures,"scope":"Actual original procedural geometry and copied control output. No native run, input commands, manufacturer sight-picture, pixels or phase acceptance."}
+ return {"passed":failures.is_empty(),"checks":checks,"failures":failures,"scope":"Actual original imported geometry, retained live panel/bezels and copied control output. No native run, input commands, manufacturer sight-picture, pixels or phase acceptance."}

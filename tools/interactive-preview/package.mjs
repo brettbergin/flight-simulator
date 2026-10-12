@@ -486,6 +486,54 @@ export function validateHudCaptionReceipt(value){
  return value.checks;
 }
 
+
+const originalCockpitAuthoring='assets_source/c172/original-prototype';
+const originalCockpitAuthoringNames=['README.md','cockpit-reference-v1.json','cockpit-source.json','generate_cockpit.py','original-cockpit.blend','textures/original-surface-albedo.png','textures/original-surface-roughness.png'].sort();
+const originalCockpitRuntimeNames=['original-cockpit.glb','original_asset.gd'].sort();
+export function validateOriginalCockpitReceipt(value){
+ pointerKeys(value,['schema','checks','failures','passed','baseline_sha256','scope'],'Original cockpit actual import');
+ assert.equal(value.schema,'OriginalCockpitActualImportChecks/v1');assert.equal(value.passed,true);
+ assert(Number.isSafeInteger(value.checks)&&value.checks>0);assert.deepEqual(value.failures,[]);
+ assert.equal(value.baseline_sha256,'fbe01696c09d17042079060739d5599d649e30164727c4a414492c1402a88eba');
+ assert.equal(typeof value.scope,'string');assert(value.scope.trim().length>0&&value.scope.length<=1024);
+ return value.checks;
+}
+export function validateOriginalCockpitSources(repository,project,sourceRoot){
+ const authored=path.join(repository,originalCockpitAuthoring),copied=path.join(sourceRoot,originalCockpitAuthoring);
+ for(const root of [authored,copied])assert.deepEqual(ordinaryFiles(root).sort(),originalCockpitAuthoringNames,'Closed original cockpit corresponding source');
+ assert(!fs.existsSync(path.join(project,'assets_source')),'Blender authoring source must stay outside project/PCK');
+ for(const file of originalCockpitAuthoringNames)assert(fs.readFileSync(path.join(authored,file)).equals(fs.readFileSync(path.join(copied,file))),'Exact original cockpit authoring source/'+file);
+ const runtime=path.join(repository,'app/cockpit/assets');assert.deepEqual(ordinaryFiles(runtime).sort(),originalCockpitRuntimeNames,'Closed authored cockpit runtime leaf');
+ assert.deepEqual(ordinaryFiles(path.join(sourceRoot,'cockpit/assets')).sort(),originalCockpitRuntimeNames,'Exact cockpit corresponding runtime source');
+ const generated=['original-cockpit.glb.import',...['albedo','roughness'].flatMap(kind=>['original-cockpit_original-surface-'+kind+'.png','original-cockpit_original-surface-'+kind+'.png.import'])].sort();
+ const actual=ordinaryFiles(path.join(project,'cockpit/assets')).sort();
+ const expected=[...originalCockpitRuntimeNames,...generated];
+ if(actual.includes('original_asset.gd.uid')){const raw=fs.readFileSync(path.join(project,'cockpit/assets/original_asset.gd.uid'));assert(raw.length<=64);assert.match(raw.toString('utf8'),/^uid:\/\/[a-z0-9]{1,20}\r?\n?$/);expected.push('original_asset.gd.uid');}
+ assert.deepEqual(actual,expected.sort(),'Closed fixed cockpit import output roster');
+ for(const file of originalCockpitRuntimeNames)for(const root of [path.join(project,'cockpit/assets'),path.join(sourceRoot,'cockpit/assets')])assert(fs.readFileSync(path.join(runtime,file)).equals(fs.readFileSync(path.join(root,file))),'Exact original cockpit runtime bytes/'+file);
+ for(const kind of ['albedo','roughness'])assert(fs.readFileSync(path.join(authored,'textures/original-surface-'+kind+'.png')).equals(fs.readFileSync(path.join(project,'cockpit/assets/original-cockpit_original-surface-'+kind+'.png'))),'Actual extracted original tile bytes/'+kind);
+ const provenance=json(path.join(authored,'cockpit-source.json'));
+ assert.equal(provenance.schema,'OriginalCockpitSourceGeneration/v1');assert.equal(provenance.license,'MIT');assert.equal(provenance.author,'Flight Simulator contributors');assert.equal(provenance.manufacturer_geometry,false);
+ assert.equal(provenance.blender_version,'4.5.14 LTS');assert.equal(provenance.blender_build,'62c1db4208e8');
+ assert.equal(provenance.baseline.sha256,'fbe01696c09d17042079060739d5599d649e30164727c4a414492c1402a88eba');
+ assert.equal(provenance.reference.sha256,'76a44bb463dfd04a883e4f93f9db81ee6fc0f4c0a2bd004a6c05e8fb64cee57c');
+ assert.equal(sha(fs.readFileSync(path.join(authored,'cockpit-reference-v1.json'))),provenance.reference.sha256);
+ const gen=fs.readFileSync(path.join(authored,'generate_cockpit.py'));assert.equal(gen.length,provenance.generator.bytes);assert.equal(sha(gen),provenance.generator.sha256);
+ assert(Array.isArray(provenance.outputs)&&provenance.outputs.length===4);
+ const outputs=[['original-cockpit.blend',path.join(authored,'original-cockpit.blend')],['original-cockpit.glb',path.join(runtime,'original-cockpit.glb')],...['albedo','roughness'].map(kind=>['original-surface-'+kind+'.png',path.join(authored,'textures/original-surface-'+kind+'.png')])];
+ for(let i=0;i<outputs.length;i++){const [name,file]=outputs[i],record=provenance.outputs[i];pointerKeys(record,['path','bytes','sha256'],'Original output pin');assert.equal(typeof record.path,'string');assert.equal(path.win32.basename(record.path),name);const raw=fs.readFileSync(file);assert.equal(raw.length,record.bytes);assert.equal(sha(raw),record.sha256);}
+ return {authoring_files:originalCockpitAuthoringNames.length,runtime_files:originalCockpitRuntimeNames.length};
+}
+export function isOriginalCockpitSourcePath(file){
+ return file.startsWith('source/whole-flight-preview/'+originalCockpitAuthoring+'/')||originalCockpitRuntimeNames.some(name=>file==='source/whole-flight-preview/cockpit/assets/'+name);
+}
+export function stageOriginalCockpitNotice(repository,payload,entry){
+ assert.equal(entry?.id,'original-prototype-cockpit-v1');assert.equal(entry.class,'visual-assets');assert.equal(entry.license,'MIT');
+ assert(Array.isArray(entry.notice_files)&&entry.notice_files.length===1);const notice=entry.notice_files[0];assert.equal(notice.path,'third_party/licenses/notices/FirstParty-Interactive-MIT.txt');
+ const source=path.join(repository,notice.path);ordinaryAncestors(source);const raw=fs.readFileSync(source);assert.equal(sha(raw),notice.sha256);
+ const file='notices/Original-Cockpit-MIT.txt',target=path.join(payload,file);fs.mkdirSync(path.dirname(target),{recursive:true});ordinaryAncestors(path.dirname(target));if(fs.existsSync(target))ordinaryAncestors(target);fs.writeFileSync(target,raw);return {file,register_path:notice.path,sha256:sha(raw)};
+}
+
 function audit(root,proof,build,python='python'){
  const payload=path.join(root,'payload'),evidence=path.join(root,'evidence'),replacement=path.join(root,'Replacement space — Δ飛行');
  const baseline=json(path.join(evidence,'smoke-receipt.json')),changed=json(path.join(evidence,'replacement-smoke-receipt.json'));
@@ -536,6 +584,7 @@ function audit(root,proof,build,python='python'){
  const pointerEnabled=['jsbsim-1.3.1-event-aware-coupled-midpoint-v1','jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2'].includes(nativeIdentity.source_variant);
  const pointerReceipts=[];
  if(pointerEnabled){validatePointerSources(repo,path.join(root,'project'),reconstructionRoot);for(const context of ['editor','portable','replacement'])pointerReceipts.push({context,...validatePointerEvidence(path.join(evidence,context+'-pointer-check-receipt.json'),path.join(evidence,context+'-pointer-flight-trace.json'),repo,path.join(root,'project'),nativeIdentity)});}
+ validateOriginalCockpitSources(repo,path.join(root,'project'),reconstructionRoot);
  const audioIdentity=validateAudioSources(repo,path.join(root,'project'),reconstructionRoot);
  validateAudioSourceDescriptors(json(path.join(evidence,'audio-source-groups.json')),audioIdentity.source_files);
  const firstFlightIdentity=validateFirstFlightSources(repo,path.join(root,'project'),reconstructionRoot);
@@ -555,6 +604,7 @@ function audit(root,proof,build,python='python'){
  const uiReceipts=['editor','portable','replacement'].map(name=>json(path.join(evidence,name+'-facade-receipt.json')));
  for(const receipt of uiReceipts){
   assert.equal(receipt.passed,true);assert.deepEqual(receipt.failures,[]);
+  validateOriginalCockpitReceipt(receipt.cockpit?.asset);
   validateFirstFlightFacadeAdmission(receipt,pointerEnabled,nativeIdentity.declared_source_fingerprint);
   assert.deepEqual(Object.keys(receipt.wind).sort(),['bridge','cue','scene']);
   for(const [name,item] of Object.entries(receipt.wind)){
@@ -674,6 +724,10 @@ function audit(root,proof,build,python='python'){
   if(file.startsWith('piston-models/')){assert(pistonEnabled);declare(pistonModel.id,file,'content');}
   else if(file.startsWith('source/whole-flight-preview/piston-models/')){assert(pistonEnabled);declare(pistonModel.id,file,'source');}
   else if(file.startsWith('models/'))declare(model.id,file,'content');
+  else if(isOriginalCockpitSourcePath(file)){
+   for(const owner of components)owner.files=owner.files.filter(item=>item.path!==file);
+   declare('original-prototype-cockpit-v1',file,'source');
+  }
   else if(isOriginalAudioSourcePath(file)){
    // Move these authored synthesis sources out of the prior aggregate declaration.
    for(const owner of components)owner.files=owner.files.filter(item=>item.path!==file);
@@ -684,6 +738,9 @@ function audit(root,proof,build,python='python'){
   else if(file.endsWith('.pck')||['launch.ps1','README.md'].includes(file))declare('native-export-proof',file,'content');
   else if(['portable-smoke.log','smoke-receipt.json','loop.records.ndjson'].includes(file))declare('native-export-proof',file,'evidence');
  }
+ const cockpitNotice=stageOriginalCockpitNotice(repo,payload,register.entries.find(entry=>entry.id==='original-prototype-cockpit-v1'));
+ declare('original-prototype-cockpit-v1',cockpitNotice.file,'notice');
+ const cockpitOwner=component('original-prototype-cockpit-v1');cockpitOwner.notices=cockpitOwner.notices.filter(item=>item.register_path!==cockpitNotice.register_path);cockpitOwner.notices.push({register_path:cockpitNotice.register_path,package_path:cockpitNotice.file});
  const audioNotice=stageOriginalAudioNotice(repo,payload,register.entries.find(entry=>entry.id==='original-prototype-audio'));
  declare('original-prototype-audio',audioNotice.file,'notice');
  const audioOwner=component('original-prototype-audio');audioOwner.notices=audioOwner.notices.filter(item=>item.register_path!==audioNotice.register_path);

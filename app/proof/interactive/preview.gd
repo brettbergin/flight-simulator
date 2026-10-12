@@ -36,6 +36,7 @@ var cockpit_panel: Control
 var panel_viewport: SubViewport
 var cockpit_builder: RefCounted
 var cockpit: Dictionary = {}
+var _cockpit_asset_ready: bool = false
 var flight_map: Control
 var map_visible: bool = false
 var menu: PanelContainer
@@ -84,6 +85,8 @@ func _ready() -> void:
 		named_start = "airborne-prepared"
 	if not smoke:
 		make_world()
+		if not _cockpit_asset_ready:
+			return
 	if not restart():
 		if smoke or visual_smoke:
 			finish_smoke()
@@ -109,6 +112,8 @@ func close_session() -> bool:
 	return closed.get("ok", false) and closed.get("joined", false)
 
 func restart() -> bool:
+	if not smoke and not _cockpit_asset_ready:
+		return false
 	if not close_session():
 		return fail("Native worker did not join")
 	if not ClassDB.class_exists("FlightInteractiveSession"):
@@ -556,7 +561,30 @@ func visual_basis(q: Quaternion) -> Basis:
 func _make_world_presentation() -> Dictionary:
 	return load("res://interactive/flight_world.gd").new().build(self)
 
+func _cockpit_asset_unavailable(canvas: CanvasLayer) -> void:
+	status="Cockpit asset unavailable or invalid. Repair the game installation and restart."
+	blocked=true
+	set_process(false)
+	set_physics_process(false)
+	set_process_input(false)
+	set_process_unhandled_input(false)
+	set_process_unhandled_key_input(false)
+	set_process_shortcut_input(false)
+	var message := Label.new()
+	message.text=status
+	message.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	message.position=Vector2(24,24)
+	message.size=Vector2(800,100)
+	canvas.add_child(message)
+	push_error(status)
+	# Asset-consuming test modes fail explicitly instead of waiting for a watchdog.
+	for argument: String in OS.get_cmdline_user_args():
+		if argument.ends_with("-checks") or argument.ends_with("-visual-smoke") or argument=="--visual-smoke":
+			get_tree().quit(1)
+			return
+
 func make_world() -> void:
+	_cockpit_asset_ready=false
 	var scene: Dictionary = _make_world_presentation()
 	airplane=scene.airplane
 	camera=scene.camera
@@ -582,6 +610,10 @@ func make_world() -> void:
 	cockpit_panel.call("set_cockpit_surface",true)
 	cockpit_builder=load("res://interactive/flight_cockpit.gd").new()
 	cockpit=cockpit_builder.call("build",self,panel_viewport.get_texture())
+	if cockpit.is_empty():
+		_cockpit_asset_unavailable(canvas)
+		return
+	_cockpit_asset_ready=true
 	flight_map=load("res://interactive/flight_map.gd").new()
 	canvas.add_child(flight_map)
 	flight_map.call("set_landmarks",scene.get("landmarks",[]))

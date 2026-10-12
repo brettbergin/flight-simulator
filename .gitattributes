@@ -70,3 +70,6 @@ tests/reference/nasa-c172m/*.csv text eol=lf
 tests/persistence/local_players/native.cpp -text whitespace=cr-at-eol
 tests/persistence/local_players/crash_actor.cpp text eol=lf
 tools/local-players/source-identity.py text eol=lf
+
+# Keep original cockpit generator provenance exact in Windows checkouts.
+assets_source/c172/original-prototype/generate_cockpit.py text eol=lf
