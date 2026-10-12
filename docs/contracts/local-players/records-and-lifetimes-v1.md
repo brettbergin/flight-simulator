@@ -358,14 +358,109 @@ Readback qualification; new descriptor shape never grants native authority.
 
 ## Implementation constraints clarified by source review
 
-The pinned SQLite `sqlite3_open_v2` API ignores `SQLITE_OPEN_EXCLUSIVE`; its
-internal VFS flag is not a caller-visible CreateNew guarantee. New-store creation
-must use actual native `CREATE_NEW` reservation and retained owned-file identity,
-followed by a no-CREATE SQLite open under the stated stable-parent/ownership
-policy, or a separately reviewed fixed VFS route. An intentionally owned fresh
-empty file is distinct from a refused preexisting zero-byte database. Never
-truncate an existing file to retry. This clarifies the existing CreateNew policy,
-not a dependency or VFS change authorized by this document.
+### Fresh database: checked exclusive handle handoff
+
+This narrow shared-interface amendment becomes normative only after its checked
+contract PR merges. Implementation and actual storage qualification under
+[#219](https://github.com/brettbergin/flight-simulator/issues/219) remain pending.
+The pinned SQLite `sqlite3_open_v2` API ignores `SQLITE_OPEN_EXCLUSIVE`; it is
+not a caller-visible CreateNew guarantee. Keep the pinned default Win32 VFS and
+fixed internal `exclusive=1` URI. No shared-open fallback or VFS change is allowed.
+
+For a fully inspected empty root, perform one actual native `CREATE_NEW` of the
+fixed main basename. Observe its volume serial/file ID, ordinary nonreparse
+single-link identity and zero bytes. Retain its creation handle and immutable
+expected identity while players.lock and admitted root/parent/sentinel leases
+remain owned. Recheck that SAME handle's identity and zero bytes, then
+checked-close it immediately before the SQLite-owned phase. Clear the owned
+handle only after actual close succeeds. Failed close leaves it owned and
+forbids SQLite opening or successful closed/joined reporting.
+
+Open the already-created fixed basename with READWRITE|URI|NOMUTEX, without
+SQLITE_OPEN_CREATE or SQLITE_OPEN_EXCLUSIVE. On actual successful open, obtain
+the borrowed MAIN native handle using
+`sqlite3_file_control(db, "main", SQLITE_FCNTL_WIN32_GET_HANDLE, &handle)`.
+Require successful control, non-null/non-invalid handle and actual read/write
+main connection. Verify the SQLite-owned handle against the CREATE_NEW expected
+volume/file ID, ordinary/nonreparse/single-link identity, zero length and
+normalized canonical final pathname. Recheck admitted root/parent identities
+without opening a second main data handle. These checks MUST precede ALL
+configuration SQL, application ID/user version, page-size/WAL setup, DDL,
+initialization or other database writes. Pinned raw SQLite opening may read the
+file header; opening is not claimed to perform no reads, nor are SQLite internal
+calls represented by fabricated adapter IO events.
+
+The expected identity comes ONLY from actual CREATE_NEW observation, never from
+a caller record/path/test dictionary. MAIN handle is borrowed only within the
+sole-worker verification call: FileSystem MUST NOT close, duplicate, cache,
+rebind or write through it. Never use WIN32_SET_HANDLE or reinterpret a
+FILE_POINTER as HANDLE. SQLite owns its handle; checked sqlite3_close must
+succeed before that connection's resources are closed. Existing statement,
+worker exit/join and retained lock ownership requirements remain unchanged.
+
+The exact internal FileSystem declarations are virtual/pure, with corresponding
+WindowsFileSystem overrides; the existing reserve_new_database(FileIdentity&)
+declaration is unchanged:
+
+```cpp
+Error release_reserved_database_for_sqlite(const FileIdentity& expected);
+Error verify_reserved_database(const FileIdentity& expected,
+                               void* borrowed_sqlite_main_handle);
+```
+
+The opaque void* is non-owning internal Windows HANDLE input, never a public
+DTO/Godot capability. Release requires the currently held creation handle and
+players.lock. Verification requires retired creation handle, valid immutable
+expected identity and retained lock; its HANDLE/topology checks are bounded and
+read-only. Non-Windows stubs return root_unavailable, not a Linux storage route.
+Store's private fresh-open path carries the expected identity (or an equally
+explicit private split): checked release -> raw SQLite open -> actual MAIN
+handle acquisition/verification -> configure -> initialize. Qualification and
+existing-original paths do not use these fresh reservation methods and retain
+their existing policies. No public Service/AdmissionSource/Registry/Boundary or
+ClassDB ABI, persistent payload or arena allocation is added.
+
+Closed failure rules:
+
+- Reserve failure keeps existing mapping and performs no SQLite open. Retain
+  every actually owned failed-close handle.
+- Release identity/metadata/zero-byte drift returns recovery_required without
+  SQLite opening; invalid internal ownership or failed close returns io_error.
+  Failed close retains the same handle.
+- SQLite open failure keeps actual SQLite error mapping and any returned
+  connection for checked close; there is no initialize/configure fallback.
+- GET_HANDLE failure/null/invalid or unexpectedly read-only main returns
+  io_error. Identity/type/link/final-path/root drift or nonzero freshly reserved
+  file returns recovery_required. Neither outcome performs configuration SQL.
+- Pre-write handoff failure is failed with value and commit_sequence null,
+  never uncertain/committed/ready. Later configuration/initialization uses
+  existing errors, commit uncertainty and actual transaction observations.
+
+Preserve the zero/new file or observed replacement on every failure. Never
+delete, truncate or overwrite it to make retry pass. Subsequent inspection may
+refuse an uninitialized preexisting file as foreign_store. Keep advisory lock
+and topology leases throughout; the close/open interval is an observed handoff,
+NOT atomic adversarial path protection. Observed drift refuses writes;
+noncooperating mutation beyond those observations remains unsupported. Existing
+qualification-copy guards, fixed exclusive URI, locking_mode EXCLUSIVE,
+WAL/SHM/journal preservation and actual shutdown/join rules remain unchanged.
+
+Implementation is restricted to the existing filesystem.hpp,
+windows_filesystem.hpp, store.hpp, store.cpp and windows_filesystem.cpp under
+native/persistence/local_players. Keep exact 17 source/15 control/11 normative
+path membership, public API and all frozen fixtures/crash19 recipes. Changed
+normative/source bytes require fresh contract/component/build identities and
+actual source/compiler/SQLite/object/aggregate binding. Source review must
+verify actual ABI, unchanged arena charges and operation-site ordering before
+execution. Required real isolated cases include new-store success, borrowed
+MAIN identity/exclusive sharing, read-only/closed/identity drift before writes,
+checked failed-close ownership, ordinary reopen/qualification/recovery and
+full authenticated Native/Windows/Bridge/crash qualification. Existing
+before_open sites may expose the actual interval for deterministic test
+replacement/lock attempts; no new shipping hook is authorized. A callback,
+mock or source proof is not an observed Win32/SQLite result. Historical b07
+failed/io_error and zero-file observations remain failures; their exact SQLite
+extended/Win32 error was not captured and is not invented here.
 
 Direct `poll` actual-INT admission must precede any Godot narrow-parameter
 coercion. Export snapshot/spool buffers count toward the same 32 MiB owned-buffer
