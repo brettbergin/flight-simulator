@@ -16,6 +16,8 @@ Native receipt SHA256: `33812846ccc9e5c5fb22b7158d49c32dcc0d8817fdfcff3d2062feae
 
 ## Required before acceptance
 
-The same-build Godot boundary campaign completed with exit zero and a passing supervisor receipt, SHA256 `5425812a41e70ba36a7434194ee692b98f5f8cfef3558098112013fb4b428907`. Independent saved-evidence review is pending. Allocation-category/ordinal refusals, shared export-credit lifetimes, remaining fault/counter and size-boundary cases require completion. A source audit also found that pre-IO oversized export classification needs correction to the accepted `storage_full` result.
+The same-build Godot boundary campaign completed with exit zero and a passing supervisor receipt, SHA256 `5425812a41e70ba36a7434194ee692b98f5f8cfef3558098112013fb4b428907`. Independent saved-evidence review passed: 1,198 ClassDB checks, with review SHA256 `2405c4c55d669bfa0ac5281ba0bab05c750c291a47f74ab3edf46e06110fbf01`. Allocation-category/ordinal refusals, shared export-credit lifetimes, remaining fault/counter and size-boundary cases require completion. A source audit also found that pre-IO oversized export classification needs correction to the accepted `storage_full` result.
 
 The root CMake integration changes shared flight build controls. Current-main combined flight/storage qualification, package aggregate identity and the required CI remain outstanding; old flight build hashes cannot substitute. The installed A/B/Guest journey, privacy/relaunch behavior, full resume, hardware/pilot evaluation and broader phase gates remain separate. Keep #219 open until its complete acceptance criteria and reviewed exit evidence hold.
+
+The integration draft removes one trailing space from a blank line in the native test source. Its raw source identity therefore differs from b32; fresh qualification remains required despite identical test logic.
