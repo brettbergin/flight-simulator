@@ -238,13 +238,28 @@ func _records(host: Node, object: Object) -> void:
 # Independent complete values use the fixed pre-numeric revision2 fixture.
 func _two_result_transfer(host: Node, object: Object, id: String) -> void:
 	var first: Variant = object.call("submit", {"kind":"load_player", "payload":{"player_id":id}})
+	var first_admitted: bool = _admission(first,true,"")
+	_check(first_admitted, "first batch read has an actually accepted request ID")
+	if not first_admitted:
+		return
+	var deadline: int = Time.get_ticks_msec() + 30000
+	var ready: Variant = object.call("status")
+	# Leave the first terminal queued; submit only after the worker releases its codec workspace.
+	while Time.get_ticks_msec() < deadline:
+		ready = object.call("status")
+		if _status(ready) and ready.state == "ready" and ready.pending == 0 and ready.undelivered == 1:
+			break
+		await host.get_tree().process_frame
+	var first_ready: bool = _status(ready) and ready.state == "ready" and ready.pending == 0 and ready.undelivered == 1
+	_check(first_ready, "first actual terminal remains queued before the second admission")
+	if not first_ready:
+		return
 	var second: Variant = object.call("submit", {"kind":"list_practice", "payload":{"player_id":id, "before_creation_sequence":"0", "limit":1}})
 	var admitted: bool = _admission(first,true,"") and _admission(second,true,"") and first.request_id != second.request_id
 	_check(admitted, "two-result batch has distinct actually accepted request IDs")
 	if not admitted:
 		return
-	var deadline: int = Time.get_ticks_msec() + 30000
-	var ready: Variant = object.call("status")
+	ready = object.call("status")
 	while Time.get_ticks_msec() < deadline:
 		ready = object.call("status")
 		if _status(ready) and ready.state == "ready" and ready.pending == 0 and ready.undelivered == 2:
