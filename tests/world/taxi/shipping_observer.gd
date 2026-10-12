@@ -71,14 +71,61 @@ func _bounds(scene: Node,page: String,size: Vector2i) -> Array:
 	var default_focus: Control=scene.taxi_panel.get_back_button() if page=="taxi" else scene.views_panel.get_cancel_button()
 	check(root.gui_get_focus_owner()==default_focus,page+"_actual_default_focus")
 	return rows
-func _module_witness(snapshot: PackedByteArray) -> Dictionary:
+static func _active_module_open(state: Dictionary,ledger: Array) -> Dictionary:
+	# Initialization metadata is not part of read_state(). Consume only this
+	# capture's already-recorded same-scene open/close ledger; never reopen.
+	var rb: Variant=state.get("readback")
+	if not rb is Dictionary or rb.get("native_live")!=true or rb.get("historical")!=false or not rb.get("session_id") is String or rb.session_id.is_empty(): return {}
+	var selected: Dictionary={}
+	var matching: int=0
+	var active: int=0
+	for group in ledger:
+		if group is Dictionary:
+			if group.size()!=3 or not group.has_all(["pause_attempts","advances","intent_attempts"]): return {}
+			continue
+		if not group is Array or group.is_empty(): return {}
+		var opened: Dictionary={}
+		var closed: bool=false
+		var sid: String=""
+		for index in range(group.size()):
+			var entry: Variant=group[index]
+			if not entry is Dictionary or entry.size()!=3 or not entry.has_all(["method","arguments","reply"]) or not entry.arguments is Array or not entry.reply is Dictionary: return {}
+			if not entry.method in ["open_session","submit","session_control","step_fixed","close"] or closed: return {}
+			if entry.method=="open_session":
+				if index!=0 or not opened.is_empty() or entry.arguments.size()!=4: return {}
+				opened=entry.reply
+				if opened.get("ok")!=true or opened.get("live")!=true or opened.get("historical")!=false or opened.get("fault")!="" or not opened.get("aircraft_json") is String: return {}
+				var aircraft: Variant=JSON.parse_string(opened.aircraft_json)
+				if not aircraft is Dictionary or not aircraft.get("session_id") is String or aircraft.session_id.is_empty() or aircraft.get("tick")!="0": return {}
+				sid=aircraft.session_id
+				if sid==rb.session_id:
+					matching+=1
+					var model: Variant=rb.get("model_identity")
+					if not model is Dictionary or entry.arguments[3]!=model.get("id") or entry.arguments[1]!=rb.get("named_start") or opened.get("named_start")!=rb.get("named_start") or opened.get("native_source_fingerprint")!=rb.get("native_source_fingerprint") or opened.get("prepared_world_sha256")!=rb.get("prepared_world_sha256"): return {}
+			elif opened.is_empty(): return {}
+			elif entry.method=="close":
+				if not entry.arguments.is_empty() or entry.reply.get("ok")!=true or entry.reply.get("joined")!=true: return {}
+				closed=true
+		if not closed:
+			active+=1
+			if sid!=rb.session_id: return {}
+			selected=opened
+	if matching!=1 or active!=1 or not selected.get("runtime_modules") is Dictionary or selected.runtime_modules.size()!=7: return {}
+	return selected
+func _module_witness(snapshot: PackedByteArray,ledger_bytes: PackedByteArray) -> Dictionary:
 	var state: Dictionary=bytes_to_var(snapshot)
+	var ledger: Array=bytes_to_var(ledger_bytes)
+	var opened: Dictionary=_active_module_open(state,ledger)
+	check(not opened.is_empty(),"actual_active_same_session_module_initialization")
+	var modules: Dictionary=opened.get("runtime_modules",{})
 	var rows: Dictionary={}
-	for name in state.native.runtime_modules:
-		var key: String=str(name).to_lower()
-		var path: String=str(state.native.runtime_modules[name]).replace("\\","/")
+	for name in modules:
+		if not name is String or not modules[name] is String:
+			check(false,"actual_loaded_module_name_and_path_strings");continue
+		var key: String=name.to_lower()
+		var path: String=modules[name].replace("\\","/")
 		check(not rows.has(key) and binding.expected_modules.has(key),"closed_actual_loaded_module_"+key)
-		check(path.get_base_dir().to_lower() in [binding.payload.to_lower(),binding.payload.path_join("bin").to_lower()],"actual_module_inside_copied_shipping_payload_"+key)
+		check(path.get_file().to_lower()==key and path.get_base_dir().to_lower() in [binding.payload.to_lower(),binding.payload.path_join("bin").to_lower()],"actual_module_inside_copied_shipping_payload_"+key)
 		var record: Dictionary={"bytes":FileAccess.get_file_as_bytes(path).size(),"sha256":FileAccess.get_sha256(path)}
 		check(record==binding.expected_modules.get(key),"actual_loaded_module_bytes_"+key)
 		rows[key]={"path":path,"bytes":record.bytes,"sha256":record.sha256}
@@ -91,7 +138,7 @@ func _capture(scene: Node,name: String,size: Vector2i,page: String="") -> void:
 	check(source.native_live and source.paused and scene.paused and source.native_source_fingerprint==Identity.SOURCE_FINGERPRINT and source.native_fault.is_empty() and source.error.is_empty(),name+"_actual_valid_paused_source")
 	var bounds: Array=_bounds(scene,page,size) if not page.is_empty() else []
 	var before: Dictionary={"authority":_authority(scene),"camera":_camera(scene),"navigation":scene.taxi_navigation.observe(source),"map":scene.flight_map.get("_position"),"map_visible":scene.map_visible,"marker_visible":scene._taxi_marker.visible}
-	var modules: Dictionary=_module_witness(before.authority.snapshot)
+	var modules: Dictionary=_module_witness(before.authority.snapshot,before.authority.ledger)
 	await RenderingServer.frame_post_draw
 	await RenderingServer.frame_post_draw
 	var image: Image=root.get_texture().get_image()
