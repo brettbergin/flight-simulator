@@ -66,6 +66,8 @@ The [filtered original ground materials](evidence/P2/ground-materials.md) add mo
 
 The [original cockpit finish and physical-panel iteration](evidence/P2/cockpit-presentation.md) adds open bezel rings, matte materials and a higher-resolution panel with full captions. Three-context Windows checks preserve native readings and flight behavior; bounded visual evidence and remaining readability limits are recorded separately from pilot and aircraft acceptance.
 
+The [original cockpit asset contract](contracts/cockpit/original-asset-v1.md) specifies the editable original mesh pipeline. Its import representation clarification preserves the original geometry and records Godot-required derived tangents and the glTF UV conversion; diagnostic checks do not establish qualified runtime, visual or aircraft acceptance. [Issue232](https://github.com/brettbergin/flight-simulator/issues/232) retains the consumer and delivery work.
+
 The accepted [observed flight review contract](decisions/011-observed-flight-review.md) defines a bounded paused review of sampled flight path, instruments and held controls. The [player implementation evidence](evidence/P2/observed-flight-review.md) tracks its source, lifecycle and exported verification separately; this iteration establishes neither durable saves nor physics replay.
 
 The accepted [recorded-review interchange contract](decisions/012-observed-review-interchange.md) defines explicit new-file Save/Open of historical path and instrument observations. [Issue138 implementation evidence](evidence/P2/observed-review-interchange.md) tracks its codec, file creation and paused UI consumers; automatic profiles, physics continuation and pilot/phase acceptance remain separate.
