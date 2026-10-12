@@ -123,3 +123,6 @@ The accepted [durable local-player contract](decisions/026-durable-local-players
 ## Original apron starts and taxi navigation
 
 The checked [ADR027 contract](decisions/027-synthetic-taxi-navigation.md), merged through [PR226](https://github.com/brettbergin/flight-simulator/pull/226), defines two original-model calm apron starts and shared signs, markings, map and manual itineraries. The [implementation evidence for #225](evidence/P2/taxi-navigation.md) records the passing native apron and paused navigation development checks, preserved full-regression failures and remaining movement, visual and delivery work. Existing starts and fixtures remain separate; aircraft, pilot and phase acceptance remain open.
+
+
+The proposed [remaining-row qualification amendment](contracts/local-players/test-capability-v1.md#proposed-fixed-remaining-row-qualification-amendment) prepares a fixed second isolated test child for the existing local-player store CTest. It preserves frozen reference expectations and distinguishes actual Store rejection from two primary-key setup applicability cases. Consumers require checked contract acceptance, then fresh source/build/runtime qualification; [#219](https://github.com/brettbergin/flight-simulator/issues/219), [#220](https://github.com/brettbergin/flight-simulator/issues/220), installed-player and phase gates remain separate.

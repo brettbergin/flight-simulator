@@ -232,3 +232,74 @@ capabilities, actor exes and five CTest commands are bound after build and befor
 Root execution, not invented as design acceptance. Actual service/DB/Win32/ClassDB and installed-user/three-context
 journeys remain separate gates. Original114/72/66 and all flight evidence stay
 immutable; no parents/phase/pilot acceptance follows.
+
+
+## Proposed finite remaining-row qualification campaign
+
+This proposed public amendment, pending checked merge and adoption, defines the
+fixed second store child described in
+[test-capability-v1.md](test-capability-v1.md). Its exact 17 IDs and successor plan
+are normative there; allocation metadata repeats them for fail-closed admission.
+The existing scheduler event/action/return grammar is unchanged. This campaign
+adds no injected fault, VFS, SQLite error substitution or first-error trace hook.
+
+For each first 15 ID, independently materialize D01 plus exactly that accepted
+reference delta while the previous worker is joined and no service owns SQLite.
+Use only the exact frozen input DDL/rows; SQLN cases reconstruct their declared
+variant DDL on the same owned main file, not sqlite_schema writes. Before opening,
+assert canonical expected input, closed statements/connections, main <= 524288 bytes,
+absent WAL/SHM/journal and exact four-file identity/length/hash witness. Do not
+combine mutations or rewrite the frozen oracle. Actual failed start must observe
+qualification-copy open and no original SQLite open; require unavailable state,
+failed/null terminal, unchanged originals, retained/WORK artifacts and joined
+shutdown. DN expects `corrupt_store`; SQLN's frozen expected is
+`matches_allocated_schema=false`, with `foreign_store` separately justified by
+Store's exact-DDL check. Keep an immutable full original proof for every case;
+explicit management cleanup retires the known retained+WORK pair before next setup.
+All 15 failures plus cleanup must occur, with exact per-case records and no skip.
+
+Then reset exact D01 for each last two IDs and attempt its exact frozen key
+mutation under the allocated DDL. Require actual primary-key constraint rejection
+and its actual extended result, rollback, closed connection, and whole logical
+rows/BLOB/hash equality to D01. `DN_column_player_id` duplicates the existing
+player primary key; `DN_column_prefs_owner` duplicates the existing preferences
+primary key. These two inputs cannot be loaded under that schema: report
+`setup_constraint_inapplicable_to_loadable_store`, never Store qualified/rejected
+or oracle passed. Do not use REPLACE, remove the collided row, disable/drop a
+key, corrupt pages or change expected IDs. Their pure semantic-invalid oracle
+remains unchanged. Every case record binds the frozen reference ID/input/expected.
+
+Conditional pre-count (source-based, NOT fitted to actual38):15 failed-start /
+management pairs * (321 + 337) = 9870 observed records; fresh empty initialization
+has 30 records, for 9900 in the second child. The 321/337 terms include all permanent,
+request/delivery/terminal allocation notices, ACK publication, sentinel/header,
+two copy passes/digests, metadata writes and retained/WORK audits plus real SQLite
+open/qualification pairs. Initialization 30 = 6 permanent allow/claim/release + 11
+request/delivery/ACK + 2 sentinel-read + 2 original-open + 2 BEGIN + 2 meta-row-write
++ 2 COMMIT + 1 after-COMMIT + 2 postverify. Close joins/finalizes without a new
+observer event. Source scope: Store start/initialize/open/qualify; Service create,
+submit/peek/ACK/publish/destroy; Windows sentinel/snapshot/audit/list/delete.
+
+This bound requires one main <= 512 KiB with no sidecars, each generated metadata
+file <= 24576 bytes, full-progress 65536-byte copy/digest reads/writes and 8192-byte audit reads,
+and one EOF per digest. Original proof/setup helper calls are explicitly outside
+the production observer stream; bind their finite fixed SQL/API operations and
+closed handles separately before execution, never misreport them as observed
+Service events. Before compile/execution, independent source review must reconcile
+EVERY implemented event-emitting path with these terms and freeze all fixed setup
+operations/partial-progress guards. If the conditional bound fails, stop before
+output and amend the finite plan; no observed-count regrouping or increased cap.
+Actual partial IO remains permitted by production but may invalidate this planning
+condition: 16384 is always hard failure, not an unconditional partial-call theorem.
+
+Do not infer readiness or count from a prior passing aggregate. Original child
+retains its own 16384 gate; the exact two-process store rollup is <= 32768, with
+600 seconds each / 1200 seconds combined and Native 14400 seconds. All old 19 crash recipes, 20 actor
+processes, 38 stages and their original ordinals/deadlines remain separate and exact.
+Neither this campaign nor the two constraint outcomes accepts all of #219, #220,
+installed KnownFolder, rollback/flush fault evidence, aircraft or phase gates.
+
+
+The closed second-child JSON receipt and exact store coverage fields are defined
+in the capability amendment above. They bind actual stdout/PID/input hashes and
+all 17 frozen cases. They cannot be deferred to an unreviewed later receipt shape.
