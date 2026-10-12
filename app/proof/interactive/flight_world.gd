@@ -3,6 +3,20 @@ extends RefCounted
 # forces, colliders, imported assets or real-airfield operational data.
 # Local aircraft axes: right +X, up +Y, aft +Z. Parent applies accepted ECEF pose.
 
+const TaxiLayout = preload("res://world/taxi/taxi_layout.gd")
+var _taxi_owner: int = OS.get_thread_caller_id()
+var _taxi_layout: Dictionary = {}
+var _taxi_field_built: bool = false
+
+func configure_taxi_layout(value: Variant) -> bool:
+	if not Thread.is_main_thread() or OS.get_thread_caller_id()!=_taxi_owner or _taxi_field_built:
+		return false
+	var checked: Dictionary = TaxiLayout.validate(value)
+	if not checked.ok:
+		return false
+	_taxi_layout=checked.value.duplicate(true)
+	return true
+
 func material(color: Color, roughness: float = 0.65, metallic: float = 0.0) -> StandardMaterial3D:
 	var value := StandardMaterial3D.new()
 	value.albedo_color = color
@@ -218,6 +232,16 @@ func aircraft(parent: Node3D) -> Dictionary:
 const GROUND_SHADER := """
 shader_type spatial;
 render_mode diffuse_burley, specular_disabled;
+// Defaults retain the original fixed field for callers without taxi content.
+// Configured fields receive these exact same values from validated ADR027 data.
+uniform vec3 taxi_link_z = vec3(30.0, -800.0, -1630.0);
+uniform float taxi_bar_x = 30.0;
+uniform vec4 taxi_bar_offsets = vec4(-1.3, -0.7, 0.7, 1.3);
+uniform vec2 taxi_bar_half = vec2(0.10, 7.0);
+uniform vec3 taxi_dash = vec3(1.0, 1.0, -7.0);
+uniform vec4 taxi_parking_x = vec4(108.0, 127.0, 146.0, 165.0);
+uniform float taxi_parking_x5 = 184.0;
+uniform vec4 taxi_parking_paint = vec4(34.0, 18.0, 16.0, 5.0);
 varying vec2 anchor_xz;
 void vertex() { anchor_xz = VERTEX.xz; }
 
@@ -365,17 +389,25 @@ void fragment() {
         color = mix(color, vec3(0.91, 0.92, 0.83), white * runway);
         float yellow = rect_coverage(p, vec2(82.0, -795.0), vec2(0.11, 893.0), aa);
         for (int i = 0; i < 3; i++) {
-            float z = i == 0 ? 30.0 : (i == 1 ? -800.0 : -1630.0);
+            float z = taxi_link_z[i];
             yellow = max(yellow, rect_coverage(p, vec2(53.0, z), vec2(29.0, 0.11), aa));
             for (int j = 0; j < 4; j++) {
-                float dx = j < 2 ? -1.3 + float(j) * 0.6 : 0.7 + float(j - 2) * 0.6;
-                yellow = max(yellow, rect_coverage(p, vec2(30.0 + dx, z), vec2(0.10, 7.0), aa));
+                float x = taxi_bar_x + taxi_bar_offsets[j];
+                if (j < 2) {
+                    // West pair: seven filtered one-metre dashes. East is solid.
+                    for (int dash = 0; dash < 7; dash++) {
+                        float dz = taxi_dash.z + taxi_dash.x * 0.5 + float(dash) * (taxi_dash.x + taxi_dash.y);
+                        yellow = max(yellow, rect_coverage(p, vec2(x, z + dz), vec2(taxi_bar_half.x, taxi_dash.x * 0.5), aa));
+                    }
+                } else {
+                    yellow = max(yellow, rect_coverage(p, vec2(x, z), taxi_bar_half, aa));
+                }
             }
         }
         for (int i = 0; i < 5; i++) {
-            float x = 108.0 + float(i) * 19.0;
-            yellow = max(yellow, rect_coverage(p, vec2(x, 34.0), vec2(0.10, 18.0), aa));
-            yellow = max(yellow, rect_coverage(p, vec2(x, 16.0), vec2(5.0, 0.10), aa));
+            float x = i < 4 ? taxi_parking_x[i] : taxi_parking_x5;
+            yellow = max(yellow, rect_coverage(p, vec2(x, taxi_parking_paint.x), vec2(0.10, taxi_parking_paint.y), aa));
+            yellow = max(yellow, rect_coverage(p, vec2(x, taxi_parking_paint.z), vec2(taxi_parking_paint.w, 0.10), aa));
         }
         color = mix(color, vec3(0.95, 0.68, 0.17), yellow * paving);
     }
@@ -389,6 +421,20 @@ func ground(parent: Node3D) -> MeshInstance3D:
 	shader.code = GROUND_SHADER
 	var paint := ShaderMaterial.new()
 	paint.shader = shader
+	if not _taxi_layout.is_empty():
+		var links: Array = _taxi_layout.links
+		var first: Dictionary = links[0]
+		paint.set_shader_parameter("taxi_link_z",Vector3(links[0].z_m,links[1].z_m,links[2].z_m))
+		paint.set_shader_parameter("taxi_bar_x",float(first.bar_center_x_m))
+		var offsets: Array = first.bar_offsets_x_m
+		paint.set_shader_parameter("taxi_bar_offsets",Vector4(offsets[0],offsets[1],offsets[2],offsets[3]))
+		paint.set_shader_parameter("taxi_bar_half",Vector2(first.bar_half_extent_xz_m[0],first.bar_half_extent_xz_m[1]))
+		var dash: Dictionary = first.dash_pattern_m
+		paint.set_shader_parameter("taxi_dash",Vector3(dash.length,dash.gap,dash.origin_relative_z))
+		var parking: Array = _taxi_layout.parking
+		paint.set_shader_parameter("taxi_parking_x",Vector4(parking[0].stripe_center_eus_m[0],parking[1].stripe_center_eus_m[0],parking[2].stripe_center_eus_m[0],parking[3].stripe_center_eus_m[0]))
+		paint.set_shader_parameter("taxi_parking_x5",float(parking[4].stripe_center_eus_m[0]))
+		paint.set_shader_parameter("taxi_parking_paint",Vector4(parking[0].stripe_center_eus_m[2],parking[0].stripe_half_length_m,parking[0].cap_z_m,parking[0].cap_half_width_m))
 	var plane := PlaneMesh.new()
 	# Decorative skirt continues beneath the distant ridges so the sky cannot
 	# show through their feet. Native resident coverage remains +/-20000 m.
@@ -397,6 +443,78 @@ func ground(parent: Node3D) -> MeshInstance3D:
 	node.name = "PrototypeGroundSurface"
 	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	return node
+
+func _taxi_sign_paint(color: Color) -> StandardMaterial3D:
+	var paint: StandardMaterial3D = material(color,1.0)
+	paint.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
+	return paint
+
+func _taxi_sign_panel(parent: Node3D, panel: Dictionary, width: float, at: float, right: Vector3) -> void:
+	var yellow := Color(0.97,0.78,0.08)
+	var black := Color(0.025,0.028,0.025)
+	var background: Color = black if panel.role=="location" else yellow
+	var foreground: Color = yellow if panel.role=="location" else black
+	if panel.role=="runway-holding":
+		background=Color(0.72,0.025,0.025)
+		foreground=Color(0.98,0.98,0.94)
+	var board: MeshInstance3D = box(parent,Vector3(width,0.6,0.06),Vector3(at,0,0),_taxi_sign_paint(background))
+	board.name="Panel_"+panel.role.replace("-","_")
+	board.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	if panel.role=="location":
+		var border: Material = _taxi_sign_paint(yellow)
+		for side in [-1.0,1.0]:
+			box(parent,Vector3(width-0.035,0.025,0.005),Vector3(at,side*0.278,0.033),border)
+			box(parent,Vector3(0.025,0.56,0.005),Vector3(at+side*(width*0.5-0.022),0,0.033),border)
+	var caption: String = panel.label
+	if panel.role=="direction":
+		var direction: Array = panel.direction_xz
+		var screen: float = Vector3(direction[0],0,direction[1]).dot(right)
+		caption=(caption+" >") if screen>0 else ("< "+caption)
+	var label := Label3D.new()
+	label.name="Caption"
+	label.text=caption
+	label.font_size=96
+	label.pixel_size=0.003
+	label.outline_size=0
+	label.modulate=foreground
+	label.shaded=false
+	label.double_sided=false
+	label.no_depth_test=false
+	label.fixed_size=false
+	label.billboard=BaseMaterial3D.BILLBOARD_DISABLED
+	label.position=Vector3(at,0,0.04)
+	label.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	parent.add_child(label)
+
+func _taxi_signs(parent: Node3D) -> void:
+	if _taxi_layout.is_empty():
+		return
+	var group := Node3D.new()
+	group.name="SyntheticTaxiSigns"
+	parent.add_child(group)
+	for item: Dictionary in _taxi_layout.signs:
+		var site := Node3D.new()
+		site.name=item.id
+		var point: Array = item.point_eus_m
+		site.position=Vector3(point[0],point[1],point[2])
+		group.add_child(site)
+		for index in range(item.faces.size()):
+			var definition: Dictionary = item.faces[index]
+			var normal := Vector3(definition.normal_xz[0],0,definition.normal_xz[1])
+			var right := Vector3(normal.z,0,-normal.x)
+			var face := Node3D.new()
+			face.name="Face_"+str(index)
+			face.basis=Basis(right,Vector3.UP,normal)
+			face.position=normal*0.04
+			site.add_child(face)
+			var panels: Array = definition.panels
+			var width: float = 1.2 if panels.size()==2 else (1.8 if panels[0].role=="runway-holding" else 2.4)
+			for panel_index in range(panels.size()):
+				_taxi_sign_panel(face,panels[panel_index],width,(float(panel_index)-float(panels.size()-1)*0.5)*width,right)
+			if index==0:
+				var support: Material = material(Color(0.18,0.19,0.17),0.95)
+				for side in [-1.0,1.0]:
+					box(face,Vector3(0.055,0.9,0.055),Vector3(side*width*float(panels.size())*0.35,-0.75,-0.04),support)
 
 func pitched_roof(parent: Node3D, width: float, depth: float, eaves: float, rise: float, paint: Material) -> void:
 	var surface := SurfaceTool.new()
@@ -636,6 +754,7 @@ func distant_ridges(parent: Node3D) -> void:
 	ridge.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 func build(parent: Node3D) -> Dictionary:
+	_taxi_field_built=true
 	var environment := WorldEnvironment.new()
 	var config := Environment.new()
 	var sky := Sky.new()
@@ -669,6 +788,7 @@ func build(parent: Node3D) -> Dictionary:
 	parent.add_child(sun)
 	# Same prepared surface and ±20km bounds, with no colliders or depth layers.
 	var ground_surface := ground(parent)
+	_taxi_signs(parent)
 	var asphalt: Material=material(Color(0.105,0.13,0.15),0.94)
 	var white: Material=material(Color(0.91,0.92,0.83))
 	for i in range(3):

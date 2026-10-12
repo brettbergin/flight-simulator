@@ -84,6 +84,27 @@ void verify_piston_model(const std::filesystem::path& root) {
   }
   if(!expected.empty()){throw std::invalid_argument("Missing piston model file");}
 }
+// ADR027 fixed original PARK1 CG, not an arbitrary numeric pose interface.
+// Each volatile store rounds one declared operation to binary64; no fused
+// multiply-add or reassociation enters A+(108E+(-18N+1.05U)). Old ICs skip it.
+double apron_rounded(double input) {volatile double result=input;return result;}
+c::GeodeticPosition apron_cg(c::GeodeticPosition anchor) {
+  static_assert(sizeof(double)==8&&std::numeric_limits<double>::digits==53);
+  const auto origin=c::geodesy::to_ecef(anchor);
+  if(!origin){throw std::invalid_argument("Invalid apron world anchor");}
+  const Basis basis(anchor);const auto a=vector(*origin);Vec point{};
+  for(unsigned i=0;i<3;++i) {
+    const double east=apron_rounded(108*basis.east[i]);
+    const double north=apron_rounded(-18*basis.north[i]);
+    const double up=apron_rounded(1.05*basis.up[i]);
+    const double north_up=apron_rounded(north+up);
+    const double delta=apron_rounded(east+north_up);
+    point[i]=apron_rounded(a[i]+delta);
+  }
+  const auto result=c::geodesy::from_ecef({point[0],point[1],point[2]});
+  if(!result){throw std::invalid_argument("Invalid fixed apron geodetic CG");}
+  return *result;
+}
 struct PistonSwitches {bool left{},right{},starter{},feed{true};};
 void fold_system(PistonSwitches& state,const c::SystemControl& system) {
   const bool value=std::get<bool>(system.value);
@@ -132,7 +153,12 @@ class Session::Impl {
     (void)steady_wind(settings.wind_profile); // Reject before solver/provider allocation.
     if(!(settings.profile==Profile::legacy||settings.profile==Profile::piston)){throw std::invalid_argument("Unknown interactive profile");}
     const bool cold=settings.profile==Profile::piston;
-    if(!settings.angular_method){settings.angular_method=cold?AngularMethod::event_aware_constant_power_v1:AngularMethod::legacy_euler;}
+    const bool apron=is_apron_start(settings.start);
+    const bool ready_ground=settings.start==Start::ground||settings.start==Start::apron_ready;
+    if(!settings.angular_method){settings.angular_method=cold?(apron?AngularMethod::event_aware_coupled_midpoint_v1:AngularMethod::event_aware_constant_power_v1):AngularMethod::legacy_euler;}
+    if(apron&&(settings.wind_profile!=SteadyWindProfile::calm||settings.seed.value!=42||settings.hz!=120||settings.purpose!=c::ClockPurpose::runtime||settings.trim||
+       settings.requested_height_m!=1.05||settings.forward_mps!=0||settings.down_mps!=0||settings.pitch_rad!=0||
+       (cold&&settings.angular_method!=AngularMethod::event_aware_coupled_midpoint_v1))){throw std::invalid_argument("Unsupported fixed calm apron recipe");}
     if(!(settings.angular_method==AngularMethod::legacy_euler||settings.angular_method==AngularMethod::event_aware_constant_power_v1||settings.angular_method==AngularMethod::event_aware_coupled_midpoint_v1)||(!cold&&settings.angular_method!=AngularMethod::legacy_euler)){throw std::invalid_argument("Unsupported angular method/profile pair");}
 #if !defined(FLIGHT_JSBSIM_EVENT_AWARE_SHAFT) || !FLIGHT_JSBSIM_EVENT_AWARE_SHAFT
     // The pristine route remains available for the accepted direct-thrust
@@ -144,11 +170,11 @@ class Session::Impl {
 #endif
     if(cold&&settings.wind_profile!=SteadyWindProfile::calm){throw std::invalid_argument("Piston profile requires calm wind");}
     if(cold&&settings.seed.value!=42){throw std::invalid_argument("Piston cold recipe requires seed42");}
-    if((cold&&(settings.start!=Start::piston_cold_ground||settings.trim))||(!cold&&settings.start==Start::piston_cold_ground)){throw std::invalid_argument("Unsupported profile/start pair");}
-    if(!(settings.start==Start::ground||settings.start==Start::airborne||settings.start==Start::piston_cold_ground)||(settings.start==Start::ground&&settings.trim)){throw std::invalid_argument("Unknown start or ground trim unsupported");}
-    // First human prototype exposes only these two explicit named recipes.
+    if((cold&&(!is_cold_start(settings.start)||settings.trim))||(!cold&&is_cold_start(settings.start))){throw std::invalid_argument("Unsupported profile/start pair");}
+    if(!(settings.start==Start::ground||settings.start==Start::airborne||settings.start==Start::piston_cold_ground||apron)||(ready_ground&&settings.trim)){throw std::invalid_argument("Unknown start or ground trim unsupported");}
+    // Original three recipes retain their historical arithmetic and intake.
     const auto near=[](double a,double b){return std::isfinite(a)&&std::abs(a-b)<=1e-12;};
-    if((settings.start==Start::ground||cold)&&(!near(settings.requested_height_m,1.05)||!near(settings.forward_mps,0)||!near(settings.down_mps,0)||!near(settings.pitch_rad,0))){throw std::invalid_argument("Unsupported ground named recipe");}
+    if((ready_ground||cold)&&(!near(settings.requested_height_m,1.05)||!near(settings.forward_mps,0)||!near(settings.down_mps,0)||!near(settings.pitch_rad,0))){throw std::invalid_argument("Unsupported ground named recipe");}
     if(settings.start==Start::airborne&&(!settings.trim||!near(settings.requested_height_m,1000)||!near(settings.forward_mps,55*std::cos(.02))||!near(settings.down_mps,55*std::sin(.02))||!near(settings.pitch_rad,.02))){throw std::invalid_argument("Unsupported airborne named recipe");}
     if(!settings.surface||!c::stable_id(settings.session_id)||!(settings.hz==60||settings.hz==120||settings.hz==240)||!std::isfinite(settings.requested_height_m)||
        !std::isfinite(settings.forward_mps)||settings.forward_mps<0||settings.forward_mps>100||!std::isfinite(settings.down_mps)||std::abs(settings.down_mps)>3||
@@ -162,6 +188,7 @@ class Session::Impl {
     if(!gate.register_source("pilot.controls",c::Authority::pilot)){throw std::runtime_error("Pilot registration failed");}
     if(cold){for(const auto* id:{"engine.ignition_left","engine.ignition_right","engine.starter","fuel.feed"}){if(!gate.register_control({id,c::ControlCapability::ValueType::boolean,0,1})){throw std::runtime_error("Piston control capability registration failed");}}}
     const auto anchor=settings.surface->config().anchor;auto cg=anchor;cg.ellipsoid_height_m=settings.requested_height_m;
+    if(apron){cg=apron_cg(anchor);} // Plane-up1.05 is NOT displaced ellipsoid height1.05.
     const auto point=c::geodesy::to_ecef(cg);if(!point||!settings.surface->covers(*point,gear_radius+.05)){throw std::invalid_argument("Initial coverage missing before allocation");}
     boundary=std::make_unique<v1::Boundary>(settings.surface,c::SampleHeader{{0},settings.session_id},4096);
     const auto initial_ground=boundary->sample(cg);const auto* floor=std::get_if<c::ValidGround>(&initial_ground.sample);
@@ -177,7 +204,17 @@ class Session::Impl {
     if(exec->GetGroundReactions()->GetNumGearUnits()!=3){throw std::runtime_error("Gear inventory mismatch");}
     exec->Setdt(1./120);exec->GetInertial()->SetGroundCallback(new Callback(*this));exec->GetWinds()->SetTurbType(j::FGWinds::ttNone);
     const auto seed=static_cast<std::uint32_t>((settings.seed.value^(settings.seed.value>>31)^(settings.seed.value>>62))&0x7fffffffULL);exec->SetPropertyValue("simulation/randomseed",seed);
-    const auto ic=exec->GetIC();ic->SetGeodLatitudeRadIC(anchor.latitude_rad);ic->SetLongitudeRadIC(anchor.longitude_rad);ic->SetThetaRadIC(settings.pitch_rad);
+    const auto ic=exec->GetIC();
+    if(apron) {
+      // North-facing in the displaced CG query-local NED, not anchor yaw.
+      // IC geodetic setters use the vendor's rounded ellipsoid axes. Admit the
+      // canonical requested ECEF ray as geocentric latitude; the unchanged
+      // radial-ASL solve below then adjusts only its radius in IC, before RunIC.
+      ic->SetLatitudeRadIC(std::atan2(point->z,std::hypot(point->x,point->y)));ic->SetLongitudeRadIC(cg.longitude_rad);
+      ic->SetPhiRadIC(0);ic->SetPsiRadIC(0);
+      ic->SetPRadpsIC(0);ic->SetQRadpsIC(0);ic->SetRRadpsIC(0);ic->SetVBodyFpsIC(0);
+    }else{ic->SetGeodLatitudeRadIC(anchor.latitude_rad);ic->SetLongitudeRadIC(anchor.longitude_rad);}
+    ic->SetThetaRadIC(settings.pitch_rad);
     // Solve the caller's explicit ellipsoid CG height in IC only. The vendor's
     // radial-ASL/AGL setter differs by micrometers from ellipsoid height; this
     // does not ground-snap or modify a completed state.
@@ -213,7 +250,7 @@ class Session::Impl {
     const auto& initial_uvw=exec->GetPropagate()->GetUVW();
     if(std::abs(initial_uvw(1)*.3048-settings.forward_mps)>1e-6||std::abs(initial_uvw(2)*.3048)>1e-6||std::abs(initial_uvw(3)*.3048-settings.down_mps)>1e-6){throw std::runtime_error("RunIC changed requested ground-body velocity");}
     if(!cold){exec->GetPropulsion()->InitRunning(-1);}
-    if(!cold){controls={0,0,0,settings.start==Start::ground?0:.65,1,settings.start==Start::ground?1.:0,settings.start==Start::ground?1.:0,0};}
+    if(!cold){controls={0,0,0,ready_ground?0:.65,1,ready_ground?1.:0,ready_ground?1.:0,0};}
     set_controls(controls);
     if(settings.trim) {
       j::FGTrim trim(exec.get(),j::tLongitudinal);trim.SetGammaFallback(false);trim.SetMaxCycles(60);trim.SetMaxCyclesPerAxis(100);trim.SetTolerance(.001);trim.ClearDebug();
@@ -227,7 +264,12 @@ class Session::Impl {
     publication=snapshot({0});weather=atmosphere({0});if(cold){completed_piston=piston_diagnostics({0});}
     if(cold&&(exec->GetPropulsion()->GetEngine(0)->GetRunning()||exec->GetPropulsion()->GetEngine(0)->GetThruster()->GetRPM()!=0||std::abs(exec->GetPropulsion()->GetTank(0)->GetContents()*.45359237-100)>1e-10||exec->GetSimTime()!=0)){throw std::runtime_error("Cold tick0 state mismatch");}
     initialization_observations[1]=observe(settings.trim?"post-trim":"prepared");
-    if(!settings.trim&&std::abs(publication.position.ellipsoid_height_m-settings.requested_height_m)>1e-5){throw std::runtime_error("Requested CG height changed during initialization: requested="+std::to_string(settings.requested_height_m)+" observed="+std::to_string(publication.position.ellipsoid_height_m));}
+    const double requested_height=apron?cg.ellipsoid_height_m:settings.requested_height_m;
+    if(!settings.trim&&std::abs(publication.position.ellipsoid_height_m-requested_height)>1e-5){throw std::runtime_error("Requested CG height changed during initialization: requested="+std::to_string(requested_height)+" observed="+std::to_string(publication.position.ellipsoid_height_m));}
+    if(apron) {
+      const auto local=settings.surface->coordinates(publication.ecef_position_m);
+      if(std::abs(local.y-108)>1e-5||std::abs(-local.z-1.05)>1e-5||std::abs(-local.x-18)>1e-5){throw std::runtime_error("Actual apron tick0 CG differs from fixed anchor stand");}
+    }
   }
   void verify_angular_method()const {
     if(settings.profile!=Profile::piston){return;}

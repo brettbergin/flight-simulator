@@ -1,5 +1,5 @@
 """Run actual Windows mapper/codec fixtures before native compilation; offline."""
-import argparse, hashlib, importlib.util, json, os, shutil, subprocess, uuid
+import argparse, hashlib, importlib.util, json, os, shutil, subprocess, time, uuid
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -82,9 +82,18 @@ texture_format/s3tc=true
             directory.mkdir(parents=True, exist_ok=True)
             environment[name] = str(directory)
         environment['PATH'] = ''
+        if label in ('editor', 'portable'):
+            environment['FLIGHT_INPUT_PREFLIGHT_TRACE'] = '1'
         log = run/(label+'.log')
-        with log.open('wb') as stream:
-            result = subprocess.run(command, cwd=run, env=environment, stdout=stream, stderr=subprocess.STDOUT, timeout=90, creationflags=subprocess.CREATE_NO_WINDOW)
+        started = time.monotonic()
+        try:
+            with log.open('wb') as stream:
+                result = subprocess.run(command, cwd=run, env=environment, stdout=stream, stderr=subprocess.STDOUT, timeout=90, creationflags=subprocess.CREATE_NO_WINDOW)
+        except subprocess.TimeoutExpired:
+            # The stream is closed before hashing. Do not invent exit/join/descendant facts.
+            observations[label] = {'stage':label,'timed_out':True,'timeout_seconds':90,'elapsed_seconds':time.monotonic()-started,'log_sha256':sha(log)}
+            (run/'observation.json').write_text(json.dumps({'sources':hashes,'pins':pins,'observations':observations},indent=2)+'\n',encoding='utf-8')
+            raise
         text = log.read_text(encoding='utf-8', errors='replace')
         observed = {'exit_code':result.returncode,'log_sha256':sha(log)}
         if receipt and receipt.exists():
@@ -96,7 +105,7 @@ texture_format/s3tc=true
             raise RuntimeError(label+' failed; raw evidence retained at '+str(run))
         if receipt:
             data = observed.get('receipt', {})
-            if data.get('passed') is not True or data.get('checks')!=310 or data.get('failures')!=[] or 'INPUT_PREFLIGHT_PASSED' not in text:
+            if data.get('passed') is not True or type(data.get('checks')) is not int or data.get('checks')!=355 or data.get('failures')!=[] or 'INPUT_PREFLIGHT_PASSED' not in text:
                 raise RuntimeError(label+' assertions failed; raw evidence retained at '+str(run))
     execute('import',[str(godot),'--headless','--editor','--path',str(project),'--import','--quit'])
     execute('editor',[str(godot),'--headless','--path',str(project)],project/'receipt.json')

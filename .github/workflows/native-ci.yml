@@ -263,7 +263,7 @@ jobs:
           node tools/interactive-preview/package.mjs models native/fdm_jsbsim/models/original-interactive (Join-Path $project 'models')
           if ($LASTEXITCODE -ne 0) { throw 'Facade model pin staging failed' }
           $wireCodecGroups=@(Get-WireCodecSourceGroups -RepoRoot $PWD)
-          Write-SimulationCheckHarness -ProjectRoot $project -RepoRoot $PWD
+          Write-SimulationCheckHarness -ProjectRoot $project -RepoRoot $PWD -NativeIdentity $nativeIdentity
           Assert-WireCodecSourceGroups -Root $PWD -Groups $wireCodecGroups -Authoring
           Assert-WireCodecSourceGroups -Root $project -Groups $wireCodecGroups
           Assert-CameraSourceGroups -Root $PWD -Groups $cameraGroups -Authoring

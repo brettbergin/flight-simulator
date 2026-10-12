@@ -6,7 +6,10 @@
 // ADR 006 bounded engineering prototype. Historical APIs/models stay unchanged.
 namespace flight::interactive {
 enum class Profile { legacy, piston };
-enum class Start { ground, airborne, piston_cold_ground };
+// Append only: original three enum ordinals and default remain unchanged.
+enum class Start { ground, airborne, piston_cold_ground, apron_ready, piston_cold_apron };
+constexpr bool is_apron_start(Start start) noexcept {return start==Start::apron_ready||start==Start::piston_cold_apron;}
+constexpr bool is_cold_start(Start start) noexcept {return start==Start::piston_cold_ground||start==Start::piston_cold_apron;}
 // ADR013 closed initialization-only choices; no numeric wind setter.
 enum class SteadyWindProfile { calm, from_north, from_west, from_east };
 // First-party selector maps once to the checked vendor method before RunIC.

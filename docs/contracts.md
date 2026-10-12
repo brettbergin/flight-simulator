@@ -168,6 +168,16 @@ The proposed [ADR017 pointer extension](decisions/017-frontend-pointer-engine-co
 
 [ADR020](decisions/020-original-audio-cues.md), [PROTOTYPE-AUDIO-CUE-CONTRACT #187](https://github.com/brettbergin/flight-simulator/issues/187), defines a copied internal audio cue view and strict session-local options over the accepted Readback, NativeReadings and EngineStatus. It changes no native or wire schema. Ordinary audio uses qualified wind-relative TAS and actual supported shaft/Running state; source adoption remains Scene-owned. Valid paused captions retain source facts while audio is silent. The initial captions and gain controls live only in a paused Audio modal; live captions, measured engine load and installed warning fidelity remain deferred. [ORIGINAL-AUDIO-CUES #188](https://github.com/brettbergin/flight-simulator/issues/188) may consume this only after the checked contract is accepted and Root dispatches the child. Existing preview APIs, master-mute ownership, Raw/capture/rearm and explicit Resume remain protected.
 
+## Proposed original live audio captions
+
+The [live-caption companion](contracts/audio/live-captions-v1.md) proposes a narrow
+FLIGHT-AUDIO #25 extension to ADR020's paused summary: source-qualified original
+cue categories and chosen mix in fixed noninteractive ADR019 dock gaps, with an
+independent launch-local toggle. The four AudioOptions fields and their explicit
+ADR026 lifetime exception remain unchanged; Views stays session-only. Contract
+acceptance precedes consumers, and actual native-source/lifecycle/readability and
+three-context delivery checks remain separate from this proposal and phase gates.
+
 ## Initial manual overlay mirror result
 
 [ADR021](decisions/021-manual-flight-overlay-dock.md), [#192](https://github.com/brettbergin/flight-simulator/issues/192), rejects the tested whole-horizontal-mirror candidate after actual minimum-window piston PANEL feedback still covers exposed heading drawing. The [bounded evidence](evidence/P2/manual-flight-overlay-dock-contract.md) preserves the improved three pairs, remaining camera clipping and unmeasured wider configurations. It introduces no API, setting or consumer and supersedes none of ADR019. A different candidate must establish independent actual feasibility before implementation; future ADR017 capture/rearm behavior remains separately unproved.
@@ -202,3 +212,7 @@ The complete proposed local-player input set also includes the [lifecycle](contr
 
 [ADR027](decisions/027-synthetic-taxi-navigation.md) defines two genuine original-model calm apron initializers and shared original sign/marking/diagram/manual-itinerary content as a bounded contribution to [#22](https://github.com/brettbergin/flight-simulator/issues/22). Complete public closed interfaces/schema/content and independent runnable references precede consumers. Additive Readback/record/archive/PracticeSource domains and35-row coupled camera allocation are explicit; old starts/fixtures and25-source/18-control roster membership remain intact, with fresh changed-source qualification required. This is proposed contract allocation, not delivered navigation, aircraft, operational-training or phase acceptance.
 The [fixed packed shipping observer companion](contracts/world/synthetic-taxi-observer-v1.md) closes a test-only camera startup/data transport seam for actual exported-player visual evidence. Contract/ownership merge precedes consumers; ordinary flight, original35 checks and all source/package/pixel/lifetime gates remain.
+
+## Proposed original cockpit asset and copied controls
+
+[The original cockpit asset contract](contracts/cockpit/original-asset-v1.md), proposed under [#232](https://github.com/brettbergin/flight-simulator/issues/232), defines one fixed original interior GLB with exact copied-control attachment nodes and restrained original UV/material detail as a bounded contribution to [#23](https://github.com/brettbergin/flight-simulator/issues/23). Preserve the current prototype eye/open windows, live panel, six accepted bezels, exterior and native/reading/input authority. Consumers wait for checked contract acceptance, independently frozen existing-builder baseline/reference fixtures and Root-confirmed exact allocation. Original provenance, actual export/import/rights/three-context readability evidence and the broader source-specific cockpit/hardware/pilot/phase gates remain separate.

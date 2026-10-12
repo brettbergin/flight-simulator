@@ -59,8 +59,10 @@ class FlightInteractiveSession final:public godot::RefCounted {
  }
  public:
  ~FlightInteractiveSession() override {worker_.reset();godot::UtilityFunctions::print("INTERACTIVE_DESTRUCTOR_JOINED");}
- godot::Dictionary open_session(godot::String root,godot::String start,godot::Variant wind_selector,godot::Variant profile_selector){
+ godot::Dictionary open_session(godot::String root,godot::Variant start_selector,godot::Variant wind_selector,godot::Variant profile_selector){
   if(owner_!=std::this_thread::get_id())return failure(std::logic_error("Interactive open requires its construction thread"));
+  if(start_selector.get_type()!=godot::Variant::STRING)return failure(std::invalid_argument("Named start requires an exact String"));
+  const godot::String start=start_selector;
   if(wind_selector.get_type()!=godot::Variant::STRING)return failure(std::invalid_argument("Wind profile requires an exact String"));
   const godot::String wind=wind_selector;
   if(profile_selector.get_type()!=godot::Variant::STRING)return failure(std::invalid_argument("Aircraft profile requires an exact String"));
@@ -75,13 +77,15 @@ class FlightInteractiveSession final:public godot::RefCounted {
   else if(wind=="from-west")selected=interactive::SteadyWindProfile::from_west;
   else if(wind=="from-east")selected=interactive::SteadyWindProfile::from_east;
   else return failure(std::invalid_argument("Unknown steady-wind profile"));
-  if(selected_profile==interactive::Profile::piston&&(wind!="calm"||start!="piston-cold-ground"))return failure(std::invalid_argument("Piston profile supports only piston-cold-ground with calm wind"));
-  if(selected_profile==interactive::Profile::legacy&&start!="ground-ready"&&start!="airborne-prepared")return failure(std::invalid_argument("Only ground-ready and airborne-prepared starts are supported"));
+  if((start=="apron-ready"||start=="piston-cold-apron")&&wind!="calm")return failure(std::invalid_argument("Apron starts require calm wind"));
+  if(selected_profile==interactive::Profile::piston&&(wind!="calm"||(start!="piston-cold-ground"&&start!="piston-cold-apron")))return failure(std::invalid_argument("Piston profile supports only piston-cold-ground or piston-cold-apron with calm wind"));
+  if(selected_profile==interactive::Profile::legacy&&start!="ground-ready"&&start!="airborne-prepared"&&start!="apron-ready")return failure(std::invalid_argument("Unknown legacy named start"));
   if(worker_)return failure(std::invalid_argument("Close before a fresh interactive attempt"));
   try {
    interactive::Config config;config.profile=selected_profile;config.wind_profile=selected;const auto utf8=root.utf8();config.model_root=std::filesystem::path(std::u8string(reinterpret_cast<const char8_t*>(utf8.get_data()),static_cast<std::size_t>(utf8.length())));
-   if(selected_profile==interactive::Profile::piston){config.start=interactive::Start::piston_cold_ground;config.angular_method=interactive::AngularMethod::event_aware_coupled_midpoint_v1;}
+   if(selected_profile==interactive::Profile::piston){config.start=start=="piston-cold-apron"?interactive::Start::piston_cold_apron:interactive::Start::piston_cold_ground;config.angular_method=interactive::AngularMethod::event_aware_coupled_midpoint_v1;}
    else if(start=="ground-ready")config.start=interactive::Start::ground;
+   else if(start=="apron-ready")config.start=interactive::Start::apron_ready;
    else if(start=="airborne-prepared"){config.start=interactive::Start::airborne;config.requested_height_m=1000;config.forward_mps=55*std::cos(.02);config.down_mps=55*std::sin(.02);config.pitch_rad=.02;config.trim=true;}
    else throw std::invalid_argument("Only ground-ready and airborne-prepared starts are supported");
    static std::atomic<std::uint64_t> epoch{0};const auto sequence=++epoch;if(sequence==0)throw std::overflow_error("Interactive epoch exhausted");

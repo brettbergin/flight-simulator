@@ -195,8 +195,8 @@ static func valid_systems(value: Variant) -> bool:
 
 static func _recipe(profile_id: String, named_start: String) -> bool:
 	if profile_id=="original-piston-prop-v1":
-		return named_start=="piston-cold-ground"
-	return profile_id=="original-interactive-prototype" and named_start in ["ground-ready","airborne-prepared"]
+		return named_start in ["piston-cold-ground","piston-cold-apron"]
+	return profile_id=="original-interactive-prototype" and named_start in ["ground-ready","airborne-prepared","apron-ready"]
 
 static func _snapshot_systems(aircraft: Dictionary) -> Dictionary:
 	var selected: Dictionary = {}
@@ -262,6 +262,8 @@ static func valid_profile(value: Variant) -> bool:
 static func _selection_error(model_root: String, named_start: String, wind_profile: Variant, profile_id: Variant) -> String:
 	if not valid_wind_profile(wind_profile) or not valid_profile(profile_id) or not _recipe(profile_id,named_start):
 		return "Supported named start and exact wind/profile Strings required"
+	if named_start in ["apron-ready","piston-cold-apron"] and wind_profile!="calm":
+		return "Original apron starts support calm conditions only"
 	if profile_id==PISTON_PROFILE.id and wind_profile!="calm":
 		return "Original piston cold start supports calm conditions only"
 	var inventory: String=PISTON_INVENTORY if profile_id==PISTON_PROFILE.id else INVENTORY
