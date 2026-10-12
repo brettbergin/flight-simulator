@@ -1,0 +1,8 @@
+[configuration]
+entry_symbol = "flight_local_players_init"
+compatibility_minimum = "4.5"
+reloadable = false
+
+[libraries]
+windows.debug.x86_64 = "res://bin/flight_local_players_bridge.dll"
+windows.release.x86_64 = "res://bin/flight_local_players_bridge.dll"
