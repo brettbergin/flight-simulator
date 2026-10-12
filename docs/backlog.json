@@ -7766,6 +7766,66 @@
         "PRD-017",
         "UX-013"
       ]
+    },
+    {
+      "key": "NASA-MEASURED-TRACES",
+      "title": "Extract two independently checked C172M flight-test candidates",
+      "kind": "task",
+      "phase": "P1",
+      "parent": "EPIC-P1",
+      "summary": "Extract original candidate graph readings from NASA-CR-168912 runs2A-3/2A-4 with independent blinded digitizations and explicit source, rights, configuration and uncertainty gaps. This source-research contribution to closed VALIDATION-CORPUS is not an admitted benchmark or C172S/P validation.",
+      "depends_on": [
+        "CORE-CONTRACTS",
+        "LICENSE-REGISTER",
+        "VALIDATION-CORPUS"
+      ],
+      "owned_paths": [
+        "docs/evidence/P1/nasa-c172m-measured-traces.md",
+        "tests/reference/nasa-c172m/source-index-v1.json",
+        "tests/reference/nasa-c172m/run-2a-3-v1.csv",
+        "tests/reference/nasa-c172m/run-2a-4-v1.csv",
+        "tests/reference/nasa-c172m/extraction-review-v1.json",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p1-flight-core.md",
+        ".gitattributes"
+      ],
+      "acceptance": [
+        "Pin actual report bytes/revision, original URLs, acquisition date, PDF/printed locators, 1974C172M N12800/run identity and source-rights policy. Public distribution does not establish blanket redistribution rights. Retain original factual derivations only; no report pages/images/table grids/code or manufacturer material in repository/releases.",
+        "Independently review the candidate layout, measured-curve identification, full time window/fixed grid, conversions, rounding, signs and missing-data treatment before extraction. Preserve the existing matrix/runner/14-wire registry; a shared schema or runner consumer needs a separate contract PR.",
+        "Produce two independent labeled digitizations of distinguishable elevator/q/theta for2A-3 and aileron/rudder/p/r/phi for2A-4. Preserve original units, pixel locators, SI where justified and discrepancies without averaging or fitted/predicted substitution. Occluded/ambiguous/unavailable points stay explicit; no recovered-raw-sample claim.",
+        "Record run-linked conditions, initial state and applicability as sourced values or explicit unknowns. Do not borrow Flight4, PhaseII or another variant. Preserve and assess p/q labeling and control-sign discrepancies; keep measured truth separate from predictions and fitted derivatives.",
+        "Assess scale/line width, time/zero offsets, sensor/calibration and systematic uncertainty separately. Repeated extraction is not absolute accuracy; preserve unknown components without invented confidence levels or simulation tolerances.",
+        "Freeze candidate hashes before model output and obtain independent source/rights/extraction/conversion review. Report supported candidate channels and concrete unavailable results with bounded next actions. No guessed initial conditions, aerodynamic tuning, aircraft adoption, physics/pilot/training or phase acceptance."
+      ],
+      "evidence": [
+        "Source-gap report, two auditable original candidate CSVs retaining both independent passes, pinned source index and independent extraction review. Negative panels are concrete research results, not reconstructed references or green benchmarks."
+      ],
+      "labels": [
+        "type:task",
+        "phase:P1",
+        "area:validation",
+        "priority:P1",
+        "status:in-progress"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/phases/p1-flight-core.md",
+        "docs/agent-operations.md",
+        "docs/realism-and-validation.md",
+        "docs/sources.md"
+      ],
+      "requirements": [
+        "REAL-001",
+        "REAL-002",
+        "REAL-005",
+        "REAL-023",
+        "REAL-025",
+        "PRD-003",
+        "PRD-026"
+      ]
     }
   ]
 }

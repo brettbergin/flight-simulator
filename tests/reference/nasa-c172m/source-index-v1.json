@@ -1,0 +1,227 @@
+{
+  "schema": "NASAResearchSourceIndex/provisional-v1",
+  "issue": 231,
+  "status": "RESEARCH_CANDIDATES_NOT_EXECUTABLE_REFERENCES",
+  "report": {
+    "document_id": "19820015371",
+    "title": "Development of a simple, self-contained flight test data acquisition system",
+    "report_numbers": [
+      "NASA-CR-168912",
+      "KU-FRL-407-7"
+    ],
+    "publication_date": "1982-04-01",
+    "catalog_url": "https://ntrs.nasa.gov/citations/19820015371",
+    "pdf_url": "https://ntrs.nasa.gov/api/citations/19820015371/downloads/19820015371.pdf",
+    "api_url": "https://ntrs.nasa.gov/api/citations/19820015371",
+    "pages": 243
+  },
+  "source_pdf": {
+    "bytes": 16293126,
+    "sha256": "b53d7985644fd8736e15d135edaf209d6839847fa58f1b2a6ce5577ca66c47b5",
+    "acquired_utc_date": "2026-10-11",
+    "retention": "source PDF and every page/crop remain outside public/release artifacts"
+  },
+  "source_catalog_snapshot": {
+    "bytes": 3888,
+    "sha256": "5a2b4699841747155810a80ab2a2bedd0a8d5f560c85413de94d017076d20aeb"
+  },
+  "aircraft": {
+    "report_identification": "1974 Cessna172M N12800",
+    "C172S_P_applicability": "not established",
+    "owner_POH": "not available; no owner or restricted manual used"
+  },
+  "run_locators": [
+    {
+      "run": "2A-3",
+      "figure": "6.15",
+      "pdf_page": 122,
+      "printed_page": 99,
+      "decoded_original_pixels": [
+        2647,
+        3346
+      ],
+      "channels": [
+        "q",
+        "theta",
+        "delta_E"
+      ]
+    },
+    {
+      "run": "2A-4",
+      "figure": "6.16",
+      "pdf_page": 123,
+      "printed_page": 100,
+      "decoded_original_pixels": [
+        2643,
+        3343
+      ],
+      "channels": [
+        "p",
+        "r",
+        "phi",
+        "delta_A",
+        "delta_R"
+      ]
+    }
+  ],
+  "measured_line_locator": {
+    "section": "6.6",
+    "pdf_page": 119,
+    "printed_page": 96,
+    "identification": "solid measured; dashed computed. Original graph readings, not recovered instrument samples."
+  },
+  "rights_ledger": {
+    "catalog_distribution_at_acquisition": "Public",
+    "catalog_copyright_label_at_acquisition": "Work of the US Gov. Public Use Permitted.",
+    "catalog_determination_at_acquisition": "GOV_PUBLIC_USE_PERMITTED",
+    "policy_url": "https://sti.nasa.gov/disclaimers/",
+    "policy_checked_date": "2026-10-11",
+    "intended_public_content": "Original factual numerical graph derivations and original research prose/metadata only.",
+    "excluded_content": [
+      "report PDF/pages/figures/crops",
+      "report table grids",
+      "manufacturer material",
+      "report source code"
+    ],
+    "decision": "REVIEWED_BOUNDED_ORIGINAL_FACTUAL_RESEARCH_PUBLICATION",
+    "publication_review": {
+      "record": "bounded-factual-research-publication-review",
+      "bytes": 4168,
+      "sha256": "4ed617641c4893be512836c15d6e713acfd43312ed0fb1eb901321144b593f09",
+      "disposition": "APPROVE_SOURCE_ONLY_BOUNDED_FACTUAL_RESEARCH_PUBLICATION",
+      "scope": "Original factual CSV derivations and original research prose/metadata only; no source artwork/report code/table grids, blanket contractor license, legal guarantee or NASA endorsement.",
+      "role_limit": "Publication reviewer authored blind Pass A and the post-freeze comparison; this approval is not independent certification of its own A calibration/ordinates or benchmark acceptance. Independent calibration/derived-disposition reviews remain separately recorded."
+    },
+    "limits": "Public distribution and a catalog label are not a blanket license for contractor/incorporated material. No NASA endorsement or aircraft-validation permission inferred."
+  },
+  "original_freezes_and_derivation_inputs": [
+    {
+      "record": "pass-A-freeze",
+      "bytes": 17706,
+      "sha256": "bfbad77e6b5a27253b1b0b354388a91b622ed460ea90c3ae54b95b7fba4c7e77"
+    },
+    {
+      "record": "pass-B-freeze",
+      "bytes": 6074,
+      "sha256": "85297a8918c765d870592fecca88f63bccbaadb0fe24511e75bce1c3b10b25c5"
+    },
+    {
+      "record": "pass-A-independence",
+      "bytes": 942,
+      "sha256": "ef08e2ee0889b9f43b809b0dd8672eac0290e550eb27bfc50d374abb821431ab"
+    },
+    {
+      "record": "pass-B-original-freeze",
+      "bytes": 1257,
+      "sha256": "09896596953a2c2a0d4ddbd2642e9ebed36755da6dda4564ce4169b6d52bc4c2"
+    },
+    {
+      "record": "pass-A-calibration",
+      "bytes": 21447,
+      "sha256": "db105729b549675c67e54eef02867c4aa7b13f8d68ab6fca7da42b891326f7d1"
+    },
+    {
+      "record": "pass-B-calibration",
+      "bytes": 29779,
+      "sha256": "9f2d2111f0737cdd928d76269d6c1a8d06c4923606366fdec6f76b5b33e0025b"
+    },
+    {
+      "record": "pass-A-source-specific-extractor",
+      "bytes": 10800,
+      "sha256": "e78e01d65f5e1129affaf5bf07cfd0840787b8e9e16ac466837f8f6eae5a5d0c"
+    },
+    {
+      "record": "pass-B-source-specific-extractor",
+      "bytes": 13775,
+      "sha256": "8c00da1935b2aab5e832b011ef1321caf777d98e89c04b7866bda7dd66c96f12"
+    },
+    {
+      "record": "2a-3-A-original",
+      "bytes": 256544,
+      "sha256": "2f8c164d456a9b05b74b12c6f10e2aad12ce4c5242e5e82e7beabb1ab0ea98c3"
+    },
+    {
+      "record": "2a-3-B-original",
+      "bytes": 270572,
+      "sha256": "9f9362de7227d7de4a50d2b390b2f127ac26e525688d9dfb7dfa580a9a455daf"
+    },
+    {
+      "record": "2a-4-A-original",
+      "bytes": 401234,
+      "sha256": "4fbf7c73620a4f11fa3c28d2947509cc5c506ab9d63a2b381f3a4f0de233e8a7"
+    },
+    {
+      "record": "2a-4-B-original",
+      "bytes": 423495,
+      "sha256": "80ac892a158759af515f1414ab71ac7f6e4b383e896eaa29b4a6a655c911e181"
+    },
+    {
+      "record": "post-freeze-comparison-freeze",
+      "bytes": 5273,
+      "sha256": "897d922514ef92acfc8153484be09277b395c3250f23f75c7e98069354ea732d"
+    },
+    {
+      "record": "post-freeze-original-differences",
+      "bytes": 12945,
+      "sha256": "579528b95995028373f388727d010dbf499da1474e40800818a1050040fdd039"
+    },
+    {
+      "record": "independent-source-calibration-disposition",
+      "bytes": 20212,
+      "sha256": "984c8dce9c115db6ab88797cc2cbacc3ecfc8f3f25bfa797a7f9854533d9c851"
+    },
+    {
+      "record": "pre-extraction-method-v2",
+      "bytes": 16117,
+      "sha256": "e00468da7eb0e164e278a41d40523bad0f404ec3f29201841508010363b405a7"
+    },
+    {
+      "record": "pre-extraction-grid-sizing",
+      "bytes": 61377,
+      "sha256": "9a3b777c8549216daa2f068c8919954d17ecccba909036b27abc7431720e8993"
+    },
+    {
+      "record": "method-independent-review",
+      "bytes": 1794,
+      "sha256": "7d15c053fd7f4826de289f7785a7f9be4189ba3f422943526a8d2e37ff3040ca"
+    },
+    {
+      "record": "grid-independent-review",
+      "bytes": 4062,
+      "sha256": "07f7be9430fe362248705148a8042b6893e5a920b3d3ecc73bf62d55ad45e93d"
+    }
+  ],
+  "research_csvs": [
+    {
+      "path": "tests/reference/nasa-c172m/run-2a-3-v1.csv",
+      "bytes": 526986,
+      "sha256": "c33c406b1f2fed0af478a404578ba31c05f081cca7af6e3ced9732026150c5c9"
+    },
+    {
+      "path": "tests/reference/nasa-c172m/run-2a-4-v1.csv",
+      "bytes": 824599,
+      "sha256": "8a3f1765c5010c7a477236a5f0eb14698f2d4d2031e99e1f489462cbec80d5b3"
+    }
+  ],
+  "missing_run_conditions": {
+    "mass": "unknown for these exact runs",
+    "CG": "unknown for these exact runs",
+    "trim_state": "unknown",
+    "initial_velocity_attitude_rates": "unknown",
+    "control_reference_and_sign": "unresolved",
+    "sensor_frame_and_axis_mapping": "unresolved",
+    "configuration_and_atmosphere": "not fully run-linked",
+    "uncertainty_covariance_and_calibration": "not established"
+  },
+  "context_leads_only": [
+    {
+      "url": "https://ntrs.nasa.gov/citations/19820009604",
+      "role": "PhaseII conditions lead; never borrowed run IC"
+    },
+    {
+      "url": "https://ntrs.nasa.gov/citations/19800001985",
+      "role": "estimation context; not proved identical aircraft"
+    }
+  ],
+  "consumers": "None. Existing reference matrix/runner/wire registry unchanged; any shared schema/consumer requires a separate contract."
+}
