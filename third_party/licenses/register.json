@@ -1001,6 +1001,36 @@
         }
       ],
       "evidence_file": "docs/evidence/P2/original-audio-cues.md"
+    },
+    {
+      "id": "original-prototype-cockpit-v1",
+      "class": "visual-assets",
+      "name": "Original generic prototype cockpit mesh and surface tiles",
+      "version": "0.1.0-prototype",
+      "owner": "presentation-maintainer",
+      "scope": "Project-authored generic original cockpit: 74 mesh parts, seven shared opaque materials and two original 256x256 surface tiles. The live instrument panel and six runtime bezel rings remain separate existing presentation. No manufacturer geometry, manuals, photographs, logos or third-party texture assets.",
+      "decision": "Original project output and authoring code under MIT; actual generator, source PNG, Blender source, GLB and provenance bytes must be bound by matching delivery manifests and independently checked actual export/import evidence. Contract acceptance alone does not approve candidate binaries.",
+      "license": "MIT",
+      "redistribution": "permitted",
+      "evidence": "synthetic",
+      "source": {
+        "url": "https://github.com/brettbergin/flight-simulator/blob/5e7f6042a8a5f313d0bb58d0abb7b0106ae125ad/docs/contracts/cockpit/original-asset-v1.md",
+        "revision": "5e7f6042a8a5f313d0bb58d0abb7b0106ae125ad",
+        "rights_url": "https://github.com/brettbergin/flight-simulator/blob/main/LICENSE",
+        "applicability": "Accepted original generic asset specification. Output/source hashes are supplied by actual source and package inventories; this specification commit is not the implementation revision."
+      },
+      "obligations": [
+        "retain-notices",
+        "retain-source-attribution"
+      ],
+      "notice_files": [
+        {
+          "path": "third_party/licenses/notices/FirstParty-Interactive-MIT.txt",
+          "sha256": "ca8c1205d820d40917b54d548b97dde200bc24bc6c3166358e8bc6cc27eb0e9e",
+          "source_url": "https://github.com/brettbergin/flight-simulator/blob/main/LICENSE"
+        }
+      ],
+      "evidence_file": "third_party/licenses/evidence/original-cockpit-asset.md"
     }
   ]
 }

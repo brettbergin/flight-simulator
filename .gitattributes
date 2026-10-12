@@ -64,3 +64,6 @@ tests/world/ground-materials/checks.gd text eol=lf
 
 # Preserve original NASA research CSV hashes across Windows checkouts.
 tests/reference/nasa-c172m/*.csv text eol=lf
+
+# Keep original cockpit generator provenance exact in Windows checkouts.
+assets_source/c172/original-prototype/generate_cockpit.py text eol=lf

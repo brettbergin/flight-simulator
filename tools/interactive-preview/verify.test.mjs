@@ -425,3 +425,57 @@ test('original audio source attribution stages actual reviewed MIT notice withou
  for(const change of [e=>e.id='other',e=>e.class='other',e=>e.license='GPL',e=>e.notice_files=[],e=>e.notice_files[0].path='../LICENSE',e=>e.notice_files[0].path='LICENSE',e=>e.notice_files[0].sha256='a'.repeat(64)]){const bad=structuredClone(entry);change(bad);assert.throws(()=>stageOriginalAudioNotice(authored,payload,bad));}
  fs.appendFileSync(authoredNotice,'drift');assert.throws(()=>stageOriginalAudioNotice(authored,payload,entry));assert(fs.readFileSync(path.join(payload,notice.file)).equals(raw),'Rejected notice preserves staged bytes');
 });
+
+import {validateOriginalCockpitReceipt,isOriginalCockpitSourcePath,stageOriginalCockpitNotice} from './package.mjs';
+test('cockpit delivery requires nonvacuous actual import checks against original baseline',()=>{
+ const good={schema:'OriginalCockpitActualImportChecks/v1',checks:100,failures:[],passed:true,baseline_sha256:'fbe01696c09d17042079060739d5599d649e30164727c4a414492c1402a88eba',scope:'Actual import fixture only'};
+ assert.equal(validateOriginalCockpitReceipt(good),100);
+ for(const bad of [{...good,passed:false},{...good,checks:0},{...good,checks:true},{...good,checks:Infinity},{...good,failures:['geometry']},{...good,baseline_sha256:'a'.repeat(64)},{...good,schema:'old'},{...good,scope:' '},{...good,extra:true},null])assert.throws(()=>validateOriginalCockpitReceipt(bad));
+ for(const key of Object.keys(good)){const bad={...good};delete bad[key];assert.throws(()=>validateOriginalCockpitReceipt(bad));}
+});
+test('cockpit component ownership stays bounded to original authoring and runtime source',()=>{
+ for(const name of ['source/whole-flight-preview/assets_source/c172/original-prototype/original-cockpit.blend','source/whole-flight-preview/cockpit/assets/original-cockpit.glb','source/whole-flight-preview/cockpit/assets/original_asset.gd'])assert(isOriginalCockpitSourcePath(name));
+ for(const name of ['source/whole-flight-preview/cockpit/assets/extra.gd','source/whole-flight-preview/cockpit/engine_controls.gd','game.pck','source/whole-flight-preview/assets_source/c172/original-prototype-evil/file'])assert(!isOriginalCockpitSourcePath(name));
+});
+
+import {validateOriginalCockpitSources} from './package.mjs';
+test('cockpit source and extraction inventory rejects missing, stale, extra and mismatched provenance',()=>{
+ const sha=raw=>createHash('sha256').update(raw).digest('hex');
+const base=fs.mkdtempSync(path.join(root,'cockpit-sources-'));let number=0;const passed=[];
+const auth='assets_source/c172/original-prototype',rt='cockpit/assets';
+function write(file,raw){fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,raw);}
+function fixture(){
+ const root=path.join(base,String(++number)),repository=path.join(root,'repo'),project=path.join(root,'project'),source=path.join(root,'source');
+ const files={'README.md':Buffer.from('synthetic source'),'cockpit-reference-v1.json':fs.readFileSync(path.join(repo,'assets_source/c172/original-prototype/cockpit-reference-v1.json')),'generate_cockpit.py':Buffer.from('synthetic generator, never executable'),'original-cockpit.blend':Buffer.from('synthetic blend, never opened'),'textures/original-surface-albedo.png':Buffer.from('synthetic PNG albedo'),'textures/original-surface-roughness.png':Buffer.from('synthetic PNG roughness')};
+ const outputs=[['original-cockpit.blend',files['original-cockpit.blend']],['original-cockpit.glb',Buffer.from('synthetic glb')],['original-surface-albedo.png',files['textures/original-surface-albedo.png']],['original-surface-roughness.png',files['textures/original-surface-roughness.png']]];
+ const provenance={schema:'OriginalCockpitSourceGeneration/v1',license:'MIT',author:'Flight Simulator contributors',manufacturer_geometry:false,blender_version:'4.5.14 LTS',blender_build:'62c1db4208e8',baseline:{sha256:'fbe01696c09d17042079060739d5599d649e30164727c4a414492c1402a88eba'},reference:{sha256:'76a44bb463dfd04a883e4f93f9db81ee6fc0f4c0a2bd004a6c05e8fb64cee57c'},generator:{bytes:files['generate_cockpit.py'].length,sha256:sha(files['generate_cockpit.py'])},outputs:outputs.map(([name,raw])=>({path:'synthetic/'+name,bytes:raw.length,sha256:sha(raw)}))};
+ files['cockpit-source.json']=Buffer.from(JSON.stringify(provenance));
+ for(const [name,raw]of Object.entries(files))for(const tree of[repository,source])write(path.join(tree,auth,name),raw);
+ for(const tree of[repository,project,source]){write(path.join(tree,tree===repository?'app':'.',rt,'original-cockpit.glb'),outputs[1][1]);write(path.join(tree,tree===repository?'app':'.',rt,'original_asset.gd'),'synthetic adapter');}
+ write(path.join(project,rt,'original-cockpit.glb.import'),'synthetic import metadata');
+ for(const kind of['albedo','roughness']){write(path.join(project,rt,'original-cockpit_original-surface-'+kind+'.png'),files['textures/original-surface-'+kind+'.png']);write(path.join(project,rt,'original-cockpit_original-surface-'+kind+'.png.import'),'synthetic import metadata');}
+ return {root,repository,project,source,provenance};
+}
+function check(f){return validateOriginalCockpitSources(f.repository,f.project,f.source);}
+function reject(label,mutate){const f=fixture();mutate(f);assert.throws(()=>check(f),label);passed.push(label);}
+const f=fixture();assert.deepEqual(check(f),{authoring_files:7,runtime_files:2});passed.push('positive exact7 authoring 2runtime 5generated');
+const uid=fixture();write(path.join(uid.project,rt,'original_asset.gd.uid'),'uid://abcd123\n');check(uid);passed.push('positive bounded optionalUID');
+reject('missing authoring',f=>fs.renameSync(path.join(f.repository,auth,'README.md'),path.join(f.root,'moved')));
+reject('extra authored',f=>write(path.join(f.repository,auth,'extra'),'bad'));
+reject('missing copied',f=>fs.renameSync(path.join(f.source,auth,'README.md'),path.join(f.root,'moved')));
+reject('stale copied',f=>write(path.join(f.source,auth,'README.md'),'stale'));
+reject('extra copied',f=>write(path.join(f.source,auth,'extra'),'bad'));
+reject('authoring inside PCK project',f=>fs.mkdirSync(path.join(f.project,'assets_source')));
+reject('extra runtime repository',f=>write(path.join(f.repository,'app',rt,'extra'),'bad'));
+reject('stale runtime project',f=>write(path.join(f.project,rt,'original-cockpit.glb'),'stale'));
+reject('stale runtime corresponding source',f=>write(path.join(f.source,rt,'original_asset.gd'),'stale'));
+reject('missing generated',f=>fs.renameSync(path.join(f.project,rt,'original-cockpit.glb.import'),path.join(f.root,'moved')));
+reject('extra generated',f=>write(path.join(f.project,rt,'extra.png'),'bad'));
+reject('stale extracted PNG',f=>write(path.join(f.project,rt,'original-cockpit_original-surface-albedo.png'),'stale'));
+reject('invalid UID',f=>write(path.join(f.project,rt,'original_asset.gd.uid'),'uid://../bad'));
+function edit(f,fn){fn(f.provenance);const raw=JSON.stringify(f.provenance);for(const tree of[f.repository,f.source])write(path.join(tree,auth,'cockpit-source.json'),raw);}
+for(const [label,fn]of [['generator pin',p=>p.generator.sha256='a'.repeat(64)],['generator bytes',p=>p.generator.bytes++],['output pin',p=>p.outputs[0].sha256='a'.repeat(64)],['output bytes',p=>p.outputs[1].bytes++],['output order',p=>p.outputs.reverse()],['output closed record',p=>p.outputs[0].extra=true],['baseline pin',p=>p.baseline.sha256='a'.repeat(64)],['reference pin',p=>p.reference.sha256='a'.repeat(64)],['license',p=>p.license='GPL'],['Blender version',p=>p.blender_version='other']])reject(label,f=>edit(f,fn));
+reject('generator bytes changed consistently copied',f=>{for(const tree of[f.repository,f.source])write(path.join(tree,auth,'generate_cockpit.py'),'drift');});
+reject('source PNG changed consistently copied extracted',f=>{for(const tree of[f.repository,f.source])write(path.join(tree,auth,'textures/original-surface-albedo.png'),'drift');write(path.join(f.project,rt,'original-cockpit_original-surface-albedo.png'),'drift');});
+ assert.equal(passed.length,27);
+});

@@ -159,6 +159,17 @@ func _ready() -> void:
 		for device in Input.get_connected_joypads():
 			observe_connection(device,true)
 	super._ready()
+	if not smoke and not _cockpit_asset_ready:
+		return
+	if not legacy_proof and "--cockpit-asset-visual-smoke" in OS.get_cmdline_user_args():
+		set_process(false)
+		set_physics_process(false)
+		set_process_input(false)
+		set_process_unhandled_input(false)
+		set_process_unhandled_key_input(false)
+		set_process_shortcut_input(false)
+		call_deferred("run_cockpit_asset_visual")
+		return
 	if not legacy_proof and "--cockpit-visual-smoke" in OS.get_cmdline_user_args():
 		set_process(false)
 		set_physics_process(false)
@@ -215,6 +226,8 @@ func _make_world_presentation() -> Dictionary:
 
 func make_world() -> void:
 	super.make_world()
+	if not _cockpit_asset_ready:
+		return
 	if legacy_proof:
 		return
 	# Ordinary audio must be silent before any provisional worker is adopted.
@@ -299,6 +312,9 @@ func _make_facade() -> RefCounted:
 	return Facade.new()
 
 func restart(replace_confirmed: bool=false, selected_wind: Variant=null, requested_profile: Variant=null, requested_start: Variant=null) -> bool:
+	# Explicit --smoke is the existing native-only harness; ordinary flights admit the fixed cockpit first.
+	if not smoke and not _cockpit_asset_ready:
+		return false
 	if legacy_proof:
 		return super.restart()
 	if taxi_open: return false
@@ -3042,3 +3058,249 @@ func pointer_source_hint(source: Dictionary) -> String:
 		"mouse_button": return "Mouse "+str(source.get("button"))
 		"joy_button": return "Button %s:%s"%[source.get("slot"),source.get("index")]
 	return "Unavailable binding"
+
+# Original MIT. Opt-in engineering observer. Reuse the existing cockpit observer's
+# full snapshots, fresh PNG writer, target guard, output containment and joins.
+# This private capture route never supplies its own independent pixel approval.
+func run_cockpit_asset_visual() -> void:
+	var runner := CockpitAssetVisualObserver.new()
+	await runner.run(self)
+
+class CockpitAssetVisualObserver extends "res://instrument_tests/cockpit_visual.gd":
+	const AssetMatrix = preload("res://instrument_tests/cockpit_asset_visual.gd")
+	const Policy = preload("res://camera/view_policy.gd")
+	const Readings = preload("res://cockpit/instruments/native_readings.gd")
+	const ScanLeaf = preload("res://cockpit/instruments/scan_panel.gd")
+	var _context: String=""
+	var _captures: Array[Dictionary]=[]
+	var _interactions: Array[Dictionary]=[]
+	var _restorations: Array[Dictionary]=[]
+
+	func _truth() -> Dictionary:
+		var value: Dictionary=super._truth()
+		# This additional field is precisely the accepted three-field presentation
+		# contract. Raw/Mapper, controls, commands, clocks/debt and origins remain.
+		value.scene.erase("view_settings")
+		value.copied_readings={"shared":_scene.shared_readings.duplicate(true),"overlay":_scene.panel.get("_readings").duplicate(true),"physical":_scene.cockpit_panel.get("_readings").duplicate(true),"scan":_scene.scan_panel.get("_reading_set").duplicate(true)}
+		return value
+
+	func _sources() -> Dictionary:
+		var value: Dictionary=super._sources()
+		for path: String in ["res://instrument_tests/cockpit_asset_visual.gd","res://instrument_tests/cockpit_asset_checks.gd","res://instrument_tests/cockpit_asset_baseline.gd","res://cockpit/assets/original_asset.gd","res://camera/view_policy.gd","res://ui/camera/views_panel.gd","res://cockpit/instruments/scan_panel.gd"]:
+			value[path]={"bytes":FileAccess.get_file_as_bytes(path).size(),"sha256":FileAccess.get_sha256(path)}
+		return value
+
+	func _save_presentation() -> Dictionary:
+		var saved: Dictionary=super._save_presentation()
+		saved.settings=_scene.view_settings.duplicate(true)
+		saved.scan_data=_data(_scene.scan_panel)
+		saved.scan_visible=_scene.scan_panel.visible
+		return saved
+
+	func _restore_presentation(saved: Dictionary) -> void:
+		super._restore_presentation(saved)
+		_scene.view_settings=saved.settings.duplicate(true)
+		_scene.show_state(0.0)
+		for key: String in PRESENTATION: _scene.set(key,saved.fields[key])
+		_scene.camera.transform=saved.camera
+		_scene.camera.fov=saved.fov
+		for key: String in saved.scan_data: _scene.scan_panel.set(key,saved.scan_data[key])
+		_scene.scan_panel.visible=saved.scan_visible
+		_scene.scan_panel.queue_redraw()
+
+	func _pin(path: String) -> Dictionary:
+		return {"path":path,"bytes":FileAccess.get_file_as_bytes(path).size(),"sha256":FileAccess.get_sha256(path)}
+
+	func _shot(name: String,size: Vector2i,before: Dictionary,fixture: String="actual paused tick0",boundary: bool=false) -> bool:
+		var path: String=_output.path_join(name+".png")
+		if not _check(not FileAccess.file_exists(path),"fresh_png_"+name): return false
+		await RenderingServer.frame_post_draw
+		await RenderingServer.frame_post_draw
+		var image: Image=_scene.get_viewport().get_texture().get_image()
+		if not _check(image!=null and image.get_width()==size.x and image.get_height()==size.y,"actual_dimensions_"+name): return false
+		if not _check(image.save_png(path)==OK,"png_written_"+name): return false
+		var after: Dictionary=_truth()
+		if not _check(var_to_bytes(before)==var_to_bytes(after),"full_truth_unchanged_"+name): return false
+		var target: Dictionary=_target()
+		# Outside is the unchanged production chase baseline: the physical panel
+		# target is disabled there. Internal captures retain UPDATE_ALWAYS exactly.
+		var expected_update: int=SubViewport.UPDATE_ALWAYS if _scene.camera_mode in [0,3] else SubViewport.UPDATE_DISABLED
+		if not _check(target.size==[2048,1024] and target.texture_size==[2048,1024] and target.logical_size==[1024.0,512.0] and target.scale==[2.0,2.0] and target.anchors==[0.0,0.0,0.0,0.0] and target.update_mode==expected_update,"unchanged_panel_target_"+name): return false
+		if not _check(_scene.camera.near==Vector3(0.1,0,0).x,"unchanged_near_clip_"+name): return false
+		_views.append({"file":name+".png","bytes":FileAccess.get_file_as_bytes(path).size(),"sha256":FileAccess.get_sha256(path),"width":size.x,"height":size.y,"mode":_scene.camera_mode,"fov":_scene.camera.fov,"look":[_scene.look_angles.x,_scene.look_angles.y],"camera_transform":_scene.camera.transform,"near":_scene.camera.near,"eye":_scene.cockpit.eye,"panel_focus":_scene.cockpit.panel_focus,"target":target,"tick":before.readback.tick,"session_id":before.readback.session_id,"profile":before.readback.model_identity,"native_source_fingerprint":before.readback.native_source_fingerprint,"fixture":fixture,"reading_state":_scene.shared_readings.state,"boundary_view":boundary,"before_sha256":_digest(before),"after_sha256":_digest(after)})
+		return true
+
+	func _binary(label: String,value: Dictionary) -> Dictionary:
+		var path: String=_output.path_join(label+".bin")
+		if not _check(not FileAccess.file_exists(path),"fresh_binary_"+label): return {}
+		var stream: FileAccess=FileAccess.open(path,FileAccess.WRITE)
+		if not _check(stream!=null,"binary_open_"+label): return {}
+		stream.store_buffer(var_to_bytes(value));stream.close()
+		return _pin(path)
+
+	func _actual_view(preset: String,fov: Variant=null) -> bool:
+		var actual: String="chase" if preset=="outside" else preset
+		var description: Variant=Policy.describe(actual)
+		if not _check(description!=null,"known_preset_"+preset): return false
+		# Exercise the existing paused Views request and its session/opening token.
+		_scene.menu_open=true;_scene.menu.show()
+		if not _check(_scene.open_views(),"actual_views_open_"+preset): return false
+		var request: Dictionary={"preset":actual,"fov_deg":float(description.default_fov_deg) if fov==null else float(fov),"external_response":"smooth"}
+		_scene.views_panel.apply_requested.emit(request,_scene.adopted_session_id)
+		if not _check(not _scene.views_open and _scene.camera_view_settings()==request,"actual_views_applied_"+preset): return false
+		_scene.menu_open=false;_scene.menu.hide()
+		_scene.show_state(0.0)
+		return true
+
+	func _observe(row: Dictionary,before: Dictionary,joined: bool) -> bool:
+		var label: String="asset-"+str(_captures.size()).pad_zeros(2)
+		var after: Dictionary=_truth()
+		if not _check(var_to_bytes(before)==var_to_bytes(after),"interaction_authority_equal_"+row.id): return false
+		var proofs: Dictionary={"before":_binary(label+"-before",before),"after_interaction":_binary(label+"-after-interaction",after)}
+		if proofs.before.is_empty() or proofs.after_interaction.is_empty(): return false
+		if not await _shot(label,Vector2i(row.size[0],row.size[1]),after,str(row.display)): return false
+		proofs.after_capture=_binary(label+"-after-capture",_truth())
+		if proofs.after_capture.is_empty(): return false
+		var actual: Dictionary=_views.back()
+		var publication: Dictionary=_scene.facade.readback()
+		var qualified: bool=Readings._validate(publication).is_empty() and publication.session_id==_scene.adopted_session_id and publication.tick=="0"
+		qualified=qualified and ((row.display=="current" and publication.native_live and publication.paused and not publication.historical and _scene.shared_readings.state=="paused") or (row.display!="current" and joined and not publication.native_live and publication.historical and _scene.shared_readings.state==("invalid" if row.display=="explicitly_invalid" else "historical")))
+		if not _check(qualified,"actual_publication_"+row.id): return false
+		_captures.append({"fixture":row.duplicate(true),"image":_pin(_output.path_join(label+".png")),"actual_dimensions":[actual.width,actual.height],"qualified_publication":qualified,"joined_before_synthetic":joined})
+		_interactions.append({"execution_index":_interactions.size(),"fixture_id":row.id,"binary_snapshots":proofs,"before_sha256":_digest(before),"after_interaction_sha256":_digest(after),"after_capture_sha256":_digest(_truth()),"actual_view":_scene.camera_view_settings(),"scan_selection":_scene.scan_panel.focused(),"native_source_fingerprint":publication.native_source_fingerprint,"session_id":publication.session_id,"tick":publication.tick})
+		return true
+
+	func _size_sequence(rows: Array[Dictionary],size: Vector2i) -> bool:
+		if not _check(_scene.restart(true,"calm",Facade.LEGACY_PROFILE.id,"ground-ready"),"fresh_paused_session_"+str(size)): return false
+		_scene.menu_open=false;_scene.menu.hide();_scene.map_visible=false;_scene.flight_map.hide()
+		_scene.scan_open=false;_scene.scan_panel.clear_focus();_scene.scan_panel.hide()
+		DisplayServer.window_set_size(size);_scene.get_viewport().size=size
+		_scene.show_state(0.0)
+		var saved: Dictionary=_save_presentation()
+		var initial: Dictionary=_truth()
+		var poses: Dictionary={}
+		for row: Dictionary in rows:
+			if row.display!="current": continue
+			var before: Dictionary=_truth()
+			_scene.scan_panel.clear_focus();_scene.scan_open=false;_scene.scan_panel.hide()
+			_scene.menu_open=false;_scene.menu.hide()
+			if not _actual_view("cockpit" if row.kind=="scan" else row.preset,row.fov): return false
+			if row.kind=="scan":
+				if not _check(_scene.scan_panel.focus(ScanLeaf.INSTRUMENTS[row.scan]),"actual_scan_focus_"+row.id): return false
+				_scene.menu_open=false;_scene.menu.hide();_scene.scan_open=false;_scene.show_state(0.0)
+			if row.kind=="default" and row.preset in ["cockpit","panel"]: poses[row.preset]=_save_presentation()
+			if not await _observe(row,before,false): return false
+		_restore_presentation(saved)
+		var restored: Dictionary=_save_presentation()
+		if not _check(restored==saved and var_to_bytes(initial)==var_to_bytes(_truth()),"exact_saved_view_and_authority_restored_"+str(size)): return false
+		_restorations.append({"size":[size.x,size.y],"saved":saved,"restored":restored,"authority_before_sha256":_digest(initial),"authority_after_sha256":_digest(_truth()),"equal":true})
+		var result: Dictionary=_scene.facade.close()
+		if not _check(result.ok and not result.readback.native_live and result.readback.historical,"actual_join_before_display_"+str(size)): return false
+		_scene.adopt_result(result)
+		var closed: Dictionary=_scene.facade.readback()
+		for row: Dictionary in rows:
+			if row.display=="current": continue
+			var synthetic_before: Dictionary=_truth()
+			var pose: Dictionary=poses[row.preset]
+			_scene.set_camera_mode(pose.fields.camera_mode)
+			_scene.view_settings=pose.settings.duplicate(true)
+			_scene.camera.fov=pose.fov;_scene.camera.transform=pose.camera
+			var publication: Dictionary=closed.duplicate(true)
+			var invalid: bool=row.display=="explicitly_invalid"
+			if invalid: publication.tick=0.0
+			_scene.publish_readings(publication,{"status":"SYNTHETIC INVALID DISPLAY ONLY AFTER JOIN" if invalid else "CONFIRMED CLOSED / RETAINED NATIVE TRUTH","paused":false,"view_name":"UNAVAILABLE" if invalid else "RETAINED","historical":not invalid})
+			var synthetic_after: Dictionary=_truth()
+			var native_before: Dictionary=synthetic_before.duplicate(true)
+			var native_after: Dictionary=synthetic_after.duplicate(true)
+			# Only this explicitly joined fixture is allowed to change copied display
+			# sets. Keep their full raw snapshots, compare all remaining authority.
+			for authority: Dictionary in [native_before,native_after]:
+				authority.erase("copied_readings");authority.scene.erase("shared_readings")
+				# publish_readings also publishes the copied landmark route to the
+				# hidden map. Retain its complete original snapshots above; exempt
+				# only these source-fixed derived display fields after actual join.
+				authority.scene.erase("route_view")
+				for key: String in ["_route","_manual_summary","_presentation"]: authority.map.erase(key)
+			if not _check(var_to_bytes(native_before)==var_to_bytes(native_after),"synthetic_authority_equal_"+row.id): return false
+			var synthetic_proofs: Dictionary={"before":_binary("asset-"+str(_captures.size()).pad_zeros(2)+"-synthetic-before",synthetic_before),"after":_binary("asset-"+str(_captures.size()).pad_zeros(2)+"-synthetic-after",synthetic_after)}
+			if synthetic_proofs.before.is_empty() or synthetic_proofs.after.is_empty(): return false
+			# Publication changes only copied presentation. No redraw via show_state
+			# is permitted to replace it; native complete binary truth stays closed.
+			if not _check(_scene.facade.readback()==closed,"closed_native_truth_"+row.id): return false
+			if not await _observe(row,_truth(),true): return false
+			_interactions.back().synthetic_publication=synthetic_proofs
+			if not _check(_scene.facade.readback()==closed,"closed_native_truth_after_"+row.id): return false
+		_sessions.append({"size":[size.x,size.y],"actual_join":result,"native_closed":closed,"scope":"One legitimate paused ground-ready session; no native advance. Display fixture publications are copied only after join."})
+		return true
+
+	func run(scene: Node) -> void:
+		_scene=scene;_window_before=scene.get_viewport().size;_gui_before=scene.get_viewport().gui_disable_input
+		scene.get_viewport().gui_disable_input=true;scene.process_mode=Node.PROCESS_MODE_DISABLED
+		_disconnect(scene.get_viewport().focus_exited,Callable(scene,"on_focus_lost"))
+		_disconnect(Input.joy_connection_changed,Callable(scene,"on_joy_connection_changed"))
+		var args: PackedStringArray=OS.get_cmdline_user_args()
+		var at: int=args.find("--cockpit-asset-visual-output")
+		if at>=0 and at+1<args.size() and args.count("--cockpit-asset-visual-output")==1 and _output_ok(args[at+1]): _output=args[at+1]
+		at=args.find("--cockpit-asset-visual-context")
+		if at>=0 and at+1<args.size() and args.count("--cockpit-asset-visual-context")==1 and args[at+1] in AssetMatrix.CONTEXTS: _context=args[at+1]
+		if not _check(not _output.is_empty() and not _context.is_empty(),"fresh_external_output_and_closed_context"): await _finish();return
+		if not _check(OS.has_feature("editor")==(_context=="editor"),"actual_editor_feature_matches_context"): await _finish();return
+		if not _check(OS.get_name()=="Windows" and DisplayServer.get_name()!="headless" and RenderingServer.get_current_rendering_method()=="gl_compatibility","actual_Windows_Compatibility_GPU"): await _finish();return
+		# Godot consumes renderer CLI flags; Root separately witnesses explicit launch argv.
+		# Observe the fixed capture policy directly, with no fallback driver accepted.
+		if not _check(RenderingServer.get_current_rendering_driver_name()=="opengl3","actual_opengl3_driver_matches_fixed_capture_policy"): await _finish();return
+		var adapter: String=RenderingServer.get_video_adapter_name().to_lower()
+		if not _check(not adapter.is_empty(),"actual_adapter_present"): await _finish();return
+		for fallback: String in ["llvmpipe","softpipe","software","warp","microsoft basic render"]:
+			if not _check(not adapter.contains(fallback),"no_software_"+fallback): await _finish();return
+		if not _check(scene.facade!=null and scene.mapper!=null and scene.sound!=null and scene._cockpit_asset_ready,"actual_asset_and_owners_ready"): await _finish();return
+		_audio_joined=bool(await scene.sound.shutdown())
+		if not _check(_audio_joined,"audio_retired_before_capture"): await _finish();return
+		_sources_before=_sources()
+		for path: String in _sources_before:
+			if not _check(_sources_before[path].bytes>0 and str(_sources_before[path].sha256).length()==64,"source_present_"+path): await _finish();return
+		var matrix: Array[Dictionary]=AssetMatrix.matrix()
+		if not _check(matrix.size()==60,"frozen_exact60_matrix"): await _finish();return
+		for size: Vector2i in AssetMatrix.SIZES:
+			var selected: Array[Dictionary]=[]
+			for row: Dictionary in matrix:
+				if row.size==[size.x,size.y]: selected.append(row)
+			if not _check(selected.size()==20,"exact20_per_size"): await _finish();return
+			if not await _size_sequence(selected,size): await _finish();return
+		await _finish()
+
+	func _finish() -> void:
+		var joined: bool=_scene.close_session()
+		if _scene.sound!=null: _audio_joined=bool(await _scene.sound.shutdown())
+		_check(joined and _audio_joined,"actual_native_audio_joined")
+		var after: Dictionary=_sources() if not _sources_before.is_empty() else {}
+		if not _sources_before.is_empty(): _check(_sources_before==after,"all_source_bytes_unchanged")
+		# Preserve execution order in interactions and image names. Serialize the
+		# capture inventory in the unchanged fixture matrix's canonical order:
+		# its display/FOV rows interleave, so actual native rows execute before
+		# joining and the four copied-display rows execute afterwards.
+		if _captures.size()==60:
+			var ordered: Array[Dictionary]=[]
+			for row: Dictionary in AssetMatrix.matrix():
+				var matches: Array[Dictionary]=[]
+				for capture: Dictionary in _captures:
+					if capture.fixture==row: matches.append(capture)
+				if not _check(matches.size()==1,"exact_unique_fixture_"+row.id): break
+				ordered.append(matches[0])
+			if ordered.size()==60: _captures=ordered
+		DisplayServer.window_set_size(_window_before);_scene.get_viewport().size=_window_before
+		_scene.get_viewport().gui_disable_input=_gui_before
+		for hook: Dictionary in _hooks:
+			var signal_value: Signal=hook["signal"]
+			var callback: Callable=hook["callback"]
+			if not signal_value.is_connected(callback): signal_value.connect(callback)
+		var receipt: Dictionary={"schema":"PrivateOriginalCockpitAssetVisualCapture/v1","passed":_failures.is_empty() and _captures.size()==60 and _restorations.size()==3,"failures":_failures,"context":_context,"captures":_captures,"interactions":_interactions,"restorations":_restorations,"sessions":_sessions,"views":_views,"source_before":_sources_before,"source_after":after,"renderer":{"method":RenderingServer.get_current_rendering_method(),"display_server":DisplayServer.get_name()},"driver":{"name":RenderingServer.get_current_rendering_driver_name(),"adapter":RenderingServer.get_video_adapter_name()},"reference_hardware":{"cpu":OS.get_processor_name(),"logical_processor_count":OS.get_processor_count(),"gpu":RenderingServer.get_video_adapter_name(),"scope":"Actual exposed CPU/GPU identifiers; external reference-PC/driver-version witness required."},"engine":Engine.get_version_info(),"executable":_pin(OS.get_executable_path()),"native_joined":joined,"audio_joined":_audio_joined,"independent_pixel_review":{"approved":false,"capture_ids":[],"observations":[],"scope":"Pending independent review of all60 original images and external qualified context/source/PCK/native/driver witnesses. Raw capture success is not visual acceptance."},"scope":"Engineering capture only; 60 frozen views, original ground-ready paused tick0 publications, joined copied display fixtures. No new aircraft, sensed-instrument, FPS, human or phase acceptance. Existing camera coverage remains separately required."}
+		if not _output.is_empty():
+			var path: String=_output.path_join("cockpit-asset-visual-capture.json")
+			if not _check(not FileAccess.file_exists(path),"fresh_capture_receipt"): receipt.passed=false
+			else:
+				var stream: FileAccess=FileAccess.open(path,FileAccess.WRITE)
+				if stream==null: receipt.passed=false;push_error("Cockpit asset capture receipt write failed")
+				else: stream.store_string(JSON.stringify(receipt,"  ",false,true));stream.close()
+		print("COCKPIT_ASSET_VISUAL_COMPLETE ",JSON.stringify({"passed":receipt.passed,"captures":_captures.size(),"native_joined":joined,"audio_joined":_audio_joined,"independent_pixels_approved":false}))
+		_scene.get_tree().quit(0 if receipt.passed else 1)
