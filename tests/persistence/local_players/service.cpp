@@ -110,7 +110,30 @@ struct Probe final:QualificationObserver {
  std::size_t maximum;bool armed{},arrived{},released{},throw_after_release{},throw_claim{},refuse_next{};
  JobKind gate_kind{};Phase gate_phase{};Edge gate_edge{};std::optional<AllocationCategory> allocation_gate;
  std::size_t claims{};bool overflow{},allocation_armed{},allocation_arrived{},allocation_released{};
- explicit Probe(std::size_t cap):maximum(cap){events.reserve(cap);allocations.reserve(cap);}
+
+ // Test-owned bounded history, not charged production arena storage.
+ std::vector<ReservationObservation> reservations;
+ struct AllocationSelector {AllocationCategory category;std::uint64_t service,request,ordinal;};
+ std::optional<AllocationSelector> denied;std::size_t denied_count{};
+ std::uint64_t throw_publish_request{};
+ void deny_allocation(AllocationCategory category,std::uint64_t service,std::uint64_t request,std::uint64_t ordinal){std::lock_guard lock(mutex);require(!denied,"one exact refusal selector");denied=AllocationSelector{category,service,request,ordinal};}
+ void throw_publish_for(std::uint64_t request){std::lock_guard lock(mutex);require(request&&!throw_publish_request,"one exact ACK observer throw");throw_publish_request=request;}
+ std::size_t event_count(){std::lock_guard lock(mutex);return events.size();}
+ std::size_t allocation_count(){std::lock_guard lock(mutex);return allocations.size();}
+ std::uint64_t last_request(){std::lock_guard lock(mutex);require(!allocations.empty(),"observed allocation request identity");return allocations.back().request_ordinal;}
+ void wait_published(std::uint64_t request){std::unique_lock lock(mutex);require(cv.wait_for(lock,std::chrono::seconds(30),[&]{return overflow||std::any_of(events.begin(),events.end(),[&](const NativeObservation&o){return o.request_ordinal==request&&o.phase==Phase::publish_ack&&o.edge==Edge::after;});}),"actual post-release publication observed");require(!overflow,"publication preserves original observation cap");}
+ void no_effects_since(std::size_t before){std::lock_guard lock(mutex);require(events.size()==before,"refused admission has no new SQL/file/native event");require(!denied,"exact allocation selector consumed");}
+ std::uint64_t reserved_bytes(){
+  std::lock_guard lock(mutex);std::map<std::array<std::uint64_t,4>,std::uint32_t> live;
+  // E is shared across request identities: its claim belongs to the first
+  // borrower and release to the last. All other extents remain request-bound.
+  for(const auto&o:reservations){require(o.reserved_pages<=8192&&o.live_pages<=8192,"actual reported ownership never exceeds32MiB");auto key=std::array<std::uint64_t,4>{static_cast<std::uint64_t>(o.category),o.service_ordinal,o.category==AllocationCategory::export_spool?0:o.request_ordinal,o.allocation_ordinal};
+   if(o.action==ReservationObservation::Action::claim){require(o.rounded&&o.rounded%4096==0&&!live.contains(key),"unique actual page-rounded claim");live.emplace(key,o.rounded);}
+   else if(o.action==ReservationObservation::Action::release){auto i=live.find(key);require(i!=live.end()&&i->second==o.rounded,"release exactly an observed actual reservation");live.erase(i);}
+  }
+  std::uint64_t total=0;for(const auto&entry:live)total+=entry.second;require(total<=33554432,"independent live claim ledger bounded32MiB");return total;
+ }
+ explicit Probe(std::size_t cap):maximum(cap){events.reserve(cap);allocations.reserve(cap);reservations.reserve(cap);}
  void arm(JobKind k,Phase p,Edge e,bool throws=false){std::lock_guard lock(mutex);require(!armed,"one actual test barrier");gate_kind=k;gate_phase=p;gate_edge=e;armed=true;arrived=false;released=false;throw_after_release=throws;allocation_gate.reset();}
  void arm_allocation(AllocationCategory c){std::lock_guard lock(mutex);require(!allocation_armed,"one allocation barrier");allocation_armed=true;allocation_arrived=false;allocation_released=false;allocation_gate=c;}
  void wait_allocation(){std::unique_lock lock(mutex);require(cv.wait_for(lock,std::chrono::seconds(30),[&]{return allocation_arrived||overflow;}),"actual allocation notification arrived");require(allocation_arrived&&!overflow,"valid allocation arrival");}
@@ -120,14 +143,16 @@ struct Probe final:QualificationObserver {
  void hold(std::unique_lock<std::mutex>&lock){arrived=true;cv.notify_all();bool ok=cv.wait_for(lock,std::chrono::seconds(30),[&]{return released;});armed=false;if(!ok)throw std::runtime_error("test barrier expired");if(throw_after_release){throw_after_release=false;throw std::runtime_error("selected actual observer throw");}}
  void observe(const NativeObservation&o)override {
   std::unique_lock lock(mutex);if(actual_events.fetch_add(1)>=maximum||events.size()>=maximum){overflow=true;throw std::runtime_error("test observation capacity");}events.push_back(o);cv.notify_all();
+  if(throw_publish_request&&o.request_ordinal==throw_publish_request&&o.phase==Phase::publish_ack&&o.edge==Edge::before){throw_publish_request=0;throw std::runtime_error("selected actual publish observer throw");}
   if(armed&&o.kind==gate_kind&&o.phase==gate_phase&&o.edge==gate_edge)hold(lock);
  }
  bool allow_allocation(const AllocationObservation&o)override {
   std::unique_lock lock(mutex);if(actual_events.fetch_add(1)>=maximum||allocations.size()>=maximum){overflow=true;return false;}allocations.push_back(o);cv.notify_all();
   if(allocation_armed&&allocation_gate&&o.category==*allocation_gate){allocation_arrived=true;cv.notify_all();bool ok=cv.wait_for(lock,std::chrono::seconds(30),[&]{return allocation_released;});allocation_armed=false;if(!ok)throw std::runtime_error("allocation test barrier expired");}
+  if(denied&&o.category==denied->category&&o.service_ordinal==denied->service&&o.request_ordinal==denied->request&&o.ordinal==denied->ordinal){denied.reset();++denied_count;return false;}
   if(refuse_next){refuse_next=false;return false;}return true;
  }
- void observe_reservation(const ReservationObservation&)override {std::lock_guard lock(mutex);++claims;if(actual_events.fetch_add(1)>=maximum){overflow=true;throw std::runtime_error("reservation event capacity");}if(throw_claim){throw_claim=false;throw std::runtime_error("selected create claim throw");}}
+ void observe_reservation(const ReservationObservation&o)override {std::lock_guard lock(mutex);++claims;if(actual_events.fetch_add(1)>=maximum||reservations.size()>=maximum){overflow=true;throw std::runtime_error("reservation event capacity");}reservations.push_back(o);if(throw_claim){throw_claim=false;throw std::runtime_error("selected create claim throw");}}
  bool saw(JobKind kind,Phase phase,Edge edge){std::lock_guard lock(mutex);return std::any_of(events.begin(),events.end(),[&](auto&e){return e.kind==kind&&e.phase==phase&&e.edge==edge;});}
  bool await_event(JobKind kind,Phase phase,Edge edge){std::unique_lock lock(mutex);return cv.wait_for(lock,std::chrono::seconds(15),[&]{return std::any_of(events.begin(),events.end(),[&](auto&e){return e.kind==kind&&e.phase==phase&&e.edge==edge&&e.scope==Scope::original&&e.verified_rows>=1;});});}
  ~Probe(){release_allocation();release();}
@@ -139,6 +164,7 @@ struct Fixture {
  Fixture(TrustedRoots&trust,std::string_view descriptor,std::string_view digest,Probe&probe,std::uint64_t ordinal):cap(TestRootFactory::admit_bytes(descriptor,digest,trust,&probe,ordinal)){
   require(cap.valid(),"isolated real capability admitted");auto token=cap.take_access();require(token&&token->isolated_test(),"sealed isolated token");service=Service::create(std::move(*token));require(service!=nullptr,"actual arena create");
  }
+ Fixture(Capability&& admitted,Service* created):cap(std::move(admitted)),service(created){require(service!=nullptr,"owned explicit-retry Service");}
  void close(){if(!service||joined)return;require(service->begin_shutdown(),"owner actual shutdown");auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(30);while(!service->try_join()){if(std::chrono::steady_clock::now()>=deadline)std::terminate();std::this_thread::yield();}joined=true;require(status(service).state==ServiceState::closed,"real joined/quiescent closed");}
  ~Fixture(){if(service){if(!joined){if(!service->begin_shutdown())std::terminate();auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(30);while(!service->try_join()){if(std::chrono::steady_clock::now()>=deadline)std::terminate();std::this_thread::yield();}}if(!Service::destroy(service))std::terminate();service=nullptr;}cap.release_leases_after_join();}
 };
@@ -386,10 +412,60 @@ struct Arguments {FixedText<4096> context,descriptor,plan;FixedText<64> context_
 [[maybe_unused]] void paired(std::string_view bytes,std::string_view id,std::string_view revision,std::string_view name){Raw r{std::string(bytes)};auto v=value(r);require(closed(r.d,v,{"player","preferences"})==Error::none,"closed actual pair");auto p=member(r.d,v,"player"),prefs=member(r.d,v,"preferences");require(validate_player(r.d,p)==Error::none,"complete actual Player");require(validate_preferences(r.d,prefs,true,r.cells)==Error::none,"complete restored actual preferences");require(field(r.d,p,"id")==id&&field(r.d,p,"revision")==revision&&field(r.d,p,"name")==name&&field(r.d,prefs,"player_id")==id&&field(r.d,prefs,"revision")==revision,"paired identity/revision/content");}
 [[maybe_unused]] V rename_seed(std::string id,std::string rev,std::string name){return V::o({{"player_id",V::s(std::move(id))},{"expected_revision",V::s(std::move(rev))},{"name",V::s(std::move(name))},{"utc",V::s("2026-10-03T12:03:00Z")}});}
 
+
+// S08 plus category/attempt companions. Same unconsumed capability/token;
+// every refusal precedes accepted start, resolver, worker, SQL and file events.
+[[maybe_unused]] void reservation_category_cases(TrustedRoots&trust,std::string_view descriptor,std::string_view digest,std::uint64_t ordinal,std::size_t cap){
+ Probe p(cap);auto capability=TestRootFactory::admit_bytes(descriptor,digest,trust,&p,ordinal);require(capability.valid(),"reservation category capability");auto token=capability.take_access();require(token&&token->isolated_test(),"reservation same sealed token");
+ for(auto category:{AllocationCategory::control,AllocationCategory::workspace})for(std::uint64_t attempt=1;attempt<=2;++attempt){
+  p.deny_allocation(category,ordinal,0,attempt);auto effects=p.event_count();auto count=p.denied_count;
+  require(Service::create(std::move(*token))==nullptr&&token->isolated_test(),"category refusal keeps original unconsumed token");p.no_effects_since(effects);require(p.denied_count==count+1&&p.reserved_bytes()==0,"one exact denied attempt creates no arena reservation");
+ }
+ auto* created=Service::create(std::move(*token));require(created!=nullptr,"explicit create retry after four refusals");Fixture f(std::move(capability),created);
+ require(p.reserved_bytes()==2097152,"L01 permanent control/workspace charged exactly");
+ // Prior categories continue to consume allocation attempts but not request IDs.
+ const std::array<std::pair<AllocationCategory,std::uint64_t>,3> categories={{{AllocationCategory::request,1},{AllocationCategory::terminal,1},{AllocationCategory::delivery,1}}};
+ for(const auto&entry:categories)for(std::uint64_t attempt=entry.second;attempt<entry.second+2;++attempt){
+  auto before=status(f.service);auto effects=p.event_count();auto count=p.denied_count;p.deny_allocation(entry.first,ordinal,1,attempt);
+  auto a=f.service->start(true);require(!a.accepted&&a.error==Error::out_of_memory&&a.request_id.size==0&&same_status(before,status(f.service)),"exact pre-start refusal preserves all public status");
+  p.no_effects_since(effects);require(p.denied_count==count+1&&p.reserved_bytes()==2097152,"denied start publishes no slot or root IO");
+ }
+ auto a=f.service->start(true);require(a.accepted,"explicit management start retry");auto rows=receive(f.service,1);p.wait_published(1);result(rows[0],a.request_id.view(),JobKind::start_management,"read");
+ require(p.reserved_bytes()==2097152,"retry terminal transfer releases all R/T/D");
+ {std::lock_guard lock(p.mutex);std::array<std::uint64_t,6> last{};for(const auto&o:p.allocations){auto i=static_cast<unsigned>(o.category);require(o.service_ordinal==ordinal&&o.ordinal==last[i]+1,"every category attempt advances exactly once");last[i]=o.ordinal;}require(last[static_cast<unsigned>(AllocationCategory::control)]==5&&last[static_cast<unsigned>(AllocationCategory::workspace)]==3,"same-token control/workspace attempt history retained");require(last[static_cast<unsigned>(AllocationCategory::request)]==7&&last[static_cast<unsigned>(AllocationCategory::terminal)]==5&&last[static_cast<unsigned>(AllocationCategory::delivery)]==3,"failed starts do not reuse category ordinals");for(const auto&o:p.events)require(o.phase!=Phase::before_open&&o.phase!=Phase::before_begin,"management retry never opens SQLite");}
+ f.close();
+}
+
+[[maybe_unused]] void export_reservation_refusal(Service*service,Probe&p,std::uint64_t ordinal){
+ p.wait_published(17);
+ const auto root=std::string(status(service).resolved_root.view());require(!root.empty(),"ready store root qualified");
+ auto payload=[&]{return V::o({{"player_id",V::s(std::string(32,'9'))},{"expected_revision",V::s("1")},{"target_absolute_path",V::s(root+".reservation-export.json")}});};
+ // Existing fixed schedule: start +16 FIFO jobs; earlier rejected allocation
+ // does not increment accepted ordinal. The nonexistent selected ID prevents
+ // target IO on the final accepted retry without fabricating file outcomes.
+ for(std::uint64_t attempt=1;attempt<=2;++attempt){auto before=status(service);auto effects=p.event_count();auto count=p.denied_count;p.deny_allocation(AllocationCategory::export_spool,ordinal,18,attempt);Capture c(JobKind::export_player,payload());auto a=service->submit(c);require(!a.accepted&&a.error==Error::out_of_memory&&a.request_id.size==0&&same_status(before,status(service)),"exact export E refusal is pre-admission");p.no_effects_since(effects);require(p.denied_count==count+1&&p.reserved_bytes()==2097152,"failed E attempt rolls back all credit without a slot");}
+ auto before=p.event_count();job(service,JobKind::export_player,payload(),"failed","not_found");p.wait_published(18);require(p.reserved_bytes()==2097152,"explicit accepted export retry retires E/R/T/D");
+ {std::lock_guard lock(p.mutex);for(auto i=before;i<p.events.size();++i)require(p.events[i].scope!=Scope::export_file,"nonexistent selected player never touches target");}
+}
+
+[[maybe_unused]] void reserved_failure_fifo(TrustedRoots&trust,std::string_view descriptor,std::string_view digest,std::uint64_t ordinal,std::size_t cap){
+ Probe p(cap);Fixture f(trust,descriptor,digest,p,ordinal);start(f);
+ // Deliberately selected test observer exceptions, not real SQLite IOERR or
+ // process crash. Actual after-COMMIT is first held; ACK throw stops the worker
+ // from treating later queued mutations as fresh executable work.
+ p.arm(JobKind::rename_player,Phase::after_commit,Edge::after,true);Capture rename(JobKind::rename_player,rename_seed(std::string(32,'1'),"2","Alice caught"));auto first=f.service->submit(rename);require(first.accepted,"caught-failure mutation accepted with prepaid terminal");p.wait();auto request=p.last_request();p.throw_publish_for(request);
+ Capture read(JobKind::list_players,V::o({}));auto second=f.service->submit(read);Capture later(JobKind::rename_player,rename_seed(std::string(32,'1'),"2","Must not run"));auto third=f.service->submit(later);require(second.accepted&&third.accepted,"two later FIFO terminals prepaid before selected exceptions");
+ auto allocations=p.allocation_count();auto last_request=p.last_request();p.release();wait_done(f.service,3);p.wait_published(last_request);require(p.allocation_count()==allocations,"caught failure and all terminal publications make no new reservation attempt");
+ require(p.reserved_bytes()==2097152+3*1310720,"L13 three completed slots retain full independent T/D");f.close();auto rows=receive(f.service,3);
+ result(rows[0],first.request_id.view(),JobKind::rename_player,"uncertain","commit_unknown");result(rows[1],second.request_id.view(),JobKind::list_players,"failed","worker_lost");result(rows[2],third.request_id.view(),JobKind::rename_player,"failed","worker_lost");
+ require(p.reserved_bytes()==2097152&&status(f.service).undelivered==0,"joined closed poll releases only prepaid terminals");
+}
+
 [[maybe_unused]] void service_cases(TrustedRoots&trust,std::string_view descriptor,std::string_view digest,std::uint64_t ordinal,std::size_t cap){
+ reservation_category_cases(trust,descriptor,digest,ordinal++,cap);
  // R1: the exact SAME unconsumed sealed token, with retained attempted ordinals.
  {Probe p(cap);auto c=TestRootFactory::admit_bytes(descriptor,digest,trust,&p,ordinal++);require(c.valid(),"R1 capability");auto token=c.take_access();require(token&&token->isolated_test(),"R1 original isolated token");p.throw_claim=true;require(Service::create(std::move(*token))==nullptr,"R1 selected reservation observer refusal");require(token->isolated_test(),"R1 failed create retains token");auto*s=Service::create(std::move(*token));require(s!=nullptr,"R1 same token retry creates");std::uint64_t control=0,workspace=0;for(auto&a:p.allocations){auto&last=a.category==AllocationCategory::control?control:workspace;require(a.ordinal>last,"R1 retained per-category attempt ordinal");last=a.ordinal;}require(control>=2,"R1 control attempts not reused");require(!s->try_join(),"never-created worker is not closed without shutdown");require(s->begin_shutdown()&&s->try_join(),"explicit no-worker quiescence");require(status(s).state==ServiceState::closed,"quiescent closed state");require(Service::destroy(s),"destroy only quiescent Service");c.release_leases_after_join();}
- Probe p(cap);Fixture f(trust,descriptor,digest,p,ordinal++);
+ const auto primary_ordinal=ordinal;Probe p(cap);Fixture f(trust,descriptor,digest,p,ordinal++);
  {auto before=status(f.service);Capture c(JobKind::list_players,V::o({}));Admission a;Status foreign;bool read=true,shutdown=true,join=true,destroy=true;std::thread t([&]{a=f.service->submit(c);read=f.service->status(foreign);shutdown=f.service->begin_shutdown();join=f.service->try_join();destroy=Service::destroy(f.service);});t.join();require(!a.accepted&&a.error==Error::wrong_thread&&!read&&!shutdown&&!join&&!destroy&&c.captures==0,"foreign owner rejects before capture/lifecycle effects");require(same_status(before,status(f.service)),"foreign calls exact owner status unchanged");}
  start(f,false,true);
  // Hold an ACTUAL worker SQL boundary, not a sleep-based guessed queue state.
@@ -406,6 +482,7 @@ struct Arguments {FixedText<4096> context,descriptor,plan;FixedText<64> context_
  require(!f.service->acknowledge(std::span(leases).first(1)),"partial batch rejected");auto duplicate=leases;duplicate[1]=duplicate[0];require(!f.service->acknowledge(duplicate),"duplicate batch rejected");auto wrong=leases;wrong[1]=UINT64_MAX;require(!f.service->abandon(wrong),"unknown lease rejected");bool foreign_ack=true;std::thread t([&]{foreign_ack=f.service->acknowledge(leases);});t.join();require(!foreign_ack&&same_status(before,status(f.service)),"invalid batch calls atomic/no mutation");require(!f.service->peek(1,views,count),"second peek refuses outstanding batch");require(f.service->abandon(leases),"whole batch abandoned");require(f.service->peek(2,views,count)&&count==2,"same FIFO batch reacquired");std::array<std::uint64_t,2> newleases{views[0].lease,views[1].lease};require(newleases!=leases&&views[0].bytes==owned[0]&&views[1].bytes==owned[1],"abandon preserves exact bytes with fresh leases");require(!f.service->acknowledge(leases),"stale batch cannot acknowledge new batch");require(f.service->acknowledge(newleases),"exact new whole batch acknowledged");
  result(owned[0],accepted[0].first,accepted[0].second,"read");result(owned[1],accepted[1].first,accepted[1].second,"committed","","2");paired(owned[1],std::string(32,'1'),"1","Alice");auto remainder=receive(f.service,14);for(std::size_t i=0;i<remainder.size();++i)result(remainder[i],accepted[i+2].first,accepted[i+2].second,"read");
  {auto before_oom=status(f.service);p.refuse_next=true;Capture denied(JobKind::list_players,V::o({}));auto rejected=f.service->submit(denied);require(!rejected.accepted&&rejected.error==Error::out_of_memory&&rejected.request_id.size==0&&same_status(before_oom,status(f.service)),"actual pre-effect allocator refusal preserves owner state and terminal slots");}
+ export_reservation_refusal(f.service,p,primary_ordinal);
  // R5: owner allocation observer held while an already-running real SQL job
  // must advance through actual post-COMMIT row/codec verification. BEGIN alone
  // would not require the worker codec and would be a vacuous deadlock check.
@@ -416,6 +493,7 @@ struct Arguments {FixedText<4096> context,descriptor,plan;FixedText<64> context_
  Capture read(JobKind::list_players,V::o({}));auto rb=f.service->submit(read);controller.join();require(rb.accepted&&progressed,"R5 worker progresses while owner reservation barrier held");auto r5=receive(f.service,2);result(r5[0],ra.request_id.view(),JobKind::rename_player,"committed","","3");result(r5[1],rb.request_id.view(),JobKind::list_players,"read");
  // Accepted terminal storage survives actual join; closed owner poll drains it.
  Capture final(JobKind::list_players,V::o({}));auto fa=f.service->submit(final);require(fa.accepted,"pre-shutdown request accepted");f.close();require(status(f.service).undelivered==1&&!status(f.service).writer_alive,"actual worker exit with undelivered terminal retained");refused(f.service,JobKind::list_players,V::o({}),Error::invalid_state);require(!f.service->start().accepted,"closed same-instance restart refused");auto last=receive(f.service,1);result(last[0],fa.request_id.view(),JobKind::list_players,"read");require(status(f.service).undelivered==0,"closed poll drains exact retained result");
+ reserved_failure_fifo(trust,descriptor,digest,ordinal++,cap);
  // R2: management never accesses SQLite. Selected observer loss drains each
  // queued recovery-only kind using its actual legal failed/null shape.
  Probe management(cap);Fixture m(trust,descriptor,digest,management,ordinal++);management.arm(JobKind::start_management,Phase::publish_ack,Edge::after,true);auto ma=m.service->start(true);require(ma.accepted,"actual management start accepted");management.wait();Capture list(JobKind::list_recovery,V::o({}));auto ml=m.service->submit(list);Capture del(JobKind::delete_recovery,V::o({{"snapshot_ids",V::a({V::s(std::string(32,'a'))})}}));auto md=m.service->submit(del);require(ml.accepted&&md.accepted,"recovery-only queued while actual management ACK held");management.release();auto drained=receive(m.service,3);result(drained[0],ma.request_id.view(),JobKind::start_management,"read");result(drained[1],ml.request_id.view(),JobKind::list_recovery,"failed","snapshot_failed");result(drained[2],md.request_id.view(),JobKind::delete_recovery,"failed","snapshot_failed");{Raw r(drained[2]);require(nil(r.d,value(r)),"no validated deletion effect means null");}m.close();

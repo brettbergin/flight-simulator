@@ -400,7 +400,8 @@ Error WindowsFileSystem::export_new(std::string_view target,std::string_view pay
  // bytes are canonical validated UTF8; quote/backslash escape to exactly2 bytes.
  constexpr std::string_view prefix="{\"format\":\"LocalPlayerSummary\",\"payload_json\":\"";
  constexpr std::string_view suffix_a="\",\"payload_sha256\":\"",suffix_b="\",\"version\":1}";
- std::uint64_t length=prefix.size()+suffix_a.size()+64+suffix_b.size();for(unsigned char byte:payload){std::uint64_t n=(byte=='"'||byte=='\\')?2:byte<32?6:1;if(length>33554432-n)return Error::file_verify_failed;length+=n;}if(!valid_utf8(payload)||length>33554432)return Error::file_verify_failed;
+ if(!valid_utf8(payload))return Error::file_verify_failed;
+ std::uint64_t length=prefix.size()+suffix_a.size()+64+suffix_b.size();for(unsigned char byte:payload){std::uint64_t n=(byte=='"'||byte=='\\')?2:byte<32?6:1;if(length>33554432-n)return Error::storage_full;length+=n;}if(length>33554432)return Error::storage_full;
  if(!valid_local_absolute_path(target)||path_guard(target)!=Error::none)return Error::path_rejected;
  Scratch<Wide> target_w_storage;auto& target_w=target_w_storage.get();Scratch<Wide> root_w_storage;auto& root_w=root_w_storage.get();if(!target_w.set(target)||!root_w.set(root_.view()))return Error::path_rejected;
  if(target_w.size>=root_w.size&&CompareStringOrdinal(target_w.canonical(),root_w.size,root_w.canonical(),root_w.size,TRUE)==CSTR_EQUAL&&(target_w.size==root_w.size||target_w.canonical()[root_w.size]==L'\\'))return Error::path_rejected;

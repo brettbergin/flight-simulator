@@ -26,8 +26,35 @@ and the [compiled allocation](../../../docs/contracts/local-players/compiled-sou
 Source presence or compilation alone establishes neither durable saves nor the
 two-player/Guest relaunch journey.
 
-The proposed pinned CMake 3.31.8 Ninja rule places the Python link witness inside `vs_link_dll`, preserving its manifest handling and capturing the direct linker arguments after manifest flags are appended. Storage uses `/INCREMENTAL:NO` so one final link owns its fresh outputs. Root must independently admit the exact plan, tool hashes, receipt parent and generated command before build. This source proposal has not been configured or executed. No compiler command, archive/map closure or runtime result is established.
+The pinned CMake 3.31.8 Ninja rule places the Python link witness inside
+`vs_link_dll`, preserving manifest handling and capturing the direct linker
+arguments after manifest flags are appended. Storage uses `/INCREMENTAL:NO` so
+one final link owns its fresh outputs. Root independently admits the exact plan,
+tool hashes, receipt parent and generated command before each qualified build.
 
-The configure declares a future plan-digest file path, not a digest of an archive that does not exist yet. After prerequisite compilation, Root admits the actual archive and exclusively emits the exact link plan plus closed `LocalPlayersInvocationPlanDigest/v1` object (`schema`, `plan_path`, `plan_sha256`). The launcher binds both files before execution and checks their stability afterward. Their bytes are postcompile witnesses and never compiled identity inputs. The qualifier successor must implement this declared CLI before execution; the earlier witness subset does not yet support it. Actual global, directory and target launcher properties are checked, with a final generated-rule check still required.
+Configure declares the plan-digest file path before prerequisite archives
+exist. After prerequisite compilation, Root admits the actual archive and
+exclusively emits the exact link plan plus the closed
+`LocalPlayersInvocationPlanDigest/v1` object (`schema`, `plan_path`,
+`plan_sha256`). The launcher binds both files before execution and checks their
+stability afterward. Their bytes are postcompile witnesses and are excluded
+from compiled identity inputs. The qualifier implements this CLI and checks
+actual global, directory and target launcher properties together with the
+final generated rule.
 
-Root compile witnesses use one independently frozen plan index for nine invocations: SQLite C, five core C++, one Windows C++ and two production bridge C++ sources. All four targets use a target-local exact-argv launcher. Compiler PDB paths remain in argv but are shared target outputs checked only after the target joins; objects are the unique fresh per-invocation outputs. The generated compile-policy JSON exports configuration flag tokens and ordered target/source arrays; compile database file/directory/output metadata may identify object locations, while its command string never supplies expected arguments. Actual generation/plan parity, complete runner and native qualification remain required.
+Root compile witnesses use one independently frozen plan index for nine
+invocations: SQLite C, five core C++, one Windows C++ and two production bridge
+C++ sources. All four targets use a target-local exact-argv launcher. Compiler
+PDB paths remain in argv but are shared target outputs checked only after the
+target joins; objects are the unique fresh per-invocation outputs. The generated
+compile-policy JSON exports configuration flag tokens and ordered target/source
+arrays. Compile database file/directory/output metadata may identify object
+locations; its command string never supplies expected arguments.
+
+[Storage implementation progress](../../../docs/evidence/P3/local-players-storage-progress.md)
+records measured source/build snapshots and outstanding gates. Snapshot results
+do not qualify different source bytes or a later current-main integration;
+fresh combined flight/storage qualification and required CI remain necessary.
+Issue #219 remains a draft implementation until its complete acceptance gates
+hold. The installed player/Guest journey and UI in #220, broader phase gates,
+aircraft fidelity and pilot acceptance remain separate.

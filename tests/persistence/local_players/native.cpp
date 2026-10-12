@@ -112,24 +112,54 @@ struct Probe final:QualificationObserver {
  std::size_t maximum;bool armed{},arrived{},released{},throw_after_release{},throw_claim{},refuse_next{};
  JobKind gate_kind{};Phase gate_phase{};Edge gate_edge{};std::optional<AllocationCategory> allocation_gate;
  std::size_t claims{};bool overflow{},allocation_armed{},allocation_arrived{},allocation_released{};
- explicit Probe(std::size_t cap):maximum(cap){events.reserve(cap);allocations.reserve(cap);}
- void arm(JobKind k,Phase p,Edge e,bool throws=false){std::lock_guard lock(mutex);require(!armed,"one actual test barrier");gate_kind=k;gate_phase=p;gate_edge=e;armed=true;arrived=false;released=false;throw_after_release=throws;allocation_gate.reset();}
+
+ // Test-owned bounded history, not charged production arena storage.
+ std::vector<ReservationObservation> reservations;
+ struct AllocationSelector {AllocationCategory category;std::uint64_t service,request,ordinal;};
+ std::optional<AllocationSelector> denied;std::size_t denied_count{};
+ std::uint64_t throw_publish_request{};
+ void deny_allocation(AllocationCategory category,std::uint64_t service,std::uint64_t request,std::uint64_t ordinal){std::lock_guard lock(mutex);require(!denied,"one exact refusal selector");denied=AllocationSelector{category,service,request,ordinal};}
+ void throw_publish_for(std::uint64_t request){std::lock_guard lock(mutex);require(request&&!throw_publish_request,"one exact ACK observer throw");throw_publish_request=request;}
+ std::size_t event_count(){std::lock_guard lock(mutex);return events.size();}
+ std::size_t allocation_count(){std::lock_guard lock(mutex);return allocations.size();}
+ std::uint64_t last_request(){std::lock_guard lock(mutex);require(!allocations.empty(),"observed allocation request identity");return allocations.back().request_ordinal;}
+ void wait_published(std::uint64_t request){std::unique_lock lock(mutex);require(cv.wait_for(lock,std::chrono::seconds(30),[&]{return overflow||std::any_of(events.begin(),events.end(),[&](const NativeObservation&o){return o.request_ordinal==request&&o.phase==Phase::publish_ack&&o.edge==Edge::after;});}),"actual post-release publication observed");require(!overflow,"publication preserves original observation cap");}
+ void no_effects_since(std::size_t before){std::lock_guard lock(mutex);require(events.size()==before,"refused admission has no new SQL/file/native event");require(!denied,"exact allocation selector consumed");}
+ std::uint64_t reserved_bytes(){
+  std::lock_guard lock(mutex);std::map<std::array<std::uint64_t,4>,std::uint32_t> live;
+  // E is shared across request identities: its claim belongs to the first
+  // borrower and release to the last. All other extents remain request-bound.
+  for(const auto&o:reservations){require(o.reserved_pages<=8192&&o.live_pages<=8192,"actual reported ownership never exceeds32MiB");auto key=std::array<std::uint64_t,4>{static_cast<std::uint64_t>(o.category),o.service_ordinal,o.category==AllocationCategory::export_spool?0:o.request_ordinal,o.allocation_ordinal};
+   if(o.action==ReservationObservation::Action::claim){require(o.rounded&&o.rounded%4096==0&&!live.contains(key),"unique actual page-rounded claim");live.emplace(key,o.rounded);}
+   else if(o.action==ReservationObservation::Action::release){auto i=live.find(key);require(i!=live.end()&&i->second==o.rounded,"release exactly an observed actual reservation");live.erase(i);}
+  }
+  std::uint64_t total=0;for(const auto&entry:live)total+=entry.second;require(total<=33554432,"independent live claim ledger bounded32MiB");return total;
+ }
+ explicit Probe(std::size_t cap):maximum(cap){events.reserve(cap);allocations.reserve(cap);reservations.reserve(cap);}
+
+ std::optional<std::uint64_t> gate_request,next_gate_request;std::size_t arrivals{};
+ void follow_request(std::uint64_t request){std::lock_guard lock(mutex);require(armed&&arrived&&request&&!next_gate_request,"install exactly one next same-phase request barrier");next_gate_request=request;}
+ void wait_arrival(std::size_t wanted){std::unique_lock lock(mutex);require(cv.wait_for(lock,std::chrono::seconds(30),[&]{return arrivals>=wanted||overflow;}),"exact source-bound export barrier arrival");require(arrivals==wanted&&!overflow,"no stale or skipped export arrival");}
+ void shared_spool(std::size_t expected_claims,std::size_t shares,std::size_t unshares,std::size_t releases){std::lock_guard lock(mutex);std::array<std::size_t,4> counts{};std::uint64_t identity=0;for(const auto&o:reservations)if(o.category==AllocationCategory::export_spool){require(o.rounded==18874368,"every E observation is exact18MiB");if(!identity)identity=o.allocation_ordinal;require(identity==o.allocation_ordinal,"one actual shared spool allocation identity");++counts[static_cast<unsigned>(o.action)];}require(counts==std::array<std::size_t,4>{expected_claims,releases,shares,unshares},"exact exclusive E claim/share/unshare/release history");}
+ void arm(JobKind k,Phase p,Edge e,bool throws=false){std::lock_guard lock(mutex);require(!armed,"one actual test barrier");gate_kind=k;gate_phase=p;gate_edge=e;armed=true;arrived=false;released=false;throw_after_release=throws;allocation_gate.reset();gate_request.reset();next_gate_request.reset();}
  void arm_allocation(AllocationCategory c){std::lock_guard lock(mutex);require(!allocation_armed,"one allocation barrier");allocation_armed=true;allocation_arrived=false;allocation_released=false;allocation_gate=c;}
  void wait_allocation(){std::unique_lock lock(mutex);require(cv.wait_for(lock,std::chrono::seconds(30),[&]{return allocation_arrived||overflow;}),"actual allocation notification arrived");require(allocation_arrived&&!overflow,"valid allocation arrival");}
  void release_allocation(){std::lock_guard lock(mutex);allocation_released=true;cv.notify_all();}
  void wait(){std::unique_lock lock(mutex);require(cv.wait_for(lock,std::chrono::seconds(30),[&]{return arrived||overflow;}),"actual notification arrived before test deadline");require(arrived&&!overflow,"actual valid barrier arrival");}
  void release(){std::lock_guard lock(mutex);released=true;cv.notify_all();}
- void hold(std::unique_lock<std::mutex>&lock){arrived=true;cv.notify_all();bool ok=cv.wait_for(lock,std::chrono::seconds(30),[&]{return released;});armed=false;if(!ok)throw std::runtime_error("test barrier expired");if(throw_after_release){throw_after_release=false;throw std::runtime_error("selected actual observer throw");}}
+ void hold(std::unique_lock<std::mutex>&lock){arrived=true;++arrivals;cv.notify_all();bool ok=cv.wait_for(lock,std::chrono::seconds(30),[&]{return released;});armed=false;if(next_gate_request){gate_request=next_gate_request;next_gate_request.reset();armed=true;arrived=false;released=false;}if(!ok)throw std::runtime_error("test barrier expired");if(throw_after_release){throw_after_release=false;throw std::runtime_error("selected actual observer throw");}}
  void observe(const NativeObservation&o)override {
   std::unique_lock lock(mutex);if(actual_events.fetch_add(1)>=maximum||events.size()>=maximum){overflow=true;throw std::runtime_error("test observation capacity");}events.push_back(o);cv.notify_all();
-  if(armed&&o.kind==gate_kind&&o.phase==gate_phase&&o.edge==gate_edge)hold(lock);
+  if(throw_publish_request&&o.request_ordinal==throw_publish_request&&o.phase==Phase::publish_ack&&o.edge==Edge::before){throw_publish_request=0;throw std::runtime_error("selected actual publish observer throw");}
+  if(armed&&o.kind==gate_kind&&o.phase==gate_phase&&o.edge==gate_edge&&(!gate_request||o.request_ordinal==*gate_request))hold(lock);
  }
  bool allow_allocation(const AllocationObservation&o)override {
   std::unique_lock lock(mutex);if(actual_events.fetch_add(1)>=maximum||allocations.size()>=maximum){overflow=true;return false;}allocations.push_back(o);cv.notify_all();
   if(allocation_armed&&allocation_gate&&o.category==*allocation_gate){allocation_arrived=true;cv.notify_all();bool ok=cv.wait_for(lock,std::chrono::seconds(30),[&]{return allocation_released;});allocation_armed=false;if(!ok)throw std::runtime_error("allocation test barrier expired");}
+  if(denied&&o.category==denied->category&&o.service_ordinal==denied->service&&o.request_ordinal==denied->request&&o.ordinal==denied->ordinal){denied.reset();++denied_count;return false;}
   if(refuse_next){refuse_next=false;return false;}return true;
  }
- void observe_reservation(const ReservationObservation&)override {std::lock_guard lock(mutex);++claims;if(actual_events.fetch_add(1)>=maximum){overflow=true;throw std::runtime_error("reservation event capacity");}if(throw_claim){throw_claim=false;throw std::runtime_error("selected create claim throw");}}
+ void observe_reservation(const ReservationObservation&o)override {std::lock_guard lock(mutex);++claims;if(actual_events.fetch_add(1)>=maximum||reservations.size()>=maximum){overflow=true;throw std::runtime_error("reservation event capacity");}reservations.push_back(o);if(throw_claim){throw_claim=false;throw std::runtime_error("selected create claim throw");}}
  bool saw(JobKind kind,Phase phase,Edge edge){std::lock_guard lock(mutex);return std::any_of(events.begin(),events.end(),[&](auto&e){return e.kind==kind&&e.phase==phase&&e.edge==edge;});}
  bool await_event(JobKind kind,Phase phase,Edge edge){std::unique_lock lock(mutex);return cv.wait_for(lock,std::chrono::seconds(15),[&]{return std::any_of(events.begin(),events.end(),[&](auto&e){return e.kind==kind&&e.phase==phase&&e.edge==edge&&e.scope==Scope::original&&e.verified_rows>=1;});});}
  ~Probe(){release_allocation();release();}
@@ -889,6 +919,31 @@ void full_fixture_failed_start(TrustedRoots&trust,std::string_view descriptor,st
 
 // Test-owned operands are heap backed by std::string/vector. No new inline
 // raw-input buffer and no executable stack-reserve change.
+
+// L08/L12/L13: two actual complete frozen exports plus ordinary queued work.
+// This is maximum ROW COUNT, not maximum encoded wire size or arbitrary
+// Win32 partial-progress throughput. Existing16384 gate still fails overflow.
+__declspec(noinline) void shared_maximum_exports(Service*service,Probe&p,const std::string&owner,const std::string&target){
+ p.wait_published(p.last_request());
+ const std::array<std::string,2> targets={target+".shared-one",target+".shared-two"};
+ auto payload=[&](const std::string&t){return V::o({{"player_id",V::s(owner)},{"expected_revision",V::s("3")},{"target_absolute_path",V::s(t)}});};
+ auto check_export=[&](const std::string&bytes,const std::string&id,const std::string&t){result(bytes,id,JobKind::export_player,"read");Raw r(bytes);auto v=value(r);require(field(r.d,v,"outcome")=="saved"&&field(r.d,v,"phase")=="done"&&r.d.at(member(r.d,v,"installed"))->scalar==1&&nil(r.d,member(r.d,v,"temporary_absolute_path")),"shared maximum export fully installed and verified");require(field(r.d,v,"target_absolute_path")==t&&field(r.d,v,"player_id")==owner&&field(r.d,v,"preferences_revision")=="3"&&natural(r.d,member(r.d,v,"practice_count"),2000)==2000,"shared export exact coherent selected snapshot");require(natural(r.d,member(r.d,v,"bytes"),33554432)==2387415&&field(r.d,v,"sha256")=="c07ca164caffac111c5b7e3724dc00eed439502fe7bfc17523be4fa01cab74fc","unchanged independent CAP_full_2000_summary_export");auto actual=crash_file(t,33554432);require(actual.present&&actual.length==2387415&&actual.hash=="c07ca164caffac111c5b7e3724dc00eed439502fe7bfc17523be4fa01cab74fc","entire second real export independently streamed and hashed");};
+ require(p.reserved_bytes()==2097152,"before shared exports no old result/credit retained");
+ p.arm(JobKind::export_player,Phase::export_create,Edge::before);Capture one(JobKind::export_player,payload(targets[0]));auto first=service->submit(one);require(first.accepted,"first complete export admitted");p.wait_arrival(1);
+ Capture two(JobKind::export_player,payload(targets[1]));auto second=service->submit(two);require(second.accepted,"second complete export shares credit while first held");auto second_request=p.last_request();p.follow_request(second_request);
+ std::vector<std::string> reads;for(unsigned i=0;i<7;++i){Capture c(JobKind::list_players,V::o({}));auto a=service->submit(c);require(a.accepted,"seven ordinary reads coexist with two shared exports");reads.emplace_back(a.request_id.view());}
+ require(status(service).pending==9&&status(service).undelivered==0&&p.reserved_bytes()==32804864,"L08 nine actual small slots plus one E leave749568bytes");
+ {std::lock_guard lock(p.mutex);unsigned requests=0;for(const auto&o:p.allocations)if(o.request_ordinal>=second_request-1&&o.category==AllocationCategory::request){require(o.rounded==4096,"literal fixture request plus128byte header rounds to one actual page");++requests;}require(requests==9,"all nine actual request charges observed");}
+ p.shared_spool(1,2,0,0);auto no_effects=p.event_count();refused(service,JobKind::list_players,V::o({}),Error::out_of_memory);p.no_effects_since(no_effects);require(p.reserved_bytes()==32804864,"insufficient capacity releases provisional extents exactly");
+ p.release();p.wait_arrival(2);require(status(service).pending==8&&status(service).undelivered==1,"first terminal before second target IO, seven reads still queued");
+ require(p.reserved_bytes()==32800768,"first request borrower retired, its T/D and shared E remain");p.shared_spool(1,2,1,0);
+ std::array<DeliveryView,1> views{};std::uint8_t count{};auto allocations=p.allocation_count();require(service->peek(1,views,count)&&count==1,"owner copies first complete receipt into prepaid D");std::string owned(views[0].bytes);require(p.allocation_count()==allocations&&p.reserved_bytes()==32800768,"peek overlap retains independent T/D without new allocation");auto original=owned;owned[0]=owned[0]=='{'?'[':'{';require(views[0].bytes==original,"caller copied receipt mutation cannot affect native delivery");owned=original;
+ std::array<std::uint64_t,1> lease={views[0].lease};require(service->acknowledge(lease)&&p.reserved_bytes()==31490048,"successful transfer alone frees first T/D1310720bytes");
+ Capture retry(JobKind::list_players,V::o({}));auto retried=service->submit(retry);require(retried.accepted&&p.reserved_bytes()==32804864,"explicit retry now fits from poll-freed credit without releasing E");auto last_request=p.last_request();p.shared_spool(1,2,1,0);
+ check_export(owned,std::string(first.request_id.view()),targets[0]);p.release();wait_done(service,9);p.wait_published(last_request);auto rows=receive(service,9);check_export(rows[0],std::string(second.request_id.view()),targets[1]);for(unsigned i=0;i<7;++i)result(rows[i+1],reads[i],JobKind::list_players,"read");result(rows[8],retried.request_id.view(),JobKind::list_players,"read");
+ p.shared_spool(1,2,2,1);require(p.reserved_bytes()==2097152,"last active export/terminal borrowers fully retired");
+}
+
 __declspec(noinline) void full_maximum_cases(TrustedRoots&trust,std::string_view descriptor,std::string_view digest,std::uint64_t&ordinal,std::size_t cap,const std::string&root,const std::string&target){
  full_fixture_setup(root,false,false,true);
  Probe p(cap);Fixture f(trust,descriptor,digest,p,ordinal++);crash_start(f);
@@ -901,6 +956,7 @@ __declspec(noinline) void full_maximum_cases(TrustedRoots&trust,std::string_view
  }
  require(remaining==0,"no omitted or duplicate maximum summary");
  {Raw r(job(f.service,JobKind::list_practice,V::o({{"player_id",V::s(owner)},{"before_creation_sequence",V::s("0")},{"limit",V::i(50)}}),"read"));auto v=value(r);require(array(r.d,member(r.d,v,"practice")).empty()&&nil(r.d,member(r.d,v,"next_before_creation_sequence")),"maximum numeric zero cursor remains empty");}
+ shared_maximum_exports(f.service,p,owner,target);
  const auto export_target=target+".maximum";
  {Raw r(job(f.service,JobKind::export_player,V::o({{"player_id",V::s(owner)},{"expected_revision",V::s("3")},{"target_absolute_path",V::s(export_target)}}),"read"));auto v=value(r);
   require(field(r.d,v,"outcome")=="saved"&&field(r.d,v,"phase")=="done"&&r.d.at(member(r.d,v,"installed"))->scalar==1&&nil(r.d,member(r.d,v,"temporary_absolute_path")),"maximum export actual installed and verified");
