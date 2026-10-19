@@ -63,3 +63,12 @@ operational review, datum conversion, terrain/renderer/contact agreement, world/
 start/history binding, offline delivery, WORLD016 accuracy and pilot acceptance
 remain separate. #243/#38/#41 and P3/P4 remain open. Existing synthetic flights
 and their source identities are unaffected.
+
+## Checked source-leaf integration
+
+The reviewed source ingester, focused tests and actual-source evidence joined
+cohesive foundation PR246 and checked-merged asd58af4ff077bf498d6a6043bd6b3ea6e6f3bb89f.
+Root verified the accepted tree and the final protected Windows/Linux checks.
+PR248 was superseded rather than independently merged. This accepts only the
+bounded source-ingestion leaf247; draft/pending source metadata, geographic
+accuracy, complete airport/world/runtime and broader phase gates remain distinct.

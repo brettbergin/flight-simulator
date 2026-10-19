@@ -7978,6 +7978,118 @@
       "evidence": [
         "Focused synthetic parser/mapping results, separately supplied actual-archive independent comparison and repeated output hashes, accepted pair-validator receipt, source identities and checked CI; source consistency only."
       ]
+    },
+    {
+      "key": "RESIDENT-GRID-COMPONENT",
+      "title": "Implement standalone immutable resident grid provider and pure byte decoder",
+      "kind": "task",
+      "phase": "P4",
+      "parent": "EPIC-P4",
+      "summary": "Bounded standalone component after checked PR246 contract/reference acceptance (d58af4ff077bf498d6a6043bd6b3ea6e6f3bb89f). One private validation owner implements provider and decoder; independent native tests preserve frozen expectations. Broader243/40 and geographic/runtime/phase gates stay open.",
+      "depends_on": [
+        "CORE-CONTRACTS",
+        "GROUND-PROOF",
+        "LICENSE-REGISTER"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P4",
+        "area:world",
+        "priority:P1",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "native/world_core/grid/src/",
+        "native/world_core/grid/CMakeLists.txt",
+        "tests/ground/grid/CMakeLists.txt",
+        "tests/ground/grid/native.cpp",
+        "tests/ground/grid/codec/native.cpp",
+        "tests/ground/grid/fixtures/",
+        "tests/ground/grid/codec/fixtures/",
+        "docs/evidence/P4/resident-grid-component.md"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/agent-operations.md",
+        "docs/decisions/028-kawo-source-and-resident-environment.md",
+        "docs/contracts/world/resident-grid-core-v1.md",
+        "docs/contracts/world/resident-grid-codec-v1.md",
+        "docs/evidence/P4/resident-grid-core-reference.md",
+        "docs/evidence/P4/resident-grid-codec-reference.md"
+      ],
+      "requirements": [
+        "WORLD-006",
+        "WORLD-007",
+        "WORLD-008",
+        "WORLD-010",
+        "WORLD-011",
+        "WORLD-012",
+        "WORLD-016"
+      ],
+      "acceptance": [
+        "Consume the exact checked246 core/payload headers and three independently frozen reference packets unchanged; implement PreparedGrid and pure decode with one shared private semantic validator and disjoint independent native tests.",
+        "Enforce complete count/overflow/size/capacity, origin lattice, raw height/sentinel/mask, usable-cell, exact gradient/span, identity, ID/material/friction and simple integer polygon admission. Equality controls admit; frozen negative-subnormal excesses reject through both preparation paths.",
+        "Preserve geodetic-normal affine rays, exact same-angle algebra, canonical triangular facets, half-open cell/diagonal ownership, conservative physical support/missing reasons and bounded64-cell/128-triangle search. No epsilon widening, smoothed height or flat fallback.",
+        "Coverage independently honors closed rectangles and half-open bounds, checks4096-cell budget before height reads, and allocates/throws nothing. Material classification uses exact nearest-mm half-away ties and priority/ASCII ordering; coverage is no flight-motion proof.",
+        "Decode the closed little-endian payload with checked remaining bytes before allocations, exact raw-bit ownership, complete semantics and invalid_argument/bad_alloc distinction. No I/O, provider identity construction, hashing service, process, network or runtime loader.",
+        "Independent native tests preserve all frozen geometry/byte/material/exact-admission expectations and engineering tolerances. Verify literal golden bits, every truncation, meaningful malformed cases, ownership/lifetime and honest bounded resource observations without fake spans or gratuitous huge allocations.",
+        "Standalone strict C++20 CMake/CTest and focused CI pass on Windows/Linux; Root reviews source and records exact identities/commands/results/failures. Do not change current root native fingerprints/rosters, Session/bridge/Scene, models, compiler/loader, saves or human package.",
+        "Checked merge closes only this component. Real-source compilation/datum accuracy, world/start/history admission, rendering, installed delivery and parent/aircraft/pilot gates remain separate."
+      ],
+      "evidence": [
+        "Final component/reference/build identities, independent CTest and malformed/bit/ownership evidence, resource observations, protected/focused exact-head CI and explicit deferred geographic/runtime claims."
+      ]
+    },
+    {
+      "key": "TERRAIN-TOOLS-BOOTSTRAP",
+      "title": "Build and qualify the pinned offline terrain authoring environment",
+      "kind": "task",
+      "phase": "P4",
+      "parent": "EPIC-P4",
+      "summary": "Bounded offline tool prerequisite after checked PR246 lock/contract acceptance (d58af4ff077bf498d6a6043bd6b3ea6e6f3bb89f). Support the retained Windows interpreter and exact wheels/database/grid only; no terrain compilation, selected real datum operation or gameplay dependency.",
+      "depends_on": [
+        "CORE-CONTRACTS",
+        "LICENSE-REGISTER"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P4",
+        "area:world",
+        "priority:P1",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "tools/ingest/terrain/",
+        "tests/world/terrain-tools/",
+        "docs/evidence/P4/terrain-tools.md"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/agent-operations.md",
+        "docs/decisions/028-kawo-source-and-resident-environment.md",
+        "docs/contracts/world/terrain-tools-v1.md",
+        "docs/evidence/P4/kawo-source-discovery.md"
+      ],
+      "requirements": [
+        "WORLD-004",
+        "WORLD-007",
+        "WORLD-010",
+        "WORLD-011"
+      ],
+      "acceptance": [
+        "Admit exactly terrain-tools-v1 lock shapes/values and retained Windows x64 CPython3.12.14 complete manifest plus fixed wheel/database/grid bytes; reject unknown/future/changed input and unsafe/excessive/duplicate archive contents.",
+        "Create a disposable local environment with no inherited site packages, global install, online resolver, source build or gameplay packaging. Preserve full native/library/license inventory; original interpreter acquisition archive remains unavailable and explicit.",
+        "Seal the complete PROJ data tree plus fixed NOAA files; verify actual loaded module/native/database identities, process-local offline policy, explicit single data directory and isolated empty work/user-cache roots. Missing/changed resources refuse use without alternate cache/operation/download.",
+        "Qualify exact Float32 LZW decoder on pinned source tags/sample words/NoData with bounded actual memory/time evidence. Tool operation introspection/resource checks select no real terrain transform or geographic accuracy tier.",
+        "Retain focused offline tests and actual local input/environment/search/resource/decode receipts, including failed attempts and final installed-byte recheck. Root source-reviews every executable helper before running it.",
+        "Required docs/focused exact-head CI and Root review precede checked merge. Do not change dependency lock, native build/fingerprints, aircraft, Session, bridge, Godot, saves or installed user data; large raw sources remain outside Git.",
+        "Close only this offline tool leaf. Geographic compiler/datum/source accuracy, runtime/installed delivery, aircraft/pilot and broader phase gates remain open."
+      ],
+      "evidence": [
+        "Exact interpreter/lock/input/installed/native/database/data/license hashes, offline and missing-resource failure receipts, actual decoder measurements, focused tests and exact-head CI; no geographic accuracy or playable-world claim."
+      ]
     }
   ]
 }
