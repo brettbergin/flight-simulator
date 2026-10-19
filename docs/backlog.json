@@ -8090,6 +8090,53 @@
       "evidence": [
         "Exact interpreter/lock/input/installed/native/database/data/license hashes, offline and missing-resource failure receipts, actual decoder measurements, focused tests and exact-head CI; no geographic accuracy or playable-world claim."
       ]
+    },
+    {
+      "key": "ORIGINAL-EVERGREEN-ASSETS",
+      "title": "Author and qualify original evergreen scenery assets",
+      "kind": "task",
+      "phase": "P4",
+      "parent": "EPIC-P4",
+      "summary": "Original decorative scenery after checked PR246 art brief; independent structure witnesses precede checker, actual author/import and image evidence precede acceptance. No geographic placement or obstacle claim.",
+      "depends_on": [
+        "CORE-CONTRACTS",
+        "LICENSE-REGISTER"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P4",
+        "area:world",
+        "priority:P1",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "assets_source/environment/original-evergreens-v1/",
+        "tools/benchmark/pipeline/environment_trees/",
+        "docs/evidence/P4/original-evergreens.md"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/agent-operations.md",
+        "docs/decisions/005-content-and-aircraft-expansion.md",
+        "docs/contracts/world/original-evergreens-v1.md"
+      ],
+      "requirements": [
+        "WORLD-004",
+        "WORLD-007",
+        "WORLD-010"
+      ],
+      "acceptance": [
+        "Consume the checked original-evergreens-v1 brief unchanged; implement its bounded structural checker against independently prepared literal GLBs and refusal cases before candidate authoring. Structural boxes are not artwork acceptance.",
+        "Author three distinct original regional evergreen silhouettes with two explicit LOD exports each through pinned Blender4.5.14 LTS62c1db4208e8 and Godot4.7.2. Honor exact source/export/tool rosters, units/axes/pivot, material and geometry budgets. No acquired/traced imagery, meshes, textures or other third-party art.",
+        "Root source-review precedes generators, checker and isolated import execution. Retain exact original source, tool, asset and receipt identities, licenses and failed attempts; no frozen expectation or tolerance fitting.",
+        "Complete isolated Godot import, all36 fixed asset views and six prescribed approach observations. Independent original-image review accepts silhouette variety, foot placement, opacity, LOD quality and visual quality before merge.",
+        "Focused tests, documentation validation, hosted checks and independent review precede checked merge. Preserve proof/cockpit inventories, native flight, models, saves, current game and installed human package.",
+        "Close only this art leaf. Runtime placement/streaming, geographic airport admission, obstacle completeness, human/pilot and phase acceptance stay open."
+      ],
+      "evidence": [
+        "Independent literal/refusal checker results; exact source/tool/export/import identities, all36 fixed images and six approach observations, independent visual review, source/license record and protected/focused checks."
+      ]
     }
   ]
 }
