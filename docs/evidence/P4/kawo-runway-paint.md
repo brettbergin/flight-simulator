@@ -144,5 +144,22 @@ single failure. The geometry log is byte-identical to the original accepted
 geometry output (`75cade25feeeb1dd82e30a2b2ab1308d9c74102fdbbe5eb769e904865bf7e8c8`).
 The new material log SHA256 is
 `1f31110441ff2ddbb8ac8b956d2179592c7438c97909a9f3f5c07089d5892c49`.
-Fresh final-source export qualification is still required; current CI and PR
-evidence must record its actual completion separately.
+The corrected full Windows package completed at source commit
+`1dc3be97079bb2db1a31bc94a0cf44709227712d`. Editor, portable executable and
+source-rebuilt-library executable each passed paint132, KAWO86 and camera2017
+checks covering 21 camera combinations. All paint processes emitted their exact
+terminal result and native termination/join marker. The package also passed its
+existing facade/archive/audio/ground/flight checks, model/source/notices audit,
+full PE/CRT dependency closure and actual replaced-library flight comparison.
+The package manifest SHA256 is
+`85245c66cb8e809788991d8427b2a6d16b53fd065dc0a3fd8a5f09ef1d174a1b`;
+the final package audit SHA256 is
+`d3ac20893bfe4b25840be77dfac94b94b8e3597e91d176c14e747fa12863addb`.
+
+This local package uses the pristine upstream library and APRON-ready scope;
+cold-engine, full taxi, local-window replay and named-player storage are not
+qualified by that run. Its reconstruction binds to the actual source commit
+above. The subsequent accepted-main history integration retains that commit
+and exactly preserves its source tree; this evidence amendment changes prose
+only. Fresh final-head hosted checks remain required by the PR and must be
+recorded there. No installed player or normal user profile was changed.
