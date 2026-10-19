@@ -1,0 +1,37 @@
+{
+  "schema": "PrivateKawoIndependentSourceFacts/v1",
+  "scope": "Independent expectations transcribed from actual raw FAA CSV records and same-archive documentation; not a normalized pack or importer output",
+  "archive": {
+    "url": "https://nfdc.faa.gov/webContent/28DaySub/extra/01_Oct_2026_APT_CSV.zip",
+    "bytes": 8030968,
+    "sha256": "aba48ea877f249d9b8cd63988b14b3432a6a09ad1fbe9561a5e6443c99c03dd0"
+  },
+  "counts_within_this_archive": {"APT_BASE": 1, "APT_RWY": 2, "APT_RWY_END": 4},
+  "identity_raw": {"EFF_DATE": "2026/10/01", "SITE_NO": "26099.", "SITE_TYPE_CODE": "A", "STATE_CODE": "WA", "ARPT_ID": "AWO", "ICAO_ID": "KAWO", "ARPT_NAME": "ARLINGTON MUNI"},
+  "reference_point_raw": {"LAT_DECIMAL": "48.16075", "LONG_DECIMAL": "-122.15902777", "SURVEY_METHOD_CODE": "E", "POSITION_SRC_DATE": "2006/05/02"},
+  "field_elevation": {"raw_ft_msl": "141.8", "exact_si_decimal_m": "43.22064", "ELEV_METHOD_CODE": "S", "ELEVATION_SRC_DATE": "2006/05/02", "vertical_realization": null},
+  "pattern_altitude": {"raw_ft_agl": "1058", "exact_si_decimal_m_agl": "322.4784", "reference": "AGL", "derived_sum_with_field_ft_msl": "1199.8", "note": "Derived sum is an arithmetic cross-check, not a replacement published MSL pattern value"},
+  "magnetic_variation_raw": {"MAG_VARN": "17", "MAG_HEMIS": "E", "MAG_VARN_YEAR": "2010", "note": "Do not apply this old magnetic value as a contemporary transform or replace published TRUE_ALIGNMENT with runway designators"},
+  "runways": [
+    {"RWY_ID": "11/29", "RWY_LEN_ft": "3498", "RWY_WIDTH_ft": "75", "exact_length_m": "1066.1904", "exact_width_m": "22.86", "SURFACE_TYPE_CODE": "ASPH", "LENGTH_SOURCE_DATE": "2006/05/02", "ends": ["11", "29"]},
+    {"RWY_ID": "16/34", "RWY_LEN_ft": "5332", "RWY_WIDTH_ft": "100", "exact_length_m": "1625.1936", "exact_width_m": "30.48", "SURFACE_TYPE_CODE": "ASPH", "LENGTH_SOURCE_DATE": "2006/05/02", "ends": ["16", "34"]}
+  ],
+  "ends": [
+    {"RWY_ID": "11/29", "RWY_END_ID": "11", "TRUE_ALIGNMENT_deg": "127", "RIGHT_HAND_TRAFFIC_PAT_FLAG": "Y", "LAT_DECIMAL": "48.16167722", "LONG_DECIMAL": "-122.16878886", "RWY_END_ELEV_ft_msl": "132.4", "exact_elevation_m": "40.35552"},
+    {"RWY_ID": "11/29", "RWY_END_ID": "29", "TRUE_ALIGNMENT_deg": "307", "RIGHT_HAND_TRAFFIC_PAT_FLAG": "N", "LAT_DECIMAL": "48.15588188", "LONG_DECIMAL": "-122.157372", "RWY_END_ELEV_ft_msl": "128.2", "exact_elevation_m": "39.07536"},
+    {"RWY_ID": "16/34", "RWY_END_ID": "16", "TRUE_ALIGNMENT_deg": "179", "RIGHT_HAND_TRAFFIC_PAT_FLAG": "Y", "LAT_DECIMAL": "48.16934525", "LONG_DECIMAL": "-122.15652688", "RWY_END_ELEV_ft_msl": "140.9", "exact_elevation_m": "42.94632"},
+    {"RWY_ID": "16/34", "RWY_END_ID": "34", "TRUE_ALIGNMENT_deg": "359", "RIGHT_HAND_TRAFFIC_PAT_FLAG": "N", "LAT_DECIMAL": "48.15473177", "LONG_DECIMAL": "-122.15618258", "RWY_END_ELEV_ft_msl": "127.5", "exact_elevation_m": "38.862"}
+  ],
+  "empty_string_in_all_four_actual_end_rows": ["LAT_DISPLACED_THR_DECIMAL", "LONG_DISPLACED_THR_DECIMAL", "DISPLACED_THR_ELEV", "DISPLACED_THR_LEN", "TKOF_RUN_AVBL", "TKOF_DIST_AVBL", "ACLT_STOP_DIST_AVBL", "LNDG_DIST_AVBL", "RWY_GRAD", "RWY_GRAD_DIRECTION"],
+  "required_unknowns": ["NAD83 realization and epoch", "Specific MSL vertical realization", "Ellipsoid height", "Approved geoid/datum transformation", "Physical-to-landing-threshold coincidence when displacement fields are blank", "Declared distances when fields are blank", "Runway gradient when fields are blank"],
+  "documentation": {
+    "CSV_README_date": "2026-09-03",
+    "CSV_README_pdf_text_sha256": "b93b0382bbf23fa1d126658e8b6612a3b64d89fee956f4d491c00b9ff12b7edb",
+    "APT_DATA_LAYOUT_information_effective_date": "2026-09-03",
+    "APT_DATA_LAYOUT_pdf_text_sha256": "303fba19b2baa78e09fb0162449dd13d602ce2a014bd72d15d65e1979a6903a0",
+    "horizontal_statement": "README states US coordinates reference NAD83; it supplies no realization or epoch",
+    "elevation_statement": "Layout defines ELEV to nearest tenth foot MSL and physical runway-end elevation in feet MSL",
+    "alignment_statement": "Layout defines TRUE_ALIGNMENT as true heading to nearest degree",
+    "pattern_statement": "Layout defines TPA as whole feet AGL"
+  }
+}

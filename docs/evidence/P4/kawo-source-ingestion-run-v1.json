@@ -1,0 +1,79 @@
+{
+  "schema": "KawoSourceEngineeringEvidence/v1",
+  "recorded_utc": "2026-10-19T02:55:42Z",
+  "scope": "Actual pinned FAA source ingestion and source-pair contract conformance only; no geographic/runtime/pilot acceptance.",
+  "prerequisite": {
+    "pr": 245,
+    "merge_commit": "7d283464cf51bd10a0c346006bf0b95db8c523a4"
+  },
+  "interpreter": {
+    "version": "CPython 3.12.14 Windows x64",
+    "bytes": 107312,
+    "sha256": "d41bad46673f64e0d02f23797f53f90ccf60f27d6eda8d86dd2d4bbeae5a858c"
+  },
+  "source": {
+    "url": "https://nfdc.faa.gov/webContent/28DaySub/extra/01_Oct_2026_APT_CSV.zip",
+    "bytes": 8030968,
+    "sha256": "aba48ea877f249d9b8cd63988b14b3432a6a09ad1fbe9561a5e6443c99c03dd0"
+  },
+  "tool_inputs": {
+    "tools/ingest/airports/kawo_nasr_v1.py": {
+      "bytes": 27454,
+      "sha256": "2f3e6f664e87f4466403ba1b437cdb9f3d90635d69e37f0e5ebf2f6efa52dc0c"
+    },
+    "tools/ingest/airports/validate-kawo-output.mjs": {
+      "bytes": 1889,
+      "sha256": "116f83cb2efdbbdc71baa233a3efa3927b0ffe444d6e19962ad300c8c72e140a"
+    },
+    "tests/airports/kawo/test_kawo_nasr_v1.py": {
+      "bytes": 20682,
+      "sha256": "45a38dad00590dc3ebf95955bcca6e7c4d650ead6682cd8ae031edf94e078499"
+    },
+    "tests/airports/kawo/fixtures/expected-source-facts.json": {
+      "bytes": 4187,
+      "sha256": "333bc105f8117cb01218cfab60d9153cbaa7c52b8632a0a87afaf253cbf498b4"
+    }
+  },
+  "outputs": {
+    "dossier.json": {
+      "bytes": 1285,
+      "sha256": "51c34553737535ca80da3ec611f035e65abf00e0e67f10bcb2e2af6b70c71c20"
+    },
+    "airport.json": {
+      "bytes": 37101,
+      "sha256": "dcbdeebae109837cb5a8edada7d77c39bdbedaf373bc27e574c62eec4190b9cd"
+    },
+    "ingest-receipt.json": {
+      "bytes": 708,
+      "sha256": "ebb3971ffb2f2bafa13f6456151af73524a4ab44f185e83d7a4fee546333dff1"
+    },
+    "VALIDATION-REQUIRED.txt": {
+      "bytes": 160,
+      "sha256": "1656bfbfcdf3d4aa167c4400cb374ab09ba8f1229b526ee700ace594a5afcd12"
+    }
+  },
+  "checks": {
+    "focused_tests": 18,
+    "focused_tests_failed": 0,
+    "focused_tests_skipped": 0,
+    "independent_actual_archive_comparison": true,
+    "new_directory_cli_runs": 2,
+    "all_four_outputs_byte_identical": true,
+    "external_pair_validator_runs": 2,
+    "existing_output_cli_exit_code": 2
+  },
+  "validation": {
+    "ok": true,
+    "validator": "validateSourcePair",
+    "dossier_sha256": "51c34553737535ca80da3ec611f035e65abf00e0e67f10bcb2e2af6b70c71c20",
+    "airport_sha256": "dcbdeebae109837cb5a8edada7d77c39bdbedaf373bc27e574c62eec4190b9cd",
+    "dossier_bytes": 1285,
+    "airport_bytes": 37101,
+    "review_state": "draft",
+    "purpose": "source-record",
+    "scope": "Source-pair contract conformance only; no geographic/runtime acceptance"
+  },
+  "review_state": "draft",
+  "rights_status": "pending",
+  "retention": "Raw archive and actual output/log directories retained outside Git. The exact caller input dossier is committed separately as evidence metadata, not as a world pack."
+}
