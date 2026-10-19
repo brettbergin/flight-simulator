@@ -221,6 +221,7 @@ export function validateGroundMaterialSources(repository,project,source){
 export const kawoRuntimeSourceGroups=[
  ['app/world','world',['world_admission.gd'],true],
  ['app/world/terrain','world/terrain',['resident_grid_reader.gd','kawo_world.gd'],false],
+ ['tests/world/runway-paint','runway_paint_tests',['checks.gd','controls-v1.json','README.md','runner.gd','runner.tscn'],false],
  ['app/world/decoration','world/decoration',['kawo_evergreens.gd'],false],
  ['assets_source/environment/original-evergreens-v1/exports','environment/original-evergreens-v1',['tall-narrow-lod1.glb','broad-tiered-lod1.glb','irregular-mature-lod1.glb'],true],
  ['third_party/licenses/notices','notices',['OriginalEvergreens-MIT.txt'],true],

@@ -8560,6 +8560,60 @@
       "evidence": [
         "Reviewed original proposal a876a3d89c5c5150a9cfc73615258f240289035cd7ee2296de10ac3b2e63426b and bounded placement brief 235df67cf26eafb7cfaba0b6c538877d367aac14a52bcdbbacfa04bf4c11d782 precede output. docs/evidence/P4/kawo-evergreen-placement.md will retain exact source/assets/placement identities, deterministic checks, origin lifecycle, final-context original captures and measured resources. Art acceptance alone is not runtime placement, obstacle or flight acceptance."
       ]
+    },
+    {
+      "key": "KAWO-RUNWAY-PAINT",
+      "title": "Add original prototype paint to the KAWO physical runways",
+      "kind": "task",
+      "phase": "P4",
+      "parent": "EPIC-P4",
+      "summary": "Bounded presentation leaf #267 after the accepted KAWO geometry/runtime seams and current airport integration PRs #265/#266. Add original centerline, pavement-edge and physical-end identifier pigment to existing canonical terrain facets. No surveyed paint, operational threshold, native terrain, aircraft or broad P4 acceptance.",
+      "depends_on": [
+        "WORLD-RESIDENT-CONTRACT",
+        "KAWO-TERRAIN-RENDERER",
+        "KAWO-WORLD-JOURNEY"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P4",
+        "area:world",
+        "priority:P1",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "app/world/terrain/kawo_world.gd",
+        "tests/world/runway-paint/",
+        "docs/evidence/P4/kawo-runway-paint.md"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/agent-operations.md",
+        "docs/contracts/world/kawo-runtime-v1.md",
+        "docs/contracts/world/kawo-terrain-compiler-v1.md",
+        "docs/evidence/P4/kawo-terrain-renderer.md"
+      ],
+      "requirements": [
+        "WORLD-004",
+        "WORLD-010",
+        "WORLD-011",
+        "WORLD-013",
+        "WORLD-016",
+        "WORLD-017",
+        "WORLD-025"
+      ],
+      "acceptance": [
+        "Use only opaque original white pigment in the existing canonical terrain material. Preserve lighting correction, 1536 terrain children, vertices/indices, common origin and crossing-polygon priority. No mesh/depth offset/collision, terrain sampling, native/model/control/storage/datum or source-payload changes; no external assets/fonts/textures.",
+        "Derive direction, horizontal length, lateral axis and clipping from admitted physical-end EUS coordinates, footprint and width. Both identifiers must face the arriving pilot correctly; pigment remains stable in canonical coordinates across origin changes. Physical endpoints are not thresholds.",
+        "Use original presentation dimensions only: 0.45 m center/edge widths, a single first-end 20 m dash/30 m gap phase with 90 m end exclusions, 1 m edge inset, and 12 m-high original 5x7 digits in 7.5 m-wide boxes with 2 m spacing, starting 60 m inward. Reject invalid or nonfinite layout before old-flight replacement; retain the old flight on preflight rejection.",
+        "Add no threshold bars, displaced thresholds, aiming points, touchdown-zone markings, lights, taxiway signs or operational-distance guidance. Root coordinates the existing Scene unsurveyed-scenery caveat and packaging/test hooks; this issue does not allocate unrelated shared consumers.",
+        "Freeze small independent rectangular/crossing controls before implementation output. Cover both-end orientation, ID association, winner priority/ties, clipping and invalid layouts without reproducing the shader classifier or changing physical/reference controls. Separate headless geometry, real-renderer material readbacks and actual pixel/view evidence.",
+        "Retain actual GPU cockpit/chase/approach/grazing/crossing/movement and rebase views; inspect identifiers, clipping, readability, antialiasing and flicker. Root reviews delegated source before execution. Pass focused and applicable terrain/Scene/staging/docs/final-head protected checks; retain failures and unresolved delivery/manual-flight limits.",
+        "Keep source/3D placement, native contact, measured resources, exported delivery, manual landing/pilot and phase acceptance distinct. Do not close parent243, broad airport/flight qualification or P4 gates from this original-art leaf."
+      ],
+      "evidence": [
+        "docs/evidence/P4/kawo-runway-paint.md records exact reviewed material/control identities, geometry and real-renderer readback counts, inspected original GPU board controls, pending or completed Scene views and final-source checks with their limits. Original MIT art is not sourced operational paint; observed physical endpoints and prototype dimensions imply no threshold or survey accuracy."
+      ]
     }
   ]
 }

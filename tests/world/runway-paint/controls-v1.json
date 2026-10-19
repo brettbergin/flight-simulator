@@ -1,0 +1,215 @@
+{
+  "schema": "PrivateRunwayPaintControls/v1",
+  "scope": "Hand-authored synthetic geometry and clear pigment interiors; not a complete admitted airport, glyph bitmap, GPU oracle or operational marking reference",
+  "layout": {
+    "center_width_m": 0.45,
+    "edge_width_m": 0.45,
+    "dash_m": 20,
+    "gap_m": 30,
+    "center_end_exclusion_m": 90,
+    "dash_phase_origin": "first listed physical end plus 90 metres",
+    "edge_center_inset_m": 1,
+    "number_bottom_inward_m": 60,
+    "number_top_inward_m": 72,
+    "digit_width_m": 7.5,
+    "digit_gap_m": 2,
+    "block_lateral_m": [-8.5, 8.5],
+    "minimum_exclusive_horizontal_length_m": 180,
+    "minimum_inclusive_width_m": 19.45
+  },
+  "fixtures": {
+    "axis": {
+      "id": "kawo.runway.11-29",
+      "physical_ends_xz_m": [[0, 0], [0, 1000]],
+      "designators": ["11", "29"],
+      "width_m": 24,
+      "footprint_mm": [[-12000, 0], [-12000, 1000000], [12000, 1000000], [12000, 0]]
+    },
+    "clipped": {
+      "id": "kawo.runway.11-29",
+      "physical_ends_xz_m": [[0, 0], [0, 985]],
+      "designators": ["11", "29"],
+      "width_m": 24,
+      "footprint_mm": [[-12000, 0], [-12000, 985000], [12000, 985000], [12000, 0]]
+    },
+    "rotated": {
+      "id": "kawo.runway.11-29",
+      "physical_ends_xz_m": [[100, 200], [700, 1000]],
+      "designators": ["11", "29"],
+      "width_m": 24,
+      "footprint_mm": [[90400, 207200], [690400, 1007200], [709600, 992800], [109600, 192800]]
+    },
+    "crossing": {
+      "horizontal": {
+        "id": "kawo.runway.11-29",
+        "physical_ends_xz_m": [[0, 0], [1000, 0]],
+        "designators": ["11", "29"],
+        "width_m": 24,
+        "footprint_mm": [[0, 12000], [1000000, 12000], [1000000, -12000], [0, -12000]]
+      },
+      "vertical": {
+        "id": "kawo.runway.16-34",
+        "physical_ends_xz_m": [[500, -500], [500, 500]],
+        "designators": ["16", "34"],
+        "width_m": 24,
+        "footprint_mm": [[488000, -500000], [488000, 500000], [512000, 500000], [512000, -500000]]
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "axis-per-end-frame",
+      "fixture": "axis",
+      "expected": [
+        {"end": "11", "length_m": 1000, "inward_xz": [0, 1], "right_xz": [-1, 0]},
+        {"end": "29", "length_m": 1000, "inward_xz": [0, -1], "right_xz": [1, 0]}
+      ]
+    },
+    {
+      "id": "axis-numbers-face-each-inward-pilot",
+      "fixture": "axis",
+      "expected": [
+        {"end": "11", "bottom_center_xz_m": [0, 60], "top_center_xz_m": [0, 72], "first_digit_center_xz_m": [4.75, 66], "second_digit_center_xz_m": [-4.75, 66]},
+        {"end": "29", "bottom_center_xz_m": [0, 940], "top_center_xz_m": [0, 928], "first_digit_center_xz_m": [-4.75, 934], "second_digit_center_xz_m": [4.75, 934]}
+      ],
+      "meaning": "First/second digit follows the two-character designator left-to-right along the per-end right axis; these are box centers, not glyph ink samples"
+    },
+    {
+      "id": "first-dash-gap-next-dash",
+      "fixture": "axis",
+      "samples": [
+        {"xz_m": [0, 100], "white": true, "feature": "center"},
+        {"xz_m": [0, 120], "white": false},
+        {"xz_m": [0, 150], "white": true, "feature": "center"}
+      ]
+    },
+    {
+      "id": "center-strip-width-interiors",
+      "fixture": "axis",
+      "samples": [
+        {"xz_m": [-0.1, 150], "white": true, "feature": "center"},
+        {"xz_m": [-0.5, 150], "white": false}
+      ]
+    },
+    {
+      "id": "both-center-end-exclusions",
+      "fixture": "axis",
+      "samples": [{"xz_m": [0, 89], "white": false}, {"xz_m": [0, 915], "white": false}]
+    },
+    {
+      "id": "last-dash-clipped-and-no-opposite-end-phase-union",
+      "fixture": "clipped",
+      "samples": [
+        {"xz_m": [0, 880], "white": false},
+        {"xz_m": [0, 892], "white": true, "feature": "center"},
+        {"xz_m": [0, 897], "white": false}
+      ],
+      "meaning": "One physical runway has one first-end dash phase; the last 890..910 dash clips at 895, not a second reversed dash pattern"
+    },
+    {
+      "id": "both-edge-insets-and-clear-neighbors",
+      "fixture": "axis",
+      "samples": [
+        {"xz_m": [-11, 300], "white": true, "feature": "edge"},
+        {"xz_m": [11, 300], "white": true, "feature": "edge"},
+        {"xz_m": [-10.5, 300], "white": false},
+        {"xz_m": [-11.5, 300], "white": false}
+      ]
+    },
+    {
+      "id": "edge-pigment-cannot-escape-physical-footprint-ends",
+      "fixture": "axis",
+      "samples": [{"xz_m": [-11, -5], "white": false}, {"xz_m": [-11, 1005], "white": false}]
+    },
+    {
+      "id": "translated-three-four-five-frames",
+      "fixture": "rotated",
+      "expected": [
+        {"end": "11", "length_m": 1000, "inward_xz": [0.6, 0.8], "right_xz": [-0.8, 0.6]},
+        {"end": "29", "length_m": 1000, "inward_xz": [-0.6, -0.8], "right_xz": [0.8, -0.6]}
+      ]
+    },
+    {
+      "id": "rotated-number-orientation-and-centering",
+      "fixture": "rotated",
+      "expected": [
+        {"end": "11", "bottom_center_xz_m": [136, 248], "top_center_xz_m": [143.2, 257.6], "first_digit_center_xz_m": [143.4, 249.95], "second_digit_center_xz_m": [135.8, 255.65]},
+        {"end": "29", "bottom_center_xz_m": [664, 952], "top_center_xz_m": [656.8, 942.4], "first_digit_center_xz_m": [656.6, 950.05], "second_digit_center_xz_m": [664.2, 944.35]}
+      ]
+    },
+    {
+      "id": "rotated-paint-interiors",
+      "fixture": "rotated",
+      "samples": [
+        {"xz_m": [160, 280], "white": true, "feature": "center"},
+        {"xz_m": [172, 296], "white": false},
+        {"xz_m": [211.2, 366.6], "white": true, "feature": "edge"}
+      ]
+    },
+    {
+      "id": "higher-vertical-gap-masks-lower-horizontal-edge",
+      "fixture": "crossing",
+      "priorities": {"horizontal": 10, "vertical": 20},
+      "xz_m": [500, 11],
+      "expected": {"winner": "kawo.runway.16-34", "white": false}
+    },
+    {
+      "id": "higher-horizontal-edge-wins",
+      "fixture": "crossing",
+      "priorities": {"horizontal": 20, "vertical": 10},
+      "xz_m": [500, 11],
+      "expected": {"winner": "kawo.runway.11-29", "white": true, "feature": "edge"}
+    },
+    {
+      "id": "higher-vertical-edge-wins",
+      "fixture": "crossing",
+      "priorities": {"horizontal": 10, "vertical": 20},
+      "xz_m": [489, 0],
+      "expected": {"winner": "kawo.runway.16-34", "white": true, "feature": "edge"}
+    },
+    {
+      "id": "higher-horizontal-gap-masks-lower-vertical-edge",
+      "fixture": "crossing",
+      "priorities": {"horizontal": 20, "vertical": 10},
+      "xz_m": [489, 0],
+      "expected": {"winner": "kawo.runway.11-29", "white": false}
+    },
+    {
+      "id": "priority-tie-keeps-existing-ascii-id-winner",
+      "fixture": "crossing",
+      "priorities": {"horizontal": 10, "vertical": 10},
+      "xz_m": [500, 11],
+      "expected": {"winner": "kawo.runway.11-29", "white": true, "feature": "edge"}
+    },
+    {
+      "id": "polygon-array-order-does-not-reassign-runway-layout",
+      "fixture": "crossing",
+      "priorities": {"horizontal": 10, "vertical": 20},
+      "polygon_orders": [["horizontal", "vertical"], ["vertical", "horizontal"]],
+      "xz_m": [500, 11],
+      "expected_each": {"winner": "kawo.runway.16-34", "white": false}
+    },
+    {
+      "id": "other-two-identifiers-face-their-inward-pilots",
+      "fixture": "crossing.vertical",
+      "expected": [
+        {"end": "16", "bottom_center_xz_m": [500, -440], "top_center_xz_m": [500, -428], "first_digit_center_xz_m": [504.75, -434], "second_digit_center_xz_m": [495.25, -434]},
+        {"end": "34", "bottom_center_xz_m": [500, 440], "top_center_xz_m": [500, 428], "first_digit_center_xz_m": [495.25, 434], "second_digit_center_xz_m": [504.75, 434]}
+      ]
+    },
+    {
+      "id": "clear-valid-layout-dimensions",
+      "physical_ends_xz_m": [[0, 0], [0, 181]],
+      "width_m": 20,
+      "expected_layout_admissible": true
+    },
+    {
+      "id": "invalid-layout-dimensions-refuse-before-adoption",
+      "samples": [
+        {"physical_ends_xz_m": [[0, 0], [0, 180]], "width_m": 24, "expected_layout_admissible": false},
+        {"physical_ends_xz_m": [[0, 0], [0, 1000]], "width_m": 19, "expected_layout_admissible": false},
+        {"physical_ends_xz_m": [[0, 0], [0, 0]], "width_m": 24, "expected_layout_admissible": false}
+      ]
+    }
+  ]
+}
