@@ -1,0 +1,68 @@
+{
+  "kind": "OriginalEvergreenSource/v1",
+  "version": 1,
+  "license": "MIT",
+  "scope": "Original decorative evergreen art; no botanical, geographic or obstacle claim",
+  "contract_sha256": "eb3aea53ba869b80117eaed952ac1f65ec2e1e3df1fe731524715fd7e3ae40d6",
+  "generator": {
+    "path": "assets_source/environment/original-evergreens-v1/generate_trees.py",
+    "sha256": "6e4025f50772edb4539cea063ed4050b4f4315b329c54d1e9db9895d3a3b20b9"
+  },
+  "blender": {
+    "version": "4.5.14 LTS",
+    "build_hash": "62c1db4208e8"
+  },
+  "blend": {
+    "path": "original-evergreens.blend",
+    "bytes": 1329976,
+    "sha256": "115293cba07c50eafd5616ff7d5c8a86738e878b3e5116eeb3e560244f464145"
+  },
+  "exports": [
+    {
+      "id": "tall-narrow",
+      "lod": 0,
+      "path": "exports/tall-narrow-lod0.glb",
+      "bytes": 309660,
+      "sha256": "dcf3be0f64c7ad873b95b2e198b427fe51bbca9a934622e4d711d6c0f0719e9b"
+    },
+    {
+      "id": "tall-narrow",
+      "lod": 1,
+      "path": "exports/tall-narrow-lod1.glb",
+      "bytes": 70024,
+      "sha256": "35f8cd9714082054e851550281c6996c67159d46b8a2345737a1b63a93e5299d"
+    },
+    {
+      "id": "broad-tiered",
+      "lod": 0,
+      "path": "exports/broad-tiered-lod0.glb",
+      "bytes": 309696,
+      "sha256": "b4abad070eb0a0a8acb7caaca86fab948fb01ea2c7f1bfa352348bef34dcd992"
+    },
+    {
+      "id": "broad-tiered",
+      "lod": 1,
+      "path": "exports/broad-tiered-lod1.glb",
+      "bytes": 70060,
+      "sha256": "cc386b8fa59a0e0787430081713d219b9ddfde017fd1fd3c81ed72551db4fdb8"
+    },
+    {
+      "id": "irregular-mature",
+      "lod": 0,
+      "path": "exports/irregular-mature-lod0.glb",
+      "bytes": 309700,
+      "sha256": "fa12114116ded832d34ecf5afaa5eb5e6b9f9fcd5dba86f084a51166364a8478"
+    },
+    {
+      "id": "irregular-mature",
+      "lod": 1,
+      "path": "exports/irregular-mature-lod1.glb",
+      "bytes": 70060,
+      "sha256": "0e7c33c239b0d3773023e9fd5aec522392f270b06bd6b3591434d27c56378a7e"
+    }
+  ],
+  "notice": {
+    "path": "third_party/licenses/notices/OriginalEvergreens-MIT.txt",
+    "sha256": "65f8c7cf7043c71c07865ae41a9dbaf0a4938d4aff3c38162bfd3e0c1aa8205f"
+  }
+}
