@@ -405,7 +405,8 @@ def reconstruction_paths(repo):
     ))
     for folder in ('native', 'tests/engine', 'tests/interactive', 'tools/bootstrap',
                    'app/world/taxi', 'app/ui/taxi', 'tests/world/taxi',
-                   'tests/integration/taxi'):
+                   'tests/integration/taxi', 'app/persistence', 'app/ui/profiles',
+                   'app/ui/history', 'tests/ui/profiles'):
         root = ordinary(repo / folder, True)
         for path in root.rglob('*'):
             ordinary(path, path.is_dir())

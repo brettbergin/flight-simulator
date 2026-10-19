@@ -2,6 +2,7 @@ extends Control
 # Original MIT. Paused draft editor only: no native/mapper commands or autoload.
 signal applied(preset: Dictionary)
 signal dismissed
+signal save_player_requested(opening: int, epoch: int)
 signal device_selected(slot: String, device: int)
 const Preset=preload("res://input/input_preset.gd")
 const Mapper=preload("res://input/input_mapper.gd")
@@ -33,6 +34,16 @@ var _list: VBoxContainer
 var _apply_button: Button
 var _dialog: FileDialog
 var _save_dialog: bool=false
+var _player_save_opening: int = 0
+var _player_save_epoch: int = 0
+var _player_save_active: bool = false
+var _player_save_player: Variant = null
+var _player_save_dirty: bool = false
+var _player_save_pending: bool = false
+var _player_save_unknown: bool = false
+var _player_save_label: Label
+var _player_save_button: Button
+var _player_save_callback: Callable
 func _button(text: String, callback: Callable) -> Button:
  var button:=Button.new(); button.text=text; button.pressed.connect(callback)
  button.custom_minimum_size.y=30
@@ -44,6 +55,7 @@ func _ensure_ui() -> void:
  if _built: return
  _built=true; set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
  mouse_filter=Control.MOUSE_FILTER_STOP
+ visibility_changed.connect(_player_save_hidden)
  var backdrop:=ColorRect.new(); backdrop.color=Color(0.025,0.04,0.065,0.97)
  backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); add_child(backdrop)
  var margin:=MarginContainer.new(); margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -56,8 +68,8 @@ func _ensure_ui() -> void:
  _name.text_changed.connect(func(text: String): _draft.name=text; _validate_draft()); toolbar.add_child(_name)
  _apply_button=_button("Apply",_apply); toolbar.add_child(_apply_button)
  toolbar.add_child(_button("Cancel",_cancel)); toolbar.add_child(_button("Defaults",_defaults))
- toolbar.add_child(_button("Load...",func(): _choose_file(false)))
- toolbar.add_child(_button("Save...",func(): _choose_file(true)))
+ toolbar.add_child(_button("Load draft file…",func(): _choose_file(false)))
+ toolbar.add_child(_button("Export draft file…",func(): _choose_file(true)))
  var devices:=HBoxContainer.new(); box.add_child(devices)
  devices.add_child(_label("Explicit device slot"))
  _slot=LineEdit.new(); _slot.text="stick"; _slot.max_length=32; _slot.custom_minimum_size.x=110; devices.add_child(_slot)
@@ -67,9 +79,13 @@ func _ensure_ui() -> void:
  devices.add_child(_label("Select device, then move each control to observe it."))
  var hint:=_label("Draft edits never change flight.  RAW -> MAPPED TARGET | NATIVE HELD.  Mixture unavailable in this prototype.")
  hint.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART; box.add_child(hint); _hint_label=hint
+ var player_save_row:=HBoxContainer.new(); player_save_row.add_theme_constant_override("separation",12); box.add_child(player_save_row)
+ _player_save_label=_label(""); _player_save_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART; _player_save_label.size_flags_horizontal=Control.SIZE_EXPAND_FILL; player_save_row.add_child(_player_save_label)
+ _player_save_button=Button.new(); _player_save_button.custom_minimum_size.y=38; _player_save_button.tooltip_text="Saves applied Controls and current Audio only. Unapplied drafts remain drafts."; player_save_row.add_child(_player_save_button)
+ _refresh_player_save()
  var scroll:=ScrollContainer.new(); scroll.size_flags_vertical=Control.SIZE_EXPAND_FILL; box.add_child(scroll)
  _list=VBoxContainer.new(); _list.size_flags_horizontal=Control.SIZE_EXPAND_FILL; _list.add_theme_constant_override("separation",9); scroll.add_child(_list)
- _message=_label("Guest preset ... explicit Save/Load only ... SQLite profile integration is separate")
+ _message=_label("Draft preset · Apply uses this draft; player Save uses applied Controls/current Audio.")
  _message.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART; _message.custom_minimum_size.y=38; box.add_child(_message)
  _status_label=_label("Takeover: none / brake hold: on for ground start"); _status_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART; box.add_child(_status_label)
  _engine_status_label=_label(""); _engine_status_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART; _engine_status_label.hide(); box.add_child(_engine_status_label)
@@ -194,7 +210,7 @@ func _validate_draft() -> void:
  if not checked.ok: show_error(checked.error)
  elif not conflicts.is_empty(): show_error("Binding conflict - choose separate controls: "+"; ".join(conflicts))
  elif _capture.is_empty() and _calibration.is_empty():
-  _message.text="Draft ready. Apply to use these controls; Save keeps a preset file."
+  _message.text="Draft ready. Apply to use these controls; Export draft file keeps a separate preset."
   _message.modulate=Color("9ed9ba")
 func _change_kind(target: String, choice: int) -> void:
  if target=="mixture" and not _v2: return
@@ -346,13 +362,13 @@ func _defaults() -> void:
 func _choose_file(save_file: bool) -> void:
  _capture.clear(); _calibration.clear(); _save_dialog=save_file
  _dialog.file_mode=FileDialog.FILE_MODE_SAVE_FILE if save_file else FileDialog.FILE_MODE_OPEN_FILE
- _dialog.title="Save explicit guest preset" if save_file else "Load preset into draft (not applied)"
+ _dialog.title="Export controls draft to preset file" if save_file else "Load preset into draft (not applied)"
  _dialog.current_file=("controls-v2.json" if _v2 else "controls.json") if save_file else ""
  _dialog.popup_centered_ratio(0.75)
 func _file_selected(path: String) -> void:
  if _save_dialog:
   var result: Dictionary=Preset.save_v2(path,_draft) if _v2 else Preset.save(path,_draft)
-  if result.ok: _message.text="Explicit preset saved after verified replacement. No automatic profile storage."
+  if result.ok: _message.text="Draft file saved. Applied Controls and player preferences are unchanged."
   else: show_error(result.error)
  else:
   var file=FileAccess.open(path,FileAccess.READ)
@@ -366,7 +382,7 @@ func _file_selected(path: String) -> void:
    if legacy.ok: result=Preset.migrate_v1_draft(legacy.value); migrated=result.ok
   if not result.ok: show_error(result.error+"; draft preserved"); return
   _draft=result.value; _name.text=_draft.name; _capture.clear(); _calibration.clear(); _rebuild()
-  _message.text="V1 migration DRAFT: mixture fixed full rich; engine controls UNBOUND. Choose bindings, then explicitly Apply." if migrated else "Preset loaded into guest draft only. Select ambiguous devices explicitly, then Apply while paused."
+  _message.text="V1 migration DRAFT: mixture fixed full rich; engine controls UNBOUND. Choose bindings, then explicitly Apply." if migrated else "Preset loaded into draft only. Select ambiguous devices explicitly, then Apply while paused."
 
 func _validate_active_draft() -> Dictionary:
  return Preset.validate_preset_v2(_draft) if _v2 else Preset.validate_preset(_draft)
@@ -399,3 +415,88 @@ func _update_engine_diagnostics(info: Dictionary) -> void:
   for id in Preset.SYSTEM_IDS: values.append(id.trim_prefix("engine.").trim_prefix("fuel.")+" "+("ON" if pending[id] else "off"))
   intent=", ".join(values)
  _engine_status_label.text="NATIVE HELD: "+", ".join(lines)+"\nPENDING (not admission): "+intent
+
+# Root owns the live-widget registry and computes dirty/pending/unknown from the
+# committed whole bundle. This panel never compares a draft with saved options.
+func set_player_save_state(opening: int, epoch: int, player: Variant, dirty: bool, pending: bool, unknown: bool) -> void:
+ if opening <= 0 or epoch < 0 or not _valid_save_player(player): return
+ if opening < _player_save_opening: return
+ if opening == _player_save_opening and (not _player_save_active or epoch != _player_save_epoch): return
+ _ensure_ui()
+ if opening != _player_save_opening:
+  _retire_player_save()
+  _player_save_opening = opening
+  _player_save_epoch = epoch
+  _player_save_active = true
+  _player_save_callback = _request_player_save.bind(opening, epoch)
+  _player_save_button.pressed.connect(_player_save_callback)
+ _player_save_player = player.duplicate(true) if player != null else null
+ _player_save_dirty = dirty
+ _player_save_pending = pending
+ _player_save_unknown = unknown
+ _refresh_player_save()
+
+func _retire_player_save() -> void:
+ _player_save_active = false
+ if is_instance_valid(_player_save_button) and _player_save_callback.is_valid() and _player_save_button.pressed.is_connected(_player_save_callback):
+  _player_save_button.pressed.disconnect(_player_save_callback)
+ _player_save_callback = Callable()
+ _player_save_player = null
+ _player_save_dirty = false
+ _player_save_pending = false
+ _player_save_unknown = false
+ _refresh_player_save()
+
+func _player_save_hidden() -> void:
+ if not is_visible_in_tree(): _retire_player_save()
+ else: _refresh_player_save()
+
+func _can_save_player() -> bool:
+ if not _player_save_active or not is_inside_tree() or not is_visible_in_tree() or _player_save_pending: return false
+ # Guest opens create/select; it never pretends to save a non-existent row.
+ return _player_save_player == null or (_player_save_dirty and not _player_save_unknown)
+
+func _request_player_save(opening: int, epoch: int) -> void:
+ if opening == _player_save_opening and epoch == _player_save_epoch and _can_save_player():
+  save_player_requested.emit(opening, epoch)
+
+func _refresh_player_save() -> void:
+ if not is_instance_valid(_player_save_button): return
+ _player_save_button.disabled = not _can_save_player()
+ _player_save_button.text = "Create / select player…" if _player_save_player == null else "Save applied Controls + Audio"
+ if not _player_save_active:
+  _player_save_label.text = "Player Save unavailable. Draft edits remain separate from applied Controls/current Audio."
+ elif _player_save_player == null:
+  _player_save_label.text = "Guest · preferences are transient. Create or select a player to save applied Controls/current Audio."
+ elif _player_save_unknown:
+  _player_save_label.text = _player_save_player["name"] + " · save status unknown. Reconcile before saving."
+ elif _player_save_pending:
+  _player_save_label.text = _player_save_player["name"] + " · snapshot Save pending. Later edits may remain unsaved."
+ elif _player_save_dirty:
+  _player_save_label.text = _player_save_player["name"] + " · active preferences have unsaved changes. Drafts are not included."
+ else:
+  _player_save_label.text = _player_save_player["name"] + " · active preferences match the acknowledged saved bundle."
+
+func _valid_save_player(player: Variant) -> bool:
+ if player == null: return true
+ if typeof(player) != TYPE_DICTIONARY or player.size() != 7: return false
+ for key: Variant in player:
+  if typeof(key) != TYPE_STRING or not key in ["type", "version", "id", "name", "created_utc", "updated_utc", "revision"]: return false
+ if typeof(player["type"]) != TYPE_STRING or player["type"] != "LocalPlayer" or typeof(player["version"]) != TYPE_INT or player["version"] != 1: return false
+ if typeof(player["id"]) != TYPE_STRING or player["id"].length() != 32: return false
+ for code: int in player["id"].to_utf8_buffer():
+  if not (code >= 48 and code <= 57) and not (code >= 97 and code <= 102): return false
+ if typeof(player["name"]) != TYPE_STRING or player["name"].length() < 1 or player["name"].length() > 40 or player["name"].to_utf8_buffer().size() > 160: return false
+ for index: int in player["name"].length():
+  var code: int = player["name"].unicode_at(index)
+  if code < 32 or code == 127 or (code >= 0xd800 and code <= 0xdfff) or code > 0x10ffff: return false
+ if _save_name_space(player["name"].unicode_at(0)) or _save_name_space(player["name"].unicode_at(player["name"].length() - 1)): return false
+ for key: String in ["created_utc", "updated_utc"]:
+  if typeof(player[key]) != TYPE_STRING or player[key].length() > 32: return false
+ if typeof(player["revision"]) != TYPE_STRING or player["revision"].is_empty() or player["revision"].length() > 20 or player["revision"][0] == "0": return false
+ for code: int in player["revision"].to_utf8_buffer():
+  if code < 48 or code > 57: return false
+ return player["revision"].length() < 20 or player["revision"] <= "18446744073709551615"
+
+func _save_name_space(code: int) -> bool:
+ return code == 32 or code == 0x85 or code == 0xa0 or code == 0x1680 or (code >= 0x2000 and code <= 0x200a) or code in [0x2028, 0x2029, 0x202f, 0x205f, 0x3000]

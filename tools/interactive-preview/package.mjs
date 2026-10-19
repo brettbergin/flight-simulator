@@ -216,6 +216,34 @@ export function validateGroundMaterialSources(repository,project,source){
  }
  return expected;
 }
+// Frontend source closure only. Working native storage has a separate aggregate.
+export const localPlayerSourceGroups=[
+ ['app/persistence','persistence',['local_players_controller.gd']],
+ ['app/ui/profiles','ui/profiles',['player_options.gd','players_panel.gd','player_name_panel.gd']],
+ ['app/ui/history','ui/history',['practice_panel.gd','practice_details.gd','player_export_panel.gd','recovery_panel.gd']],
+ ['tests/ui/profiles','player_tests',['local_players_ui_checks.gd','local_players_ui_checks_runner.gd','local_players_controller_checks.gd','local_players_scene_checks.gd','local_players_journey_checks.gd','local_players_journey_runner.gd','local_players_journey_first.gd','local_players_journey_resume.gd','local_players_integrated_checks.gd','local_players_integrated_runner.gd']],
+];
+export function validateLocalPlayerSources(repository,project,source){
+ const source_files={};
+ for(const [authored,mapped,required] of localPlayerSourceGroups){
+  const originals=ordinaryFiles(path.join(repository,authored)).filter(name=>authored!=='app/persistence'||name==='local_players_controller.gd').sort();
+  for(const name of required)assert(originals.includes(name),'Required player frontend source/'+name);
+  assert.deepEqual(ordinaryFiles(path.join(source,mapped)).sort(),originals,'Player corresponding source roster/'+mapped);
+  const staged=ordinaryFiles(path.join(project,mapped));
+  for(const name of staged.filter(name=>!originals.includes(name))){
+   assert(name.endsWith('.gd.uid')&&originals.includes(name.slice(0,-4)),'Only bound generated player UID allowed');
+   const raw=fs.readFileSync(path.join(project,mapped,name));assert(raw.length<=64);assert.match(raw.toString('utf8'),/^uid:\/\/[a-z0-9]{1,20}\r?\n?$/);
+  }
+  assert.deepEqual(staged.filter(name=>originals.includes(name)).sort(),originals,'Player staged source roster/'+mapped);
+  for(const name of originals){
+   const raw=fs.readFileSync(path.join(repository,authored,name));
+   source_files[authored+'/'+name]={bytes:raw.length,sha256:sha(raw)};
+   for(const base of [project,source])assert(fs.readFileSync(path.join(base,mapped,name)).equals(raw),'Player actual corresponding bytes/'+mapped+'/'+name);
+  }
+ }
+ assert(!fs.existsSync(path.join(project,'persistence/local_players.gdextension')),'Flight-only package must not load unqualified production storage');
+ return {source_files,named_player_storage_included:false};
+}
 // ADR020 mandatory source and active checks, independent of piston opt-in.
 export const audioSourceGroups=[
  ['app/audio','audio',['audio_cues.gd','audio_options.gd','sample_renderer.gd']],
@@ -586,6 +614,7 @@ function audit(root,proof,build,python='python'){
  if(pointerEnabled){validatePointerSources(repo,path.join(root,'project'),reconstructionRoot);for(const context of ['editor','portable','replacement'])pointerReceipts.push({context,...validatePointerEvidence(path.join(evidence,context+'-pointer-check-receipt.json'),path.join(evidence,context+'-pointer-flight-trace.json'),repo,path.join(root,'project'),nativeIdentity)});}
  validateOriginalCockpitSources(repo,path.join(root,'project'),reconstructionRoot);
  const audioIdentity=validateAudioSources(repo,path.join(root,'project'),reconstructionRoot);
+ validateLocalPlayerSources(repo,path.join(root,'project'),reconstructionRoot);
  validateAudioSourceDescriptors(json(path.join(evidence,'audio-source-groups.json')),audioIdentity.source_files);
  const firstFlightIdentity=validateFirstFlightSources(repo,path.join(root,'project'),reconstructionRoot);
  const taxiIdentity=validateTaxiSources(repo,path.join(root,'project'),reconstructionRoot);
