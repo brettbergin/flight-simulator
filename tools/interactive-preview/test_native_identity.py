@@ -97,6 +97,13 @@ EXPECTED_EVERGREEN_RECONSTRUCTION_PATHS = (
     'third_party/licenses/evidence/original-evergreens-v1.inventory.json',
 )
 
+# Independent fixed paint authoring roster; no native SOURCES/CONTROLS change.
+EXPECTED_PAINT_RECONSTRUCTION_PATHS = (
+    'tests/world/runway-paint/checks.gd',
+    'tests/world/runway-paint/controls-v1.json',
+    'tests/world/runway-paint/README.md',
+)
+
 # Independently authored four-unit order from the checked runtime contract.
 EXPECTED_RESIDENT_UNITS = (
     'native/world_core/grid/src/validation.cpp',
@@ -150,6 +157,8 @@ def fixture(root, family='MSVC', variant=n.VARIANTS[0]):
         put(repo, name, 'Synthetic taxi corresponding-source fixture ' + name + '\n')
     for name in EXPECTED_EVERGREEN_RECONSTRUCTION_PATHS:
         put(repo, name, 'Synthetic decorative corresponding-source fixture ' + name + '\n')
+    for name in EXPECTED_PAINT_RECONSTRUCTION_PATHS:
+        put(repo, name, 'Synthetic paint corresponding-source fixture ' + name + '\n')
     put(repo, 'app/world/terrain/resident_grid_reader.gd', 'synthetic reader source\n')
     put(repo, 'app/world/world_admission.gd', 'synthetic registry source\n')
     put(repo, 'tools/interactive-preview/world-catalog.mjs', 'synthetic catalog generator\n')
@@ -496,6 +505,29 @@ class IdentityTests(unittest.TestCase):
                 original = copied.read_bytes()
                 copied.write_bytes(original+b'changed')
                 with self.assertRaises(ValueError):
+                    n.check_reconstruction(self.repo, destination)
+                copied.write_bytes(original)
+            n.check_reconstruction(self.repo, destination)
+        self.assertEqual(self.qualify(), before)
+
+    def test_paint_reconstruction_missing_and_changed_preserve_native_identity(self):
+        before = self.qualify()
+        destination = self.root/'paint-source'
+        destination.mkdir()
+        with patch.object(n.subprocess, 'check_output', return_value='1'*40+'\n'):
+            n.reconstruction(self.repo, destination)
+            n.check_reconstruction(self.repo, destination)
+            names = {item['path'] for item in json.loads((destination/'native-reconstruction.json').read_bytes())['files']}
+            self.assertTrue(set(EXPECTED_PAINT_RECONSTRUCTION_PATHS) <= names)
+            for name in EXPECTED_PAINT_RECONSTRUCTION_PATHS:
+                copied = destination/'repository'/name
+                original = copied.read_bytes()
+                copied.write_bytes(original+b'changed')
+                with self.assertRaises(ValueError):
+                    n.check_reconstruction(self.repo, destination)
+                copied.write_bytes(original)
+                copied.unlink()
+                with self.assertRaises((ValueError, FileNotFoundError)):
                     n.check_reconstruction(self.repo, destination)
                 copied.write_bytes(original)
             n.check_reconstruction(self.repo, destination)

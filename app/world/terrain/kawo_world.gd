@@ -16,6 +16,16 @@ uniform bool second_wins=false;
 uniform vec3 ground_color=vec3(0.21,0.28,0.13);
 uniform vec3 color0=vec3(0.16,0.17,0.17);
 uniform vec3 color1=vec3(0.16,0.17,0.17);
+uniform vec4 paint_ends0;
+uniform vec4 paint_ends1;
+uniform vec4 paint_axes0;
+uniform vec4 paint_axes1;
+uniform vec2 paint_size0;
+uniform vec2 paint_size1;
+uniform vec4 paint_numbers0;
+uniform vec4 paint_numbers1;
+uniform ivec4 paint_digits0;
+uniform ivec4 paint_digits1;
 varying vec2 canonical_xz;
 void vertex() { canonical_xz=VERTEX.xz; }
 bool in_ring(vec2 p,int which) {
@@ -29,6 +39,56 @@ bool in_ring(vec2 p,int which) {
     }
     return true;
 }
+// Original 5x7 prototype glyphs. Row0 is the inward/top edge; column0 is
+// the arriving pilot's left. These are not an operational marking font.
+int glyph_row(int digit,int row) {
+    if(digit==1) return row==0?4:row==1?12:row==6?14:4;
+    if(digit==2) return row==0?14:row==1?17:row==2?1:row==3?2:row==4?4:row==5?8:31;
+    if(digit==3) return row==0?30:row==3?14:row==6?30:1;
+    if(digit==4) return row==0?2:row==1?6:row==2?10:row==3?18:row==4?31:2;
+    if(digit==6) return row==0?6:row==1?8:row==2?16:row==3?30:row==6?14:17;
+    if(digit==9) return row==0?14:row==1?17:row==2?17:row==3?15:row==4?1:row==5?2:12;
+    return 0;
+}
+float ink(float distance_m,float aa) {
+    return 1.0-smoothstep(-aa,aa,distance_m);
+}
+float glyph_occupancy(vec2 p,int digit) {
+    if(p.x<0.0 || p.x>=7.5 || p.y<0.0 || p.y>=12.0) return 0.0;
+    int col=min(4,int(floor(p.x/1.5)));
+    int row=6-min(6,int(floor(p.y*(7.0/12.0))));
+    return (glyph_row(digit,row) & (1<<(4-col)))!=0?1.0:0.0;
+}
+float glyph(vec2 p,int digit,float aa) {
+    // Sample the whole occupied glyph, not distances to individual cells.
+    // A boundary between two filled cells remains fully occupied, so it
+    // cannot acquire an artificial half-coverage internal hairline.
+    vec2 offset=vec2(0.5*aa);
+    return 0.25*(glyph_occupancy(p+offset,digit)
+                +glyph_occupancy(p-offset,digit)
+                +glyph_occupancy(p+vec2(offset.x,-offset.y),digit)
+                +glyph_occupancy(p+vec2(-offset.x,offset.y),digit));
+}
+float number_block(vec2 p,vec2 bottom,vec2 forward,vec2 right,ivec2 digits,float aa) {
+    vec2 q=vec2(dot(p-bottom,right)+8.5,dot(p-bottom,forward));
+    return max(glyph(q,digits.x,aa),glyph(q-vec2(9.5,0.0),digits.y,aa));
+}
+float runway_paint(vec2 p,vec4 ends,vec4 axes,vec2 size_m,vec4 bottoms,ivec4 digits,float aa) {
+    vec2 q=vec2(dot(p-ends.xy,axes.zw),dot(p-ends.xy,axes.xy));
+    float edge=ink(abs(abs(q.x)-(size_m.y*0.5-1.0))-0.225,aa);
+    float center=0.0;
+    if(q.y>=90.0 && q.y<=size_m.x-90.0) {
+        // One first-end phase. The next rectangle supplies AA near period50;
+        // reciprocal-end dashes must never be OR-ed into this pattern.
+        float phase=mod(q.y-90.0,50.0);
+        float longitudinal=min(abs(phase-10.0),abs(phase-60.0))-10.0;
+        center=ink(max(abs(q.x)-0.225,longitudinal),aa);
+    }
+    float numbers=max(number_block(p,bottoms.xy,axes.xy,axes.zw,digits.xy,aa),
+                      number_block(p,bottoms.zw,-axes.xy,-axes.zw,digits.zw,aa));
+    // Fade tiny strokes instead of turning distant/subpixel paint into glare.
+    return max(max(edge,center)*min(1.0,0.45/(2.0*aa)),numbers*min(1.0,1.5/(2.0*aa)));
+}
 void fragment() {
     // This canonical heightfield's authored lighting normals face world-up.
     // Keep two-sided rasterization without letting back-face shading invert
@@ -39,6 +99,13 @@ void fragment() {
     vec3 pigment=ground_color;
     if(a) pigment=color0;
     if(b && (!a || second_wins)) pigment=color1;
+    // Opaque pigment only on the existing winning pavement. No overlay mesh,
+    // displacement, alpha material, native normal or physical marking claim.
+    float aa=max(0.0001,0.5*max(fwidth(canonical_xz.x),fwidth(canonical_xz.y)));
+    float paint=0.0;
+    if(b && (!a || second_wins)) paint=runway_paint(canonical_xz,paint_ends1,paint_axes1,paint_size1,paint_numbers1,paint_digits1,aa);
+    else if(a) paint=runway_paint(canonical_xz,paint_ends0,paint_axes0,paint_size0,paint_numbers0,paint_digits0,aa);
+    pigment=mix(pigment,vec3(0.9),paint);
     float variation=1.0+0.035*sin(canonical_xz.x*0.025)*sin(canonical_xz.y*0.021);
     ALBEDO=pigment*(a||b?1.0:variation);
     ROUGHNESS=1.0;
@@ -142,7 +209,70 @@ static func _color(id: String) -> Color:
 	if id in ["original.grass","original.terrain-prototype"]: return Color(0.21,0.28,0.13)
 	return Color(0.34,0.29,0.20)
 
-static func _material(polygons: Array,materials: Array,default_index: int) -> ShaderMaterial:
+static func _paint_upload_finite(values: Array) -> bool:
+	# Shader uniforms use Float32 even though geometry calculations use binary64.
+	# Test the actual narrowing, without clamping or adding a new airport extent.
+	for value in values:
+		if typeof(value)!=TYPE_FLOAT or not is_finite(value): return false
+	var narrowed:=PackedFloat32Array(values)
+	for value in narrowed:
+		if not is_finite(value): return false
+	return true
+
+static func _paint_frame(a: Array,b: Array,width_m: float,designators: Array,id: String) -> Dictionary:
+	# Original-art feasibility, not operational dimensions or a new source API.
+	if not _scalars(a,3) or not _scalars(b,3) or not is_finite(width_m) or width_m<19.45: return {}
+	var expected: Array=[]
+	if id=="kawo.runway.11-29": expected=["11","29"]
+	elif id=="kawo.runway.16-34": expected=["16","34"]
+	if expected.is_empty() or designators.size()!=2: return {}
+	for i in 2:
+		if typeof(designators[i])!=TYPE_STRING or designators[i]!=expected[i]: return {}
+	var dx: float=b[0]-a[0]
+	var dz: float=b[2]-a[2]
+	var length_m: float=sqrt(dx*dx+dz*dz)
+	if not is_finite(length_m) or length_m<=180.0: return {}
+	var forward: Array=[dx/length_m,dz/length_m]
+	var right: Array=[-forward[1],forward[0]]
+	var bottoms: Array=[[a[0]+60.0*forward[0],a[2]+60.0*forward[1]],[b[0]-60.0*forward[0],b[2]-60.0*forward[1]]]
+	if not _paint_upload_finite([a[0],a[2],b[0],b[2],length_m,width_m]+forward+right+bottoms[0]+bottoms[1]): return {}
+	var digits: Array=[]
+	for label in designators:
+		digits.append(label.unicode_at(0)-48)
+		digits.append(label.unicode_at(1)-48)
+	return {"id":id,"ends":[[a[0],a[2]],[b[0],b[2]]],"forward":forward,"right":right,"length_m":length_m,"width_m":width_m,"number_bottoms":bottoms,"digits":digits}
+
+static func _paint_layout(runways: Array,polygons: Array) -> Array:
+	# Called after the unchanged full geometry admission. Associate through ID,
+	# never through coincidental polygon storage order or published bearing.
+	if runways.size()!=2 or polygons.size()!=2: return []
+	var frames: Array=[]
+	for polygon in polygons:
+		var matched: Array=[]
+		for runway in runways:
+			if runway.id==polygon.id: matched.append(runway)
+		if matched.size()!=1: return []
+		var runway: Dictionary=matched[0]
+		var width: Dictionary=_tag(runway.width_m)
+		if not width.ok: return []
+		var ends: Array=[]
+		var names: Array=[]
+		for end in runway.ends:
+			var position: Array=[]
+			for raw in end.eus_m:
+				var scalar: Dictionary=_tag(raw)
+				if not scalar.ok: return []
+				position.append(scalar.value)
+			ends.append(position)
+			names.append(end.designator)
+		if ends.size()!=2: return []
+		var frame: Dictionary=_paint_frame(ends[0],ends[1],width.value,names,runway.id)
+		if frame.is_empty(): return []
+		frames.append(frame)
+	if frames[0].id==frames[1].id: return []
+	return frames
+
+static func _material(polygons: Array,materials: Array,default_index: int,paint: Array) -> ShaderMaterial:
 	var shader:=Shader.new()
 	shader.code=SHADER_SOURCE
 	var material:=ShaderMaterial.new()
@@ -153,6 +283,12 @@ static func _material(polygons: Array,materials: Array,default_index: int) -> Sh
 			ring.append(Vector2(float(point[0])/1000.0,float(point[1])/1000.0))
 		material.set_shader_parameter("ring"+str(i),ring)
 		material.set_shader_parameter("color"+str(i),_color(materials[polygons[i].material_index].id))
+		var frame: Dictionary=paint[i]
+		material.set_shader_parameter("paint_ends"+str(i),Vector4(frame.ends[0][0],frame.ends[0][1],frame.ends[1][0],frame.ends[1][1]))
+		material.set_shader_parameter("paint_axes"+str(i),Vector4(frame.forward[0],frame.forward[1],frame.right[0],frame.right[1]))
+		material.set_shader_parameter("paint_size"+str(i),Vector2(frame.length_m,frame.width_m))
+		material.set_shader_parameter("paint_numbers"+str(i),Vector4(frame.number_bottoms[0][0],frame.number_bottoms[0][1],frame.number_bottoms[1][0],frame.number_bottoms[1][1]))
+		material.set_shader_parameter("paint_digits"+str(i),Vector4i(frame.digits[0],frame.digits[1],frame.digits[2],frame.digits[3]))
 	material.set_shader_parameter("ground_color",_color(materials[default_index].id))
 	material.set_shader_parameter("second_wins",polygons[1].priority>polygons[0].priority or (polygons[1].priority==polygons[0].priority and polygons[1].id<polygons[0].id))
 	return material
@@ -206,6 +342,8 @@ static func prepare(grid: Variant,compiled_geometry: Variant,session_id: Variant
 	if expected.is_empty() or not _same(expected.ecef,anchor_ecef) or not _same(expected.rotation,rotation): return _failure()
 	var polygons: Array=grid.copy_polygons()
 	if not _geometry_valid(compiled_geometry,meta,polygons): return _failure()
+	var paint: Array=_paint_layout(compiled_geometry.runways,polygons)
+	if paint.size()!=2: return _failure("Invalid original prototype runway paint layout")
 	var valid: PackedByteArray=grid.copy_valid_words()
 	var count: int=meta.columns*meta.rows
 	for i in count/8:
@@ -226,7 +364,7 @@ static func prepare(grid: Variant,compiled_geometry: Variant,session_id: Variant
 	root._valid=valid
 	root._anchor=anchor_ecef.duplicate(true)
 	root._rotation=rotation.duplicate(true)
-	var material: ShaderMaterial=_material(polygons,grid.copy_materials(),meta.default_material_index)
+	var material: ShaderMaterial=_material(polygons,grid.copy_materials(),meta.default_material_index,paint)
 	for row in 32:
 		for col in 48:
 			var mesh:=ArrayMesh.new()

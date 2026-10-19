@@ -8,6 +8,10 @@ aircraft in calm conditions. See [preview usage](../tools/interactive-preview/RE
 [native startup/contact evidence](evidence/P4/kawo-native-flight.md),
 [canonical terrain checks](evidence/P4/kawo-terrain-renderer.md) and
 [menu/map/recording/history evidence](evidence/P4/kawo-world-journey.md).
+The [original runway paint](evidence/P4/kawo-runway-paint.md) adds centerline dashes,
+pavement edges and inward-facing 11/29/16/34 identifiers on the same terrain
+facets. Its dimensions and block font are unsurveyed prototype art; the actual
+scene and frozen synthetic crossing controls have separate evidence.
 
 These bounded source and integration results preserve the source/datum and
 prototype-aircraft limits. Final visual/manual-flight, Windows delivery and

@@ -61,7 +61,7 @@ func run(host: Node) -> Dictionary:
 		scene.menu_open=false
 		scene.menu.hide()
 		scene.show_state(0.0)
-		check.call(scene.wind_card.is_visible_in_tree() and scene.wind_label.text.contains("Decorative trees") and scene.wind_label.text.contains("not surveyed obstacles"),"visible_unsurveyed_scenery_notice"); checks+=1
+		check.call(scene.wind_card.is_visible_in_tree() and scene.wind_label.text.contains("Decorative trees") and scene.wind_label.text.contains("not surveyed obstacles") and scene.wind_label.text.contains("Prototype paint: unsurveyed"),"visible_unsurveyed_scenery_notice"); checks+=1
 		check.call(scene.facade.readback()==source,"presentation_queries_do_not_advance"); checks+=1
 		check.call(scene.flight_map.get("_runway")==34 and scene.flight_map.get("_compiled_runways").size()==2,"compiled_locator_all_runways"); checks+=1
 		for expected in [16,11,29,34]:

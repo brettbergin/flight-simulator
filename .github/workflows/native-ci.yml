@@ -331,6 +331,9 @@ jobs:
             $terrain=Invoke-ProofProcess $environment.tools.godot $arguments $root (Join-Path $evidence ('kawo-terrain-'+$suite+'.log')) -TimeoutSeconds 300
             if($terrain.exit_code -ne 0 -or $terrain.text -match 'ERROR:|SCRIPT ERROR:|FATAL|ObjectDB instances? (?:(?:was|were) )?leaked|RID allocations leaked|resources still in use'){throw 'Airport terrain component checks failed'}
           }
+          # Separate132 geometry controls: no graphical material/pixel claim.
+          $paint=Invoke-ProofProcess $environment.tools.godot @('--headless','--audio-driver','Dummy','--path',$project,'--script','res://runway_paint_tests/checks.gd','--','geometry') $root (Join-Path $evidence 'kawo-runway-paint-geometry.log') -TimeoutSeconds 120
+          Assert-PreviewRunwayPaintGeometryResult $paint
           foreach($mode in @('hand','actual')){
             if($mode -ceq 'actual' -and -not $IsWindows){
               'Actual MultiMesh setter/getter checks unavailable under the Linux headless dummy renderer; Windows graphical checks remain mandatory. No actual decoration component acceptance claimed here.' | Set-Content (Join-Path $evidence 'kawo-decoration-actual-unavailable.txt')

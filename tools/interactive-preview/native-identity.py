@@ -995,6 +995,9 @@ def reconstruction_paths(repo):
                 if '__pycache__' in relative.parts or relative.suffix == '.pyc':
                     continue
                 names.add(relative.as_posix())
+    names.update(('tests/world/runway-paint/checks.gd',
+                  'tests/world/runway-paint/controls-v1.json',
+                  'tests/world/runway-paint/README.md'))
     names.update(('app/world/world_admission.gd', 'tools/interactive-preview/world-catalog.mjs',
                   'content/world/catalog/kawo-runtime-v1.json'))
     names.update('assets_source/environment/original-evergreens-v1/exports/' + name for name in

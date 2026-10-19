@@ -252,6 +252,7 @@ $preset=$preset.Replace('exclude_filter="','exclude_filter="worlds/*,content/wor
 $preset=$preset.Replace('include_filter="','include_filter="environment/original-evergreens-v1/*.glb,notices/OriginalEvergreens-MIT.txt,')
 $preset=$preset.Replace('exclude_filter="','exclude_filter="decoration-component-receipt.json,')
 $preset=$preset.Replace('exclude_filter="','exclude_filter="addons/kawo_raw_glbs/*,')
+$preset=$preset.Replace('include_filter="','include_filter="runway_paint_tests/controls-v1.json,')
 $preset | Set-Content -Encoding utf8 (Join-Path $project 'export_presets.cfg')
 # Keep engine/profile/cache writes within this fresh run even during authoring.
 $prior=@{}
@@ -303,6 +304,7 @@ func _initialize() -> void:
   @{name='ground-checks';args=@('--headless','--path',$project,'res://sim_loop_checks.tscn','--','--ground-material-checks')},
   @{name='facade-checks';args=@('--headless','--path',$project,'res://sim_loop_checks.tscn')},
   @{name='kawo-checks';args=@('--headless','--path',$project,'--','--facade-checks','--kawo-checks')},
+  @{name='runway-paint-geometry';args=@('--headless','--audio-driver','Dummy','--path',$project,'--script','res://runway_paint_tests/checks.gd','--','geometry')},
   @{name='camera-checks';args=@('--path',$project)+$cameraRenderArguments+@('res://camera_checks.tscn')},
   @{name='editor-smoke';args=@('--headless','--path',$project,'--','--smoke')},
   @{name='export';args=@('--headless','--path',$project,'--export-release','Windows Proof',(Join-Path $payload 'WholeFlightPreview.exe'))}
@@ -320,6 +322,7 @@ func _initialize() -> void:
   if($operation.name -eq 'pointer-checks'){Save-PreviewPointerObservation -TargetPath $project -Evidence $evidence -Name 'editor'}
   if($operation.name -eq 'ground-checks'){Save-PreviewGroundObservation -TargetPath $project -Evidence $evidence -Name 'editor'}
   if($operation.name -ceq 'kawo-checks'){Assert-PreviewKawoResult $result 'editor'}else{Assert-PreviewProcessResult $result $operation.name}
+  if($operation.name -ceq 'runway-paint-geometry'){Assert-PreviewRunwayPaintGeometryResult $result}
   if($operation.name -ceq 'import'){
    $importLog=Join-Path $evidence 'import.log'
    $producer=[pscustomobject]@{arguments=$operation.args;executable=[pscustomobject]@{path=$godot;bytes=(Get-Item -LiteralPath $godot).Length;sha256=(Get-FileHash -LiteralPath $godot).Hash.ToLowerInvariant()};exit_code=$result.exit_code;log=[pscustomobject]@{path=$importLog;bytes=(Get-Item -LiteralPath $importLog).Length;sha256=(Get-FileHash -LiteralPath $importLog).Hash.ToLowerInvariant()}}
@@ -430,6 +433,8 @@ finally {
 foreach($target in @(@{name='portable';path=$payload},@{name='replacement';path=$replacement})){
  $kawoResult=Invoke-ProofProcess -Executable (Join-Path $target.path 'WholeFlightPreview.exe') -Arguments @('--headless','--','--facade-checks','--kawo-checks') -WorkingDirectory $root -Log (Join-Path $evidence ($target.name+'-kawo.log')) -CleanEnvironment -ProfileRoot (Join-Path $root ('kawo-userdata-'+$target.name)) -TimeoutSeconds $FacadeCheckTimeoutSeconds
  Assert-PreviewKawoResult $kawoResult $target.name
+ $paintResult=Invoke-ProofProcess -Executable (Join-Path $target.path 'WholeFlightPreview.exe') -Arguments @('--headless','--audio-driver','Dummy','--script','res://runway_paint_tests/checks.gd','--','geometry') -WorkingDirectory $root -Log (Join-Path $evidence ($target.name+'-runway-paint-geometry.log')) -CleanEnvironment -ProfileRoot (Join-Path $root ('runway-paint-userdata-'+$target.name)) -TimeoutSeconds 120
+ Assert-PreviewRunwayPaintGeometryResult $paintResult
  Invoke-PreviewGraphicalCameraChecks -Executable (Join-Path $target.path 'WholeFlightPreview.exe') -Arguments ($cameraRenderArguments+@('--','--camera-checks')) -Root $root -TargetPath $target.path -Evidence $evidence -Name $target.name -RepoRoot $repo -ProjectRoot $project -NativeIdentityPath (Join-Path $evidence 'native-build-identity.json') -TimeoutSeconds $FacadeCheckTimeoutSeconds -RequireFullSupported $includePiston
  if($includePiston){
   $pointerResult=Invoke-ProofProcess -Executable (Join-Path $target.path 'WholeFlightPreview.exe') -Arguments @('--headless','--','--pointer-checks') -WorkingDirectory $root -Log (Join-Path $evidence ($target.name+'-pointer.log')) -CleanEnvironment -ProfileRoot (Join-Path $root ('pointer-userdata-'+$target.name)) -TimeoutSeconds $FacadeCheckTimeoutSeconds

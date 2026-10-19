@@ -1868,7 +1868,7 @@ func update_wind_presentation(readback: Dictionary) -> void:
 	if wind_label!=null:
 		wind_label.text="SYNTHETIC STEADY WIND / NATIVE TRUTH\n"+WindPanel.describe(cue)
 		if selected_world=="kawo-prototype-v1":
-			wind_label.text="KAWO prototype | "+cue.state+" | calm wind\nDecorative trees; not surveyed obstacles"
+			wind_label.text="KAWO prototype | "+cue.state+" | calm wind\nDecorative trees; not surveyed obstacles | Prototype paint: unsurveyed"
 		# Geometry is assigned once, after final map/current-state publication.
 	if wind_panel!=null and wind_panel.visible:
 		wind_panel.set_context(wind_draft,current_wind_profile,cue,review_boundary() and archive_operation.is_empty() and pending_discard.is_empty())

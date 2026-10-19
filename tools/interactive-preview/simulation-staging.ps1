@@ -76,6 +76,7 @@ function Get-KawoRuntimeSourceGroups {
  @(
   @{source='app/world';destination='world';selected=$true;required=@('world_admission.gd')},
   @{source='app/world/terrain';destination='world/terrain';selected=$false;required=@('resident_grid_reader.gd','kawo_world.gd')},
+  @{source='tests/world/runway-paint';destination='runway_paint_tests';selected=$false;required=@('checks.gd','controls-v1.json','README.md')},
   @{source='app/world/decoration';destination='world/decoration';selected=$false;required=@('kawo_evergreens.gd')},
   @{source='assets_source/environment/original-evergreens-v1/exports';destination='environment/original-evergreens-v1';selected=$true;required=@('tall-narrow-lod1.glb','broad-tiered-lod1.glb','irregular-mature-lod1.glb')},
   @{source='third_party/licenses/notices';destination='notices';selected=$true;required=@('OriginalEvergreens-MIT.txt')},
@@ -150,6 +151,23 @@ function Copy-KawoRuntimeSourceGroups {
  }
  Assert-KawoRuntimeSourceGroups -Root $DestinationRoot -Groups $Groups
  Assert-KawoRuntimeSourceGroups -Root $RepoRoot -Groups $Groups -Authoring
+}
+function Assert-PreviewRunwayPaintGeometryResult {
+ param([Parameter(Mandatory)]$Result)
+ # Separate from the KAWO86 source/Scene/host receipt: no material pixels/flight.
+ if($Result.exit_code -ne 0 -or $Result.text -match 'ERROR:|SCRIPT ERROR:|FATAL|ObjectDB instances? (?:(?:was|were) )?leaked|RID allocations leaked|resources still in use|Assertion failed'){throw 'Runway paint geometry process failed; retain its raw log'}
+ $markers=[regex]::Matches($Result.text,'(?m)^KAWO_RUNWAY_PAINT_RESULT=')
+ $rows=[regex]::Matches($Result.text,'(?m)^KAWO_RUNWAY_PAINT_RESULT=(\{[^\r\n]*\})\r?$')
+ if($markers.Count -ne 1 -or $rows.Count -ne 1 -or $rows[0].Groups[1].Value.Length -gt 65536){throw 'One bounded runway paint terminal required'}
+ $r=ConvertFrom-Json -InputObject $rows[0].Groups[1].Value -AsHashtable -Depth 16 -ErrorAction Stop
+ if($r -isnot [System.Collections.IDictionary] -or $r.mode -cne 'geometry' -or $r.groups -isnot [System.Collections.IDictionary]){throw 'Runway paint geometry terminal shape differs'}
+ foreach($group in @($r,$r.groups.geometry,$r.groups.material)){
+  if($group -isnot [System.Collections.IDictionary] -or $group.failures -isnot [array] -or $group.failures.Count -ne 0 -or ($group.checks -isnot [int] -and $group.checks -isnot [long])){throw 'Runway paint geometry checks/failures differ'}
+ }
+ if($r.checks -ne 132 -or $r.groups.geometry.checks -ne 132 -or $r.groups.material.checks -ne 0){throw 'Exact independent132 geometry checks required'}
+ foreach($flag in @('material_readback_exercised','shader_pixel_cases_exercised','native_flight_exercised')){
+  if($r[$flag] -isnot [bool] -or $r[$flag]){throw 'Geometry result cannot claim material/pixel/native execution'}
+ }
 }
 function Set-KawoEvergreenImportRecipe {
  param([Parameter(Mandatory)][string]$ProjectRoot)
