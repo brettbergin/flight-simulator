@@ -2,10 +2,12 @@
 
 Generated from [roadmap](../roadmap.md) and [backlog](../backlog.json). Consult the [issue index](../issue-index.md) for actual GitHub links.
 
-Small resident-grid component, standalone byte-decoder/reader and offline-tool
-bootstrap leaves may proceed after their own complete checked contracts and
-independent references, while #243's geographic compiler/datum/start/runtime
-seams remain open. Source ingestion
+Resident-grid components, standalone byte decoders/readers, offline tools and
+the bounded KAWO terrain compiler may proceed after their own complete checked
+contracts, independent references and prerequisites. Compiler contract PR256 is
+accepted; its offline full-grid, native, reference and repeated-byte checks now
+pass, with final-source CI/checked acceptance tracked in issue257. The world/start/
+runtime seams in #243 remain separate. Source ingestion
 likewise consumes only its accepted source schema. These bounded leaves do not
 admit a geographic world to flight or waive the integrated phase gates.
 A separate original evergreen art study may author/export and verify its fixed six
@@ -47,6 +49,7 @@ adds no current-world placement, physics, runtime LOD or geographic acceptance.
 | [RESIDENT-GRID-COMPONENT](https://github.com/brettbergin/flight-simulator/issues/249) — Implement standalone immutable resident grid provider and pure byte decoder | world | CORE-CONTRACTS, GROUND-PROOF, LICENSE-REGISTER | `native/world_core/grid/src/`, `native/world_core/grid/CMakeLists.txt`, `tests/ground/grid/CMakeLists.txt`, `tests/ground/grid/native.cpp`, `tests/ground/grid/codec/native.cpp`, `tests/ground/grid/fixtures/`, `tests/ground/grid/codec/fixtures/`, `docs/evidence/P4/resident-grid-component.md`, `tests/ground/grid/README.md`, `tests/ground/grid/private_arithmetic.cpp`, `tests/ground/grid/resource-observer.cpp`, `tools/ci/resident-grid.ps1`, `.github/workflows/native-ci.yml` |
 | [TERRAIN-TOOLS-BOOTSTRAP](https://github.com/brettbergin/flight-simulator/issues/250) — Build and qualify the pinned offline terrain authoring environment | world | CORE-CONTRACTS, LICENSE-REGISTER | `tools/ingest/terrain/`, `tests/world/terrain-tools/`, `docs/evidence/P4/terrain-tools.md`, `docs/evidence/P4/terrain-tools-run-v1.json`, `.github/workflows/foundation-ci.yml` |
 | [ORIGINAL-EVERGREEN-ASSETS](https://github.com/brettbergin/flight-simulator/issues/252) — Author and qualify original evergreen scenery assets | world | CORE-CONTRACTS, LICENSE-REGISTER | `assets_source/environment/original-evergreens-v1/`, `tools/benchmark/pipeline/environment_trees/`, `docs/evidence/P4/original-evergreens.md`, `docs/evidence/P4/original-evergreens/`, `third_party/licenses/notices/OriginalEvergreens-MIT.txt`, `third_party/licenses/evidence/original-evergreens-v1.md`, `third_party/licenses/evidence/original-evergreens-v1.inventory.json` |
+| [KAWO-TERRAIN-COMPILER](https://github.com/brettbergin/flight-simulator/issues/257) — Compile the first source-bound KAWO resident terrain | world | KAWO-NASR-SOURCE, RESIDENT-GRID-COMPONENT, TERRAIN-TOOLS-BOOTSTRAP | `tools/ingest/terrain/kawo_terrain_v1.py`, `tools/ingest/terrain/README-kawo-terrain-v1.md`, `tests/terrain/kawo/test_*.py`, `tests/terrain/kawo/_support.py`, `tests/terrain/kawo/fixtures/`, `tests/terrain/kawo/native/`, `docs/evidence/P4/kawo-terrain-compilation.md`, `docs/evidence/P4/kawo-terrain-compilation-run-v1.json`, `docs/evidence/P4/kawo-terrain-compile-receipt-v1.json`, `docs/evidence/P4/kawo-derived-data-rights.md`, `docs/evidence/P4/kawo-derived-data-rights-v1.json`, `docs/evidence/P4/kawo-reviewed-source-dossier-v1.json`, `.gitattributes`, `.github/workflows/foundation-ci.yml`, `.github/workflows/native-ci.yml`, `tools/ci/kawo-terrain.ps1`, `docs/README.md`, `docs/roadmap.md`, `docs/backlog.json`, `docs/issue-index.md`, `docs/requirements.md`, `docs/phases/p4-region-and-weather.md` |
 
 ## Agent handoff
 

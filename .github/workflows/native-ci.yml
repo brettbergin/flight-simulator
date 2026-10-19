@@ -160,6 +160,9 @@ jobs:
       - name: Qualify isolated resident-grid provider and payload decoder
         if: steps.scope.outputs.docs_only != 'true'
         run: ./tools/ci/resident-grid.ps1
+      - name: Qualify isolated KAWO native validator synthetic harness
+        if: steps.scope.outputs.docs_only != 'true'
+        run: ./tools/ci/kawo-terrain.ps1
       - name: Check synthetic schema3 source provenance and invalid packages
         if: steps.scope.outputs.docs_only != 'true'
         run: |
@@ -383,6 +386,12 @@ jobs:
             .local/resident-grid-ci/CMakeCache.txt
             .local/resident-grid-ci/compile_commands.json
             .local/resident-grid-ci/Testing/Temporary/LastTest.log
+            .local/kawo-terrain-ci/configure.log
+            .local/kawo-terrain-ci/build.log
+            .local/kawo-terrain-ci/ctest.log
+            .local/kawo-terrain-ci/CMakeCache.txt
+            .local/kawo-terrain-ci/compile_commands.json
+            .local/kawo-terrain-ci/Testing/Temporary/LastTest.log
             .local/source-coupled-midpoint-ci/run-receipt.json
             .local/build/native-release/toolchain-build-manifest.txt
             .local/build/native-release/native-identity.gd

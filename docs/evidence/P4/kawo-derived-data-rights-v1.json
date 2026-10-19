@@ -1,0 +1,148 @@
+{
+  "schema": "RootKawoDerivedDataRightsReview/v1",
+  "reviewed_utc": "2026-10-19T06:01:28Z",
+  "reviewer": "Root integration agent under owner-authorized implementation",
+  "captured_dossier_sha256": "5db1367751d58196c440d24869e82c55fd17e3f24cfd50ac96bad788d6ec07c1",
+  "captured_dossier_bytes": 12237,
+  "scope": "Only the derived numerical KAWO US airport/runway facts, modified compiled DEM surface, original geometry/materials and attribution. No raw ZIP/TIFF/XML/grid/README, charts, logos, foreign records or third-party artwork ships. Actual technical/runtime/accuracy/phase acceptance remains separate.",
+  "decisions": [
+    {
+      "source_id": "faa.nasr.2026-10-01",
+      "artifact": {
+        "sha256": "aba48ea877f249d9b8cd63988b14b3432a6a09ad1fbe9561a5e6443c99c03dd0",
+        "bytes": 8030968,
+        "relative_path": null
+      },
+      "status": "reference-only",
+      "license": "Limited factual-subset use; raw archive reference only",
+      "decision": "approve limited derived use",
+      "reviewer": "Root integration agent under owner-authorized implementation",
+      "reviewed_utc": "2026-10-19T06:01:28Z",
+      "scope": "Only the derived numerical KAWO US airport/runway facts, modified compiled DEM surface, original geometry/materials and attribution. No raw ZIP/TIFF/XML/grid/README, charts, logos, foreign records or third-party artwork ships. Actual technical/runtime/accuracy/phase acceptance remains separate.",
+      "reason": "Approve the specified derived KAWO numerical facts/identifiers with FAA source attribution. Copyright Office fact/expression distinction supports this limited project inference; no universal FAA archive/prose/chart license is inferred. KAWO is US data, excluding Caribbean/Bermuda records and their reproduction restriction. Raw NASR archive and its expressive arrangement/prose remain reference-only and absent from the pack.",
+      "evidence_urls": [
+        "https://www.copyright.gov/help/faq/faq-protect.html",
+        "https://www.copyright.gov/title17/92chap1.html#105",
+        "https://www.faa.gov/air_traffic/flight_info/aeronav/Aero_Data/NASR_Subscription/",
+        "https://www.faa.gov/air_traffic/flight_info/aeronav/Aero_Data/Airport_Data/"
+      ]
+    },
+    {
+      "source_id": "usgs.dem.x55y534.tiff",
+      "artifact": {
+        "sha256": "c0115806df9b1c228b8c074adcdd342bb9a01cf936d2c39be218a5b61ead0ccf",
+        "bytes": 494331204,
+        "relative_path": null
+      },
+      "status": "redistributable",
+      "license": "USGS 3DEP public-domain source data; modified-product notice retained",
+      "decision": "approve limited derived use",
+      "reviewer": "Root integration agent under owner-authorized implementation",
+      "reviewed_utc": "2026-10-19T06:01:28Z",
+      "scope": "Only the derived numerical KAWO US airport/runway facts, modified compiled DEM surface, original geometry/materials and attribution. No raw ZIP/TIFF/XML/grid/README, charts, logos, foreign records or third-party artwork ships. Actual technical/runtime/accuracy/phase acceptance remains separate.",
+      "reason": "Approve derived numerical use of the exact paired 3DEP DEM/metadata. Both captured companion XML abstracts identify standard 3DEP public-domain products. Preserve USGS credit, describe actual mosaic/interpolation/resampling/coordinate/Float32 modifications, no implied agency approval and source warranty/temporal/critical-use limits. Raw TIFF/XML, agency logos and third-party images are not shipped; source data is not exclusively relicensed as project MIT.",
+      "evidence_urls": [
+        "https://www.usgs.gov/3d-elevation-program/about-3dep-products-services",
+        "https://www.usgs.gov/faqs/are-usgs-reportspublications-copyrighted"
+      ]
+    },
+    {
+      "source_id": "usgs.dem.x55y534.xml",
+      "artifact": {
+        "sha256": "ef382998233ddd833be510e4737c3052f20718e9fe2b2bea523c42cbc3952381",
+        "bytes": 12169,
+        "relative_path": null
+      },
+      "status": "redistributable",
+      "license": "USGS 3DEP public-domain source data; modified-product notice retained",
+      "decision": "approve limited derived use",
+      "reviewer": "Root integration agent under owner-authorized implementation",
+      "reviewed_utc": "2026-10-19T06:01:28Z",
+      "scope": "Only the derived numerical KAWO US airport/runway facts, modified compiled DEM surface, original geometry/materials and attribution. No raw ZIP/TIFF/XML/grid/README, charts, logos, foreign records or third-party artwork ships. Actual technical/runtime/accuracy/phase acceptance remains separate.",
+      "reason": "Approve derived numerical use of the exact paired 3DEP DEM/metadata. Both captured companion XML abstracts identify standard 3DEP public-domain products. Preserve USGS credit, describe actual mosaic/interpolation/resampling/coordinate/Float32 modifications, no implied agency approval and source warranty/temporal/critical-use limits. Raw TIFF/XML, agency logos and third-party images are not shipped; source data is not exclusively relicensed as project MIT.",
+      "evidence_urls": [
+        "https://www.usgs.gov/3d-elevation-program/about-3dep-products-services",
+        "https://www.usgs.gov/faqs/are-usgs-reportspublications-copyrighted"
+      ]
+    },
+    {
+      "source_id": "usgs.dem.x56y534.tiff",
+      "artifact": {
+        "sha256": "b62bd2d39d081642fd2b1710a2e3971a216702903b36812304a61ec79f6ac97e",
+        "bytes": 497020458,
+        "relative_path": null
+      },
+      "status": "redistributable",
+      "license": "USGS 3DEP public-domain source data; modified-product notice retained",
+      "decision": "approve limited derived use",
+      "reviewer": "Root integration agent under owner-authorized implementation",
+      "reviewed_utc": "2026-10-19T06:01:28Z",
+      "scope": "Only the derived numerical KAWO US airport/runway facts, modified compiled DEM surface, original geometry/materials and attribution. No raw ZIP/TIFF/XML/grid/README, charts, logos, foreign records or third-party artwork ships. Actual technical/runtime/accuracy/phase acceptance remains separate.",
+      "reason": "Approve derived numerical use of the exact paired 3DEP DEM/metadata. Both captured companion XML abstracts identify standard 3DEP public-domain products. Preserve USGS credit, describe actual mosaic/interpolation/resampling/coordinate/Float32 modifications, no implied agency approval and source warranty/temporal/critical-use limits. Raw TIFF/XML, agency logos and third-party images are not shipped; source data is not exclusively relicensed as project MIT.",
+      "evidence_urls": [
+        "https://www.usgs.gov/3d-elevation-program/about-3dep-products-services",
+        "https://www.usgs.gov/faqs/are-usgs-reportspublications-copyrighted"
+      ]
+    },
+    {
+      "source_id": "usgs.dem.x56y534.xml",
+      "artifact": {
+        "sha256": "c969dc8fcc548ef0670e3fb315ea461cc1f1f59461539816e3b946328f91f8dc",
+        "bytes": 12170,
+        "relative_path": null
+      },
+      "status": "redistributable",
+      "license": "USGS 3DEP public-domain source data; modified-product notice retained",
+      "decision": "approve limited derived use",
+      "reviewer": "Root integration agent under owner-authorized implementation",
+      "reviewed_utc": "2026-10-19T06:01:28Z",
+      "scope": "Only the derived numerical KAWO US airport/runway facts, modified compiled DEM surface, original geometry/materials and attribution. No raw ZIP/TIFF/XML/grid/README, charts, logos, foreign records or third-party artwork ships. Actual technical/runtime/accuracy/phase acceptance remains separate.",
+      "reason": "Approve derived numerical use of the exact paired 3DEP DEM/metadata. Both captured companion XML abstracts identify standard 3DEP public-domain products. Preserve USGS credit, describe actual mosaic/interpolation/resampling/coordinate/Float32 modifications, no implied agency approval and source warranty/temporal/critical-use limits. Raw TIFF/XML, agency logos and third-party images are not shipped; source data is not exclusively relicensed as project MIT.",
+      "evidence_urls": [
+        "https://www.usgs.gov/3d-elevation-program/about-3dep-products-services",
+        "https://www.usgs.gov/faqs/are-usgs-reportspublications-copyrighted"
+      ]
+    },
+    {
+      "source_id": "noaa.geoid18.conus.tiff",
+      "artifact": {
+        "sha256": "fa9a407ac7ee3f5a3694008e4bcd09ce9cc250452f0c3b11700a4960340abce2",
+        "bytes": 16742155,
+        "relative_path": null
+      },
+      "status": "redistributable",
+      "license": "PROJ-data disclaimed public-domain GEOID18 grid and NOAA README",
+      "decision": "approve limited derived use",
+      "reviewer": "Root integration agent under owner-authorized implementation",
+      "reviewed_utc": "2026-10-19T06:01:28Z",
+      "scope": "Only the derived numerical KAWO US airport/runway facts, modified compiled DEM surface, original geometry/materials and attribution. No raw ZIP/TIFF/XML/grid/README, charts, logos, foreign records or third-party artwork ships. Actual technical/runtime/accuracy/phase acceptance remains separate.",
+      "reason": "Approve the pinned GEOID18 numerical correction and paraphrased attribution. Retained GEOID18 section identifies Public Domain and NOAA NGS to PROJ-data conversion. Separately observed official PROJ-data inventory identifies both us_noaa_g2018u0.tif and us_noaa_README.txt as Disclaimed/Public domain. Credit NOAA NGS and PROJ-data; ship neither raw grid nor README. This does not establish source realization/epoch compatibility or total3D accuracy.",
+      "evidence_urls": [
+        "https://cdn.proj.org/us_noaa_README.txt",
+        "https://raw.githubusercontent.com/OSGeo/PROJ-data/master/copyright_and_licenses.csv"
+      ]
+    },
+    {
+      "source_id": "noaa.geoid18.readme",
+      "artifact": {
+        "sha256": "38561c43f20756a77d33406c54cda8c250d18b6b30bff1e00ff51578e3682723",
+        "bytes": 19653,
+        "relative_path": null
+      },
+      "status": "redistributable",
+      "license": "PROJ-data disclaimed public-domain GEOID18 grid and NOAA README",
+      "decision": "approve limited derived use",
+      "reviewer": "Root integration agent under owner-authorized implementation",
+      "reviewed_utc": "2026-10-19T06:01:28Z",
+      "scope": "Only the derived numerical KAWO US airport/runway facts, modified compiled DEM surface, original geometry/materials and attribution. No raw ZIP/TIFF/XML/grid/README, charts, logos, foreign records or third-party artwork ships. Actual technical/runtime/accuracy/phase acceptance remains separate.",
+      "reason": "Approve the pinned GEOID18 numerical correction and paraphrased attribution. Retained GEOID18 section identifies Public Domain and NOAA NGS to PROJ-data conversion. Separately observed official PROJ-data inventory identifies both us_noaa_g2018u0.tif and us_noaa_README.txt as Disclaimed/Public domain. Credit NOAA NGS and PROJ-data; ship neither raw grid nor README. This does not establish source realization/epoch compatibility or total3D accuracy.",
+      "evidence_urls": [
+        "https://cdn.proj.org/us_noaa_README.txt",
+        "https://raw.githubusercontent.com/OSGeo/PROJ-data/master/copyright_and_licenses.csv"
+      ]
+    }
+  ],
+  "technical_acceptance": false,
+  "raw_source_packaging": false,
+  "note": "Actual project source-use review of identified facts/data; no agency endorsement, universal license or aviation training-credit claim. Source-pair ingestion and external semantic validation remain required."
+}
