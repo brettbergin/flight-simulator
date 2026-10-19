@@ -126,6 +126,34 @@ var light_root: Node3D
 var legacy_proof: bool="--smoke" in OS.get_cmdline_user_args() or "--visual-smoke" in OS.get_cmdline_user_args()
 var facade_visual: bool="--facade-visual-smoke" in OS.get_cmdline_user_args()
 
+const PlayerController = preload("res://persistence/local_players_controller.gd")
+const PlayerOptions = preload("res://ui/profiles/player_options.gd")
+const PlayersPage = preload("res://ui/profiles/players_panel.gd")
+const PlayerNamePage = preload("res://ui/profiles/player_name_panel.gd")
+const PracticePage = preload("res://ui/history/practice_panel.gd")
+const PracticeDetailsPage = preload("res://ui/history/practice_details.gd")
+const PlayerExportPage = preload("res://ui/history/player_export_panel.gd")
+const PlayerRecoveryPage = preload("res://ui/history/recovery_panel.gd")
+const PlayerNativeIdentity = preload("res://build/native_identity.gd")
+var player_controller: RefCounted
+var players_button: Button
+var _player_canvas: CanvasLayer
+var _player_ui: Dictionary = {}
+var _player_save_ui: Dictionary = {}
+var _player_opening: int = 0
+var _player_seed: Dictionary = PlayerOptions.default_seed()
+var _player_state: Dictionary = {"dirty":false,"pending":false,"unknown":false}
+var _player_exit: Dictionary = {}
+var _player_transition: bool = false
+var _player_history_waiting: bool = false
+var _player_audio_retired: bool = false
+var _player_close_reason: String = "user_end"
+var _player_quit_pending: bool = false
+var _player_storage_quit: bool = false
+var _recording_player_context: Dictionary = {}
+var _player_restart_after_history: Dictionary = {}
+var _player_flight_buttons: Array[Button] = []
+
 func _ready() -> void:
 	if ("--pointer-checks" in OS.get_cmdline_user_args() or "--pointer-visual-smoke" in OS.get_cmdline_user_args()) and get_parent()==get_tree().root:
 		set_process(false)
@@ -159,6 +187,7 @@ func _ready() -> void:
 		for device in Input.get_connected_joypads():
 			observe_connection(device,true)
 	super._ready()
+	_start_local_players()
 	if not smoke and not _cockpit_asset_ready:
 		return
 	if not legacy_proof and "--cockpit-asset-visual-smoke" in OS.get_cmdline_user_args():
@@ -288,7 +317,12 @@ func close_session() -> bool:
 		_observe_audio({})
 		bridge=null
 		return true
+	var before_close: Dictionary=facade.readback()
+	var history_reason: String="native_terminal" if before_close.host_mode in ["coverage_blocked","discarded"] else _player_close_reason
 	var result: Dictionary=facade.close()
+	if result.ok and player_controller!=null:
+		# This actual joined result supplies the final endpoint, before facade retirement.
+		player_controller.flight_closed(result.readback,history_reason,_player_utc())
 	_observe_audio(result.readback)
 	# Retain the old prefix when replacement fails, but still label its actual
 	# confirmed stop. New-session publications remain held until begin succeeds.
@@ -298,6 +332,7 @@ func close_session() -> bool:
 	else:
 		observe_flight(result.readback)
 	if result.ok:
+		for button in _player_flight_buttons: button.disabled=true
 		_propeller_phase.clear()
 		review_joined=true
 		facade=null
@@ -312,6 +347,7 @@ func _make_facade() -> RefCounted:
 	return Facade.new()
 
 func restart(replace_confirmed: bool=false, selected_wind: Variant=null, requested_profile: Variant=null, requested_start: Variant=null) -> bool:
+	if _player_transition: return false
 	# Explicit --smoke is the existing native-only harness; ordinary flights admit the fixed cockpit first.
 	if not smoke and not _cockpit_asset_ready:
 		return false
@@ -341,9 +377,15 @@ func restart(replace_confirmed: bool=false, selected_wind: Variant=null, request
 	var next_presets: Dictionary=profile_presets.duplicate(true)
 	if not active_preset.is_empty(): next_presets[selected_profile]=active_preset.duplicate(true)
 	initializing_recording=true
+	_player_close_reason="user_restart"
 	if not close_session():
 		initializing_recording=false
 		return fail("Native worker did not join")
+	if player_controller!=null and player_controller.history_exit_pending():
+		_player_restart_after_history={"start":next_start,"wind":requested_wind,"profile":next_profile}
+		initializing_recording=false
+		_show_history_wait()
+		return false
 	held_systems.clear()
 	pending_systems.clear()
 	engine_status.clear()
@@ -434,7 +476,11 @@ func restart(replace_confirmed: bool=false, selected_wind: Variant=null, request
 	view_settings=ViewPolicy.defaults()
 	camera_distance=13.0
 	super.set_camera_mode(0)
+	_ensure_player_audio()
 	_observe_audio(facade.readback())
+	_player_flight_adopted()
+	_notify_player_options()
+	for button in _player_flight_buttons: button.disabled=button==taxi_button and taxi_navigation==null
 	return true
 
 func piston_mode() -> bool:
@@ -630,6 +676,8 @@ func _process(delta: float) -> void:
 	if legacy_proof:
 		super._process(delta)
 		return
+	if player_controller!=null: player_controller.pump()
+	_update_player_history_wait()
 	var now: int=Time.get_ticks_usec()
 	var elapsed: int=now-last_wall_us
 	last_wall_us=now
@@ -637,6 +685,7 @@ func _process(delta: float) -> void:
 	show_state(clampf(float(elapsed)/1000000.0,0.0,0.25))
 
 func process_input_interval(elapsed: int) -> void:
+	if not _player_ui.is_empty(): return
 	if views_open or taxi_open: return
 	if not archive_operation.is_empty(): return
 	if facade==null or mapper==null:
@@ -713,6 +762,7 @@ func make_menu(canvas: CanvasLayer) -> void:
 	engine_controls.denied_press.connect(on_engine_denied.bind(engine_controls))
 	engine_controls.expansion_changed.connect(func(_expanded: bool): layout_live_flight_aids())
 	engine_controls.hide()
+	_player_canvas=canvas
 	var box: VBoxContainer=menu.get_child(0)
 	# Calibration replaces the old global sensitivity and implicit pad picker.
 	for child in box.get_children():
@@ -774,6 +824,21 @@ func make_menu(canvas: CanvasLayer) -> void:
 	taxi_button.pressed.connect(open_taxi)
 	taxi_button.disabled=taxi_navigation==null
 	speed_audio_row.add_child(taxi_button)
+	players_button=Button.new()
+	players_button.name="Players"
+	players_button.text="Players ï¿½ Guest"
+	players_button.custom_minimum_size=Vector2(100,32)
+	players_button.clip_text=true
+	players_button.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS
+	players_button.pressed.connect(open_players)
+	# Reuse the aircraft row height; the six flight tools remain on their row.
+	var player_row:=HBoxContainer.new()
+	box.add_child(player_row)
+	box.move_child(player_row,profile_button.get_index())
+	profile_button.reparent(player_row)
+	profile_button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	player_row.add_child(players_button)
+	_player_flight_buttons=[first_button,controls_button,scan_button,route_button,wind_button,speed_button,audio_button,views_button,taxi_button]
 	taxi_panel=TaxiPanel.new()
 	canvas.add_child(taxi_panel)
 	taxi_panel.z_index=3
@@ -920,6 +985,8 @@ func cycle_flight_scale() -> void:
 	set_flight_scale(scales[(index+1)%scales.size()])
 
 func _input(event: InputEvent) -> void:
+	if _player_transition: return
+	if not _player_ui.is_empty(): return
 	if legacy_proof:
 		return
 	if views_open or taxi_open: return
@@ -947,6 +1014,8 @@ func _input(event: InputEvent) -> void:
 			wheel_pulses.append(event.button_index)
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _player_transition: return
+	if not _player_ui.is_empty(): return
 	if legacy_proof:
 		super._unhandled_input(event)
 		return
@@ -991,6 +1060,13 @@ func _unhandled_input(event: InputEvent) -> void:
 			close_menu()
 
 func _unhandled_key_input(event: InputEvent) -> void:
+	if _player_transition:
+		get_viewport().set_input_as_handled()
+		return
+	if not _player_ui.is_empty():
+		if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode==KEY_ESCAPE: _dismiss_player_ui()
+		get_viewport().set_input_as_handled()
+		return
 	if legacy_proof:
 		super._unhandled_key_input(event)
 		return
@@ -1066,6 +1142,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func dispatch_input_action(action: String) -> void:
+	if _player_transition: return
+	if not _player_ui.is_empty():
+		if action=="pause_menu": _dismiss_player_ui()
+		return
 	if taxi_open:
 		if action=="pause_menu": dismiss_taxi()
 		return
@@ -1150,6 +1230,7 @@ func on_joy_connection_changed(device: int, connected: bool) -> void:
 		pause_for_input("Selected controller disconnected or changed generation; reselect in Controls")
 
 func on_focus_lost() -> void:
+	if not _player_ui.is_empty(): return
 	if legacy_proof:
 		super.on_focus_lost()
 		return
@@ -1252,7 +1333,7 @@ func _observe_audio(value: Variant) -> void:
 			menu_open=true
 			if menu!=null:
 				menu.show()
-				menu_title.text="Audio source changed · inspect current flight"
+				menu_title.text="Audio source changed Â· inspect current flight"
 				resume_button.disabled=cues.state!="paused"
 
 # Original MIT. Presentation-only Views owner; no pause or Mapper sample here.
@@ -1276,7 +1357,7 @@ func _camera_smooth_alpha(seconds: float) -> float:
 
 func _camera_view_label() -> String:
 	var names: Dictionary={"cockpit":"COCKPIT","forward_horizon":"FORWARD HORIZON","left_window":"LEFT WINDOW","right_window":"RIGHT WINDOW","panel":"PANEL","chase":"CHASE","orbit":"ORBIT"}
-	return "%s / %.1f° FOV"%[names[view_settings.preset],camera.fov]
+	return "%s / %.1fÂ° FOV"%[names[view_settings.preset],camera.fov]
 
 func _views_current_source() -> Dictionary:
 	if legacy_proof or facade==null or initializing_recording or quitting or not paused or adopted_session_id.is_empty(): return {}
@@ -1394,7 +1475,7 @@ func _observe_views_source() -> void:
 		menu_open=true
 		if menu!=null:
 			menu.show()
-			menu_title.text="Flight paused" if source_valid else "View source changed · inspect current flight"
+			menu_title.text="Flight paused" if source_valid else "View source changed Â· inspect current flight"
 			resume_button.disabled=not source_valid
 
 func _taxi_foreign() -> bool:
@@ -1503,7 +1584,7 @@ func publish_taxi_navigation() -> void:
 		menu_open=true
 		if menu!=null:
 			menu.show()
-			menu_title.text="Taxi source changed · inspect current flight"
+			menu_title.text="Taxi source changed Â· inspect current flight"
 			resume_button.disabled=true
 	elif taxi_panel!=null: taxi_panel.present(view)
 
@@ -1514,6 +1595,8 @@ func set_audio_options(value: Variant) -> bool:
 	if sound!=null and not sound.set_options(checked.value): return false
 	audio_options=checked.value.duplicate(true)
 	audio_enabled=audio_options.enabled
+	_player_seed.audio=audio_options.duplicate(true)
+	_notify_player_options()
 	if audio_open and facade!=null:
 		audio_panel.set_context(AudioCues.from_readback(facade.readback()),audio_options)
 	return true
@@ -1545,6 +1628,7 @@ func open_audio() -> void:
 	menu.hide()
 	widget.show()
 	widget.focus_back()
+	_bind_player_save(widget)
 
 func _on_audio_options(value: Variant, source_session: String, widget: Control, opening: Dictionary) -> void:
 	if not opening.get("active",false) or not audio_open or widget!=audio_panel or not widget.is_visible_in_tree() or not menu_open: return
@@ -1555,6 +1639,7 @@ func _on_audio_options(value: Variant, source_session: String, widget: Control, 
 	set_audio_options(value)
 
 func retire_audio_panel() -> void:
+	_retire_player_save(audio_panel)
 	if not _audio_opening.is_empty(): _audio_opening.active=false
 	_audio_opening={}
 	if audio_panel!=null:
@@ -1602,6 +1687,7 @@ func open_controls() -> void:
 	else:
 		controls_panel.open(active_preset,collect_input_raw(),held_controls,initial.solved_controls)
 	controls_panel.update_diagnostics(collect_input_raw(),held_controls,held_controls,controls_diagnostics())
+	_bind_player_save(controls_panel)
 
 func open_wind() -> void:
 	if views_open or taxi_open: return
@@ -1636,7 +1722,7 @@ func dismiss_wind() -> void:
 	if views_open or taxi_open: return
 	if wind_panel==null or not wind_panel.visible or not pending_discard.is_empty(): return
 	wind_panel.hide()
-	open_menu("Wind draft retained · current flight paused")
+	open_menu("Wind draft retained Â· current flight paused")
 	resume_button.grab_focus()
 	show_state(0)
 
@@ -1680,14 +1766,18 @@ func apply_controls(preset: Dictionary) -> void:
 		return
 	active_preset=preset.duplicate(true)
 	profile_presets[selected_profile]=active_preset.duplicate(true)
+	_player_seed["piston_input" if piston_mode() else "legacy_input"]=active_preset.duplicate(true)
+	_notify_player_options()
+	_retire_player_save(controls_panel)
 	controls_selection_backup.clear()
 	input_blocked=false
 	input_problem="Preset applied; release centered controls and confirm Resume"
 	brake_hold=mapper.sample(collect_input_raw(),0).brake_hold
 	controls_panel.hide()
-	open_menu("Controls applied · guest preset")
+	open_menu("Controls applied Â· guest preset")
 
 func dismiss_controls() -> void:
+	_retire_player_save(controls_panel)
 	if views_open or taxi_open: return
 	if not archive_operation.is_empty(): return
 	selected_slots=controls_selection_backup.duplicate(true)
@@ -1700,6 +1790,7 @@ func select_controller() -> void:
 	else: open_controls()
 
 func start_flight(start: String) -> void:
+	if _player_transition: return
 	if views_open or taxi_open: return
 	if legacy_proof:
 		super.start_flight(start)
@@ -1712,6 +1803,7 @@ func start_flight(start: String) -> void:
 	request_discard("restart",start,wind_draft,selected_profile)
 
 func perform_start(start: String, selected_wind: Variant=null, requested_profile: Variant=null, first_flight_continuation: bool=false) -> void:
+	if _player_transition: return
 	if views_open or taxi_open: return
 	if audio_open: return
 	if not archive_operation.is_empty(): return
@@ -1724,21 +1816,24 @@ func perform_start(start: String, selected_wind: Variant=null, requested_profile
 		if observed_panel!=null: observed_panel.set_open(false)
 		review_open=false
 		clear_imported_review()
-		open_menu("Fresh flight · confirm controls")
+		open_menu("Fresh flight Â· confirm controls")
 		if first_flight_continuation:
 			open_first_flight()
 			return
 		# A new profile requires an explicit paused Controls/Resume decision.
 		if not profile_changed: close_menu()
 	else:
+		if not _player_restart_after_history.is_empty():
+			_player_restart_after_history["first_flight"]=first_flight_continuation
+			return
 		if first_flight_continuation:
 			# A failure after close cannot truthfully retain the old live flight.
 			var failure: String=status
-			open_menu("Flight setup failed · inspect current state")
+			open_menu("Flight setup failed Â· inspect current state")
 			menu_message.text=failure.left(1024)
 			open_first_flight()
 		else:
-			open_menu("Restart failed · recorded flight retained")
+			open_menu("Restart failed Â· recorded flight retained")
 
 func first_flight_source_session() -> String:
 	if facade==null: return ""
@@ -1950,18 +2045,18 @@ func locator_binding_hints() -> Dictionary:
 	return {"zoom_in":configured_action_hint("map_zoom_in"),"zoom_out":configured_action_hint("map_zoom_out"),"close":configured_action_hint("map_toggle")}
 
 func look_release_hint() -> String:
-	return "Look: "+configured_action_hint("look_hold").full+" · release to expose pointer; Escape pauses/menu; Controls: "+configured_action_hint("controls_panel").full
+	return "Look: "+configured_action_hint("look_hold").full+" Â· release to expose pointer; Escape pauses/menu; Controls: "+configured_action_hint("controls_panel").full
 
 func compact_look_release(width: float) -> String:
 	var alias: String=configured_action_hint("look_hold").full
 	var prefix: String="Look: "
-	var suffix: String=" · release to use"
+	var suffix: String=" Â· release to use"
 	var font: Font=ThemeDB.fallback_font
 	if font.get_string_size(prefix+alias+suffix,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x<=width: return prefix+alias+suffix
 	while not alias.is_empty():
 		alias=alias.left(alias.length()-1)
-		if font.get_string_size(prefix+alias+"…"+suffix,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x<=width: return prefix+alias+"…"+suffix
-	return prefix+"…"+suffix
+		if font.get_string_size(prefix+alias+"â€¦"+suffix,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x<=width: return prefix+alias+"â€¦"+suffix
+	return prefix+"â€¦"+suffix
 
 func update_canonical_scene_sources() -> void:
 	var visual_ecef: Variant=facade.call("_visual_ecef")
@@ -1991,6 +2086,7 @@ func show_state(seconds: float=0.0) -> void:
 		super.show_state(seconds)
 		return
 	if facade==null:
+		layout_flight_menu()
 		_observe_audio({})
 		_observe_views_source()
 		clear_circuit_reference("Current flight unavailable")
@@ -2366,6 +2462,8 @@ func on_instrument_selected(_instrument: String) -> void:
 	dismiss_instrument_scan()
 
 func open_menu(title: String="Flight paused") -> void:
+	if _player_transition: return
+	if not _player_ui.is_empty() or not _player_exit.is_empty(): return
 	if taxi_open: return
 	if not archive_operation.is_empty(): return
 	if not legacy_proof: retire_taxi_panel()
@@ -2380,12 +2478,20 @@ func open_menu(title: String="Flight paused") -> void:
 		if landmark_board!=null:
 			landmark_board.set_open(false)
 	super.open_menu(title)
+	if not legacy_proof and facade==null:
+		resume_button.disabled=true
+		menu_message.text="No active flight. Choose a fresh start when ready."
 	if not legacy_proof and profile_button!=null:
-		profile_button.text="Aircraft: cold piston prototype  ·  switch" if selected_profile==Facade.PISTON_PROFILE.id else "Aircraft: ready-to-fly prototype  ·  switch"
-		if piston_mode():
-			menu_message.text="Original piston prototype · idealized starter supply\nStart: brakes held, mixture rich, ignition both, hold starter.\nExpand ENGINE CONTROLS or use bindings in Controls (F7).\nRelease starter after firing; release mouse look to use the pointer.\nNative shaft RPM / combustion / switches are shown below.\nThis is an engineering interaction; no C172 procedure is claimed."
+		profile_button.text="Aircraft: cold piston prototype  Â·  switch" if selected_profile==Facade.PISTON_PROFILE.id else "Aircraft: ready-to-fly prototype  Â·  switch"
+		if piston_mode() and facade!=null:
+			menu_message.text="Original piston prototype Â· idealized starter supply\nStart: brakes held, mixture rich, ignition both, hold starter.\nExpand ENGINE CONTROLS or use bindings in Controls (F7).\nRelease starter after firing; release mouse look to use the pointer.\nNative shaft RPM / combustion / switches are shown below.\nThis is an engineering interaction; no C172 procedure is claimed."
 
 func close_menu() -> void:
+	if _player_transition: return
+	if not _player_ui.is_empty():
+		_dismiss_player_ui()
+		return
+	if not _player_exit.is_empty(): return
 	if not archive_operation.is_empty(): return
 	if not legacy_proof and taxi_open:
 		dismiss_taxi()
@@ -2416,6 +2522,7 @@ func close_menu() -> void:
 		# performs the existing native/mapper lifecycle operation.
 		dismiss_instrument_scan()
 		return
+	if facade==null and not legacy_proof: return
 	super.close_menu()
 
 func restart_failed(message: String) -> bool:
@@ -2453,6 +2560,7 @@ func observe_flight(readback: Dictionary) -> void:
 	if legacy_proof or initializing_recording or observed_status.is_empty(): return
 	var result: Dictionary=observed_recorder.observe(readback)
 	if result.status!=null: observed_status=result.status
+	if player_controller!=null: player_controller.flight_observed(readback,_player_utc())
 
 func recorded_flight_advanced() -> bool:
 	return not observed_status.is_empty() and observed_status.state!="empty" and observed_status.first_tick!=observed_status.last_observed_tick
@@ -2509,7 +2617,7 @@ func dismiss_observed_review() -> void:
 	observed_panel.set_open(false)
 	review_open=false
 	clear_imported_review()
-	open_menu("Recorded flight retained · paused")
+	open_menu("Recorded flight retained Â· paused")
 
 func clear_imported_review() -> void:
 	if views_open or taxi_open: return
@@ -2549,7 +2657,7 @@ func begin_archive_operation(action: String, show_dialog: bool=true) -> bool:
 	observed_panel.set_file_context(archive_imported,"Choose a new file." if action=="save" else "Choose a historical review file.",true)
 	if show_dialog:
 		archive_dialog.file_mode=FileDialog.FILE_MODE_SAVE_FILE if action=="save" else FileDialog.FILE_MODE_OPEN_FILE
-		archive_dialog.title="Save new review — existing files are preserved" if action=="save" else "Open historical recorded review"
+		archive_dialog.title="Save new review â€” existing files are preserved" if action=="save" else "Open historical recorded review"
 		if action=="save":
 			var stamp: String=Time.get_datetime_string_from_system(true).replace(":","-")
 			archive_dialog.current_file="flight-review-"+stamp+"-"+str(Time.get_ticks_usec())+".fsreview.json"
@@ -2632,7 +2740,7 @@ func make_discard_confirmation(canvas: CanvasLayer) -> void:
 	buttons.add_theme_constant_override("separation",12)
 	box.add_child(buttons)
 	discard_cancel=Button.new()
-	discard_cancel.text="Cancel · keep recorded flight"
+	discard_cancel.text="Cancel Â· keep recorded flight"
 	discard_cancel.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	discard_cancel.pressed.connect(cancel_discard)
 	buttons.add_child(discard_cancel)
@@ -2646,6 +2754,7 @@ func make_discard_confirmation(canvas: CanvasLayer) -> void:
 	discard_layer.hide()
 
 func request_discard(action: String, start: String="", selected_wind: Variant=null, requested_profile: Variant=null, first_flight_continuation: bool=false) -> void:
+	if _player_transition: return
 	if views_open or taxi_open: return
 	if audio_open: return
 	if not archive_operation.is_empty(): return
@@ -2695,7 +2804,7 @@ func cancel_discard() -> void:
 	elif route_open or scan_open:
 		pass
 	else:
-		open_menu("Recorded flight retained · paused")
+		open_menu("Recorded flight retained Â· paused")
 
 func confirm_discard() -> void:
 	if pending_discard.is_empty(): return
@@ -2710,6 +2819,7 @@ func confirm_discard() -> void:
 	else: await perform_quit()
 
 func quit_flight() -> void:
+	if _player_transition: return
 	if taxi_open: return
 	if not legacy_proof:
 		retire_taxi_panel()
@@ -2721,15 +2831,19 @@ func quit_flight() -> void:
 		await request_discard("quit")
 
 func perform_quit() -> void:
+	if _player_transition: return
 	if not archive_operation.is_empty(): return
 	retire_taxi_panel()
 	retire_views_panel()
 	retire_audio_panel()
 	retire_first_flight()
 	clear_circuit_reference("Flight closing")
-	await super.quit_flight()
+	await _quit_with_players()
 
 func _exit_tree() -> void:
+	retire_players_ui()
+	for entry in _player_save_ui.values(): _retire_player_save(entry.widget)
+	if player_controller!=null: player_controller.begin_close()
 	quitting=true
 	retire_taxi_panel()
 	retire_views_panel()
@@ -2797,7 +2911,7 @@ func run_observed_visual() -> void:
 		check(synthetic.observe(unavailable).ok,"observed_visual_synthetic_gap_fuel_unavailable_"+str(index))
 		check(synthetic.observe(fixture.call("_source","241",9.0,12.0)).ok,"observed_visual_synthetic_gap_end_"+str(index))
 		check(observed_panel.set_recording(synthetic.recording()),"observed_visual_synthetic_gap_record_"+str(index))
-		observed_panel.get("_title").text="SYNTHETIC UI FIXTURE · gaps / unavailable fuel"
+		observed_panel.get("_title").text="SYNTHETIC UI FIXTURE Â· gaps / unavailable fuel"
 		observed_panel.set("_channel","fuel_total")
 		observed_panel.get("_graph_choice").select(4)
 		observed_panel.select_sample(2)
@@ -2807,7 +2921,7 @@ func run_observed_visual() -> void:
 		check(limited.observe(fixture.call("_source","61",3.0,4.0)).ok,"observed_visual_synthetic_limit_sample_"+str(index))
 		check(limited.observe(fixture.call("_source","144001",20.0,30.0)).ok,"observed_visual_synthetic_beyond_window_"+str(index))
 		check(observed_panel.set_recording(limited.recording()),"observed_visual_synthetic_limit_record_"+str(index))
-		observed_panel.get("_title").text="SYNTHETIC UI FIXTURE · sealed recording limit"
+		observed_panel.get("_title").text="SYNTHETIC UI FIXTURE Â· sealed recording limit"
 		await save_view(prefix+"-limit")
 		check(facade.readback()==native,"observed_visual_display_fixtures_do_not_change_native_"+str(index))
 		dismiss_observed_review()
@@ -3046,7 +3160,7 @@ func update_engine_controls() -> void:
 	if view.get("capture")==null or view.get("session_id")!=engine_pointer_terminal.get("session_id") or view.get("generation")!=engine_pointer_terminal.get("generation"):
 		engine_pointer_terminal.clear()
 	engine_controls_session=str(view.get("session_id",""))
-	var reason: String=input_problem if input_blocked else str(view.get("error")) if not str(view.get("error","")).is_empty() else "Release left button before a fresh press" if not engine_pointer_rearm.is_empty() else "Release mouse look to use engine controls" if engine_pointer_look_active or Input.mouse_mode==Input.MOUSE_MODE_CAPTURED else "Paused / retained / unavailable · resume explicitly" if not pointer_ui_eligible() else ""
+	var reason: String=input_problem if input_blocked else str(view.get("error")) if not str(view.get("error","")).is_empty() else "Release left button before a fresh press" if not engine_pointer_rearm.is_empty() else "Release mouse look to use engine controls" if engine_pointer_look_active or Input.mouse_mode==Input.MOUSE_MODE_CAPTURED else "Paused / retained / unavailable Â· resume explicitly" if not pointer_ui_eligible() else ""
 	engine_controls.set_state(view,engine_status,active_preset,pointer_ui_eligible(),reason,look_release_hint())
 
 func pointer_source_hint(source: Dictionary) -> String:
@@ -3304,3 +3418,558 @@ class CockpitAssetVisualObserver extends "res://instrument_tests/cockpit_visual.
 				else: stream.store_string(JSON.stringify(receipt,"  ",false,true));stream.close()
 		print("COCKPIT_ASSET_VISUAL_COMPLETE ",JSON.stringify({"passed":receipt.passed,"captures":_captures.size(),"native_joined":joined,"audio_joined":_audio_joined,"independent_pixels_approved":false}))
 		_scene.get_tree().quit(0 if receipt.passed else 1)
+
+# Local players are deliberately absent from automated flight-only runs. The
+# isolated UI harness overrides this internal construction seam with the real
+# qualified test extension; no page/CLI may supply a root or service factory.
+func _players_storage_allowed() -> bool:
+	return not legacy_proof and OS.get_cmdline_user_args().is_empty()
+
+func _make_local_players_service() -> RefCounted:
+	return ClassDB.instantiate("LocalPlayers") as RefCounted if ClassDB.class_exists("LocalPlayers") else null
+
+func _start_local_players() -> void:
+	if player_controller!=null or not _players_storage_allowed(): return
+	player_controller=PlayerController.new()
+	player_controller.storage_changed.connect(_player_storage_changed)
+	player_controller.players_changed.connect(_player_list_changed)
+	player_controller.selection_candidate.connect(_player_selection_candidate)
+	player_controller.selection_changed.connect(_player_selection_changed)
+	player_controller.options_changed.connect(_player_options_changed)
+	player_controller.operation_finished.connect(_player_operation_finished)
+	player_controller.intent_refused.connect(_player_intent_refused)
+	player_controller.history_exit_resolved.connect(_player_history_resolved)
+	player_controller.storage_closed.connect(_player_storage_closed)
+	var service: RefCounted=_make_local_players_service()
+	if service!=null and player_controller.attach_service(service): player_controller.start_storage()
+	else:
+		# No attached service owns a lifetime to close. Preserve ordinary Quit.
+		player_controller=null
+		if players_button!=null:
+			players_button.disabled=true
+			players_button.tooltip_text="Player storage is unavailable in this build; Guest flight remains available"
+
+func _player_utc() -> String:
+	return Time.get_datetime_string_from_system(true,false)+"Z"
+
+func _player_epoch() -> int:
+	return player_controller.current_epoch() if player_controller!=null else 0
+
+func _player_pair() -> Variant:
+	return player_controller.selected_pair() if player_controller!=null else null
+
+func _player_id() -> Variant:
+	var pair: Variant=_player_pair()
+	return null if pair==null else pair.player.id
+
+func _next_player_opening() -> int:
+	if _player_opening==9223372036854775807: return 0
+	_player_opening+=1
+	return _player_opening
+
+func _player_entry_allowed() -> bool:
+	if _player_transition: return false
+	if legacy_proof or quitting or initializing_recording or _player_canvas==null or player_controller==null: return false
+	if not menu_open or menu==null or not menu.visible or not paused: return false
+	if views_open or taxi_open or audio_open or first_flight_open or scan_open or route_open or review_open: return false
+	if not archive_operation.is_empty() or not pending_discard.is_empty() or not _player_ui.is_empty() or not _player_exit.is_empty(): return false
+	if controls_panel!=null and controls_panel.visible or wind_panel!=null and wind_panel.visible: return false
+	if facade==null: return review_joined
+	if Input.mouse_mode==Input.MOUSE_MODE_CAPTURED or engine_pointer_look_active or not engine_pointer_terminal.is_empty(): return false
+	if mapper!=null and (mapper.pointer_view().capture!=null or not mapper.get("_pointer_pending").is_empty()): return false
+	if engine_controls!=null and not engine_controls.get("_capture").is_empty(): return false
+	var source: Dictionary=facade.readback()
+	var qualified: Dictionary=ObservedValues.qualify(source)
+	return qualified.ok and qualified.kind=="current" and source.paused and source.host_mode=="paused" and source.session_id==adopted_session_id
+
+func _register_player_widget(widget: Control, kind: String) -> int:
+	var opening: int=_next_player_opening()
+	if opening==0: return 0
+	var pair: Variant=_player_pair()
+	_player_ui={"widget":widget,"opening":opening,"epoch":_player_epoch(),"player_id":_player_id(),
+		"revision":null if pair==null else pair.player.revision,"session":adopted_session_id,
+		"kind":kind,"callbacks":{}}
+	return opening
+
+func _connect_player(signal_value: Signal, callback: Callable) -> void:
+	signal_value.connect(callback)
+	_player_ui.callbacks[signal_value]=callback
+
+func _player_guard(widget: Control, opening: int, epoch: int) -> bool:
+	if _player_ui.is_empty() or widget==null or not is_instance_valid(widget) or not widget.is_visible_in_tree(): return false
+	if _player_ui.widget!=widget or _player_ui.opening!=opening or _player_ui.epoch!=epoch or epoch!=_player_epoch(): return false
+	if _player_ui.player_id!=_player_id() or _player_ui.session!=adopted_session_id or not menu_open: return false
+	var pair: Variant=_player_pair()
+	return _player_ui.revision==(null if pair==null else pair.player.revision)
+
+func retire_players_ui() -> void:
+	if _player_ui.is_empty(): return
+	var prior: Dictionary=_player_ui
+	_player_ui={}
+	if player_controller!=null: player_controller.retire_opening(prior.opening)
+	for signal_value: Signal in prior.callbacks:
+		var callback: Callable=prior.callbacks[signal_value]
+		if signal_value.is_connected(callback): signal_value.disconnect(callback)
+	var widget: Control=prior.widget
+	if is_instance_valid(widget):
+		if widget.has_method("retire"): widget.retire()
+		widget.hide()
+		widget.queue_free()
+
+func open_players() -> bool:
+	if not _player_entry_allowed(): return false
+	if facade==null:
+		_show_players_page()
+		return true
+	var dialog:=ConfirmationDialog.new()
+	dialog.title="End this flight to choose a player?"
+	dialog.dialog_text="The current flight will stop. Its recorded review stays available.\nCancel keeps this flight and all current settings."
+	dialog.ok_button_text="End flight and choose player"
+	dialog.cancel_button_text="Cancel Â· keep this flight"
+	dialog.get_ok_button().focus_mode=Control.FOCUS_ALL
+	# A Window is not a Control: the actual confirmation widget is its content.
+	var identity:=Control.new()
+	identity.name="PlayerExitIdentity"
+	_player_canvas.add_child(identity)
+	identity.show()
+	_player_canvas.add_child(dialog)
+	var opening: int=_register_player_widget(identity,"exit")
+	if opening==0:
+		dialog.queue_free(); identity.queue_free(); return false
+	_player_exit={"opening":opening,"epoch":_player_epoch(),"dialog":dialog,"identity":identity}
+	_connect_player(dialog.canceled,func(): cancel_players_exit(opening,_player_exit.get("epoch",-1)))
+	_connect_player(dialog.confirmed,func(): confirm_players_exit(opening,_player_exit.get("epoch",-1)))
+	dialog.popup_centered(Vector2i(560,230))
+	dialog.get_cancel_button().grab_focus()
+	return true
+
+func _retire_player_exit() -> void:
+	var dialog: Window=_player_exit.get("dialog")
+	_player_exit={}
+	retire_players_ui()
+	if is_instance_valid(dialog): dialog.hide(); dialog.queue_free()
+
+func cancel_players_exit(opening: int, epoch: int) -> void:
+	if _player_exit.is_empty() or not _player_guard(_player_exit.identity,opening,epoch): return
+	_retire_player_exit()
+	if players_button!=null: players_button.grab_focus()
+
+func confirm_players_exit(opening: int, epoch: int) -> void:
+	if _player_transition or _player_exit.is_empty() or not _player_guard(_player_exit.identity,opening,epoch): return
+	# Own this transition across asynchronous playback retirement. No modal can
+	# activate settings or start a new flight while the old audio still exists.
+	if facade==null or facade.readback().session_id!=adopted_session_id or not review_boundary(): return
+	_player_transition=true
+	var source_session: String=adopted_session_id
+	var retiring_sound: Node=sound
+	_retire_player_exit()
+	menu.hide()
+	_player_close_reason="user_end"
+	if not close_session():
+		_player_transition=false
+		status="Flight did not join; player selection is unavailable"
+		open_menu(status)
+		return
+	_player_history_waiting=player_controller.history_exit_pending()
+	await _finish_player_retirement(epoch,source_session,retiring_sound)
+
+func _finish_player_retirement(epoch: int, source_session: String, retiring_sound: Node) -> void:
+	_player_audio_retired=retiring_sound==null or bool(await retiring_sound.shutdown())
+	if not _player_transition or epoch!=_player_epoch() or source_session!=adopted_session_id or facade!=null or sound!=retiring_sound:
+		_show_player_audio_wait(epoch,source_session,retiring_sound,false)
+		return
+	if not _player_audio_retired:
+		_show_player_audio_wait(epoch,source_session,retiring_sound,true)
+		return
+	if is_instance_valid(retiring_sound): retiring_sound.queue_free()
+	sound=null
+	_player_transition=false
+	if _player_history_waiting: _show_history_wait()
+	elif _player_quit_pending: _finish_player_quit()
+	else: _show_players_page()
+
+func _show_player_audio_wait(epoch: int, source_session: String, retiring_sound: Node, retryable: bool) -> void:
+	# A timeout is not a join. Keep flight/settings entry blocked and expose
+	# only a deliberate retry of the same playback owner.
+	retire_players_ui()
+	var card:=VBoxContainer.new()
+	_player_canvas.add_child(card)
+	card.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	card.position=Vector2(-250,-85)
+	card.custom_minimum_size=Vector2(500,170)
+	var label:=Label.new()
+	label.text="Audio playback is still retiring. Retry before continuing." if retryable else "Player transition changed. Selection remains unavailable."
+	label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	card.add_child(label)
+	var retry:=Button.new()
+	retry.text="Retry playback shutdown"
+	retry.disabled=not retryable
+	card.add_child(retry)
+	var opening: int=_register_player_widget(card,"audio_wait")
+	_connect_player(retry.pressed,func():
+		if _player_guard(card,opening,epoch) and _player_transition and facade==null and sound==retiring_sound and adopted_session_id==source_session:
+			retire_players_ui()
+			_finish_player_retirement(epoch,source_session,retiring_sound))
+	menu.hide()
+	card.show()
+	if retryable: retry.grab_focus()
+
+func _show_history_wait() -> void:
+	retire_players_ui()
+	var card:=VBoxContainer.new()
+	_player_canvas.add_child(card)
+	card.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	card.position=Vector2(-250,-85)
+	card.custom_minimum_size=Vector2(500,170)
+	var label:=Label.new()
+	label.text="Finishing practice historyâ€¦"
+	label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	card.add_child(label)
+	var acknowledge:=Button.new()
+	acknowledge.text="Continue without saved history"
+	card.add_child(acknowledge)
+	var opening: int=_register_player_widget(card,"history_wait")
+	_connect_player(acknowledge.pressed,func():
+		if _player_guard(card,opening,_player_epoch()): player_controller.acknowledge_history_not_saved(opening,_player_epoch()))
+	menu.hide()
+	card.show()
+	acknowledge.grab_focus()
+
+func _player_history_resolved(epoch: int, _saved: bool) -> void:
+	if epoch!=_player_epoch(): return
+	_player_history_waiting=false
+	if not _player_restart_after_history.is_empty():
+		var next: Dictionary=_player_restart_after_history
+		_player_restart_after_history={}
+		retire_players_ui()
+		call_deferred("perform_start",next.start,next.wind,next.profile,next.get("first_flight",false))
+	elif _player_quit_pending: _finish_player_quit()
+	elif not _player_ui.is_empty() and _player_ui.kind=="history_wait":
+		retire_players_ui()
+		_show_players_page()
+
+func _new_player_page(script: Script, kind: String) -> Control:
+	retire_players_ui()
+	var widget: Control=script.new()
+	_player_canvas.add_child(widget)
+	widget.z_index=5
+	_register_player_widget(widget,kind)
+	menu.hide()
+	menu_open=true
+	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
+	return widget
+
+func _show_players_page() -> void:
+	if _player_transition: return
+	if facade!=null or not review_joined or player_controller==null: return
+	var widget: Control=_new_player_page(PlayersPage,"players")
+	var opening: int=_player_ui.opening
+	var epoch: int=_player_ui.epoch
+	_connect_player(widget.player_chosen,func(o: int,e: int,id: String):
+		if _player_guard(widget,o,e):
+			widget.set_feedback(o,e,"Loading playerâ€¦",true)
+			player_controller.choose_player(o,e,id))
+	_connect_player(widget.guest_chosen,func(o: int,e: int):
+		if _player_guard(widget,o,e): player_controller.choose_guest(o,e))
+	_connect_player(widget.create_requested,func(o: int,e: int):
+		if _player_guard(widget,o,e): _show_player_name(false))
+	_connect_player(widget.rename_requested,func(o: int,e: int):
+		if _player_guard(widget,o,e): _show_player_name(true))
+	_connect_player(widget.history_requested,func(o: int,e: int):
+		if _player_guard(widget,o,e): _show_player_history())
+	_connect_player(widget.dismissed,func(o: int,e: int):
+		if _player_guard(widget,o,e): _dismiss_player_ui())
+	# Never fabricate a native Status if the class/module is absent.
+	var storage: Dictionary=player_controller.current_status()
+	if storage.is_empty():
+		retire_players_ui(); open_menu("Player storage is unavailable in this build Â· Guest remains usable"); return
+	var pair: Variant=_player_pair()
+	var initial_players: Array=[] if pair==null else [{"id":pair.player.id,"name":pair.player.name,"revision":pair.player.revision}]
+	if not widget.present(opening,epoch,initial_players,_player_id(),storage):
+		retire_players_ui(); open_menu("Player chooser unavailable"); return
+	widget.set_feedback(opening,epoch,"Reading saved playersâ€¦",true)
+	player_controller.open_players(opening,epoch)
+
+func _player_list_changed(opening: int, epoch: int, players: Array) -> void:
+	if _player_ui.is_empty() or _player_ui.kind!="players": return
+	var widget: Control=_player_ui.widget
+	if _player_guard(widget,opening,epoch): widget.present(opening,epoch,players,_player_id(),player_controller.current_status())
+
+func _show_player_name(rename: bool) -> void:
+	var pair: Variant=_player_pair()
+	if rename and pair==null: return
+	var widget: Control=_new_player_page(PlayerNamePage,"rename" if rename else "create")
+	var opening: int=_player_ui.opening
+	var epoch: int=_player_ui.epoch
+	_connect_player(widget.name_confirmed,func(o: int,e: int,name: String):
+		if not _player_guard(widget,o,e): return
+		widget.set_feedback(o,e,"Saving player nameâ€¦",true)
+		if rename: player_controller.rename_player(o,e,name)
+		else: player_controller.create_player(o,e,name))
+	_connect_player(widget.dismissed,func(o: int,e: int):
+		if _player_guard(widget,o,e): _show_players_page())
+	widget.present(opening,epoch,"" if pair==null or not rename else pair.player.name,rename)
+
+func adopt_player_bundle(opening: int, epoch: int, pair: Variant) -> bool:
+	if _player_transition: return false
+	if facade!=null or not review_joined or not archive_operation.is_empty() or _player_ui.is_empty(): return false
+	if not _player_guard(_player_ui.widget,opening,epoch): return false
+	var checked: Dictionary={"ok":true,"value":null} if pair==null else PlayerOptions.validate_pair(pair)
+	if not checked.ok: return false
+	var seed: Dictionary=PlayerOptions.default_seed() if pair==null else PlayerOptions.seed_from_preferences(checked.value.preferences)
+	var admitted: Dictionary=PlayerOptions.validate_seed(seed)
+	if not admitted.ok or not PlayerOptions.exact_equal(admitted.value,seed): return false
+	# Both slots and Audio are fully validated before any option is changed.
+	var next_presets: Dictionary={}
+	next_presets[Facade.LEGACY_PROFILE.id]=Mapper.default_preset() if seed.legacy_input==null else seed.legacy_input.duplicate(true)
+	next_presets[Facade.PISTON_PROFILE.id]=Mapper.default_preset_v2() if seed.piston_input==null else seed.piston_input.duplicate(true)
+	_player_seed=seed.duplicate(true)
+	profile_presets=next_presets
+	active_preset=next_presets[selected_profile].duplicate(true)
+	audio_options=seed.audio.duplicate(true)
+	audio_enabled=audio_options.enabled
+	# No mapper configure, flight creation, recorder reset or camera action here.
+	return true
+
+func _player_selection_candidate(opening: int, epoch: int, pair: Variant) -> void:
+	var adopted: bool=adopt_player_bundle(opening,epoch,pair)
+	player_controller.finish_selection(opening,epoch,adopted)
+	if not adopted: _player_feedback(opening,epoch,"Player not activated; previous settings retained",false)
+
+func _player_selection_changed(epoch: int, pair: Variant) -> void:
+	if players_button!=null: players_button.text="Players Â· "+("Guest" if pair==null else String(pair.player.name))
+	if not _player_ui.is_empty() and _player_ui.epoch!=epoch:
+		retire_players_ui()
+		open_menu("Player selected Â· choose a fresh start")
+	elif not _player_ui.is_empty():
+		_player_ui.revision=null if pair==null else pair.player.revision
+	for entry in _player_save_ui.values():
+		if entry.epoch==epoch and entry.player_id==_player_id(): entry.revision=null if pair==null else pair.player.revision
+
+func capture_current_player_seed() -> Dictionary:
+	# Only accepted Apply updates a slot. Loaded null remains null; the Scene's
+	# other-mode draft/cache never substitutes for that committed slot.
+	var pair: Variant=_player_pair()
+	var seed: Dictionary=PlayerOptions.default_seed() if pair==null else PlayerOptions.seed_from_preferences(pair.preferences)
+	var slot: String="piston_input" if selected_profile==Facade.PISTON_PROFILE.id else "legacy_input"
+	seed[slot]=null if _player_seed[slot]==null else _player_seed[slot].duplicate(true)
+	seed.audio=audio_options.duplicate(true)
+	return seed
+
+func _notify_player_options() -> void:
+	if player_controller!=null: player_controller.current_options_changed(capture_current_player_seed())
+
+func _bind_player_save(widget: Control) -> void:
+	_retire_player_save(widget)
+	if player_controller==null or widget==null: return
+	var opening: int=_next_player_opening()
+	if opening==0: return
+	var epoch: int=_player_epoch()
+	var pair: Variant=_player_pair()
+	var callback: Callable=func(o: int,e: int):
+		if _player_save_guard(widget,o,e): request_player_save(o,e)
+	_player_save_ui[widget.get_instance_id()]={"widget":widget,"opening":opening,"epoch":epoch,"player_id":_player_id(),
+		"revision":null if pair==null else pair.player.revision,"session":adopted_session_id,"callback":callback}
+	widget.save_player_requested.connect(callback)
+	_refresh_player_save(widget)
+
+func _player_save_guard(widget: Control, opening: int, epoch: int) -> bool:
+	if widget==null or not is_instance_valid(widget) or not widget.is_visible_in_tree() or not _player_save_ui.has(widget.get_instance_id()): return false
+	var entry: Dictionary=_player_save_ui[widget.get_instance_id()]
+	var pair: Variant=_player_pair()
+	return entry.widget==widget and entry.opening==opening and entry.epoch==epoch and epoch==_player_epoch() and entry.player_id==_player_id() and entry.revision==(null if pair==null else pair.player.revision) and entry.session==adopted_session_id and menu_open and paused and facade!=null and facade.readback().host_mode=="paused"
+
+func _retire_player_save(widget: Control) -> void:
+	if widget==null or not is_instance_valid(widget) or not _player_save_ui.has(widget.get_instance_id()): return
+	var entry: Dictionary=_player_save_ui[widget.get_instance_id()]
+	_player_save_ui.erase(widget.get_instance_id())
+	if player_controller!=null: player_controller.retire_opening(entry.opening)
+	if widget.save_player_requested.is_connected(entry.callback): widget.save_player_requested.disconnect(entry.callback)
+	widget.set_player_save_state(0,0,null,false,false,false)
+
+func _refresh_player_save(widget: Control) -> void:
+	if widget==null or not _player_save_ui.has(widget.get_instance_id()): return
+	var entry: Dictionary=_player_save_ui[widget.get_instance_id()]
+	if _player_save_guard(widget,entry.opening,entry.epoch):
+		var pair: Variant=_player_pair()
+		widget.set_player_save_state(entry.opening,entry.epoch,null if pair==null else pair.player,_player_state.dirty,_player_state.pending,_player_state.unknown)
+
+func request_player_save(opening: int, epoch: int) -> void:
+	var widget: Control
+	for entry in _player_save_ui.values():
+		if entry.opening==opening and _player_save_guard(entry.widget,opening,epoch): widget=entry.widget
+	if widget==null: return
+	if _player_pair()==null:
+		if widget==audio_panel: dismiss_audio()
+		else: dismiss_controls()
+		open_players()
+		return
+	player_controller.save_snapshot(opening,epoch,capture_current_player_seed(),_player_utc())
+
+func _player_options_changed(epoch: int, _preferences: Variant, dirty: bool, pending: bool, unknown: bool) -> void:
+	if epoch!=_player_epoch(): return
+	_player_state={"dirty":dirty,"pending":pending,"unknown":unknown}
+	for entry in _player_save_ui.values(): _refresh_player_save(entry.widget)
+
+func _player_feedback(opening: int, epoch: int, message: String, busy: bool) -> void:
+	if _player_ui.is_empty(): return
+	var widget: Control=_player_ui.widget
+	if _player_guard(widget,opening,epoch) and widget.has_method("set_feedback"): widget.set_feedback(opening,epoch,message.left(1024),busy)
+
+func _player_intent_refused(opening: int, epoch: int, _kind: String, reason: String, admission: Variant) -> void:
+	var message: String="Storage did not accept this action: "+(String(admission.error_code) if reason=="native_rejected" else reason)
+	_player_feedback(opening,epoch,message,false)
+	_player_save_failure(opening,epoch,message)
+
+func _player_save_failure(opening: int, epoch: int, message: String) -> void:
+	for entry in _player_save_ui.values():
+		if entry.opening!=opening or not _player_save_guard(entry.widget,opening,epoch): continue
+		var dialog:=AcceptDialog.new()
+		dialog.title="Player preferences"
+		dialog.dialog_text=message.left(1024)
+		entry.widget.add_child(dialog)
+		dialog.confirmed.connect(dialog.queue_free)
+		dialog.canceled.connect(dialog.queue_free)
+		dialog.popup_centered(Vector2i(500,180))
+
+func _player_storage_changed(_status: Dictionary) -> void:
+	# Native Status is retained only by the controller. Never synthesize ready.
+	_update_player_history_wait()
+
+func _dismiss_player_ui() -> void:
+	if not _player_exit.is_empty():
+		cancel_players_exit(_player_exit.opening,_player_exit.epoch)
+		return
+	if not _player_ui.is_empty() and _player_ui.kind=="history_wait": return
+	retire_players_ui()
+	open_menu("Flight ended Â· choose a fresh start")
+	if players_button!=null: players_button.grab_focus()
+
+func _player_flight_adopted() -> void:
+	if player_controller==null or facade==null: return
+	var readback: Dictionary=facade.readback()
+	var qualified: Dictionary=ObservedValues.qualify(readback)
+	if not qualified.ok or qualified.kind!="current": return
+	var source: Dictionary={"session_id":readback.session_id,"model_identity":readback.model_identity.duplicate(true),
+		"source_variant":PlayerNativeIdentity.SOURCE_VARIANT,"native_source_fingerprint":readback.native_source_fingerprint,
+		"prepared_world_sha256":readback.prepared_world_sha256,"named_start":readback.named_start,
+		"wind_profile":current_wind_profile,"angular_integration_method":Facade.PISTON_METHOD if selected_profile==Facade.PISTON_PROFILE.id else null}
+	player_controller.flight_adopted(source,readback,_player_utc())
+	_recording_player_context=player_controller.current_practice_context()
+
+func _ensure_player_audio() -> void:
+	if sound!=null: return
+	sound=load("res://interactive/flight_sound.gd").new()
+	add_child(sound)
+	sound.set_options(audio_options)
+
+func _quit_with_players() -> void:
+	if quitting or _player_quit_pending or _player_transition: return
+	if player_controller==null:
+		await super.quit_flight()
+		return
+	_player_transition=true
+	retire_players_ui()
+	menu.hide()
+	_player_close_reason="user_quit"
+	if not close_session():
+		_player_transition=false
+		open_menu("Flight join failed; quit is unavailable")
+		return
+	_player_quit_pending=true
+	_player_history_waiting=player_controller.history_exit_pending()
+	await _finish_player_retirement(_player_epoch(),adopted_session_id,sound)
+
+func _finish_player_quit() -> void:
+	if not _player_quit_pending or not _player_audio_retired: return
+	_player_transition=true
+	retire_players_ui()
+	_player_storage_quit=true
+	player_controller.begin_close()
+
+func _player_storage_closed() -> void:
+	if _player_storage_quit:
+		quitting=true
+		get_tree().quit(0)
+		return
+	if player_controller.replacement_requested():
+		var service: RefCounted=_make_local_players_service()
+		if service!=null and player_controller.attach_service(service): player_controller.start_storage()
+func _show_player_history() -> void:
+	if _player_id()==null or facade!=null: return
+	var widget: Control=_new_player_page(PracticePage,"history")
+	var opening: int=_player_ui.opening
+	var epoch: int=_player_ui.epoch
+	_connect_player(widget.next_requested,func(o: int,e: int,cursor: Variant):
+		if _player_guard(widget,o,e):
+			widget.set_feedback(o,e,"Reading practice historyâ€¦",true)
+			player_controller.request_history(o,e,cursor))
+	_connect_player(widget.details_requested,func(o: int,e: int,id: String):
+		if _player_guard(widget,o,e):
+			widget.set_feedback(o,e,"Reading practice detailsâ€¦",true)
+			player_controller.request_details(o,e,id))
+	_connect_player(widget.prune_requested,func(o: int,e: int,ids: Array):
+		if _player_guard(widget,o,e):
+			widget.set_feedback(o,e,"Removing selected historyâ€¦",true)
+			player_controller.request_prune(o,e,ids))
+	_connect_player(widget.dismissed,func(o: int,e: int):
+		if _player_guard(widget,o,e): _show_players_page())
+	widget.present(opening,epoch,_player_id(),{"practice":[],"next_before_creation_sequence":null})
+	widget.set_feedback(opening,epoch,"Reading practice historyâ€¦",true)
+	player_controller.request_history(opening,epoch,null)
+
+func _show_practice_details(practice: Dictionary) -> void:
+	var widget: Control=_new_player_page(PracticeDetailsPage,"details")
+	var opening: int=_player_ui.opening
+	var epoch: int=_player_ui.epoch
+	_player_ui["practice"]=practice.duplicate(true)
+	_connect_player(widget.dismissed,func(o: int,e: int):
+		if _player_guard(widget,o,e): _show_player_history())
+	_connect_player(widget.archive_open_requested,func(o: int,e: int,id: String):
+		if not _player_guard(widget,o,e) or id!=practice.id or practice.archive==null: return
+		var result: Dictionary=archive_files.open(practice.archive.absolute_path)
+		if not result.ok:
+			widget.set_feedback(o,e,"Recorded review unavailable: "+result.error,false)
+			return
+		var recording: Dictionary=result.value
+		if result.payload_sha256!=practice.archive.payload_sha256 or recording.metadata.session_id!=practice.archive.recording_session_id:
+			widget.set_feedback(o,e,"Recorded review no longer matches this saved link",false)
+			return
+		retire_players_ui()
+		if observed_panel.set_recording(recording):
+			archive_imported=true
+			review_open=true
+			observed_panel.set_file_context(true,"Historical player review Â· read-only")
+			observed_panel.set_open(true))
+	widget.present(opening,epoch,practice)
+
+func _player_operation_finished(opening: int, epoch: int, result: Dictionary) -> void:
+	if result.kind=="save_preferences" and result.state not in ["committed","no_change"]:
+		_player_save_failure(opening,epoch,("Save status unknown; reconcile before retrying. " if result.state=="uncertain" else "Preferences "+result.state+": ")+String(result.error_code))
+	if _player_ui.is_empty(): return
+	var widget: Control=_player_ui.widget
+	if not _player_guard(widget,opening,epoch): return
+	if result.state not in ["read","committed","no_change"]:
+		_player_feedback(opening,epoch,"Action "+result.state+": "+String(result.error_code),false)
+		return
+	match result.kind:
+		"rename_player": _show_players_page()
+		"list_practice":
+			if _player_ui.kind=="history": widget.present(opening,epoch,_player_id(),result.value)
+		"load_practice": _show_practice_details(result.value.practice)
+		"prune_practice": _show_player_history()
+		"export_player":
+			if _player_ui.kind=="export": widget.present(opening,epoch,_player_pair().player,result.value)
+		"list_recovery":
+			if _player_ui.kind=="recovery": widget.present(opening,epoch,result.value.snapshots,null)
+		"delete_recovery":
+			if _player_ui.kind=="recovery": widget.present(opening,epoch,[],result.value)
+
+func _update_player_history_wait() -> void:
+	if player_controller==null or _player_ui.is_empty() or _player_ui.kind!="history_wait": return
+	var state: Dictionary=player_controller.history_state()
+	var card: Control=_player_ui.widget
+	var label: Label=card.get_child(0)
+	var acknowledge: Button=card.get_child(1)
+	acknowledge.disabled=not state.failed or state.pending
+	label.text="Practice history was not saved. Continue explicitly, or wait for the accepted operation to finish." if state.failed else "Finishing practice historyï¿½"

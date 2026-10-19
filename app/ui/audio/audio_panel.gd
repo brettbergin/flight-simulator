@@ -2,6 +2,7 @@ extends Control
 # Original MIT. Copied paused presentation; Scene alone accepts settings/lifecycle.
 signal options_requested(options: Dictionary, source_session: String)
 signal dismissed
+signal save_player_requested(opening: int, epoch: int)
 
 const Options = preload("res://audio/audio_options.gd")
 const U64 = preload("res://simulation/uint64.gd")
@@ -19,6 +20,16 @@ var _details: Label
 var _back: Button
 var _scroll: ScrollContainer
 var _focus_revision: int = 0
+var _player_save_opening: int = 0
+var _player_save_epoch: int = 0
+var _player_save_active: bool = false
+var _player_save_player: Variant = null
+var _player_save_dirty: bool = false
+var _player_save_pending: bool = false
+var _player_save_unknown: bool = false
+var _player_save_label: Label
+var _player_save_button: Button
+var _player_save_callback: Callable
 
 static func _number(value: Variant) -> bool:
 	return typeof(value) == TYPE_FLOAT and is_finite(value) and value >= 0.0
@@ -56,6 +67,7 @@ static func _valid_cues(value: Variant) -> bool:
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	visibility_changed.connect(_player_save_hidden)
 	visibility_changed.connect(func():
 		if not is_visible_in_tree(): _focus_revision += 1)
 	var shade := ColorRect.new()
@@ -76,7 +88,7 @@ func _ready() -> void:
 	box.add_theme_constant_override("separation", 10)
 	_scroll.add_child(box)
 	_label(box, "ORIGINAL SYNTHESIS / AUDIO", 23)
-	_label(box, "Engineering cues for the two original synthetic profiles. No measured engine load, installed warnings or C172 acoustic claim. Settings last only for this application instance.", 16)
+	_label(box, "Engineering cues for the two original synthetic profiles. No measured engine load, installed warnings or C172 acoustic claim. Changes affect current Audio; save applied Controls/current Audio to a named player explicitly.", 16)
 	_master = _check_box(box, "Master audio", func(value: bool): _request("enabled", value))
 	var engine_row := _gain(box, "Engine gain")
 	_engine = engine_row.slider
@@ -90,13 +102,19 @@ func _ready() -> void:
 	_qualifier = _label(box, "Audio source unavailable", 16)
 	_details = _label(box, "", 16)
 	_label(box, "Paused summary is not live audio accessibility. Live captions and critical-warning accessibility remain separate work. No preview tone; Back keeps the flight paused.", 16)
+	_player_save_label = _label(box, "", 16)
+	_player_save_button = Button.new()
+	_player_save_button.custom_minimum_size.y = 44
+	_player_save_button.tooltip_text = "Saves applied Controls and current Audio. Unapplied Controls drafts are not included."
+	box.add_child(_player_save_button)
+	_refresh_player_save()
 	_back = Button.new()
 	_back.name = "Back"
 	_back.text = "Back · keep this flight paused"
 	_back.custom_minimum_size.y = 44
 	_back.pressed.connect(func(): dismissed.emit())
 	box.add_child(_back)
-	var chain: Array[Control] = [_master, _engine, _airflow, _captions, _back]
+	var chain: Array[Control] = [_master, _engine, _airflow, _captions, _player_save_button, _back]
 	for i in chain.size():
 		chain[i].focus_neighbor_top = chain[i].get_path_to(chain[(i + chain.size() - 1) % chain.size()])
 		chain[i].focus_neighbor_bottom = chain[i].get_path_to(chain[(i + 1) % chain.size()])
@@ -218,3 +236,88 @@ func _settle_back_scroll(revision: int) -> void:
 		await get_tree().process_frame
 	if not is_inside_tree() or not is_visible_in_tree() or revision != _focus_revision: return
 	if get_viewport().gui_get_focus_owner() == _back: _scroll.ensure_control_visible(_back)
+
+# Root owns the live-widget registry and computes dirty/pending/unknown from the
+# committed whole bundle. This panel never compares a draft with saved options.
+func set_player_save_state(opening: int, epoch: int, player: Variant, dirty: bool, pending: bool, unknown: bool) -> void:
+	if opening <= 0 or epoch < 0 or not _valid_save_player(player): return
+	if opening < _player_save_opening: return
+	if opening == _player_save_opening and (not _player_save_active or epoch != _player_save_epoch): return
+	if not is_node_ready() or not is_inside_tree(): return
+	if opening != _player_save_opening:
+		_retire_player_save()
+		_player_save_opening = opening
+		_player_save_epoch = epoch
+		_player_save_active = true
+		_player_save_callback = _request_player_save.bind(opening, epoch)
+		_player_save_button.pressed.connect(_player_save_callback)
+	_player_save_player = player.duplicate(true) if player != null else null
+	_player_save_dirty = dirty
+	_player_save_pending = pending
+	_player_save_unknown = unknown
+	_refresh_player_save()
+
+func _retire_player_save() -> void:
+	_player_save_active = false
+	if is_instance_valid(_player_save_button) and _player_save_callback.is_valid() and _player_save_button.pressed.is_connected(_player_save_callback):
+		_player_save_button.pressed.disconnect(_player_save_callback)
+	_player_save_callback = Callable()
+	_player_save_player = null
+	_player_save_dirty = false
+	_player_save_pending = false
+	_player_save_unknown = false
+	_refresh_player_save()
+
+func _player_save_hidden() -> void:
+	if not is_visible_in_tree(): _retire_player_save()
+	else: _refresh_player_save()
+
+func _can_save_player() -> bool:
+	if not _player_save_active or not is_inside_tree() or not is_visible_in_tree() or _player_save_pending: return false
+	# Guest opens create/select; it never pretends to save a non-existent row.
+	return _player_save_player == null or (_player_save_dirty and not _player_save_unknown)
+
+func _request_player_save(opening: int, epoch: int) -> void:
+	if opening == _player_save_opening and epoch == _player_save_epoch and _can_save_player():
+		save_player_requested.emit(opening, epoch)
+
+func _refresh_player_save() -> void:
+	if not is_instance_valid(_player_save_button): return
+	_player_save_button.disabled = not _can_save_player()
+	_player_save_button.text = "Create / select player…" if _player_save_player == null else "Save applied Controls + Audio"
+	if not _player_save_active:
+		_player_save_label.text = "Player Save unavailable. Draft edits remain separate from applied Controls/current Audio."
+	elif _player_save_player == null:
+		_player_save_label.text = "Guest · preferences are transient. Create or select a player to save applied Controls/current Audio."
+	elif _player_save_unknown:
+		_player_save_label.text = _player_save_player["name"] + " · save status unknown. Reconcile before saving."
+	elif _player_save_pending:
+		_player_save_label.text = _player_save_player["name"] + " · snapshot Save pending. Later edits may remain unsaved."
+	elif _player_save_dirty:
+		_player_save_label.text = _player_save_player["name"] + " · active preferences have unsaved changes. Drafts are not included."
+	else:
+		_player_save_label.text = _player_save_player["name"] + " · active preferences match the acknowledged saved bundle."
+
+func _valid_save_player(player: Variant) -> bool:
+	if player == null: return true
+	if typeof(player) != TYPE_DICTIONARY or player.size() != 7: return false
+	for key: Variant in player:
+		if typeof(key) != TYPE_STRING or not key in ["type", "version", "id", "name", "created_utc", "updated_utc", "revision"]: return false
+	if typeof(player["type"]) != TYPE_STRING or player["type"] != "LocalPlayer" or typeof(player["version"]) != TYPE_INT or player["version"] != 1: return false
+	if typeof(player["id"]) != TYPE_STRING or player["id"].length() != 32: return false
+	for code: int in player["id"].to_utf8_buffer():
+		if not (code >= 48 and code <= 57) and not (code >= 97 and code <= 102): return false
+	if typeof(player["name"]) != TYPE_STRING or player["name"].length() < 1 or player["name"].length() > 40 or player["name"].to_utf8_buffer().size() > 160: return false
+	for index: int in player["name"].length():
+		var code: int = player["name"].unicode_at(index)
+		if code < 32 or code == 127 or (code >= 0xd800 and code <= 0xdfff) or code > 0x10ffff: return false
+	if _save_name_space(player["name"].unicode_at(0)) or _save_name_space(player["name"].unicode_at(player["name"].length() - 1)): return false
+	for key: String in ["created_utc", "updated_utc"]:
+		if typeof(player[key]) != TYPE_STRING or player[key].length() > 32: return false
+	if typeof(player["revision"]) != TYPE_STRING or player["revision"].is_empty() or player["revision"].length() > 20 or player["revision"][0] == "0": return false
+	for code: int in player["revision"].to_utf8_buffer():
+		if code < 48 or code > 57: return false
+	return player["revision"].length() < 20 or player["revision"] <= "18446744073709551615"
+
+func _save_name_space(code: int) -> bool:
+	return code == 32 or code == 0x85 or code == 0xa0 or code == 0x1680 or (code >= 0x2000 and code <= 0x200a) or code in [0x2028, 0x2029, 0x202f, 0x205f, 0x3000]
