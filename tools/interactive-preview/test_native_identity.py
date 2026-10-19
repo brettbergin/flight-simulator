@@ -5,6 +5,7 @@ import importlib.util
 import json
 import os
 import re
+import sys
 from pathlib import Path
 import tempfile
 from types import SimpleNamespace
@@ -777,6 +778,73 @@ class IdentityTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'immutable base differs'):n.check_reconstruction(self.repo,destination)
         with patch.object(n.subprocess,'check_output',return_value='not-a-commit\n'):
             with self.assertRaises(ValueError):n.immutable_head(self.repo)
+
+
+@unittest.skipUnless(sys.platform == 'linux', 'Linux configured system-tool alias policy only')
+class ConfiguredGnuToolAliasTests(unittest.TestCase):
+    """Synthetic executable-mode tokens/links only; never execute a tool."""
+    def setUp(self):
+        WORKSPACE.mkdir(parents=True, exist_ok=True)
+        self.temp = tempfile.TemporaryDirectory(prefix='gnu-tool-alias-', dir=WORKSPACE)
+        self.root = Path(self.temp.name)
+        self.bin = self.root/'system-bin'
+        self.bin.mkdir()
+        self.target = self.bin/'synthetic-actual-tool'
+        self.target.write_bytes(b'not an executable compiler; filesystem fixture only\n')
+        self.target.chmod(0o700)
+        self.patch = patch.object(n, '_GNU_TOOL_DIRECTORY', self.bin)
+        self.patch.start()
+        self.addCleanup(self.patch.stop)
+        self.addCleanup(self.temp.cleanup)
+
+    def alias(self, name, target=None):
+        result = self.bin/name
+        result.symlink_to(self.target.name if target is None else target)
+        return result
+
+    def test_exact_configured_alias_and_bounded_chain(self):
+        middle = self.alias('middle')
+        for key, name in [('CMAKE_CXX_COMPILER','g++-13'),('CMAKE_AR','ar'),('CMAKE_RANLIB','ranlib')]:
+            alias = self.alias(name, middle.name)
+            bindings = {}
+            self.assertEqual(n._known_tool([str(alias)], {key:str(alias)}, key, 'GNU', bindings), self.target)
+            self.assertEqual(bindings[key], (str(alias), str(self.target)))
+            # No ordinary source/response/artifact admission changes.
+            with self.assertRaises(ValueError): n.ordinary(alias)
+
+    def test_command_spelling_conflict_and_duplicate_refused(self):
+        alias = self.alias('g++-13')
+        cache = {'CMAKE_CXX_COMPILER':str(alias)}
+        for args in [[str(self.target)], [str(alias),str(alias)], [str(self.root/'other'/'g++-13')]]:
+            with self.assertRaises(ValueError): n._known_tool(args,cache,'CMAKE_CXX_COMPILER','GNU',{})
+        with self.assertRaises(ValueError): n._configured_tool(str(alias),'CMAKE_CXX_COMPILER','MSVC')
+        with self.assertRaises(ValueError): n._configured_tool(str(alias),'CMAKE_COMMAND','GNU')
+
+    def test_alias_escape_cycle_missing_and_nonexecutable_refused(self):
+        outside = self.root/'outside'
+        outside.write_bytes(b'synthetic outside token')
+        outside.chmod(0o700)
+        links = [self.alias('escape',str(outside)), self.alias('cycle','cycle'), self.alias('missing','absent')]
+        for alias in links:
+            with self.assertRaises((ValueError,OSError)): n._configured_tool(str(alias),'CMAKE_AR','GNU')
+        self.target.chmod(0o600)
+        with self.assertRaises(ValueError): n._configured_tool(str(self.alias('no-execute')),'CMAKE_AR','GNU')
+        ancestor = self.root/'linked-bin'
+        ancestor.symlink_to(self.bin, target_is_directory=True)
+        with self.assertRaises(ValueError): n._configured_tool(str(ancestor/'synthetic-actual-tool'),'CMAKE_AR','GNU')
+
+    def test_alias_retarget_and_chain_overflow_refused(self):
+        alias = self.alias('g++-13')
+        cache, bindings = {'CMAKE_CXX_COMPILER':str(alias)}, {}
+        n._known_tool([str(alias)],cache,'CMAKE_CXX_COMPILER','GNU',bindings)
+        other = self.bin/'different-tool'
+        other.write_bytes(b'synthetic replacement token')
+        other.chmod(0o700)
+        alias.unlink()
+        alias.symlink_to(other.name)
+        with self.assertRaises(ValueError): n._known_tool([str(alias)],cache,'CMAKE_CXX_COMPILER','GNU',bindings)
+        for index in range(9): self.alias('chain-'+str(index),'chain-'+str(index+1) if index<8 else self.target.name)
+        with self.assertRaises(ValueError): n._configured_tool(str(self.bin/'chain-0'),'CMAKE_AR','GNU')
 
 
 if __name__ == '__main__':

@@ -101,6 +101,47 @@ def ordinary(path, directory=False):
     return path.resolve(strict=True)
 
 
+# Only configured Linux/GNU system-tool leaves may be aliases. This is not a
+# caller-selected root and does not change ordinary project/input admission.
+_GNU_TOOL_DIRECTORY = Path('/usr/bin')
+
+
+def _configured_tool(path, key, family):
+    require(type(path) is str and Path(path).is_absolute(), 'Absolute configured tool required')
+    lexical = Path(os.path.abspath(path))
+    if family != 'GNU' or sys.platform != 'linux' or key not in ('CMAKE_CXX_COMPILER', 'CMAKE_AR', 'CMAKE_RANLIB') or not lexical.is_symlink():
+        return ordinary(lexical)
+    directory = ordinary(_GNU_TOOL_DIRECTORY, True)
+    require(lexical.parent == directory, 'GNU tool alias must be a system-directory leaf')
+    current, seen = lexical, set()
+    for _ in range(9):
+        require(current.parent == directory and current not in seen, 'Escaped/cyclic GNU tool alias')
+        info = current.lstat()
+        if not stat.S_ISLNK(info.st_mode):
+            target = ordinary(current)
+            require(os.access(target, os.X_OK), 'GNU tool alias target must be executable')
+            return target
+        require(len(seen) < 8, 'GNU tool alias chain bound')
+        seen.add(current)
+        current = Path(os.path.abspath(current.parent / os.readlink(current)))
+    raise ValueError('GNU tool alias chain bound')
+
+
+def _known_tool(args, cache, key, family, bindings):
+    require(key in cache and type(cache[key]) is str and Path(cache[key]).is_absolute(), 'Configured resident tool missing: ' + key)
+    lexical = Path(os.path.abspath(cache[key]))
+    expected = _configured_tool(cache[key], key, family)
+    candidates = [arg for arg in args if Path(arg).name.lower() == lexical.name.lower()]
+    require(len(candidates) == 1 and Path(candidates[0]).is_absolute(), 'Resident command uses an unconfigured/conflicting tool: ' + key)
+    if family == 'GNU':
+        require(candidates[0] == str(lexical), 'GNU command tool spelling differs from configured tool: ' + key)
+    require(_configured_tool(candidates[0], key, family) == expected, 'Resident command tool target differs: ' + key)
+    binding = (str(lexical), str(expected))
+    require(key not in bindings or bindings[key] == binding, 'Configured tool target changed during observation: ' + key)
+    bindings[key] = binding
+    return expected
+
+
 def contained(root, name):
     require(type(name) is str and '\\' not in name and ':' not in name and
             str(PurePosixPath(name)) == name and not name.startswith('/') and
@@ -533,6 +574,7 @@ def resident_closure(repo, build, identity_raw, identity):
         require(artifact(row['path']) == row, 'Native witness changed before resident observation')
     require(lf(observed(build, 'resident-world-component-fingerprint.txt')) == component['sha256'].encode('ascii') + b'\n' + component['recipe'], 'Component witness changed')
     cache = cache_values(build)
+    tool_bindings = {}
 
     def build_relative(path):
         resolved = ordinary(path)
@@ -576,11 +618,7 @@ def resident_closure(repo, build, identity_raw, identity):
                          '-freciprocal-math', '-ffinite-math-only', '-fno-signed-zeros', '-fno-trapping-math')
             require(not any(arg in forbidden or (arg.startswith('-ffp-contract=') and arg != '-ffp-contract=off') for arg in args), 'Unsafe/conflicting resident GNU flags')
     def known_tool(args, key):
-        require(key in cache and Path(cache[key]).is_absolute(), 'Configured resident tool missing: ' + key)
-        expected = ordinary(cache[key])
-        candidates = [arg for arg in args if Path(arg).name.lower() == expected.name.lower()]
-        require(len(candidates) == 1 and Path(candidates[0]).is_absolute() and ordinary(candidates[0]) == expected,
-                'Resident command uses an unconfigured/conflicting tool: ' + key)
+        return _known_tool(args, cache, key, family, tool_bindings)
     def actual_source(args, edge, source):
         required = contained(repo, source)
         compile_positions = [index for index, arg in enumerate(args) if arg in ('-c', '/c')]
@@ -758,7 +796,8 @@ def resident_closure(repo, build, identity_raw, identity):
                     not any(arg.lower() in ('/out','-out','-o','--output') for arg in args), 'Unique actual MSVC primary output required')
             output = choices[0][5:]
         elif archive:
-            ar = ordinary(cache['CMAKE_AR'])
+            known_tool(args, 'CMAKE_AR')
+            ar = Path(cache['CMAKE_AR'])
             indexes = [index for index, arg in enumerate(args) if Path(arg).name == ar.name]
             require(len(indexes) == 1 and indexes[0] + 2 < len(args), 'GNU archive output missing')
             index = indexes[0]
@@ -904,6 +943,8 @@ def resident_closure(repo, build, identity_raw, identity):
         build_witnesses=identity['build_witnesses'])
     for (root, name), raw in observations.items():
         require(read(root, name) == raw, 'Resident input/artifact changed during independent observation: ' + name)
+    for key, (lexical, canonical) in tool_bindings.items():
+        require(str(_configured_tool(lexical, key, family)) == canonical, 'Configured tool changed before closure completed: ' + key)
     return result
 
 
