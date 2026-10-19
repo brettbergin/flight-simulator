@@ -99,3 +99,6 @@ assets_source/environment/original-evergreens-v1/*.py text eol=lf
 tools/benchmark/pipeline/environment_trees/** text eol=lf
 assets_source/environment/original-evergreens-v1/*.blend binary
 assets_source/environment/original-evergreens-v1/exports/*.glb binary
+
+# Preserve the reviewed compiler CI runner on both hosted platforms.
+tools/ci/kawo-terrain.ps1 text eol=lf

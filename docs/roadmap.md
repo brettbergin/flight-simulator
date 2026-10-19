@@ -95,8 +95,9 @@ UI concepts, legal/source investigation, data provenance, test fixture design, a
 Resident-grid components, standalone byte decoders/readers, offline tools and
 the bounded KAWO terrain compiler may proceed after their own complete checked
 contracts, independent references and prerequisites. Compiler contract PR256 is
-accepted; actual full-grid product acceptance and #243's world/start/runtime
-seams remain open. Source ingestion
+accepted; its offline full-grid, native, reference and repeated-byte checks now
+pass, with final-source CI/checked acceptance tracked in issue257. The world/start/
+runtime seams in #243 remain separate. Source ingestion
 likewise consumes only its accepted source schema. These bounded leaves do not
 admit a geographic world to flight or waive the integrated phase gates.
 A separate original evergreen art study may author/export and verify its fixed six

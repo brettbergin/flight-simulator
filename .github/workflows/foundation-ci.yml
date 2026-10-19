@@ -83,6 +83,24 @@ jobs:
           }
           node --test tests/contracts/kawo-terrain.test.mjs
           if ($LASTEXITCODE -ne 0) { throw 'KAWO compiler schema-only refusal tests failed' }
+      - name: Check offline KAWO compiler synthetic cases and frozen selected controls
+        shell: pwsh
+        run: |
+          $kawoSelectedPins = @{
+            'tests/terrain/kawo/fixtures/source-controls-v1.json' = 'ed63fb9a14cff9db1ab5dbd6ae0637d62591da9acfed43077f804155a7744cb2'
+            'tests/terrain/kawo/native/reference/selected_controls_v1.hpp' = 'c34f5d1e22088a0da9ab989ac7157a3616aeffac7ac284b96a9230e4408637b7'
+          }
+          foreach ($name in $kawoSelectedPins.Keys) {
+            if ((Get-FileHash -LiteralPath $name -Algorithm SHA256).Hash.ToLowerInvariant() -cne $kawoSelectedPins[$name]) { throw 'Frozen selected KAWO reference changed; reviewed successor required' }
+          }
+          $kawoUnitRoot = '.local/kawo-terrain-unit-ci'
+          if (Test-Path -LiteralPath $kawoUnitRoot) { throw 'Preserve previous KAWO unit-test evidence' }
+          New-Item -ItemType Directory -Path $kawoUnitRoot | Out-Null
+          python -I -B -S -m unittest discover -s tests/terrain/kawo -p 'test_*.py' -v 2>&1 | Tee-Object -FilePath (Join-Path $kawoUnitRoot 'tests.log')
+          if ($LASTEXITCODE -ne 0) { throw 'Offline KAWO compiler unit tests failed' }
+          $kawoUnitLog = Get-Content -LiteralPath (Join-Path $kawoUnitRoot 'tests.log') -Raw
+          $kawoUnitSummary = [regex]::Match($kawoUnitLog, 'Ran ([1-9][0-9]*) tests?')
+          if (-not $kawoUnitSummary.Success -or [int]$kawoUnitSummary.Groups[1].Value -lt 33) { throw 'Expected at least the reviewed33 KAWO unit tests' }
       - name: Check offline terrain tooling parsers and independent TIFF literals
         run: python -I -B -S tests/world/terrain-tools/test_terrain_tools.py
       - name: Verify frozen resident-grid contract and independent references

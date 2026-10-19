@@ -161,6 +161,8 @@ geographic compilation, runtime/render adoption and installed delivery remain se
 The [bounded KAWO terrain compiler contract](contracts/world/kawo-terrain-compiler-v1.md)
 fixes source tiles, operation inputs, anchor words, sampling, output bytes and closed
 schemas before implementation. [Actual source/operation qualification](evidence/P4/kawo-terrain-source-qualification.md)
-and independent arithmetic references support that seam. A complete shared ground,
-native runway comparisons, runtime, rendering and airport delivery remain later work;
-the working frame is approximate with unknown total3D accuracy.
+and independent arithmetic references support that seam. The [offline compiler evidence](evidence/P4/kawo-terrain-compilation.md)
+records two byte-identical complete grids, independent selected values, actual native
+runway queries and bounded resources. Final-source CI and checked merge are tracked
+in issue257; world/start/render delivery remains separate. The working frame
+retains unknown total3D accuracy.

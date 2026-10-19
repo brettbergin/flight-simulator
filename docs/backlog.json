@@ -8184,6 +8184,7 @@
         "tests/terrain/kawo/native/",
         "docs/evidence/P4/kawo-terrain-compilation.md",
         "docs/evidence/P4/kawo-terrain-compilation-run-v1.json",
+        "docs/evidence/P4/kawo-terrain-compile-receipt-v1.json",
         "docs/evidence/P4/kawo-derived-data-rights.md",
         "docs/evidence/P4/kawo-derived-data-rights-v1.json",
         "docs/evidence/P4/kawo-reviewed-source-dossier-v1.json",
@@ -8234,7 +8235,7 @@
         "Complete focused/schema/native/docs checks, independent final-source/result review and protected final-head CI before checked merge. Preserve unknown source realization/epoch/total3D accuracy and prototype materials. The reviewed use scope and required notices must remain bound to later assembly; parent243, runtime/start/render, aircraft/pilot and phase gates stay open."
       ],
       "evidence": [
-        "Exact compiler/source/control/tool/native/payload/receipt identities, independently frozen controls and actual comparisons, full-grid support/residual/gradient admission, repeated deterministic hashes, bounded memory/time, native decode/preparation/four-end relations and protected current-head CI; no playable-world or geographic-accuracy claim."
+        "docs/evidence/P4/kawo-terrain-compilation.md and its sanitized execution summary record actual complete repeated bytes, all-grid admission, frozen independent values, native payload/four-end correspondence, schema and resource checks. The exact compile receipt is retained separately; issue257 owns protected final-source CI and checked-merge evidence. No playable-world or geographic-accuracy claim."
       ]
     }
   ]

@@ -1,0 +1,708 @@
+{
+  "schema": "KawoTerrainCompilationEvidence/v1",
+  "review_state": "offline-gates-passed-protected-final-source-ci-pending",
+  "compiler_leaf_acceptance": false,
+  "runtime_admission": false,
+  "phase_acceptance": false,
+  "date_utc": "2026-10-19",
+  "scope": "First bounded offline candidate and independent selected/schema/native checks; no installed world, aircraft start, renderer, playable or geographic-accuracy acceptance.",
+  "checked_contract": {
+    "pull_request": 256,
+    "commit": "e0da79a426c0b2bb4b1e35bbdf8ef3f1399e20de",
+    "contract_sha256": "e840a1035315c9a7989cd4ae1bcdf5b52812430ba84df1cd875d21cea11a56fb",
+    "portable_pins_sha256": "0665004e2ccc95502ede62a8cc2ee342bc5d4784181c6a42aa7ccfc837f97aa8",
+    "constructor_metadata_sha256": "51449b75dd8f16014515d5133cabf8579b2f1d89dddffb7a1cf3ae949a2a0e45"
+  },
+  "retained_raw_artifacts": {
+    "compiler_launch": {
+      "bytes": 45900,
+      "sha256": "b1910e2ca1f6d2ff8954bcb9cbb05c1d4f63725dee704cf895cbb16e514f392c"
+    },
+    "compiler_stdout": {
+      "bytes": 28032,
+      "sha256": "e00263ec37c6e6ee033fa77d471ae857f5763b4f14537da52585f39184e76c8f"
+    },
+    "compile_receipt": {
+      "bytes": 22937,
+      "sha256": "cb1e0b28384aeb1c11173d991b5790a8a16e64953c2c479be6b07136c5f489f0"
+    },
+    "native_run": {
+      "bytes": 9193,
+      "sha256": "b5dab6eee6c08d94955c6b2e23021a0a3aa3fdb534af29cfdc6378eb34d7332f"
+    },
+    "native_stdout": {
+      "bytes": 3502,
+      "sha256": "20d67c32af5dbee398995185f80668f61d4e253746b0707943993cb6e21eb59d"
+    },
+    "candidate_comparison": {
+      "bytes": 640,
+      "sha256": "f23322befc2d4f36758eb8671b20fa773ad93d9950193a9beceda2dbbe315a78"
+    },
+    "schema_launch": {
+      "bytes": 5492,
+      "sha256": "a0023ccb163c59a13fe8949ee96a26cb92bc6dc1c74d94ee90a8f0d43d701fe8"
+    },
+    "schema_stdout": {
+      "bytes": 4564,
+      "sha256": "c73f564e4484dc8fd370ed6e6b03f5dddede35c1abc5bdd693370911782590ff"
+    },
+    "offline_unit_log": {
+      "bytes": 3966,
+      "sha256": "5d73ff640fa34ca995741e77632f8f8050d01b4a17f431df042c22cc96569006"
+    },
+    "native_synthetic_log": {
+      "bytes": 1025,
+      "sha256": "74f213e26ae3fc971bb1b23f64baabbefd5771f8633294f0daeb86536434b43f"
+    },
+    "native_configure_log": {
+      "bytes": 569,
+      "sha256": "0dcc6523a444519be6d548907f49c1ab36e711004bdf12b9ce1a4e9b8e1c1a66"
+    },
+    "native_build_log": {
+      "bytes": 7518,
+      "sha256": "d5c4334d9b486fbe7cf83ea8377df1addf82c51aa71a7fe88df34f028e2f36db"
+    },
+    "native_ctest_log": {
+      "bytes": 457,
+      "sha256": "436fbde27e3e524fb28258cef130924868dc2289b0bf9cf7b75735fad48db4de"
+    },
+    "native_compile_commands": {
+      "bytes": 7412,
+      "sha256": "b27e3624fdecc030c09a05baf64983e77684b6372f8e240e3e65c65a9433b648"
+    },
+    "native_cmake_cache": {
+      "bytes": 14269,
+      "sha256": "6368bc0acb9c66adde15127b8bfcec782bd55839bb7552d9ddebdead63be95a7"
+    },
+    "native_tools": {
+      "bytes": 632,
+      "sha256": "973c27afc78b11cf7b058d0dd32e4e61d333138162a366b434c81f5965874542"
+    },
+    "repeat_comparison": {
+      "bytes": 1640,
+      "sha256": "b6bb2278e7e399d8316e9fc48336feb908e3ab981181c0685cc30f7b769f686e"
+    }
+  },
+  "compiler_sources": [
+    {
+      "path": "tools/ingest/terrain/kawo_terrain_v1.py",
+      "bytes": 59004,
+      "sha256": "e6563cb07c54a4e8bf05a4c5033635dabe51e0d6943d2d3eaa72d778d86d5bab"
+    },
+    {
+      "path": "tools/ingest/terrain/README-kawo-terrain-v1.md",
+      "bytes": 3994,
+      "sha256": "8b529dcb0e6e57b93430d17034487635596e140ac1dc8ffdcb07410478c4c81c"
+    },
+    {
+      "path": "tools/ingest/terrain/terrain_tools.py",
+      "bytes": 45726,
+      "sha256": "5f62cd58f0574694b8344a99a06c6660ed66e4a45b45b2693c92d1a0aa885e58"
+    },
+    {
+      "path": "tools/ingest/terrain/terrain_pins.py",
+      "bytes": 5430,
+      "sha256": "9d6ae9eadc5cd57a6e1ccc4f77496f5568d1ef4c154670d5339f5c0cd9e5037a"
+    },
+    {
+      "path": "tools/ingest/terrain/terrain_decode.py",
+      "bytes": 13296,
+      "sha256": "7b721ee962bda0f2a5823db0762c87c9f1a67e058c701a4d4b89033ac1504e63"
+    },
+    {
+      "path": "tools/ingest/terrain/tools-v1.lock.json",
+      "bytes": 4974,
+      "sha256": "e2251bd539487ddb8fc46cea698a094fe3081ee63390be6a2941489c93a10999"
+    }
+  ],
+  "references": {
+    "hand_oracles_sha256": "8d5429fae54c714d02a699ab4a04fcb85ecf04411fb5e6b97b9e6828a9815dbc",
+    "selected_json": {
+      "bytes": 756727,
+      "sha256": "ed63fb9a14cff9db1ab5dbd6ae0637d62591da9acfed43077f804155a7744cb2"
+    },
+    "selected_header": {
+      "bytes": 4611,
+      "sha256": "c34f5d1e22088a0da9ab989ac7157a3616aeffac7ac284b96a9230e4408637b7"
+    },
+    "selected_actual_worksheet_sha256": "ae5f2a5840d96470193b4e8d8ec586f22333ad0d06216f8fdc616d489cc1135d",
+    "separate_reference_review_sha256": "32914e561f492aa16032ff96b95e6cd5b154c66a185763156f34d6ae6117b744",
+    "test_packet_sha256": "be8ea5a9b73c7e3ec38e920669d332ffbcbd9ddcf1b113e8b0be42cd704a9a75"
+  },
+  "inputs": [
+    {
+      "role": "airport",
+      "locator": "source-pair:airport",
+      "bytes": 37101,
+      "sha256": "63463d30c55f8aba56a3426efd7c2dd61287a99d66d307f3940b589b97fd6c18"
+    },
+    {
+      "role": "dossier",
+      "locator": "source-pair:dossier",
+      "bytes": 15785,
+      "sha256": "974345fd8eedff2e339e4eb21b8ac3a09ed69c66c4d2a045b430f9655bd15cee"
+    },
+    {
+      "role": "tile55",
+      "locator": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/WA_Western_North_2016/TIFF/USGS_one_meter_x55y534_WA_Western_North_2016.tif",
+      "bytes": 494331204,
+      "sha256": "c0115806df9b1c228b8c074adcdd342bb9a01cf936d2c39be218a5b61ead0ccf"
+    },
+    {
+      "role": "tile55_metadata",
+      "locator": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/WA_Western_North_2016/metadata/USGS_one_meter_x55y534_WA_Western_North_2016_meta.xml",
+      "bytes": 12169,
+      "sha256": "ef382998233ddd833be510e4737c3052f20718e9fe2b2bea523c42cbc3952381"
+    },
+    {
+      "role": "tile56",
+      "locator": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/WA_Western_North_2016/TIFF/USGS_one_meter_x56y534_WA_Western_North_2016.tif",
+      "bytes": 497020458,
+      "sha256": "b62bd2d39d081642fd2b1710a2e3971a216702903b36812304a61ec79f6ac97e"
+    },
+    {
+      "role": "tile56_metadata",
+      "locator": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/WA_Western_North_2016/metadata/USGS_one_meter_x56y534_WA_Western_North_2016_meta.xml",
+      "bytes": 12170,
+      "sha256": "c969dc8fcc548ef0670e3fb315ea461cc1f1f59461539816e3b946328f91f8dc"
+    },
+    {
+      "role": "tool_qualification",
+      "locator": "tool-qualification:terrain-tools-v1",
+      "bytes": 76231,
+      "sha256": "71c0e5b2251dbe1c8e97c163b2cd7dd9237ee02b47e4b73c6732ee517458312c"
+    }
+  ],
+  "tools": {
+    "versions": {
+      "python": "3.12.14",
+      "pyproj": "3.7.2",
+      "proj": "9.5.1",
+      "pillow": "12.3.0",
+      "certifi": "2025.8.3"
+    },
+    "identities": {
+      "certifi_wheel_sha256": "f6c12493cfb1b06ba2ff328595af9350c65d6644968e5d3a2ffd78699af217a5",
+      "geoid_sha256": "fa9a407ac7ee3f5a3694008e4bcd09ce9cc250452f0c3b11700a4960340abce2",
+      "lock_sha256": "e2251bd539487ddb8fc46cea698a094fe3081ee63390be6a2941489c93a10999",
+      "pillow_wheel_sha256": "a2b55dd6b2a4c4b7d87ffa56bdb33fdc5fdb9a462173861a7bc097f17d91cb09",
+      "proj_db_sha256": "47a7205d83ba6b7774b763f276ab57331f4dade2b2cfbcc0d486677e6543350b",
+      "pyproj_wheel_sha256": "11614a054cd86a2ed968a657d00987a86eeb91fdcbd9ad3310478685dc14a128",
+      "python_executable_sha256": "d41bad46673f64e0d02f23797f53f90ccf60f27d6eda8d86dd2d4bbeae5a858c",
+      "qualification_sha256": "71c0e5b2251dbe1c8e97c163b2cd7dd9237ee02b47e4b73c6732ee517458312c"
+    },
+    "creation_sha256": "fe460208fb4dcf6ef8ac3a5d0147636afecb4291fb444c547fae7e0e550072ad",
+    "installation_files": 2745,
+    "installation_directories": 152,
+    "installation_bytes": 111914037,
+    "before_after_equal": true,
+    "loaded_wheel_binary_count": 19,
+    "loaded_wheel_binaries": [
+      {
+        "filename": "_imaging.cp312-win_amd64.pyd",
+        "bytes": 2632704,
+        "sha256": "c8c519ec72bf75b2945b4fc4afa854af2fca8b970a403134f9ddda3e164d85e9"
+      },
+      {
+        "filename": "jpeg62-6af98f759afc6cea2ea01a24bea0bc98.dll",
+        "bytes": 683520,
+        "sha256": "6af98f759afc6cea2ea01a24bea0bc981a067ebf2f6f0093faa7352139c998b6"
+      },
+      {
+        "filename": "libcurl-50d401113827f0f3a5d90c6a7176c6ad.dll",
+        "bytes": 594944,
+        "sha256": "75e38231d04a2be3ccf7c7e6e7fb08e65af487c4fda4ef3ab927e529581280c1"
+      },
+      {
+        "filename": "liblzma-0b4d0ddf0e0758305b1b8162225048f8.dll",
+        "bytes": 187904,
+        "sha256": "0b4d0ddf0e0758305b1b8162225048f8cd90267cbc5500b94d7e5147a0893e5d"
+      },
+      {
+        "filename": "msvcp140-0f885b509a685d2bbfa652fed26b5fb3.dll",
+        "bytes": 557728,
+        "sha256": "0f885b509a685d2bbfa652fed26b5fb31d88fbdab0a978c641d1c7b8aa460aa9"
+      },
+      {
+        "filename": "proj_9-c635a7dcf1c2f5308514f46a54311e70.dll",
+        "bytes": 3417088,
+        "sha256": "f7c0e557890e501e33545c3406f167810faed118c79b6c0de25100b29058af80"
+      },
+      {
+        "filename": "sqlite3-fe7be31bbec5a4ba375dbf7916a37e96.dll",
+        "bytes": 1075200,
+        "sha256": "fe7be31bbec5a4ba375dbf7916a37e96084defdce56b0d41c09a59c563394147"
+      },
+      {
+        "filename": "tiff-04898ba48a3f57dbaae85579a67d7489.dll",
+        "bytes": 467968,
+        "sha256": "fd6adc86ecc8796fe362777334356b99cb3ed0397f11070a5f2a945ad7e0b974"
+      },
+      {
+        "filename": "zlib1-9b024f7633a4f81dfeedce1958c40759.dll",
+        "bytes": 90112,
+        "sha256": "9b024f7633a4f81dfeedce1958c407591ebbfc3109ed312fb88d445597e00d74"
+      },
+      {
+        "filename": "_compat.cp312-win_amd64.pyd",
+        "bytes": 40960,
+        "sha256": "af4ced2980851f3f41fa95940794064dad02450f0fa908d7f321e8d77cd9c018"
+      },
+      {
+        "filename": "_context.cp312-win_amd64.pyd",
+        "bytes": 72704,
+        "sha256": "6306ae845bb176388381ce5a0763fda6242880ea93ab148cfd559ac8aa5b652d"
+      },
+      {
+        "filename": "_crs.cp312-win_amd64.pyd",
+        "bytes": 349184,
+        "sha256": "bdef87278c95868eb3fb3eceb28fa8a835a9c5621249dcbf6599c0feb2d7aeb2"
+      },
+      {
+        "filename": "_geod.cp312-win_amd64.pyd",
+        "bytes": 98304,
+        "sha256": "5a06f6e6fdc8ce2712262228223f90221e97e1fede0656feb10143e42c8ae9be"
+      },
+      {
+        "filename": "_network.cp312-win_amd64.pyd",
+        "bytes": 41472,
+        "sha256": "8c15cb722c423ccc56c4112b39fb2ed69ed895645452df20d970a2bcfcaeeee2"
+      },
+      {
+        "filename": "_sync.cp312-win_amd64.pyd",
+        "bytes": 29696,
+        "sha256": "b5a42bc43a1ca0e43da57075c434c9fd2f78e1cc060a718f25505a4296d5624e"
+      },
+      {
+        "filename": "_transformer.cp312-win_amd64.pyd",
+        "bytes": 150016,
+        "sha256": "c752677732b97780e470316df4a72832e9ea874d0b761b76fd2a1ae765dd5f1f"
+      },
+      {
+        "filename": "_version.cp312-win_amd64.pyd",
+        "bytes": 19968,
+        "sha256": "d08790db3564f0a13471d6014b9f67e05e6af9fbc918060c1f8f6a263119501d"
+      },
+      {
+        "filename": "database.cp312-win_amd64.pyd",
+        "bytes": 86528,
+        "sha256": "a4e14550f08ff81e56411a8897efe861d94161bd84b735f45ce18caf5e756b48"
+      },
+      {
+        "filename": "list.cp312-win_amd64.pyd",
+        "bytes": 38912,
+        "sha256": "7787ec555a5cf24ce3011c91f7d3167396e6e15a436f77b8bf0af207419b21eb"
+      }
+    ]
+  },
+  "source_pair_preflight": {
+    "receipt_sha256": "33cc40489ceb0a182acba63fa2c14f2a0e53588b643fa7d5280cba150c2ccaf9",
+    "snapshot_sha256": "897410294b974ea57adead3b2bc2f61f603883d7031db582a181e554a729b38b",
+    "validator_controls_and_pair": 9,
+    "installed_files": 553,
+    "installed_directories": 64,
+    "installed_bytes": 1352592,
+    "unchanged_across_compile": true,
+    "compiler_itself_proves_gate": false
+  },
+  "first_execution": {
+    "started_utc": "2026-10-19T07:23:29.3276222Z",
+    "finished_utc": "2026-10-19T07:31:43.1829956Z",
+    "passed": true,
+    "joined": true,
+    "timed_out": false,
+    "exit_code": 0,
+    "worker_elapsed_seconds": 375.53099999999904,
+    "child_wall_ms": 375702,
+    "whole_attempt_wall_ms": 493838,
+    "accounted_working_array_bound_bytes": 1655776396,
+    "worker_peak_working_set_bytes": 1656676352,
+    "parent_observed_peak_working_set_bytes": 1656676352,
+    "parent_peak_samples": 1458,
+    "peak_observation_scope": "Maximum actual Process.PeakWorkingSet64 observation; retained as an observed lower bound if a complete final process peak is unavailable. Worker self-observation remains separate.",
+    "times": {
+      "decode_seconds": 3.6090000000003783,
+      "encode_seconds": 0.030999999999039574,
+      "transform_seconds": 356.82800000000134,
+      "validation_seconds": 8.578000000001339
+    },
+    "blocks": 129,
+    "updates": 8,
+    "map_evaluations_per_vertex": 10,
+    "operation_calls": {
+      "horizontal-epsg1188": 1294,
+      "mathematical-wgs84-ecef": 1290,
+      "source-utm10n": 1290,
+      "vertical-epsg9595": 1290
+    },
+    "operation_points": {
+      "horizontal-epsg1188": 62965774,
+      "mathematical-wgs84-ecef": 62965770,
+      "source-utm10n": 62965770,
+      "vertical-epsg9595": 62965770
+    },
+    "source_inputs_unchanged": true,
+    "work_cache_unchanged": true
+  },
+  "grid": {
+    "columns": 3073,
+    "east_origin_m": -6144,
+    "rows": 2049,
+    "south_origin_m": -4096,
+    "spacing_m": 4,
+    "valid_words": 98385,
+    "vertices": 6296577,
+    "material_rings": 2
+  },
+  "validation": {
+    "bracket_span_m": {
+      "$binary64_le": "000000d8a2f36540"
+    },
+    "core_definition_valid": true,
+    "decoded_source_sha256": {
+      "tile55": "17bfa820d54edca27ab130f945f65f6f159d7e598673d3589415ac392832cb85",
+      "tile56": "bf94d3dd0750bd904198beca2b9d2a5b8ac0cfa4d377ff5b9d39ec427efab8ca"
+    },
+    "max_gradient_norm": {
+      "$binary64_le": "6af1c506ee151640"
+    },
+    "max_last_delta_m": {
+      "$binary64_le": "000000008f624d3e"
+    },
+    "max_post_round_residual_m": {
+      "$binary64_le": "0000004e8901e03e"
+    },
+    "max_pre_round_residual_m": {
+      "$binary64_le": "000000803e315a3e"
+    },
+    "max_up_m": {
+      "$binary64_le": "00000040a1656340"
+    },
+    "min_up_m": {
+      "$binary64_le": "000000c00c6834c0"
+    },
+    "missing_vertices": 0,
+    "valid_vertices": 6296577
+  },
+  "outputs": [
+    {
+      "path": "ground.fgrd",
+      "bytes": 25973686,
+      "sha256": "b2c53308fdc427900d84b541aff51ba66cbb71bc483fcee0ea16d067dbd15cfb",
+      "complete_bytes_equal": true
+    },
+    {
+      "path": "compile-receipt.json",
+      "bytes": 22937,
+      "sha256": "cb1e0b28384aeb1c11173d991b5790a8a16e64953c2c479be6b07136c5f489f0",
+      "complete_bytes_equal": true
+    },
+    {
+      "path": "VALIDATION-REQUIRED.txt",
+      "bytes": 49,
+      "sha256": "eb74e3425b110b7c6bfa88bb2be34f5cb34fbe5cfeb7edb15ca715c2b471cb2b",
+      "complete_bytes_equal": true
+    }
+  ],
+  "checks": {
+    "offline_unit_tests": {
+      "tests": 33,
+      "failures": 0,
+      "elapsed_seconds": 0.014,
+      "scope": "Synthetic offline module cases only"
+    },
+    "native_harness_controls": {
+      "checks": 23,
+      "failures": 0,
+      "ctests": 1,
+      "scope": "Synthetic native harness argument/value/refusal cases only"
+    },
+    "selected_candidate": {
+      "passed": true,
+      "f32_words": 81,
+      "compiled_endpoints": 4,
+      "integer_mm_coordinates": 16,
+      "observed_solver_trace_comparison": false
+    },
+    "actual_schemas": {
+      "passed": true,
+      "checks": 3,
+      "node_version": "v20.17.0",
+      "node_sha256": "0740b4a681b320f966b57f51c87c11f897e8605064b6ae62d03e177bc66f01b9",
+      "controls_unchanged": true,
+      "installed_unchanged": true,
+      "candidate_unchanged": true,
+      "joined": true,
+      "exit_code": 0
+    },
+    "actual_native": {
+      "passed": true,
+      "joined": true,
+      "exit_code": 0,
+      "before_after_equal": true,
+      "wall_ms": 3960,
+      "selected_word_checks": 81,
+      "runway_ring_checks": 2,
+      "endpoint_queries": 8,
+      "fixed_height_tolerance_m": 0.0009765625,
+      "maximum_observed_abs_height_error_m": 0,
+      "altitude_independent_height_normal_material_bits": true,
+      "endpoints": [
+        {
+          "designator": "11",
+          "surface_ellipsoid_height_m": 17.62101529289604,
+          "surface_height_binary64_msb": "40319efadbb54dea",
+          "query_ellipsoid_heights_m": [
+            0,
+            1000
+          ],
+          "signed_height_errors_m": [
+            0,
+            0
+          ],
+          "material_id": "original.asphalt"
+        },
+        {
+          "designator": "29",
+          "surface_ellipsoid_height_m": 16.347836862588657,
+          "surface_height_binary64_msb": "4030590bd62d295a",
+          "query_ellipsoid_heights_m": [
+            0,
+            1000
+          ],
+          "signed_height_errors_m": [
+            0,
+            0
+          ],
+          "material_id": "original.terrain-prototype"
+        },
+        {
+          "designator": "16",
+          "surface_ellipsoid_height_m": 20.263491872234724,
+          "surface_height_binary64_msb": "40344374340e028c",
+          "query_ellipsoid_heights_m": [
+            0,
+            1000
+          ],
+          "signed_height_errors_m": [
+            0,
+            0
+          ],
+          "material_id": "original.asphalt"
+        },
+        {
+          "designator": "34",
+          "surface_ellipsoid_height_m": 16.135434816106876,
+          "surface_height_binary64_msb": "403022abdb29eb37",
+          "query_ellipsoid_heights_m": [
+            0,
+            1000
+          ],
+          "signed_height_errors_m": [
+            0,
+            0
+          ],
+          "material_id": "original.asphalt"
+        }
+      ]
+    },
+    "local_ci_runner": {
+      "passed": true,
+      "synthetic_checks": 23,
+      "ctests": 1,
+      "failures": 0,
+      "runner_sha256": "4b43da2edaa4931d8ab8f0e9e0be20b4082641e1570cd1c997f74cd1ade2c31f",
+      "scope": "Local pinned-toolchain runner smoke check; protected cross-platform CI remains pending",
+      "logs": {
+        "configure": {
+          "bytes": 567,
+          "sha256": "56d05514c6825b45acab0147c06073b74ec0140b1a1de0de58830fdcd711bf73"
+        },
+        "build": {
+          "bytes": 7561,
+          "sha256": "056449a7670d43ea00efa1cf830d42270d42656e47efdb980bd66b065c3bd011"
+        },
+        "ctest": {
+          "bytes": 453,
+          "sha256": "02aad6475038bfa7fd809d47262de96de38e2f62a6cd732dac5ee6b28ac8ae2b"
+        },
+        "synthetic_result": {
+          "bytes": 1021,
+          "sha256": "efb644ac71d2be0744ce5788161f9c39ab35c489bae42cc695aeb5c1dce57621"
+        }
+      }
+    },
+    "existing_output_refusal": {
+      "kind": "KawoExistingOutputRefusal/v1",
+      "passed": true,
+      "producer_sha256": "e6563cb07c54a4e8bf05a4c5033635dabe51e0d6943d2d3eaa72d778d86d5bab",
+      "launcher_sha256": "47ae2596cb6c9e32164f1e4644ac43abaa2d41e36a68c28e1d21ca95bd126a25",
+      "expected_child_exit_code": 1,
+      "observed_child_exit_code": 1,
+      "expected_refusal": "new output directory/existing parent",
+      "candidate_complete": false,
+      "sentinel_bytes": 28,
+      "sentinel_sha256": "13fc9220f620dc47e9ce330da7de6a0118f3968bc629e2a2b9f7786e63cea306",
+      "sentinel_complete_bytes_unchanged": true,
+      "candidate_files": 1,
+      "child_joined": true,
+      "stdout": {
+        "bytes": 333,
+        "sha256": "d84c4d62ada6ff64dd1866f50aa552a5bf376d735cfdde05db1ebe3026e6be8b"
+      },
+      "launch": {
+        "bytes": 17424,
+        "sha256": "0e952719f76c3d1bb805c0d46ea755342c89a0f23984e10cc0c8c2900c3bdf4d"
+      },
+      "all_outer_closures_unchanged": true,
+      "worker_installation_observation_reported": false,
+      "runtime_admission": false
+    }
+  },
+  "native_build": {
+    "compiler": "MSVC 19.40.33813.0",
+    "architecture": "x64",
+    "configuration": "RelWithDebInfo",
+    "language": "C++20",
+    "fp_option": "/fp:strict",
+    "warnings": [
+      "/W4",
+      "/WX",
+      "/permissive-"
+    ],
+    "source_packet_sha256": "11c63972a4fecf2395b2d17d803b0b30d1e43f9f44394b15fbd642c4ecc288be",
+    "sources": [
+      {
+        "path": "tests/terrain/kawo/native/CMakeLists.txt",
+        "sha256": "07046a5df7ea2c2e1a23363db1573b0c6e928cfddc456e6db89926d3c80a38af",
+        "bytes": 1466
+      },
+      {
+        "path": "tests/terrain/kawo/native/validation.hpp",
+        "sha256": "96edd1392f761123e15d6402da2daff85bf5c47d734783cc40a13cdbb48ae804",
+        "bytes": 1294
+      },
+      {
+        "path": "tests/terrain/kawo/native/validation.cpp",
+        "sha256": "a62be2a68b540b0fdf8ed42e298e0117d92b931bb578a0821f0fdaee6d0d5513",
+        "bytes": 10440
+      },
+      {
+        "path": "tests/terrain/kawo/native/main.cpp",
+        "sha256": "9aeb9a83158466ee0d5cdd465710f3461ad8ddb4f1529dfbb9225f2a983c01cd",
+        "bytes": 2956
+      },
+      {
+        "path": "tests/terrain/kawo/native/validation_test.cpp",
+        "sha256": "8e7c69a90d700f4d3e96d26580778af8eb0624e8c1762a41a99cda52d6018c54",
+        "bytes": 5580
+      },
+      {
+        "path": "tests/terrain/kawo/native/README.md",
+        "sha256": "9a0522e64441b9f723c21e6d58de20e22f4892c0599f7cc0752f8357e1aae620",
+        "bytes": 5683
+      },
+      {
+        "path": "tests/terrain/kawo/native/reference/selected_controls_v1.hpp",
+        "sha256": "c34f5d1e22088a0da9ab989ac7157a3616aeffac7ac284b96a9230e4408637b7",
+        "bytes": 4611
+      }
+    ],
+    "binary": {
+      "filename": "kawo_payload_validator.exe",
+      "bytes": 275456,
+      "sha256": "27b50816f539eea8a15e1a124de1f7d70870b9a3abc8477bf41f6fd96bbe3712"
+    }
+  },
+  "frame_policy": {
+    "horizontal_policy": "epsg1188-geog2d-approximation",
+    "source_epoch_year": null,
+    "source_realization": null,
+    "total3d_accuracy": "unknown",
+    "vertical_policy": "navd88-plus-geoid18-unverified-frame",
+    "world_anchor": {
+      "ellipsoid_height_m": {
+        "$binary64_le": "0000000000000000"
+      },
+      "latitude_rad": {
+        "$binary64_le": "fdfc84c1e5e5ea3f"
+      },
+      "longitude_rad": {
+        "$binary64_le": "5eedd3837e0e01c0"
+      }
+    }
+  },
+  "limitations": [
+    "generic NAD83 realization and epoch unknown",
+    "GEOID18 evaluated under an unverified NAD83(2011) assumption",
+    "NAVD88 DEM and FAA feet MSL are separate",
+    "total3D accuracy UNKNOWN",
+    "EPSG1188 published4m is an operation component only",
+    "obstacle and airport operational detail incomplete",
+    "material coefficients are original prototypes"
+  ],
+  "pending": [
+    "Protected CI for final source and checked implementation merge",
+    "World/catalog/start/renderer/native-session integration and visible/pilot/phase gates"
+  ],
+  "repeated_execution": {
+    "kind": "KawoCompleteRepeatedBytes/v1",
+    "passed": true,
+    "comparison": "Complete byte arrays compared through injective Base64 encoding, plus independent raw SHA256/length observations",
+    "runs": [
+      {
+        "launch_sha256": "b1910e2ca1f6d2ff8954bcb9cbb05c1d4f63725dee704cf895cbb16e514f392c",
+        "stdout_sha256": "e00263ec37c6e6ee033fa77d471ae857f5763b4f14537da52585f39184e76c8f",
+        "elapsed_seconds": 375.53099999999904,
+        "peak_working_set_bytes": 1656676352,
+        "accounted_working_array_bound_bytes": 1655776396,
+        "all_outer_closures_unchanged": true
+      },
+      {
+        "launch_sha256": "0f43ecfc67604d4a53a5d1142b19667959666d9c9bebbff0f59dc32013d07c69",
+        "stdout_sha256": "330960f48975348f28cf3e57e809514f6bc6051fcf5112622baa644d6c21d1c6",
+        "elapsed_seconds": 377.6090000000004,
+        "peak_working_set_bytes": 1657659392,
+        "accounted_working_array_bound_bytes": 1655776396,
+        "all_outer_closures_unchanged": true
+      }
+    ],
+    "outputs": [
+      {
+        "path": "ground.fgrd",
+        "bytes": 25973686,
+        "sha256": "b2c53308fdc427900d84b541aff51ba66cbb71bc483fcee0ea16d067dbd15cfb",
+        "complete_bytes_equal": true
+      },
+      {
+        "path": "compile-receipt.json",
+        "bytes": 22937,
+        "sha256": "cb1e0b28384aeb1c11173d991b5790a8a16e64953c2c479be6b07136c5f489f0",
+        "complete_bytes_equal": true
+      },
+      {
+        "path": "VALIDATION-REQUIRED.txt",
+        "bytes": 49,
+        "sha256": "eb74e3425b110b7c6bfa88bb2be34f5cb34fbe5cfeb7edb15ca715c2b471cb2b",
+        "complete_bytes_equal": true
+      }
+    ],
+    "runtime_admission": false
+  },
+  "rights": {
+    "review_document": "docs/evidence/P4/kawo-derived-data-rights.md",
+    "reviewed_dossier_document": "docs/evidence/P4/kawo-reviewed-source-dossier-v1.json",
+    "scope": "Limited derived facts and modified DEM with original material geometry; no raw archive/TIFF/XML/geoid/README/chart redistribution in this candidate",
+    "decision_utc": "2026-10-19T06:01:28Z",
+    "retained_decision_bytes": 11706,
+    "retained_decision_sha256": "de36435e556bc567182b90cf1a409c282450205a6000450197fc7ff3a797893e",
+    "later_package_notices_required": true
+  },
+  "implementation_issue": "https://github.com/brettbergin/flight-simulator/issues/257",
+  "independent_actual_result_reviews": {
+    "first_and_schema": "38668813b5baecb73955ef52becb35814f8fda6d75d68cc1a9837afb22102d2c",
+    "repeat": "95cef582929d849075863f35c382abcbb140846540758e28b67bc01687abc6c1",
+    "findings": "clear",
+    "scope": "Actual first compilation/schema and complete repeated-byte results; no runtime admission"
+  }
+}
