@@ -4,6 +4,7 @@ extends RefCounted
 const Wire = preload("res://simulation/wire_validation.gd")
 const U64 = preload("res://simulation/uint64.gd")
 const Frames = preload("res://simulation/canonical_frames.gd")
+const Worlds = preload("res://world/world_admission.gd")
 const WORLD: String = "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5"
 const LEGACY_PROFILE: Dictionary = {"id":"original-interactive-prototype","version":"0.1.0-prototype","backend_model":"original-interactive"}
 const PISTON_PROFILE: Dictionary = {"id":"original-piston-prop-v1","version":"0.1.0-prototype","backend_model":"original-piston-prop"}
@@ -117,15 +118,21 @@ static func _validate(value: Variant) -> String:
 	if not value.named_start is String or (not ["piston-cold-ground","piston-cold-apron"].has(value.named_start) if piston else not ["ground-ready","airborne-prepared","apron-ready"].has(value.named_start)):
 		return "Unknown named start"
 	# Fingerprint structure is checked here; the leaf cannot prove binary authority.
-	if not _hex(value.native_source_fingerprint) or not _hex(value.prepared_world_sha256) or value.prepared_world_sha256!=WORLD:
+	if not _hex(value.native_source_fingerprint) or not _hex(value.prepared_world_sha256):
 		return "Invalid source fingerprint or prepared world identity"
 	if not _keys(value.world_anchor,["latitude_rad","longitude_rad","ellipsoid_height_m"]):
 		return "Malformed world anchor"
 	for key in ["latitude_rad","longitude_rad","ellipsoid_height_m"]:
 		if typeof(value.world_anchor[key])!=TYPE_FLOAT or not is_finite(value.world_anchor[key]):
 			return "Nonfinite world anchor"
-	if value.world_anchor.latitude_rad!=0.8 or value.world_anchor.longitude_rad!=-2.0 or value.world_anchor.ellipsoid_height_m!=0.0:
-		return "Unexpected prepared world anchor"
+	var source: Dictionary=Worlds.source(value.model_identity,value.named_start,value.prepared_world_sha256,value.world_anchor)
+	if not source.ok:
+		return "Unexpected prepared world anchor" if value.prepared_world_sha256==WORLD else "Invalid source fingerprint or prepared world identity"
+	if source.selector=="kawo-prototype-v1":
+		if weather.seed!="42": return "Geographic prototype requires seed42 and calm conditions"
+		for axis in ["x","y","z"]:
+			if weather.wind_toward_ned_mps[axis]!=0.0 or weather.turbulence_ned_mps[axis]!=0.0:
+				return "Geographic prototype requires seed42 and calm conditions"
 	if value.canonical==null:
 		if not value.historical and not TERMINAL.has(value.host_mode):
 			return "Current source lacks canonical metadata"

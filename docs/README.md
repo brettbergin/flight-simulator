@@ -1,12 +1,21 @@
 # Flight simulator project plan
 
-The proposed [resident-grid core and independent references](evidence/P4/resident-grid-core-reference.md)
-prepare matching physical/render terrain under #243. This component contract does
-not yet add a geographic airport to the playable simulator.
+The current source adds an opt-in KAWO prototype to the Windows engineering
+preview. Native contact and visible terrain use the same immutable compiled
+surface; the original synthetic airfield remains the default. Pause and use
+**World: synthetic airfield · switch to KAWO** for the original ready-to-fly
+aircraft in calm conditions. See [preview usage](../tools/interactive-preview/README.md),
+[native startup/contact evidence](evidence/P4/kawo-native-flight.md),
+[canonical terrain checks](evidence/P4/kawo-terrain-renderer.md) and
+[menu/map/recording/history evidence](evidence/P4/kawo-world-journey.md).
 
-The [independent payload byte references](evidence/P4/resident-grid-codec-reference.md)
-prepare a shared native/Godot reader seam. The [KAWO source ingester](evidence/P4/kawo-source-ingestion.md)
-separately passed actual pinned FAA-source comparisons; neither is gameplay terrain.
+These bounded source and integration results preserve the source/datum and
+prototype-aircraft limits. Final visual/manual-flight, Windows delivery and
+protected checks remain separately recorded; broader #243/P3/P4 and pilot gates
+stay open. The [grid references](evidence/P4/resident-grid-core-reference.md),
+[payload references](evidence/P4/resident-grid-codec-reference.md) and
+[FAA source ingester](evidence/P4/kawo-source-ingestion.md) retain their separate
+offline provenance and numerical scope.
 
 This is a serious Windows desktop flight simulator for realistic Cessna flying, thoughtful practice, and enjoyment by an experienced pilot. The first delivery establishes the implementation plan and GitHub work queue. The owner approved the plan and authorized implementation on 2026-10-03; see [P0 acceptance](evidence/P0/acceptance.md). P1 now establishes executable contracts, native flight dynamics and Windows delivery proofs. A playable simulator requires the subsequent cockpit and flight-operation phases.
 

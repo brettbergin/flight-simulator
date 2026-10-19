@@ -1,0 +1,171 @@
+{
+  "schema": "AirportSourceDossier/v1",
+  "airport_icao": "KAWO",
+  "purpose": "source-record",
+  "as_of_utc": "2026-10-19T06:01:28Z",
+  "sources": [
+    {
+      "id": "faa.nasr.2026-10-01",
+      "kind": "faa-nasr",
+      "publisher": "Federal Aviation Administration",
+      "url": "https://nfdc.faa.gov/webContent/28DaySub/extra/01_Oct_2026_APT_CSV.zip",
+      "retrieved_utc": "2026-10-19T01:38:19Z",
+      "effective_from": "2026-10-01T00:00:00Z",
+      "effective_until": null,
+      "capture_state": "captured",
+      "artifact": {
+        "sha256": "aba48ea877f249d9b8cd63988b14b3432a6a09ad1fbe9561a5e6443c99c03dd0",
+        "bytes": 8030968,
+        "relative_path": null
+      },
+      "rights": {
+        "status": "reference-only",
+        "license": "Limited factual-subset use; raw archive reference only",
+        "notice": "Approve the specified derived KAWO numerical facts/identifiers with FAA source attribution. Copyright Office fact/expression distinction supports this limited project inference; no universal FAA archive/prose/chart license is inferred. KAWO is US data, excluding Caribbean/Bermuda records and their reproduction restriction. Raw NASR archive and its expressive arrangement/prose remain reference-only and absent from the pack. Review scope: Only the derived numerical KAWO US airport/runway facts, modified compiled DEM surface, original geometry/materials and attribution. No raw ZIP/TIFF/XML/grid/README, charts, logos, foreign records or third-party artwork ships. Actual technical/runtime/accuracy/phase acceptance remains separate.",
+        "reviewed_utc": "2026-10-19T06:01:28Z"
+      },
+      "note": "Actual retrieval receipt UTC is 2026-10-19T01:38:19.8371192Z, truncated to whole seconds for this schema. Raw archive retained externally. Source consistency is not operational or geographic validation."
+    },
+    {
+      "id": "usgs.dem.x55y534.tiff",
+      "kind": "usgs-elevation",
+      "publisher": "U.S. Geological Survey",
+      "url": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/WA_Western_North_2016/TIFF/USGS_one_meter_x55y534_WA_Western_North_2016.tif",
+      "retrieved_utc": "2026-10-19T03:09:40Z",
+      "effective_from": null,
+      "effective_until": null,
+      "capture_state": "captured",
+      "artifact": {
+        "sha256": "c0115806df9b1c228b8c074adcdd342bb9a01cf936d2c39be218a5b61ead0ccf",
+        "bytes": 494331204,
+        "relative_path": null
+      },
+      "rights": {
+        "status": "redistributable",
+        "license": "USGS 3DEP public-domain source data; modified-product notice retained",
+        "notice": "Approve derived numerical use of the exact paired 3DEP DEM/metadata. Both captured companion XML abstracts identify standard 3DEP public-domain products. Preserve USGS credit, describe actual mosaic/interpolation/resampling/coordinate/Float32 modifications, no implied agency approval and source warranty/temporal/critical-use limits. Raw TIFF/XML, agency logos and third-party images are not shipped; source data is not exclusively relicensed as project MIT. Review scope: Only the derived numerical KAWO US airport/runway facts, modified compiled DEM surface, original geometry/materials and attribution. No raw ZIP/TIFF/XML/grid/README, charts, logos, foreign records or third-party artwork ships. Actual technical/runtime/accuracy/phase acceptance remains separate.",
+        "reviewed_utc": "2026-10-19T06:01:28Z"
+      },
+      "note": "Retained receipt retrieved_utc=2026-10-19T03:09:40.2140478Z; schema UTC truncates fractional seconds. Adjacent west raw bare-earth source, not compiled terrain or admitted coverage. Companion metadata states generic NAD83 / NAVD88 metres; no source realization or coordinate epoch is inferred. Publication/collection dates are not operational effective intervals."
+    },
+    {
+      "id": "usgs.dem.x55y534.xml",
+      "kind": "usgs-elevation",
+      "publisher": "U.S. Geological Survey",
+      "url": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/WA_Western_North_2016/metadata/USGS_one_meter_x55y534_WA_Western_North_2016_meta.xml",
+      "retrieved_utc": "2026-10-19T03:08:47Z",
+      "effective_from": null,
+      "effective_until": null,
+      "capture_state": "captured",
+      "artifact": {
+        "sha256": "ef382998233ddd833be510e4737c3052f20718e9fe2b2bea523c42cbc3952381",
+        "bytes": 12169,
+        "relative_path": null
+      },
+      "rights": {
+        "status": "redistributable",
+        "license": "USGS 3DEP public-domain source data; modified-product notice retained",
+        "notice": "Approve derived numerical use of the exact paired 3DEP DEM/metadata. Both captured companion XML abstracts identify standard 3DEP public-domain products. Preserve USGS credit, describe actual mosaic/interpolation/resampling/coordinate/Float32 modifications, no implied agency approval and source warranty/temporal/critical-use limits. Raw TIFF/XML, agency logos and third-party images are not shipped; source data is not exclusively relicensed as project MIT. Review scope: Only the derived numerical KAWO US airport/runway facts, modified compiled DEM surface, original geometry/materials and attribution. No raw ZIP/TIFF/XML/grid/README, charts, logos, foreign records or third-party artwork ships. Actual technical/runtime/accuracy/phase acceptance remains separate.",
+        "reviewed_utc": "2026-10-19T06:01:28Z"
+      },
+      "note": "Retained receipt retrieved_utc=2026-10-19T03:08:47.6010721Z; schema UTC truncates fractional seconds. Source title USGS one meter x55y534 WA Western North 2016; citation pubdate=20200330, timeperd collection range=20160317..20170528, current=publication date. These are retained metadata, not effective interval or realization evidence. Generic NAD83, NAVD88 metre elevations remain source descriptions."
+    },
+    {
+      "id": "usgs.dem.x56y534.tiff",
+      "kind": "usgs-elevation",
+      "publisher": "U.S. Geological Survey",
+      "url": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/WA_Western_North_2016/TIFF/USGS_one_meter_x56y534_WA_Western_North_2016.tif",
+      "retrieved_utc": "2026-10-19T01:51:22Z",
+      "effective_from": null,
+      "effective_until": null,
+      "capture_state": "captured",
+      "artifact": {
+        "sha256": "b62bd2d39d081642fd2b1710a2e3971a216702903b36812304a61ec79f6ac97e",
+        "bytes": 497020458,
+        "relative_path": null
+      },
+      "rights": {
+        "status": "redistributable",
+        "license": "USGS 3DEP public-domain source data; modified-product notice retained",
+        "notice": "Approve derived numerical use of the exact paired 3DEP DEM/metadata. Both captured companion XML abstracts identify standard 3DEP public-domain products. Preserve USGS credit, describe actual mosaic/interpolation/resampling/coordinate/Float32 modifications, no implied agency approval and source warranty/temporal/critical-use limits. Raw TIFF/XML, agency logos and third-party images are not shipped; source data is not exclusively relicensed as project MIT. Review scope: Only the derived numerical KAWO US airport/runway facts, modified compiled DEM surface, original geometry/materials and attribution. No raw ZIP/TIFF/XML/grid/README, charts, logos, foreign records or third-party artwork ships. Actual technical/runtime/accuracy/phase acceptance remains separate.",
+        "reviewed_utc": "2026-10-19T06:01:28Z"
+      },
+      "note": "Retained receipt retrieved_utc=2026-10-19T01:51:22.5463514Z; schema UTC truncates fractional seconds. Raw bare-earth source identity only. Decoder/tool or selected-point transform evidence does not admit this source as canonical terrain, operational airport coverage or realized WGS84. Companion metadata states generic NAD83 / NAVD88 metres."
+    },
+    {
+      "id": "usgs.dem.x56y534.xml",
+      "kind": "usgs-elevation",
+      "publisher": "U.S. Geological Survey",
+      "url": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/WA_Western_North_2016/metadata/USGS_one_meter_x56y534_WA_Western_North_2016_meta.xml",
+      "retrieved_utc": "2026-10-19T01:50:14Z",
+      "effective_from": null,
+      "effective_until": null,
+      "capture_state": "captured",
+      "artifact": {
+        "sha256": "c969dc8fcc548ef0670e3fb315ea461cc1f1f59461539816e3b946328f91f8dc",
+        "bytes": 12170,
+        "relative_path": null
+      },
+      "rights": {
+        "status": "redistributable",
+        "license": "USGS 3DEP public-domain source data; modified-product notice retained",
+        "notice": "Approve derived numerical use of the exact paired 3DEP DEM/metadata. Both captured companion XML abstracts identify standard 3DEP public-domain products. Preserve USGS credit, describe actual mosaic/interpolation/resampling/coordinate/Float32 modifications, no implied agency approval and source warranty/temporal/critical-use limits. Raw TIFF/XML, agency logos and third-party images are not shipped; source data is not exclusively relicensed as project MIT. Review scope: Only the derived numerical KAWO US airport/runway facts, modified compiled DEM surface, original geometry/materials and attribution. No raw ZIP/TIFF/XML/grid/README, charts, logos, foreign records or third-party artwork ships. Actual technical/runtime/accuracy/phase acceptance remains separate.",
+        "reviewed_utc": "2026-10-19T06:01:28Z"
+      },
+      "note": "Retained receipt retrieved_utc=2026-10-19T01:50:14.3942206Z; schema UTC truncates fractional seconds. Local retained filename usgs-x56y534-metadata.xml. Source citation pubdate=20200330, timeperd collection range=20160317..20170528, current=publication date. No operational effective interval, NAD83 realization or epoch is inferred."
+    },
+    {
+      "id": "noaa.geoid18.conus.tiff",
+      "kind": "noaa-geoid",
+      "publisher": "NOAA National Geodetic Survey; PROJ-data converted distribution",
+      "url": "https://cdn.proj.org/us_noaa_g2018u0.tif",
+      "retrieved_utc": "2026-10-19T02:06:41Z",
+      "effective_from": null,
+      "effective_until": null,
+      "capture_state": "captured",
+      "artifact": {
+        "sha256": "fa9a407ac7ee3f5a3694008e4bcd09ce9cc250452f0c3b11700a4960340abce2",
+        "bytes": 16742155,
+        "relative_path": null
+      },
+      "rights": {
+        "status": "redistributable",
+        "license": "PROJ-data disclaimed public-domain GEOID18 grid and NOAA README",
+        "notice": "Approve the pinned GEOID18 numerical correction and paraphrased attribution. Retained GEOID18 section identifies Public Domain and NOAA NGS to PROJ-data conversion. Separately observed official PROJ-data inventory identifies both us_noaa_g2018u0.tif and us_noaa_README.txt as Disclaimed/Public domain. Credit NOAA NGS and PROJ-data; ship neither raw grid nor README. This does not establish source realization/epoch compatibility or total3D accuracy. Review scope: Only the derived numerical KAWO US airport/runway facts, modified compiled DEM surface, original geometry/materials and attribution. No raw ZIP/TIFF/XML/grid/README, charts, logos, foreign records or third-party artwork ships. Actual technical/runtime/accuracy/phase acceptance remains separate.",
+        "reviewed_utc": "2026-10-19T06:01:28Z"
+      },
+      "note": "Retained receipt retrieved_utc=2026-10-19T02:06:41.5352708Z; schema UTC truncates fractional seconds. README associates this CONUS grid with NAD83(2011) epoch 2010.00 and NAVD88; that describes the model and does not establish that the captured FAA/USGS source coordinates share that realization/epoch. Source-frame compatibility, total 3D accuracy and compiler admission remain unresolved. No effective interval inferred from model name GEOID18."
+    },
+    {
+      "id": "noaa.geoid18.readme",
+      "kind": "noaa-geoid",
+      "publisher": "PROJ-data; NOAA National Geodetic Survey source attribution",
+      "url": "https://cdn.proj.org/us_noaa_README.txt",
+      "retrieved_utc": "2026-10-19T02:06:41Z",
+      "effective_from": null,
+      "effective_until": null,
+      "capture_state": "captured",
+      "artifact": {
+        "sha256": "38561c43f20756a77d33406c54cda8c250d18b6b30bff1e00ff51578e3682723",
+        "bytes": 19653,
+        "relative_path": null
+      },
+      "rights": {
+        "status": "redistributable",
+        "license": "PROJ-data disclaimed public-domain GEOID18 grid and NOAA README",
+        "notice": "Approve the pinned GEOID18 numerical correction and paraphrased attribution. Retained GEOID18 section identifies Public Domain and NOAA NGS to PROJ-data conversion. Separately observed official PROJ-data inventory identifies both us_noaa_g2018u0.tif and us_noaa_README.txt as Disclaimed/Public domain. Credit NOAA NGS and PROJ-data; ship neither raw grid nor README. This does not establish source realization/epoch compatibility or total3D accuracy. Review scope: Only the derived numerical KAWO US airport/runway facts, modified compiled DEM surface, original geometry/materials and attribution. No raw ZIP/TIFF/XML/grid/README, charts, logos, foreign records or third-party artwork ships. Actual technical/runtime/accuracy/phase acceptance remains separate.",
+        "reviewed_utc": "2026-10-19T06:01:28Z"
+      },
+      "note": "Retained receipt retrieved_utc=2026-10-19T02:06:41.7231944Z; schema UTC truncates fractional seconds. GEOID18 section lines 457..475 identifies converted GeoTIFF, intended NAD83(2011) epoch 2010.00 coordinates, CONUS us_noaa_g2018u0.tif / NAVD88, and model extent limitations. This captured text does not resolve the source-frame uncertainty of FAA or USGS data."
+    }
+  ],
+  "conflicts": [],
+  "notes": [
+    "Paved NASR subset only. No terrain, canonical coordinates or operational world admission.",
+    "The preceding note is retained unchanged from the FAA-only input dossier and describes its NASR subset. This private combined dossier adds four USGS TIFF/XML captures and a NOAA grid/README capture; it is provenance input for later compiler work, not admitted compiled terrain.",
+    "as_of_utc is the maximum actual capture UTC among these seven sources, truncated to the whole-second schema format. Original fractional receipt UTCs remain in source notes. Effective intervals for USGS and NOAA sources remain null; publication, survey and model names are not substituted for effective dates.",
+    "All artifacts remain external reference identities with relative_path=null. No raw FAA archive, USGS TIFF/XML or NOAA grid/README is packaged by this dossier. Source rights evidence is retained in notices; rights remain pending without an actual dated review record. FAA rights classification is unchanged.",
+    "Generic NAD83 source metadata, unspecified FAA MSL and unknown coordinate realizations/epochs are not silently relabelled WGS84. Capture, source consistency, decoder checks and selected-coordinate qualification are separate from operational geographic accuracy or world admission.",
+    "Successor of captured dossier SHA256 5db1367751d58196c440d24869e82c55fd17e3f24cfd50ac96bad788d6ec07c1. Original captures, artifact identities, retrieval UTCs, source dates, numeric facts and capture_state are retained. Prior pending-state notes and the parent note defining as_of_utc as maximum capture UTC are historical. This successor as_of_utc is the actual review/authoring UTC; current rights declarations reflect the separately retained limited derived-use review at 2026-10-19T06:01:28Z. This review changes neither source accuracy nor airport review_state. Raw source artifacts remain external with relative_path=null."
+  ]
+}

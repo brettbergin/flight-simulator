@@ -65,8 +65,8 @@ func begin(readback: Variant, replace_confirmed: bool = false) -> Dictionary:
 	if _record.state!="empty":
 		if not replace_confirmed or readback.session_id==_record.metadata.session_id:
 			return _result(false,"Replacement requires a confirmed different session")
-	# Qualification above admits only the exact legacy and piston identities.
-	_record=Values.empty_recording(1 if readback.model_identity==Values.MODEL else 2)
+	# Full source qualification chooses1/2/3 without reinterpreting old files.
+	_record=Values.empty_recording(Values.revision_for(readback))
 	_record.state="recording"
 	_record.metadata=Values.metadata(readback)
 	_record.last_observed_tick=readback.tick

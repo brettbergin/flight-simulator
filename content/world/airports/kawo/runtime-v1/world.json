@@ -1,0 +1,158 @@
+{
+  "type": "WorldPackage",
+  "schema_version": 1,
+  "id": "kawo.prototype",
+  "version": "0.1.0-prototype",
+  "compatible_schema_version": 1,
+  "evidence": {
+    "status": "prototype",
+    "report_ids": [
+      "kawo-terrain-compilation"
+    ],
+    "source_ids": [
+      "faa.nasr.2026-10-01",
+      "usgs.dem.x55y534.tiff",
+      "usgs.dem.x55y534.xml",
+      "usgs.dem.x56y534.tiff",
+      "usgs.dem.x56y534.xml",
+      "noaa.geoid18.conus.tiff",
+      "noaa.geoid18.readme"
+    ]
+  },
+  "sources": [
+    {
+      "id": "faa.nasr.2026-10-01",
+      "revision": "faa.nasr.2026-10-01",
+      "locator": "https://nfdc.faa.gov/webContent/28DaySub/extra/01_Oct_2026_APT_CSV.zip",
+      "sha256": "aba48ea877f249d9b8cd63988b14b3432a6a09ad1fbe9561a5e6443c99c03dd0",
+      "rights": "reference-only",
+      "license": "Limited factual-subset use; raw archive reference only",
+      "applicability": "Derived KAWO prototype only; see dossier and NOTICE. Raw source artifact is not included.",
+      "effective_from": "2026-10-01T00:00:00Z",
+      "effective_until": null
+    },
+    {
+      "id": "usgs.dem.x55y534.tiff",
+      "revision": "usgs.dem.x55y534.tiff",
+      "locator": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/WA_Western_North_2016/TIFF/USGS_one_meter_x55y534_WA_Western_North_2016.tif",
+      "sha256": "c0115806df9b1c228b8c074adcdd342bb9a01cf936d2c39be218a5b61ead0ccf",
+      "rights": "redistributable",
+      "license": "USGS 3DEP public-domain source data; modified-product notice retained",
+      "applicability": "Derived KAWO prototype only; see dossier and NOTICE. Raw source artifact is not included.",
+      "effective_from": null,
+      "effective_until": null
+    },
+    {
+      "id": "usgs.dem.x55y534.xml",
+      "revision": "usgs.dem.x55y534.xml",
+      "locator": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/WA_Western_North_2016/metadata/USGS_one_meter_x55y534_WA_Western_North_2016_meta.xml",
+      "sha256": "ef382998233ddd833be510e4737c3052f20718e9fe2b2bea523c42cbc3952381",
+      "rights": "redistributable",
+      "license": "USGS 3DEP public-domain source data; modified-product notice retained",
+      "applicability": "Derived KAWO prototype only; see dossier and NOTICE. Raw source artifact is not included.",
+      "effective_from": null,
+      "effective_until": null
+    },
+    {
+      "id": "usgs.dem.x56y534.tiff",
+      "revision": "usgs.dem.x56y534.tiff",
+      "locator": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/WA_Western_North_2016/TIFF/USGS_one_meter_x56y534_WA_Western_North_2016.tif",
+      "sha256": "b62bd2d39d081642fd2b1710a2e3971a216702903b36812304a61ec79f6ac97e",
+      "rights": "redistributable",
+      "license": "USGS 3DEP public-domain source data; modified-product notice retained",
+      "applicability": "Derived KAWO prototype only; see dossier and NOTICE. Raw source artifact is not included.",
+      "effective_from": null,
+      "effective_until": null
+    },
+    {
+      "id": "usgs.dem.x56y534.xml",
+      "revision": "usgs.dem.x56y534.xml",
+      "locator": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/WA_Western_North_2016/metadata/USGS_one_meter_x56y534_WA_Western_North_2016_meta.xml",
+      "sha256": "c969dc8fcc548ef0670e3fb315ea461cc1f1f59461539816e3b946328f91f8dc",
+      "rights": "redistributable",
+      "license": "USGS 3DEP public-domain source data; modified-product notice retained",
+      "applicability": "Derived KAWO prototype only; see dossier and NOTICE. Raw source artifact is not included.",
+      "effective_from": null,
+      "effective_until": null
+    },
+    {
+      "id": "noaa.geoid18.conus.tiff",
+      "revision": "noaa.geoid18.conus.tiff",
+      "locator": "https://cdn.proj.org/us_noaa_g2018u0.tif",
+      "sha256": "fa9a407ac7ee3f5a3694008e4bcd09ce9cc250452f0c3b11700a4960340abce2",
+      "rights": "redistributable",
+      "license": "PROJ-data disclaimed public-domain GEOID18 grid and NOAA README",
+      "applicability": "Derived KAWO prototype only; see dossier and NOTICE. Raw source artifact is not included.",
+      "effective_from": null,
+      "effective_until": null
+    },
+    {
+      "id": "noaa.geoid18.readme",
+      "revision": "noaa.geoid18.readme",
+      "locator": "https://cdn.proj.org/us_noaa_README.txt",
+      "sha256": "38561c43f20756a77d33406c54cda8c250d18b6b30bff1e00ff51578e3682723",
+      "rights": "redistributable",
+      "license": "PROJ-data disclaimed public-domain GEOID18 grid and NOAA README",
+      "applicability": "Derived KAWO prototype only; see dossier and NOTICE. Raw source artifact is not included.",
+      "effective_from": null,
+      "effective_until": null
+    }
+  ],
+  "files": [
+    {
+      "path": "ground.fgrd",
+      "sha256": "b2c53308fdc427900d84b541aff51ba66cbb71bc483fcee0ea16d067dbd15cfb",
+      "bytes": 25973686,
+      "role": "resident-ground-grid-v1"
+    },
+    {
+      "path": "airport.json",
+      "sha256": "63463d30c55f8aba56a3426efd7c2dd61287a99d66d307f3940b589b97fd6c18",
+      "bytes": 37101,
+      "role": "airport-source-record"
+    },
+    {
+      "path": "dossier.json",
+      "sha256": "974345fd8eedff2e339e4eb21b8ac3a09ed69c66c4d2a045b430f9655bd15cee",
+      "bytes": 15785,
+      "role": "airport-source-dossier"
+    },
+    {
+      "path": "compile-receipt.json",
+      "sha256": "cb1e0b28384aeb1c11173d991b5790a8a16e64953c2c479be6b07136c5f489f0",
+      "bytes": 22937,
+      "role": "terrain-compile-receipt-v1"
+    },
+    {
+      "path": "start-ready34.json",
+      "sha256": "05cb113c22168c15c27065732c2b10273de5f24400cff47cbcda973e208d6d0f",
+      "bytes": 848,
+      "role": "world-start-recipe-v1"
+    },
+    {
+      "path": "NOTICE.txt",
+      "sha256": "8631077f739836d0c8e7c8000ae43412d48f2fd3205f3fdd19df4a46f71cce5e",
+      "bytes": 2818,
+      "role": "source-notice"
+    }
+  ],
+  "coverage": {
+    "south_rad": 0.8385636577298591,
+    "north_rad": 0.8425636577298591,
+    "west_rad": -2.1360772456216863,
+    "east_rad": -2.1280772456216863,
+    "crosses_antimeridian": false
+  },
+  "horizontal_datum": "wgs84",
+  "vertical_datum": "wgs84-ellipsoid",
+  "geoid": null,
+  "magnetic_model": null,
+  "effective_from": "2026-10-01T00:00:00Z",
+  "effective_until": "2026-10-19T06:01:28Z",
+  "data_status": "historical",
+  "products": [
+    "terrain",
+    "airport"
+  ],
+  "update_policy": "fixed-scenario"
+}

@@ -1,5 +1,6 @@
 #pragma once
 #include <flight/interactive/surface.hpp>
+#include <flight/interactive/prepared_world.hpp>
 #include <flight/fdm/session.hpp>
 #include <optional>
 #include <string>
@@ -29,6 +30,8 @@ struct Config {
   c::Seed seed{42};
   double requested_height_m{1.05},forward_mps{},down_mps{},pitch_rad{};
   bool trim{};
+  WorldChoice world_choice{WorldChoice::original_synthetic};
+  std::shared_ptr<const PreparedWorld> geographic_world;
 };
 struct Step {Status status{};std::vector<c::ControlCommand> applied;};
 struct SessionTestAccess;
@@ -80,6 +83,7 @@ struct SteadyWindObservation {
 struct SessionTestAccess {
   static std::array<SteadyWindObservation,2> initialization(const Session&);
   static SteadyWindObservation current(const Session&);
+  static std::size_t geographic_queries(const Session&);
 };
 std::string snapshot_json(const c::AircraftSnapshot&);
 bool piston_system_id(std::string_view);

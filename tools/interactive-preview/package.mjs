@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import {validateCameraSources,validateCameraReceipt} from './camera-receipt.mjs';
 import {variant as localWindowVariant,validateLocalWindowReplayReceipt,validateLocalWindowReplaySources} from './local-window-replay.mjs';
 import {validateContract} from '../../schemas/validate.mjs';
+import {reproduce as reproduceKawoCatalog} from './world-catalog.mjs';
 import {selectedLibrary,verifyExportSelection} from '../export/selected-source.mjs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
@@ -217,6 +218,46 @@ export function validateGroundMaterialSources(repository,project,source){
  return expected;
 }
 // Frontend source closure only. Working native storage has a separate aggregate.
+export const kawoRuntimeSourceGroups=[
+ ['app/world','world',['world_admission.gd'],true],
+ ['app/world/terrain','world/terrain',['resident_grid_reader.gd','kawo_world.gd'],false],
+ ['content/world/catalog','content/world/catalog',['kawo-runtime-v1.json'],false],
+ ['content/world/airports/kawo/runtime-v1','worlds/kawo-prototype-v1',['world.json','ground.fgrd','airport.json','dossier.json','compile-receipt.json','start-ready34.json','NOTICE.txt'],false],
+];
+export function validateKawoRuntimeSources(repository,project,source,payload){
+ // Reproduce both checked generated catalogs against the same fixed seven-file
+ // content. No copied success flag substitutes for this offline source gate.
+ const catalog=reproduceKawoCatalog(repository,false),source_files={};
+ for(const [authored,mapped,required,selected] of kawoRuntimeSourceGroups){
+  const expected=[...required].sort();
+  if(!selected){
+   const actual=ordinaryFiles(path.join(repository,authored)).filter(name=>!name.endsWith('.gd.uid')).sort();
+   assert.deepEqual(actual,expected,'Closed KAWO authored roster/'+authored);
+  }
+  for(const base of [project,source]){
+   if(!selected){
+    const actual=ordinaryFiles(path.join(base,mapped));
+    for(const name of actual.filter(name=>!expected.includes(name))){
+     assert(base===project&&name.endsWith('.gd.uid')&&expected.includes(name.slice(0,-4)),'Only bound staged KAWO script UID allowed');
+     const raw=fs.readFileSync(path.join(base,mapped,name));assert(raw.length<=64);assert.match(raw.toString('utf8'),/^uid:\/\/[a-z0-9]{1,20}\r?\n?$/);
+    }
+    assert.deepEqual(actual.filter(name=>expected.includes(name)).sort(),expected,'Closed KAWO copied roster/'+mapped);
+   }
+   for(const name of expected){
+    const original=path.join(repository,authored,name),actual=path.join(base,mapped,name);
+    ordinaryAncestors(original);ordinaryAncestors(actual);
+    const raw=fs.readFileSync(original);assert(raw.equals(fs.readFileSync(actual)),'Exact KAWO runtime/corresponding source/'+mapped+'/'+name);
+    source_files[authored+'/'+name]={bytes:raw.length,sha256:sha(raw)};
+   }
+  }
+  if(mapped==='worlds/kawo-prototype-v1'){
+   assert.deepEqual(ordinaryFiles(path.join(payload,mapped)).sort(),expected,'Closed physical KAWO sibling pack');
+   for(const name of expected){const file=path.join(payload,mapped,name);ordinaryAncestors(file);assert(fs.readFileSync(file).equals(fs.readFileSync(path.join(repository,authored,name))),'Physical KAWO pack bytes/'+name);}
+   for(const base of [project,source,payload])assert.deepEqual(ordinaryFiles(path.join(base,'worlds')).sort(),expected.map(name=>'kawo-prototype-v1/'+name),'Single admitted physical world directory');
+  }
+ }
+ return {source_files,catalog,scope:'Fixed pack/catalog/renderer source closure only; actual flight, storage, GPU, hardware and pilot evidence remain separate'};
+}
 export const localPlayerSourceGroups=[
  ['app/persistence','persistence',['local_players_controller.gd']],
  ['app/ui/profiles','ui/profiles',['player_options.gd','players_panel.gd','player_name_panel.gd']],
@@ -583,7 +624,7 @@ function audit(root,proof,build,python='python'){
  const modules=witness(baseline,payload),replacedModules=witness(changed,replacement);
  const nativeIdentity=json(path.join(evidence,'native-build-identity.json'));
  // Independent selector/current compiler/source reconstruction, not shape-only evidence.
- const qualification=spawnSync(python,['-B',path.join(repo,'tools/interactive-preview/native-identity.py'),'--repository-root',repo,'--build-root',build,'--evidence',path.join(evidence,'native-build-identity.json'),'--staged-root',path.join(root,'project'),'--staged-root',path.join(payload,'source/whole-flight-preview'),'--check-reconstruction-root',path.join(payload,'source/whole-flight-preview')],{encoding:'utf8'});
+ const qualification=spawnSync(python,['-B',path.join(repo,'tools/interactive-preview/native-identity.py'),'--repository-root',repo,'--build-root',build,'--evidence',path.join(evidence,'native-build-identity.json'),'--resident-closure-evidence',path.join(evidence,'resident-world-native-closure-v1.json'),'--staged-root',path.join(root,'project'),'--staged-root',path.join(payload,'source/whole-flight-preview'),'--check-reconstruction-root',path.join(payload,'source/whole-flight-preview')],{encoding:'utf8'});
  assert.equal(qualification.status,0,'Independent native/resource package qualification failed');
  assert.deepEqual(JSON.parse(qualification.stdout),nativeIdentity);
  assert.equal(nativeIdentity.schema,'PreviewNativeBuildIdentity/v2');
@@ -615,6 +656,8 @@ function audit(root,proof,build,python='python'){
  validateOriginalCockpitSources(repo,path.join(root,'project'),reconstructionRoot);
  const audioIdentity=validateAudioSources(repo,path.join(root,'project'),reconstructionRoot);
  validateLocalPlayerSources(repo,path.join(root,'project'),reconstructionRoot);
+ const kawoIdentity=validateKawoRuntimeSources(repo,path.join(root,'project'),reconstructionRoot,payload);
+ write(path.join(evidence,'kawo-source-closure.json'),{schema:'KawoDeliverySourceClosure/v1',passed:true,...kawoIdentity});
  validateAudioSourceDescriptors(json(path.join(evidence,'audio-source-groups.json')),audioIdentity.source_files);
  const firstFlightIdentity=validateFirstFlightSources(repo,path.join(root,'project'),reconstructionRoot);
  const taxiIdentity=validateTaxiSources(repo,path.join(root,'project'),reconstructionRoot);
@@ -766,6 +809,11 @@ function audit(root,proof,build,python='python'){
   else if(file.endsWith('.exe'))declare('godot',file,'binary');
   else if(file.endsWith('.pck')||['launch.ps1','README.md'].includes(file))declare('native-export-proof',file,'content');
   else if(['portable-smoke.log','smoke-receipt.json','loop.records.ndjson'].includes(file))declare('native-export-proof',file,'evidence');
+ }
+ // Source closure above already pins this exact physical seven-file roster.
+ // Declare only those files; unknown world directories/files still fail audit.
+ for(const [,mapped,names] of kawoRuntimeSourceGroups){
+  if(mapped==='worlds/kawo-prototype-v1')for(const name of names)declare('native-export-proof',mapped+'/'+name,'content');
  }
  const cockpitNotice=stageOriginalCockpitNotice(repo,payload,register.entries.find(entry=>entry.id==='original-prototype-cockpit-v1'));
  declare('original-prototype-cockpit-v1',cockpitNotice.file,'notice');

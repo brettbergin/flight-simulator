@@ -102,3 +102,14 @@ assets_source/environment/original-evergreens-v1/exports/*.glb binary
 
 # Preserve the reviewed compiler CI runner on both hosted platforms.
 tools/ci/kawo-terrain.ps1 text eol=lf
+
+# Preserve the fixed runtime pack and deterministic generated catalog bytes.
+content/world/airports/kawo/runtime-v1/* -text whitespace=cr-at-eol
+content/world/catalog/kawo-runtime-v1.json -text
+app/world/world_admission.gd text eol=lf
+app/world/terrain/** text eol=lf
+native/fdm_jsbsim/interactive/src/prepared_world_catalog.hpp text eol=lf
+native/fdm_jsbsim/interactive/src/prepared_world.cpp text eol=lf
+native/fdm_jsbsim/interactive/include/flight/interactive/prepared_world.hpp text eol=lf
+tests/world/terrain/** text eol=lf
+tests/interactive/kawo/** text eol=lf

@@ -26,6 +26,8 @@ var _retained := false
 var _clearance_valid := false
 var _clearance_m := 0.0
 var _runway := 36
+var _compiled_airport: Dictionary={}
+var _compiled_runways: Array=[]
 var _landmarks: Array[Dictionary] = []
 var _route: Dictionary={}
 var _font: Font = ThemeDB.fallback_font
@@ -317,7 +319,7 @@ func set_landmarks(values: Array) -> void:
 	queue_redraw()
 
 func select_runway(value: int) -> void:
-	_runway=18 if value==18 else 36
+	_runway=value if not _compiled_airport.is_empty() and value in [11,29,16,34] else (34 if not _compiled_airport.is_empty() else (18 if value==18 else 36))
 	_refresh_presentation()
 
 func set_route(view: Dictionary) -> void:
@@ -349,7 +351,75 @@ func _set_geographic_route(view: Dictionary) -> void:
 	queue_redraw()
 
 func toggle_runway() -> void:
+	if not _compiled_airport.is_empty():
+		var ends: Array=[34,16,11,29]
+		select_runway(ends[(ends.find(_runway)+1)%4])
+		return
 	select_runway(18 if _runway==36 else 36)
+
+func set_compiled_airport(value: Dictionary) -> bool:
+	if value.is_empty():
+		_compiled_airport.clear(); _compiled_runways.clear(); _runway=36
+		_refresh_presentation(); return true
+	if value.get("schema")!="CompiledAirportGeometry/v1" or not value.get("runways") is Array or value.runways.size()!=2: return false
+	var rows: Array=[]
+	for runway in value.runways:
+		if not runway is Dictionary or not runway.get("ends") is Array or runway.ends.size()!=2 or not runway.get("footprint_mm") is Array or runway.footprint_mm.size()!=4: return false
+		var ends: Array=[]
+		for end in runway.ends:
+			if not end is Dictionary or end.get("designator") not in ["11","29","16","34"] or not end.get("eus_m") is Array or end.eus_m.size()!=3: return false
+			var point: Array=[]
+			for tag in end.eus_m:
+				if not tag is Dictionary or tag.size()!=1 or typeof(tag.get("$binary64_le"))!=TYPE_STRING or tag["$binary64_le"].length()!=16: return false
+				var bytes: PackedByteArray=tag["$binary64_le"].hex_decode()
+				if bytes.size()!=8 or bytes.hex_encode()!=tag["$binary64_le"] or not is_finite(bytes.decode_double(0)): return false
+				point.append(bytes.decode_double(0))
+			ends.append({"designator":int(end.designator),"point":point})
+		var polygon:=PackedVector2Array()
+		for vertex in runway.footprint_mm:
+			if not vertex is Array or vertex.size()!=2: return false
+			polygon.append(Vector2(float(vertex[0])/1000.0,float(vertex[1])/1000.0))
+		rows.append({"ends":ends,"polygon":polygon})
+	_compiled_airport=value.duplicate(true); _compiled_runways=rows; _runway=34
+	_route.clear(); _manual_summary.clear(); _circuit.clear(); _taxi_navigation.clear(); _landmarks.clear(); _trail.clear()
+	_refresh_presentation(); return true
+
+func _compiled_end() -> Dictionary:
+	for runway in _compiled_runways:
+		for i in range(2):
+			if runway.ends[i].designator==_runway:
+				var a: Array=runway.ends[i].point
+				var b: Array=runway.ends[1-i].point
+				return {"end":Vector2(a[0],a[2]),"inbound":Vector2(b[0]-a[0],b[2]-a[2]).normalized()}
+	return {}
+
+func _draw_compiled_chart(chart: Rect2) -> void:
+	draw_rect(chart,Color("162c2b"))
+	_rectangle(Rect2(-6144,-4096,12288,8192),chart,Color("284637"))
+	for runway in _compiled_runways:
+		var polygon:=PackedVector2Array()
+		for point in runway.polygon: polygon.append(_point(point,chart))
+		_polygon(polygon,chart,Color("aeb5b0"))
+		var first: Array=runway.ends[0].point
+		var last: Array=runway.ends[1].point
+		var segment: Array=_clip_circuit_segment(_point(Vector2(first[0],first[2]),chart),_point(Vector2(last[0],last[2]),chart),chart)
+		if segment.size()==2: draw_line(segment[0],segment[1],Color("e1e4d9"),1.0,true)
+		for end in runway.ends:
+			var at: Vector2=_point(Vector2(end.point[0],end.point[2]),chart)
+			if _inset_contains(chart,at,15):
+				_text(at+Vector2(4,-4),"%02d"%end.designator,CYAN if end.designator==_runway else INK,10)
+				if end.designator==_runway: draw_circle(at,4,Color("ffc477"))
+	for i in range(1,_trail.size() if _valid and not _retained else 0):
+		var segment: Array=_clip_circuit_segment(_point(_trail[i-1],chart),_point(_trail[i],chart),chart.grow(-1))
+		if segment.size()==2: draw_line(segment[0],segment[1],Color("79d7e4"),1,true)
+	if _valid and not _retained:
+		var at: Vector2=chart.get_center()
+		var across:=Vector2(-_direction.y,_direction.x)
+		if _heading_valid: draw_colored_polygon(PackedVector2Array([at+_direction*10,at-_direction*6+across*5,at-_direction*6-across*5]),CYAN)
+		else: draw_circle(at,4,CYAN)
+	else: _text(chart.get_center()-Vector2(45,0),"HISTORICAL" if _retained else "UNAVAILABLE",MUTED,10)
+	_text(Vector2(chart.end.x-14,chart.position.y+14),"N",INK,10)
+	draw_rect(chart,Color("426274"),false,1)
 
 func set_state(state: Dictionary, local_position: Vector3, aircraft_basis: Basis, info: Dictionary={}) -> void:
 	_set_binding_hints(info.get("locator_binding_hints"))
@@ -391,6 +461,10 @@ func _runway_metrics() -> Dictionary:
 	# are displaced from these ends and are not regulatory marking geometry.
 	var end:=Vector2(0,100 if _runway==36 else -1700)
 	var inbound:=Vector2.UP if _runway==36 else Vector2.DOWN
+	if not _compiled_airport.is_empty():
+		var geometry: Dictionary=_compiled_end()
+		if geometry.is_empty(): return {}
+		end=geometry.end; inbound=geometry.inbound
 	var right:=Vector2(-inbound.y,inbound.x)
 	var relative:=_position-end
 	var to_end:=end-_position
@@ -446,6 +520,16 @@ func _row(id: String, text: String, rect: Rect2, pixels: int=10, wrap: bool=fals
 func _presentation_rows() -> Dictionary:
 	var rows: Array=[]
 	var current: bool=_valid and not _retained
+	if not _compiled_airport.is_empty():
+		if not compact_aid_layout or size.x<250 or size.y<220: return {"rows":[],"chart":Rect2(),"current":current}
+		var width: float=size.x-24
+		var metrics: Dictionary=_runway_metrics()
+		rows.append(_row("header","KAWO PROTOTYPE LOCATOR",Rect2(12,4,width,16),11,false,CYAN))
+		rows.append(_row("status","Physical ends · %02d selected · %s"%[_runway,"PAUSED" if _paused else "LIVE" if current else "HISTORICAL"],Rect2(12,23,width,15)))
+		rows.append(_row("runway","RWY %02d · %s"%[_runway,"%.2f km"%(metrics.range_m/1000.0) if not metrics.is_empty() else "current state unavailable"],Rect2(12,148,width,15),10,false,CYAN))
+		rows.append(_row("footer","Approximate datum · not an operational chart\nTaxi / landmarks / circuit unavailable",Rect2(12,164,width,32),10,true))
+		rows.append(_row("bindings",_binding_footer(width),Rect2(12,202,width,15)))
+		return {"rows":rows,"chart":Rect2(12,40,width,103),"current":current}
 	if not compact_aid_layout or size.x<250.0 or size.y<(220.0 if current else 188.0): return {"rows":rows,"chart":Rect2(),"current":current}
 	var width: float=size.x-24.0
 	var status: String="STOPPED" if _retained else "PAUSED" if _paused and _valid else "LIVE" if _valid else "UNAVAILABLE"
@@ -546,6 +630,15 @@ func _draw() -> void:
 	if _presentation.current: _draw_chart(_presentation.chart)
 
 func _draw_ordinary() -> void:
+	if not _compiled_airport.is_empty():
+		if size.x<220 or size.y<220: return
+		draw_rect(Rect2(Vector2.ZERO,size),Color("101f27"))
+		_text(Vector2(12,21),"KAWO PROTOTYPE · RWY %02d"%_runway,CYAN,12)
+		_draw_chart(Rect2(12,40,size.x-24,size.y-105))
+		_text(Vector2(12,size.y-45),"Physical ends only · approximate datum",MUTED,10)
+		_text(Vector2(12,size.y-29),"Not a chart · taxi / circuit unavailable",MUTED,10)
+		_text(Vector2(12,size.y-12),_binding_footer(size.x-24),MUTED,10)
+		return
 	if size.x < 220 or size.y < 220:
 		return
 	var style := StyleBoxFlat.new()
@@ -602,6 +695,9 @@ func _draw_ordinary() -> void:
 	_text(Vector2(14,size.y-12),_binding_footer(size.x-28),MUTED,11)
 
 func _draw_chart(chart: Rect2) -> void:
+	if not _compiled_airport.is_empty():
+		_draw_compiled_chart(chart)
+		return
 	if not chart.position.is_finite() or not chart.size.is_finite() or chart.size.x<48 or chart.size.y<34: return
 	var route_shown: bool=not _route.is_empty() and _valid and not _retained
 	draw_rect(chart,Color("162c2b"))

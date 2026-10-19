@@ -43,14 +43,15 @@ godot::Dictionary modules(const std::filesystem::path& payload){
 class FlightInteractiveSession final:public godot::RefCounted {
  GDCLASS(FlightInteractiveSession,godot::RefCounted)
  std::unique_ptr<InteractiveWorker> worker_;
- std::shared_ptr<const interactive::AnalyticSurface> surface_;
+ std::shared_ptr<const ground::v1::SurfaceProvider> surface_;
+ std::shared_ptr<const interactive::PreparedWorld> geographic_world_;
  std::uint64_t delivered_{};
  interactive::Profile profile_{interactive::Profile::legacy};
  const std::thread::id owner_{std::this_thread::get_id()};
  void check_thread()const{if(owner_!=std::this_thread::get_id())throw std::logic_error("Interactive bridge requires its construction thread");}
  protected:
  static void _bind_methods(){
-  godot::ClassDB::bind_method(godot::D_METHOD("open_session","model_root","named_start","wind_profile","profile_id"),&FlightInteractiveSession::open_session,DEFVAL(godot::String("calm")),DEFVAL(godot::String("original-interactive-prototype")));
+  godot::ClassDB::bind_method(godot::D_METHOD("open_session","model_root","named_start","wind_profile","profile_id","world_selector"),&FlightInteractiveSession::open_session,DEFVAL(godot::String("calm")),DEFVAL(godot::String("original-interactive-prototype")),DEFVAL(godot::String("original-synthetic")));
   godot::ClassDB::bind_method(godot::D_METHOD("submit","command"),&FlightInteractiveSession::submit);
   godot::ClassDB::bind_method(godot::D_METHOD("session_control","control"),&FlightInteractiveSession::session_control);
   godot::ClassDB::bind_method(godot::D_METHOD("step_fixed","count"),&FlightInteractiveSession::step_fixed);
@@ -59,7 +60,7 @@ class FlightInteractiveSession final:public godot::RefCounted {
  }
  public:
  ~FlightInteractiveSession() override {worker_.reset();godot::UtilityFunctions::print("INTERACTIVE_DESTRUCTOR_JOINED");}
- godot::Dictionary open_session(godot::String root,godot::Variant start_selector,godot::Variant wind_selector,godot::Variant profile_selector){
+ godot::Dictionary open_session(godot::String root,godot::Variant start_selector,godot::Variant wind_selector,godot::Variant profile_selector,godot::Variant world_selector){
   if(owner_!=std::this_thread::get_id())return failure(std::logic_error("Interactive open requires its construction thread"));
   if(start_selector.get_type()!=godot::Variant::STRING)return failure(std::invalid_argument("Named start requires an exact String"));
   const godot::String start=start_selector;
@@ -67,6 +68,11 @@ class FlightInteractiveSession final:public godot::RefCounted {
   const godot::String wind=wind_selector;
   if(profile_selector.get_type()!=godot::Variant::STRING)return failure(std::invalid_argument("Aircraft profile requires an exact String"));
   const godot::String profile=profile_selector;
+  if(world_selector.get_type()!=godot::Variant::STRING)return failure(std::invalid_argument("World selector requires an exact String"));
+  const godot::String world=world_selector;
+  if(world!="original-synthetic"&&world!="kawo-prototype-v1")return failure(std::invalid_argument("Unknown interactive world"));
+  const bool geographic=world=="kawo-prototype-v1";
+  if(geographic&&(start!="ground-ready"||wind!="calm"||profile!="original-interactive-prototype"))return failure(std::invalid_argument("Unsupported KAWO model/start/wind tuple"));
   interactive::Profile selected_profile;
   if(profile=="original-interactive-prototype")selected_profile=interactive::Profile::legacy;
   else if(profile=="original-piston-prop-v1")selected_profile=interactive::Profile::piston;
@@ -91,7 +97,17 @@ class FlightInteractiveSession final:public godot::RefCounted {
    static std::atomic<std::uint64_t> epoch{0};const auto sequence=++epoch;if(sequence==0)throw std::overflow_error("Interactive epoch exhausted");
    const auto stamp=std::chrono::steady_clock::now().time_since_epoch().count();
    config.session_id="interactive-"+std::to_string(godot::OS::get_singleton()->get_process_id())+"-"+std::to_string(stamp)+"-"+std::to_string(sequence);
-   interactive::SurfaceConfig plane;surface_=std::make_shared<const interactive::AnalyticSurface>(plane,interactive::prepared_identity(plane));config.surface=surface_;config.hz=120;config.seed={42};
+   interactive::SurfaceConfig plane;auto anchor_position=plane.anchor;godot::Dictionary observed_modules;
+   if(geographic) {
+    // Actual module locality and complete owned-byte pack admission precede
+    // worker construction. No ClassDB preparation/provider factory is exposed.
+    observed_modules=modules(config.model_root.parent_path());
+    geographic_world_=interactive::load_kawo_world(config.model_root);surface_=geographic_world_->provider();anchor_position=geographic_world_->anchor();
+    config.world_choice=interactive::WorldChoice::kawo_prototype_v1;config.geographic_world=geographic_world_;
+   }else {
+    geographic_world_.reset();const auto analytic=std::make_shared<const interactive::AnalyticSurface>(plane,interactive::prepared_identity(plane));surface_=analytic;config.surface=analytic;
+   }
+   config.hz=120;config.seed={42};
    const auto model_root=config.model_root;worker_=std::make_unique<InteractiveWorker>(std::move(config));delivered_=0;profile_=selected_profile;
    auto opened=worker_->call([surface=surface_,selected_profile](auto& session){
     auto reply=interactive_sample(session,*surface);reply.angular_method=session.angular_integration_method();
@@ -99,9 +115,9 @@ class FlightInteractiveSession final:public godot::RefCounted {
     if(selected_profile==interactive::Profile::legacy&&reply.angular_method)throw std::runtime_error("Direct-thrust profile reported an angular method");
     return reply;});
    auto d=encode(opened);d["angular_integration_method"]=opened.angular_method?godot::Variant(gs(*opened.angular_method)):godot::Variant();
-   d["runtime_modules"]=modules(model_root.parent_path());d["named_start"]=start;d["wind_profile"]=wind;d["native_source_fingerprint"]=gs(interactive::source_fingerprint());
-   godot::Dictionary anchor;anchor["latitude_rad"]=plane.anchor.latitude_rad;anchor["longitude_rad"]=plane.anchor.longitude_rad;anchor["ellipsoid_height_m"]=plane.anchor.ellipsoid_height_m;d["world_anchor"]=anchor;d["prepared_world_sha256"]=gs(surface_->identity().prepared_surface_sha256);return d;
-  }catch(const std::exception& error){worker_.reset();surface_.reset();return failure(error);}
+   d["runtime_modules"]=geographic?observed_modules:modules(model_root.parent_path());d["named_start"]=start;d["wind_profile"]=wind;d["native_source_fingerprint"]=gs(interactive::source_fingerprint());
+   godot::Dictionary anchor;anchor["latitude_rad"]=anchor_position.latitude_rad;anchor["longitude_rad"]=anchor_position.longitude_rad;anchor["ellipsoid_height_m"]=anchor_position.ellipsoid_height_m;d["world_anchor"]=anchor;d["prepared_world_sha256"]=gs(surface_->identity().prepared_surface_sha256);return d;
+  }catch(const std::exception& error){worker_.reset();surface_.reset();geographic_world_.reset();return failure(error);}
  }
  godot::Dictionary read_state(){try{check_thread();if(!worker_)throw std::runtime_error("Interactive session closed");return encode(worker_->call([surface=surface_](auto& s){return interactive_sample(s,*surface);}));}catch(const std::exception& error){return failure(error);}}
  godot::Dictionary submit(godot::Dictionary value){try{
@@ -128,7 +144,7 @@ class FlightInteractiveSession final:public godot::RefCounted {
    return current;});
   auto d=encode(r);if(r.event_sequence)delivered_=r.event_sequence;return d;
  }catch(const std::exception& error){return failure(error);}}
- godot::Dictionary close(){if(owner_!=std::this_thread::get_id())return failure(std::logic_error("Interactive close requires its construction thread"));worker_.reset();surface_.reset();delivered_=0;godot::Dictionary d;d["ok"]=true;d["joined"]=true;godot::UtilityFunctions::print("INTERACTIVE_WORKER_JOINED");return d;}
+ godot::Dictionary close(){if(owner_!=std::this_thread::get_id())return failure(std::logic_error("Interactive close requires its construction thread"));worker_.reset();surface_.reset();geographic_world_.reset();delivered_=0;godot::Dictionary d;d["ok"]=true;d["joined"]=true;godot::UtilityFunctions::print("INTERACTIVE_WORKER_JOINED");return d;}
 };
 void register_interactive_bridge(){godot::ClassDB::register_class<FlightInteractiveSession>();godot::UtilityFunctions::print("INTERACTIVE_BRIDGE_INITIALIZED");}
 void close_interactive_bridges() noexcept {InteractiveWorker::close_all();}

@@ -98,6 +98,10 @@ $environment=Get-Content (Join-Path $toolchain 'environment.json') -Raw | Conver
 if([string]::IsNullOrWhiteSpace($NativeBuildRoot)){$NativeBuildRoot=Join-Path $repo '.local/build/native-release'}
 $nativeIdentity=Get-PreviewNativeBuildIdentity -RepoRoot $repo -NativeBuildRoot $NativeBuildRoot -Python $environment.python_executable
 $nativeIdentity | ConvertTo-Json -Depth 10 | Set-Content -Encoding utf8 (Join-Path $evidence 'native-build-identity.json')
+& $environment.python_executable -B (Join-Path $PSScriptRoot 'native-identity.py') --repository-root $repo --build-root $nativeIdentity.root --evidence (Join-Path $evidence 'native-build-identity.json') --resident-closure-output (Join-Path $evidence 'resident-world-native-closure-v1.json') | Out-Null
+if($LASTEXITCODE -ne 0){throw 'Actual linked resident-world component qualification rejected'}
+& node (Join-Path $PSScriptRoot 'world-catalog.mjs') --check
+if($LASTEXITCODE -ne 0){throw 'Fixed KAWO pack/catalog/generated representations differ'}
 $selectedRaw=& node (Join-Path $repo 'tools/export/selected-source.mjs') match-export (Join-Path $evidence 'native-build-identity.json') $proof
 if($LASTEXITCODE -ne 0){throw 'Selected native build requires matching reviewed export/source/replacement provenance'}
 $selectedLibrary=$selectedRaw|ConvertFrom-Json -ErrorAction Stop
@@ -147,6 +151,7 @@ $firstFlightGroups=@(Get-FirstFlightSourceGroups -RepoRoot $repo)
 $taxiGroups=@(Get-TaxiSourceGroups -RepoRoot $repo)
 $audioGroups=@(Get-AudioSourceGroups -RepoRoot $repo)
 $localPlayerGroups=@(Get-LocalPlayerSourceGroups -RepoRoot $repo)
+$kawoGroups=@(Get-KawoRuntimeSourceGroups -RepoRoot $repo)
 $cameraGroups=@(Get-CameraSourceGroups -RepoRoot $repo)
 $pistonSnapshot=@()
 if($includePiston){$pistonSnapshot=@(Get-PistonSourceSnapshot -RepoRoot $repo)}
@@ -194,6 +199,7 @@ Copy-PointerSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $poin
 Copy-FirstFlightSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $firstFlightGroups
 Copy-AudioSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $audioGroups
 Copy-LocalPlayerSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $localPlayerGroups
+Copy-KawoRuntimeSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $kawoGroups
 if($includePiston){Copy-PistonSourceSnapshot -RepoRoot $repo -DestinationRoot $project -Snapshot $pistonSnapshot}
 Copy-Item -LiteralPath (Join-Path $repo 'app/proof/interactive/project-settings.cfg') -Destination (Join-Path $project 'project.godot')
 Set-SimulationMainScene -ProjectFile (Join-Path $project 'project.godot')
@@ -227,6 +233,9 @@ if($includeLocalWindowReplay){
  $preset=$preset.Replace('exclude_filter="','exclude_filter="local-window-replay-receipt.json,')
 }
 $preset=$preset.Replace('include_filter="','include_filter="taxi_tests/*,taxi_scene_tests/*,world/synthetic/taxi-layout-v1.json,camera_checks.gd,camera_checks.tscn,camera_tests/*,').Replace('exclude_filter="','exclude_filter="taxi-check-receipt.json,camera-check-receipt.json,')
+# Native and frontend consume the same seven ordinary sibling files. They are
+# delivered physically beside models, never a second authoritative PCK copy.
+$preset=$preset.Replace('exclude_filter="','exclude_filter="worlds/*,content/world/catalog/*,')
 $preset | Set-Content -Encoding utf8 (Join-Path $project 'export_presets.cfg')
 # Keep engine/profile/cache writes within this fresh run even during authoring.
 $prior=@{}
@@ -246,6 +255,12 @@ extends SceneTree
 func _initialize() -> void:
  var script=load("res://interactive/preview.gd") as Script
  var scene=load("res://interactive/preview.tscn") as PackedScene
+ for kawa_path in ["res://world/world_admission.gd","res://world/terrain/resident_grid_reader.gd","res://world/terrain/kawo_world.gd"]:
+  var kawa_script=load(kawa_path) as Script
+  if kawa_script==null or not kawa_script.can_instantiate():
+   push_error("KAWO resource compile rejected: "+kawa_path)
+   quit(1)
+   return
  for path in ["res://world/taxi/taxi_layout.gd","res://world/taxi/taxi_navigation.gd","res://ui/taxi/taxi_panel.gd","res://taxi_tests/shipping_probe.gd","res://taxi_tests/shipping_observer.gd","res://taxi_tests/pilot_journey.gd","res://taxi_tests/layout_checks.gd","res://taxi_tests/navigation_checks.gd","res://taxi_tests/panel_checks.gd","res://taxi_tests/map_checks.gd","res://taxi_scene_tests/scene_checks.gd","res://camera_checks.gd","res://camera/view_policy.gd","res://ui/camera/views_panel.gd","res://persistence/local_players_controller.gd","res://ui/profiles/player_options.gd","res://ui/profiles/players_panel.gd","res://ui/profiles/player_name_panel.gd","res://ui/history/practice_panel.gd","res://ui/history/practice_details.gd","res://ui/history/player_export_panel.gd","res://ui/history/recovery_panel.gd","res://camera_tests/policy_checks.gd","res://camera_tests/panel_checks.gd","res://camera_tests/scene_checks.gd","res://audio/audio_cues.gd","res://audio/audio_options.gd","res://audio/sample_renderer.gd","res://ui/audio/audio_panel.gd","res://audio_tests/audio_cues_checks.gd","res://audio_tests/audio_options_checks.gd","res://audio_tests/audio_panel_checks.gd","res://audio_tests/sample_renderer_checks.gd","res://simulation/session_facade.gd","res://simulation/render_origin.gd","res://simulation/origin_participant.gd","res://simulation/wire_validation.gd","res://simulation/native_wire_decoder.gd","res://simulation/flight_scene.gd","res://sim_loop_tests/facade_checks.gd","res://sim_loop_checks.gd","res://input/input_mapper.gd","res://input/input_preset.gd","res://ui/controls/controls_panel.gd","res://input_tests/input_checks.gd","res://input_tests/scene_checks.gd","res://cockpit/assets/original_asset.gd","res://instrument_tests/cockpit_asset_baseline.gd","res://instrument_tests/cockpit_asset_checks.gd","res://instrument_tests/cockpit_asset_visual.gd","res://cockpit/instruments/native_readings.gd","res://cockpit/instruments/scan_panel.gd","res://instrument_tests/instrument_checks.gd","res://instrument_tests/adapter_checks.gd","res://instrument_tests/cockpit_geometry_checks.gd","res://instrument_tests/cockpit_visual.gd","res://instrument_tests/scan_checks.gd","res://instrument_tests/scene_checks.gd","res://instrument_tests/hud_caption_checks.gd","res://ui/freeflight/landmark_board.gd","res://freeflight_tests/landmark_checks.gd","res://freeflight_tests/scene_checks.gd","res://replay/observed/recorder.gd","res://replay/observed/review.gd","res://replay/observed/tick_math.gd","res://replay/observed/values.gd","res://ui/debrief/observed/panel.gd","res://observed_tests/recorder_checks.gd","res://observed_tests/scene_checks.gd","res://replay/observed_archive/strict_json.gd","res://replay/observed_archive/codec.gd","res://replay/observed_archive/files.gd","res://observed_archive_tests/archive_checks.gd","res://observed_archive_tests/file_checks.gd","res://observed_archive_tests/scene_checks.gd","res://world/wind/wind_cue.gd","res://ui/wind/panel.gd","res://wind_tests/wind_checks.gd","res://wind_scene_tests/scene_checks.gd","res://wind_scene_tests/visual_checks.gd","res://cockpit/instruments/engine_status.gd","res://input_tests/piston_checks.gd","res://input_tests/piston_panel_checks.gd","res://instrument_tests/engine_status_checks.gd","res://ground_material_tests/checks.gd","res://pointer_checks.gd","res://cockpit/engine_controls.gd","res://input_tests/pointer_engine_checks.gd","res://cockpit_tests/engine_controls_checks.gd","res://pointer_scene_tests/pointer_engine_scene_checks.gd","res://pointer_scene_tests/pointer_flight_checks.gd","res://pointer_scene_tests/pointer_visual.gd","res://ui/first_flight/briefing_panel.gd","res://ui/first_flight/binding_help.gd","res://ui/first_flight/circuit_guide.gd","res://world/synthetic/circuit_geometry.gd","res://scenario_tests/first-flight/briefing_checks.gd","res://scenario_tests/first-flight/circuit_checks.gd","res://first_flight_ui_tests/briefing_checks.gd","res://world_tests/synthetic/circuit_checks.gd","res://first_flight_scene_tests/scene_checks.gd","res://first_flight_scene_tests/map_checks.gd","res://first_flight_scene_tests/visual_checks.gd","res://first_flight_scene_tests/hud_caption_visual_checks.gd"$pistonCompileResources$replayCompileResources]:
   var dependency=load(path) as Script
   if dependency==null or not dependency.can_instantiate():
@@ -331,6 +346,7 @@ foreach($name in @('flight_godot_bridge.dll','JSBSim.dll','msvcp140.dll','msvcp1
  foreach($copy in @($name,"bin/$name")){if((Get-FileHash (Join-Path $payload $copy)).Hash -ne (Get-FileHash $original).Hash){throw "Dependency copy changed: $copy"}}
 }
 Copy-Item -LiteralPath (Join-Path $project 'models') -Destination (Join-Path $payload 'models') -Recurse
+Copy-KawoRuntimeSourceGroups -RepoRoot $repo -DestinationRoot $payload -Groups @($kawoGroups|Where-Object {$_.destination -ceq 'worlds/kawo-prototype-v1'})
 if($includePiston){Copy-Item -LiteralPath (Join-Path $project 'piston-models') -Destination (Join-Path $payload 'piston-models') -Recurse}
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'launch.ps1'),(Join-Path $PSScriptRoot 'README.md') -Destination $payload
 $source=Join-Path $payload 'source/whole-flight-preview'
@@ -350,6 +366,7 @@ Copy-FirstFlightSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $f
 Copy-TaxiSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $taxiGroups
 Copy-AudioSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $audioGroups
 Copy-LocalPlayerSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $localPlayerGroups
+Copy-KawoRuntimeSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $kawoGroups
 Copy-CameraSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $cameraGroups
 if($includePiston){Copy-PistonSourceSnapshot -RepoRoot $repo -DestinationRoot $source -Snapshot $pistonSnapshot}
 Copy-Item -LiteralPath (Join-Path $project 'wire_fixtures'),(Join-Path $project 'sim_loop_checks.gd'),(Join-Path $project 'sim_loop_checks.tscn'),(Join-Path $project 'pointer_checks.gd'),(Join-Path $project 'camera_checks.gd'),(Join-Path $project 'camera_checks.tscn') -Destination $source -Recurse
@@ -364,7 +381,7 @@ foreach($wireSource in @('docs/evidence/P2/native-wire-number-reference.py','doc
  Copy-Item -LiteralPath (Join-Path $repo $wireSource) -Destination (Join-Path $source $wireSource)
 }
 Copy-PreviewNativeIdentityResource -Identity $nativeIdentity -DestinationRoot $source
-& $environment.python_executable -B (Join-Path $PSScriptRoot 'native-identity.py') --repository-root $repo --build-root $build --evidence (Join-Path $evidence 'native-build-identity.json') --staged-root $project --staged-root $source --reconstruction-root $source
+& $environment.python_executable -B (Join-Path $PSScriptRoot 'native-identity.py') --repository-root $repo --build-root $build --evidence (Join-Path $evidence 'native-build-identity.json') --resident-closure-evidence (Join-Path $evidence 'resident-world-native-closure-v1.json') --staged-root $project --staged-root $source --reconstruction-root $source
 if($LASTEXITCODE -ne 0){throw 'Corresponding-source identity reconstruction rejected'}
 try { & (Join-Path $payload 'launch.ps1') -HeadlessSmoke }
 finally {
@@ -473,6 +490,10 @@ Assert-AudioSourceGroups -DestinationRoot $source -Groups $audioGroups
 Assert-LocalPlayerSourceGroups -Root $repo -Groups $localPlayerGroups -Authoring
 Assert-LocalPlayerSourceGroups -Root $project -Groups $localPlayerGroups -AllowGeneratedUIDs
 Assert-LocalPlayerSourceGroups -Root $source -Groups $localPlayerGroups
+Assert-KawoRuntimeSourceGroups -Root $repo -Groups $kawoGroups -Authoring
+Assert-KawoRuntimeSourceGroups -Root $project -Groups $kawoGroups -AllowGeneratedUIDs
+Assert-KawoRuntimeSourceGroups -Root $source -Groups $kawoGroups
+Assert-KawoRuntimeSourceGroups -Root $payload -Groups @($kawoGroups|Where-Object {$_.destination -ceq 'worlds/kawo-prototype-v1'})
 if($includePiston){
  Assert-PistonSourceSnapshot -Root $repo -Snapshot $pistonSnapshot -Authoring
  Assert-PistonSourceSnapshot -Root $project -Snapshot $pistonSnapshot -AllowGeneratedUIDs

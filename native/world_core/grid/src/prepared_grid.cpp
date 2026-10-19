@@ -1,4 +1,5 @@
 #include "validation.hpp"
+#include "canonical_frame.hpp"
 #include <algorithm>
 #include <array>
 #include <bit>
@@ -11,16 +12,8 @@ namespace d = flight::ground::grid::detail;
 namespace {
 using Vector = std::array<double, 3>;
 using ExactVector = std::array<d::Dyadic, 3>;
-double dot(const Vector& a, const Vector& b) noexcept { return (a[0] * b[0] + a[1] * b[1]) + a[2] * b[2]; }
-Vector east_at(c::GeodeticPosition p) noexcept { return {-std::sin(p.longitude_rad), std::cos(p.longitude_rad), 0}; }
-Vector up_at(c::GeodeticPosition p) noexcept {
-  const auto cp = std::cos(p.latitude_rad);
-  return {cp * std::cos(p.longitude_rad), cp * std::sin(p.longitude_rad), std::sin(p.latitude_rad)};
-}
-Vector south_at(c::GeodeticPosition p) noexcept {
-  const auto sp = std::sin(p.latitude_rad);
-  return {sp * std::cos(p.longitude_rad), sp * std::sin(p.longitude_rad), -std::cos(p.latitude_rad)};
-}
+namespace frame=d::canonical_frame;
+using frame::dot;using frame::east_at;using frame::up_at;using frame::south_at;
 ExactVector exact(const Vector& a) { return {d::Dyadic::binary64(a[0]), d::Dyadic::binary64(a[1]), d::Dyadic::binary64(a[2])}; }
 c::MissingGround missing(MissingVertices reason) noexcept {
   return static_cast<c::MissingGround>(static_cast<unsigned>(reason) + 1U);
@@ -98,23 +91,12 @@ c::GroundSample PreparedGrid::sample(const g::Query& query) const {
   // Preparation has no caller-FENV precondition. Build numerical frame operands
   // only here, after the query's certification check, never cache operands that
   // might have been prepared with another rounding/FTZ/DAZ configuration.
-  const auto anchor_ecef = c::geodesy::to_ecef(def.anchor);
-  if (!anchor_ecef) return failed(c::MissingGround::invalid_data);
-  const auto anchor_east = east_at(def.anchor), anchor_up = up_at(def.anchor), anchor_south = south_at(def.anchor);
-  Vector a{}, direction{};
-  if (query.position.latitude_rad == def.anchor.latitude_rad && query.position.longitude_rad == def.anchor.longitude_rad) {
-    a = {0, -def.anchor.ellipsoid_height_m, 0}; direction = {0, 1, 0};
-  } else {
-    auto angular = query.position; angular.ellipsoid_height_m = 0;
-    const auto point = c::geodesy::to_ecef(angular);
-    if (!point) return failed(c::MissingGround::invalid_data);
-    const Vector displacement{point->x - anchor_ecef->x, point->y - anchor_ecef->y, point->z - anchor_ecef->z};
-    a = {dot(displacement, anchor_east), dot(displacement, anchor_up), dot(displacement, anchor_south)};
-    const auto up = up_at(angular);
-    direction = {dot(up, anchor_east), dot(up, anchor_up), dot(up, anchor_south)};
-  }
-  for (std::size_t i = 0; i < 3; ++i)
-    if (!std::isfinite(a[i]) || !std::isfinite(direction[i])) return failed(c::MissingGround::invalid_data);
+  const auto canonical=frame::make(def.anchor);
+  if(!canonical)return failed(c::MissingGround::invalid_data);
+  const auto anchor_east=canonical->east,anchor_up=canonical->up,anchor_south=canonical->south;
+  const auto ray=frame::query_ray(*canonical,query.position);
+  if(!ray)return failed(c::MissingGround::invalid_data);
+  const auto a=ray->a,direction=ray->direction;
   if (std::abs(direction[0]) > max_ray_horizontal_component || std::abs(direction[2]) > max_ray_horizontal_component ||
       direction[1] < min_ray_up_component) return failed(c::MissingGround::outside_coverage);
   try {

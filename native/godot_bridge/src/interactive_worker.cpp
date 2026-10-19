@@ -4,16 +4,21 @@
 #include <stdexcept>
 namespace flight::bridge {
 namespace {std::mutex registry_mutex;std::set<InteractiveWorker*> workers;}
-InteractiveReply interactive_sample(interactive::Session& session,const interactive::AnalyticSurface& surface) {
+InteractiveReply interactive_sample(interactive::Session& session,const ground::v1::SurfaceProvider& surface) {
   InteractiveReply out;
   const auto aircraft=session.latest();const auto atmosphere=session.atmosphere();
   if(!interactive::c::valid(aircraft)||!interactive::c::valid(atmosphere)) throw std::runtime_error("Invalid interactive copied publication");
   out.aircraft=interactive::snapshot_json(aircraft);out.atmosphere=fdm::transport::json(atmosphere);
   out.held=session.held();out.live=session.live();out.paused=session.paused();out.time_scale=session.time_scale();out.fault=session.fault();
   out.status=!out.live?interactive::Status::discarded:out.paused?interactive::Status::paused:interactive::Status::completed;
-  const auto ground=surface.sample({aircraft.header,aircraft.position});
-  if(const auto* valid=std::get_if<interactive::c::ValidGround>(&ground.sample)) {
+  // A historical publication is data only; it cannot revive provider authority.
+  if(out.live) {
+   const auto ground=surface.sample({aircraft.header,aircraft.position});
+   if(!interactive::c::valid(ground)||ground.header.tick!=aircraft.header.tick||ground.header.session_id!=aircraft.header.session_id||ground.position.latitude_rad!=aircraft.position.latitude_rad||ground.position.longitude_rad!=aircraft.position.longitude_rad||ground.position.ellipsoid_height_m!=aircraft.position.ellipsoid_height_m)throw std::runtime_error("Invalid interactive ground copied readback");
+   if(const auto* valid=std::get_if<interactive::c::ValidGround>(&ground.sample)) {
+    if(!flight::ground::v1::same(valid->world,surface.identity().world))throw std::runtime_error("Interactive ground readback world mismatch");
     out.ground_valid=true;out.surface_height_m=valid->surface_height_m;out.clearance_m=aircraft.position.ellipsoid_height_m-valid->surface_height_m;
+   }
   }
   return out;
 }

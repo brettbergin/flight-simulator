@@ -48,6 +48,13 @@ def main():
     source = repo/'app/simulation'
     pins = {p.relative_to(source).as_posix(): digest(p.read_bytes())
             for p in sorted(source.rglob('*')) if p.is_file()}
+    # Facade parses these two unconditional resources even on its original
+    # synthetic route. This fixture never loads Scene, terrain, pack or native.
+    dependencies = {
+        'app/world/world_admission.gd': 'world/world_admission.gd',
+        'app/replay/observed_archive/strict_json.gd': 'replay/observed_archive/strict_json.gd',
+    }
+    dependency_pins = {name: digest((repo/name).read_bytes()) for name in dependencies}
     base = {'SCHEMA': 'flight-native-build-identity-v1',
             'SOURCE_VARIANT': 'jsbsim-1.3.1-upstream',
             'BACKEND_IDENTITY_SHA256': 'a'*64,
@@ -69,6 +76,12 @@ def main():
         case = output/name
         case.mkdir()
         shutil.copytree(source, case/'simulation')
+        for dep_source, destination in dependencies.items():
+            target = case/destination
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(repo/dep_source, target)
+            if digest(target.read_bytes()) != dependency_pins[dep_source]:
+                raise ValueError('Facade fixture dependency changed before execution: ' + dep_source)
         (case/'build').mkdir()
         (case/'build/native_identity.gd').write_bytes(resource(values))
         (case/'project.godot').write_text('config_version=5\n[application]\nconfig/name="Synthetic identity admission"\n[rendering]\nrenderer/rendering_method="gl_compatibility"\n', encoding='utf-8', newline='\n')
@@ -99,6 +112,8 @@ func _initialize() -> void:
         rows = [json.loads(line[len(marker):]) for line in text.splitlines() if line.startswith(marker)]
         passed = (observed.returncode == 0 and len(rows) == 1 and rows[0]['passed'] is True
                   and rows[0]['no_native_extension'] is True and rows[0]['factory_calls'] == count
+                  and all(digest((case/destination).read_bytes()) == dependency_pins[name]
+                          for name, destination in dependencies.items())
                   and not any(token in text for token in ('ERROR:', 'SCRIPT ERROR:', 'FATAL', 'leaked')))
         results.append({'case': name, 'passed': passed, 'exit_code': observed.returncode,
                         'expected_factory_calls': count, 'resource_sha256': digest(resource(values)),
@@ -107,12 +122,14 @@ func _initialize() -> void:
             break
     current = {p.relative_to(source).as_posix(): digest(p.read_bytes())
                for p in sorted(source.rglob('*')) if p.is_file()}
-    passed = len(results) == len(cases) and all(row['passed'] for row in results) and current == pins
+    dependencies_unchanged = all(digest((repo/name).read_bytes()) == value for name, value in dependency_pins.items())
+    passed = len(results) == len(cases) and all(row['passed'] for row in results) and current == pins and dependencies_unchanged
     receipt = {'schema': 'synthetic-facade-identity-admission-v1', 'passed': passed,
                'scope': 'Synthetic resource shape admission; no native extension, aircraft execution or source qualification',
                'time_utc': datetime.now(timezone.utc).isoformat(), 'cases_expected': len(cases),
                'godot_sha256': digest(godot.read_bytes()), 'script_sha256': digest(Path(__file__).read_bytes()),
-               'simulation_source_sha256': pins, 'source_unchanged': current == pins, 'results': results}
+               'simulation_source_sha256': pins, 'dependency_source_sha256': dependency_pins,
+               'source_unchanged': current == pins and dependencies_unchanged, 'results': results}
     (output/'receipt.json').write_text(json.dumps(receipt, indent=2)+'\n', encoding='utf-8', newline='\n')
     print(json.dumps({'passed': passed, 'cases': len(results), 'scope': receipt['scope']}))
     return 0 if passed else 1
