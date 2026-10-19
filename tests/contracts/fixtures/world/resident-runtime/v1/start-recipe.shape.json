@@ -1,0 +1,12 @@
+{
+  "schema": "KawoStartRecipe/v1",
+  "id": "ready-runway34",
+  "selector": "kawo-prototype-v1",
+  "model_identity": {"id": "original-interactive-prototype", "version": "0.1.0-prototype", "backend_model": "original-interactive"},
+  "named_start": "ground-ready",
+  "wind_profile": "calm",
+  "seed": "42",
+  "clock": {"purpose": "runtime", "tick_rate_hz": 120},
+  "position": {"latitude_rad": {"$binary64_le": "fdfc84c1e5e5ea3f"}, "longitude_rad": {"$binary64_le": "5eedd3837e0e01c0"}, "ellipsoid_height_m": {"$binary64_le": "000000000000f03f"}},
+  "orientation_rpy_ned_rad": {"roll": {"$binary64_le": "0000000000000000"}, "pitch": {"$binary64_le": "0000000000000080"}, "yaw": {"$binary64_le": "0000000000000000"}}
+}

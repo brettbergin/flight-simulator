@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://flight-simulator.invalid/contracts/world/resident-runtime/v1/native-closure.schema.json",
+  "$comment": "Closed positive qualification observation shape, not authority from passed:true. External checks must reproduce the reviewed source/control/component/fingerprint/native identity, real commands and strict flags, full transitive response/link graph, actual artifacts and staged replacement. Array sums/cross-row relationships and raw byte/parser bounds are independent gates. Existing PreviewNativeBuildIdentity/v2 is unchanged.",
+  "type": "object",
+  "properties": {
+    "schema": {"const": "ResidentWorldNativeClosure/v1"},
+    "passed": {"const": true},
+    "scope": {"const": "reviewed-linked-resident-world-component-only"},
+    "component_manifest": {
+      "allOf": [{"$ref": "#/$defs/artifact"}, {"type": "object", "properties": {"path": {"const": "native/world_core/resident_world/component-v1.json"}, "bytes": {"type": "integer", "maximum": 65536}}}]
+    },
+    "component_sha256": {"$ref": "#/$defs/sha256"},
+    "source_bindings": {"type": "array", "maxItems": 256, "uniqueItems": true, "items": {"$ref": "#/$defs/source_binding"}},
+    "control_bindings": {"type": "array", "maxItems": 256, "uniqueItems": true, "items": {"$ref": "#/$defs/source_binding"}},
+    "native_identity": {
+      "type": "object",
+      "properties": {
+        "bytes": {"$ref": "#/$defs/positive_count"}, "sha256": {"$ref": "#/$defs/sha256"},
+        "source_variant": {"enum": ["jsbsim-1.3.1-upstream", "jsbsim-1.3.1-event-aware-constant-power-v1", "jsbsim-1.3.1-event-aware-coupled-midpoint-v1", "jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2"]},
+        "backend_identity_sha256": {"$ref": "#/$defs/sha256"}, "build_control_sha256": {"$ref": "#/$defs/sha256"}, "declared_source_fingerprint": {"$ref": "#/$defs/sha256"},
+        "bridge": {"$ref": "#/$defs/bridge"},
+        "resource": {
+          "type": "object",
+          "properties": {"build_path": {"const": "native-identity.gd"}, "staged_path": {"const": "build/native_identity.gd"}, "bytes": {"$ref": "#/$defs/positive_count"}, "sha256": {"$ref": "#/$defs/sha256"}},
+          "required": ["build_path", "staged_path", "bytes", "sha256"], "additionalProperties": false
+        }
+      },
+      "required": ["bytes", "sha256", "source_variant", "backend_identity_sha256", "build_control_sha256", "declared_source_fingerprint", "bridge", "resource"], "additionalProperties": false
+    },
+    "translation_units": {
+      "type": "array", "minItems": 4, "maxItems": 4, "items": false,
+      "prefixItems": [
+        {"allOf": [{"$ref": "#/$defs/translation_unit"}, {"type": "object", "properties": {"source": {"const": "native/world_core/grid/src/validation.cpp"}}}]},
+        {"allOf": [{"$ref": "#/$defs/translation_unit"}, {"type": "object", "properties": {"source": {"const": "native/world_core/grid/src/prepared_grid.cpp"}}}]},
+        {"allOf": [{"$ref": "#/$defs/translation_unit"}, {"type": "object", "properties": {"source": {"const": "native/world_core/grid/src/grid_payload.cpp"}}}]},
+        {"allOf": [{"$ref": "#/$defs/translation_unit"}, {"type": "object", "properties": {"source": {"const": "native/fdm_jsbsim/interactive/src/prepared_world.cpp"}}}]}
+      ]
+    },
+    "link": {
+      "type": "object",
+      "properties": {
+        "bridge": {"$ref": "#/$defs/bridge"}, "interactive_archive": {"$ref": "#/$defs/artifact"}, "grid_archive": {"$ref": "#/$defs/artifact"},
+        "grid_objects": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"$ref": "#/$defs/artifact"}},
+        "prepared_world_object": {"$ref": "#/$defs/artifact"}, "response_files": {"$ref": "#/$defs/response_files"}
+      },
+      "required": ["bridge", "interactive_archive", "grid_archive", "grid_objects", "prepared_world_object", "response_files"], "additionalProperties": false
+    },
+    "build_witnesses": {
+      "type": "array", "minItems": 7, "maxItems": 7, "items": false,
+      "prefixItems": [
+        {"$ref": "#/$defs/bridge"},
+        {"allOf": [{"$ref": "#/$defs/artifact"}, {"type": "object", "properties": {"path": {"const": "build.ninja"}}}]},
+        {"allOf": [{"$ref": "#/$defs/artifact"}, {"type": "object", "properties": {"path": {"const": "CMakeCache.txt"}}}]},
+        {"allOf": [{"$ref": "#/$defs/artifact"}, {"type": "object", "properties": {"path": {"const": "toolchain-build-manifest.txt"}}}]},
+        {"allOf": [{"$ref": "#/$defs/artifact"}, {"type": "object", "properties": {"path": {"const": "jsbsim-source-build-manifest.txt"}}}]},
+        {"allOf": [{"$ref": "#/$defs/artifact"}, {"type": "object", "properties": {"path": {"const": "interactive-source-fingerprint.txt"}}}]},
+        {"allOf": [{"$ref": "#/$defs/artifact"}, {"type": "object", "properties": {"path": {"const": "compile_commands.json"}}}]}
+      ]
+    }
+  },
+  "required": ["schema", "passed", "scope", "component_manifest", "component_sha256", "source_bindings", "control_bindings", "native_identity", "translation_units", "link", "build_witnesses"], "additionalProperties": false,
+  "$defs": {
+    "safe_path": {"$ref": "component.schema.json#/$defs/safe_path"},
+    "sha256": {"$ref": "start-recipe.schema.json#/$defs/sha256"},
+    "positive_count": {"type": "integer", "minimum": 1},
+    "artifact": {
+      "type": "object",
+      "properties": {"path": {"$ref": "#/$defs/safe_path"}, "bytes": {"$ref": "#/$defs/positive_count"}, "sha256": {"$ref": "#/$defs/sha256"}},
+      "required": ["path", "bytes", "sha256"], "additionalProperties": false
+    },
+    "bridge": {"allOf": [{"$ref": "#/$defs/artifact"}, {"type": "object", "properties": {"path": {"enum": ["bin/flight_godot_bridge.dll", "bin/libflight_godot_bridge.so"]}}}]},
+    "source_binding": {
+      "type": "object",
+      "properties": {"path": {"$ref": "#/$defs/safe_path"}, "bytes": {"type": "integer", "minimum": 1, "maximum": 4194304}, "raw_sha256": {"$ref": "#/$defs/sha256"}, "lf_sha256": {"$ref": "#/$defs/sha256"}},
+      "required": ["path", "bytes", "raw_sha256", "lf_sha256"], "additionalProperties": false
+    },
+    "response_files": {
+      "type": "array", "maxItems": 16, "uniqueItems": true,
+      "items": {"allOf": [{"$ref": "#/$defs/artifact"}, {"type": "object", "properties": {"bytes": {"type": "integer", "maximum": 4194304}}}]}
+    },
+    "translation_unit": {
+      "type": "object",
+      "properties": {"source": {"$ref": "#/$defs/safe_path"}, "compile_commands_index": {"type": "integer", "minimum": 0}, "object_path": {"$ref": "#/$defs/safe_path"}, "fp_policy": {"enum": ["msvc-strict", "gnu-no-fast-no-contract"]}, "response_files": {"$ref": "#/$defs/response_files"}},
+      "required": ["source", "compile_commands_index", "object_path", "fp_policy", "response_files"], "additionalProperties": false
+    }
+  }
+}

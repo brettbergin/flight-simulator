@@ -92,6 +92,9 @@ UI concepts, legal/source investigation, data provenance, test fixture design, a
 
 ## P4 — Bounded real region, navigation, and environmental challenge
 
+The proposed [ADR029](https://github.com/brettbergin/flight-simulator/blob/main/docs/decisions/029-kawo-runtime-admission.md)/[KAWO runtime v1](https://github.com/brettbergin/flight-simulator/blob/main/docs/contracts/world/kawo-runtime-v1.md) is the separate complete runtime seam after source/grid/tools/compiler work. Only its checked acceptance permits bounded owned geographic consumer authoring. Actual world/start/catalog/component identities and independent pose facts are populated/reviewed with that consumer before qualification; ordinary fixed-field data population requires no extra contract-only PR. Manual circuit, full-altitude native/readiness, canonical renderer/history and source-preserving Windows delivery evidence remain required. This bounded owner-prioritized work waives no broader P3/P4 or aircraft/pilot gate.
+
+
 Resident-grid components, standalone byte decoders/readers, offline tools and
 the bounded KAWO terrain compiler may proceed after their own complete checked
 contracts, independent references and prerequisites. Compiler contract PR256 is

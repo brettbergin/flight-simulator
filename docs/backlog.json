@@ -7868,7 +7868,13 @@
         "tests/ground/grid/reference/",
         "tools/ingest/terrain/tools-v1.lock.json",
         "native/world_core/grid/include/flight/ground/grid_payload.hpp",
-        "tests/ground/grid/codec/reference/"
+        "tests/ground/grid/codec/reference/",
+        "docs/README.md",
+        "docs/contracts.md",
+        "docs/decisions/029-kawo-runtime-admission.md",
+        "schemas/world/resident-runtime/v1/",
+        "tests/contracts/resident-runtime.test.mjs",
+        "tests/contracts/fixtures/world/resident-runtime/v1/"
       ],
       "docs": [
         "docs/README.md",
@@ -7886,7 +7892,10 @@
         "docs/evidence/P4/resident-grid-codec-reference.md",
         "docs/contracts/world/original-evergreens-v1.md",
         "docs/contracts/world/kawo-terrain-compiler-v1.md",
-        "docs/evidence/P4/kawo-terrain-source-qualification.md"
+        "docs/evidence/P4/kawo-terrain-source-qualification.md",
+        "docs/decisions/029-kawo-runtime-admission.md",
+        "docs/contracts/world/kawo-runtime-v1.md",
+        "docs/contracts/world/kawo-runtime-compatibility-v1.md"
       ],
       "requirements": [
         "WORLD-001",
@@ -7916,10 +7925,12 @@
         "Pin datum/realization/epoch/geoid/transform/uncertainty and independent samples before geographic admission; chart MSL is not ellipsoid height.",
         "Freeze exact world/start/native/facade/history compatibility and preserve old synthetic worlds/files. No in-flight world replacement.",
         "Create disjoint bounded consumer issues after the relevant shared schema lands, with source/datum/terrain/visual/full-circuit delivery evidence. Keep broad parents and aircraft/pilot gates open.",
-        "Appropriate documentation, schema and contract checks, independent review and final-head CI precede merge; a partial source-only schema PR does not close this entire contract."
+        "Appropriate documentation, schema and contract checks, independent review and final-head CI precede merge; a partial source-only schema PR does not close this entire contract.",
+        "The complete checked KAWO runtime contract freezes exact world/start/source selection, seven-file product/catalog relations, finite readiness/bootstrap/provider lifetime, fifth-argument native/facade adoption, canonical rendering precision and separate Recording3/history compatibility before owned consumers. Actual closed start/product/component/build pins are populated/reviewed with implementation before qualification; no hash-of-unwritten-source prerequisite or separate contract-only PR for ordinary facts. Shape fixtures prove no actual pose, product, linked binary, runtime or phase result."
       ],
       "evidence": [
-        "Reviewed exact-source schema/fixtures and metadata hashes; separate complete physical/runtime contract evidence; no airport or phase acceptance from source discovery."
+        "Reviewed exact-source schema/fixtures and metadata hashes; separate complete physical/runtime contract evidence; no airport or phase acceptance from source discovery.",
+        "ADR029 and kawo-runtime-v1 plus closed serialized shape schemas/independent shape fixtures record the reviewed seam only. Later actual independent start expectations, source/component/link closure, native/render/manual-circuit/history and editor/portable/replacement/installed evidence remain owned consumer gates. Contract publication does not close243 or broad parents."
       ]
     },
     {

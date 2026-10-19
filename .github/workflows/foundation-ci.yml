@@ -31,6 +31,8 @@ jobs:
           node-version: '22'
       - name: Install locked contract validators
         run: npm ci --ignore-scripts --prefix schemas
+      - name: Check closed resident runtime schema shapes and refusals
+        run: node --test tests/contracts/resident-runtime.test.mjs
       - name: Check offline airport source contract
         run: node --test tests/world/resident-airport/source-contract.test.mjs
       - name: Check pinned KAWO source parser and mapping (synthetic offline cases)

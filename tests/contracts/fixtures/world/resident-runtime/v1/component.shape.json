@@ -1,0 +1,5 @@
+{
+  "schema": "ResidentWorldComponent/v1",
+  "sources": [{"path": "native/fdm_jsbsim/interactive/src/prepared_world.cpp", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}],
+  "controls": [{"path": "native/world_core/grid/CMakeLists.txt", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}]
+}
