@@ -8663,6 +8663,53 @@
       "evidence": [
         "docs/evidence/P4/kawo-locator-readability.md records the preserved footer failure/correction,513 isolated UI checks over60 synthetic cases, original inspected images,47 actual paused KAWO captures including four ordinary locator selections, source hashes and separate final-head/export/manual-flight limits."
       ]
+    },
+    {
+      "key": "KAWO-SURFACE-APPEARANCE",
+      "title": "Improve KAWO ground and pavement surface appearance",
+      "kind": "task",
+      "phase": "P4",
+      "parent": "EPIC-P4",
+      "summary": "Owner-prioritized original-art leaf271 after accepted runtime265 and paint268: restrained canonical-coordinate grass/asphalt pigment below unchanged paint. No measured land cover, geometry/contact or broad renderer/phase acceptance.",
+      "depends_on": [
+        "WORLD-RESIDENT-CONTRACT",
+        "KAWO-TERRAIN-RENDERER",
+        "KAWO-RUNWAY-PAINT"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P4",
+        "area:world",
+        "priority:P1",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "app/world/terrain/kawo_world.gd",
+        "tests/world/surface/",
+        "docs/evidence/P4/kawo-surface-appearance.md",
+        "docs/evidence/P4/kawo-surface/",
+        ".gitattributes"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/agent-operations.md",
+        "docs/contracts/world/kawo-runtime-v1.md",
+        "docs/evidence/P4/kawo-surface-appearance.md"
+      ],
+      "requirements": [
+        "WORLD-013"
+      ],
+      "acceptance": [
+        "Use restrained continuous original grass and pavement pigment at several scales, fixed to unchanged canonical vertex XZ; fade unresolved detail toward its mean without camera/time motion, texture, alpha, displacement, normal or physical material changes.",
+        "Preserve exact masks, polygon winner, runway frames and original markings, composing unchanged white paint last. Keep source payload, geometry, sampler, mesh count, tree placement, public material interface, native/input/recording/storage and origin lifecycle unchanged.",
+        "Retain same-camera before/after real Vulkan Scene images and full source/native/resource/origin immutability evidence; inspect pavement/grass contrast, paint, sampled ordinary views/zoom and public-origin transitions without claiming universal flicker absence or unmeasured performance.",
+        "Pass unchanged independent geometry/material controls, retain original manual GPU white/gap/crossing observations and reproducible authoring source, run documentation checks and final-head CI, and record fresh Windows delivery separately.",
+        "Treat accepted265 implementation as the relevant renderer dependency; this leaf does not close261/262/263/264, sourced landmarks, aircraft/pilot or P4 gates."
+      ],
+      "evidence": [
+        "docs/evidence/P4/kawo-surface-appearance.md records47 same-camera paused actual Scene views, exact unchanged nonshader/native/frame/placement comparisons, unchanged132/156 controls, original26-crop board, retained staging failure, source hashes and separate export/manual-flight/performance limits."
+      ]
     }
   ]
 }
