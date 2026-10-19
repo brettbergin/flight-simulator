@@ -8154,6 +8154,87 @@
       "evidence": [
         "Independent literal/refusal checker results; exact source/tool/export/import identities, all36 fixed images and six approach observations, independent visual review, source/license record and protected/focused checks."
       ]
+    },
+    {
+      "key": "KAWO-TERRAIN-COMPILER",
+      "title": "Compile the first source-bound KAWO resident terrain",
+      "kind": "task",
+      "phase": "P4",
+      "parent": "EPIC-P4",
+      "summary": "Bounded offline KAWO compiler after complete checked PR256 contract/schema/data acceptance and accepted source ingester, resident-grid component and offline tools. Produces one canonical candidate payload and closed runway geometry; world assembly, runtime/start/render, source accuracy and parent gates remain separate.",
+      "depends_on": [
+        "KAWO-NASR-SOURCE",
+        "RESIDENT-GRID-COMPONENT",
+        "TERRAIN-TOOLS-BOOTSTRAP"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P4",
+        "area:world",
+        "priority:P1",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "tools/ingest/terrain/kawo_terrain_v1.py",
+        "tools/ingest/terrain/README-kawo-terrain-v1.md",
+        "tests/terrain/kawo/test_*.py",
+        "tests/terrain/kawo/_support.py",
+        "tests/terrain/kawo/fixtures/",
+        "tests/terrain/kawo/native/",
+        "docs/evidence/P4/kawo-terrain-compilation.md",
+        "docs/evidence/P4/kawo-terrain-compilation-run-v1.json",
+        "docs/evidence/P4/kawo-derived-data-rights.md",
+        "docs/evidence/P4/kawo-derived-data-rights-v1.json",
+        "docs/evidence/P4/kawo-reviewed-source-dossier-v1.json",
+        ".gitattributes",
+        ".github/workflows/foundation-ci.yml",
+        ".github/workflows/native-ci.yml",
+        "tools/ci/kawo-terrain.ps1",
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p4-region-and-weather.md"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/agent-operations.md",
+        "docs/contracts/world/kawo-terrain-compiler-v1.md",
+        "docs/contracts/world/kawo-terrain-pins-v1.json",
+        "docs/contracts/world/kawo-terrain-constructor-metadata-v1.json",
+        "docs/contracts/world/resident-grid-core-v1.md",
+        "docs/contracts/world/resident-grid-codec-v1.md",
+        "docs/contracts/world/terrain-tools-v1.md",
+        "docs/evidence/P4/kawo-terrain-source-qualification.md",
+        "tests/terrain/kawo/reference/README.md"
+      ],
+      "requirements": [
+        "WORLD-002",
+        "WORLD-003",
+        "WORLD-004",
+        "WORLD-006",
+        "WORLD-007",
+        "WORLD-008",
+        "WORLD-010",
+        "WORLD-011",
+        "WORLD-012",
+        "WORLD-016"
+      ],
+      "acceptance": [
+        "Implement the checked compiler contract with exact closed CLI/input/output schemas, source/tool/operation/anchor pins, fixed extent, source owner seam, eight-update scalar transcript and Float32 rounding. No downloads, extra dependency, alternate operation, smoothing, flattening, fallback or dimension override.",
+        "Consume frozen independent arithmetic and source references unchanged. Meaningful offline cases cover PixelIsArea centers/rows/four-support, distinct NoData, disagreeing overlap with no alternate-copy fallback, binary64 grouping, Float32 ties, exact mm ties and strict malformed/existing-output refusal.",
+        "Bind Root's separately retained accepted validateSourcePair implementation/schema/AJV-lock closure and actual success to the exact airport/dossier raw bytes read by the compiler. Recheck the sealed offline environment, loaded native/data/operation identities before and after; the compiler invokes no Node or subprocess.",
+        "Produce actual ground.fgrd, closed deterministic compile-receipt.json/runway geometry and validation-required marker from the exact acquired sources in a fresh directory. Retain failed attempts; all6296577 vertices must pass fixed support/cone/eight-update/pre/post-round residual limits, gradients<=16 and bracket span<=2048m with correct validity/padding/codec.",
+        "Independently decode/prepare the actual payload through the accepted native component and compare selected separately obtained source/math/solver controls plus all four physical runway ends against final canonical P00-P11 facet intersections. Validate payload/source/anchor/polygon/geometry relations; no DEM refit or second physical mesh.",
+        "Repeat complete compilation under the controlled reference environment and compare raw ground/receipt hashes. Record actual decode/transform/validation/encode time, operation counts and peak memory against2GiB working arrays,3GiB process and30minutes. Acquisition measurements are not compiler evidence.",
+        "Use the specifically reviewed successor dossier974345fd8eedff2e339e4eb21b8ac3a09ed69c66c4d2a045b430f9655bd15cee and airport63463d30c55f8aba56a3426efd7c2dd61287a99d66d307f3940b589b97fd6c18. Adopt the limited derived-data decision and exact successor evidence with narrow raw-newline preservation attributes. Keep the earlier pending-rights source pair intact. No raw source redistribution or source relicensing.",
+        "Complete focused/schema/native/docs checks, independent final-source/result review and protected final-head CI before checked merge. Preserve unknown source realization/epoch/total3D accuracy and prototype materials. The reviewed use scope and required notices must remain bound to later assembly; parent243, runtime/start/render, aircraft/pilot and phase gates stay open."
+      ],
+      "evidence": [
+        "Exact compiler/source/control/tool/native/payload/receipt identities, independently frozen controls and actual comparisons, full-grid support/residual/gradient admission, repeated deterministic hashes, bounded memory/time, native decode/preparation/four-end relations and protected current-head CI; no playable-world or geographic-accuracy claim."
+      ]
     }
   ]
 }

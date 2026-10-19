@@ -92,9 +92,10 @@ UI concepts, legal/source investigation, data provenance, test fixture design, a
 
 ## P4 — Bounded real region, navigation, and environmental challenge
 
-Small resident-grid component, standalone byte-decoder/reader and offline-tool
-bootstrap leaves may proceed after their own complete checked contracts and
-independent references, while #243's geographic compiler/datum/start/runtime
+Resident-grid components, standalone byte decoders/readers, offline tools and
+the bounded KAWO terrain compiler may proceed after their own complete checked
+contracts, independent references and prerequisites. Compiler contract PR256 is
+accepted; actual full-grid product acceptance and #243's world/start/runtime
 seams remain open. Source ingestion
 likewise consumes only its accepted source schema. These bounded leaves do not
 admit a geographic world to flight or waive the integrated phase gates.

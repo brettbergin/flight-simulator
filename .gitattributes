@@ -87,3 +87,10 @@ tests/ground/grid/codec/** text eol=lf
 
 # Preserve exact dyadic admission reference source pins on both CI platforms.
 tests/ground/grid/exact-admission/** text eol=lf
+
+# Preserve qualified offline terrain helper and independent compiler-test bytes.
+tools/ingest/terrain/** text eol=lf
+tests/terrain/kawo/** text eol=lf
+# Retain the exact supplied reviewed-source JSON bytes, including captured CRLF.
+docs/evidence/P4/kawo-derived-data-rights-v1.json -text whitespace=cr-at-eol
+docs/evidence/P4/kawo-reviewed-source-dossier-v1.json -text whitespace=cr-at-eol
