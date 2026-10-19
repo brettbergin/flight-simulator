@@ -1148,15 +1148,30 @@ Must-Reject {Assert-TaxiSourceGroups -Root $taxiProjectFixture -Groups $taxiSour
 [IO.File]::WriteAllBytes($taxiReference,$taxiReferenceBytes)
 Assert-TaxiSourceGroups -Root $taxiProjectFixture -Groups $taxiSourceGroups
 $taxiKnownPins=@{
- 'native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp'='40511064929f717e57ed3ff084a3aad0f9af6c406bb50ba74ec1a4fdbe5fcd8f'
- 'native/fdm_jsbsim/interactive/src/session.cpp'='272edf5984dc9205c75f7103546b0312c78ba43f05f416dad929172b8ef6fbeb'
- 'native/godot_bridge/src/interactive_bridge.cpp'='0ebe3a59122368733745f05d82204a2e5a2b9187e985c89bff7b59a6f5e9dcd3'
+ 'native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp'='642fb88d08a794739c4d45ea49fff7a1abbb996c7f550c41716726971c7d8e4c'
+ 'native/fdm_jsbsim/interactive/src/session.cpp'='ee113d7ec820f6f577e64d5f6c09d7414bd5b9a2f0070d2ddad04e65fefa0516'
+ 'native/godot_bridge/src/interactive_bridge.cpp'='f7b7fa15d5db3c1b6d25f649585136af4627cc97d3fad7dd11c7cdf635b96d37'
+}
+# Bind this independent expected tuple to actual repository bytes before any
+# synthetic identity is constructed: stale producer+fixture pins must fail here.
+foreach($path in $taxiKnownPins.Keys){
+ if((Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $repo $path)).Hash.ToLowerInvariant() -cne $taxiKnownPins[$path]){throw ('Current apron source tuple differs actual repository bytes: '+$path)}
 }
 $taxiKnownIdentity=[pscustomobject]@{source_variant='jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2';source_bindings=@(foreach($entry in $taxiKnownPins.GetEnumerator()){[pscustomobject]@{path=$entry.Key;raw_sha256=$entry.Value}})}
 if(-not (Test-PreviewApronStartSourceBindings $taxiKnownIdentity) -or -not (Test-PreviewTaxiStartSource $taxiKnownIdentity)){throw 'Known independent apron code pins required'}
 foreach($row in $taxiKnownIdentity.source_bindings){
  $saved=$row.raw_sha256;$row.raw_sha256=('b'*64)
  if((Test-PreviewApronStartSourceBindings $taxiKnownIdentity) -or (Test-PreviewTaxiStartSource $taxiKnownIdentity)){throw 'Any changed apron source row must reject'}
+ $row.raw_sha256=$saved
+}
+$taxiHistoricalPins=@{
+ 'native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp'='40511064929f717e57ed3ff084a3aad0f9af6c406bb50ba74ec1a4fdbe5fcd8f'
+ 'native/fdm_jsbsim/interactive/src/session.cpp'='272edf5984dc9205c75f7103546b0312c78ba43f05f416dad929172b8ef6fbeb'
+ 'native/godot_bridge/src/interactive_bridge.cpp'='0ebe3a59122368733745f05d82204a2e5a2b9187e985c89bff7b59a6f5e9dcd3'
+}
+foreach($row in $taxiKnownIdentity.source_bindings){
+ $saved=$row.raw_sha256;$row.raw_sha256=$taxiHistoricalPins[$row.path]
+ if((Test-PreviewApronStartSourceBindings $taxiKnownIdentity) -or (Test-PreviewTaxiStartSource $taxiKnownIdentity)){throw 'Historical/current hybrid apron source tuple must reject'}
  $row.raw_sha256=$saved
 }
 $taxiKnownIdentity.source_variant='jsbsim-1.3.1-upstream'
@@ -1166,15 +1181,20 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
+import {createHash} from 'node:crypto';
 const [modulePath,repository,project,source]=process.argv.slice(2);
 const {validateTaxiSources,validateTaxiReceipt,taxiStartsSupported,taxiStartSourcePins}=await import(pathToFileURL(modulePath));
 // This is a labelled synthetic receipt/source-gate test, NOT compiled identity.
 const independentlyBoundStartPins={
- 'native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp':'40511064929f717e57ed3ff084a3aad0f9af6c406bb50ba74ec1a4fdbe5fcd8f',
- 'native/fdm_jsbsim/interactive/src/session.cpp':'272edf5984dc9205c75f7103546b0312c78ba43f05f416dad929172b8ef6fbeb',
- 'native/godot_bridge/src/interactive_bridge.cpp':'0ebe3a59122368733745f05d82204a2e5a2b9187e985c89bff7b59a6f5e9dcd3',
+ 'native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp':'642fb88d08a794739c4d45ea49fff7a1abbb996c7f550c41716726971c7d8e4c',
+ 'native/fdm_jsbsim/interactive/src/session.cpp':'ee113d7ec820f6f577e64d5f6c09d7414bd5b9a2f0070d2ddad04e65fefa0516',
+ 'native/godot_bridge/src/interactive_bridge.cpp':'f7b7fa15d5db3c1b6d25f649585136af4627cc97d3fad7dd11c7cdf635b96d37',
 };
 assert.deepEqual(taxiStartSourcePins,independentlyBoundStartPins);
+for(const [name,want] of Object.entries(independentlyBoundStartPins)){
+ const actual=fs.readFileSync(path.join(repository,name));
+ assert.equal(createHash('sha256').update(actual).digest('hex'),want,'Current taxi gate must match actual repository source: '+name);
+}
 const identity={source_variant:'jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2',source_bindings:Object.entries(independentlyBoundStartPins).map(([path,raw_sha256])=>({path,raw_sha256})),resource:{bytes:1,sha256:'a'.repeat(64)}};
 const bound=validateTaxiSources(repository,project,source);
 // Editor same-root comparison permits only an already-bound script UID.
@@ -1186,6 +1206,17 @@ const options={nativeIdentity:identity,sourceFiles:bound.source_files,harnessFil
 assert.equal(validateTaxiReceipt(receipt(),options).checks,4);
 let negatives=0;
 function rejected(fn){assert.throws(fn);negatives++;}
+const historicalStartPins={
+ 'native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp':'40511064929f717e57ed3ff084a3aad0f9af6c406bb50ba74ec1a4fdbe5fcd8f',
+ 'native/fdm_jsbsim/interactive/src/session.cpp':'272edf5984dc9205c75f7103546b0312c78ba43f05f416dad929172b8ef6fbeb',
+ 'native/godot_bridge/src/interactive_bridge.cpp':'0ebe3a59122368733745f05d82204a2e5a2b9187e985c89bff7b59a6f5e9dcd3',
+};
+for(let mask=1;mask<8;mask++){
+ const altered=structuredClone(identity);
+ Object.entries(historicalStartPins).forEach(([name,pin],index)=>{if(mask&(1<<index))altered.source_bindings.find(row=>row.path===name).raw_sha256=pin;});
+ assert.equal(taxiStartsSupported(altered),false,'No historical/current source hybrid');
+ rejected(()=>validateTaxiReceipt(receipt(),{...options,nativeIdentity:altered}));
+}
 for(const mutate of [r=>r.extra=true,r=>delete r.groups.scene,r=>r.groups.scene=null,r=>r.groups.panel.checks=0,r=>r.groups.map.passed=false,r=>r.checks=5,r=>r.full_supported=false,r=>r.source_files['content/world/synthetic/taxi-layout-v1.json'].sha256='b'.repeat(64),r=>r.harness_file.sha256='b'.repeat(64),r=>r.native_identity.sha256='b'.repeat(64),r=>r.failures=['bad']]){
  const r=receipt();mutate(r);rejected(()=>validateTaxiReceipt(r,options));
 }

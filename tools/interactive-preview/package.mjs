@@ -409,9 +409,9 @@ export const taxiSourceGroups=[
  ['tests/integration/taxi','taxi_scene_tests',['scene_checks.gd']],
 ];
 export const taxiStartSourcePins={
- 'native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp':'40511064929f717e57ed3ff084a3aad0f9af6c406bb50ba74ec1a4fdbe5fcd8f',
- 'native/fdm_jsbsim/interactive/src/session.cpp':'272edf5984dc9205c75f7103546b0312c78ba43f05f416dad929172b8ef6fbeb',
- 'native/godot_bridge/src/interactive_bridge.cpp':'0ebe3a59122368733745f05d82204a2e5a2b9187e985c89bff7b59a6f5e9dcd3',
+ 'native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp':'642fb88d08a794739c4d45ea49fff7a1abbb996c7f550c41716726971c7d8e4c',
+ 'native/fdm_jsbsim/interactive/src/session.cpp':'ee113d7ec820f6f577e64d5f6c09d7414bd5b9a2f0070d2ddad04e65fefa0516',
+ 'native/godot_bridge/src/interactive_bridge.cpp':'f7b7fa15d5db3c1b6d25f649585136af4627cc97d3fad7dd11c7cdf635b96d37',
 };
 export const taxiReferencePins={
  "reference/expected-v1.json": "9b9579b18c38ba3c1393af76798fa39b8683229fdf2eff553b1c12e0fd3ae37c",

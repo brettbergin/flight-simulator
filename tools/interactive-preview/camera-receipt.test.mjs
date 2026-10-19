@@ -1,12 +1,18 @@
 // Original MIT. Authored synthetic receipts/files; no camera/native execution.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {validateCameraReceipt,validateCameraSources,expectedCoverage,cameraSourceGroups,frozenCameraReferences,referenceSHA,apronStartsSupported,apronStartSourcePins} from './camera-receipt.mjs';
 const here=path.dirname(fileURLToPath(import.meta.url));
+const independentlyBoundApronPins=Object.freeze({
+ 'native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp':{bytes:4375,sha256:'642fb88d08a794739c4d45ea49fff7a1abbb996c7f550c41716726971c7d8e4c'},
+ 'native/fdm_jsbsim/interactive/src/session.cpp':{bytes:57564,sha256:'ee113d7ec820f6f577e64d5f6c09d7414bd5b9a2f0070d2ddad04e65fefa0516'},
+ 'native/godot_bridge/src/interactive_bridge.cpp':{bytes:14213,sha256:'f7b7fa15d5db3c1b6d25f649585136af4627cc97d3fad7dd11c7cdf635b96d37'},
+});
 const referenceRoot=process.env.FLIGHT_CAMERA_TEST_REFERENCES||path.resolve(here,'../../tests/camera');
 const coupled={source_variant:'jsbsim-1.3.1-event-aware-coupled-midpoint-v1',declared_source_fingerprint:'a'.repeat(64)};
 const upstream={...coupled,source_variant:'jsbsim-1.3.1-upstream'};
@@ -95,6 +101,29 @@ function syntheticCurrentIdentity(variant='jsbsim-1.3.1-event-aware-coupled-midp
   const pin=apronStartSourcePins[name];return {path:name,bytes:pin?.bytes??1,raw_sha256:pin?.sha256??'b'.repeat(64),lf_sha256:pin?.sha256??'b'.repeat(64)};
  })};
 }
+test('current apron gate pins bind actual repository source bytes before synthetic receipts',()=>{
+ assert.deepEqual(apronStartSourcePins,independentlyBoundApronPins);
+ for(const [name,want] of Object.entries(independentlyBoundApronPins)){
+  const raw=fs.readFileSync(path.resolve(here,'../..',name));
+  assert.deepEqual({bytes:raw.length,sha256:createHash('sha256').update(raw).digest('hex')},want,name);
+ }
+});
+test('historical/current apron source hybrids cannot enable current camera coverage',()=>{
+ const historical={
+  'native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp':{bytes:4151,sha256:'40511064929f717e57ed3ff084a3aad0f9af6c406bb50ba74ec1a4fdbe5fcd8f'},
+  'native/fdm_jsbsim/interactive/src/session.cpp':{bytes:46016,sha256:'272edf5984dc9205c75f7103546b0312c78ba43f05f416dad929172b8ef6fbeb'},
+  'native/godot_bridge/src/interactive_bridge.cpp':{bytes:12768,sha256:'0ebe3a59122368733745f05d82204a2e5a2b9187e985c89bff7b59a6f5e9dcd3'},
+ };
+ for(let mask=1;mask<8;mask++){
+  const identity=syntheticCurrentIdentity();
+  Object.entries(historical).forEach(([name,pin],index)=>{
+   if(mask&(1<<index))Object.assign(identity.source_bindings.find(row=>row.path===name),{bytes:pin.bytes,raw_sha256:pin.sha256,lf_sha256:pin.sha256});
+  });
+  assert.throws(()=>expectedCoverage(identity),'Closed current tuple; no historical/hybrid fallback');
+  identity.source_variant='jsbsim-1.3.1-upstream';
+  assert.equal(apronStartsSupported(identity),false);
+ }
+});
 test('current source-qualified coupled-v1/v2 35 and upstream21 retain all prior rows',()=>{
  for(const [variant,count,cold] of [['jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2',35,true],['jsbsim-1.3.1-event-aware-coupled-midpoint-v1',35,true],['jsbsim-1.3.1-upstream',21,false]]){
   const identity=syntheticCurrentIdentity(variant);assert(apronStartsSupported(identity));
