@@ -98,3 +98,38 @@ total 3D accuracy. Basic compiled physical runway geometry does not supply
 operational thresholds, taxiways, procedures or navigation suitability. Aircraft
 fidelity, pilot evaluation and training-credit claims remain outside this
 evidence.
+
+## Isolated Windows package qualification
+
+The complete portable preview package passed on 2026-10-19 at source commit
+`bf02bc10251421a9994b7b44ae077be9b16caa23`. Editor, portable and rebuilt-library
+replacement checks passed, including actual combined flight, source/model and
+notice inventories, PE/CRT dependency closure and replacement-library execution.
+The KAWO source closure bound the exact catalog, renderer and seven physical
+world files; its raw receipt SHA-256 is
+`f577d15b6a0a868a432ccc74f187fbe2469785f6bd4d096d267253d4d480c5cf`.
+The final package audit is
+`b8826d8dc9e700fdefc7a4241ac8d1bb740e87a0844c0b651289214df6f7e924`;
+the complete manifest is
+`8e01f0605bda389c049c352b8f9be009bc4965ad4699eb80192d5214731f0f24`.
+
+The 109,268,480-byte release executable is
+`d34d36f3be1a6c49c56525ae86469b92e4f417ddf0b43cf00dd80c385c4b0562`;
+its 11,697,488-byte PCK is
+`de48fe9687a63694a98efae34f0a6612eb1d5d8b1c6f3f6f76b40b34a4356aea`.
+These are retained isolated artifacts, not an installed-game update or release.
+
+An earlier package attempt passed runtime checks but failed its final inventory:
+the seven physical world files were absent from the reconstructed-source
+manifest. The correction declares only those seven already-validated files;
+the fresh complete run above passed the unchanged final audit.
+
+Two later attempts to invoke a focused KAWO script through the release
+executable's script override timed out without the harness's initialization or
+terminal marker. Both were terminated and joined; the sealed package remained
+unchanged. They are failed test invocations, not a passed packaged KAWO journey.
+The pinned [engine startup policy](https://github.com/godotengine/godot/blob/ed1daf0bf/main/main.cpp#L4018-L4029)
+can clear script overrides in release builds. Actual shipping-executable KAWO
+selection and scenery-resource loading therefore remain separate checks through
+the game's existing test dispatch. The combined-flight package tests above use
+the synthetic world; they do not establish a geographic takeoff or landing.

@@ -769,6 +769,10 @@ def resident_closure(repo, build, identity_raw, identity):
         quote = lambda path: '"' + path + '"' if any(c.isspace() for c in path) else path
         bindings['in'] = ' '.join(quote(path) for path in edge['explicit'])
         bindings['out'] = quote(edge['outputs'][0])
+        # Retained GNU CMake archive edges omit this optional empty field.
+        # Preserve declared values; shared/compile and unknown names stay strict.
+        if family == 'GNU' and edge['rule'].startswith('CXX_STATIC_LIBRARY_LINKER__'):
+            bindings.setdefault('LINK_FLAGS', '')
         require(bindings.get('PRE_LINK', '') in ('', ':', 'cd .') and bindings.get('POST_BUILD', '') in ('', ':', 'cd .'), 'Unreviewed pre/post-link command')
         command = expand(rule.get('command', ''), bindings)
         require(command and '$' not in command and '\x00' not in command, 'Unresolved Ninja command')

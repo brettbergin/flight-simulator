@@ -321,6 +321,43 @@ class IdentityTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             n.resident_closure(self.repo, self.build, json.dumps(changed_identity).encode(), changed_identity)
 
+    @unittest.skipUnless(sys.platform == 'linux', 'GNU archive fixture uses Linux path/argv semantics')
+    def test_gnu_archive_omitted_link_flags_only(self):
+        # Nonexecuting GNU graph with independently spelled strict commands.
+        # Only static archive rules may omit LINK_FLAGS; no general Ninja waiver.
+        base = self.root/'gnu-link-flags'; base.mkdir()
+        self.repo, self.build, self.selected, self.consumer = fixture(base, family='GNU')
+        rows, _ = self.resident_graph()
+        tools = n.cache_values(self.build)
+        for row in rows:
+            output = next(arg[3:] for arg in row['arguments'] if arg.startswith('/Fo'))
+            defines = ['-D'+n.MACRO+'="'+self.consumer+'"'] if row['file'] == str(self.repo/EXPECTED_SOURCE_PATHS[0]) else []
+            row['arguments'] = [tools['CMAKE_CXX_COMPILER'], *defines, '-fno-fast-math', '-ffp-contract=off', '-o', output, '-c', row['file']]
+        put(self.build, 'compile_commands.json', json.dumps(rows))
+        ninja = (self.build/'build.ninja').read_text().replace('bin/flight_godot_bridge.dll', 'bin/libflight_godot_bridge.so').replace('PRE_LINK = cd .', 'PRE_LINK = :').replace('POST_BUILD = cd .', 'POST_BUILD = :')
+        put(self.build, 'build.ninja', ninja)
+        compile_command = '"'+tools['CMAKE_CXX_COMPILER']+'" $DEFINES -fno-fast-math -ffp-contract=off -o $out -c $in'
+        archive_command = '$PRE_LINK && "'+tools['CMAKE_AR']+'" qc $TARGET_FILE $LINK_FLAGS $in && $POST_BUILD'
+        link_command = '"'+tools['CMAKE_CXX_COMPILER']+'" -o $TARGET_FILE $in $LINK_LIBRARIES'
+        rules = ('rule CXX_COMPILER__session\n  command = '+compile_command+'\n'
+                 'rule CXX_COMPILER__resident\n  command = '+compile_command+'\n'
+                 'rule CXX_STATIC_LIBRARY_LINKER__resident\n  command = '+archive_command+'\n'
+                 'rule CXX_SHARED_LIBRARY_LINKER__resident\n  command = '+link_command+'\n')
+        def observe(changed_rules, changed_ninja=ninja):
+            put(self.build, 'CMakeFiles/rules.ninja', changed_rules)
+            put(self.build, 'build.ninja', changed_ninja)
+            identity = self.qualify()
+            return n.resident_closure(self.repo, self.build, json.dumps(identity).encode(), identity)
+        self.assertTrue(observe(rules)['passed'])
+        self.assertTrue(observe(rules, ninja+'LINK_FLAGS = \n')['passed'])
+        for changed_rules, changed_ninja in (
+                (rules.replace(archive_command, archive_command.replace('$LINK_FLAGS', '$UNDECLARED_LINK_FLAGS')), ninja),
+                (rules.replace(link_command, link_command+' $LINK_FLAGS'), ninja),
+                (rules.replace(compile_command, compile_command+' $LINK_FLAGS'), ninja),
+                (rules, ninja+'LINK_FLAGS = $UNDECLARED_LINK_FLAGS\n'),
+                (rules, ninja+'LINK_FLAGS = unexpected-object.obj\n')):
+            with self.assertRaises(ValueError): observe(changed_rules, changed_ninja)
+
     def test_resident_strict_json_and_command_readers(self):
         for raw in (b'{"a":1,"a":2}', b'\xef\xbb\xbf{}', b'{"x":NaN}', b'{"x":1e999}', b'{"a":1,}', b'[] []'):
             with self.assertRaises((ValueError, UnicodeError)): n.strict_json(raw, 100, 4, 20)
