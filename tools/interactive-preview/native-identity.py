@@ -775,7 +775,12 @@ def resident_closure(repo, build, identity_raw, identity):
             bindings.setdefault('LINK_FLAGS', '')
         require(bindings.get('PRE_LINK', '') in ('', ':', 'cd .') and bindings.get('POST_BUILD', '') in ('', ':', 'cd .'), 'Unreviewed pre/post-link command')
         command = expand(rule.get('command', ''), bindings)
-        require(command and '$' not in command and '\x00' not in command, 'Unresolved Ninja command')
+        checked_command = command
+        if family == 'GNU' and edge['rule'].startswith('CXX_SHARED_LIBRARY_LINKER__'):
+            # Ninja $$ produced this literal ELF token; the shell backslash
+            # keeps it out of environment expansion. Mask validation only.
+            checked_command = re.sub(r'(?<!\S)-Wl,-rpath,"\\\$ORIGIN"(?=\s|$)', 'ELF_ORIGIN_RPATH', command)
+        require(command and '$' not in checked_command and '\x00' not in command, 'Unresolved Ninja command')
         return edge, command
     def link_arguments(command):
         # CMake's Windows wrapper quotes a shell expression as one /C argument;

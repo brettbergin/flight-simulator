@@ -350,11 +350,18 @@ class IdentityTests(unittest.TestCase):
             return n.resident_closure(self.repo, self.build, json.dumps(identity).encode(), identity)
         self.assertTrue(observe(rules)['passed'])
         self.assertTrue(observe(rules, ninja+'LINK_FLAGS = \n')['passed'])
+        # Exact retained CMake token: Ninja $$ plus shell-escaped ELF $ORIGIN.
+        rpath = r'-Wl,-rpath,"\$$ORIGIN"'
+        self.assertTrue(observe(rules, ninja.replace('  LINK_LIBRARIES = ', '  LINK_LIBRARIES = '+rpath+' ', 1))['passed'])
+        for wrong in (r'-Wl,-rpath,"\$ORIGIN"', r'-Wl,-rpath,"$$ORIGIN"', r'-Wl,-rpath,"\$$HOME"', 'prefix'+rpath, rpath+'suffix'):
+            with self.assertRaises(ValueError):
+                observe(rules, ninja.replace('  LINK_LIBRARIES = ', '  LINK_LIBRARIES = '+wrong+' ', 1))
         for changed_rules, changed_ninja in (
                 (rules.replace(archive_command, archive_command.replace('$LINK_FLAGS', '$UNDECLARED_LINK_FLAGS')), ninja),
                 (rules.replace(link_command, link_command+' $LINK_FLAGS'), ninja),
                 (rules.replace(compile_command, compile_command+' $LINK_FLAGS'), ninja),
                 (rules, ninja+'LINK_FLAGS = $UNDECLARED_LINK_FLAGS\n'),
+                (rules, ninja+'LINK_FLAGS = '+rpath+'\n'),
                 (rules, ninja+'LINK_FLAGS = unexpected-object.obj\n')):
             with self.assertRaises(ValueError): observe(changed_rules, changed_ninja)
 
