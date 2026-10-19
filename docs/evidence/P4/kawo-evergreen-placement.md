@@ -42,6 +42,7 @@ The unprocessed views below retain the normal HUD and native paused state.
 ![Original KAWO chase view with decorative groves](images/kawo-evergreens/chase.png)
 
 ![Camera-only close view of the first deterministic tree foot](images/kawo-evergreens/trunk-foot.png)
+
 ## Isolated Windows export
 
 The complete Windows package passed on 2026-10-19 at public source commit
