@@ -4,6 +4,10 @@ The proposed [resident-grid core and independent references](evidence/P4/residen
 prepare matching physical/render terrain under #243. This component contract does
 not yet add a geographic airport to the playable simulator.
 
+The [independent payload byte references](evidence/P4/resident-grid-codec-reference.md)
+prepare a shared native/Godot reader seam. The [KAWO source ingester](evidence/P4/kawo-source-ingestion.md)
+separately passed actual pinned FAA-source comparisons; neither is gameplay terrain.
+
 This is a serious Windows desktop flight simulator for realistic Cessna flying, thoughtful practice, and enjoyment by an experienced pilot. The first delivery establishes the implementation plan and GitHub work queue. The owner approved the plan and authorized implementation on 2026-10-03; see [P0 acceptance](evidence/P0/acceptance.md). P1 now establishes executable contracts, native flight dynamics and Windows delivery proofs. A playable simulator requires the subsequent cockpit and flight-operation phases.
 
 ## Decisions made for this project

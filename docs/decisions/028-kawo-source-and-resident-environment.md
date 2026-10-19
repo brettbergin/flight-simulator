@@ -40,3 +40,5 @@ coverage are fixed here; a rectangle query supplies no native motion theorem.
 The separate [offline tool pins](../contracts/world/terrain-tools-v1.md) permit a
 local authoring bootstrap only after checked acceptance. They do not choose a
 geographic transform or expand native/runtime packaging.
+
+The separate [resident payload byte contract](../contracts/world/resident-grid-codec-v1.md), checked with its independent literal references, permits standalone decoding and a separately reviewed standalone Godot reader only. It serializes the same Definition without introducing world/file/start admission. This completes the bounded byte seam before consumers; compiler/datum and runtime integration still require their own contracts.

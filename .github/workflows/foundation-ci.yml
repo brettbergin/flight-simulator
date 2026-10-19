@@ -39,6 +39,12 @@ jobs:
         shell: pwsh
         run: |
           $gridPins = @{
+            'docs/contracts/world/resident-grid-codec-v1.md' = '060f267d64bb058059791c762db724d39f9c99d907926868d2f9c2634ffeb0e3'
+            'tests/ground/grid/codec/reference/fixture_producer.py' = '91107b6502f761d3fc928508f4496460dee3b91e9d2acd0bff529321db4fb6d2'
+            'tests/ground/grid/codec/reference/hand-oracles.json' = 'd84825f145a24755b48028de2546df2bb411103627459619ee2b5e68e4d80c59'
+            'tests/ground/grid/codec/reference/expected-v1.json' = '64bf9d4e5ac84373cc9ab6f25b83fef3315127358d8d4eb1dd49d9ef48390980'
+            'tests/ground/grid/codec/reference/README.md' = 'a5b73c165aa103beb82f5933d75ba37e6afbbc893b2c8367db0c832071894de0'
+            'native/world_core/grid/include/flight/ground/grid_payload.hpp' = '625c89c99f284d6cfcaa826470f27457958670bd6cdc3e2662791599eb73d61f'
             'tests/ground/grid/reference/material-oracles.json' = '1824b250c8a44b80e11802c931e85cb6507315f3b32af3645bef373e47a1c0ad'
             'tests/ground/grid/reference/materials-README.md' = '1b93c759e47ef58d9ae7193333e9b780ee78785ccf3e3551f8dedcc27f9f70a9'
             'docs/contracts/world/terrain-tools-v1.md' = '9a8a2a77b6daeaa15b7d785fb2452b2cd380d3f062acb9845fa038b5e33d96f6'
@@ -55,6 +61,8 @@ jobs:
           }
           python -I -B tests/ground/grid/reference/reference_producer.py --check tests/ground/grid/reference/expected-v1.json
           if ($LASTEXITCODE -ne 0) { throw 'Independent resident-grid reference reproduction failed' }
+          python -I -B tests/ground/grid/codec/reference/fixture_producer.py --check tests/ground/grid/codec/reference/expected-v1.json
+          if ($LASTEXITCODE -ne 0) { throw 'Independent resident-grid byte reference reproduction failed' }
       - name: Check recursive simulation staging and drift rejection
         shell: pwsh
         run: ./tools/interactive-preview/simulation-staging.test.ps1
