@@ -176,6 +176,52 @@ function Assert-KawoEvergreenImportRecipe {
   }
  }
 }
+function Write-KawoRawGlbExportPlugin {
+ param([Parameter(Mandatory)][string]$ProjectRoot)
+ Assert-KawoOrdinaryAncestors $ProjectRoot
+ $folder=Join-Path $ProjectRoot 'addons/kawo_raw_glbs'
+ if(Test-Path -LiteralPath $folder){throw 'Raw GLB exporter requires a fresh addon directory'}
+ $parent=Join-Path $ProjectRoot 'addons'
+ if(Test-Path -LiteralPath $parent){Assert-KawoOrdinaryAncestors $parent}
+ $settings=Join-Path $ProjectRoot 'project.godot'
+ Assert-KawoOrdinaryAncestors $settings
+ $text=[IO.File]::ReadAllText($settings)
+ if($text -match '(?m)^\s*\[editor_plugins\]\s*$'){throw 'Unexpected existing editor plugin configuration'}
+ New-Item -ItemType Directory -Path $folder -Force|Out-Null
+ Assert-KawoOrdinaryAncestors $folder
+ [IO.File]::WriteAllText((Join-Path $folder 'plugin.cfg'),"[plugin]`nname=`"KAWO raw GLB delivery`"`ndescription=`"Preserve three original raw GLBs beside their normal imported resources`"`nauthor=`"Flight simulator project`"`nversion=`"1.0`"`nscript=`"plugin.gd`"`n",[Text.UTF8Encoding]::new($false))
+ [IO.File]::WriteAllText((Join-Path $folder 'plugin.gd'),@'
+@tool
+extends EditorPlugin
+class RawGlbExport extends EditorExportPlugin:
+ func _get_name() -> String: return "OriginalKawoRawGlbs"
+ func _export_begin(_features: PackedStringArray,_is_debug: bool,_path: String,_flags: int) -> void:
+  var admitted: Array=[]
+  for item in [
+   ["res://environment/original-evergreens-v1/tall-narrow-lod1.glb",70024,"35f8cd9714082054e851550281c6996c67159d46b8a2345737a1b63a93e5299d"],
+   ["res://environment/original-evergreens-v1/broad-tiered-lod1.glb",70060,"cc386b8fa59a0e0787430081713d219b9ddfde017fd1fd3c81ed72551db4fdb8"],
+   ["res://environment/original-evergreens-v1/irregular-mature-lod1.glb",70060,"0e7c33c239b0d3773023e9fd5aec522392f270b06bd6b3591434d27c56378a7e"]]:
+   var raw: PackedByteArray=FileAccess.get_file_as_bytes(item[0])
+   var hasher:=HashingContext.new()
+   hasher.start(HashingContext.HASH_SHA256)
+   hasher.update(raw)
+   if raw.size()!=item[1] or hasher.finish().hex_encode()!=item[2]:
+    push_error("Raw KAWO GLB export pin refused: "+item[0])
+    return
+   admitted.append([item[0],raw])
+  for item in admitted: add_file(item[0],item[1],false)
+  print("KAWO_RAW_GLBS_ADDED=3")
+var _exporter: EditorExportPlugin
+func _enter_tree() -> void:
+ _exporter=RawGlbExport.new()
+ add_export_plugin(_exporter)
+func _exit_tree() -> void:
+ if _exporter!=null: remove_export_plugin(_exporter)
+ _exporter=null
+'@,[Text.UTF8Encoding]::new($false))
+ [IO.File]::WriteAllText($settings,$text+"`n[editor_plugins]`nenabled=PackedStringArray(`"res://addons/kawo_raw_glbs/plugin.cfg`")`n",[Text.UTF8Encoding]::new($false))
+ @(Get-SimulationSourceSnapshot $folder -RequiredEntries @('plugin.cfg','plugin.gd'))
+}
 function Get-LocalPlayerSourceGroups {
  param([Parameter(Mandatory)][string]$RepoRoot)
  @(

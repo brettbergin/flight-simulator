@@ -288,6 +288,30 @@ export function validateEvergreenImportRecipe(project,imported=true){
 export function isOriginalEvergreenSourcePath(file){
  return originalEvergreenAssets.some(([name])=>file==='source/whole-flight-preview/environment/original-evergreens-v1/'+name);
 }
+export function validateKawoPackedResult(value){
+ pointerKeys(value,['passed','checks','failures','joined','groups','actual_storage_exercised'],'Actual KAWO packed result');
+ assert.equal(value.passed,true);assert.equal(value.joined,true);assert.equal(value.actual_storage_exercised,false);assert.equal(value.checks,86);assert.deepEqual(value.failures,[]);
+ pointerKeys(value.groups,['source','scene'],'Closed KAWO actual groups');
+ pointerKeys(value.groups.source,['checks','failures'],'KAWO source group');assert.equal(value.groups.source.checks,59);assert.deepEqual(value.groups.source.failures,[]);
+ pointerKeys(value.groups.scene,['checks','failures','joined','adoption_diagnostic'],'KAWO Scene group');assert.equal(value.groups.scene.checks,25);assert.deepEqual(value.groups.scene.failures,[]);assert.equal(value.groups.scene.joined,true);pointerKeys(value.groups.scene.adoption_diagnostic,[],'Successful KAWO adoption diagnostic');
+ return value.checks;
+}
+export function validateKawoRawExportAddon(project,source,rows){
+ const names=['plugin.cfg','plugin.gd'];assert(Array.isArray(rows));assert.deepEqual(rows.map(row=>row.path),names,'Exact two generated exporter source rows');
+ for(const base of [project,source]){
+  const folder=path.join(base,'addons/kawo_raw_glbs'),actual=ordinaryFiles(folder);
+  for(const extra of actual.filter(name=>!names.includes(name))){
+   assert(base===project&&extra==='plugin.gd.uid','Only bound staged exporter UID allowed');
+   const raw=fs.readFileSync(path.join(folder,extra));assert(raw.length<=64);assert.match(raw.toString('utf8'),/^uid:\/\/[a-z0-9]{1,20}\r?\n?$/);
+  }
+  assert.deepEqual(actual.filter(name=>names.includes(name)).sort(),names,'Closed exporter source roster');
+  for(const row of rows){
+   pointerKeys(row,['path','bytes','sha256'],'Generated exporter pin');assert(Number.isSafeInteger(row.bytes)&&row.bytes>0&&row.bytes<=16384);assert.match(row.sha256,/^[a-f0-9]{64}$/);
+   const file=path.join(folder,row.path);ordinaryAncestors(file);const raw=fs.readFileSync(file);assert.equal(raw.length,row.bytes);assert.equal(sha(raw),row.sha256,'Actual/corresponding exporter source bytes');
+  }
+ }
+ return rows;
+}
 export function stageOriginalEvergreenNotice(repository,payload,entry){
  assert.equal(entry?.id,'original-evergreens-v1');assert.equal(entry.class,'visual-assets');assert.equal(entry.license,'MIT');assert.equal(entry.redistribution,'permitted');
  assert(Array.isArray(entry.notice_files)&&entry.notice_files.length===1);const notice=entry.notice_files[0];
@@ -697,6 +721,8 @@ function audit(root,proof,build,python='python'){
  const audioIdentity=validateAudioSources(repo,path.join(root,'project'),reconstructionRoot);
  validateLocalPlayerSources(repo,path.join(root,'project'),reconstructionRoot);
  const kawoIdentity=validateKawoRuntimeSources(repo,path.join(root,'project'),reconstructionRoot,payload);
+ const kawoRawExportAddon=validateKawoRawExportAddon(path.join(root,'project'),reconstructionRoot,json(path.join(evidence,'kawo-raw-export-addon.json')));
+ const kawoContexts=['editor','portable','replacement'].map(context=>{const file=path.join(evidence,context+'-kawo-checks.json');ordinaryAncestors(file);const raw=fs.readFileSync(file),result=json(file);validateKawoPackedResult(result);return {context,raw,result};});
  write(path.join(evidence,'kawo-source-closure.json'),{schema:'KawoDeliverySourceClosure/v1',passed:true,...kawoIdentity});
  validateAudioSourceDescriptors(json(path.join(evidence,'audio-source-groups.json')),audioIdentity.source_files);
  const firstFlightIdentity=validateFirstFlightSources(repo,path.join(root,'project'),reconstructionRoot);
@@ -832,6 +858,8 @@ function audit(root,proof,build,python='python'){
  function component(id){let c=components.find(x=>x.id===id);if(!c){const e=register.entries.find(x=>x.id===id);assert(e);c={id,version:e.version,source_revision:e.source.revision,files:[],notices:[]};components.push(c);}return c;}
  function declare(id,file,role){const c=component(id);c.files=c.files.filter(x=>x.path!==file);c.files.push({path:file,sha256:sha(fs.readFileSync(path.join(payload,file))),role});}
  function stage(id,file,value){const dest=path.join(payload,file);write(dest,value);declare(id,file,'evidence');}
+ stage('native-export-proof','evidence/kawo-raw-export-addon.json',kawoRawExportAddon);
+ for(const item of kawoContexts){const file='evidence/'+item.context+'-kawo-checks.json';fs.writeFileSync(path.join(payload,file),item.raw);declare('native-export-proof',file,'evidence');}
  for(const file of walk(payload)){
   if(file.startsWith('piston-models/')){assert(pistonEnabled);declare(pistonModel.id,file,'content');}
   else if(file.startsWith('source/whole-flight-preview/piston-models/')){assert(pistonEnabled);declare(pistonModel.id,file,'source');}
@@ -1081,5 +1109,6 @@ export function validateWireCodecSources(repository,project,source,nativeIdentit
 
 const [mode,...args]=process.argv.slice(2);
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
+if(mode==='kawo-packed-receipt'){assert.equal(args.length,1);ordinaryAncestors(args[0]);validateKawoPackedResult(json(args[0]));console.log('PASS actual KAWO source59/Scene25/host86 joined result');}else
 if(mode==='models')models(...args);else if(mode==='audit')audit(...args);else if(mode==='pointer-receipt'){assert.equal(args.length,5);validatePointerEvidence(args[0],args[1],args[2],args[3],json(args[4]));console.log('PASS actual pointer four-suite receipt/external trace/source/native identity');}else if(mode==='taxi-receipt'){assert.equal(args.length,6);assert(['true','false'].includes(args[5]));const identity=json(args[4]);const sources=validateTaxiSources(args[1],args[2],args[3]);ordinaryAncestors(args[0]);validateTaxiReceipt(json(args[0]),{nativeIdentity:identity,sourceFiles:sources.source_files,harnessFile:sources.harness_file,requireFullSupported:args[5]==='true'});console.log('PASS actual taxi resources/source and explicit full-start scope');}else if(mode==='ground-receipt'){assert.equal(args.length,2);ordinaryAncestors(args[0]);validateGroundMaterialReceipt(json(args[0]),groundMaterialIdentity(args[1]));console.log('PASS actual ground-material receipt/source identity');}else throw new Error('Expected models, audit or ground-receipt');
 }

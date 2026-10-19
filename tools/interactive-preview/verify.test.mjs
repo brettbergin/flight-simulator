@@ -413,6 +413,30 @@ test('audio recursive closure binds three groups eight scripts and existing Soun
 
 import {isOriginalAudioSourcePath,stageOriginalAudioNotice} from './package.mjs';
 import {isOriginalEvergreenSourcePath,stageOriginalEvergreenNotice,validateEvergreenImportRecipe,originalEvergreenAssets} from './package.mjs';
+import {validateKawoRawExportAddon,validateKawoPackedResult} from './package.mjs';
+test('generated exporter corresponding source rejects roster and pin drift',()=>{
+ const temporary=fs.mkdtempSync(path.join(root,'kawo-addon-')),project=path.join(temporary,'project'),source=path.join(temporary,'source');
+ const words={'plugin.cfg':'synthetic cfg\n','plugin.gd':'synthetic tool source\n'};
+ const rows=Object.entries(words).map(([name,word])=>({path:name,bytes:Buffer.byteLength(word),sha256:createHash('sha256').update(word).digest('hex')}));
+ for(const base of [project,source]){fs.mkdirSync(path.join(base,'addons/kawo_raw_glbs'),{recursive:true});for(const [name,word] of Object.entries(words))fs.writeFileSync(path.join(base,'addons/kawo_raw_glbs',name),word);}
+ assert.deepEqual(validateKawoRawExportAddon(project,source,rows),rows);
+ const file=(base,name)=>path.join(base,'addons/kawo_raw_glbs',name);
+ fs.writeFileSync(file(project,'plugin.gd.uid'),'uid://abc123\n');assert.doesNotThrow(()=>validateKawoRawExportAddon(project,source,rows));
+ for(const base of [project,source]){
+  const target=file(base,'plugin.gd');fs.writeFileSync(target,'drift');assert.throws(()=>validateKawoRawExportAddon(project,source,rows));fs.writeFileSync(target,words['plugin.gd']);
+  fs.unlinkSync(target);assert.throws(()=>validateKawoRawExportAddon(project,source,rows));fs.writeFileSync(target,words['plugin.gd']);
+  const extra=file(base,'extra.gd');fs.writeFileSync(extra,'unbound');assert.throws(()=>validateKawoRawExportAddon(project,source,rows));fs.unlinkSync(extra);
+ }
+ fs.writeFileSync(file(source,'plugin.gd.uid'),'uid://abc123\n');assert.throws(()=>validateKawoRawExportAddon(project,source,rows));fs.unlinkSync(file(source,'plugin.gd.uid'));
+ for(const mutate of [r=>r.reverse(),r=>r.pop(),r=>r[0].bytes++,r=>r[0].bytes='14',r=>r[0].sha256='a'.repeat(64),r=>r[0].extra=true]){const bad=structuredClone(rows);mutate(bad);assert.throws(()=>validateKawoRawExportAddon(project,source,bad));}
+ assert.doesNotThrow(()=>validateKawoRawExportAddon(project,source,rows));
+});
+test('actual KAWO admission requires both exact suites and joined native retirement',()=>{
+ const good={passed:true,checks:86,failures:[],joined:true,groups:{source:{checks:59,failures:[]},scene:{checks:25,failures:[],joined:true,adoption_diagnostic:{}}},actual_storage_exercised:false};
+ assert.equal(validateKawoPackedResult(good),86);
+ for(const mutate of [v=>v.passed=false,v=>v.passed=1,v=>v.joined=false,v=>v.joined='true',v=>v.checks=85,v=>v.checks='86',v=>v.failures.push('failure'),v=>v.actual_storage_exercised=true,v=>v.actual_storage_exercised=0,v=>delete v.groups.source,v=>v.groups.extra={},v=>v.groups.source.checks=58,v=>v.groups.source.failures.push('source_failure'),v=>v.groups.scene.checks=24,v=>v.groups.scene.joined=false,v=>v.groups.scene.failures.push('scene_failure'),v=>v.groups.scene.adoption_diagnostic.error='source unavailable',v=>v.extra=true]){const bad=structuredClone(good);mutate(bad);assert.throws(()=>validateKawoPackedResult(bad));}
+ for(const key of Object.keys(good)){const bad=structuredClone(good);delete bad[key];assert.throws(()=>validateKawoPackedResult(bad));}
+});
 test('decorative source classification and MIT notice remain limited to accepted original trees',()=>{
  for(const [name] of originalEvergreenAssets)assert(isOriginalEvergreenSourcePath('source/whole-flight-preview/environment/original-evergreens-v1/'+name));
  for(const name of ['WholeFlightPreview.pck','source/whole-flight-preview/environment/original-evergreens-v1/tall-narrow-lod0.glb','source/whole-flight-preview/environment/original-evergreens-v1/tall-narrow-lod1.glb.import','environment/original-evergreens-v1/tall-narrow-lod1.glb'])assert.equal(isOriginalEvergreenSourcePath(name),false);
