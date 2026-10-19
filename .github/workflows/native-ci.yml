@@ -163,6 +163,14 @@ jobs:
       - name: Qualify isolated KAWO native validator synthetic harness
         if: steps.scope.outputs.docs_only != 'true'
         run: ./tools/ci/kawo-terrain.ps1
+      - name: Verify fixed airport catalogs and closed source staging
+        if: steps.scope.outputs.docs_only != 'true'
+        run: |
+          node tools/interactive-preview/world-catalog.mjs --check
+          if ($LASTEXITCODE -ne 0) { throw 'Fixed airport catalog reproduction failed' }
+          node --test tools/interactive-preview/world-catalog.test.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Fixed airport catalog refusal tests failed' }
+          ./tools/interactive-preview/test-kawo-staging.ps1
       - name: Check synthetic schema3 source provenance and invalid packages
         if: steps.scope.outputs.docs_only != 'true'
         run: |
@@ -239,6 +247,8 @@ jobs:
           New-Item -ItemType Directory -Force $project,$evidence | Out-Null
           Copy-PreviewNativeIdentityResource -Identity $nativeIdentity -DestinationRoot $project
           $nativeIdentity | ConvertTo-Json -Depth 12 | Set-Content (Join-Path $evidence 'native-build-identity.json')
+          python -B tools/interactive-preview/native-identity.py --repository-root $PWD --build-root $nativeIdentity.root --evidence (Join-Path $evidence 'native-build-identity.json') --resident-closure-output (Join-Path $evidence 'resident-world-native-closure-v1.json')
+          if ($LASTEXITCODE -ne 0) { throw 'Actual linked resident airport component verification failed' }
           Copy-Item -LiteralPath (Join-Path $proof.project 'bin') -Destination $project -Recurse
           Copy-Item app/proof/flight.gdextension -Destination $project
           Copy-Item app/proof/interactive/project-settings.cfg -Destination (Join-Path $project 'project.godot')
@@ -249,6 +259,8 @@ jobs:
           Copy-SimulationSourceSnapshot app/simulation (Join-Path $project 'simulation') $snapshot -RequiredEntries $entries
           $tests=@(Get-SimulationSourceSnapshot tests/integration/sim_loop -RequiredEntries @('facade_checks.gd','independent-reference.json','scene_checks.gd'))
           Copy-SimulationSourceSnapshot tests/integration/sim_loop (Join-Path $project 'sim_loop_tests') $tests -RequiredEntries @('facade_checks.gd','independent-reference.json','scene_checks.gd')
+          $terrainTests=@(Get-SimulationSourceSnapshot tests/world/terrain -RequiredEntries @('reader_checks.gd','reader_test.gd','world_test.gd'))
+          Copy-SimulationSourceSnapshot tests/world/terrain (Join-Path $project 'terrain_tests') $terrainTests -RequiredEntries @('reader_checks.gd','reader_test.gd','world_test.gd')
           $inputGroups=@(Get-InputSourceGroups -RepoRoot $PWD)
           Copy-InputSourceGroups -RepoRoot $PWD -DestinationRoot $project -Groups $inputGroups
           $cockpitGroups=@(Get-CockpitSourceGroups -RepoRoot $PWD)
@@ -265,6 +277,8 @@ jobs:
           Copy-AudioSourceGroups -RepoRoot $PWD -DestinationRoot $project -Groups $audioGroups
           $localPlayerGroups=@(Get-LocalPlayerSourceGroups -RepoRoot $PWD)
           Copy-LocalPlayerSourceGroups -RepoRoot $PWD -DestinationRoot $project -Groups $localPlayerGroups
+          $kawoGroups=@(Get-KawoRuntimeSourceGroups -RepoRoot $PWD)
+          Copy-KawoRuntimeSourceGroups -RepoRoot $PWD -DestinationRoot $project -Groups $kawoGroups
           $windGroups=@(Get-WindSourceGroups -RepoRoot $PWD)
           Copy-WindSourceGroups -RepoRoot $PWD -DestinationRoot $project -Groups $windGroups
           $cameraGroups=@(Get-CameraSourceGroups -RepoRoot $PWD)
@@ -304,6 +318,18 @@ jobs:
           $receipt=Get-Content (Join-Path $project 'facade-check-receipt.json') -Raw | ConvertFrom-Json
           if($result.text -notmatch 'SIM_LOOP_CHECKS_PASSED' -or $result.text -notmatch 'FLIGHT_BRIDGE_TERMINATED_JOINED' -or $receipt.passed -ne $true -or $receipt.checks -le 0 -or $receipt.failures.Count -ne 0) { throw 'Active simulation facade checks failed' }
           Assert-PreviewFacadeReceipt -Receipt $receipt -IncludePiston $false -ExpectedSourceFingerprint $nativeIdentity.declared_source_fingerprint
+          foreach($suite in @('source','scene')){
+            $airport=Invoke-ProofProcess $environment.tools.godot @('--headless','--path',$project,'--script','res://sim_loop_tests/kawo_checks.gd','--',$suite) $root (Join-Path $evidence ('kawo-'+$suite+'.log')) -TimeoutSeconds 240
+            if($airport.exit_code -ne 0 -or $airport.text -notmatch 'FOCUSED_FRONTEND_RESULT=' -or $airport.text -match 'ERROR:|SCRIPT ERROR:|FATAL|ObjectDB instances? (?:(?:was|were) )?leaked|RID allocations leaked|resources still in use'){throw 'Actual airport source/scene checks failed'}
+          }
+          foreach($suite in @('reader','world')){
+            $arguments=@('--headless','--path',$project,'--script',('res://terrain_tests/'+$suite+'_test.gd'))
+            if($suite -ceq 'world'){$arguments+=@('--',(Join-Path $project 'worlds/kawo-prototype-v1/ground.fgrd'),(Join-Path $project 'worlds/kawo-prototype-v1/compile-receipt.json'))}
+            $terrain=Invoke-ProofProcess $environment.tools.godot $arguments $root (Join-Path $evidence ('kawo-terrain-'+$suite+'.log')) -TimeoutSeconds 300
+            if($terrain.exit_code -ne 0 -or $terrain.text -match 'ERROR:|SCRIPT ERROR:|FATAL|ObjectDB instances? (?:(?:was|were) )?leaked|RID allocations leaked|resources still in use'){throw 'Airport terrain component checks failed'}
+          }
+          $reducer=Invoke-ProofProcess $environment.tools.godot @('--headless','--path',$project,'--script','res://player_tests/archive_link_reducer_test.gd') $root (Join-Path $evidence 'kawo-archive-link-reducer.log') -TimeoutSeconds 60
+          if($reducer.exit_code -ne 0 -or $reducer.text -notmatch 'synthetic-archive-link-reducer' -or $reducer.text -match 'ERROR:|SCRIPT ERROR:|FATAL'){throw 'Archive link reducer checks failed'}
           $wireReceipt=Get-Content -LiteralPath (Join-Path $project 'wire-codec-receipt.json') -Raw | ConvertFrom-Json
           Assert-PreviewWireCodecReceipt -Receipt $wireReceipt -IncludePiston $false -ExpectedSourceFingerprint $nativeIdentity.declared_source_fingerprint
           if($IsWindows){
@@ -329,6 +355,8 @@ jobs:
           Assert-SimulationSourceSnapshot (Join-Path $project 'simulation') $snapshot -RequiredEntries $entries -AllowGeneratedUIDs
           Assert-SimulationSourceSnapshot tests/integration/sim_loop $tests -RequiredEntries @('facade_checks.gd','independent-reference.json','scene_checks.gd')
           Assert-SimulationSourceSnapshot (Join-Path $project 'sim_loop_tests') $tests -RequiredEntries @('facade_checks.gd','independent-reference.json','scene_checks.gd') -AllowGeneratedUIDs
+          Assert-SimulationSourceSnapshot tests/world/terrain $terrainTests -RequiredEntries @('reader_checks.gd','reader_test.gd','world_test.gd')
+          Assert-SimulationSourceSnapshot (Join-Path $project 'terrain_tests') $terrainTests -RequiredEntries @('reader_checks.gd','reader_test.gd','world_test.gd') -AllowGeneratedUIDs
           Assert-InputSourceGroups -DestinationRoot $PWD -Groups $inputGroups -Authoring
           Assert-InputSourceGroups -DestinationRoot $project -Groups $inputGroups -AllowGeneratedUIDs
           Assert-CockpitSourceGroups -DestinationRoot $PWD -Groups $cockpitGroups -Authoring
@@ -345,7 +373,9 @@ jobs:
           Assert-AudioSourceGroups -DestinationRoot $project -Groups $audioGroups -AllowGeneratedUIDs
           Assert-LocalPlayerSourceGroups -Root $PWD -Groups $localPlayerGroups -Authoring
           Assert-LocalPlayerSourceGroups -Root $project -Groups $localPlayerGroups -AllowGeneratedUIDs
-          @{source=$snapshot;tests=$tests;wire_codec_sources=$wireCodecGroups;input_sources=$inputGroups;cockpit_sources=$cockpitGroups;cockpit_authoring_sources=$cockpitAuthoringGroups;cockpit_import=$cockpitImportReceipt;freeflight_sources=$freeflightGroups;observed_sources=$observedGroups;wind_sources=$windGroups;first_flight_sources=$firstFlightGroups;audio_sources=$audioGroups;camera_sources=$cameraGroups;local_player_sources=$localPlayerGroups;camera_generated_harness=@(foreach($name in @('camera_checks.gd','camera_checks.tscn')){@{path=$name;bytes=(Get-Item (Join-Path $project $name)).Length;sha256=(Get-FileHash (Join-Path $project $name)).Hash.ToLowerInvariant()}});generated_uid_metadata=@(Get-ChildItem (Join-Path $project 'persistence'),(Join-Path $project 'ui/profiles'),(Join-Path $project 'ui/history'),(Join-Path $project 'player_tests'),(Join-Path $project 'wire_codec_tests'),(Join-Path $project 'simulation'),(Join-Path $project 'sim_loop_tests'),(Join-Path $project 'input'),(Join-Path $project 'ui/controls'),(Join-Path $project 'input_tests'),(Join-Path $project 'cockpit'),(Join-Path $project 'instrument_tests'),(Join-Path $project 'ui/freeflight'),(Join-Path $project 'freeflight_tests'),(Join-Path $project 'replay/observed'),(Join-Path $project 'ui/debrief/observed'),(Join-Path $project 'observed_tests'),(Join-Path $project 'replay/observed_archive'),(Join-Path $project 'observed_archive_tests'),(Join-Path $project 'world/wind'),(Join-Path $project 'ui/wind'),(Join-Path $project 'wind_tests'),(Join-Path $project 'wind_scene_tests'),(Join-Path $project 'ui/first_flight'),(Join-Path $project 'world/synthetic'),(Join-Path $project 'content/scenarios/first-flight'),(Join-Path $project 'content/world/synthetic'),(Join-Path $project 'scenario_tests/first-flight'),(Join-Path $project 'first_flight_ui_tests'),(Join-Path $project 'world_tests/synthetic'),(Join-Path $project 'first_flight_scene_tests'),(Join-Path $project 'audio'),(Join-Path $project 'ui/audio'),(Join-Path $project 'audio_tests'),(Join-Path $project 'camera'),(Join-Path $project 'ui/camera'),(Join-Path $project 'camera_tests') -Recurse -File -Filter '*.gd.uid'|ForEach-Object {@{path=[IO.Path]::GetRelativePath($project,$_.FullName).Replace([char]92,[char]47);sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}});godot_sha256=(Get-FileHash $environment.tools.godot).Hash.ToLowerInvariant();project_sha256=(Get-FileHash (Join-Path $project 'project.godot')).Hash.ToLowerInvariant();harness_sha256=(Get-FileHash (Join-Path $project 'sim_loop_checks.gd')).Hash.ToLowerInvariant();modules=@(Get-ChildItem (Join-Path $project 'bin') -File | ForEach-Object {@{name=$_.Name;sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}})} | ConvertTo-Json -Depth 12 | Set-Content (Join-Path $evidence 'source-binding.json')
+          Assert-KawoRuntimeSourceGroups -Root $PWD -Groups $kawoGroups -Authoring
+          Assert-KawoRuntimeSourceGroups -Root $project -Groups $kawoGroups -AllowGeneratedUIDs
+          @{source=$snapshot;tests=$tests;terrain_tests=$terrainTests;kawo_sources=$kawoGroups;wire_codec_sources=$wireCodecGroups;input_sources=$inputGroups;cockpit_sources=$cockpitGroups;cockpit_authoring_sources=$cockpitAuthoringGroups;cockpit_import=$cockpitImportReceipt;freeflight_sources=$freeflightGroups;observed_sources=$observedGroups;wind_sources=$windGroups;first_flight_sources=$firstFlightGroups;audio_sources=$audioGroups;camera_sources=$cameraGroups;local_player_sources=$localPlayerGroups;camera_generated_harness=@(foreach($name in @('camera_checks.gd','camera_checks.tscn')){@{path=$name;bytes=(Get-Item (Join-Path $project $name)).Length;sha256=(Get-FileHash (Join-Path $project $name)).Hash.ToLowerInvariant()}});generated_uid_metadata=@(Get-ChildItem (Join-Path $project 'persistence'),(Join-Path $project 'ui/profiles'),(Join-Path $project 'ui/history'),(Join-Path $project 'player_tests'),(Join-Path $project 'wire_codec_tests'),(Join-Path $project 'simulation'),(Join-Path $project 'sim_loop_tests'),(Join-Path $project 'input'),(Join-Path $project 'ui/controls'),(Join-Path $project 'input_tests'),(Join-Path $project 'cockpit'),(Join-Path $project 'instrument_tests'),(Join-Path $project 'ui/freeflight'),(Join-Path $project 'freeflight_tests'),(Join-Path $project 'replay/observed'),(Join-Path $project 'ui/debrief/observed'),(Join-Path $project 'observed_tests'),(Join-Path $project 'replay/observed_archive'),(Join-Path $project 'observed_archive_tests'),(Join-Path $project 'world/wind'),(Join-Path $project 'ui/wind'),(Join-Path $project 'wind_tests'),(Join-Path $project 'wind_scene_tests'),(Join-Path $project 'ui/first_flight'),(Join-Path $project 'world/synthetic'),(Join-Path $project 'content/scenarios/first-flight'),(Join-Path $project 'content/world/synthetic'),(Join-Path $project 'scenario_tests/first-flight'),(Join-Path $project 'first_flight_ui_tests'),(Join-Path $project 'world_tests/synthetic'),(Join-Path $project 'first_flight_scene_tests'),(Join-Path $project 'audio'),(Join-Path $project 'ui/audio'),(Join-Path $project 'audio_tests'),(Join-Path $project 'camera'),(Join-Path $project 'ui/camera'),(Join-Path $project 'camera_tests') -Recurse -File -Filter '*.gd.uid'|ForEach-Object {@{path=[IO.Path]::GetRelativePath($project,$_.FullName).Replace([char]92,[char]47);sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}});godot_sha256=(Get-FileHash $environment.tools.godot).Hash.ToLowerInvariant();project_sha256=(Get-FileHash (Join-Path $project 'project.godot')).Hash.ToLowerInvariant();harness_sha256=(Get-FileHash (Join-Path $project 'sim_loop_checks.gd')).Hash.ToLowerInvariant();modules=@(Get-ChildItem (Join-Path $project 'bin') -File | ForEach-Object {@{name=$_.Name;sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}})} | ConvertTo-Json -Depth 12 | Set-Content (Join-Path $evidence 'source-binding.json')
       - name: Prove Windows corresponding source and actual DLL replacement
         if: steps.scope.outputs.docs_only != 'true' && (runner.os == 'Windows')
         run: |
@@ -400,6 +430,7 @@ jobs:
             .local/build/native-release/compile_commands.json
             .local/build/native-release/CMakeCache.txt
             .local/build/native-release/build.ninja
+            .local/build/native-release/CMakeFiles/rules.ninja
             .local/build/native-release/Testing/Temporary/LastTest.log
             .local/toolchain/environment.json
             .local/input-preflight/*/*.json

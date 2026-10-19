@@ -6,6 +6,8 @@ const Origin = preload("res://simulation/render_origin.gd")
 const Wire = preload("res://simulation/wire_validation.gd")
 const NativeWireDecoder = preload("res://simulation/native_wire_decoder.gd")
 const NativeIdentity = preload("res://build/native_identity.gd")
+const Worlds = preload("res://world/world_admission.gd")
+const Utf8 = preload("res://replay/observed_archive/strict_json.gd")
 const QUANTA: int = 4000000
 const MAX_INT: int = 9223372036854775807
 const WORLD: String = "04bff5a0bcf3509990f6276b2548a28268f57fc96d218a7ca51cab1990ec1ff5"
@@ -28,6 +30,8 @@ var _lifecycle_sequence: String = "0"
 var _pending: Variant = null
 var _admitted: Variant = null
 var _profile: String = "original-interactive-prototype"
+var _world_selector: String = "original-synthetic"
+var _world_entry: Dictionary = {}
 var _pending_systems: Variant = null
 var _admitted_systems: Dictionary = {}
 var _prepared: Dictionary = {}
@@ -259,7 +263,9 @@ static func valid_wind_profile(value: Variant) -> bool:
 static func valid_profile(value: Variant) -> bool:
 	return typeof(value)==TYPE_STRING and value in [LEGACY_PROFILE.id,PISTON_PROFILE.id]
 
-static func _selection_error(model_root: String, named_start: String, wind_profile: Variant, profile_id: Variant) -> String:
+static func _selection_error(model_root: String, named_start: Variant, wind_profile: Variant, profile_id: Variant, world_selector: Variant="original-synthetic") -> String:
+	var world: Dictionary=Worlds.selection(world_selector,profile_id,named_start,wind_profile)
+	if not world.ok: return world.error
 	if not valid_wind_profile(wind_profile) or not valid_profile(profile_id) or not _recipe(profile_id,named_start):
 		return "Supported named start and exact wind/profile Strings required"
 	if named_start in ["apron-ready","piston-cold-apron"] and wind_profile!="calm":
@@ -293,6 +299,231 @@ static func _selection_error(model_root: String, named_start: String, wind_profi
 		if not _piston_file_roster(model_root,expected):
 			return "Original piston model requires its closed ordinary-file roster"
 	return ""
+
+# Fixed pack lexical gate, distinct from the archive's integer-only grammar and
+# its 16-member/2401-array limits. No alternate parser policy/retry is offered.
+class PackJson:
+	var bytes: PackedByteArray
+	var cursor: int=0
+	var values: int=0
+	var error: String=""
+	func fail(message: String) -> void:
+		if error.is_empty(): error=message
+	func string_token() -> Variant:
+		var start: int=cursor
+		cursor+=1
+		while cursor<bytes.size():
+			var code: int=bytes[cursor]
+			cursor+=1
+			if code==34:
+				var token: String=bytes.slice(start,cursor).get_string_from_utf8()
+				var parser:=JSON.new()
+				if parser.parse(token)!=OK or typeof(parser.data)!=TYPE_STRING:
+					fail("Malformed pack JSON string"); return null
+				return parser.data
+			if code<32: fail("Unescaped pack JSON control"); return null
+			if code==92:
+				if cursor>=bytes.size(): break
+				code=bytes[cursor]; cursor+=1
+				if code==117:
+					var first: int=hex4()
+					if first<0: return null
+					if first>=0xd800 and first<=0xdbff:
+						if cursor+2>bytes.size() or bytes[cursor]!=92 or bytes[cursor+1]!=117:
+							fail("Unpaired pack surrogate"); return null
+						cursor+=2
+						var low: int=hex4()
+						if low<0xdc00 or low>0xdfff: fail("Unpaired pack surrogate"); return null
+					elif first>=0xdc00 and first<=0xdfff or first==0 or first==0xfeff:
+						fail("Invalid pack string scalar"); return null
+				elif code not in [34,47,92,98,102,110,114,116]:
+					fail("Invalid pack JSON escape"); return null
+		fail("Unterminated pack JSON string"); return null
+	func hex4() -> int:
+		if cursor+4>bytes.size(): fail("Truncated pack Unicode escape"); return -1
+		var result: int=0
+		for index in range(4):
+			var code: int=bytes[cursor]; cursor+=1
+			var digit: int=code-48 if code>=48 and code<=57 else (code-55 if code>=65 and code<=70 else (code-87 if code>=97 and code<=102 else -1))
+			if digit<0: fail("Invalid pack Unicode escape"); return -1
+			result=(result<<4)|digit
+		return result
+	func space() -> void:
+		while cursor<bytes.size() and bytes[cursor] in [9,10,13,32]: cursor+=1
+	func take(code: int) -> bool:
+		if cursor<bytes.size() and bytes[cursor]==code:
+			cursor+=1
+			return true
+		return false
+	func value(depth: int) -> void:
+		if not error.is_empty(): return
+		values+=1
+		if values>20000: fail("Pack JSON value bound"); return
+		space()
+		if cursor>=bytes.size(): fail("Truncated pack JSON value"); return
+		var code: int=bytes[cursor]
+		if code in [123,91]:
+			if depth>=16: fail("Pack JSON depth bound"); return
+			if code==123: object(depth+1)
+			else: array(depth+1)
+		elif code==34:
+			string_token()
+		elif code in [116,102,110]:
+			var token: String="true" if code==116 else ("false" if code==102 else "null")
+			for character in token.to_ascii_buffer():
+				if not take(character): fail("Malformed pack JSON literal"); return
+		else:
+			var start: int=cursor
+			while cursor<bytes.size() and bytes[cursor] not in [9,10,13,32,44,93,125]: cursor+=1
+			var token: String=bytes.slice(start,cursor).get_string_from_utf8()
+			var numeric:=RegEx.new()
+			numeric.compile("^-?(0|[1-9][0-9]*)(\\.[0-9]+)?([eE][+-]?[0-9]+)?$")
+			if token.is_empty() or numeric.search(token)==null or not is_finite(float(token)):
+				fail("Invalid/nonfinite pack JSON number")
+	func object(depth: int) -> void:
+		cursor+=1
+		space()
+		if take(125): return
+		var seen: Dictionary={}
+		while error.is_empty():
+			if cursor>=bytes.size() or bytes[cursor]!=34: fail("Expected pack JSON object key"); return
+			var key: Variant=string_token()
+			if not error.is_empty(): return
+			if seen.has(key): fail("Duplicate pack JSON key"); return
+			seen[key]=true
+			space()
+			if not take(58): fail("Expected pack JSON colon"); return
+			value(depth)
+			if not error.is_empty(): return
+			space()
+			if take(125): return
+			if not take(44): fail("Expected pack JSON object separator"); return
+			space()
+			# The next loop requires a key, so a closing brace cannot follow ',' .
+	func array(depth: int) -> void:
+		cursor+=1
+		space()
+		if take(93): return
+		while error.is_empty():
+			value(depth)
+			if not error.is_empty(): return
+			space()
+			if take(93): return
+			if not take(44): fail("Expected pack JSON array separator"); return
+			space()
+			# A following ']' is not a value and is refused by value().
+	func scan() -> bool:
+		value(0)
+		space()
+		if error.is_empty() and cursor!=bytes.size(): fail("Trailing pack JSON data")
+		return error.is_empty()
+
+static func _pack_json(bytes: PackedByteArray) -> Dictionary:
+	if bytes.is_empty() or bytes.size()>4194304 or not Utf8.valid_utf8(bytes): return {"ok":false,"error":"Invalid pack UTF8/byte bound","value":null}
+	var scanner:=PackJson.new()
+	scanner.bytes=bytes
+	if not scanner.scan(): return {"ok":false,"error":scanner.error,"value":null}
+	var parser:=JSON.new()
+	if parser.parse(bytes.get_string_from_utf8())!=OK or not parser.data is Dictionary: return {"ok":false,"error":"Invalid pack JSON object","value":null}
+	return {"ok":true,"error":"","value":parser.data}
+
+static func _byte_digest(bytes: PackedByteArray) -> String:
+	var digest:=HashingContext.new()
+	if digest.start(HashingContext.HASH_SHA256)!=OK or digest.update(bytes)!=OK: return ""
+	return digest.finish().hex_encode()
+
+# Godot's JSON parser represents JSON numbers as float, whereas the generated
+# checked registry has integer counts. Admit only these bounded exact integer
+# fields; binary64 tags, coordinates and all other typed relations stay intact.
+static func _pack_count_equal(value: Variant, expected: Variant, maximum: int) -> bool:
+	if typeof(expected)!=TYPE_INT or expected<=0 or expected>maximum: return false
+	if typeof(value)!=TYPE_INT and typeof(value)!=TYPE_FLOAT: return false
+	if typeof(value)==TYPE_FLOAT and (not is_finite(value) or value!=floor(value)): return false
+	return value>0 and value<=maximum and int(value)==expected
+
+static func _pack_files_equal(value: Variant, expected: Variant) -> bool:
+	if not value is Array or not expected is Array or value.size()!=6 or expected.size()!=6: return false
+	for index in range(6):
+		var row: Variant=value[index]
+		var checked: Variant=expected[index]
+		if not row is Dictionary or not checked is Dictionary or not _keys(row,["path","bytes","sha256","role"]) or not _keys(checked,["path","bytes","sha256","role"]): return false
+		for key in ["path","sha256","role"]:
+			if typeof(row[key])!=TYPE_STRING or typeof(checked[key])!=TYPE_STRING or row[key]!=checked[key]: return false
+		var limit: int=276946836 if checked.path=="ground.fgrd" else (16384 if checked.path=="start-ready34.json" else (65536 if checked.path=="NOTICE.txt" else 4194304))
+		if not _pack_count_equal(row.bytes,checked.bytes,limit): return false
+	return true
+
+static func _pack_clock_equal(value: Variant, expected: Variant) -> bool:
+	return value is Dictionary and expected is Dictionary and _keys(value,["purpose","tick_rate_hz"]) and _keys(expected,["purpose","tick_rate_hz"]) and typeof(value.purpose)==TYPE_STRING and typeof(expected.purpose)==TYPE_STRING and value.purpose=="runtime" and expected.purpose=="runtime" and expected.tick_rate_hz==120 and _pack_count_equal(value.tick_rate_hz,expected.tick_rate_hz,120)
+
+static func _ordinary_pack(root: String) -> bool:
+	if not root.is_absolute_path() or root!=root.simplify_path(): return false
+	var path: String=root
+	while not path.is_empty():
+		var parent: String=path.get_base_dir()
+		if parent==path: break
+		var ancestor_directory:=DirAccess.open(parent)
+		if ancestor_directory==null or ancestor_directory.is_link(path.get_file()): return false
+		path=parent
+		if path=="/" or (path.length()==3 and path[1]==":"): break
+	var directory:=DirAccess.open(root)
+	if directory==null: return false
+	directory.include_hidden=true
+	var roster: Array=["world.json","ground.fgrd","airport.json","dossier.json","compile-receipt.json","start-ready34.json","NOTICE.txt"]
+	if not directory.get_directories().is_empty() or directory.get_files().size()!=roster.size(): return false
+	for name in directory.get_files():
+		if not roster.has(name) or directory.is_link(name): return false
+	return true
+
+# Scene owns provisional renderer creation; this fixed helper owns only seven
+# immutable file snapshots and exact catalog/manifest/receipt/recipe relations.
+static func preflight_world(model_root: String, world_selector: Variant, profile_id: Variant, named_start: Variant, wind_profile: Variant) -> Dictionary:
+	var selected: Dictionary=Worlds.selection(world_selector,profile_id,named_start,wind_profile)
+	var failure: Dictionary={"ok":false,"error":"","entry":null,"files":null}
+	if not selected.ok:
+		failure.error=selected.error; return failure
+	var entry: Dictionary=selected.entry
+	if world_selector=="original-synthetic": return {"ok":true,"error":"","entry":entry,"files":{}}
+	var root: String=model_root.get_base_dir().path_join("worlds/kawo-prototype-v1")
+	if not _ordinary_pack(root): failure.error="KAWO requires its closed ordinary seven-file directory"; return failure
+	var rows: Array=[{"path":"world.json","bytes":entry.world.bytes,"sha256":entry.world.sha256,"role":"world-manifest"}]
+	rows.append_array(entry.files)
+	var files: Dictionary={}
+	var total: int=0
+	for row in rows:
+		var limit: int=276946836 if row.path=="ground.fgrd" else (16384 if row.path=="start-ready34.json" else (65536 if row.path=="NOTICE.txt" else 4194304))
+		if typeof(row.bytes)!=TYPE_INT or row.bytes<=0 or row.bytes>limit:
+			failure.error="KAWO catalog file size rejected"; return failure
+		var file:=FileAccess.open(root.path_join(row.path),FileAccess.READ)
+		if file==null: failure.error="KAWO file unavailable"; return failure
+		if file.get_length()!=row.bytes:
+			file.close(); failure.error="KAWO file size changed"; return failure
+		var bytes: PackedByteArray=file.get_buffer(row.bytes)
+		file.close()
+		if bytes.size()!=row.bytes or _byte_digest(bytes)!=row.sha256:
+			failure.error="KAWO file bytes changed"; return failure
+		files[row.path]=bytes
+		total+=bytes.size()
+	if total>301989888 or not _ordinary_pack(root): failure.error="KAWO directory/aggregate changed"; return failure
+	var objects: Dictionary={}
+	for name in ["world.json","airport.json","dossier.json","compile-receipt.json","start-ready34.json"]:
+		var parsed: Dictionary=_pack_json(files[name])
+		if not parsed.ok: failure.error=parsed.error; return failure
+		objects[name]=parsed.value
+	var manifest: Dictionary=objects["world.json"]
+	if manifest.get("type")!="WorldPackage" or not _pack_count_equal(manifest.get("schema_version"),1,1) or manifest.get("id")!=entry.world.id or manifest.get("version")!=entry.world.version or not _pack_files_equal(manifest.get("files"),entry.files):
+		failure.error="KAWO world manifest/catalog crossed"; return failure
+	var receipt: Dictionary=objects["compile-receipt.json"]
+	if receipt.get("schema")!="KawoTerrainCompileReceipt/v1" or not receipt.get("airport_geometry") is Dictionary or not receipt.get("outputs") is Array or receipt.outputs.is_empty():
+		failure.error="KAWO compile receipt rejected"; return failure
+	var ground: Dictionary=entry.files[0]
+	var geometry: Dictionary=receipt.airport_geometry
+	if geometry.get("ground_payload_sha256")!=ground.sha256 or geometry.get("source_airport_sha256")!=entry.files[1].sha256 or receipt.outputs[0].get("sha256")!=ground.sha256 or not _pack_count_equal(receipt.outputs[0].get("bytes"),ground.bytes,276946836):
+		failure.error="KAWO receipt/source/payload crossed"; return failure
+	var recipe: Dictionary=objects["start-ready34.json"]
+	if not _keys(recipe,["schema","id","selector","model_identity","named_start","wind_profile","seed","clock","position","orientation_rpy_ned_rad"]) or recipe.schema!="KawoStartRecipe/v1" or recipe.id!="ready-runway34" or recipe.selector!=world_selector or recipe.model_identity!=entry.model_identity or recipe.named_start!=named_start or recipe.wind_profile!=wind_profile or recipe.seed!=entry.seed or not _pack_clock_equal(recipe.clock,entry.clock):
+		failure.error="KAWO start recipe/catalog crossed"; return failure
+	return {"ok":true,"error":"","entry":entry.duplicate(true),"files":files}
 
 static func _piston_file_roster(root: String, expected: Array) -> bool:
 	root=ProjectSettings.globalize_path(root).replace("\\","/").simplify_path()
@@ -341,7 +572,7 @@ static func _nominal_wind(profile: String) -> Array:
 		"from-east": return [0.0,-5.0,0.0]
 	return []
 
-func start(model_root: String, named_start: String, wind_profile: Variant="calm", profile_id: Variant="original-interactive-prototype") -> Dictionary:
+func start(model_root: String, named_start: Variant, wind_profile: Variant="calm", profile_id: Variant="original-interactive-prototype", world_selector: Variant="original-synthetic") -> Dictionary:
 	var entry_error: String=_entry_error()
 	if not entry_error.is_empty():
 		return _entry_rejection(entry_error)
@@ -352,11 +583,15 @@ func start(model_root: String, named_start: String, wind_profile: Variant="calm"
 	while model_root.ends_with("/") and model_root.length()>1 and not (model_root.length()==3 and model_root[1]==":"):
 		model_root=model_root.trim_suffix("/")
 	# Selection admission precedes any close, factory call or host mutation.
-	var selection_error: String=_selection_error(model_root,named_start,wind_profile,profile_id)
+	var selection_error: String=_selection_error(model_root,named_start,wind_profile,profile_id,world_selector)
 	if not selection_error.is_empty():
 		return _entry_rejection(selection_error)
 	if not _native_identity_valid():
 		return _entry_rejection("Qualified generated native build identity required")
+	var candidate: Dictionary=preflight_world(model_root,world_selector,profile_id,named_start,wind_profile)
+	if not candidate.ok: return _entry_rejection(candidate.error)
+	var expected_world: Dictionary=candidate.entry
+	var expected_hash: String=WORLD if world_selector=="original-synthetic" else expected_world.files[0].sha256
 	_begin()
 	if _bridge!=null or _truth.host_mode!="closed":
 		return _result(false,"Close before starting a fresh session")
@@ -373,8 +608,10 @@ func start(model_root: String, named_start: String, wind_profile: Variant="calm"
 	if _bridge==null:
 		return _result(false,"Native interactive session unavailable")
 	_profile=profile_id
-	var reply: Variant=_call("open_session",[model_root,named_start,wind_profile,profile_id])
-	if not reply is Dictionary or not _keys(reply,["ok","schema_version","aircraft_json","atmosphere_json","held_axes","outcome","completed","live","historical","paused","time_scale","fault","queued","rejection","ground_query_valid","surface_height_m","plane_clearance_m","applied_commands_json","events_json","runtime_modules","named_start","native_source_fingerprint","world_anchor","prepared_world_sha256","wind_profile","angular_integration_method"]) or reply.get("ok")!=true or typeof(reply.get("wind_profile"))!=TYPE_STRING or reply.wind_profile!=wind_profile or reply.get("named_start")!=named_start or reply.get("prepared_world_sha256")!=WORLD or reply.get("native_source_fingerprint")!=NATIVE or not _method_matches(reply.get("angular_integration_method"),profile_id):
+	var arguments: Array=[model_root,named_start,wind_profile,profile_id]
+	if world_selector!="original-synthetic": arguments.append(world_selector)
+	var reply: Variant=_call("open_session",arguments)
+	if not reply is Dictionary or not _keys(reply,["ok","schema_version","aircraft_json","atmosphere_json","held_axes","outcome","completed","live","historical","paused","time_scale","fault","queued","rejection","ground_query_valid","surface_height_m","plane_clearance_m","applied_commands_json","events_json","runtime_modules","named_start","native_source_fingerprint","world_anchor","prepared_world_sha256","wind_profile","angular_integration_method"]) or reply.get("ok")!=true or typeof(reply.get("wind_profile"))!=TYPE_STRING or reply.wind_profile!=wind_profile or reply.get("named_start")!=named_start or reply.get("prepared_world_sha256")!=expected_hash or reply.get("native_source_fingerprint")!=NATIVE or not _method_matches(reply.get("angular_integration_method"),profile_id):
 		_closed_join()
 		return _result(false,"Native initialization or pinned identity validation failed")
 	var anchor_value: Variant=reply.get("world_anchor")
@@ -382,9 +619,17 @@ func start(model_root: String, named_start: String, wind_profile: Variant="calm"
 		_closed_join()
 		return _result(false,"Invalid prepared anchor")
 	for key in anchor_value:
-		if not (anchor_value[key] is float or anchor_value[key] is int):
+		if not (anchor_value[key] is float or anchor_value[key] is int) or (world_selector=="kawo-prototype-v1" and typeof(anchor_value[key])!=TYPE_FLOAT):
 			_closed_join()
 			return _result(false,"Invalid anchor scalar")
+		anchor_value[key]=float(anchor_value[key])
+		var actual_bytes:=PackedByteArray()
+		var expected_bytes:=PackedByteArray()
+		actual_bytes.resize(8); expected_bytes.resize(8)
+		actual_bytes.encode_double(0,anchor_value[key]); expected_bytes.encode_double(0,expected_world.world_anchor[key])
+		if actual_bytes!=expected_bytes:
+			_closed_join()
+			return _result(false,"Actual prepared anchor differs from selected world")
 	_prepared=Frames.anchor(float(anchor_value.latitude_rad),float(anchor_value.longitude_rad),float(anchor_value.ellipsoid_height_m))
 	if _prepared.is_empty():
 		_closed_join()
@@ -398,7 +643,9 @@ func start(model_root: String, named_start: String, wind_profile: Variant="calm"
 	_truth.named_start=named_start
 	_truth.model_identity=(PISTON_PROFILE if profile_id==PISTON_PROFILE.id else LEGACY_PROFILE).duplicate(true)
 	_truth.native_source_fingerprint=reply.native_source_fingerprint
-	_truth.prepared_world_sha256=WORLD
+	_truth.prepared_world_sha256=reply.prepared_world_sha256
+	_world_selector=world_selector
+	_world_entry=expected_world.duplicate(true)
 	_truth.debt_quanta=0
 	_truth.time_scale=1.0
 	_truth.host_mode="live"
@@ -892,9 +1139,14 @@ func reset(named_start: String) -> Dictionary:
 	if not entry_error.is_empty():
 		return _entry_rejection(entry_error)
 	_begin()
-	var selection_error: String=_selection_error(_root,named_start,_wind_profile,_profile)
+	var selection_error: String=_selection_error(_root,named_start,_wind_profile,_profile,_world_selector)
 	if not selection_error.is_empty():
 		return _result(false,selection_error)
+	# Known content failures must preserve the still-live old flight. start()
+	# repeats this owned-byte check after actual retirement before native open.
+	var candidate: Dictionary=preflight_world(_root,_world_selector,_profile,named_start,_wind_profile)
+	if not candidate.ok:
+		return _result(false,candidate.error)
 	var previous_events: Array=[]
 	if not _close_current():
 		_truth.host_mode="discarded"
@@ -905,7 +1157,7 @@ func reset(named_start: String) -> Dictionary:
 	previous_events=_events.duplicate(true)
 	var complete: bool=_complete
 	_truth.host_mode="closed"
-	var result: Dictionary=start(_root,named_start,_wind_profile,_profile)
+	var result: Dictionary=start(_root,named_start,_wind_profile,_profile,_world_selector)
 	result.events=previous_events+result.events
 	result.observation_complete=result.observation_complete and complete
 	return result

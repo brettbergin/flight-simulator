@@ -21,6 +21,18 @@ ci = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(ci)
 ORIGINAL_REFERENCE = ci.reference
 
+# Independent literal roster: never derive a passing discovery/log fixture
+# from the qualifier's REQUIRED set.
+EXPECTED_CTESTS = (
+    'native_toolchain_smoke', 'contract_boundary', 'ground_contract',
+    'ground_contact_proof', 'fdm_boundary', 'interactive_loop',
+    'interactive_negative_readback', 'piston_engine_lifecycle',
+    'coupled_shaft_math', 'coupled_shaft_native', 'replay_reconstruction',
+    'wire_numbers_native', 'piston_local_window_native_references',
+    'interactive_apron_starts', 'kawo_readiness', 'kawo_startup',
+    'kawo_ground_contact',
+)
+
 
 class ProvenanceTests(unittest.TestCase):
     def setUp(self):
@@ -66,7 +78,7 @@ class ProvenanceTests(unittest.TestCase):
         self.pretrial = {'schema':'coupled-ci-pretrial-local-window-v2',
              'scope':'fixed source/reference/budgets before fresh compilation; no native execution',
              'source_inputs':self.pins(self.repo), 'reference_manifest_sha256':ci.sha(self.repo/'tests/engine/shaft-method/coupled-midpoint-v1/reference-manifest.json'),
-             'packet_sha256':self.packet,'required_ctests':sorted(ci.REQUIRED)}
+             'packet_sha256':self.packet,'required_ctests':sorted(EXPECTED_CTESTS)}
         self.dump(self.work/'pretrial.json', self.pretrial)
         self.route = {'repository_root':str(self.repo),'build_directory':str(self.build),
             'pretrial_path':str(self.work/'pretrial.json'),'pretrial_sha256':ci.sha(self.work/'pretrial.json'),
@@ -80,7 +92,8 @@ class ProvenanceTests(unittest.TestCase):
             'compile_commands_sha256':ci.sha(self.build/'compile_commands.json'),
             'verbose_build_sha256':ci.sha(self.build/'native-verbose-build.log')})
         self.control = ci.build_control(self.repo,self.build,self.values,self.selected)
-        self.body = 'verified-jsbsim-backend:'+self.backend+'\njsbsim-build-controls:'+self.control+'\nmarker.txt:'+ci.lf_sha(self.repo/'marker.txt')+'\n'
+        self.resident = {'sha256':'d'*64, 'sources':('marker.txt',), 'paths':('marker.txt',)}
+        self.body = 'verified-jsbsim-backend:'+self.backend+'\njsbsim-build-controls:'+self.control+'\nresident-world-component:'+self.resident['sha256']+'\nmarker.txt:'+ci.lf_sha(self.repo/'marker.txt')+'\n'
         self.consumer = hashlib.sha256(self.body.encode()).hexdigest()
         (self.build/'interactive-source-fingerprint.txt').write_text(self.consumer+'\n'+self.body,encoding='utf-8',newline='\n')
         self.config = {'schema':'coupled-probe-config-local-window-v2','repository_root':str(self.repo),'build_root':str(self.build),
@@ -123,15 +136,26 @@ class ProvenanceTests(unittest.TestCase):
         args = ['python',str(self.repo/'tests/engine/native-validate.py'),'--angular-method','event_aware_coupled_midpoint_v1',
              '--pretrial-ratification',str(self.work/'pretrial.json'),'--ratification',str(self.work/'physical-execution.json'),
              '--jsbsim-dll',self.config['dll'],'--native',self.config['native'],'--mechanism',self.config['mechanism']]
-        self.discovery = {'tests':[{'name':n,'command':args if n=='piston_engine_lifecycle' else [self.config['local_window']] if n=='piston_local_window_native_references' else self.apron_command if n=='interactive_apron_starts' else ['unused']} for n in sorted(ci.REQUIRED)]}
+        self.discovery = {'tests':[{'name':n,'command':args if n=='piston_engine_lifecycle' else [self.config['local_window']] if n=='piston_local_window_native_references' else self.apron_command if n=='interactive_apron_starts' else ['unused']} for n in sorted(EXPECTED_CTESTS)]}
         next(row for row in self.discovery['tests'] if row['name']=='interactive_apron_starts')['properties'] = [
             {'name':'ENVIRONMENT','value':['JSBSIM_DEBUG=0']}, {'name':'TIMEOUT','value':120.0}]
-        for name,value in (('source_inputs',self.pins),('reference',lambda _:self.manifest),('command',self.fake_command)):
+        # Synthetic authorization scheduling fixture only. Actual component
+        # admission/witness tamper controls live in both probe portable suites.
+        for name,value in (('source_inputs',self.pins),('reference',lambda _:self.manifest),('command',self.fake_command),('resident_inputs',lambda repo,build=None:self.resident)):
             handle = patch.object(ci,name,value);handle.start();self.addCleanup(handle.stop)
         env = patch.dict(os.environ, {'CL':'','_CL_':''});env.start();self.addCleanup(env.stop)
 
     def write(self,name,data):
         p=self.repo/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(data)
+
+    def test_resident_prefix_not_ignored_as_metadata(self):
+        path=self.build/'interactive-source-fingerprint.txt'
+        row='resident-world-component:'+self.resident['sha256']+'\n'
+        for body in (self.body.replace(row,''),self.body.replace(row,row+row),
+                     self.body.replace(row,'resident-world-component:'+'e'*64+'\n'),
+                     self.body+'unreviewed.cpp:'+'0'*64+'\n'):
+            path.write_text(hashlib.sha256(body.encode()).hexdigest()+'\n'+body,encoding='utf-8',newline='\n')
+            with self.assertRaisesRegex(ValueError,'consumer provenance'):ci.qualify(self.repo,self.work)
 
     def dump(self,path,value):
         path.parent.mkdir(parents=True,exist_ok=True);path.write_text(json.dumps(value),encoding='utf-8')
@@ -146,15 +170,22 @@ class ProvenanceTests(unittest.TestCase):
         raise AssertionError('unexpected subprocess request')
 
     def test_complete_ctest_log_requires_new17_and_all_old_passes(self):
-        names=('native_toolchain_smoke','contract_boundary','ground_contract','ground_contact_proof',
-               'fdm_boundary','interactive_loop','interactive_negative_readback','piston_engine_lifecycle',
-               'coupled_shaft_math','coupled_shaft_native','replay_reconstruction','wire_numbers_native',
-               'piston_local_window_native_references','interactive_apron_starts')
-        rows='\n'.join(f'{i}/14 Test #{i}: {n} ........ Passed 0.01 sec' for i,n in enumerate(names,1))
-        good=rows+'\n100% tests passed, 0 tests failed out of 14\n';ci.complete_ctests(good)
-        old_rows='\n'.join(f'{i}/13 Test #{i}: {n} ........ Passed 0.01 sec' for i,n in enumerate(names[:-1],1))
-        with self.assertRaises(ValueError):ci.complete_ctests(old_rows+'\n100% tests passed, 0 tests failed out of 13\n')
-        for bad in (good.replace('Passed','Skipped',1),good.replace(names[-1],names[0]),'\n'.join(good.splitlines()[1:]),good+'\n'+good.splitlines()[0],good.replace('out of 14','out of 13')):
+        self.assertEqual(ci.REQUIRED,set(EXPECTED_CTESTS))
+        rows='\n'.join(f'{i}/17 Test #{i}: {n} ........ Passed 0.01 sec' for i,n in enumerate(EXPECTED_CTESTS,1))
+        good=rows+'\n100% tests passed, 0 tests failed out of 17\n';ci.complete_ctests(good)
+        for count in (13,14):
+            old_rows='\n'.join(f'{i}/{count} Test #{i}: {n} ........ Passed 0.01 sec' for i,n in enumerate(EXPECTED_CTESTS[:count],1))
+            with self.assertRaises(ValueError):ci.complete_ctests(old_rows+f'\n100% tests passed, 0 tests failed out of {count}\n')
+        crossed=tuple(name for name in EXPECTED_CTESTS if name!='piston_local_window_native_references')
+        crossed_rows='\n'.join(f'{i}/16 Test #{i}: {name} ........ Passed 0.01 sec' for i,name in enumerate(crossed,1))
+        with self.assertRaises(ValueError):ci.complete_ctests(crossed_rows+'\n100% tests passed, 0 tests failed out of 16\n')
+        for bad in (good.replace('Passed','Skipped',1),good.replace(EXPECTED_CTESTS[-1],EXPECTED_CTESTS[0]),
+                    '\n'.join(good.splitlines()[1:]),good+'\n'+good.splitlines()[0],
+                    good+'\n18/18 Test #18: extra_test ........ Passed 0.01 sec\n',
+                    good+'\n18/18 Test #18: extra_test ........ Skipped 0.01 sec\n',
+                    good.replace('17/17 Test #17:','16/17 Test #17:'),
+                    good.replace('/17 Test','/18 Test',1),good.replace('out of 17','out of 16'),
+                    good.replace('0 tests failed','1 tests failed')):
             with self.assertRaises(ValueError):ci.complete_ctests(bad)
 
     def test_scalar_executable_substitution_rejected_after_authorization(self):
@@ -243,14 +274,19 @@ class ProvenanceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'apron executable changed after authorization'):ci.verify(self.repo,self.work)
         self.assertFalse((self.work/'evidence/ci-result.json').exists())
 
-    def test_discovery_requires_exact14_not_old13_extra_or_duplicate(self):
+    def test_discovery_requires_exact17_not_old14_missing_extra_or_duplicate(self):
         rows=copy.deepcopy(self.discovery['tests'])
-        bad=([row for row in rows if row['name']!='interactive_apron_starts'],
+        bad=([row for row in rows if row['name'] in EXPECTED_CTESTS[:14]],
+             [row for row in rows if row['name']!='piston_local_window_native_references'],
+             [row for row in rows if row['name']!='kawo_readiness'],
+             [row for row in rows if row['name']!='kawo_startup'],
+             [row for row in rows if row['name']!='kawo_ground_contact'],
+             [row for row in rows if row['name']!='interactive_apron_starts'],
              rows+[copy.deepcopy(rows[0])],rows+[{'name':'extra_test','command':['unused']}],
              [{**row,'name':'replacement_test'} if row['name']=='interactive_apron_starts' else row for row in rows])
         for tests in bad:
             self.discovery['tests']=tests
-            with self.subTest(names=[row['name'] for row in tests]),self.assertRaisesRegex(ValueError,'fourteen real CTests'):ci.qualify(self.repo,self.work)
+            with self.subTest(names=[row['name'] for row in tests]),self.assertRaisesRegex(ValueError,'seventeen real CTests'):ci.qualify(self.repo,self.work)
 
     def test_coherent_staged_identity(self):
         measured=ci.qualify(self.repo,self.work)
@@ -295,7 +331,7 @@ class ProvenanceTests(unittest.TestCase):
 
     def test_real_ctest_required_and_no_source_only_substitute(self):
         self.discovery['tests']=[t for t in self.discovery['tests'] if t['name']!='coupled_shaft_native']
-        with self.assertRaisesRegex(ValueError,'fourteen real CTests'):ci.qualify(self.repo,self.work)
+        with self.assertRaisesRegex(ValueError,'seventeen real CTests'):ci.qualify(self.repo,self.work)
 
     def test_consumer_prefix_cannot_be_replaced_by_plausible_digest(self):
         (self.build/'interactive-source-fingerprint.txt').write_text('c'*64+'\n'+self.body)

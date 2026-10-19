@@ -11,6 +11,13 @@ from unittest.mock import patch
 SPEC=importlib.util.spec_from_file_location('coupled_player',Path(__file__).with_name('coupled-local-window-player.py'))
 q=importlib.util.module_from_spec(SPEC);SPEC.loader.exec_module(q)
 
+EXPECTED_CTESTS=(
+    'native_toolchain_smoke','contract_boundary','ground_contract','ground_contact_proof',
+    'fdm_boundary','interactive_loop','interactive_negative_readback','piston_engine_lifecycle',
+    'coupled_shaft_math','coupled_shaft_native','replay_reconstruction','wire_numbers_native',
+    'piston_local_window_native_references','interactive_apron_starts',
+    'kawo_readiness','kawo_startup','kawo_ground_contact')
+
 
 def contained(root,name):
     result=(root/name).resolve()
@@ -40,15 +47,44 @@ class AdmissionTests(unittest.TestCase):
         # Duplicate real invocations remain two rows: the measure gate rejects them.
         self.assertEqual(len(q.actual_compile_rows(slash+'\n'+dash,selected)),2)
 
-    def test_all_fourteen_actual_pass_rows_and_full_summary_are_required(self):
-        self.assertEqual(q.CTESTS[-1],'interactive_apron_starts')
-        self.assertEqual(len(q.CTESTS),14)
-        rows='\n'.join(f'{i}/14 Test #{i}: {name} ........ Passed 0.01 sec' for i,name in enumerate(q.CTESTS,1))
-        text=rows+'\n100% tests passed, 0 tests failed out of 14\n';q.ctest_complete(text)
-        old_rows='\n'.join(f'{i}/13 Test #{i}: {name} ........ Passed 0.01 sec' for i,name in enumerate(q.CTESTS[:-1],1))
-        with self.assertRaises(ValueError):q.ctest_complete(old_rows+'\n100% tests passed, 0 tests failed out of 13\n')
-        for bad in (text.replace('100% tests passed','99% tests passed'),text.replace('Passed','Skipped',1),text.replace(q.CTESTS[-1],q.CTESTS[0]),'\n'.join(text.splitlines()[1:]),text+'\n'+text.splitlines()[0]):
+    def test_all_seventeen_actual_pass_rows_and_full_summary_are_required(self):
+        self.assertEqual(q.CTESTS,EXPECTED_CTESTS)
+        rows='\n'.join(f'{i}/17 Test #{i}: {name} ........ Passed 0.01 sec' for i,name in enumerate(EXPECTED_CTESTS,1))
+        text=rows+'\n100% tests passed, 0 tests failed out of 17\n';q.ctest_complete(text)
+        for bad in (text.replace('100% tests passed','99% tests passed'),text.replace('Passed','Skipped',1),
+                    text.replace(EXPECTED_CTESTS[-1],EXPECTED_CTESTS[0]),'\n'.join(text.splitlines()[1:]),
+                    text+'\n'+text.splitlines()[0],text+'\n18/18 Test #18: extra_test ........ Passed 0.01 sec\n',
+                    text+'\n18/18 Test #18: extra_test ........ Skipped 0.01 sec\n',
+                    text.replace('17/17 Test #17:','16/17 Test #17:'),text.replace('/17 Test','/18 Test',1),
+                    text.replace('out of 17','out of 16'),text.replace('0 tests failed','1 tests failed')):
             with self.assertRaises(ValueError):q.ctest_complete(bad)
+
+    def test_exact_local_window_route_rejects_old14_and_crossed_v1_16(self):
+        for count in (13,14):
+            old='\n'.join(f'{i}/{count} Test #{i}: {name} ........ Passed 0.01 sec' for i,name in enumerate(EXPECTED_CTESTS[:count],1))
+            with self.assertRaises(ValueError):q.ctest_complete(old+f'\n100% tests passed, 0 tests failed out of {count}\n')
+        other=tuple(name for name in EXPECTED_CTESTS if name!='piston_local_window_native_references')
+        text='\n'.join(f'{i}/16 Test #{i}: {name} ........ Passed 0.01 sec' for i,name in enumerate(other,1))
+        with self.assertRaises(ValueError):q.ctest_complete(text+'\n100% tests passed, 0 tests failed out of 16\n')
+
+    def test_pretrial_requires_exact17_not_old14_crossed16_or_partial(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repo=Path(directory);work=repo/'work';(work/'evidence').mkdir(parents=True)
+            reference=repo/'tests/engine/shaft-method/coupled-midpoint-v1/reference-manifest.json'
+            reference.parent.mkdir(parents=True);reference.write_bytes(b'synthetic reference identity\n')
+            before={'schema':'coupled-ci-pretrial-local-window-v2','scope':'fixed source/reference/budgets before fresh compilation; no native execution',
+                    'source_inputs':{},'reference_manifest_sha256':q.digest(reference),'packet_sha256':'b'*64,
+                    'required_ctests':sorted(EXPECTED_CTESTS)}
+            ci=SimpleNamespace(reference=lambda repo:{'packet':{'sha256':'b'*64}})
+            identity=SimpleNamespace(ordinary=lambda path,directory=False:path)
+            path=work/'pretrial.json'
+            with patch.object(q,'check_gates',return_value={}),patch.object(q,'source_inputs',return_value={}):
+                path.write_text(json.dumps(before));q.check_pretrial(repo,work,ci,identity)
+                crossed=tuple(name for name in EXPECTED_CTESTS if name!='piston_local_window_native_references')
+                for names in (EXPECTED_CTESTS[:14],EXPECTED_CTESTS[:-1],crossed,
+                              EXPECTED_CTESTS+(EXPECTED_CTESTS[0],),EXPECTED_CTESTS+('extra_test',)):
+                    path.write_text(json.dumps({**before,'required_ctests':sorted(names)}))
+                    with self.assertRaisesRegex(ValueError,'seventeen exact CTests'):q.check_pretrial(repo,work,ci,identity)
 
     def test_json_duplicate_fields_and_nonfinite_values_rejected(self):
         with tempfile.TemporaryDirectory() as directory:

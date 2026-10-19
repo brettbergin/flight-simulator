@@ -21,7 +21,7 @@ struct InteractiveReply {
   bool live{}, paused{}, queued{}, ground_valid{};
   double time_scale{1}, surface_height_m{}, clearance_m{};
 };
-InteractiveReply interactive_sample(interactive::Session&,const interactive::AnalyticSurface&);
+InteractiveReply interactive_sample(interactive::Session&,const ground::v1::SurfaceProvider&);
 class InteractiveWorker final {
  public:
   explicit InteractiveWorker(interactive::Config);

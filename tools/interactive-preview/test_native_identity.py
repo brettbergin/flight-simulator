@@ -4,6 +4,8 @@ import hashlib
 import importlib.util
 import json
 import os
+import re
+import sys
 from pathlib import Path
 import tempfile
 from types import SimpleNamespace
@@ -82,6 +84,14 @@ EXPECTED_TAXI_RECONSTRUCTION_PATHS = (
     'tests/integration/taxi/scene_checks.gd',
 )
 
+# Independently authored four-unit order from the checked runtime contract.
+EXPECTED_RESIDENT_UNITS = (
+    'native/world_core/grid/src/validation.cpp',
+    'native/world_core/grid/src/prepared_grid.cpp',
+    'native/world_core/grid/src/grid_payload.cpp',
+    'native/fdm_jsbsim/interactive/src/prepared_world.cpp',
+)
+
 
 def fixture(root, family='MSVC', variant=n.VARIANTS[0]):
     repo, build = root / 'repo', root / 'build'
@@ -93,6 +103,29 @@ def fixture(root, family='MSVC', variant=n.VARIANTS[0]):
     put(repo, 'tools/bootstrap/source-selection.cmake',
         'set(JSBSIM_BUILD_CONTROL_PATHS\n' + '\n'.join(n.CONTROLS) + ')\n')
     put(repo, n.TEMPLATE, n.TEMPLATE_BYTES)
+    # Entirely synthetic component bytes and pin; no real native/artifact proof.
+    component_sources = []
+    for name in EXPECTED_RESIDENT_UNITS:
+        data = ('synthetic resident unit ' + name + '\n').encode()
+        put(repo, name, data)
+        component_sources.append(dict(path=name, sha256=sha(data)))
+    component_control = 'native/world_core/grid/CMakeLists.txt'
+    put(repo, component_control, 'synthetic standalone grid control\n')
+    component_controls = [dict(path=component_control, sha256=sha(b'synthetic standalone grid control\n'))]
+    component = dict(schema='ResidentWorldComponent/v1', sources=component_sources, controls=component_controls)
+    component_raw = (json.dumps(component, indent=2) + '\n').encode()
+    put(repo, 'native/world_core/resident_world/component-v1.json', component_raw)
+    # Local test process only. Production uses its fixed independently reviewed
+    # manifest pin and never derives a pin from a supplied candidate manifest.
+    n.RESIDENT_MANIFEST_SHA256 = sha(component_raw)
+    cmake = repo/'native/fdm_jsbsim/interactive/CMakeLists.txt'
+    cmake.write_text(cmake.read_text() + 'set(RESIDENT_WORLD_SOURCE_PATHS\n' + '\n'.join(EXPECTED_RESIDENT_UNITS) +
+                    ')\nset(RESIDENT_WORLD_CONTROL_PATHS\n' + component_control + ')\n', encoding='utf-8', newline='\n')
+    resident_body = b'resident-world-component-v1\n'
+    for group, records in (('source', component_sources), ('control', component_controls)):
+        for item in records: resident_body += (group + ':' + item['path'] + ':' + item['sha256'] + '\n').encode('ascii')
+    resident_digest = sha(resident_body)
+    put(build, 'resident-world-component-fingerprint.txt', resident_digest.encode() + b'\n' + resident_body)
     for name in EXPECTED_CAMERA_RECONSTRUCTION_PATHS:
         put(repo, name, 'synthetic camera authoring ' + name + '\n')
     for name in ('app/persistence/local_players_controller.gd',
@@ -102,6 +135,12 @@ def fixture(root, family='MSVC', variant=n.VARIANTS[0]):
         put(repo, name, 'Synthetic local-player corresponding-source fixture ' + name + '\n')
     for name in EXPECTED_TAXI_RECONSTRUCTION_PATHS:
         put(repo, name, 'Synthetic taxi corresponding-source fixture ' + name + '\n')
+    put(repo, 'app/world/terrain/resident_grid_reader.gd', 'synthetic reader source\n')
+    put(repo, 'app/world/world_admission.gd', 'synthetic registry source\n')
+    put(repo, 'tools/interactive-preview/world-catalog.mjs', 'synthetic catalog generator\n')
+    put(repo, 'content/world/catalog/kawo-runtime-v1.json', '{}\n')
+    for name in ('world.json','ground.fgrd','airport.json','dossier.json','compile-receipt.json','start-ready34.json','NOTICE.txt'):
+        put(repo, 'content/world/airports/kawo/runtime-v1/' + name, 'synthetic pack input ' + name + '\n')
     (repo/'deps/jsbsim').mkdir(parents=True)
     (repo/'bundle/vendor').mkdir(parents=True)
     source = repo / ('deps/jsbsim' if variant == n.VARIANTS[0] else 'bundle/vendor')
@@ -117,6 +156,9 @@ def fixture(root, family='MSVC', variant=n.VARIANTS[0]):
         FLIGHT_DEPENDENCY_ROOT=str(repo/'deps'), FLIGHT_JSBSIM_SOURCE_BUNDLE_ROOT=str(repo/'bundle'),
         CMAKE_GENERATOR='Ninja', CMAKE_BUILD_TYPE='RelWithDebInfo', CMAKE_CXX_FLAGS=common,
         CMAKE_CXX_FLAGS_RELWITHDEBINFO=config, CMAKE_MSVC_RUNTIME_LIBRARY='MultiThreaded$<$<CONFIG:Debug>:Debug>DLL')
+    for key, filename in (('CMAKE_CXX_COMPILER','cl.exe'),('CMAKE_AR','lib.exe'),('CMAKE_LINKER','link.exe')):
+        put(build, 'fixture-tools/' + filename, 'synthetic nonexecutable tool token\n')
+        values[key] = str(build/'fixture-tools'/filename)
     put(build, 'CMakeCache.txt', ''.join(k+':STRING='+v+'\n' for k,v in values.items()))
     put(build, 'CMakeFiles/3.31.6/CMakeCXXCompiler.cmake',
         'set(CMAKE_CXX_COMPILER_ID "'+family+'")\nset(CMAKE_CXX_COMPILER_VERSION "'+compiler+'")\n')
@@ -127,7 +169,7 @@ def fixture(root, family='MSVC', variant=n.VARIANTS[0]):
         '\ngenerator:Ninja\nbuild_type:RelWithDebInfo\ncxx_flags:'+common+'\nconfiguration_flags:'+config+
         '\nmsvc_runtime:MultiThreaded$<$<CONFIG:Debug>:Debug>DLL\ndeclared_strict_fp_flags:'+flags+'\n')
     control = sha(body.encode())
-    body = ('verified-jsbsim-backend:'+'a'*64+'\njsbsim-build-controls:'+control+'\n'+
+    body = ('verified-jsbsim-backend:'+'a'*64+'\njsbsim-build-controls:'+control+'\nresident-world-component:'+resident_digest+'\n'+
         ''.join(p+':'+sha((repo/p).read_bytes().replace(b'\r\n',b'\n'))+'\n' for p in EXPECTED_SOURCE_PATHS))
     consumer = sha(body.encode())
     put(build, 'interactive-source-fingerprint.txt', consumer+'\n'+body)
@@ -150,6 +192,265 @@ def fixture(root, family='MSVC', variant=n.VARIANTS[0]):
 
 
 class IdentityTests(unittest.TestCase):
+    def resident_graph(self):
+        """Nonexecuting synthetic CMake/Ninja graph; no binary authenticity claim."""
+        self.assertEqual(n.RESIDENT_UNITS, EXPECTED_RESIDENT_UNITS)
+        rows = json.loads((self.build/'compile_commands.json').read_text())
+        tools = n.cache_values(self.build)
+        # Actual CMake has no global DEFINES. Session's edge below declares its
+        # required macro; grid edges omit DEFINES entirely.
+        ninja = ''
+        workdir = str(self.build).replace('$','$$').replace(':','$:').replace(' ','$ ') + '/'
+        ninja += ('cmake_ninja_workdir = ' + workdir + '\n'
+                  'build ignored-one | ${cmake_ninja_workdir}ignored-one: CUSTOM_COMMAND\n'
+                  'build ignored-two | ${cmake_ninja_workdir}ignored-two: CUSTOM_COMMAND\n')
+        session_object = 'objects/session.cpp.obj'
+        session_macro = '-D' + n.MACRO + '="' + self.consumer + '"'
+        rows[0] = dict(directory=str(self.build), file=str(self.repo/EXPECTED_SOURCE_PATHS[0]),
+                       arguments=[tools['CMAKE_CXX_COMPILER'],'/fp:strict',session_macro,'/Fo' + session_object,'-c',str(self.repo/EXPECTED_SOURCE_PATHS[0])])
+        session_path = str(self.repo/EXPECTED_SOURCE_PATHS[0]).replace('$','$$').replace(':','$:').replace(' ','$ ')
+        ninja += 'build ' + session_object + ': CXX_COMPILER__session ' + session_path + '\n  DEFINES = -D' + n.MACRO + '=\\"' + self.consumer + '\\"\n'
+        put(self.build, session_object, 'synthetic Session object\n')
+        objects = []
+        for source in EXPECTED_RESIDENT_UNITS:
+            output = 'objects/' + Path(source).name + '.obj'
+            objects.append(output)
+            args = [tools['CMAKE_CXX_COMPILER'],'/fp:strict','/Fo' + output,'-c',str(self.repo/source)]
+            rows.append(dict(directory=str(self.build), file=str(self.repo/source), arguments=args))
+            source_path = str(self.repo/source).replace('$','$$').replace(':','$:').replace(' ','$ ')
+            ninja += 'build ' + output + ' | ${cmake_ninja_workdir}' + output + ': CXX_COMPILER__resident ' + source_path + '\n'
+            put(self.build, output, 'synthetic object ' + source + '\n')
+        for output, inputs in (('lib/flight_resident_grid.lib', objects[:3]), ('lib/flight_interactive.lib', [session_object] + objects[3:])):
+            ninja += ('build ' + output + ': CXX_STATIC_LIBRARY_LINKER__resident ' + ' '.join(inputs) +
+                      '\n  TARGET_FILE = ' + output + '\n  PRE_LINK = cd .\n  POST_BUILD = cd .\n')
+            # Independent literal ordinary-ar construction, never an archiver.
+            def member(name, data):
+                header = (name.ljust(16) + '0'.ljust(12) + '0'.ljust(6) + '0'.ljust(6) +
+                          '100644'.ljust(8) + str(len(data)).ljust(10) + '`\n').encode('ascii')
+                return header + data + (b'\n' if len(data) % 2 else b'')
+            names, offsets = b'', []
+            for filename in inputs:
+                offsets.append(len(names))
+                names += Path(filename).name.encode() + b'/\n'
+            raw = b'!<arch>\n' + member('//', names)
+            for offset, filename in zip(offsets, inputs): raw += member('/' + str(offset), (self.build/filename).read_bytes())
+            put(self.build, output, raw)
+        ninja += ('build bin/flight_godot_bridge.dll: CXX_SHARED_LIBRARY_LINKER__resident | lib/flight_interactive.lib lib/flight_resident_grid.lib\n'
+                  '  TARGET_FILE = bin/flight_godot_bridge.dll\n  PRE_LINK = cd .\n  POST_BUILD = cd .\n'
+                  '  LINK_LIBRARIES = lib/flight_interactive.lib lib/flight_resident_grid.lib\n')
+        put(self.build, 'build.ninja', ninja)
+        put(self.build, 'compile_commands.json', json.dumps(rows))
+        put(self.build, 'CMakeFiles/rules.ninja',
+            'rule CXX_COMPILER__session\n  command = "' + tools['CMAKE_CXX_COMPILER'] + '" /fp:strict $DEFINES /showIncludes /Fo$out -c $in\n'
+            'rule CXX_COMPILER__resident\n  command = "' + tools['CMAKE_CXX_COMPILER'] + '" $DEFINES /fp:strict /showIncludes /Fo$out -c $in\n'
+            'rule CXX_STATIC_LIBRARY_LINKER__resident\n  command = cmd.exe /C "$PRE_LINK && "' + tools['CMAKE_AR'] + '" /out:$TARGET_FILE $in && $POST_BUILD"\n'
+            'rule CXX_SHARED_LIBRARY_LINKER__resident\n  command = cmd.exe /C "$PRE_LINK && "' + tools['CMAKE_LINKER'] + '" $MANIFESTS $LINK_PATH /out:$TARGET_FILE $in $LINK_LIBRARIES && $POST_BUILD"\n')
+        return rows, objects
+
+    def test_resident_component_and_exact_inserted_line(self):
+        good = self.qualify()
+        self.assertEqual(len(good['source_bindings']), 25)
+        self.assertEqual(len(good['build_witnesses']), 7)
+        raw = (self.build/'interactive-source-fingerprint.txt').read_bytes()
+        lines = raw.splitlines()
+        self.assertEqual(lines[3].split(b':')[0], b'resident-world-component')
+        for name in EXPECTED_RESIDENT_UNITS:
+            target = self.repo/name; original = target.read_bytes()
+            target.write_bytes(original + b'changed\n')
+            try:
+                with self.assertRaises(ValueError): self.qualify()
+            finally: target.write_bytes(original)
+        manifest = self.repo/'native/world_core/resident_world/component-v1.json'
+        before = manifest.read_bytes()
+        manifest.write_bytes(before + b'\n')
+        try:
+            with self.assertRaises(ValueError): self.qualify()
+        finally: manifest.write_bytes(before)
+
+    def test_resident_component_generated_witness_platform_newlines(self):
+        self.resident_graph()
+        identity = self.qualify()
+        identity_raw = json.dumps(identity).encode()
+        expected = n.resident_closure(self.repo, self.build, identity_raw, identity)
+        witness = self.build/'resident-world-component-fingerprint.txt'
+        original = witness.read_bytes()
+        witness.write_bytes(original.replace(b'\n', b'\r\n'))
+        try:
+            self.assertEqual(self.qualify(), identity)
+            self.assertEqual(n.resident_closure(self.repo, self.build, identity_raw, identity), expected)
+            witness.write_bytes(witness.read_bytes().replace(b'resident-world-component-v1', b'resident-world-component-X1', 1))
+            with self.assertRaises(ValueError): self.qualify()
+            with self.assertRaises(ValueError): n.resident_closure(self.repo, self.build, identity_raw, identity)
+        finally: witness.write_bytes(original)
+
+    def test_resident_actual_graph_observation_and_negative_flags_links(self):
+        rows, objects = self.resident_graph()
+        identity = self.qualify()
+        identity_raw = (json.dumps(identity, indent=2) + '\n').encode()
+        result = n.resident_closure(self.repo, self.build, identity_raw, identity)
+        self.assertEqual(result['schema'], 'ResidentWorldNativeClosure/v1')
+        self.assertEqual([row['source'] for row in result['translation_units']], list(EXPECTED_RESIDENT_UNITS))
+        self.assertEqual([row['object_path'] for row in result['translation_units']], objects)
+        self.assertEqual(result['link']['grid_archive']['path'], 'lib/flight_resident_grid.lib')
+        self.assertEqual(result['native_identity']['sha256'], sha(identity_raw))
+        self.assertEqual(result['build_witnesses'], identity['build_witnesses'])
+        original = (self.build/'CMakeFiles/rules.ninja').read_bytes()
+        for changed in (original.replace(b'/fp:strict', b'/fp:fast'),
+                        original.replace(b'$LINK_LIBRARIES', b''),
+                        original.replace(b' /out:$TARGET_FILE $in && ', b' /out:$TARGET_FILE && '),
+                        original.replace(b' /fp:strict', b' $UNDECLARED /fp:strict'),
+                        original.replace(b'/showIncludes', b'/showIncludes /showIncludes'),
+                        original.replace(b'/out:$TARGET_FILE $in &&', b'/out:bin/flight_godot_bridge.dll $in &&'),
+                        original.replace(b'/out:$TARGET_FILE $in $LINK_LIBRARIES', b'/out:lib/flight_interactive.lib $in $LINK_LIBRARIES'),
+                        original.replace(b'/out:$TARGET_FILE', b'/out:$TARGET_FILE /out:lib/flight_interactive.lib')):
+            (self.build/'CMakeFiles/rules.ninja').write_bytes(changed)
+            try:
+                with self.assertRaises(ValueError): n.resident_closure(self.repo, self.build, identity_raw, identity)
+            finally: (self.build/'CMakeFiles/rules.ninja').write_bytes(original)
+        archive = self.build/'lib/flight_resident_grid.lib'; before = archive.read_bytes()
+        archive.write_bytes(before.replace(b'synthetic object', b'synthetic OBJECT', 1))
+        try:
+            with self.assertRaises(ValueError): n.resident_closure(self.repo, self.build, identity_raw, identity)
+        finally: archive.write_bytes(before)
+        # New unit duplicated under another output must fail exact row ownership.
+        duplicate = dict(rows[1], arguments=list(rows[1]['arguments']))
+        duplicate['arguments'][2] = '/Foobjects/competing.obj'
+        put(self.build, 'compile_commands.json', json.dumps(rows + [duplicate]))
+        put(self.build, 'objects/competing.obj', 'synthetic competing object\n')
+        changed_identity = self.qualify()
+        with self.assertRaises(ValueError):
+            n.resident_closure(self.repo, self.build, json.dumps(changed_identity).encode(), changed_identity)
+
+    @unittest.skipUnless(sys.platform == 'linux', 'GNU archive fixture uses Linux path/argv semantics')
+    def test_gnu_archive_omitted_link_flags_only(self):
+        # Nonexecuting GNU graph with independently spelled strict commands.
+        # Only static archives omit LINK_FLAGS; only shared links omit
+        # ARCH_FLAGS. These are not general Ninja variable waivers.
+        base = self.root/'gnu-link-flags'; base.mkdir()
+        self.repo, self.build, self.selected, self.consumer = fixture(base, family='GNU')
+        rows, _ = self.resident_graph()
+        tools = n.cache_values(self.build)
+        for row in rows:
+            output = next(arg[3:] for arg in row['arguments'] if arg.startswith('/Fo'))
+            defines = ['-D'+n.MACRO+'="'+self.consumer+'"'] if row['file'] == str(self.repo/EXPECTED_SOURCE_PATHS[0]) else []
+            row['arguments'] = [tools['CMAKE_CXX_COMPILER'], *defines, '-fno-fast-math', '-ffp-contract=off', '-o', output, '-c', row['file']]
+        put(self.build, 'compile_commands.json', json.dumps(rows))
+        ninja = (self.build/'build.ninja').read_text().replace('bin/flight_godot_bridge.dll', 'bin/libflight_godot_bridge.so').replace('PRE_LINK = cd .', 'PRE_LINK = :').replace('POST_BUILD = cd .', 'POST_BUILD = :')
+        put(self.build, 'build.ninja', ninja)
+        compile_command = '"'+tools['CMAKE_CXX_COMPILER']+'" $DEFINES -fno-fast-math -ffp-contract=off -o $out -c $in'
+        archive_command = '$PRE_LINK && "'+tools['CMAKE_AR']+'" qc $TARGET_FILE $LINK_FLAGS $in && $POST_BUILD'
+        link_command = '"'+tools['CMAKE_CXX_COMPILER']+'" $ARCH_FLAGS -o $TARGET_FILE $in $LINK_LIBRARIES'
+        rules = ('rule CXX_COMPILER__session\n  command = '+compile_command+'\n'
+                 'rule CXX_COMPILER__resident\n  command = '+compile_command+'\n'
+                 'rule CXX_STATIC_LIBRARY_LINKER__resident\n  command = '+archive_command+'\n'
+                 'rule CXX_SHARED_LIBRARY_LINKER__resident\n  command = '+link_command+'\n')
+        def observe(changed_rules, changed_ninja=ninja):
+            put(self.build, 'CMakeFiles/rules.ninja', changed_rules)
+            put(self.build, 'build.ninja', changed_ninja)
+            identity = self.qualify()
+            return n.resident_closure(self.repo, self.build, json.dumps(identity).encode(), identity)
+        self.assertTrue(observe(rules)['passed'])
+        self.assertTrue(observe(rules, ninja+'LINK_FLAGS = \n')['passed'])
+        self.assertTrue(observe(rules, ninja+'ARCH_FLAGS = \n')['passed'])
+        # A declared value is expanded and checked, rather than erased by the
+        # omitted-field default. Existing primary-output checks reject this.
+        with self.assertRaises(ValueError):
+            observe(rules, ninja+'ARCH_FLAGS = -o wrong-output.so\n')
+        with self.assertRaises(ValueError):
+            observe(rules, ninja+'ARCH_FLAGS = $UNDECLARED_ARCH_FLAGS\n')
+        for changed_rules in (
+                rules.replace(link_command, link_command.replace('$ARCH_FLAGS', '$UNDECLARED_ARCH_FLAGS')),
+                rules.replace(compile_command, compile_command+' $ARCH_FLAGS'),
+                rules.replace(archive_command, archive_command+' $ARCH_FLAGS')):
+            with self.assertRaises(ValueError): observe(changed_rules)
+        # Exact retained CMake token: Ninja $$ plus shell-escaped ELF $ORIGIN.
+        rpath = r'-Wl,-rpath,"\$$ORIGIN"'
+        self.assertTrue(observe(rules, ninja.replace('  LINK_LIBRARIES = ', '  LINK_LIBRARIES = '+rpath+' ', 1))['passed'])
+        for wrong in (r'-Wl,-rpath,"\$ORIGIN"', r'-Wl,-rpath,"$$ORIGIN"', r'-Wl,-rpath,"\$$HOME"', 'prefix'+rpath, rpath+'suffix'):
+            with self.assertRaises(ValueError):
+                observe(rules, ninja.replace('  LINK_LIBRARIES = ', '  LINK_LIBRARIES = '+wrong+' ', 1))
+        for changed_rules, changed_ninja in (
+                (rules.replace(archive_command, archive_command.replace('$LINK_FLAGS', '$UNDECLARED_LINK_FLAGS')), ninja),
+                (rules.replace(link_command, link_command+' $LINK_FLAGS'), ninja),
+                (rules.replace(compile_command, compile_command+' $LINK_FLAGS'), ninja),
+                (rules, ninja+'LINK_FLAGS = $UNDECLARED_LINK_FLAGS\n'),
+                (rules, ninja+'LINK_FLAGS = '+rpath+'\n'),
+                (rules, ninja+'LINK_FLAGS = unexpected-object.obj\n')):
+            with self.assertRaises(ValueError): observe(changed_rules, changed_ninja)
+
+    def test_resident_strict_json_and_command_readers(self):
+        for raw in (b'{"a":1,"a":2}', b'\xef\xbb\xbf{}', b'{"x":NaN}', b'{"x":1e999}', b'{"a":1,}', b'[] []'):
+            with self.assertRaises((ValueError, UnicodeError)): n.strict_json(raw, 100, 4, 20)
+        with self.assertRaises(ValueError): n.strict_json(b'[[[[[]]]]]', 100, 3, 20)
+        with self.assertRaises(ValueError): n.strict_json(b'[0,0,0]', 100, 4, 3)
+        self.assertEqual(n.windows_arguments('cl.exe "a b" /Fo"objects/a b.obj"'), ['cl.exe','a b','/Foobjects/a b.obj'])
+        with self.assertRaises(ValueError): n.windows_arguments('cl.exe "unfinished')
+
+    def test_resident_dependency_flag_not_a_general_argument_waiver(self):
+        rows, _ = self.resident_graph()
+        # The valid fixture already has one actual Ninja-only /showIncludes.
+        # A repeated declared instrumentation flag is refused independently.
+        rows[1]['arguments'][1:1] = ['/showIncludes','/showIncludes']
+        put(self.build, 'compile_commands.json', json.dumps(rows))
+        identity = self.qualify()
+        with self.assertRaises(ValueError):
+            n.resident_closure(self.repo, self.build, json.dumps(identity).encode(), identity)
+
+    def test_resident_extra_ordinary_source_is_not_a_slash_option(self):
+        rows, _ = self.resident_graph()
+        rows[1]['arguments'].insert(-2, str(self.repo/EXPECTED_SOURCE_PATHS[0]))
+        put(self.build, 'compile_commands.json', json.dumps(rows))
+        identity = self.qualify()
+        with self.assertRaisesRegex(ValueError, 'source operand'):
+            n.resident_closure(self.repo, self.build, json.dumps(identity).encode(), identity)
+
+    def test_resident_implicit_aliases_do_not_admit_double_owners_or_variables(self):
+        self.resident_graph()
+        ninja = (self.build/'build.ninja').read_text()
+        for changed in (ninja + 'build objects/validation.cpp.obj: CUSTOM_COMMAND\n',
+                        ninja.replace('build ignored-one | ', 'build ignored-one | extra | ', 1),
+                        ninja.replace('${cmake_ninja_workdir}', '${unadmitted_workdir}'),
+                        re.sub(r'^cmake_ninja_workdir =.*$', lambda _: 'cmake_ninja_workdir = ' + str(self.repo).replace('$','$$').replace(':','$:').replace(' ','$ ') + '/', ninja, flags=re.M)):
+            put(self.build, 'build.ninja', changed)
+            try:
+                identity = self.qualify()
+                with self.assertRaises(ValueError): n.resident_closure(self.repo, self.build, json.dumps(identity).encode(), identity)
+            finally: put(self.build, 'build.ninja', ninja)
+
+    def test_resident_rejects_metadata_only_source_and_wrong_ninja_dependency(self):
+        rows, objects = self.resident_graph()
+        ninja = (self.build/'build.ninja').read_text()
+        rules = (self.build/'CMakeFiles/rules.ninja').read_text()
+        source = EXPECTED_RESIDENT_UNITS[0]
+        wrong = EXPECTED_SOURCE_PATHS[0]
+        encode = lambda name: str(self.repo/name).replace('$','$$').replace(':','$:').replace(' ','$ ')
+        output_prefix = 'build ' + objects[0] + ' | ${cmake_ninja_workdir}' + objects[0] + ': '
+        old_edge = output_prefix + 'CXX_COMPILER__resident ' + encode(source)
+        self.assertIn(old_edge, ninja)
+        for case in ('crossed_command_and_edge', 'wrong_edge_ignored_by_literal_rule'):
+            changed_rows = copy.deepcopy(rows)
+            changed_rules = rules
+            if case == 'crossed_command_and_edge':
+                # file metadata still says validation.cpp; both actual command
+                # and graph instead compile Session. Matching arrays is no proof.
+                changed_rows[1]['arguments'][-1] = str(self.repo/wrong)
+                changed_ninja = ninja.replace(old_edge, output_prefix + 'CXX_COMPILER__resident ' + encode(wrong), 1)
+            else:
+                changed_ninja = ninja.replace(old_edge, output_prefix + 'CXX_COMPILER__literal ' + encode(wrong), 1)
+                compiler = n.cache_values(self.build)['CMAKE_CXX_COMPILER']
+                changed_rules += ('rule CXX_COMPILER__literal\n  command = "' + compiler + '" /fp:strict /Fo$out -c "' + str(self.repo/source) + '"\n')
+            put(self.build, 'compile_commands.json', json.dumps(changed_rows))
+            put(self.build, 'build.ninja', changed_ninja)
+            put(self.build, 'CMakeFiles/rules.ninja', changed_rules)
+            try:
+                identity = self.qualify()
+                with self.subTest(case=case), self.assertRaises(ValueError):
+                    n.resident_closure(self.repo, self.build, json.dumps(identity).encode(), identity)
+            finally:
+                put(self.build, 'compile_commands.json', json.dumps(rows))
+                put(self.build, 'build.ninja', ninja)
+                put(self.build, 'CMakeFiles/rules.ninja', rules)
+
     def test_local_window_explicit_controls_and_variant_rosters(self):
         self.assertEqual(n.CONTROLS, ('CMakeLists.txt', 'CMakePresets.json', 'third_party/dependencies.lock.json', 'tools/bootstrap/source-selection.cmake', 'tools/bootstrap/source-variant.py', 'tools/bootstrap/coupled-source-variant.py', 'tools/bootstrap/build.ps1', 'tools/bootstrap/bootstrap.py', 'native/fdm_jsbsim/CMakeLists.txt', 'native/fdm_jsbsim/ground/CMakeLists.txt', 'native/fdm_jsbsim/interactive/CMakeLists.txt', 'tests/fdm/CMakeLists.txt', 'native/fdm_jsbsim/interactive/native_identity.gd.in', 'native/godot_bridge/CMakeLists.txt', 'tests/wire_codec/CMakeLists.txt', 'tools/bootstrap/coupled-local-window-source-variant.py', 'tools/bootstrap/build-local-window.ps1', 'tests/engine/local-window-v2/CMakeLists.txt'))
         self.assertEqual(n.VARIANTS, ('jsbsim-1.3.1-upstream', 'jsbsim-1.3.1-event-aware-constant-power-v1', 'jsbsim-1.3.1-event-aware-coupled-midpoint-v1', 'jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2'))
@@ -534,6 +835,73 @@ class IdentityTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'immutable base differs'):n.check_reconstruction(self.repo,destination)
         with patch.object(n.subprocess,'check_output',return_value='not-a-commit\n'):
             with self.assertRaises(ValueError):n.immutable_head(self.repo)
+
+
+@unittest.skipUnless(sys.platform == 'linux', 'Linux configured system-tool alias policy only')
+class ConfiguredGnuToolAliasTests(unittest.TestCase):
+    """Synthetic executable-mode tokens/links only; never execute a tool."""
+    def setUp(self):
+        WORKSPACE.mkdir(parents=True, exist_ok=True)
+        self.temp = tempfile.TemporaryDirectory(prefix='gnu-tool-alias-', dir=WORKSPACE)
+        self.root = Path(self.temp.name)
+        self.bin = self.root/'system-bin'
+        self.bin.mkdir()
+        self.target = self.bin/'synthetic-actual-tool'
+        self.target.write_bytes(b'not an executable compiler; filesystem fixture only\n')
+        self.target.chmod(0o700)
+        self.patch = patch.object(n, '_GNU_TOOL_DIRECTORY', self.bin)
+        self.patch.start()
+        self.addCleanup(self.patch.stop)
+        self.addCleanup(self.temp.cleanup)
+
+    def alias(self, name, target=None):
+        result = self.bin/name
+        result.symlink_to(self.target.name if target is None else target)
+        return result
+
+    def test_exact_configured_alias_and_bounded_chain(self):
+        middle = self.alias('middle')
+        for key, name in [('CMAKE_CXX_COMPILER','g++-13'),('CMAKE_AR','ar'),('CMAKE_RANLIB','ranlib')]:
+            alias = self.alias(name, middle.name)
+            bindings = {}
+            self.assertEqual(n._known_tool([str(alias)], {key:str(alias)}, key, 'GNU', bindings), self.target)
+            self.assertEqual(bindings[key], (str(alias), str(self.target)))
+            # No ordinary source/response/artifact admission changes.
+            with self.assertRaises(ValueError): n.ordinary(alias)
+
+    def test_command_spelling_conflict_and_duplicate_refused(self):
+        alias = self.alias('g++-13')
+        cache = {'CMAKE_CXX_COMPILER':str(alias)}
+        for args in [[str(self.target)], [str(alias),str(alias)], [str(self.root/'other'/'g++-13')]]:
+            with self.assertRaises(ValueError): n._known_tool(args,cache,'CMAKE_CXX_COMPILER','GNU',{})
+        with self.assertRaises(ValueError): n._configured_tool(str(alias),'CMAKE_CXX_COMPILER','MSVC')
+        with self.assertRaises(ValueError): n._configured_tool(str(alias),'CMAKE_COMMAND','GNU')
+
+    def test_alias_escape_cycle_missing_and_nonexecutable_refused(self):
+        outside = self.root/'outside'
+        outside.write_bytes(b'synthetic outside token')
+        outside.chmod(0o700)
+        links = [self.alias('escape',str(outside)), self.alias('cycle','cycle'), self.alias('missing','absent')]
+        for alias in links:
+            with self.assertRaises((ValueError,OSError)): n._configured_tool(str(alias),'CMAKE_AR','GNU')
+        self.target.chmod(0o600)
+        with self.assertRaises(ValueError): n._configured_tool(str(self.alias('no-execute')),'CMAKE_AR','GNU')
+        ancestor = self.root/'linked-bin'
+        ancestor.symlink_to(self.bin, target_is_directory=True)
+        with self.assertRaises(ValueError): n._configured_tool(str(ancestor/'synthetic-actual-tool'),'CMAKE_AR','GNU')
+
+    def test_alias_retarget_and_chain_overflow_refused(self):
+        alias = self.alias('g++-13')
+        cache, bindings = {'CMAKE_CXX_COMPILER':str(alias)}, {}
+        n._known_tool([str(alias)],cache,'CMAKE_CXX_COMPILER','GNU',bindings)
+        other = self.bin/'different-tool'
+        other.write_bytes(b'synthetic replacement token')
+        other.chmod(0o700)
+        alias.unlink()
+        alias.symlink_to(other.name)
+        with self.assertRaises(ValueError): n._known_tool([str(alias)],cache,'CMAKE_CXX_COMPILER','GNU',bindings)
+        for index in range(9): self.alias('chain-'+str(index),'chain-'+str(index+1) if index<8 else self.target.name)
+        with self.assertRaises(ValueError): n._configured_tool(str(self.bin/'chain-0'),'CMAKE_AR','GNU')
 
 
 if __name__ == '__main__':

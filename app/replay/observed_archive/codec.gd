@@ -37,7 +37,7 @@ static func encode(recording: Variant) -> Dictionary:
 	if not Values.valid_recording(recording) or recording.state=="empty":
 		return _failure("Archive requires a qualified nonempty Recording")
 	var revision: int = recording.contract_version
-	if revision not in [1,2]: return _failure("Unsupported archive or recording version")
+	if revision not in [1,2,3]: return _failure("Unsupported archive or recording version")
 	var worker = new()
 	var wire: Variant = worker._record(recording,false,revision)
 	if not worker.error.is_empty(): return _failure(worker.error)
@@ -66,7 +66,7 @@ static func decode(bytes: Variant) -> Dictionary:
 		return _failure("Closed archive envelope rejected")
 	# A closed, exact outer pair chooses the fixed inner policy before parsing it.
 	# Neither unknown versions nor failed v1 input can retry with the larger cap.
-	if not _parsed_integer(outer.archive_version,1,2) or not _parsed_integer(outer.recording_contract_version,1,2) or outer.archive_version!=outer.recording_contract_version:
+	if not _parsed_integer(outer.archive_version,1,3) or not _parsed_integer(outer.recording_contract_version,1,3) or outer.archive_version!=outer.recording_contract_version:
 		return _failure("Unsupported archive or recording version")
 	var revision: int = int(outer.archive_version)
 	var payload_bytes: PackedByteArray = outer.payload_json.to_utf8_buffer()

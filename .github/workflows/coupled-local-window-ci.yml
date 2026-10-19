@@ -27,6 +27,14 @@ jobs:
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12.5'
+      - name: Check source and CTest readers before reference reproduction
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .local/local-window-reference-ci
+          python -I -B -S tools/ci/test_coupled_local_window_native.py 2>&1 | tee .local/local-window-reference-ci/source-native.log
+          python -I -B -S tools/ci/test_coupled_local_window_player.py 2>&1 | tee .local/local-window-reference-ci/source-player.log
+          python -I -B -S -c "import sys,unittest; sys.path.insert(0,'tests/engine/shaft-method/probes-local-window-v2'); suite=unittest.defaultTestLoader.discover('tests/engine/shaft-method/probes-local-window-v2',pattern='test_portable.py'); result=unittest.TextTestRunner(verbosity=1).run(suite); sys.exit(not result.wasSuccessful())" 2>&1 | tee .local/local-window-reference-ci/source-portable.log
       - name: Check all twenty-four independent mathematical tests
         shell: bash
         run: |

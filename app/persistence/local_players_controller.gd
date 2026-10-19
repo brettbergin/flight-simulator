@@ -8,6 +8,7 @@ const U64 = preload("res://simulation/uint64.gd")
 const Tick = preload("res://replay/observed/tick_math.gd")
 const NativeIdentity = preload("res://build/native_identity.gd")
 const Facade = preload("res://simulation/session_facade.gd")
+const Worlds = preload("res://world/world_admission.gd")
 const ADMISSION_ERRORS = ["wrong_thread","invalid_state","invalid_request","invalid_type","invalid_record","payload_limit","queue_full","out_of_memory"]
 const TERMINAL_ERRORS = ["not_found","identity_conflict","revision_conflict","source_mismatch","tick_regression","invalid_transition","player_limit","history_limit","active_practice","counter_exhausted","store_locked","root_unavailable","unsupported_version","foreign_store","corrupt_store","recovery_required","recovery_limit","snapshot_failed","storage_full","busy","io_error","worker_lost","commit_unknown","verification_failed"]
 
@@ -19,6 +20,7 @@ signal options_changed(epoch: int, committed_preferences: Variant, dirty: bool, 
 signal operation_finished(opening: int, epoch: int, result: Dictionary)
 signal intent_refused(opening: int, epoch: int, kind: String, reason: String, admission: Variant)
 signal history_exit_resolved(epoch: int, saved: bool)
+signal archive_link_changed(practice_id: String, state: Dictionary)
 signal storage_closed()
 
 var _service: RefCounted
@@ -45,6 +47,10 @@ var _next_management: bool = false
 var _replacement_requested: bool = false
 var _practice: Dictionary = {}
 var _practice_cache: Dictionary = {}
+# A verified file is not a durable association ACK. Retain its original owner
+# and source until one ordinary mutation settles; never replay a failed intent.
+var _archive_links: Dictionary = {}
+var _history_barrier_epoch: int = -1
 
 # Root-only copied views. These never construct a service or authorize callbacks.
 func current_epoch() -> int:
@@ -66,7 +72,7 @@ func save_state() -> Dictionary:
 		"pending":pending,"unknown":_selected != null and (_unknown_players.has(_selected.player.id) or _protocol_fault)}
 
 func history_exit_pending() -> bool:
-	return not _practice.is_empty() and _practice.closed and not _practice.resolved
+	return (not _practice.is_empty() and _practice.closed and not _practice.resolved) or _archive_links_unresolved()
 
 func current_practice_context() -> Dictionary:
 	if _practice.is_empty():
@@ -81,9 +87,17 @@ func management_requested() -> bool:
 
 func history_state() -> Dictionary:
 	# Compact UI truth, never a durable Practice substitute.
-	if _practice.is_empty():
-		return {"active":false,"pending":false,"failed":false,"resolved":true}
-	return {"active":not _practice.closed,"pending":_practice.inflight,"failed":_practice.failed,"resolved":_practice.resolved}
+	var state: Dictionary = {"active":false,"pending":false,"failed":false,"resolved":true}
+	if not _practice.is_empty():
+		state = {"active":not _practice.closed,"pending":_practice.inflight,"failed":_practice.failed,"resolved":_practice.resolved}
+	for intent in _archive_links.values():
+		if not intent.resolved:
+			state.resolved = false
+			state.pending = state.pending or intent.state == "inflight"
+			state.failed = state.failed or intent.state in ["failed","unknown"]
+	for route in _requests.values():
+		if route.kind == "link_archive": state.pending = true
+	return state
 
 func attach_service(service: RefCounted) -> bool:
 	if not _owner() or _service != null or service == null or _service_generation >= MAX_GENERATION:
@@ -378,13 +392,15 @@ func flight_closed(readback: Dictionary, end_reason: String, utc: String) -> voi
 		return
 	if _practice.is_empty() or _practice.resolved:
 		# Guest has no durable history and no fabricated successful end receipt.
-		history_exit_resolved.emit(_epoch,false)
+		_history_barrier_epoch = _epoch
+		_finish_history_barrier(false)
 		return
 	if _practice.closed and not (_practice.failed and _practice.reconciled and not _practice.inflight):
 		return
 	if end_reason not in ["user_end","user_restart","user_quit","native_terminal"] or not Options.utc_valid(utc) or not _matching_closed_lifecycle(readback):
 		_refuse(0,_practice.epoch,"end_practice","local_guard")
 		return
+	_history_barrier_epoch = _epoch
 	if not _qualified_source(_practice.source,readback,false) or U64.compare(readback.tick,_practice.last_tick) < 0:
 		# Root calls only with the owned successful Facade.close result, after
 		# actual join. Matching closed lifecycle permits a truthful not-saved
@@ -408,32 +424,99 @@ func flight_closed(readback: Dictionary, end_reason: String, utc: String) -> voi
 	_drive_practice()
 
 func acknowledge_history_not_saved(opening: int, epoch: int) -> void:
-	if not _owner() or not _bind_intent(opening,epoch) or _practice.is_empty() or not _practice.closed or not _practice.failed or _practice.inflight:
+	var state: Dictionary = history_state()
+	if not _owner() or not _bind_intent(opening,epoch) or _history_barrier_epoch < 0 or not state.failed or state.pending:
 		_refuse(opening,epoch,"end_practice","local_guard")
 		return
-	_practice.resolved = true
-	history_exit_resolved.emit(_practice.epoch,false)
-
-func archive_saved(practice_id: String, archive: Dictionary) -> void:
-	if not _owner() or not Options.id_valid(practice_id) or not _practice_cache.has(practice_id):
-		return
-	var row: Dictionary = _practice_cache[practice_id]
-	if not Options.archive_valid(archive,row.source) or U64.compare(archive.first_tick,row.first_tick) < 0 or U64.compare(archive.last_tick,row.last_tick) > 0 or _service == null or _closing or _management or _protocol_fault:
-		_refuse(0,_epoch,"link_archive","local_guard")
-		return
-	# Root calls after actual selected-file success and matching source validation.
-	# An old recording stays bound to its original player even after selection.
 	for route in _requests.values():
-		if route.context.get("practice_id","") == practice_id:
-			_refuse(0,_epoch,"link_archive","local_busy")
+		if route.kind in ["begin_practice","observe_practice","end_practice","link_archive"]:
+			_refuse(opening,epoch,"end_practice","local_busy")
 			return
-	_refresh_status()
-	if _status.state != "ready":
+	if not _practice.is_empty():
+		if not _practice.closed:
+			_refuse(opening,epoch,"end_practice","local_guard")
+			return
+		_practice.resolved = true
+	for id in _archive_links.keys():
+		if not _archive_links[id].resolved:
+			_set_archive_link(id,"failed","Explicitly continued without a saved association",true)
+	_finish_history_barrier(false)
+
+func archive_link_state(practice_id: String) -> Dictionary:
+	if not _archive_links.has(practice_id): return {}
+	var intent: Dictionary = _archive_links[practice_id]
+	return {"practice_id":practice_id,"payload_sha256":intent.archive.payload_sha256,"state":intent.state,"error":intent.error}
+
+func archive_saved(practice_id: String, archive: Dictionary) -> Dictionary:
+	var refused: Dictionary = {"practice_id":practice_id,"payload_sha256":archive.get("payload_sha256",""),"state":"failed","error":"Association rejected; file remains saved"}
+	if not _owner() or not Options.id_valid(practice_id): return refused
+	var retained: Dictionary = {}
+	if not _practice.is_empty() and _practice.id == practice_id:
+		# This window comes only from qualified actual flight observations/close.
+		retained = {"source":_practice.source,"player_id":_practice.player_id,"first_tick":_practice.first_tick,"last_tick":_practice.last_tick}
+	elif _practice_cache.has(practice_id): retained = _practice_cache[practice_id]
+	if retained.is_empty() or not Options.archive_valid(archive,retained.source) or U64.compare(archive.first_tick,retained.first_tick) < 0 or U64.compare(archive.last_tick,retained.last_tick) > 0 or _service == null or _closing or _management or _protocol_fault:
 		_refuse(0,_epoch,"link_archive","local_guard")
-		return
-	_admit("link_archive", {"practice_id":practice_id,"player_id":row.player_id,
-		"expected_revision":row.revision,"expected_source":row.source.duplicate(true),"archive":archive.duplicate(true)},
-		0,_epoch,row.player_id,row.revision,{},false,{"practice_id":practice_id,"source":row.source.duplicate(true),"archive":archive.duplicate(true)})
+		return refused
+	if _archive_links.has(practice_id):
+		var previous: Dictionary = _archive_links[practice_id]
+		if Options.exact_equal(previous.archive,archive): return archive_link_state(practice_id)
+		if not previous.resolved:
+			refused.error = "A different verified file association is still unresolved"
+			_refuse(0,_epoch,"link_archive","local_busy")
+			return refused
+	# Keep at most sixteen unresolved owned intents; resolved receipts are copied
+	# to Scene, and may be retired here without changing a durable Practice row.
+	for id in _archive_links.keys():
+		if _archive_links[id].resolved: _archive_links.erase(id)
+	if _archive_links.size() >= 16:
+		_refuse(0,_epoch,"link_archive","local_busy")
+		return refused
+	_archive_links[practice_id] = {"player_id":retained.player_id,"source":retained.source.duplicate(true),"archive":archive.duplicate(true),"state":"pending_endpoint","error":"","resolved":false}
+	_set_archive_link(practice_id,"pending_endpoint","")
+	_drive_archive_links()
+	return archive_link_state(practice_id)
+
+func _archive_links_unresolved() -> bool:
+	for intent in _archive_links.values():
+		if not intent.resolved: return true
+	return false
+
+func _set_archive_link(id: String, state: String, error: String, resolved: bool = false) -> void:
+	var intent: Dictionary = _archive_links[id]
+	intent.state = state
+	intent.error = error
+	intent.resolved = resolved
+	archive_link_changed.emit(id,archive_link_state(id))
+
+func _finish_history_barrier(saved: bool) -> void:
+	if _history_barrier_epoch < 0 or _archive_links_unresolved() or (not _practice.is_empty() and (not _practice.closed or not _practice.resolved)): return
+	var epoch: int = _history_barrier_epoch
+	_history_barrier_epoch = -1
+	history_exit_resolved.emit(epoch,saved)
+
+func _drive_archive_links() -> void:
+	for id in _archive_links.keys():
+		var intent: Dictionary = _archive_links[id]
+		if intent.resolved or intent.state in ["inflight","failed","unknown"]: continue
+		if _service == null or _closing or _management or _protocol_fault or _status.get("state","") in ["read_only","unavailable","closed"] or _unknown_players.has(intent.player_id) or _reload_players.has(intent.player_id) or (not _practice.is_empty() and _practice.id == id and _practice.failed):
+			_set_archive_link(id,"failed","Association was not submitted; history/storage requires explicit resolution")
+			continue
+		if _status.get("state","") != "ready" or _status.get("pending",0) != 0: continue
+		var busy: bool = false
+		for route in _requests.values():
+			if route.context.get("practice_id","") == id: busy = true
+		if busy or not _practice_cache.has(id): continue
+		var row: Dictionary = _practice_cache[id]
+		if row.player_id != intent.player_id or not Options.exact_equal(row.source,intent.source) or U64.compare(intent.archive.first_tick,row.first_tick) < 0:
+			_set_archive_link(id,"failed","Acknowledged Practice source/window does not match the retained file")
+			continue
+		if U64.compare(intent.archive.last_tick,row.last_tick) > 0: continue
+		_set_archive_link(id,"pending","")
+		# Exactly one attempt against the latest actual acknowledged revision.
+		if _admit("link_archive",{"practice_id":id,"player_id":intent.player_id,"expected_revision":row.revision,"expected_source":intent.source.duplicate(true),"archive":intent.archive.duplicate(true)},0,_epoch,intent.player_id,row.revision,{},false,{"practice_id":id,"source":intent.source.duplicate(true),"archive":intent.archive.duplicate(true)}):
+			_set_archive_link(id,"inflight","")
+		else: _set_archive_link(id,"failed","Association admission was rejected; no automatic retry")
 
 func pump() -> void:
 	if not _owner() or _service == null or _pumping:
@@ -451,6 +534,10 @@ func pump() -> void:
 	if not _practice.is_empty() and not _practice.resolved and not _practice.inflight and _status.get("state","") in ["read_only","unavailable","closed"]:
 		_practice.failed = true
 	_drive_practice()
+	if _protocol_fault:
+		for id in _archive_links.keys():
+			if _archive_links[id].state == "inflight": _set_archive_link(id,"unknown","Storage protocol failed; association status is unknown")
+	_drive_archive_links()
 	if _closing and _service.call("try_join") == true:
 		_refresh_status()
 		if _requests.is_empty() and not _status.is_empty() and _status.state == "closed" and _status.pending == 0 and _status.undelivered == 0 and not _status.writer_alive:
@@ -572,6 +659,7 @@ func _refresh_status() -> void:
 		storage_changed.emit(_status.duplicate(true))
 
 func _selection_busy() -> bool:
+	if _archive_links_unresolved(): return true
 	if not _practice.is_empty() and not _practice.get("resolved",false):
 		return true
 	if not _candidate.is_empty():
@@ -702,6 +790,16 @@ func _settle_extra(result: Dictionary, route: Dictionary, success: bool) -> bool
 					return false
 				for id in value.deleted_ids:
 					_practice_cache.erase(id)
+					# Only the validated deletion ACK establishes that this unsent
+					# association can no longer obtain its acknowledged Practice.
+					# Accepted link routes retain their own terminal reduction.
+					if _archive_links.has(id):
+						var intent: Dictionary = _archive_links[id]
+						var admitted: bool = false
+						for pending_route in _requests.values():
+							if pending_route.kind == "link_archive" and pending_route.context.get("practice_id","") == id: admitted = true
+						if intent.player_id == route.player_id and not intent.resolved and intent.state in ["pending_endpoint","pending"] and not admitted:
+							_set_archive_link(id,"failed","Practice was pruned before association submission; file remains saved")
 		"delete_player":
 			if success:
 				if not Options.closed(value,["deleted_player_id"]) or typeof(value.deleted_player_id) != TYPE_STRING or value.deleted_player_id != route.player_id:
@@ -775,11 +873,18 @@ func _cache_practice(row: Dictionary) -> void:
 		_practice_cache[row.id] = row.duplicate(true)
 
 func _qualified_source(source: Dictionary, readback: Dictionary, current: bool) -> bool:
-	if not Options.source_valid(source) or source.source_variant != NativeIdentity.SOURCE_VARIANT or source.native_source_fingerprint != NativeIdentity.SOURCE_FINGERPRINT or source.prepared_world_sha256 != Facade.WORLD:
+	if not Options.source_valid(source) or source.source_variant != NativeIdentity.SOURCE_VARIANT or source.native_source_fingerprint != NativeIdentity.SOURCE_FINGERPRINT:
 		return false
 	var qualified: Dictionary = Values.qualify(readback)
 	if not qualified.ok or qualified.kind != ("current" if current else "historical"):
 		return false
+	var world: Dictionary=Worlds.source(source.model_identity,source.named_start,source.prepared_world_sha256,readback.world_anchor)
+	if not world.ok or (world.selector=="kawo-prototype-v1" and (source.wind_profile!="calm" or source.angular_integration_method!=null)):
+		return false
+	var wind: Array=Facade._nominal_wind(source.wind_profile)
+	for axis in range(3):
+		if wind.size()!=3 or absf(float(readback.atmosphere.wind_toward_ned_mps[["x","y","z"][axis]])-wind[axis])>1e-6:
+			return false
 	for key in ["session_id","model_identity","native_source_fingerprint","prepared_world_sha256","named_start"]:
 		if not Options.exact_equal(source[key],readback[key]):
 			return false
@@ -842,6 +947,8 @@ func _settle_practice(result: Dictionary, route: Dictionary, success: bool) -> b
 	if bound and route.kind != "link_archive":
 		_practice.inflight = false
 	if not success:
+		if route.kind == "link_archive" and _archive_links.has(route.context.practice_id):
+			_set_archive_link(route.context.practice_id,"unknown" if result.state == "uncertain" else "failed",String(result.error_code))
 		if bound and route.kind != "link_archive":
 			_practice.failed = true
 			_practice.reconciled = false
@@ -868,13 +975,17 @@ func _settle_practice(result: Dictionary, route: Dictionary, success: bool) -> b
 			return false
 		if route.kind == "link_archive" and not Options.exact_equal(row.archive,route.context.archive):
 			return false
+	if route.kind == "link_archive":
+		if not _archive_links.has(row.id) or _archive_links[row.id].state != "inflight" or not Options.exact_equal(_archive_links[row.id].archive,route.context.archive): return false
 	_cache_practice(row)
+	if route.kind == "link_archive":
+		_set_archive_link(row.id,"saved","",true)
 	if bound:
 		_practice.row = row.duplicate(true)
 		if route.kind == "end_practice":
 			_practice.resolved = true
 			_practice.failed = false
-			history_exit_resolved.emit(_practice.epoch,true)
+	_finish_history_barrier(true)
 	return true
 
 func _reconcile_practice(row: Dictionary, generation: int) -> void:
@@ -896,4 +1007,4 @@ func _reconcile_practice(row: Dictionary, generation: int) -> void:
 	if _practice.closed and _practice.end != null and row.last_tick == _practice.last_tick and row.status == _practice.end.status and row.end_reason == _practice.end.end_reason:
 		_practice.resolved = true
 		_practice.failed = false
-		history_exit_resolved.emit(_practice.epoch,true)
+		_finish_history_barrier(true)

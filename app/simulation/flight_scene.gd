@@ -3,6 +3,9 @@ extends "res://interactive/preview.gd"
 # The original preview remains separately runnable; legacy proof flags keep its
 # frozen test driver. Ordinary interactive flight uses exactly one facade.
 const Facade = preload("res://simulation/session_facade.gd")
+const Worlds = preload("res://world/world_admission.gd")
+const GridReader = preload("res://world/terrain/resident_grid_reader.gd")
+const KawoWorld = preload("res://world/terrain/kawo_world.gd")
 const Frames = preload("res://simulation/canonical_frames.gd")
 const Participant = preload("res://simulation/origin_participant.gd")
 const Mapper = preload("res://input/input_mapper.gd")
@@ -68,6 +71,7 @@ var archive_dialog: FileDialog
 var archive_operation: Dictionary={}
 var archive_imported: bool=false
 var archive_message: String=""
+var _archive_link_feedback: Dictionary={}
 var observed_recorder: RefCounted=ObservedRecorder.new()
 var observed_panel: Control
 var review_open: bool=false
@@ -94,6 +98,13 @@ var engine_pointer_rearm: Array[int]=[]
 var engine_pointer_look_active: bool=false
 # These identify only the last fully adopted fresh flight, never a menu draft.
 var selected_profile: String="original-interactive-prototype"
+var selected_world: String="original-synthetic"
+var world_button: Button
+var _synthetic_world_root: Node3D
+var _kawo_world_root: Node3D
+var _kawo_geometry: Dictionary={}
+var _synthetic_landmarks: Array=[]
+var _world_candidate: Dictionary={}
 var adopted_session_id: String=""
 var profile_presets: Dictionary={}
 var engine_status: Dictionary={}
@@ -251,7 +262,9 @@ func _make_world_presentation() -> Dictionary:
 		taxi_navigation=TaxiNavigation.new()
 		if not taxi_navigation.configure(_taxi_layout).ok:
 			taxi_navigation=null
-	return builder.build(self)
+	var presentation: Dictionary=builder.build(self)
+	_synthetic_landmarks=presentation.get("landmarks",[]).duplicate(true)
+	return presentation
 
 func make_world() -> void:
 	super.make_world()
@@ -265,6 +278,7 @@ func make_world() -> void:
 		sound.observe({})
 	world_root=Node3D.new()
 	world_root.name="CanonicalWorld"
+	_synthetic_world_root=world_root
 	light_root=Node3D.new()
 	light_root.name="CanonicalLighting"
 	var world_children: Array=get_children()
@@ -346,7 +360,7 @@ func _make_facade() -> RefCounted:
 	# its first open through the existing Facade callable factory.
 	return Facade.new()
 
-func restart(replace_confirmed: bool=false, selected_wind: Variant=null, requested_profile: Variant=null, requested_start: Variant=null) -> bool:
+func restart(replace_confirmed: bool=false, selected_wind: Variant=null, requested_profile: Variant=null, requested_start: Variant=null, requested_world: Variant=null) -> bool:
 	if _player_transition: return false
 	# Explicit --smoke is the existing native-only harness; ordinary flights admit the fixed cockpit first.
 	if not smoke and not _cockpit_asset_ready:
@@ -358,20 +372,27 @@ func restart(replace_confirmed: bool=false, selected_wind: Variant=null, request
 	var next_profile: Variant=selected_profile if requested_profile==null else requested_profile
 	var next_start: Variant=named_start if requested_start==null else requested_start
 	var requested_wind: Variant=current_wind_profile if selected_wind==null else selected_wind
+	var next_world: Variant=selected_world if requested_world==null else requested_world
 	if not Facade.valid_profile(next_profile) or typeof(next_start)!=TYPE_STRING:
 		status="Invalid fresh profile/start selection; flight unchanged"
 		return false
 	var model_root: String=flight_model_root(next_profile)
 	# Inventory/root/recipe/wind admission runs before old worker destruction.
-	var selection_error: String=Facade._selection_error(model_root,next_start,requested_wind,next_profile)
+	var selection_error: String=Facade._selection_error(model_root,next_start,requested_wind,next_profile,next_world)
 	if not selection_error.is_empty():
 		status=selection_error+"; flight unchanged"
 		return false
+	var provisional: Dictionary=_prepare_world_candidate(model_root,next_world,next_profile,next_start,requested_wind)
+	if not provisional.ok:
+		status=provisional.error+"; flight unchanged"
+		return false
 	if recorded_flight_advanced() and not replace_confirmed:
-		request_discard("restart",next_start,requested_wind,next_profile)
+		_dispose_world_candidate()
+		request_discard("restart",next_start,requested_wind,next_profile,false,next_world)
 		return false
 	if recorded_flight_advanced() and not review_boundary():
 		status="Recorded flight replacement requires a verified paused or joined boundary; flight unchanged"
+		_dispose_world_candidate()
 		return false
 	# Keep independent guest presets; never promote a legacy preset implicitly.
 	var next_presets: Dictionary=profile_presets.duplicate(true)
@@ -380,9 +401,11 @@ func restart(replace_confirmed: bool=false, selected_wind: Variant=null, request
 	_player_close_reason="user_restart"
 	if not close_session():
 		initializing_recording=false
+		_dispose_world_candidate()
 		return fail("Native worker did not join")
 	if player_controller!=null and player_controller.history_exit_pending():
-		_player_restart_after_history={"start":next_start,"wind":requested_wind,"profile":next_profile}
+		_player_restart_after_history={"start":next_start,"wind":requested_wind,"profile":next_profile,"world":next_world}
+		_dispose_world_candidate()
 		initializing_recording=false
 		_show_history_wait()
 		return false
@@ -394,7 +417,7 @@ func restart(replace_confirmed: bool=false, selected_wind: Variant=null, request
 		return restart_failed("Flight session construction failed")
 	# The inherited view reference never owns a native executive.
 	bridge=facade
-	var result: Dictionary=facade.start(model_root,next_start,requested_wind,next_profile)
+	var result: Dictionary=facade.start(model_root,next_start,requested_wind,next_profile,next_world)
 	if not result.ok:
 		return restart_failed(result.error)
 	adopt_result(result)
@@ -406,6 +429,10 @@ func restart(replace_confirmed: bool=false, selected_wind: Variant=null, request
 	latitude=world_anchor.latitude_rad
 	longitude=world_anchor.longitude_rad
 	origin_ecef={"x":prepared.ecef[0],"y":prepared.ecef[1],"z":prepared.ecef[2]}
+	if not _attach_world_candidate(result.readback,next_world):
+		return restart_failed("Prepared world presentation did not match actual native source")
+	if not flight_map.set_compiled_airport(_kawo_geometry if next_world=="kawo-prototype-v1" else {}):
+		return restart_failed("Compiled runway locator rejected selected geometry")
 	world_root.transform=Transform3D.IDENTITY
 	light_root.transform=Transform3D.IDENTITY
 	var raw: Array=result.readback.canonical.anchor_eus_position_m
@@ -419,6 +446,10 @@ func restart(replace_confirmed: bool=false, selected_wind: Variant=null, request
 		{"id":"lighting","node":light_root,"categories":["light"]}
 	]:
 		var node: Node3D=item.node
+		if item.id=="world" and next_world=="kawo-prototype-v1":
+			var registered_world: Dictionary=facade.render_origin.register_participant("world",world_root,["world"])
+			if not registered_world.ok: return restart_failed(registered_world.error)
+			continue
 		node.set_script(null)
 		node.set_script(Participant)
 		if not node.call("configure",snapshot.session_id,prepared.ecef,prepared.rotation,[float(node.position.x),float(node.position.y),float(node.position.z)],node.basis):
@@ -465,10 +496,15 @@ func restart(replace_confirmed: bool=false, selected_wind: Variant=null, request
 	profile_presets=next_presets
 	profile_presets[next_profile]=active_preset.duplicate(true)
 	selected_profile=next_profile
+	selected_world=next_world
 	named_start=next_start
 	adopted_session_id=result.readback.session_id
 	# Bind only after recorder/source/mapper adoption has succeeded.
-	if taxi_navigation!=null: taxi_navigation.fresh_session(facade.readback())
+	if taxi_navigation!=null and selected_world=="original-synthetic": taxi_navigation.fresh_session(facade.readback())
+	if selected_world=="kawo-prototype-v1":
+		flight_map.set_landmarks([])
+		clear_circuit_reference("Synthetic circuit is unavailable at KAWO")
+	else: flight_map.set_landmarks(_synthetic_landmarks)
 	review_joined=false
 	current_wind_profile=requested_wind
 	circuit_aid_enabled=false
@@ -481,7 +517,66 @@ func restart(replace_confirmed: bool=false, selected_wind: Variant=null, request
 	_player_flight_adopted()
 	_notify_player_options()
 	for button in _player_flight_buttons: button.disabled=button==taxi_button and taxi_navigation==null
+	if taxi_button!=null and selected_world=="kawo-prototype-v1": taxi_button.disabled=true
+	_dispose_world_candidate()
 	return true
+
+func _dispose_world_candidate() -> void:
+	var root: Variant=_world_candidate.get("root")
+	if is_instance_valid(root) and root is Node3D and root!=world_root: root.free()
+	_world_candidate.clear()
+
+func _prepare_world_candidate(model_root: String, selector: Variant, profile: Variant, start: Variant, wind: Variant) -> Dictionary:
+	_dispose_world_candidate()
+	var bytes: Dictionary=Facade.preflight_world(model_root,selector,profile,start,wind)
+	if not bytes.ok: return {"ok":false,"error":bytes.error}
+	if selector=="original-synthetic":
+		_world_candidate={"entry":bytes.entry,"root":null,"geometry":{}}
+		return {"ok":true,"error":""}
+	if not Facade._native_identity_valid() or not ClassDB.class_exists("FlightInteractiveSession"):
+		return {"ok":false,"error":"Qualified geographic native module unavailable"}
+	var decoded: Dictionary=GridReader.decode(bytes.files["ground.fgrd"],bytes.entry)
+	if not decoded.ok: return {"ok":false,"error":decoded.error}
+	var receipt: Dictionary=Facade._pack_json(bytes.files["compile-receipt.json"]).value
+	var frame: Dictionary=Frames.anchor(bytes.entry.world_anchor.latitude_rad,bytes.entry.world_anchor.longitude_rad,bytes.entry.world_anchor.ellipsoid_height_m)
+	if frame.is_empty(): return {"ok":false,"error":"Invalid geographic anchor frame"}
+	var built: Dictionary=KawoWorld.prepare(decoded.grid,receipt.airport_geometry,"",frame.ecef,frame.rotation)
+	if not built.ok: return {"ok":false,"error":built.error}
+	_world_candidate={"entry":bytes.entry,"root":built.root,"geometry":receipt.airport_geometry.duplicate(true)}
+	return {"ok":true,"error":""}
+
+func _attach_world_candidate(readback: Dictionary, selector: String) -> bool:
+	if _world_candidate.is_empty(): return false
+	var relation: Dictionary=Worlds.source(readback.model_identity,readback.named_start,readback.prepared_world_sha256,readback.world_anchor)
+	if not relation.ok or relation.selector!=selector: return false
+	if selector=="kawo-prototype-v1":
+		var root: Node3D=_world_candidate.root
+		var bound: Dictionary=root.bind_session(readback.session_id)
+		if not bound.ok: return false
+		var identity: Dictionary=root.source_binding()
+		if identity.session_id!=readback.session_id or identity.payload_sha256!=readback.prepared_world_sha256 or identity.world_anchor!=readback.world_anchor or identity.anchor_ecef_m!=prepared.ecef or identity.ecef_to_eus!=prepared.rotation: return false
+		if is_instance_valid(world_root): world_root.hide()
+		if is_instance_valid(_kawo_world_root): _kawo_world_root.free()
+		world_root=root
+		_kawo_world_root=root
+		_world_candidate.root=null
+		_kawo_geometry=_world_candidate.geometry.duplicate(true)
+		root.hide()
+		add_child(root)
+	else:
+		if not is_instance_valid(_synthetic_world_root): return false
+		if is_instance_valid(_kawo_world_root):
+			_kawo_world_root.free()
+			_kawo_world_root=null
+		world_root=_synthetic_world_root
+		_kawo_geometry.clear()
+		world_root.hide()
+	return true
+
+func choose_world() -> void:
+	if _player_transition or not paused or not pending_discard.is_empty() or not archive_operation.is_empty(): return
+	var next: String="kawo-prototype-v1" if selected_world=="original-synthetic" else "original-synthetic"
+	request_discard("restart","ground-ready","calm",Facade.LEGACY_PROFILE.id,false,next)
 
 func piston_mode() -> bool:
 	# During fresh adoption the verified facade identity precedes scene commit.
@@ -522,6 +617,9 @@ func suspend_mapper(reason: String) -> void:
 	# This clears only local intent. Facade owns release admission before resume.
 
 func choose_profile() -> void:
+	if selected_world=="kawo-prototype-v1":
+		status="KAWO supports the ready-to-fly original prototype; switch World to synthetic for the cold piston aircraft"
+		return
 	if views_open or taxi_open: return
 	if audio_open: return
 	# Draft selection remains separate from the current adopted profile and preset.
@@ -772,6 +870,8 @@ func make_menu(canvas: CanvasLayer) -> void:
 	var controls_button: Button=add_menu_button(box,"Controls and calibration  (F7)",open_controls)
 	profile_button=add_menu_button(box,"Aircraft: ready-to-fly prototype",choose_profile)
 	profile_button.add_theme_font_size_override("font_size",15)
+	world_button=add_menu_button(box,"World: synthetic airfield  ·  switch to KAWO",choose_world)
+	world_button.add_theme_font_size_override("font_size",15)
 	var scan_button: Button=add_menu_button(box,"Instrument scan",open_instrument_scan)
 	var route_button: Button=add_menu_button(box,"Landmark route",open_landmark_route)
 	var review_button: Button=add_menu_button(box,"Flight review",open_observed_review)
@@ -1492,6 +1592,9 @@ func _taxi_entry_source() -> Dictionary:
 	return _views_current_source()
 
 func open_taxi() -> bool:
+	if selected_world!="original-synthetic":
+		status="Synthetic taxi itineraries are unavailable at KAWO"
+		return false
 	if _taxi_foreign() or legacy_proof or taxi_navigation==null or taxi_panel==null or facade==null: return false
 	if taxi_open or views_open or audio_open or first_flight_open or scan_open or route_open or review_open or quitting or initializing_recording: return false
 	if not archive_operation.is_empty() or not pending_discard.is_empty(): return false
@@ -1802,7 +1905,7 @@ func start_flight(start: String) -> void:
 		if start=="ground-ready": start="piston-cold-ground"
 	request_discard("restart",start,wind_draft,selected_profile)
 
-func perform_start(start: String, selected_wind: Variant=null, requested_profile: Variant=null, first_flight_continuation: bool=false) -> void:
+func perform_start(start: String, selected_wind: Variant=null, requested_profile: Variant=null, first_flight_continuation: bool=false, requested_world: Variant=null) -> void:
 	if _player_transition: return
 	if views_open or taxi_open: return
 	if audio_open: return
@@ -1810,7 +1913,7 @@ func perform_start(start: String, selected_wind: Variant=null, requested_profile
 	var next_profile: Variant=selected_profile if requested_profile==null else requested_profile
 	var profile_changed: bool=next_profile!=selected_profile
 	# restart validates before close and commits selection only after adoption.
-	if restart(true,selected_wind,next_profile,start):
+	if restart(true,selected_wind,next_profile,start,requested_world):
 		if wind_panel!=null: wind_panel.hide()
 		if controls_panel!=null: controls_panel.hide()
 		if observed_panel!=null: observed_panel.set_open(false)
@@ -1821,7 +1924,7 @@ func perform_start(start: String, selected_wind: Variant=null, requested_profile
 			open_first_flight()
 			return
 		# A new profile requires an explicit paused Controls/Resume decision.
-		if not profile_changed: close_menu()
+		if not profile_changed and selected_world!="kawo-prototype-v1": close_menu()
 	else:
 		if not _player_restart_after_history.is_empty():
 			_player_restart_after_history["first_flight"]=first_flight_continuation
@@ -1877,6 +1980,9 @@ func open_first_flight() -> void:
 	var current: Dictionary=facade.readback() if facade!=null else {}
 	first_flight_panel.set_state(current.duplicate(true),active_preset.duplicate(true),current_wind_profile)
 	if circuit_checkbox!=null: circuit_checkbox.set_pressed_no_signal(circuit_aid_enabled)
+	if circuit_checkbox!=null:
+		circuit_checkbox.disabled=selected_world!="original-synthetic"
+		circuit_checkbox.tooltip_text="Synthetic runway36 circuit only; unavailable at KAWO" if selected_world!="original-synthetic" else ""
 	first_flight_panel.show()
 	first_flight_panel.focus_back()
 
@@ -1907,6 +2013,9 @@ func on_first_flight_choice(choice_id: String, source_session: String, widget: O
 
 func on_circuit_enabled(enabled: bool, source_session: String, widget: Object) -> void:
 	if not first_flight_request_valid(widget,source_session): return
+	if selected_world!="original-synthetic":
+		clear_circuit_reference("Synthetic circuit is unavailable at KAWO")
+		return
 	circuit_aid_enabled=enabled
 	if circuit_checkbox!=null: circuit_checkbox.set_pressed_no_signal(enabled)
 	publish_circuit_reference()
@@ -1925,6 +2034,9 @@ func clear_circuit_reference(reason: String) -> void:
 
 func publish_circuit_reference() -> void:
 	if circuit_card==null or flight_map==null: return
+	if selected_world!="original-synthetic":
+		clear_circuit_reference("Synthetic circuit is unavailable at KAWO")
+		return
 	var view: Dictionary=CircuitGeometry.unavailable("Aid off")
 	if circuit_aid_enabled:
 		if facade==null or adopted_session_id.is_empty():
@@ -2174,6 +2286,15 @@ func show_state(seconds: float=0.0) -> void:
 		target_position.y=maxf(target_position.y,camera_floor)
 		look_target=airplane.position+Vector3.UP*0.4
 	var desired_offset: Vector3=target_position-airplane.position
+	if selected_world=="kawo-prototype-v1":
+		var floor: Dictionary=world_root.camera_height(float(target_position.x),float(target_position.z))
+		if not floor.ok:
+			suppress_geometry()
+			status="PRESENTATION PAUSED | "+floor.error
+			return
+		camera_floor=floor.height_m+0.35
+		target_position.y=maxf(target_position.y,camera_floor)
+		desired_offset=target_position-airplane.position
 	if camera_mode in [0,3] or not camera_ready or paused or view_settings.external_response=="immediate":
 		camera_follow_offset=desired_offset
 	else:
@@ -2181,6 +2302,14 @@ func show_state(seconds: float=0.0) -> void:
 		# Diagnostic/repeated show_state(0) calls cannot advance the camera filter.
 		camera_follow_offset=camera_follow_offset.lerp(desired_offset,_camera_smooth_alpha(seconds))
 	camera.position=airplane.position+camera_follow_offset
+	if selected_world=="kawo-prototype-v1":
+		var smoothed_floor: Dictionary=world_root.camera_height(float(camera.position.x),float(camera.position.z))
+		if not smoothed_floor.ok:
+			suppress_geometry()
+			status="PRESENTATION PAUSED | "+smoothed_floor.error
+			return
+		camera_floor=smoothed_floor.height_m+0.35
+		camera.position.y=maxf(camera.position.y,camera_floor)
 	if camera_mode==2:
 		camera.position.y=maxf(camera.position.y,camera_floor)
 	camera_ready=true
@@ -2336,6 +2465,9 @@ func publish_landmark_route(readback: Dictionary, info: Dictionary={}) -> void:
 	flight_map.call("set_route",route_view if route_aids_visible else {})
 
 func open_landmark_route() -> void:
+	if selected_world!="original-synthetic":
+		status="Synthetic landmark routes are unavailable at KAWO; use the compiled runway locator"
+		return
 	if views_open or taxi_open: return
 	if audio_open: return
 	if legacy_proof or facade==null or landmark_board==null:
@@ -2483,6 +2615,8 @@ func open_menu(title: String="Flight paused") -> void:
 		menu_message.text="No active flight. Choose a fresh start when ready."
 	if not legacy_proof and profile_button!=null:
 		profile_button.text="Aircraft: cold piston prototype  Â·  switch" if selected_profile==Facade.PISTON_PROFILE.id else "Aircraft: ready-to-fly prototype  Â·  switch"
+	if world_button!=null:
+		world_button.text="World: KAWO prototype  ·  switch to synthetic" if selected_world=="kawo-prototype-v1" else "World: synthetic airfield  ·  switch to KAWO"
 		if piston_mode() and facade!=null:
 			menu_message.text="Original piston prototype Â· idealized starter supply\nStart: brakes held, mixture rich, ignition both, hold starter.\nExpand ENGINE CONTROLS or use bindings in Controls (F7).\nRelease starter after firing; release mouse look to use the pointer.\nNative shaft RPM / combustion / switches are shown below.\nThis is an engineering interaction; no C172 procedure is claimed."
 
@@ -2526,6 +2660,7 @@ func close_menu() -> void:
 	super.close_menu()
 
 func restart_failed(message: String) -> bool:
+	_dispose_world_candidate()
 	retire_taxi_panel()
 	retire_views_panel()
 	retire_audio_panel()
@@ -2653,7 +2788,7 @@ func begin_archive_operation(action: String, show_dialog: bool=true) -> bool:
 			return false
 		bytes=encoded.value.duplicate()
 	if mapper!=null and mapper.pointer_view().capture!=null: invalidate_engine_pointer("Archive chooser opened")
-	archive_operation={"action":action,"session_id":adopted_session_id,"bytes":bytes,"prior_message":archive_message,"prior_recent":FileDialog.get_recent_list()}
+	archive_operation={"action":action,"session_id":adopted_session_id,"bytes":bytes,"prior_message":archive_message,"prior_recent":FileDialog.get_recent_list(),"player_context":_recording_player_context.duplicate(true)}
 	observed_panel.set_file_context(archive_imported,"Choose a new file." if action=="save" else "Choose a historical review file.",true)
 	if show_dialog:
 		archive_dialog.file_mode=FileDialog.FILE_MODE_SAVE_FILE if action=="save" else FileDialog.FILE_MODE_OPEN_FILE
@@ -2680,6 +2815,11 @@ func finish_archive_operation(path: String) -> Dictionary:
 		archive_feedback(rejected.error)
 		return rejected
 	var action: String=archive_operation.action
+	var player_context: Dictionary=archive_operation.player_context.duplicate(true)
+	var saved_recording: Dictionary={}
+	if action=="save":
+		var saved: Dictionary=ArchiveCodec.decode(archive_operation.bytes)
+		if saved.ok: saved_recording=saved.value
 	var result: Dictionary=archive_files.save_new(path,archive_operation.bytes) if action=="save" else archive_files.open(path)
 	# The operation gate stays held until the file owner has joined its helper.
 	if result.ok and action=="open":
@@ -2695,6 +2835,12 @@ func finish_archive_operation(path: String) -> Dictionary:
 	if archive_dialog!=null: archive_dialog.hide()
 	if result.ok:
 		archive_feedback("Saved new review. This flight remains paused or stopped; its memory record is retained." if action=="save" else "Opened historical file. Its author is unverified; the current airplane is unchanged.")
+		_archive_link_feedback.clear()
+		if action=="save" and player_controller!=null and not saved_recording.is_empty() and not player_context.is_empty() and _recording_matches_source(saved_recording,player_context.source):
+			var link: Dictionary={"type":"ExternalRecordedReview","version":1,"absolute_path":result.path,"payload_sha256":result.payload_sha256,"recording_session_id":saved_recording.metadata.session_id,"first_tick":saved_recording.metadata.first_tick,"last_tick":saved_recording.last_observed_tick,"linked_utc":_player_utc()}
+			_archive_link_feedback={"practice_id":player_context.practice_id,"payload_sha256":result.payload_sha256}
+			var association: Dictionary=player_controller.archive_saved(player_context.practice_id,link)
+			_player_archive_link_changed(player_context.practice_id,association)
 	else:
 		var message: String=result.error
 		if action=="open": message="Review not opened: "+message
@@ -2707,6 +2853,16 @@ func finish_archive_operation(path: String) -> Dictionary:
 func archive_feedback(message: String) -> void:
 	archive_message=message
 	observed_panel.set_file_context(archive_imported,message)
+
+func _player_archive_link_changed(practice_id: String, state: Dictionary) -> void:
+	# An old player's terminal must never label a different selected file saved.
+	if _archive_link_feedback.is_empty() or _archive_link_feedback.practice_id!=practice_id or state.get("payload_sha256","")!=_archive_link_feedback.payload_sha256: return
+	match state.get("state",""):
+		"saved": archive_feedback("Review file saved. Its Practice association was acknowledged by storage.")
+		"pending_endpoint": archive_feedback("Review file saved. Its Practice association waits for an ordinary flight observation or the actual closed endpoint; this flight remains paused.")
+		"pending", "inflight": archive_feedback("Review file saved. Its Practice association is pending; storage has not acknowledged the link yet.")
+		"unknown": archive_feedback("Review file saved. Its Practice association status is unknown; it will not be automatically retried. "+String(state.get("error","")))
+		"failed": archive_feedback("Review file saved. Its Practice association was not acknowledged. "+String(state.get("error","")))
 
 func make_discard_confirmation(canvas: CanvasLayer) -> void:
 	discard_layer=Control.new()
@@ -2753,7 +2909,7 @@ func make_discard_confirmation(canvas: CanvasLayer) -> void:
 		card.position=(discard_layer.size-card.size)*0.5)
 	discard_layer.hide()
 
-func request_discard(action: String, start: String="", selected_wind: Variant=null, requested_profile: Variant=null, first_flight_continuation: bool=false) -> void:
+func request_discard(action: String, start: String="", selected_wind: Variant=null, requested_profile: Variant=null, first_flight_continuation: bool=false, requested_world: Variant=null) -> void:
 	if _player_transition: return
 	if views_open or taxi_open: return
 	if audio_open: return
@@ -2761,23 +2917,24 @@ func request_discard(action: String, start: String="", selected_wind: Variant=nu
 	if not pending_discard.is_empty() or not action in ["restart","quit"]: return
 	var next_profile: Variant=selected_profile if requested_profile==null else requested_profile
 	var requested_wind: Variant=current_wind_profile if selected_wind==null else selected_wind
+	var next_world: Variant=selected_world if requested_world==null else requested_world
 	if action=="restart":
 		if not Facade.valid_profile(next_profile):
 			status="Invalid fresh profile; flight unchanged"
 			return
-		var selection_error: String=Facade._selection_error(flight_model_root(next_profile),start,requested_wind,next_profile)
+		var selection_error: String=Facade._selection_error(flight_model_root(next_profile),start,requested_wind,next_profile,next_world)
 		if not selection_error.is_empty():
 			status=selection_error+"; flight unchanged"
 			return
 	if not recorded_flight_advanced():
-		if action=="restart": perform_start(start,requested_wind,next_profile,first_flight_continuation)
+		if action=="restart": perform_start(start,requested_wind,next_profile,first_flight_continuation,next_world)
 		else: await perform_quit()
 		return
 	if not ensure_review_boundary():
 		status="Cannot discard until native flight is paused or its worker has joined"
 		return
 	if not first_flight_continuation: invalidate_engine_pointer("Discard confirmation opened")
-	pending_discard={"action":action,"start":start,"session_id":adopted_session_id,"wind_profile":requested_wind,"profile_id":next_profile}
+	pending_discard={"action":action,"start":start,"session_id":adopted_session_id,"wind_profile":requested_wind,"profile_id":next_profile,"world_selector":next_world}
 	# This continuation belongs to this decision only. Cancel/stale/quit clears
 	# it with the dictionary; ordinary restart behavior remains unchanged.
 	if first_flight_continuation and action=="restart": pending_discard["first_flight"]=true
@@ -2815,7 +2972,7 @@ func confirm_discard() -> void:
 	var decision: Dictionary=pending_discard.duplicate(true)
 	pending_discard.clear()
 	discard_layer.hide()
-	if decision.action=="restart": perform_start(decision.start,decision.wind_profile,decision.profile_id,decision.get("first_flight")==true)
+	if decision.action=="restart": perform_start(decision.start,decision.wind_profile,decision.profile_id,decision.get("first_flight")==true,decision.get("world_selector",selected_world))
 	else: await perform_quit()
 
 func quit_flight() -> void:
@@ -3439,6 +3596,7 @@ func _start_local_players() -> void:
 	player_controller.operation_finished.connect(_player_operation_finished)
 	player_controller.intent_refused.connect(_player_intent_refused)
 	player_controller.history_exit_resolved.connect(_player_history_resolved)
+	player_controller.archive_link_changed.connect(_player_archive_link_changed)
 	player_controller.storage_closed.connect(_player_storage_closed)
 	var service: RefCounted=_make_local_players_service()
 	if service!=null and player_controller.attach_service(service): player_controller.start_storage()
@@ -3642,7 +3800,7 @@ func _player_history_resolved(epoch: int, _saved: bool) -> void:
 		var next: Dictionary=_player_restart_after_history
 		_player_restart_after_history={}
 		retire_players_ui()
-		call_deferred("perform_start",next.start,next.wind,next.profile,next.get("first_flight",false))
+		call_deferred("perform_start",next.start,next.wind,next.profile,next.get("first_flight",false),next.get("world",selected_world))
 	elif _player_quit_pending: _finish_player_quit()
 	elif not _player_ui.is_empty() and _player_ui.kind=="history_wait":
 		retire_players_ui()
@@ -3932,7 +4090,7 @@ func _show_practice_details(practice: Dictionary) -> void:
 			widget.set_feedback(o,e,"Recorded review unavailable: "+result.error,false)
 			return
 		var recording: Dictionary=result.value
-		if result.payload_sha256!=practice.archive.payload_sha256 or recording.metadata.session_id!=practice.archive.recording_session_id:
+		if result.payload_sha256!=practice.archive.payload_sha256 or recording.metadata.session_id!=practice.archive.recording_session_id or recording.metadata.first_tick!=practice.archive.first_tick or recording.last_observed_tick!=practice.archive.last_tick or not _recording_matches_source(recording,practice.source):
 			widget.set_feedback(o,e,"Recorded review no longer matches this saved link",false)
 			return
 		retire_players_ui()
@@ -3942,6 +4100,20 @@ func _show_practice_details(practice: Dictionary) -> void:
 			observed_panel.set_file_context(true,"Historical player review Â· read-only")
 			observed_panel.set_open(true))
 	widget.present(opening,epoch,practice)
+
+static func _recording_matches_source(recording: Dictionary, source: Dictionary) -> bool:
+	if not ObservedValues.valid_recording(recording) or recording.state=="empty": return false
+	var metadata: Dictionary=recording.metadata
+	for key in ["session_id","model_identity","native_source_fingerprint","prepared_world_sha256","named_start"]:
+		if not source.has(key) or not ArchiveCodec._exact(metadata[key],source[key]): return false
+	var relation: Dictionary=Worlds.source(metadata.model_identity,metadata.named_start,metadata.prepared_world_sha256,metadata.world_anchor)
+	if not relation.ok or relation.recording_version!=recording.contract_version: return false
+	if relation.selector=="kawo-prototype-v1" and (source.get("wind_profile")!="calm" or source.get("angular_integration_method")!=null): return false
+	# The old ledger intentionally has no anchor/clock/seed fields. Compare those
+	# when actually available; never fabricate them as imported archive facts.
+	for key in ["world_anchor","clock","seed","wind_profile","angular_integration_method"]:
+		if metadata.has(key) and source.has(key) and not ArchiveCodec._exact(metadata[key],source[key]): return false
+	return true
 
 func _player_operation_finished(opening: int, epoch: int, result: Dictionary) -> void:
 	if result.kind=="save_preferences" and result.state not in ["committed","no_change"]:
@@ -3972,4 +4144,4 @@ func _update_player_history_wait() -> void:
 	var label: Label=card.get_child(0)
 	var acknowledge: Button=card.get_child(1)
 	acknowledge.disabled=not state.failed or state.pending
-	label.text="Practice history was not saved. Continue explicitly, or wait for the accepted operation to finish." if state.failed else "Finishing practice historyï¿½"
+	label.text="Practice history or its review association was not acknowledged. Continue explicitly, or wait for the accepted operation to finish." if state.failed else "Finishing practice history and review association..."

@@ -6,6 +6,7 @@ const Frames = preload("res://simulation/canonical_frames.gd")
 const Wire = preload("res://simulation/wire_validation.gd")
 const U64 = preload("res://simulation/uint64.gd")
 const Tick = preload("res://replay/observed/tick_math.gd")
+const Worlds = preload("res://world/world_admission.gd")
 const MODEL: Dictionary = {"id":"original-interactive-prototype","version":"0.1.0-prototype","backend_model":"original-interactive"}
 const ANCHOR: Dictionary = {"latitude_rad":0.8,"longitude_rad":-2.0,"ellipsoid_height_m":0.0}
 const CLOCK: Dictionary = {"purpose":"runtime","tick_rate_hz":120}
@@ -57,7 +58,7 @@ static func identifier(value: Variant) -> bool:
 	return not separator
 
 static func axes(value: Variant, revision: int = 1) -> bool:
-	if revision not in [1,2]:
+	if revision not in [1,2,3]:
 		return false
 	if not keys(value,["kind","roll","pitch","yaw","throttle","mixture","left_brake","right_brake","trim"]) or typeof(value.kind)!=TYPE_STRING or value.kind!="axes":
 		return false
@@ -69,7 +70,7 @@ static func axes(value: Variant, revision: int = 1) -> bool:
 	return revision==2 or value.mixture==1.0
 
 static func empty_recording(revision: int = 1) -> Dictionary:
-	if revision not in [1,2]:
+	if revision not in [1,2,3]:
 		return {}
 	return {"contract_version":revision,"state":"empty","metadata":null,"last_observed_tick":null,"samples":[],"seal_reason":null,"error":"","skipped_target_count":0,"late_sample_count":0,"uncaptured_tail_targets":0}
 
@@ -79,6 +80,12 @@ static func metadata(readback: Dictionary, first_tick: Variant = null) -> Dictio
 		"world_anchor":readback.world_anchor.duplicate(true),"seed":readback.atmosphere.seed,
 		"clock":readback.aircraft.clock.duplicate(true),"named_start":readback.named_start,
 		"first_tick":readback.tick if first_tick==null else first_tick}
+
+# Full admitted historical source relation chooses the version; model alone is
+# insufficient once one model can fly different immutable worlds.
+static func revision_for(readback: Dictionary) -> int:
+	var source: Dictionary=Worlds.source(readback.get("model_identity"),readback.get("named_start"),readback.get("prepared_world_sha256"),readback.get("world_anchor"))
+	return source.recording_version if source.ok else 0
 
 static func qualify(value: Variant) -> Dictionary:
 	var readings: Dictionary = NativeReadings.from_readback(value)
@@ -90,7 +97,7 @@ static func qualify(value: Variant) -> Dictionary:
 		return {"ok":false,"error":"Observed review requires seed42","kind":"invalid","readings":readings}
 	if typeof(value.aircraft.elapsed_s)!=TYPE_FLOAT:
 		return {"ok":false,"error":"Observed elapsed_s must be binary64","kind":"invalid","readings":readings}
-	var revision: int = 2 if value.model_identity==NativeReadings.PISTON_PROFILE else 1
+	var revision: int = revision_for(value)
 	if not valid_metadata(metadata(value),revision) or not axes(value.held_axes,revision):
 		return {"ok":false,"error":"Observed metadata or axes have incompatible closed types","kind":"invalid","readings":readings}
 	if revision==2 and not _valid_engine(EngineStatus.from_readback(value),readings,value.held_axes,true):
@@ -175,7 +182,7 @@ static func sample(readback: Dictionary, readings: Dictionary, target: String, l
 	return result
 
 static func valid_metadata(value: Variant, revision: int = 1) -> bool:
-	if revision not in [1,2]:
+	if revision not in [1,2,3]:
 		return false
 	if not keys(value,["session_id","model_identity","native_source_fingerprint","prepared_world_sha256","world_anchor","seed","clock","named_start","first_tick"]):
 		return false
@@ -186,12 +193,13 @@ static func valid_metadata(value: Variant, revision: int = 1) -> bool:
 	for key in MODEL:
 		if typeof(value.model_identity[key])!=TYPE_STRING:
 			return false
-	if not keys(value.world_anchor,ANCHOR.keys()) or value.world_anchor!=ANCHOR:
+	if not keys(value.world_anchor,ANCHOR.keys()):
 		return false
 	for key in ANCHOR:
 		if typeof(value.world_anchor[key])!=TYPE_FLOAT:
 			return false
-	return hex(value.native_source_fingerprint) and typeof(value.prepared_world_sha256)==TYPE_STRING and value.prepared_world_sha256==NativeReadings.WORLD and typeof(value.seed)==TYPE_STRING and value.seed=="42" and keys(value.clock,CLOCK.keys()) and typeof(value.clock.purpose)==TYPE_STRING and value.clock.purpose=="runtime" and typeof(value.clock.tick_rate_hz) in [TYPE_INT,TYPE_FLOAT] and value.clock.tick_rate_hz==120 and typeof(value.named_start)==TYPE_STRING and (value.named_start in ["piston-cold-ground","piston-cold-apron"] if revision==2 else value.named_start in ["ground-ready","airborne-prepared","apron-ready"]) and typeof(value.first_tick)==TYPE_STRING and U64.valid(value.first_tick)
+	var source: Dictionary=Worlds.source(value.model_identity,value.named_start,value.prepared_world_sha256,value.world_anchor)
+	return source.ok and source.recording_version==revision and hex(value.native_source_fingerprint) and typeof(value.seed)==TYPE_STRING and value.seed=="42" and keys(value.clock,CLOCK.keys()) and typeof(value.clock.purpose)==TYPE_STRING and value.clock.purpose=="runtime" and typeof(value.clock.tick_rate_hz) in [TYPE_INT,TYPE_FLOAT] and value.clock.tick_rate_hz==120 and typeof(value.first_tick)==TYPE_STRING and U64.valid(value.first_tick)
 
 static func valid_readings(value: Variant, session: String, tick: String) -> bool:
 	if not keys(value,["session_id","tick","state","native_truth","readings","error"]):
@@ -280,7 +288,7 @@ static func _valid_engine(value: Variant, readings: Dictionary, held: Dictionary
 static func valid_recording(value: Variant) -> bool:
 	if not keys(value,["contract_version","state","metadata","last_observed_tick","samples","seal_reason","error","skipped_target_count","late_sample_count","uncaptured_tail_targets"]):
 		return false
-	if typeof(value.contract_version)!=TYPE_INT or value.contract_version not in [1,2] or typeof(value.state)!=TYPE_STRING or not text(value.error):
+	if typeof(value.contract_version)!=TYPE_INT or value.contract_version not in [1,2,3] or typeof(value.state)!=TYPE_STRING or not text(value.error):
 		return false
 	var revision: int = value.contract_version
 	if not count(value.skipped_target_count) or not count(value.late_sample_count) or not count(value.uncaptured_tail_targets) or not value.samples is Array or value.samples.size()>2401:

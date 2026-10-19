@@ -4,6 +4,10 @@ const Readings = preload("res://cockpit/instruments/native_readings.gd")
 const EngineStatus = preload("res://cockpit/instruments/engine_status.gd")
 const BindingHelp = preload("res://ui/first_flight/binding_help.gd")
 const TaxiLayout = preload("res://world/taxi/taxi_layout.gd")
+const Worlds = preload("res://world/world_admission.gd")
+var _geographic: bool=false
+var _apron_title: Label
+var _apron_hint: Label
 const APRON_CHOICE_IDS = ["apron-ready","piston-cold-apron"]
 var _apron_buttons: Array[Button]=[]
 const FIXTURE_PATH = "res://content/scenarios/first-flight/briefing.json"
@@ -168,8 +172,8 @@ func _ready() -> void:
 		button.size_flags_horizontal=Control.SIZE_EXPAND_FILL; _choice_buttons.append(button)
 	circuit_slot=VBoxContainer.new(); circuit_slot.name="CircuitOptions"; overview.add_child(circuit_slot)
 	_circuit_hint=_label(overview,"Not evaluated | ready-flight / ground-ready / calm / runway36 only.\nCircuit aid choice is session-local and is not stored in saved flight reviews.",12)
-	_label(overview,"Start at PARK1 on the apron",18)
-	_label(overview,"Calm wind · brakes held · original synthetic models. Use Taxi in the paused menu to choose a manual runway or parking itinerary.",14)
+	_apron_title=_label(overview,"Start at PARK1 on the apron",18)
+	_apron_hint=_label(overview,"Calm wind · brakes held · original synthetic models. Use Taxi in the paused menu to choose a manual runway or parking itinerary.",14)
 	var apron_row:=HBoxContainer.new()
 	apron_row.name="ApronStartingPoints"
 	apron_row.add_theme_constant_override("separation",12)
@@ -212,6 +216,8 @@ func _ready() -> void:
 
 func set_state(readback: Dictionary, preset: Dictionary, current_wind: String) -> void:
 	_readback=readback.duplicate(true); _preset=preset.duplicate(true); _current_wind=current_wind
+	var relation: Dictionary=Worlds.source(readback.get("model_identity"),readback.get("named_start"),readback.get("prepared_world_sha256"),readback.get("world_anchor"))
+	_geographic=relation.ok and relation.selector=="kawo-prototype-v1"
 	_qualified=Readings.from_readback(_readback).duplicate(true)
 	_help=BindingHelp.view(_preset)
 	var checked: Dictionary = _fixture_check()
@@ -288,11 +294,25 @@ func _refresh() -> void:
 		var step: Dictionary = _fixture.steps[_step_index]
 		_step_text.text="Manual step %s of %s: %s\n\n%s" % [_step_index+1,step_count,step.title,step.text]
 	_previous.disabled=_step_index<=0; _next.disabled=_step_index>=step_count-1
+	for card in _cards: card.visible=not _geographic
+	for button in _apron_buttons: button.visible=not _geographic
+	_apron_title.visible=not _geographic
+	_apron_hint.visible=not _geographic
+	if _geographic:
+		_circuit_hint.text="KAWO: synthetic circuit, taxi itineraries and landmark routes are unavailable. The map shows compiled physical runway ends11/29/16/34."
+		_choice_details.text="KAWO supports the original prestarted ground-ready aircraft in calm wind. Use the paused menu's World control to return to synthetic starts."
+		_limits.text="KAWO prototype | FAA2026-10-01 / USGS WA_Western_North_2016 | total3D datum accuracy unknown\nEUS X[-6144,6144), Z[-4096,4096) m | operational/obstacle coverage incomplete | no training credit"
+		_step_text.text="1. Inspect controls and release mappings while paused.\n2. Open the compiled runway locator; these are physical ends, not landing thresholds.\n3. Choose Resume for manual flight; source/aircraft limits remain prototype.\n4. Pause to inspect or save a recorded review. No aircraft-specific procedure or scored circuit is supplied."
+		_previous.disabled=true; _next.disabled=true
+	else:
+		_circuit_hint.text="Not evaluated | ready-flight / ground-ready / calm / runway36 only.\nCircuit aid choice is session-local and is not stored in saved flight reviews."
+		_limits.text="Original prototype models | synthetic airfield | no aircraft-specific checklist or training credit.\nNew choices stay paused. Return to the menu and choose Resume to continue."
 
 func _change_step(delta: int) -> void:
 	_step_index=clampi(_step_index+delta,0,maxi(0,_fixture.get("steps",[]).size()-1)); _refresh()
 
 func _request_choice(choice_id: String) -> void:
+	if _geographic: return
 	# Revalidate exact bytes at use; never emit a stale/changed fixture mapping.
 	var checked: Dictionary = _fixture_check()
 	if not checked.ok:
@@ -301,6 +321,7 @@ func _request_choice(choice_id: String) -> void:
 	choice_requested.emit(choice_id,_source_session())
 
 func _request_apron_choice(choice_id: String) -> void:
+	if _geographic: return
 	if not is_visible_in_tree() or _qualified.get("state") in ["live","invalid"] or apron_choice_for(choice_id).is_empty(): return
 	choice_requested.emit(choice_id,_source_session())
 

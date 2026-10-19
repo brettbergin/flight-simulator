@@ -1,0 +1,43 @@
+KAWO PROTOTYPE v0.1.0 — fixed offline engineering scenery
+
+Credits: FAA Aeronautical Information Services; USGS 3D Elevation Program;
+NOAA National Geodetic Survey GEOID18; OSGeo PROJ-data. No agency endorsement.
+Original project code/geometry/materials are MIT. Source facts/public-domain
+data do not become exclusively project-owned by compilation.
+
+FAA NASR effective 2026-10-01 supplies the bounded derived numerical US KAWO
+airport/runway facts and identifiers. Unknown effective-until remains unknown.
+No raw NASR archive, expressive arrangement/prose/chart, logo, foreign records
+or third-party artwork is included. The source dossier records exact dates,
+identities and the limited project source-use decision.
+
+Terrain derives from the two pinned USGS one-metre x55y534/x56y534 tiles of
+WA_Western_North_2016, with their exact metadata/source dates in the dossier.
+Compilation mosaics/interpolates/resamples the retained sources, applies the
+pinned coordinate operations and offline NOAA GEOID18 numerical correction,
+solves fixed-anchor heights, then rounds once to Float32. This is a modified
+compiled product, not an unmodified agency DEM. No raw TIFF/XML/geoid/README
+ships. PROJ-data supplied the reviewed NOAA grid representation.
+
+The approximate EPSG1188 horizontal and unverified-frame GEOID18 assumptions
+do not establish source NAD83 realization/epoch compatibility. Total 3D accuracy
+is UNKNOWN. The compiled receipt records actual operations and approximation
+limits. Runtime coordinates/heights are the pinned WGS84 ellipsoid convention;
+there is no live geoid or magnetic model. FAA MSL elevations are source records,
+not substituted contact heights. Source data is dated, may contain errors and
+comes without a project warranty of currency, completeness or fitness.
+
+Actual resident contact bounds are fixed anchor EUS X[-6144,6144), Z[-4096,4096)
+metres at4m spacing. The manifest geographic box is a conservative indexing box,
+not contact coverage; finite readiness and native callback guards decide contact.
+The manifest product interval ends at its review snapshot2026-10-19T06:01:28Z;
+that is an original fixed-scenario interval, not an inferred FAA expiry date.
+
+Only two paved physical runway footprints/ends are represented. Operational
+taxiways, signs, thresholds, obstacles, lighting, airspace, ATC and airport
+procedures are incomplete or absent. Synthetic taxi/route/circuit aids do not
+apply here. Do not use this product for navigation, actual flight operations,
+safety-critical work or aviation training credit. The aircraft is an original
+direct-thrust prototype, not a validated Cessna. Materials/friction are prototype
+parameters. The ready-runway34 pose is an engineering start with nominal wheel
+clearances near5cm, not a dynamically settled or pilot-approved procedure.

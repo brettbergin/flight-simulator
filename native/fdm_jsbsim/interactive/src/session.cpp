@@ -58,6 +58,19 @@ c::GeodeticPosition geodetic(const j::FGLocation& input) {
   return {p.GetGeodLatitudeRad(),p.GetLongitude(),p.GetGeodAltitude()*.3048};
 }
 c::EcefPosition ecef(const j::FGLocation& p){return {p(1)*.3048,p(2)*.3048,p(3)*.3048};}
+using Matrix=std::array<double,9>;
+double geo_round(double value){volatile double result=value;return result;}
+Matrix geographic_rotation(Vec rpy) {
+  const auto sr=std::sin(rpy[0]),cr=std::cos(rpy[0]),sp=std::sin(rpy[1]),cp=std::cos(rpy[1]),sy=std::sin(rpy[2]),cy=std::cos(rpy[2]);
+  const auto mul=[](double a,double b){return geo_round(a*b);};const auto sum=[](double a,double b){return geo_round(a+b);};const auto sub=[](double a,double b){return geo_round(a-b);};
+  return {mul(cp,cy),sub(mul(mul(cy,sp),sr),mul(sy,cr)),sum(mul(mul(cy,sp),cr),mul(sy,sr)),
+          mul(cp,sy),sum(mul(mul(sy,sp),sr),mul(cy,cr)),sub(mul(mul(sy,sp),cr),mul(cy,sr)),
+          -sp,mul(cp,sr),mul(cp,cr)};
+}
+Vec geographic_rotate(const Matrix& matrix,c::BodyPosition arm) {
+  const Vec p{arm.x,arm.y,arm.z};Vec result{};
+  for(std::size_t i=0;i<3;++i){const auto a=geo_round(matrix[3*i]*p[0]),b=geo_round(matrix[3*i+1]*p[1]),sum=geo_round(a+b),d=geo_round(matrix[3*i+2]*p[2]);result[i]=geo_round(sum+d);}return result;
+}
 void verify_model(const std::filesystem::path& root) {
   const auto base=std::filesystem::canonical(root);
   for(const auto& pin:file_pins) {
@@ -120,17 +133,19 @@ class Session::Impl {
   class Callback final:public j::FGGroundCallback {
    public:
     explicit Callback(Impl& owner):owner_(owner){}
-    double GetAGLevel(double,const j::FGLocation& query,j::FGLocation& contact,j::FGColumnVector3& normal,j::FGColumnVector3& velocity,j::FGColumnVector3& angular)const override {
+    double GetAGLevel(double query_time,const j::FGLocation& query,j::FGLocation& contact,j::FGColumnVector3& normal,j::FGColumnVector3& velocity,j::FGColumnVector3& angular)const override {
       // Terminal JSBSim Unbind getter edge only; never Run/publish/provider here.
       if(owner_.disposing){contact=query;normal={0,0,0};velocity={0,0,0};angular={0,0,0};return 0;}
       if(!owner_.boundary){throw std::runtime_error("No prepared boundary");}
       const auto pos=geodetic(query);
-      if(owner_.checking_sweep) {
+      if(owner_.geographic()&&(!std::isfinite(query_time)||(owner_.initializing&&query_time!=0))){throw std::runtime_error("Geographic callback time invalid during startup/mutation");}
+      if(owner_.checking_sweep&&!owner_.geographic()) {
         const auto local=owner_.settings.surface->coordinates(*c::geodesy::to_ecef(pos));const auto center=owner_.settings.surface->coordinates(owner_.publication.ecef_position_m);
         if(std::hypot(local.x-center.x,local.y-center.y)>owner_.sweep_radius){throw std::runtime_error("Actual callback outside prepared footprint");}
       }
-      const auto sample=owner_.boundary->sample(pos);const auto* ground=std::get_if<c::ValidGround>(&sample.sample);
+      const auto sample=owner_.sample(pos);const auto* ground=std::get_if<c::ValidGround>(&sample.sample);
       if(!ground){throw std::runtime_error("Unexpected missing ground during mutation");}
+      if(owner_.geographic()){++owner_.geographic_callback_queries;}
       contact=query;contact.SetEllipse(c::geodesy::semi_major_m/.3048,c::geodesy::semi_minor_m/.3048);contact.SetPositionGeodetic(pos.longitude_rad,pos.latitude_rad,ground->surface_height_m/.3048);
       const auto n=Basis(pos).ned_to_ecef(ground->normal_ned);normal={n[0],n[1],n[2]};velocity={0,0,0};angular={0,0,0};
       return (pos.ellipsoid_height_m-ground->surface_height_m)/.3048;
@@ -148,9 +163,24 @@ class Session::Impl {
   std::vector<c::OperationalEvent> event_history;std::uint64_t event_sequence{};
   std::thread::id owner{std::this_thread::get_id()};std::string failure;
   bool checking_sweep{};double sweep_radius{};
+  bool initializing{true};
+  std::size_t geographic_callback_queries{};
+  std::optional<PreparedWorld::Readiness> geographic_readiness;
+  bool geographic()const noexcept{return settings.world_choice==WorldChoice::kawo_prototype_v1;}
+  std::shared_ptr<const v1::SurfaceProvider> provider()const{return geographic()?settings.geographic_world->provider():settings.surface;}
+  c::GroundSample sample(c::GeodeticPosition pos) {
+    if(geographic()&&(!geographic_readiness||!settings.geographic_world->allows(*geographic_readiness,pos))){throw std::runtime_error("Geographic query outside certified 3D/ray support");}
+    if(!boundary){throw std::runtime_error("No prepared boundary");}return boundary->sample(pos);
+  }
   void check_thread()const{if(owner!=std::this_thread::get_id()){throw std::logic_error("Caller-owned session used on another thread");}}
   explicit Impl(Config cfg):settings(std::move(cfg)),clock({settings.hz,settings.purpose}),gate(settings.session_id),lifecycle(settings.session_id,"session.owner",clock) {
     (void)steady_wind(settings.wind_profile); // Reject before solver/provider allocation.
+    if(settings.world_choice!=WorldChoice::original_synthetic&&settings.world_choice!=WorldChoice::kawo_prototype_v1){throw std::invalid_argument("Unknown closed world choice");}
+    if(geographic()) {
+      if(!settings.geographic_world||settings.surface||!settings.geographic_world->bound_to(settings.model_root)||settings.profile!=Profile::legacy||settings.start!=Start::ground||
+        settings.wind_profile!=SteadyWindProfile::calm||settings.angular_method||settings.hz!=120||settings.purpose!=c::ClockPurpose::runtime||settings.seed.value!=42||settings.trim||
+        settings.requested_height_m!=1.05||settings.forward_mps!=0||settings.down_mps!=0||settings.pitch_rad!=0){throw std::invalid_argument("Crossed geographic binding/recipe tuple");}
+    }else if(settings.geographic_world){throw std::invalid_argument("Synthetic world cannot hold a geographic binding");}
     if(!(settings.profile==Profile::legacy||settings.profile==Profile::piston)){throw std::invalid_argument("Unknown interactive profile");}
     const bool cold=settings.profile==Profile::piston;
     const bool apron=is_apron_start(settings.start);
@@ -176,36 +206,53 @@ class Session::Impl {
     const auto near=[](double a,double b){return std::isfinite(a)&&std::abs(a-b)<=1e-12;};
     if((ready_ground||cold)&&(!near(settings.requested_height_m,1.05)||!near(settings.forward_mps,0)||!near(settings.down_mps,0)||!near(settings.pitch_rad,0))){throw std::invalid_argument("Unsupported ground named recipe");}
     if(settings.start==Start::airborne&&(!settings.trim||!near(settings.requested_height_m,1000)||!near(settings.forward_mps,55*std::cos(.02))||!near(settings.down_mps,55*std::sin(.02))||!near(settings.pitch_rad,.02))){throw std::invalid_argument("Unsupported airborne named recipe");}
-    if(!settings.surface||!c::stable_id(settings.session_id)||!(settings.hz==60||settings.hz==120||settings.hz==240)||!std::isfinite(settings.requested_height_m)||
+    if((!geographic()&&!settings.surface)||!c::stable_id(settings.session_id)||!(settings.hz==60||settings.hz==120||settings.hz==240)||!std::isfinite(settings.requested_height_m)||
        !std::isfinite(settings.forward_mps)||settings.forward_mps<0||settings.forward_mps>100||!std::isfinite(settings.down_mps)||std::abs(settings.down_mps)>3||
        !std::isfinite(settings.pitch_rad)||std::abs(settings.pitch_rad)>.2){throw std::invalid_argument("Unsupported interactive intake");}
     const auto expected_world=prepared_identity(SurfaceConfig{});
-    if(!v1::same(prepared_identity(settings.surface->config()),expected_world)||
-       !v1::same(settings.surface->identity(),expected_world)) {
+    if(!geographic()&&(!v1::same(prepared_identity(settings.surface->config()),expected_world)||
+       !v1::same(settings.surface->identity(),expected_world))) {
       throw std::invalid_argument("ADR 006 requires the exact prepared default world");
     }
     if(cold){verify_piston_model(settings.model_root);}else{verify_model(settings.model_root);}pending.reserve(4096);event_history.reserve(4096);failure.reserve(256);
     if(!gate.register_source("pilot.controls",c::Authority::pilot)){throw std::runtime_error("Pilot registration failed");}
     if(cold){for(const auto* id:{"engine.ignition_left","engine.ignition_right","engine.starter","fuel.feed"}){if(!gate.register_control({id,c::ControlCapability::ValueType::boolean,0,1})){throw std::runtime_error("Piston control capability registration failed");}}}
-    const auto anchor=settings.surface->config().anchor;auto cg=anchor;cg.ellipsoid_height_m=settings.requested_height_m;
+    const auto anchor=geographic()?settings.geographic_world->anchor():settings.surface->config().anchor;auto cg=anchor;cg.ellipsoid_height_m=settings.requested_height_m;
+    if(geographic()){cg=settings.geographic_world->start_position();}
     if(apron){cg=apron_cg(anchor);} // Plane-up1.05 is NOT displaced ellipsoid height1.05.
-    const auto point=c::geodesy::to_ecef(cg);if(!point||!settings.surface->covers(*point,gear_radius+.05)){throw std::invalid_argument("Initial coverage missing before allocation");}
-    boundary=std::make_unique<v1::Boundary>(settings.surface,c::SampleHeader{{0},settings.session_id},4096);
-    const auto initial_ground=boundary->sample(cg);const auto* floor=std::get_if<c::ValidGround>(&initial_ground.sample);
+    const auto point=c::geodesy::to_ecef(cg);if(!point){throw std::invalid_argument("Initial canonical CG conversion failed");}
+    if(geographic()){geographic_readiness=settings.geographic_world->certify(*point);if(!geographic_readiness){throw std::invalid_argument("Initial 40m readiness missing before allocation");}}
+    else if(!settings.surface->covers(*point,gear_radius+.05)){throw std::invalid_argument("Initial coverage missing before allocation");}
+    boundary=std::make_unique<v1::Boundary>(provider(),c::SampleHeader{{0},settings.session_id},4096);
+    const auto initial_ground=sample(cg);const auto* floor=std::get_if<c::ValidGround>(&initial_ground.sample);
     if(!floor||cg.ellipsoid_height_m-floor->surface_height_m<1){throw std::invalid_argument("Explicit requested CG lacks required clearance");}
     const c::QuaternionBodyToNed q{std::cos(settings.pitch_rad/2),0,std::sin(settings.pitch_rad/2),0};
-    for(const auto arm:std::array<c::BodyPosition,3>{{{2,0,1},{-1,-1.3,1},{-1,1.3,1}}}) {
-      const auto ned=c::rotate_body_to_ned(q,arm);const auto b=Basis(cg);const auto pos=add(vector(*point),b.ned_to_ecef({ned.x,ned.y,ned.z}));
-      const auto geod=c::geodesy::from_ecef({pos[0],pos[1],pos[2]});if(!geod||!std::holds_alternative<c::ValidGround>(boundary->sample(*geod).sample)){throw std::invalid_argument("Initial gear query missing");}
+    const auto arms=geographic()?PreparedWorld::nominal_arms():std::array<c::BodyPosition,3>{{{2,0,1},{-1,-1.3,1},{-1,1.3,1}}};
+    const auto matrix=geographic()?geographic_rotation(settings.geographic_world->start_rpy()):Matrix{};
+    for(const auto arm:arms) {
+      const auto ned=c::rotate_body_to_ned(q,arm);const auto rotated=geographic()?geographic_rotate(matrix,arm):Vec{ned.x,ned.y,ned.z};const auto b=Basis(cg);const auto pos=add(vector(*point),b.ned_to_ecef({rotated[0],rotated[1],rotated[2]}));
+      const auto geod=c::geodesy::from_ecef({pos[0],pos[1],pos[2]});if(!geod){throw std::invalid_argument("Initial gear conversion failed");}const auto ground=sample(*geod);const auto* material=std::get_if<c::ValidGround>(&ground.sample);
+      if(!material){throw std::invalid_argument("Initial gear query missing");}
+      if(geographic()){const double clearance=geod->ellipsoid_height_m-material->surface_height_m;if(clearance<0||clearance>.25||material->material_id!="original.asphalt"){throw std::invalid_argument("Pinned geographic nominal gear clearance/material mismatch");}}
     }
     exec.reset(new j::FGFDMExec());exec->SetDebugLevel(0);
     const auto root=settings.model_root.u8string();exec->SetRootDir(SGPath::fromUtf8(std::string(root.begin(),root.end())));exec->SetAircraftPath(SGPath("aircraft"));exec->SetEnginePath(SGPath("engine"));
     if(!exec->LoadModel(cold?"original-piston-prop":"original-interactive")){throw std::runtime_error("New original model load failed");}
     if(exec->GetGroundReactions()->GetNumGearUnits()!=3){throw std::runtime_error("Gear inventory mismatch");}
+    if(geographic()&&(exec->GetPropulsion()->GetNumEngines()!=1||exec->GetPropulsion()->GetNumTanks()!=1)){throw std::runtime_error("Geographic original model topology mismatch");}
     exec->Setdt(1./120);exec->GetInertial()->SetGroundCallback(new Callback(*this));exec->GetWinds()->SetTurbType(j::FGWinds::ttNone);
     const auto seed=static_cast<std::uint32_t>((settings.seed.value^(settings.seed.value>>31)^(settings.seed.value>>62))&0x7fffffffULL);exec->SetPropertyValue("simulation/randomseed",seed);
     const auto ic=exec->GetIC();
-    if(apron) {
+    if(geographic()) {
+      // Default vendor constructor/LoadModel ground work was bootstrap only.
+      // The immutable initial certificate now guards every installed callback.
+      // ASL first avoids latitude/longitude setters querying a partial AGL pose.
+      const auto rpy=settings.geographic_world->start_rpy();
+      ic->SetAltitudeASLFtIC(cg.ellipsoid_height_m/.3048);
+      ic->SetLatitudeRadIC(std::atan2(point->z,std::hypot(point->x,point->y)));ic->SetLongitudeRadIC(cg.longitude_rad);
+      ic->SetPhiRadIC(rpy[0]);ic->SetThetaRadIC(rpy[1]);ic->SetPsiRadIC(rpy[2]);
+      ic->SetPRadpsIC(0);ic->SetQRadpsIC(0);ic->SetRRadpsIC(0);ic->SetVBodyFpsIC(0);
+    }else if(apron) {
       // North-facing in the displaced CG query-local NED, not anchor yaw.
       // IC geodetic setters use the vendor's rounded ellipsoid axes. Admit the
       // canonical requested ECEF ray as geocentric latitude; the unchanged
@@ -214,12 +261,14 @@ class Session::Impl {
       ic->SetPhiRadIC(0);ic->SetPsiRadIC(0);
       ic->SetPRadpsIC(0);ic->SetQRadpsIC(0);ic->SetRRadpsIC(0);ic->SetVBodyFpsIC(0);
     }else{ic->SetGeodLatitudeRadIC(anchor.latitude_rad);ic->SetLongitudeRadIC(anchor.longitude_rad);}
-    ic->SetThetaRadIC(settings.pitch_rad);
+    if(!geographic()){ic->SetThetaRadIC(settings.pitch_rad);}
     // Solve the caller's explicit ellipsoid CG height in IC only. The vendor's
     // radial-ASL/AGL setter differs by micrometers from ellipsoid height; this
     // does not ground-snap or modify a completed state.
     double radial_asl_ft=cg.ellipsoid_height_m/.3048;
-    for(int iteration=0;iteration<12;++iteration){ic->SetAltitudeASLFtIC(radial_asl_ft);const double error=cg.ellipsoid_height_m-geodetic(ic->GetPosition()).ellipsoid_height_m;if(std::abs(error)<1e-8){break;}radial_asl_ft+=error/.3048;}
+    bool radius_solved=false;
+    for(int iteration=0;iteration<12;++iteration){ic->SetAltitudeASLFtIC(radial_asl_ft);const double error=cg.ellipsoid_height_m-geodetic(ic->GetPosition()).ellipsoid_height_m;if(std::abs(error)<1e-8){radius_solved=true;break;}if(geographic()&&!std::isfinite(error)){throw std::runtime_error("Nonfinite geographic radial IC solve");}radial_asl_ft+=error/.3048;}
+    if(geographic()&&!radius_solved){throw std::runtime_error("Bounded geographic radial IC solve failed");}
     const auto requested_wind=steady_wind(settings.wind_profile);
     ic->SetWindNEDFpsIC(requested_wind.x/.3048,requested_wind.y/.3048,requested_wind.z/.3048);
     ic->SetUBodyFpsIC(settings.forward_mps/.3048);ic->SetWBodyFpsIC(settings.down_mps/.3048);
@@ -245,13 +294,19 @@ class Session::Impl {
       controls={0,0,0,0,0,1,1,0};engine->SetRunning(false);set_controls(controls);set_switches(switches);
     }
     exec->GetPropulsion()->SetFuelFreeze(true);if(!exec->RunIC()||boundary->failed()){throw std::runtime_error("Initial RunIC failed");}
+    if(geographic()){verify_geographic_start(cg,*point,matrix,false);}
     verify_wind("RunIC");
     initialization_observations[0]=observe("RunIC");
     const auto& initial_uvw=exec->GetPropagate()->GetUVW();
     if(std::abs(initial_uvw(1)*.3048-settings.forward_mps)>1e-6||std::abs(initial_uvw(2)*.3048)>1e-6||std::abs(initial_uvw(3)*.3048-settings.down_mps)>1e-6){throw std::runtime_error("RunIC changed requested ground-body velocity");}
     if(!cold){exec->GetPropulsion()->InitRunning(-1);}
+    if(geographic()){verify_geographic_start(cg,*point,matrix,true);}
     if(!cold){controls={0,0,0,ready_ground?0:.65,1,ready_ground?1.:0,ready_ground?1.:0,0};}
     set_controls(controls);
+    if(geographic()) {
+      exec->GetFCS()->SetMixtureCmd(0,1);exec->GetFCS()->SetMixturePos(0,1);
+      verify_geographic_start(cg,*point,matrix,true);verify_geographic_controls();
+    }
     if(settings.trim) {
       j::FGTrim trim(exec.get(),j::tLongitudinal);trim.SetGammaFallback(false);trim.SetMaxCycles(60);trim.SetMaxCyclesPerAxis(100);trim.SetTolerance(.001);trim.ClearDebug();
       if(!trim.DoTrim()){throw std::runtime_error("Combined airborne trim failed");}
@@ -260,15 +315,46 @@ class Session::Impl {
       verify_wind("post-trim");
     }
     exec->Setdt(clock.integration_step_s());exec->GetPropagate()->InitializeDerivatives();exec->GetPropulsion()->SetFuelFreeze(false);
+    if(geographic()){verify_geographic_start(cg,*point,matrix,true);verify_geographic_controls();verify_geographic_gear();}
     if(cold){verify_switches(controls,switches);}
     publication=snapshot({0});weather=atmosphere({0});if(cold){completed_piston=piston_diagnostics({0});}
     if(cold&&(exec->GetPropulsion()->GetEngine(0)->GetRunning()||exec->GetPropulsion()->GetEngine(0)->GetThruster()->GetRPM()!=0||std::abs(exec->GetPropulsion()->GetTank(0)->GetContents()*.45359237-100)>1e-10||exec->GetSimTime()!=0)){throw std::runtime_error("Cold tick0 state mismatch");}
     initialization_observations[1]=observe(settings.trim?"post-trim":"prepared");
-    const double requested_height=apron?cg.ellipsoid_height_m:settings.requested_height_m;
+    const double requested_height=apron||geographic()?cg.ellipsoid_height_m:settings.requested_height_m;
     if(!settings.trim&&std::abs(publication.position.ellipsoid_height_m-requested_height)>1e-5){throw std::runtime_error("Requested CG height changed during initialization: requested="+std::to_string(requested_height)+" observed="+std::to_string(publication.position.ellipsoid_height_m));}
     if(apron) {
       const auto local=settings.surface->coordinates(publication.ecef_position_m);
       if(std::abs(local.y-108)>1e-5||std::abs(-local.z-1.05)>1e-5||std::abs(-local.x-18)>1e-5){throw std::runtime_error("Actual apron tick0 CG differs from fixed anchor stand");}
+    }
+    if(geographic()) {
+      if(boundary->failed()||geographic_callback_queries==0){throw std::runtime_error("Geographic installed callback was not exercised");}
+      auto completed=settings.geographic_world->certify(publication.ecef_position_m);
+      if(!completed||!settings.geographic_world->allows(*completed,publication.position)){throw std::runtime_error("Completed geographic tick0 readiness failed");}
+      geographic_readiness=std::move(completed);
+    }
+    initializing=false;
+  }
+  void verify_geographic_controls()const {
+    for(const auto* key:{"fcs/aileron-cmd-norm","fcs/elevator-cmd-norm","fcs/rudder-cmd-norm","fcs/pitch-trim-cmd-norm","fcs/throttle-cmd-norm"})if(exec->GetPropertyValue(key)!=0){throw std::runtime_error("Geographic startup held axes changed");}
+    const auto fcs=exec->GetFCS();if(fcs->GetLBrake()!=1||fcs->GetRBrake()!=1||fcs->GetDsCmd()!=0||fcs->GetMixtureCmd(0)!=1||fcs->GetMixturePos(0)!=1||!c::valid(controls)||controls.roll!=0||controls.pitch!=0||controls.yaw!=0||controls.throttle!=0||controls.trim!=0||controls.mixture!=1||controls.left_brake!=1||controls.right_brake!=1){throw std::runtime_error("Geographic startup brakes/mixture/control mismatch");}
+  }
+  void verify_geographic_start(c::GeodeticPosition requested,c::EcefPosition requested_ecef,const Matrix& expected,bool running_required) {
+    const auto p=exec->GetPropagate();const auto actual_ecef=ecef(p->GetLocation());const auto actual=geodetic(p->GetLocation());
+    const auto observed=settings.geographic_world->project(actual_ecef),target=settings.geographic_world->project(requested_ecef);
+    for(std::size_t i=0;i<3;++i){const auto velocity=p->GetUVW()(static_cast<unsigned>(i+1))*.3048,rate=p->GetPQR()(static_cast<unsigned>(i+1));if(!std::isfinite(observed[i])||!std::isfinite(velocity)||!std::isfinite(rate)||std::abs(observed[i]-target[i])>1e-5||std::abs(velocity)>1e-6||std::abs(rate)>1e-12){throw std::runtime_error("Geographic startup position/kinematics mismatch");}}
+    if(!c::valid(actual)||std::abs(actual.ellipsoid_height_m-requested.ellipsoid_height_m)>1e-5||exec->GetSimTime()!=0||clock.completed_tick().value!=0||clock.elapsed_s()!=0){throw std::runtime_error("Geographic startup height/time mismatch");}
+    const auto& matrix=p->GetTb2l();for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)if(!std::isfinite(matrix(i+1,j+1))||std::abs(matrix(i+1,j+1)-expected[3*i+j])>1e-9){throw std::runtime_error("Geographic startup full orientation mismatch");}
+    const auto fuel=exec->GetPropulsion()->GetTank(0)->GetContents()*.45359237;if(!std::isfinite(fuel)||std::abs(fuel-100)>1e-10||(running_required&&!exec->GetPropulsion()->GetEngine(0)->GetRunning())){throw std::runtime_error("Geographic startup original engine/fuel mismatch");}
+    verify_wind("geographic-zero-time");
+  }
+  void verify_geographic_gear() {
+    const auto p=exec->GetPropagate();const auto cg=geodetic(p->GetLocation());const auto point=ecef(p->GetLocation());
+    const auto ground=sample(cg);const auto* floor=std::get_if<c::ValidGround>(&ground.sample);if(!floor||cg.ellipsoid_height_m-floor->surface_height_m<1){throw std::runtime_error("Actual geographic CG clearance missing");}
+    const auto expected=PreparedWorld::nominal_arms();Matrix matrix{};for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)matrix[3*i+j]=p->GetTb2l()(i+1,j+1);
+    for(unsigned i=0;i<3;++i){const auto gear=exec->GetGroundReactions()->GetGearUnit(static_cast<int>(i));const auto raw=gear->GetBodyLocation();const c::BodyPosition arm{raw(1)*.3048,raw(2)*.3048,raw(3)*.3048};
+      if(!c::finite(arm)||std::abs(arm.x-expected[i].x)>1e-12||std::abs(arm.y-expected[i].y)>1e-12||std::abs(arm.z-expected[i].z)>1e-12||c::magnitude(arm)>gear_radius){throw std::runtime_error("Actual geographic nominal model arm mismatch");}
+      const auto ned=geographic_rotate(matrix,arm),offset=Basis(cg).ned_to_ecef({ned[0],ned[1],ned[2]});const auto wheel=c::geodesy::from_ecef({point.x+offset[0],point.y+offset[1],point.z+offset[2]});if(!wheel){throw std::runtime_error("Actual geographic wheel conversion failed");}
+      const auto material=sample(*wheel);const auto* valid=std::get_if<c::ValidGround>(&material.sample);if(!valid||wheel->ellipsoid_height_m-valid->surface_height_m<0||wheel->ellipsoid_height_m-valid->surface_height_m>.25||valid->material_id!="original.asphalt"){throw std::runtime_error("Actual geographic gear clearance/material mismatch");}
     }
   }
   void verify_angular_method()const {
@@ -376,15 +462,20 @@ class Session::Impl {
     sweep_radius=gear_radius+(speed_limit+rate_limit*gear_radius)*dt+.05;
     try {
       const auto expected_world=prepared_identity(SurfaceConfig{});
-      if(!v1::same(prepared_identity(settings.surface->config()),expected_world)||
+      if(geographic()) {
+        if(!settings.geographic_world->bound_to(settings.model_root)){throw std::runtime_error("Prepared geographic session world changed");}
+        auto ready=settings.geographic_world->certify(publication.ecef_position_m);if(!ready){return {Status::coverage_blocked,{}};}geographic_readiness=std::move(ready);
+      }else if(!v1::same(prepared_identity(settings.surface->config()),expected_world)||
          !v1::same(settings.surface->identity(),expected_world)) {
         throw std::runtime_error("Prepared session world changed");
       }
-      if(!settings.surface->covers(publication.ecef_position_m,sweep_radius)){return {Status::coverage_blocked,{}};}
-      boundary=std::make_unique<v1::Boundary>(settings.surface,c::SampleHeader{*next,settings.session_id},256);
-      if(!std::holds_alternative<c::ValidGround>(boundary->sample(publication.position).sample)){return {Status::coverage_blocked,{}};}
+      if(!geographic()&&!settings.surface->covers(publication.ecef_position_m,sweep_radius)){return {Status::coverage_blocked,{}};}
+      if(geographic()&&!settings.geographic_world->allows(*geographic_readiness,publication.position)){return {Status::coverage_blocked,{}};}
+      boundary=std::make_unique<v1::Boundary>(provider(),c::SampleHeader{*next,settings.session_id},256);
+      if(!std::holds_alternative<c::ValidGround>(sample(publication.position).sample)){return {Status::coverage_blocked,{}};}
       const auto p=exec->GetPropagate();std::array<c::ValidGround,3> material;
-      for(int i=0;i<3;++i){const auto gear=exec->GetGroundReactions()->GetGearUnit(i);const auto wheel=p->GetLocation().LocalToLocation(p->GetTb2l()*gear->GetBodyLocation());const auto sample=boundary->sample(geodetic(wheel));if(!std::holds_alternative<c::ValidGround>(sample.sample)){return {Status::coverage_blocked,{}};}material[i]=std::get<c::ValidGround>(sample.sample);}
+      for(int i=0;i<3;++i){const auto gear=exec->GetGroundReactions()->GetGearUnit(i);const auto arm=gear->GetBodyLocation();if(geographic()&&(!std::isfinite(arm(1))||!std::isfinite(arm(2))||!std::isfinite(arm(3))||std::hypot(arm(1)*.3048,arm(2)*.3048,arm(3)*.3048)>gear_radius)){return {Status::coverage_blocked,{}};}
+        const auto wheel=p->GetLocation().LocalToLocation(p->GetTb2l()*arm);const auto pos=geodetic(wheel);if(geographic()&&!settings.geographic_world->allows(*geographic_readiness,pos)){return {Status::coverage_blocked,{}};}const auto ground=sample(pos);if(!std::holds_alternative<c::ValidGround>(ground.sample)){return {Status::coverage_blocked,{}};}material[i]=std::get<c::ValidGround>(ground.sample);}
       const auto end=std::find_if(pending.begin(),pending.end(),[&](const auto& x){return x.header.tick>*next;});std::vector<c::ControlCommand> applied(pending.begin(),end);auto candidate_controls=controls;auto candidate_switches=switches;for(const auto& item:applied){if(const auto* axes=std::get_if<c::PilotAxes>(&item.payload)){candidate_controls=*axes;}else{fold_system(candidate_switches,std::get<c::SystemControl>(item.payload));}}
       auto candidate=publication;checking_sweep=true;
       for(int i=0;i<3;++i){const auto prefix="gear/unit["+std::to_string(i)+"]/";exec->SetPropertyValue(prefix+"static_friction_coeff",material[i].static_friction);exec->SetPropertyValue(prefix+"dynamic_friction_coeff",material[i].dynamic_friction);}
@@ -396,17 +487,24 @@ class Session::Impl {
       const auto candidate_piston=settings.profile==Profile::piston?piston_diagnostics(*next):PistonDiagnostics{};
       const auto previous_controls=controls;controls=candidate_controls;
       try {candidate=snapshot(*next,std::move(candidate));}catch(...){controls=previous_controls;throw;}controls=previous_controls;
-      auto next_weather=atmosphere(*next);const auto a=settings.surface->coordinates(publication.ecef_position_m),b=settings.surface->coordinates(candidate.ecef_position_m);
-      if(std::hypot(b.x-a.x,b.y-a.y)>sweep_radius-gear_radius||!settings.surface->covers(candidate.ecef_position_m,gear_radius)){throw std::runtime_error("Actual movement outside prepared footprint");}
+      auto next_weather=atmosphere(*next);std::optional<PreparedWorld::Readiness> next_readiness;
+      if(geographic()) {
+        next_readiness=settings.geographic_world->certify(candidate.ecef_position_m);
+        if(!settings.geographic_world->motion_within(publication.ecef_position_m,candidate.ecef_position_m,sweep_radius-gear_radius)||!next_readiness||!settings.geographic_world->allows(*next_readiness,candidate.position)){throw std::runtime_error("Actual geographic movement/next readiness outside prepared domain");}
+      }else {
+        const auto a=settings.surface->coordinates(publication.ecef_position_m),b=settings.surface->coordinates(candidate.ecef_position_m);
+        if(std::hypot(b.x-a.x,b.y-a.y)>sweep_radius-gear_radius||!settings.surface->covers(candidate.ecef_position_m,gear_radius)){throw std::runtime_error("Actual movement outside prepared footprint");}
+      }
       if(std::abs(exec->GetSimTime()-static_cast<double>(next->value)/settings.hz)>1e-7+next->value/settings.hz*1e-10){throw std::runtime_error("Solver tick time mismatch");}
       if(!clock.advance()){throw std::runtime_error("Clock commit failed");}
-      publication=std::move(candidate);weather=std::move(next_weather);controls=candidate_controls;switches=candidate_switches;completed_piston=candidate_piston;pending.erase(pending.begin(),end);checking_sweep=false;return {Status::completed,std::move(applied)};
+      publication=std::move(candidate);weather=std::move(next_weather);controls=candidate_controls;switches=candidate_switches;completed_piston=candidate_piston;pending.erase(pending.begin(),end);if(geographic()){geographic_readiness=std::move(next_readiness);}checking_sweep=false;return {Status::completed,std::move(applied)};
     }catch(const std::exception& e){exec.reset();checking_sweep=false;failure=std::string(e.what()).substr(0,255);return {Status::discarded,{}};}
     catch(...){exec.reset();checking_sweep=false;failure="Unknown provider/solver fault";return {Status::discarded,{}};}
   }
 };
 std::array<SteadyWindObservation,2> SessionTestAccess::initialization(const Session& session){session.impl_->check_thread();return session.impl_->initialization_observations;}
 SteadyWindObservation SessionTestAccess::current(const Session& session){session.impl_->check_thread();if(!session.impl_->exec){throw std::logic_error("No live solver diagnostic");}return session.impl_->observe("completed");}
+std::size_t SessionTestAccess::geographic_queries(const Session& session){session.impl_->check_thread();return session.impl_->geographic_callback_queries;}
 Session::Session(Config cfg):impl_(std::make_unique<Impl>(std::move(cfg))){}
 Session::~Session(){if(impl_&&impl_->owner!=std::this_thread::get_id()){std::terminate();}}
 bool Session::register_host_source(std::string id,c::Authority authority){impl_->check_thread();if(!impl_->exec||static_cast<unsigned>(authority)>static_cast<unsigned>(c::Authority::instructor)){return false;}return impl_->gate.register_source(std::move(id),authority);}

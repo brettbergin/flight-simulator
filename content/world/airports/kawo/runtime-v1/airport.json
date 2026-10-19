@@ -1,0 +1,846 @@
+{
+  "airport_icao": "KAWO",
+  "dossier_sha256": "974345fd8eedff2e339e4eb21b8ac3a09ed69c66c4d2a045b430f9655bd15cee",
+  "field_elevation": {
+    "note": "ELEV='141.8' ft MSL; exact Decimal feet*0.3048 before JSON number; MSL does not establish a specific vertical realization",
+    "source_refs": [
+      {
+        "locator": "APT_BASE.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; fields=ELEV",
+        "source_id": "faa.nasr.2026-10-01"
+      }
+    ],
+    "status": "known",
+    "value": 43.22064,
+    "vertical_datum": "msl-unspecified"
+  },
+  "name": {
+    "note": "ARPT_NAME='ARLINGTON MUNI' source name; captured source value; no operational validation",
+    "source_refs": [
+      {
+        "locator": "APT_BASE.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; fields=ARPT_NAME",
+        "source_id": "faa.nasr.2026-10-01"
+      }
+    ],
+    "status": "known",
+    "value": "ARLINGTON MUNI"
+  },
+  "notes": [
+    {
+      "field": "/",
+      "source_refs": [
+        {
+          "locator": "APT_BASE.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; fields=SITE_NO,SITE_TYPE_CODE,STATE_CODE,ARPT_ID,COUNTRY_CODE,ICAO_ID,EFF_DATE",
+          "source_id": "faa.nasr.2026-10-01"
+        }
+      ],
+      "text": "SITE_NO='26099.'; SITE_TYPE_CODE='A'; STATE_CODE='WA'; ARPT_ID='AWO'; COUNTRY_CODE='US'; ICAO_ID='KAWO'; EFF_DATE='2026/10/01'; exact target identity/cycle used for joins; no other airport or cycle is substituted"
+    },
+    {
+      "field": "/reference_point",
+      "source_refs": [
+        {
+          "locator": "APT_BASE.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; fields=SURVEY_METHOD_CODE,ARPT_PSN_SOURCE,POSITION_SRC_DATE",
+          "source_id": "faa.nasr.2026-10-01"
+        }
+      ],
+      "text": "SURVEY_METHOD_CODE='E'; ARPT_PSN_SOURCE='3RD PARTY SURVEY'; POSITION_SRC_DATE='2006/05/02'; E is the estimated airport-position method; retain source attribution/date independently of elevation survey"
+    },
+    {
+      "field": "/field_elevation",
+      "source_refs": [
+        {
+          "locator": "APT_BASE.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; fields=ELEV_METHOD_CODE,ARPT_ELEV_SOURCE,ELEVATION_SRC_DATE",
+          "source_id": "faa.nasr.2026-10-01"
+        }
+      ],
+      "text": "ELEV_METHOD_CODE='S'; ARPT_ELEV_SOURCE='3RD PARTY SURVEY'; ELEVATION_SRC_DATE='2006/05/02'; S is the surveyed elevation method; feet MSL is not NAVD88 or ellipsoid height"
+    },
+    {
+      "field": "/",
+      "source_refs": [
+        {
+          "locator": "APT_BASE.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; fields=TPA",
+          "source_id": "faa.nasr.2026-10-01"
+        }
+      ],
+      "text": "TPA='1058'; published whole feet AGL; exact SI value 322.4784 m AGL, not an MSL procedure"
+    },
+    {
+      "field": "/",
+      "source_refs": [
+        {
+          "locator": "APT_BASE.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; fields=MAG_VARN,MAG_HEMIS,MAG_VARN_YEAR",
+          "source_id": "faa.nasr.2026-10-01"
+        }
+      ],
+      "text": "MAG_VARN='17'; MAG_HEMIS='E'; MAG_VARN_YEAR='2010'; MAG_VARN is degrees with published hemisphere/year; never a contemporary transform or runway-number recalculation"
+    },
+    {
+      "field": "/runways/0",
+      "source_refs": [
+        {
+          "locator": "APT_RWY.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; fields=RWY_LEN_SOURCE,LENGTH_SOURCE_DATE",
+          "source_id": "faa.nasr.2026-10-01"
+        }
+      ],
+      "text": "RWY_LEN_SOURCE='3RD PARTY SURVEY'; LENGTH_SOURCE_DATE='2006/05/02'; published dimensions retain their source date"
+    },
+    {
+      "field": "/runways/0/ends/0",
+      "source_refs": [
+        {
+          "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=11; fields=RIGHT_HAND_TRAFFIC_PAT_FLAG,RWY_GRAD,RWY_GRAD_DIRECTION,DISPLACED_THR_ELEV",
+          "source_id": "faa.nasr.2026-10-01"
+        }
+      ],
+      "text": "RIGHT_HAND_TRAFFIC_PAT_FLAG='Y'; RWY_GRAD=''; RWY_GRAD_DIRECTION=''; DISPLACED_THR_ELEV=''; source flags, gradient percent/direction, displaced-threshold elevation ft MSL only; blanks remain unknown, not flat/zero; no executable procedure"
+    },
+    {
+      "field": "/runways/0/ends/0/physical_end",
+      "source_refs": [
+        {
+          "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=11; fields=RWY_END_PSN_SOURCE,RWY_END_PSN_DATE,RWY_END_ELEV_SOURCE,RWY_END_ELEV_DATE",
+          "source_id": "faa.nasr.2026-10-01"
+        }
+      ],
+      "text": "RWY_END_PSN_SOURCE='3RD PARTY SURVEY'; RWY_END_PSN_DATE='2006/05/02'; RWY_END_ELEV_SOURCE='3RD PARTY SURVEY'; RWY_END_ELEV_DATE='2006/05/02'; position/elevation source attribution retained separately"
+    },
+    {
+      "field": "/runways/0/ends/1",
+      "source_refs": [
+        {
+          "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=29; fields=RIGHT_HAND_TRAFFIC_PAT_FLAG,RWY_GRAD,RWY_GRAD_DIRECTION,DISPLACED_THR_ELEV",
+          "source_id": "faa.nasr.2026-10-01"
+        }
+      ],
+      "text": "RIGHT_HAND_TRAFFIC_PAT_FLAG='N'; RWY_GRAD=''; RWY_GRAD_DIRECTION=''; DISPLACED_THR_ELEV=''; source flags, gradient percent/direction, displaced-threshold elevation ft MSL only; blanks remain unknown, not flat/zero; no executable procedure"
+    },
+    {
+      "field": "/runways/0/ends/1/physical_end",
+      "source_refs": [
+        {
+          "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=29; fields=RWY_END_PSN_SOURCE,RWY_END_PSN_DATE,RWY_END_ELEV_SOURCE,RWY_END_ELEV_DATE",
+          "source_id": "faa.nasr.2026-10-01"
+        }
+      ],
+      "text": "RWY_END_PSN_SOURCE='3RD PARTY SURVEY'; RWY_END_PSN_DATE='2006/05/02'; RWY_END_ELEV_SOURCE='3RD PARTY SURVEY'; RWY_END_ELEV_DATE='2006/05/02'; position/elevation source attribution retained separately"
+    },
+    {
+      "field": "/runways/1",
+      "source_refs": [
+        {
+          "locator": "APT_RWY.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; fields=RWY_LEN_SOURCE,LENGTH_SOURCE_DATE",
+          "source_id": "faa.nasr.2026-10-01"
+        }
+      ],
+      "text": "RWY_LEN_SOURCE='3RD PARTY SURVEY'; LENGTH_SOURCE_DATE='2006/05/02'; published dimensions retain their source date"
+    },
+    {
+      "field": "/runways/1/ends/0",
+      "source_refs": [
+        {
+          "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=16; fields=RIGHT_HAND_TRAFFIC_PAT_FLAG,RWY_GRAD,RWY_GRAD_DIRECTION,DISPLACED_THR_ELEV",
+          "source_id": "faa.nasr.2026-10-01"
+        }
+      ],
+      "text": "RIGHT_HAND_TRAFFIC_PAT_FLAG='Y'; RWY_GRAD=''; RWY_GRAD_DIRECTION=''; DISPLACED_THR_ELEV=''; source flags, gradient percent/direction, displaced-threshold elevation ft MSL only; blanks remain unknown, not flat/zero; no executable procedure"
+    },
+    {
+      "field": "/runways/1/ends/0/physical_end",
+      "source_refs": [
+        {
+          "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=16; fields=RWY_END_PSN_SOURCE,RWY_END_PSN_DATE,RWY_END_ELEV_SOURCE,RWY_END_ELEV_DATE",
+          "source_id": "faa.nasr.2026-10-01"
+        }
+      ],
+      "text": "RWY_END_PSN_SOURCE='3RD PARTY SURVEY'; RWY_END_PSN_DATE='2006/05/02'; RWY_END_ELEV_SOURCE='3RD PARTY SURVEY'; RWY_END_ELEV_DATE='2006/05/02'; position/elevation source attribution retained separately"
+    },
+    {
+      "field": "/runways/1/ends/1",
+      "source_refs": [
+        {
+          "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=34; fields=RIGHT_HAND_TRAFFIC_PAT_FLAG,RWY_GRAD,RWY_GRAD_DIRECTION,DISPLACED_THR_ELEV",
+          "source_id": "faa.nasr.2026-10-01"
+        }
+      ],
+      "text": "RIGHT_HAND_TRAFFIC_PAT_FLAG='N'; RWY_GRAD=''; RWY_GRAD_DIRECTION=''; DISPLACED_THR_ELEV=''; source flags, gradient percent/direction, displaced-threshold elevation ft MSL only; blanks remain unknown, not flat/zero; no executable procedure"
+    },
+    {
+      "field": "/runways/1/ends/1/physical_end",
+      "source_refs": [
+        {
+          "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=34; fields=RWY_END_PSN_SOURCE,RWY_END_PSN_DATE,RWY_END_ELEV_SOURCE,RWY_END_ELEV_DATE",
+          "source_id": "faa.nasr.2026-10-01"
+        }
+      ],
+      "text": "RWY_END_PSN_SOURCE='3RD PARTY SURVEY'; RWY_END_PSN_DATE='2006/05/02'; RWY_END_ELEV_SOURCE='3RD PARTY SURVEY'; RWY_END_ELEV_DATE='2006/05/02'; position/elevation source attribution retained separately"
+    },
+    {
+      "field": "/",
+      "source_refs": [
+        {
+          "locator": "APT_BASE.csv/APT_RWY.csv/APT_RWY_END.csv; AWO/site26099.; pinned cycle 2026/10/01",
+          "source_id": "faa.nasr.2026-10-01"
+        }
+      ],
+      "text": "Bounded 1-airport/2-paved-runway/4-physical-end NASR subset. Turf/glider facilities, taxi graph, lighting, frequencies, closures, obstacles and operational procedures are not established by omission. No terrain, geoid or canonical ellipsoid coordinates are produced."
+    }
+  ],
+  "purpose": "source-record",
+  "reference_point": {
+    "horizontal_crs": {
+      "authority": "EPSG",
+      "code": "4269",
+      "epoch_year": null,
+      "realization": null
+    },
+    "latitude_deg": 48.16075,
+    "longitude_deg": -122.15902777,
+    "note": "LAT_DECIMAL='48.16075' deg; LONG_DECIMAL='-122.15902777' deg; generic NAD83, realization/epoch unknown; no datum conversion",
+    "source_refs": [
+      {
+        "locator": "APT_BASE.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; fields=LAT_DECIMAL,LONG_DECIMAL",
+        "source_id": "faa.nasr.2026-10-01"
+      },
+      {
+        "locator": "CSV_README.pdf; DATUM; all US coordinate information references NAD83",
+        "source_id": "faa.nasr.2026-10-01"
+      }
+    ],
+    "status": "known"
+  },
+  "review_state": "draft",
+  "runways": [
+    {
+      "ends": [
+        {
+          "declared_distances": {
+            "asda_m": {
+              "note": "ACLT_STOP_DIST_AVBL='' ft; blank source value; no zero/full-runway substitution",
+              "source_refs": [
+                {
+                  "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=11; fields=ACLT_STOP_DIST_AVBL",
+                  "source_id": "faa.nasr.2026-10-01"
+                }
+              ],
+              "status": "unknown",
+              "value": null
+            },
+            "lda_m": {
+              "note": "LNDG_DIST_AVBL='' ft; blank source value; no zero/full-runway substitution",
+              "source_refs": [
+                {
+                  "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=11; fields=LNDG_DIST_AVBL",
+                  "source_id": "faa.nasr.2026-10-01"
+                }
+              ],
+              "status": "unknown",
+              "value": null
+            },
+            "toda_m": {
+              "note": "TKOF_DIST_AVBL='' ft; blank source value; no zero/full-runway substitution",
+              "source_refs": [
+                {
+                  "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=11; fields=TKOF_DIST_AVBL",
+                  "source_id": "faa.nasr.2026-10-01"
+                }
+              ],
+              "status": "unknown",
+              "value": null
+            },
+            "tora_m": {
+              "note": "TKOF_RUN_AVBL='' ft; blank source value; no zero/full-runway substitution",
+              "source_refs": [
+                {
+                  "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=11; fields=TKOF_RUN_AVBL",
+                  "source_id": "faa.nasr.2026-10-01"
+                }
+              ],
+              "status": "unknown",
+              "value": null
+            }
+          },
+          "designator": {
+            "note": "RWY_END_ID='11' published designator; captured source value; no operational validation",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=11; fields=RWY_END_ID",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "known",
+            "value": "11"
+          },
+          "displacement_m": {
+            "note": "DISPLACED_THR_LEN='' ft; blank source value; no zero/full-runway substitution",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=11; fields=DISPLACED_THR_LEN",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "unknown",
+            "value": null
+          },
+          "elevation": {
+            "note": "RWY_END_ELEV='132.4' ft MSL; exact Decimal feet*0.3048 before JSON number; MSL does not establish a specific vertical realization",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=11; fields=RWY_END_ELEV",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "known",
+            "value": 40.35552,
+            "vertical_datum": "msl-unspecified"
+          },
+          "id": "kawo.end.11",
+          "landing_threshold": {
+            "horizontal_crs": {
+              "authority": "EPSG",
+              "code": "4269",
+              "epoch_year": null,
+              "realization": null
+            },
+            "latitude_deg": null,
+            "longitude_deg": null,
+            "note": "LAT_DISPLACED_THR_DECIMAL='' deg; LONG_DISPLACED_THR_DECIMAL='' deg; generic NAD83, realization/epoch unknown; blank displacement coordinates do not prove threshold coincidence",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=11; fields=LAT_DISPLACED_THR_DECIMAL,LONG_DISPLACED_THR_DECIMAL",
+                "source_id": "faa.nasr.2026-10-01"
+              },
+              {
+                "locator": "CSV_README.pdf; DATUM; all US coordinate information references NAD83",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "unknown"
+          },
+          "physical_end": {
+            "horizontal_crs": {
+              "authority": "EPSG",
+              "code": "4269",
+              "epoch_year": null,
+              "realization": null
+            },
+            "latitude_deg": 48.16167722,
+            "longitude_deg": -122.16878886,
+            "note": "LAT_DECIMAL='48.16167722' deg; LONG_DECIMAL='-122.16878886' deg; generic NAD83, realization/epoch unknown; no datum conversion",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=11; fields=LAT_DECIMAL,LONG_DECIMAL",
+                "source_id": "faa.nasr.2026-10-01"
+              },
+              {
+                "locator": "CSV_README.pdf; DATUM; all US coordinate information references NAD83",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "known"
+          },
+          "true_bearing_deg": {
+            "note": "TRUE_ALIGNMENT='127' degrees true; captured source value; no operational validation",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=11; fields=TRUE_ALIGNMENT",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "known",
+            "value": 127.0
+          }
+        },
+        {
+          "declared_distances": {
+            "asda_m": {
+              "note": "ACLT_STOP_DIST_AVBL='' ft; blank source value; no zero/full-runway substitution",
+              "source_refs": [
+                {
+                  "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=29; fields=ACLT_STOP_DIST_AVBL",
+                  "source_id": "faa.nasr.2026-10-01"
+                }
+              ],
+              "status": "unknown",
+              "value": null
+            },
+            "lda_m": {
+              "note": "LNDG_DIST_AVBL='' ft; blank source value; no zero/full-runway substitution",
+              "source_refs": [
+                {
+                  "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=29; fields=LNDG_DIST_AVBL",
+                  "source_id": "faa.nasr.2026-10-01"
+                }
+              ],
+              "status": "unknown",
+              "value": null
+            },
+            "toda_m": {
+              "note": "TKOF_DIST_AVBL='' ft; blank source value; no zero/full-runway substitution",
+              "source_refs": [
+                {
+                  "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=29; fields=TKOF_DIST_AVBL",
+                  "source_id": "faa.nasr.2026-10-01"
+                }
+              ],
+              "status": "unknown",
+              "value": null
+            },
+            "tora_m": {
+              "note": "TKOF_RUN_AVBL='' ft; blank source value; no zero/full-runway substitution",
+              "source_refs": [
+                {
+                  "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=29; fields=TKOF_RUN_AVBL",
+                  "source_id": "faa.nasr.2026-10-01"
+                }
+              ],
+              "status": "unknown",
+              "value": null
+            }
+          },
+          "designator": {
+            "note": "RWY_END_ID='29' published designator; captured source value; no operational validation",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=29; fields=RWY_END_ID",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "known",
+            "value": "29"
+          },
+          "displacement_m": {
+            "note": "DISPLACED_THR_LEN='' ft; blank source value; no zero/full-runway substitution",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=29; fields=DISPLACED_THR_LEN",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "unknown",
+            "value": null
+          },
+          "elevation": {
+            "note": "RWY_END_ELEV='128.2' ft MSL; exact Decimal feet*0.3048 before JSON number; MSL does not establish a specific vertical realization",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=29; fields=RWY_END_ELEV",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "known",
+            "value": 39.07536,
+            "vertical_datum": "msl-unspecified"
+          },
+          "id": "kawo.end.29",
+          "landing_threshold": {
+            "horizontal_crs": {
+              "authority": "EPSG",
+              "code": "4269",
+              "epoch_year": null,
+              "realization": null
+            },
+            "latitude_deg": null,
+            "longitude_deg": null,
+            "note": "LAT_DISPLACED_THR_DECIMAL='' deg; LONG_DISPLACED_THR_DECIMAL='' deg; generic NAD83, realization/epoch unknown; blank displacement coordinates do not prove threshold coincidence",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=29; fields=LAT_DISPLACED_THR_DECIMAL,LONG_DISPLACED_THR_DECIMAL",
+                "source_id": "faa.nasr.2026-10-01"
+              },
+              {
+                "locator": "CSV_README.pdf; DATUM; all US coordinate information references NAD83",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "unknown"
+          },
+          "physical_end": {
+            "horizontal_crs": {
+              "authority": "EPSG",
+              "code": "4269",
+              "epoch_year": null,
+              "realization": null
+            },
+            "latitude_deg": 48.15588188,
+            "longitude_deg": -122.157372,
+            "note": "LAT_DECIMAL='48.15588188' deg; LONG_DECIMAL='-122.157372' deg; generic NAD83, realization/epoch unknown; no datum conversion",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=29; fields=LAT_DECIMAL,LONG_DECIMAL",
+                "source_id": "faa.nasr.2026-10-01"
+              },
+              {
+                "locator": "CSV_README.pdf; DATUM; all US coordinate information references NAD83",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "known"
+          },
+          "true_bearing_deg": {
+            "note": "TRUE_ALIGNMENT='307' degrees true; captured source value; no operational validation",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; RWY_END_ID=29; fields=TRUE_ALIGNMENT",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "known",
+            "value": 307.0
+          }
+        }
+      ],
+      "id": "kawo.runway.11-29",
+      "length_m": {
+        "note": "RWY_LEN='3498' ft; exact Decimal feet*0.3048 before JSON number",
+        "source_refs": [
+          {
+            "locator": "APT_RWY.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; fields=RWY_LEN",
+            "source_id": "faa.nasr.2026-10-01"
+          }
+        ],
+        "status": "known",
+        "value": 1066.1904
+      },
+      "note": "Pinned NASR paved subset only; physical ends are not inferred landing thresholds.",
+      "surface": {
+        "note": "SURFACE_TYPE_CODE='ASPH' FAA surface code; captured source value; no operational validation",
+        "source_refs": [
+          {
+            "locator": "APT_RWY.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; fields=SURFACE_TYPE_CODE",
+            "source_id": "faa.nasr.2026-10-01"
+          }
+        ],
+        "status": "known",
+        "value": "ASPH"
+      },
+      "width_m": {
+        "note": "RWY_WIDTH='75' ft; exact Decimal feet*0.3048 before JSON number",
+        "source_refs": [
+          {
+            "locator": "APT_RWY.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=11/29; fields=RWY_WIDTH",
+            "source_id": "faa.nasr.2026-10-01"
+          }
+        ],
+        "status": "known",
+        "value": 22.86
+      }
+    },
+    {
+      "ends": [
+        {
+          "declared_distances": {
+            "asda_m": {
+              "note": "ACLT_STOP_DIST_AVBL='' ft; blank source value; no zero/full-runway substitution",
+              "source_refs": [
+                {
+                  "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=16; fields=ACLT_STOP_DIST_AVBL",
+                  "source_id": "faa.nasr.2026-10-01"
+                }
+              ],
+              "status": "unknown",
+              "value": null
+            },
+            "lda_m": {
+              "note": "LNDG_DIST_AVBL='' ft; blank source value; no zero/full-runway substitution",
+              "source_refs": [
+                {
+                  "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=16; fields=LNDG_DIST_AVBL",
+                  "source_id": "faa.nasr.2026-10-01"
+                }
+              ],
+              "status": "unknown",
+              "value": null
+            },
+            "toda_m": {
+              "note": "TKOF_DIST_AVBL='' ft; blank source value; no zero/full-runway substitution",
+              "source_refs": [
+                {
+                  "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=16; fields=TKOF_DIST_AVBL",
+                  "source_id": "faa.nasr.2026-10-01"
+                }
+              ],
+              "status": "unknown",
+              "value": null
+            },
+            "tora_m": {
+              "note": "TKOF_RUN_AVBL='' ft; blank source value; no zero/full-runway substitution",
+              "source_refs": [
+                {
+                  "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=16; fields=TKOF_RUN_AVBL",
+                  "source_id": "faa.nasr.2026-10-01"
+                }
+              ],
+              "status": "unknown",
+              "value": null
+            }
+          },
+          "designator": {
+            "note": "RWY_END_ID='16' published designator; captured source value; no operational validation",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=16; fields=RWY_END_ID",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "known",
+            "value": "16"
+          },
+          "displacement_m": {
+            "note": "DISPLACED_THR_LEN='' ft; blank source value; no zero/full-runway substitution",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=16; fields=DISPLACED_THR_LEN",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "unknown",
+            "value": null
+          },
+          "elevation": {
+            "note": "RWY_END_ELEV='140.9' ft MSL; exact Decimal feet*0.3048 before JSON number; MSL does not establish a specific vertical realization",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=16; fields=RWY_END_ELEV",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "known",
+            "value": 42.94632,
+            "vertical_datum": "msl-unspecified"
+          },
+          "id": "kawo.end.16",
+          "landing_threshold": {
+            "horizontal_crs": {
+              "authority": "EPSG",
+              "code": "4269",
+              "epoch_year": null,
+              "realization": null
+            },
+            "latitude_deg": null,
+            "longitude_deg": null,
+            "note": "LAT_DISPLACED_THR_DECIMAL='' deg; LONG_DISPLACED_THR_DECIMAL='' deg; generic NAD83, realization/epoch unknown; blank displacement coordinates do not prove threshold coincidence",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=16; fields=LAT_DISPLACED_THR_DECIMAL,LONG_DISPLACED_THR_DECIMAL",
+                "source_id": "faa.nasr.2026-10-01"
+              },
+              {
+                "locator": "CSV_README.pdf; DATUM; all US coordinate information references NAD83",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "unknown"
+          },
+          "physical_end": {
+            "horizontal_crs": {
+              "authority": "EPSG",
+              "code": "4269",
+              "epoch_year": null,
+              "realization": null
+            },
+            "latitude_deg": 48.16934525,
+            "longitude_deg": -122.15652688,
+            "note": "LAT_DECIMAL='48.16934525' deg; LONG_DECIMAL='-122.15652688' deg; generic NAD83, realization/epoch unknown; no datum conversion",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=16; fields=LAT_DECIMAL,LONG_DECIMAL",
+                "source_id": "faa.nasr.2026-10-01"
+              },
+              {
+                "locator": "CSV_README.pdf; DATUM; all US coordinate information references NAD83",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "known"
+          },
+          "true_bearing_deg": {
+            "note": "TRUE_ALIGNMENT='179' degrees true; captured source value; no operational validation",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=16; fields=TRUE_ALIGNMENT",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "known",
+            "value": 179.0
+          }
+        },
+        {
+          "declared_distances": {
+            "asda_m": {
+              "note": "ACLT_STOP_DIST_AVBL='' ft; blank source value; no zero/full-runway substitution",
+              "source_refs": [
+                {
+                  "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=34; fields=ACLT_STOP_DIST_AVBL",
+                  "source_id": "faa.nasr.2026-10-01"
+                }
+              ],
+              "status": "unknown",
+              "value": null
+            },
+            "lda_m": {
+              "note": "LNDG_DIST_AVBL='' ft; blank source value; no zero/full-runway substitution",
+              "source_refs": [
+                {
+                  "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=34; fields=LNDG_DIST_AVBL",
+                  "source_id": "faa.nasr.2026-10-01"
+                }
+              ],
+              "status": "unknown",
+              "value": null
+            },
+            "toda_m": {
+              "note": "TKOF_DIST_AVBL='' ft; blank source value; no zero/full-runway substitution",
+              "source_refs": [
+                {
+                  "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=34; fields=TKOF_DIST_AVBL",
+                  "source_id": "faa.nasr.2026-10-01"
+                }
+              ],
+              "status": "unknown",
+              "value": null
+            },
+            "tora_m": {
+              "note": "TKOF_RUN_AVBL='' ft; blank source value; no zero/full-runway substitution",
+              "source_refs": [
+                {
+                  "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=34; fields=TKOF_RUN_AVBL",
+                  "source_id": "faa.nasr.2026-10-01"
+                }
+              ],
+              "status": "unknown",
+              "value": null
+            }
+          },
+          "designator": {
+            "note": "RWY_END_ID='34' published designator; captured source value; no operational validation",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=34; fields=RWY_END_ID",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "known",
+            "value": "34"
+          },
+          "displacement_m": {
+            "note": "DISPLACED_THR_LEN='' ft; blank source value; no zero/full-runway substitution",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=34; fields=DISPLACED_THR_LEN",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "unknown",
+            "value": null
+          },
+          "elevation": {
+            "note": "RWY_END_ELEV='127.5' ft MSL; exact Decimal feet*0.3048 before JSON number; MSL does not establish a specific vertical realization",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=34; fields=RWY_END_ELEV",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "known",
+            "value": 38.862,
+            "vertical_datum": "msl-unspecified"
+          },
+          "id": "kawo.end.34",
+          "landing_threshold": {
+            "horizontal_crs": {
+              "authority": "EPSG",
+              "code": "4269",
+              "epoch_year": null,
+              "realization": null
+            },
+            "latitude_deg": null,
+            "longitude_deg": null,
+            "note": "LAT_DISPLACED_THR_DECIMAL='' deg; LONG_DISPLACED_THR_DECIMAL='' deg; generic NAD83, realization/epoch unknown; blank displacement coordinates do not prove threshold coincidence",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=34; fields=LAT_DISPLACED_THR_DECIMAL,LONG_DISPLACED_THR_DECIMAL",
+                "source_id": "faa.nasr.2026-10-01"
+              },
+              {
+                "locator": "CSV_README.pdf; DATUM; all US coordinate information references NAD83",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "unknown"
+          },
+          "physical_end": {
+            "horizontal_crs": {
+              "authority": "EPSG",
+              "code": "4269",
+              "epoch_year": null,
+              "realization": null
+            },
+            "latitude_deg": 48.15473177,
+            "longitude_deg": -122.15618258,
+            "note": "LAT_DECIMAL='48.15473177' deg; LONG_DECIMAL='-122.15618258' deg; generic NAD83, realization/epoch unknown; no datum conversion",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=34; fields=LAT_DECIMAL,LONG_DECIMAL",
+                "source_id": "faa.nasr.2026-10-01"
+              },
+              {
+                "locator": "CSV_README.pdf; DATUM; all US coordinate information references NAD83",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "known"
+          },
+          "true_bearing_deg": {
+            "note": "TRUE_ALIGNMENT='359' degrees true; captured source value; no operational validation",
+            "source_refs": [
+              {
+                "locator": "APT_RWY_END.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; RWY_END_ID=34; fields=TRUE_ALIGNMENT",
+                "source_id": "faa.nasr.2026-10-01"
+              }
+            ],
+            "status": "known",
+            "value": 359.0
+          }
+        }
+      ],
+      "id": "kawo.runway.16-34",
+      "length_m": {
+        "note": "RWY_LEN='5332' ft; exact Decimal feet*0.3048 before JSON number",
+        "source_refs": [
+          {
+            "locator": "APT_RWY.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; fields=RWY_LEN",
+            "source_id": "faa.nasr.2026-10-01"
+          }
+        ],
+        "status": "known",
+        "value": 1625.1936
+      },
+      "note": "Pinned NASR paved subset only; physical ends are not inferred landing thresholds.",
+      "surface": {
+        "note": "SURFACE_TYPE_CODE='ASPH' FAA surface code; captured source value; no operational validation",
+        "source_refs": [
+          {
+            "locator": "APT_RWY.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; fields=SURFACE_TYPE_CODE",
+            "source_id": "faa.nasr.2026-10-01"
+          }
+        ],
+        "status": "known",
+        "value": "ASPH"
+      },
+      "width_m": {
+        "note": "RWY_WIDTH='100' ft; exact Decimal feet*0.3048 before JSON number",
+        "source_refs": [
+          {
+            "locator": "APT_RWY.csv; SITE_NO=26099.; ARPT_ID=AWO; EFF_DATE=2026/10/01; RWY_ID=16/34; fields=RWY_WIDTH",
+            "source_id": "faa.nasr.2026-10-01"
+          }
+        ],
+        "status": "known",
+        "value": 30.48
+      }
+    }
+  ],
+  "schema": "NormalizedAirport/v1"
+}

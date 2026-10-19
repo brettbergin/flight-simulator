@@ -59,6 +59,85 @@ function Set-SimulationMainScene {
 }
 # The flight-only proof carries frontend scripts, never the shipping storage
 # registration. Native storage and the 12-role package aggregate are separate.
+function Assert-KawoOrdinaryAncestors {
+ param([Parameter(Mandatory)][string]$Path)
+ $candidate=[IO.Path]::GetFullPath($Path)
+ while($true){
+  $item=Get-Item -LiteralPath $candidate -Force -ErrorAction Stop
+  if($item.Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'KAWO staging path contains a reparse point'}
+  $parent=[IO.Path]::GetDirectoryName($candidate)
+  if([string]::IsNullOrEmpty($parent) -or $parent -ceq $candidate){break}
+  $candidate=$parent
+ }
+}
+function Get-KawoRuntimeSourceGroups {
+ param([Parameter(Mandatory)][string]$RepoRoot)
+ Assert-KawoOrdinaryAncestors $RepoRoot
+ @(
+  @{source='app/world';destination='world';selected=$true;required=@('world_admission.gd')},
+  @{source='app/world/terrain';destination='world/terrain';selected=$false;required=@('resident_grid_reader.gd','kawo_world.gd')},
+  @{source='content/world/catalog';destination='content/world/catalog';selected=$false;required=@('kawo-runtime-v1.json')},
+  @{source='content/world/airports/kawo/runtime-v1';destination='worlds/kawo-prototype-v1';selected=$false;required=@('world.json','ground.fgrd','airport.json','dossier.json','compile-receipt.json','start-ready34.json','NOTICE.txt')}
+ )|ForEach-Object {
+  $group=$_
+  $folder=Join-Path $RepoRoot $group.source
+  Assert-KawoOrdinaryAncestors $folder
+  $snapshot=@(Get-SimulationSourceSnapshot $folder -RequiredEntries $group.required)
+  if($group.selected){
+   $snapshot=@($snapshot|Where-Object {$_.path -ceq 'world_admission.gd'})
+   if($snapshot.Count -ne 1){throw 'Exact KAWO registry filename is required'}
+  }
+  else{
+   # Exactly the fixed authored roster; generated Godot UIDs are never authoring
+   # inputs and are admitted only after import on a staged script sibling.
+   $authored=@($snapshot|Where-Object {-not $_.path.EndsWith('.gd.uid')})
+   if(($authored.path -join "`n") -cne (($group.required|Sort-Object) -join "`n")){throw 'KAWO authored file roster differs'}
+   foreach($entry in $snapshot){
+    if($entry.path.EndsWith('.gd.uid') -and -not ($group.required -ccontains $entry.path.Substring(0,$entry.path.Length-4))){throw 'Unbound KAWO UID'}
+   }
+   $snapshot=$authored
+  }
+  if($group.destination -ceq 'worlds/kawo-prototype-v1' -and ($snapshot|Measure-Object -Property bytes -Sum).Sum -gt 301989888){throw 'KAWO pack exceeds288MiB'}
+  [pscustomobject]@{source=$group.source;destination=$group.destination;selected=$group.selected;required=$group.required;snapshot=$snapshot}
+ }
+}
+function Assert-KawoRuntimeSourceGroups {
+ param([Parameter(Mandatory)][string]$Root,[Parameter(Mandatory)][object[]]$Groups,[switch]$Authoring,[switch]$AllowGeneratedUIDs)
+ Assert-KawoOrdinaryAncestors $Root
+ foreach($group in $Groups){
+  $folder=Join-Path $Root $(if($Authoring){$group.source}else{$group.destination})
+  Assert-KawoOrdinaryAncestors $folder
+  if($group.selected){
+   foreach($entry in $group.snapshot){
+    $file=Join-Path $folder $entry.path
+    Assert-KawoOrdinaryAncestors $file
+    $item=Get-Item -LiteralPath $file -Force
+    if($item.PSIsContainer -or $item.Length -ne $entry.bytes -or (Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry.sha256){throw 'KAWO selected registry bytes changed'}
+   }
+  }else{Assert-SimulationSourceSnapshot $folder $group.snapshot -RequiredEntries $group.required -AllowGeneratedUIDs:($AllowGeneratedUIDs -or $Authoring)}
+ }
+}
+function Copy-KawoRuntimeSourceGroups {
+ param([Parameter(Mandatory)][string]$RepoRoot,[Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Groups)
+ Assert-KawoRuntimeSourceGroups -Root $RepoRoot -Groups $Groups -Authoring
+ Assert-KawoOrdinaryAncestors $DestinationRoot
+ foreach($group in $Groups){
+  $destination=Join-Path $DestinationRoot $group.destination
+  if(-not $group.selected -and (Test-Path -LiteralPath $destination)){throw 'KAWO staging group must be fresh'}
+  $ancestor=$destination
+  while($null -eq (Get-Item -LiteralPath $ancestor -Force -ErrorAction SilentlyContinue)){$ancestor=[IO.Path]::GetDirectoryName($ancestor)}
+  Assert-KawoOrdinaryAncestors $ancestor
+  New-Item -ItemType Directory -Path $destination -Force|Out-Null
+  Assert-KawoOrdinaryAncestors $destination
+  foreach($entry in $group.snapshot){
+   $file=Join-Path $destination $entry.path
+   if(Test-Path -LiteralPath $file){throw 'KAWO staging file must be fresh'}
+   Copy-Item -LiteralPath (Join-Path $RepoRoot ($group.source+'/'+$entry.path)) -Destination $file
+  }
+ }
+ Assert-KawoRuntimeSourceGroups -Root $DestinationRoot -Groups $Groups
+ Assert-KawoRuntimeSourceGroups -Root $RepoRoot -Groups $Groups -Authoring
+}
 function Get-LocalPlayerSourceGroups {
  param([Parameter(Mandatory)][string]$RepoRoot)
  @(
@@ -984,11 +1063,12 @@ function Copy-TaxiSourceGroups {
 function Test-PreviewApronStartSourceBindings {
  param([Parameter(Mandatory)]$NativeIdentity)
  # Caller supplies Get-PreviewNativeBuildIdentity's already independently closed
- # 25-row identity. These three raw pins additionally bind the new start code.
+ # 25-row identity. These three raw pins bind the current KAWO-capable code
+ # retaining the independently qualified original apron recipes.
  $pins=@{
-  'native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp'='40511064929f717e57ed3ff084a3aad0f9af6c406bb50ba74ec1a4fdbe5fcd8f'
-  'native/fdm_jsbsim/interactive/src/session.cpp'='272edf5984dc9205c75f7103546b0312c78ba43f05f416dad929172b8ef6fbeb'
-  'native/godot_bridge/src/interactive_bridge.cpp'='0ebe3a59122368733745f05d82204a2e5a2b9187e985c89bff7b59a6f5e9dcd3'
+  'native/fdm_jsbsim/interactive/include/flight/interactive/session.hpp'='642fb88d08a794739c4d45ea49fff7a1abbb996c7f550c41716726971c7d8e4c'
+  'native/fdm_jsbsim/interactive/src/session.cpp'='ee113d7ec820f6f577e64d5f6c09d7414bd5b9a2f0070d2ddad04e65fefa0516'
+  'native/godot_bridge/src/interactive_bridge.cpp'='f7b7fa15d5db3c1b6d25f649585136af4627cc97d3fad7dd11c7cdf635b96d37'
  }
  foreach($path in $pins.Keys){
   $rows=@($NativeIdentity.source_bindings|Where-Object {$_.path -ceq $path})
@@ -1283,6 +1363,9 @@ func execute() -> void:
   return
  identity_file.store_string(JSON.stringify(identity_receipt))
  identity_file.close()
+ for kawa_path in ["res://world/world_admission.gd","res://world/terrain/resident_grid_reader.gd","res://world/terrain/kawo_world.gd"]:
+  var kawa_script=load(kawa_path) as Script
+  check(kawa_script!=null and kawa_script.can_instantiate(),"explicit_compile_"+kawa_path)
  for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://cockpit/assets","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests","res://world/wind","res://ui/wind","res://wind_tests","res://wind_scene_tests","res://audio","res://ui/audio","res://audio_tests","res://ui/first_flight","res://world/synthetic","res://world/taxi","res://ui/taxi","res://taxi_tests","res://taxi_scene_tests","res://scenario_tests/first-flight","res://first_flight_ui_tests","res://world_tests/synthetic","res://first_flight_scene_tests","res://wire_codec_tests","res://camera","res://ui/camera","res://camera_tests","res://persistence","res://ui/profiles","res://ui/history","res://player_tests"$pistonCompileFolder$localWindowReplayCompileFolder]:
   for name in DirAccess.get_files_at(folder):
    if name.ends_with(".gd"):

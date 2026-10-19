@@ -143,6 +143,10 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | GUSTS-TURBULENCE | [#45 Implement reproducible spatial gusts, turbulence and bounded shear](https://github.com/brettbergin/flight-simulator/issues/45) | EPIC-P3, WEATHER-PROFILES, FDM-HARNESS |
 | LIGHT-VISIBILITY | [#46 Implement daylight/night, clouds, visibility and airport lighting](https://github.com/brettbergin/flight-simulator/issues/46) | EPIC-P3, TERRAIN-STREAMING, WEATHER-PROFILES, RENDER-PROOF |
 | REGIONAL-FLIGHT | [#47 Validate offline regional cross-country, diversion and return](https://github.com/brettbergin/flight-simulator/issues/47) | EPIC-P3, REGIONAL-AIRPORTS, MAP-ROUTES, GUSTS-TURBULENCE, LIGHT-VISIBILITY |
+| KAWO-NATIVE-FLIGHT | [#261 Fly the original prototype on the source-bound KAWO terrain](https://github.com/brettbergin/flight-simulator/issues/261) | WORLD-RESIDENT-CONTRACT, KAWO-TERRAIN-COMPILER |
+| KAWO-TERRAIN-RENDERER | [#262 Render the exact resident KAWO terrain and physical runways](https://github.com/brettbergin/flight-simulator/issues/262) | WORLD-RESIDENT-CONTRACT, KAWO-TERRAIN-COMPILER |
+| KAWO-WORLD-JOURNEY | [#263 Select, fly and review a KAWO flight without losing source history](https://github.com/brettbergin/flight-simulator/issues/263) | WORLD-RESIDENT-CONTRACT, KAWO-TERRAIN-COMPILER, KAWO-NATIVE-FLIGHT, KAWO-TERRAIN-RENDERER |
+| KAWO-EVERGREEN-PLACEMENT | [#264 Place original evergreen groves around the KAWO prototype](https://github.com/brettbergin/flight-simulator/issues/264) | ORIGINAL-EVERGREEN-ASSETS, WORLD-RESIDENT-CONTRACT, KAWO-TERRAIN-RENDERER, KAWO-WORLD-JOURNEY |
 
 ## P5 — Lessons, ATC, and debrief
 

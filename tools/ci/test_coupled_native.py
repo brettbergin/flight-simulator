@@ -77,7 +77,8 @@ class ProvenanceTests(unittest.TestCase):
             'compile_commands_sha256':ci.sha(self.build/'compile_commands.json'),
             'verbose_build_sha256':ci.sha(self.build/'native-verbose-build.log')})
         self.control = ci.build_control(self.repo,self.build,self.values,self.selected)
-        self.body = 'verified-jsbsim-backend:'+self.backend+'\njsbsim-build-controls:'+self.control+'\nmarker.txt:'+ci.lf_sha(self.repo/'marker.txt')+'\n'
+        self.resident = {'sha256':'d'*64, 'sources':('marker.txt',), 'paths':('marker.txt',)}
+        self.body = 'verified-jsbsim-backend:'+self.backend+'\njsbsim-build-controls:'+self.control+'\nresident-world-component:'+self.resident['sha256']+'\nmarker.txt:'+ci.lf_sha(self.repo/'marker.txt')+'\n'
         self.consumer = hashlib.sha256(self.body.encode()).hexdigest()
         (self.build/'interactive-source-fingerprint.txt').write_text(self.consumer+'\n'+self.body,encoding='utf-8',newline='\n')
         self.config = {'schema':'coupled-probe-config-v1','repository_root':str(self.repo),'build_root':str(self.build),
@@ -104,7 +105,9 @@ class ProvenanceTests(unittest.TestCase):
              '--pretrial-ratification',str(self.work/'pretrial.json'),'--ratification',str(self.work/'physical-execution.json'),
              '--jsbsim-dll',self.config['dll'],'--native',self.config['native'],'--mechanism',self.config['mechanism']]
         self.discovery = {'tests':[{'name':n,'command':args if n=='piston_engine_lifecycle' else ['unused']} for n in sorted(ci.REQUIRED)]}
-        for name,value in (('source_inputs',self.pins),('reference',lambda _:self.manifest),('command',self.fake_command)):
+        # Synthetic authorization scheduling fixture only. Actual component
+        # admission/witness tamper controls live in both probe portable suites.
+        for name,value in (('source_inputs',self.pins),('reference',lambda _:self.manifest),('command',self.fake_command),('resident_inputs',lambda repo,build=None:self.resident)):
             handle = patch.object(ci,name,value);handle.start();self.addCleanup(handle.stop)
         env = patch.dict(os.environ, {'CL':'','_CL_':''});env.start();self.addCleanup(env.stop)
 
@@ -137,6 +140,15 @@ class ProvenanceTests(unittest.TestCase):
             ('generator','Ninja'),('build_type','Release'),('cxx_flags',''),('configuration_flags','-O2'),
             ('msvc_runtime',''),('declared_strict_fp_flags',self.flags)))
         self.assertEqual(self.control,hashlib.sha256(body.encode()).hexdigest())
+
+    def test_resident_prefix_not_ignored_as_metadata(self):
+        path=self.build/'interactive-source-fingerprint.txt'
+        row='resident-world-component:'+self.resident['sha256']+'\n'
+        for body in (self.body.replace(row,''),self.body.replace(row,row+row),
+                     self.body.replace(row,'resident-world-component:'+'e'*64+'\n'),
+                     self.body+'unreviewed.cpp:'+'0'*64+'\n'):
+            path.write_text(hashlib.sha256(body.encode()).hexdigest()+'\n'+body,encoding='utf-8',newline='\n')
+            with self.assertRaisesRegex(ValueError,'consumer provenance'):ci.qualify(self.repo,self.work)
 
     def test_mutated_source_fails_before_authorization(self):
         (self.repo/'marker.txt').write_text('changed')

@@ -215,10 +215,15 @@ static func _negatives(r: Dictionary, source: Dictionary) -> void:
 		if name=="engine-channel-duplicate":
 			payload=payload.replace('"engine.running":','"engine.running":{"value":false,"unit":"bool","valid":true,"error":""},"engine.running":')
 		_result(r,Codec.decode(_envelope(payload)),false,name+":wire-reject")
-	for pair in [[1,2],[2,1],[3,3],[0,0],[true,true],["2","2"]]:
+	for pair in [[1,2],[2,1],[4,4],[0,0],[true,true],["2","2"]]:
 		var result: Dictionary=Codec.decode(_envelope("not-json",pair[0],pair[1]))
 		_result(r,result,false,"outer-pair-before-inner-"+str(pair))
 		_check(r,result.error=="Unsupported archive or recording version","outer-pair-precedes-payload-parser-"+str(pair))
+	# Revision 3 is now admitted. The same malformed inner text must reach the
+	# unchanged strict payload grammar rather than an unsupported-version gate.
+	var admitted3: Dictionary=Codec.decode(_envelope("not-json",3,3))
+	_result(r,admitted3,false,"admitted-outer3-rejects-malformed-payload")
+	_check(r,admitted3.error=="Invalid JSON literal","admitted-outer3-reaches-strict-payload-parser")
 	var raw_inner: Dictionary=_wire(source)
 	raw_inner.contract_version=1
 	_result(r,Codec.decode(_envelope(JSON.stringify(raw_inner,"",true))),false,"admitted-outer2-rejects-inner1")

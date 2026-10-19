@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {validateContract,contractSetSha256} from '../../schemas/validate.mjs';
-import {currentInteractiveIdentity} from './source-fingerprint.mjs';
+import {currentInteractiveIdentity,interactiveSources,residentSources,residentControls} from './source-fingerprint.mjs';
 
 const root=fileURLToPath(new URL('../../',import.meta.url));
 const models=join(root,'native/fdm_jsbsim/models/original-interactive');
@@ -69,4 +69,35 @@ test('changed inventory or airframe bytes fail closed before backend model parsi
     await writeFile(join(altered,path),(await readFile(join(altered,path))).subarray(1));
     assert.throws(()=>run('tampered','negatives',altered),error=>error.status!==0&&/model pin\/path mismatch/.test(error.stderr),'Altered exact model bytes cannot initialize');
   }
+});
+
+
+// Separate Node reproduction of the accepted component recipe. Native and
+// delivery producer helpers are not imported; their success fields are not input.
+test('actual resident component recipe and inserted source prefix match the selected build',async()=>{
+  assert.equal(interactiveSources.length,25);
+  assert.equal(residentSources.length,23);
+  assert.equal(residentControls.length,4);
+  const raw=await readFile(join(root,'native/world_core/resident_world/component-v1.json'));
+  assert.equal(sha(raw),'ad219321c2f867e11cbd49b1a18f513625a4e19b78b2c1cda56155c423f6d6b5');
+  const manifest=JSON.parse(raw);
+  assert.deepEqual(Object.keys(manifest),['schema','sources','controls']);
+  let recipe='resident-world-component-v1\n';
+  for(const [kind,key] of [['source','sources'],['control','controls']]){
+    for(const row of manifest[key]){
+      const digest=sha(Buffer.from((await readFile(join(root,row.path),'utf8')).replaceAll('\r\n','\n')));
+      assert.equal(digest,row.sha256);
+      recipe+=kind+':'+row.path+':'+digest+'\n';
+    }
+  }
+  const expected=sha(Buffer.from(recipe));
+  assert.equal(expected,'c8fb140ab69366329aab125cfb021255a74a8be982bf0750b956871f0d69cf8c');
+  assert.equal(sourceIdentity.resident_component_sha256,expected);
+  assert.equal(sourceIdentity.resident_component_manifest_sha256,sha(raw));
+  assert.equal(sourceIdentity.sources.length,25,'Existing source observations stay exactly25');
+  const build=join(binary,'../..');
+  const witness=(await readFile(join(build,'resident-world-component-fingerprint.txt'),'utf8')).replaceAll('\r\n','\n');
+  assert.equal(witness,expected+'\n'+recipe);
+  const sourceWitness=(await readFile(join(build,'interactive-source-fingerprint.txt'),'utf8')).replaceAll('\r\n','\n');
+  assert.equal(sourceWitness.split('\n')[3],'resident-world-component:'+expected,'Component prefix follows the existing two backend/control lines');
 });

@@ -1,0 +1,115 @@
+{
+  "schema": "ResidentWorldComponent/v1",
+  "sources": [
+    {
+      "path": "native/world_core/grid/src/exact.hpp",
+      "sha256": "97542cbf0a8a14c24c759765f5b43da1864ff87060adce5d0777668c36e2720c"
+    },
+    {
+      "path": "native/world_core/grid/src/validation.hpp",
+      "sha256": "a7603f9b9d8897a661414c4b6514d462858ed33e7546be6f33b4f690f26b7f93"
+    },
+    {
+      "path": "native/world_core/grid/src/validation.cpp",
+      "sha256": "02bc38d1b9bcf8f22db1d62d4c2e90301d8f37db014c6fc7d8f2f1b7fab33b14"
+    },
+    {
+      "path": "native/world_core/grid/src/canonical_frame.hpp",
+      "sha256": "2584f6cc014b2f0b434662666b919d080daf076e0721b5f017c729c8763708cf"
+    },
+    {
+      "path": "native/world_core/grid/src/prepared_grid.cpp",
+      "sha256": "208df633d0f7ac5ad12868065295fa9522227faba31063fd80608460db079084"
+    },
+    {
+      "path": "native/world_core/grid/src/grid_payload.cpp",
+      "sha256": "a761569a80f96db9a8b0997fcad9d05c21d0573814d7cfd5e6e841e5374fb960"
+    },
+    {
+      "path": "native/world_core/grid/include/flight/ground/prepared_grid.hpp",
+      "sha256": "7b7f7dee3875cf67d9df8057405fc729ec72da4570dfcd5f8a4dca755d6e96f3"
+    },
+    {
+      "path": "native/world_core/grid/include/flight/ground/grid_payload.hpp",
+      "sha256": "625c89c99f284d6cfcaa826470f27457958670bd6cdc3e2662791599eb73d61f"
+    },
+    {
+      "path": "native/world_core/ground/include/flight/ground/provider.hpp",
+      "sha256": "00e3bded97dece2d74609ad238ed89986616411a433d233029b9fa33607725b1"
+    },
+    {
+      "path": "native/sim_core/contracts/include/flight/contracts/types.hpp",
+      "sha256": "8ff8680c1139b8a25f4571c43cde2bc3dced36896c633689ac3d7073131e3177"
+    },
+    {
+      "path": "native/sim_core/contracts/include/flight/contracts/boundaries.hpp",
+      "sha256": "928a89f137ca9fa48a85cefc86d9b2c801385e7d4f462d0974a436a84dfd6668"
+    },
+    {
+      "path": "native/sim_core/contracts/include/flight/contracts/geodesy.hpp",
+      "sha256": "fa020d241df03808f85bb626963ee2e034750aca4df76aeece9c04695b4936b1"
+    },
+    {
+      "path": "native/fdm_jsbsim/interactive/include/flight/interactive/prepared_world.hpp",
+      "sha256": "ac459c3c8d3587997e18795e0718e481f66f79d999960c5006ff01d2c741d0be"
+    },
+    {
+      "path": "native/fdm_jsbsim/interactive/src/prepared_world.cpp",
+      "sha256": "a3fb1ade77a656f33c752c8d7d5fe2413d1a706bbf2f0f2dd2877524e52788ee"
+    },
+    {
+      "path": "native/fdm_jsbsim/interactive/src/prepared_world_catalog.hpp",
+      "sha256": "c99b7d4fbc412a32511b55c2aba924c42a9673ef2c1cd90e26ad11eefea3dd05"
+    },
+    {
+      "path": "content/world/catalog/kawo-runtime-v1.json",
+      "sha256": "c097d91e6c8263e75f2ca3339f60d5bd3c387ea22e90f6093e02169757f94799"
+    },
+    {
+      "path": "native/fdm_jsbsim/include/flight/fdm/model.hpp",
+      "sha256": "7be066f9efe612be9191f441fc0c96c56e9312bb456bef08bb67322f0b92c1f1"
+    },
+    {
+      "path": "native/fdm_jsbsim/include/flight/fdm/session.hpp",
+      "sha256": "cfc119dc575b56ddbdef483ab5e953ead9258783aea65b4c6571e8fffaec8ff3"
+    },
+    {
+      "path": "native/fdm_jsbsim/include/flight/fdm/protocol.hpp",
+      "sha256": "a2162952b487b3eb7010742187eff348d58faf5446b7232e7604c496482a34bc"
+    },
+    {
+      "path": "native/fdm_jsbsim/src/model.cpp",
+      "sha256": "e86090ef18c3ad7b9841ea7861971fbd7cc0abbac1267db7f470d56876ee89bc"
+    },
+    {
+      "path": "native/fdm_jsbsim/src/model_hashes.hpp",
+      "sha256": "77fd1721e469dd4be38c851ea3bbc7caa54b14eec5918ba594f2404bd66581bc"
+    },
+    {
+      "path": "native/fdm_jsbsim/src/session.cpp",
+      "sha256": "7458bd836eeb7dba176c9295f82838adf61f6cad7396f847abf0542b218c8cce"
+    },
+    {
+      "path": "native/fdm_jsbsim/src/protocol.cpp",
+      "sha256": "a6a0c72017369f44ef42a1027fecd6edffbcb0514ea614e1c9b6f37617061d91"
+    }
+  ],
+  "controls": [
+    {
+      "path": "native/world_core/grid/CMakeLists.txt",
+      "sha256": "e23901f36923a374fcc15a1e53a96c23822de23abdf0be10ee047f6b8a9fca39"
+    },
+    {
+      "path": "native/world_core/ground/CMakeLists.txt",
+      "sha256": "cbfb5b20cc6d7fbeb586fc2d26caa97054d1bd039b68104bd9c3910a67f7202a"
+    },
+    {
+      "path": "native/sim_core/contracts/CMakeLists.txt",
+      "sha256": "3d3cf288785f3b85d75d5833d3c94b9252c2109b797cea2c5388dfdffed0eef7"
+    },
+    {
+      "path": "tools/interactive-preview/world-catalog.mjs",
+      "sha256": "5af495b1be8312cdc30df7e4972b05db80d70f0b40be79a99ef914e9fb32b8a9"
+    }
+  ]
+}

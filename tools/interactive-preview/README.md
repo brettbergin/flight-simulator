@@ -2,6 +2,50 @@
 
 Windows x64, PowerShell 7+, original synthetic flight model with tricycle gear. The player includes an original high-wing aircraft, procedural cockpit interior with a live physical dashboard, synthetic airfield scenery, responsive graphical instruments, camera controls, a local airfield map, smooth pilot input and procedural sound. This is not a C172, validated landing lesson or qualified training device. Instruments display derived native truth, with TAS and ellipsoid height explicitly labeled.
 
+## Select the KAWO prototype world
+
+The original synthetic airfield remains the default. In builds from this
+revision, pause with **P** or **Escape**, then choose
+**World: synthetic airfield · switch to KAWO**. Confirm replacement if prompted.
+This creates a fresh paused **ground-ready** flight on physical runway 34, using
+the original ready-to-fly aircraft, calm conditions and the fixed source-bound
+KAWO terrain. Choose **Resume** when ready. Selecting a world does not restore a
+saved aircraft state. The button becomes
+**World: KAWO prototype · switch to synthetic** for the return journey.
+
+KAWO currently supports that one aircraft/start/weather combination. The cold
+piston profile and airborne prepared starts remain available in the synthetic
+world. KAWO's map uses compiled physical runway ends **11/29/16/34**; with the
+locator open, the normal runway-selection control cycles those ends. Synthetic
+Taxi, Landmark route and circuit-reference aids are unavailable at KAWO. The
+physical ends are not operational landing thresholds or declared distances.
+
+Native contact and rendering share the exact 4 m canonical terrain and triangle
+topology, including sloping runway footprints. Camera clearance uses that same
+presentation surface. Coverage is anchor-EUS east **[-6,144, 6,144) m**, south
+**[-4,096, 4,096) m**, with stricter native readiness guards near its boundary.
+This is a bounded local world; missing coverage does not become a flat fallback.
+
+KAWO flight reviews use Recording3/archive3 and the existing explicit
+**Flight review → Save new review / Open review** flow. When a named player's
+storage service is available, a verified file Save and its Practice association
+are reported separately. A paused tick-61 file can wait for an ordinary
+observation or actual close/end ACK before storage acknowledges its link. An
+opened file is historical review and never resumes flight. The isolated
+test-store journey does not qualify shipping storage delivery; see the
+[journey evidence](../../docs/evidence/P4/kawo-world-journey.md).
+
+The airport uses dated FAA/USGS-derived prototype data. Total 3D datum accuracy
+remains unknown; height is ellipsoid height, operational airport/obstacle
+coverage is incomplete, and the aircraft is an original prototype. Existing
+software controls still apply. These changes establish no C172 handling,
+navigation suitability, pilot acceptance or training credit. Current evidence
+separates [native contact](../../docs/evidence/P4/kawo-native-flight.md),
+[CPU terrain checks](../../docs/evidence/P4/kawo-terrain-renderer.md), visual
+review, final Windows package checks and manual-flight review.
+
+## Build and launch
+
 Build the pinned native toolchain first, then:
 
 ```powershell
@@ -11,13 +55,13 @@ $run=Get-Content .local/interactive-preview/latest-run.json -Raw | ConvertFrom-J
 & (Join-Path $run.payload 'launch.ps1')
 ```
 
-When reusing an already verified native build in another checkout, pass its directory as `-NativeBuildRoot`. It must have been configured against this checkout with bindings and compile commands enabled. The preview independently verifies its complete selected source, compiler/build controls and fifteen ordered consumer inputs, then compares its compiled definition, manifests, bridge and generated resource. Staging writes only to a fresh preview directory. The selected library must match its own reviewed export/source/replacement proof, including both JSBSim and bridge bytes. Pristine and coupled-source builds have separate closed release selections; an old pristine proof cannot qualify a coupled build. The held-power research source has no player release policy.
+When reusing an already verified native build in another checkout, pass its directory as `-NativeBuildRoot`. It must have been configured against this checkout with bindings and compile commands enabled. The preview independently verifies its complete selected source, compiler/build controls and 25 ordered consumer inputs and 18 build controls, then compares its compiled definition, manifests, bridge and generated resource. Staging writes only to a fresh preview directory. The selected library must match its own reviewed export/source/replacement proof, including both JSBSim and bridge bytes. Pristine and coupled-source builds have separate closed release selections; an old pristine proof cannot qualify a coupled build. The held-power research source has no player release policy.
 
-The generated expectation follows [ADR016](../../docs/decisions/016-generated-native-build-identity.md). CMake writes `native-identity.gd`; staging copies its exact six-line UTF-8/LF bytes to `build/native_identity.gd`, separately from the authored simulation snapshot. The facade preloads that resource and still compares the actual native open fingerprint exactly. `PreviewNativeBuildIdentity/v2` evidence has the closed fifteen-source/seven-witness roster. The existing source selectors may use disposable workspace scratch for provenance reconstruction; no native library, compiler or Godot is executed by the identity helper. A declaration does not establish actual module identity or a new profile's acceptance.
+The generated expectation follows [ADR016](../../docs/decisions/016-generated-native-build-identity.md). CMake writes `native-identity.gd`; staging copies its exact six-line UTF-8/LF bytes to `build/native_identity.gd`, separately from the authored simulation snapshot. The facade preloads that resource and still compares the actual native open fingerprint exactly. `PreviewNativeBuildIdentity/v2` evidence has the closed 25-source/seven-witness roster. The existing source selectors may use disposable workspace scratch for provenance reconstruction; no native library, compiler or Godot is executed by the identity helper. A declaration does not establish actual module identity or a new profile's acceptance.
 
 Only the fresh preview's export preset selects text scripts, allowing the canonical resource bytes to survive in the PCK. Editor, exported and replacement facade checks save separate `PreviewNativeResource/v1` byte/hash receipts, which must match the independently qualified resource. The authored export preset stays unchanged. Runtime library/module and replacement checks remain separate, and there is no application DLL-byte allowlist. Historical packages and identity evidence are never upgraded in place.
 
-Corresponding source includes the canonical resource under `source/whole-flight-preview/build/`, plus `NATIVE-RECONSTRUCTION.txt` and a hashed `repository/` overlay. Reconstruct a fresh checkout at the exact public commit named in those instructions, verify/apply every overlay, then follow the pinned bootstrap. All fifteen consumer inputs, build controls/template, current native sources and engine/interactive/bootstrap additions are supplied. Rebuilding produces a new toolchain-qualified identity; the historical generated resource must not relabel that build. The separately delivered JSBSim source archive/build instructions retain modification, debugging and compatible library replacement rights.
+Corresponding source includes the canonical resource under `source/whole-flight-preview/build/`, plus `NATIVE-RECONSTRUCTION.txt` and a hashed `repository/` overlay. Reconstruct a fresh checkout at the exact public commit named in those instructions, verify/apply every overlay, then follow the pinned bootstrap. All 25 consumer inputs, build controls/template, current native sources and engine/interactive/bootstrap additions are supplied. Rebuilding produces a new toolchain-qualified identity; the historical generated resource must not relabel that build. The separately delivered JSBSim source archive/build instructions retain modification, debugging and compatible library replacement rights.
 
 Offline delivery checks are `python -B tools/interactive-preview/test_native_identity.py`, `./tools/interactive-preview/simulation-staging.test.ps1` and `node --test tools/interactive-preview/verify.test.mjs`. Their synthetic compiler/bridge files are never executed. Actual editor/export/relocation/replacement qualification remains required.
 
