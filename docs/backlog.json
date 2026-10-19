@@ -8319,7 +8319,10 @@
         "tools/ci/coupled-local-window-player.py",
         "tools/ci/test_coupled_local_window_player.py",
         ".github/workflows/coupled-ci.yml",
-        ".github/workflows/coupled-local-window-ci.yml"
+        ".github/workflows/coupled-local-window-ci.yml",
+        "tools/interactive-preview/simulation-staging.test.ps1",
+        "tools/interactive-preview/camera-receipt.mjs",
+        "tools/interactive-preview/camera-receipt.test.mjs"
       ],
       "docs": [
         "docs/agent-operations.md",

@@ -75,3 +75,22 @@ execution remains a separate hosted gate. Each reference job now runs its
 existing cheap reader/source tests before expensive reference reproduction,
 retaining their logs alongside the mathematical evidence. Existing platform
 checks and numerical execution remain in place.
+
+## Current apron delivery source binding
+
+The Windows local-window player job at runtime source `55897762128217e00246f51c43c33909f845df33`
+passed all 17 native CTests, including `interactive_apron_starts`, then refused
+whole-flight staging because three apron admission pins still named the older
+native source. The corresponding scenery job refused the same gate. Both failed
+logs are retained; neither establishes a passing player package.
+
+The staging, taxi-package and camera-receipt consumers now bind only the exact
+current Session header, Session implementation and interactive bridge bytes.
+The mandatory full-supported checks remain unchanged. Existing inexpensive
+PowerShell and Node tests additionally compare their independent literal pins
+to actual repository bytes and reject historical/current source mixtures.
+This correction enables the existing apron camera and taxi Scene branches;
+fresh actual execution and package admission remain required. Original apron
+references, models, physical thresholds and the native fingerprint roster are
+unchanged. The earlier historical KAWO package observations do not qualify these
+newly enabled branches.
