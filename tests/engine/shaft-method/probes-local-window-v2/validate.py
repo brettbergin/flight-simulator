@@ -11,7 +11,7 @@ SOURCE_MANIFEST=None
 REFERENCE=HERE.parent/'coupled-midpoint-v1'
 REFERENCE_FILES={'generate.py','exact.py','native_fixture.py','cases.json','test_reference.py','test_native_fixture.py','README.md','COMPARISON-PLAN.md','NATIVE-FIXTURES.md'}
 PROBE_FILES={'CMakeLists.txt','prepare.py','driver.template.cpp','library-probe.cpp','chronology-probe.cpp','terminal-retention.cpp','validate.py','test_validate.py','legacy_compare.py','source-chronology.py','run.py','test_portable.py','README.md'}
-SHARED_FILES={'tests/engine/loaded-library.hpp','tests/engine/reference/expected-v3.json','tests/engine/CMakeLists.txt','tools/bootstrap/build.ps1',
+SHARED_FILES={'tests/engine/loaded-library.hpp','tests/engine/reference/expected-v3.json','tests/engine/CMakeLists.txt','tools/bootstrap/build.ps1','tools/interactive-preview/native-identity.py',
     'tests/engine/local-window-v2/CMakeLists.txt','tools/bootstrap/build-local-window.ps1'}
 MODEL_FILES={'native/fdm_jsbsim/models/original-piston-prop/engine/original-fixed-prop.xml','native/fdm_jsbsim/models/original-piston-prop/engine/original-piston.xml'}
 GROUPS={f'{p}{i:02}' for p,n in [('C',7),('K',16),('E',7),('R',5),('M',6)] for i in range(1,n+1)}

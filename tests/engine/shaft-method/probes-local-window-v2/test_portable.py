@@ -6,6 +6,49 @@ import validate as v
 import run as runner
 
 class PortableIdentityTests(unittest.TestCase):
+    def test_resident_component_and_closed_consumer_body(self):
+        # Source-only fixture copied from the fixed accepted roster: no DLL,
+        # executable, compiler or reference producer is opened or launched.
+        accepted=Path(__file__).resolve().parents[4]
+        current=runner.resident_inputs(accepted)
+        self.assertEqual(current['sha256'],'c8fb140ab69366329aab125cfb021255a74a8be982bf0750b956871f0d69cf8c')
+        self.assertEqual(len(current['sources']),25);self.assertEqual(len(current['paths']),54)
+        manifest_name='native/world_core/resident_world/component-v1.json'
+        raw=(accepted/manifest_name).read_bytes()
+        self.assertEqual(hashlib.sha256(raw).hexdigest(),'ad219321c2f867e11cbd49b1a18f513625a4e19b78b2c1cda56155c423f6d6b5')
+        manifest=json.loads(raw)
+        recipe='resident-world-component-v1\n'+''.join(kind+':'+row['path']+':'+row['sha256']+'\n' for kind,group in (('source','sources'),('control','controls')) for row in manifest[group])
+        self.assertEqual(hashlib.sha256(recipe.encode()).hexdigest(),current['sha256'])
+        with tempfile.TemporaryDirectory() as name:
+            root=Path(name).resolve();repo=root/'repo';build=root/'build';build.mkdir()
+            for item in (*current['paths'],'native/fdm_jsbsim/interactive/CMakeLists.txt'):
+                path=repo/item;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes((accepted/item).read_bytes())
+            witness=build/'resident-world-component-fingerprint.txt'
+            text=current['sha256']+'\n'+recipe;witness.write_bytes(text.replace('\n','\r\n').encode())
+            self.assertEqual(runner.resident_inputs(repo,build),current)
+            source={'backend_identity_sha256':'a'*64,'build_control_sha256':'b'*64}
+            prefix='verified-jsbsim-backend:'+'a'*64+'\njsbsim-build-controls:'+'b'*64+'\nresident-world-component:'+current['sha256']+'\n'
+            rows=[item+':'+hashlib.sha256((repo/item).read_bytes().replace(b'\r\n',b'\n')).hexdigest()+'\n' for item in current['sources']]
+            body=prefix+''.join(rows)
+            self.assertEqual(runner.consumer_sources(repo,build,source,body),current['paths'])
+            component_row='resident-world-component:'+current['sha256']+'\n'
+            for bad in (body.replace(component_row,''),body.replace(component_row,component_row*2),
+                        body.replace(component_row,'resident-world-component:'+'e'*64+'\n'),
+                        prefix+''.join(reversed(rows)),body+rows[-1],body[:-1]):
+                with self.assertRaisesRegex(ValueError,'consumer backend/control/component/source mismatch'):
+                    runner.consumer_sources(repo,build,source,bad)
+            for item in (manifest_name,'native/world_core/grid/src/exact.hpp','native/world_core/grid/CMakeLists.txt'):
+                path=repo/item;saved=path.read_bytes();path.write_bytes(saved+b'changed\n')
+                with self.assertRaises(ValueError):runner.resident_inputs(repo,build)
+                path.write_bytes(saved)
+            old_source=repo/'native/godot_bridge/src/wire_numbers.cpp';saved=old_source.read_bytes()
+            old_source.write_bytes(saved+b'changed old source\n')
+            with self.assertRaisesRegex(ValueError,'consumer backend/control/component/source mismatch'):
+                runner.consumer_sources(repo,build,source,body)
+            old_source.write_bytes(saved)
+            witness.write_bytes(('0'+text[1:]).encode())
+            with self.assertRaisesRegex(ValueError,'compiled witness mismatch'):runner.resident_inputs(repo,build)
+
     def build_fixture(self,root):
         repo=root/'repo';probes=repo/'tests/engine/shaft-method/probes-local-window-v2';vendor=root/'vendor';build=root/'build';generated=build/'generated'
         for directory in (probes,vendor,generated):directory.mkdir(parents=True)
@@ -189,6 +232,13 @@ class PortableIdentityTests(unittest.TestCase):
                 runner.verify_pretrial(path,repo,['native/consumer.cpp'])
                 (repo/'native/consumer.cpp').write_bytes(b'changed\n')
                 with self.assertRaisesRegex(ValueError,'source identity changed'):runner.verify_pretrial(path,repo,['native/consumer.cpp'])
+
+    def test_pretrial_resident_closure_cannot_be_omitted(self):
+        with tempfile.TemporaryDirectory() as name:
+            repo,ref,path,_=self.pretrial_fixture(Path(name))
+            critical=['native/consumer.cpp','native/world_core/resident_world/component-v1.json']
+            with patch.object(v,'HERE',ref.parent/'probes-local-window-v2'),patch.object(v,'REFERENCE',ref),patch.object(v,'reference_manifest',return_value={'packet':{'sha256':'1'*64}}),patch.dict(runner.LOCAL_WINDOW_PINS,{n:v.sha(repo/n) for n in runner.LOCAL_WINDOW_PINS},clear=True),self.assertRaisesRegex(ValueError,'omitted critical source closure'):
+                runner.verify_pretrial(path,repo,critical)
 
     def test_pretrial_critical_omission_rejected(self):
         with tempfile.TemporaryDirectory() as name:

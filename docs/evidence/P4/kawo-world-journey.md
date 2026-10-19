@@ -133,3 +133,36 @@ can clear script overrides in release builds. Actual shipping-executable KAWO
 selection and scenery-resource loading therefore remain separate checks through
 the game's existing test dispatch. The combined-flight package tests above use
 the synthetic world; they do not establish a geographic takeoff or landing.
+
+## Later scripted geographic flight observation
+
+A separate isolated observation used the unchanged original
+`preview.gd::run_automated_loop()` and its existing control formulas and
+21,600-step bound. A private Scene adapter advanced the ordinary facade at
+8334/8333/8333 microseconds per tick and checked actual session/source, tick,
+ground validity and native outcomes. Raw input was released, storage disabled,
+and this was explicitly automated feedback, with no runway-heading guidance.
+
+The run took off at tick 3753 and reached 32.173574 m maximum ground clearance.
+First contact occurred at tick 7318 around anchor EUS `(232.17,16.31,-1620.23)` m.
+That position is beyond the compiled runway 16/34 footprint, whose northernmost
+south coordinate is -955.983 m. At attempt 7329 the native executive discarded
+publication after tick 7328 with `Nonfinite/out-of-domain prototype publication`.
+The final published speed was 52.559920 m/s; the all-gears/stopped gate failed.
+This is a failed geographic flight observation, not successful landing/braking
+qualification. The observation alone does not distinguish all contact-model
+behavior from this driver's unplanned terrain impact.
+
+Actual native/audio cleanup joined, source seals remained unchanged, and the
+process exited 1 after 162.707 seconds. The retained result SHA-256 is
+`69ce772c825ad2dacebbd200dcf5a871a8e3c5aaf914813c65c758ecb8e368c4`;
+the process receipt is
+`7dd3164d8828ee8c81a00d94aff1d19cb071dc75256c1942a21461c0d9054cb5`.
+The actual step trace is
+`977248fdcea655382cd8b59fec5d3e4041cf1d6b46ad10de3efcde04cfafa6f0`.
+Earlier sandbox-restricted attempts failed before adoption because ancestor
+directories could not be inspected; the unchanged observation then ran with
+that read access. Driver limits, physics and publication bounds were retained.
+Manual geographic takeoff/landing/braking and broader #261/#263 acceptance
+remain open. Scene/export loading evidence is recorded separately in the
+[scenery PR #266](https://github.com/brettbergin/flight-simulator/pull/266) when that leaf lands.

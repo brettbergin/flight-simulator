@@ -5,7 +5,7 @@ side effect of compiling. No property injection or altered numerical expectation
 """
 from pathlib import Path
 from types import SimpleNamespace
-import argparse,datetime,hashlib,json,os,re,subprocess,sys,unittest,uuid
+import argparse,datetime,hashlib,importlib.util,json,os,re,subprocess,sys,unittest,uuid
 import validate as v
 
 LABELS=('kernel','library','chronology','terminal')
@@ -57,26 +57,44 @@ def verify_pretrial(path,repo,consumer_paths):
     v.demand(isinstance(pretrial['source_inputs'],dict) and critical<=set(pretrial['source_inputs']),'pretrial omitted critical source closure')
     for name,meta in pretrial['source_inputs'].items():v.file_identity(v.contained(repo,name),meta)
 
+def resident_inputs(repo,build=None):
+    # Reuse the existing fixed component admission; never trust a metadata row
+    # as a repository filename or waive its current source/control binding.
+    helper='tools/interactive-preview/native-identity.py'
+    spec=importlib.util.spec_from_file_location('coupled_resident_identity',repo/helper)
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    component=module.resident_component(repo)
+    module.cmake_roster(repo,'native/fdm_jsbsim/interactive/CMakeLists.txt','INTERACTIVE_SOURCE_PATHS',module.SOURCES)
+    if build is not None:
+        witness=module.lf(module.read(build,'resident-world-component-fingerprint.txt'))
+        v.demand(witness==component['sha256'].encode()+b'\n'+component['recipe'],'resident component compiled witness mismatch')
+    paths=[helper,module.RESIDENT_MANIFEST,*module.SOURCES]
+    paths.extend(row['path'] for group in ('source_bindings','control_bindings') for row in component[group])
+    return dict(sha256=component['sha256'],sources=module.SOURCES,paths=tuple(dict.fromkeys(paths)))
+
+def consumer_sources(repo,build,source,body):
+    resident=resident_inputs(repo,build)
+    prefix=['verified-jsbsim-backend:'+source['backend_identity_sha256'],
+            'jsbsim-build-controls:'+source['build_control_sha256'],
+            'resident-world-component:'+resident['sha256']]
+    expected=prefix+[name+':'+hashlib.sha256((repo/name).read_bytes().decode('utf-8').replace('\r\n','\n').encode()).hexdigest() for name in resident['sources']]
+    v.demand(body=='\n'.join(expected)+'\n','consumer backend/control/component/source mismatch')
+    return resident['paths']
+
 def qualify(a):
     v.source_files()
     build=Path(a['build_root']);source=v.load(a['source_manifest']);verify_model(a)
     consumer=(build/'interactive-source-fingerprint.txt').read_text(encoding='utf-8')
     first,body=consumer.split('\n',1)
     v.demand(first==source['consumer_fingerprint']==hashlib.sha256(body.encode()).hexdigest(),'consumer declaration hash mismatch')
-    rows=body.splitlines()
-    v.demand(rows[:2]==['verified-jsbsim-backend:'+source['backend_identity_sha256'],'jsbsim-build-controls:'+source['build_control_sha256']],'consumer backend/control mismatch')
     repo=Path(a['repository_root']).resolve()
-    for row in rows[2:]:
-        name,want=row.rsplit(':',1);path=(repo/name).resolve()
-        v.demand(path.is_relative_to(repo),'consumer path escaped repository')
-        text=path.read_bytes().decode('utf-8').replace('\r\n','\n')
-        v.demand(hashlib.sha256(text.encode()).hexdigest()==want,'consumer source changed: '+name)
+    consumer_paths=consumer_sources(repo,build,source,body)
     route=v.load(build/'event-aware-route.json');result=v.load(build/'event-aware-build-result.json')
     v.demand(result['status']=='COMPILED_NOT_TESTED' and result['route_sha256']==v.sha(build/'event-aware-route.json'),'staged compilation absent')
     v.demand(route['source_variant']=='jsbsim-1.3.1-event-aware-coupled-midpoint-v1' and route['backend_identity_sha256']==source['backend_identity_sha256'],'wrong compiled backend')
     v.demand(Path(route['repository_root']).samefile(a['repository_root']) and Path(route['build_directory']).samefile(build),'staged path mismatch')
     v.demand(v.sha(route['pretrial_path'])==route['pretrial_sha256'],'pretrial identity changed')
-    verify_pretrial(Path(route['pretrial_path']),repo,[row.rsplit(':',1)[0] for row in rows[2:]])
+    verify_pretrial(Path(route['pretrial_path']),repo,consumer_paths)
     v.demand(route['build_entry_sha256']==v.sha(Path(a['repository_root'])/'tools/bootstrap/build.ps1'),'staged build entry changed')
     for key,name in (('cmake_cache_sha256','CMakeCache.txt'),('compile_commands_sha256','compile_commands.json'),('verbose_build_sha256','native-verbose-build.log')):
         v.demand(result[key]==v.sha(build/name),'staged compiler input changed: '+name)
