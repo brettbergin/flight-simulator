@@ -58,7 +58,9 @@ The recorded source/evidence hashes are:
 | Artifact | SHA256 |
 | --- | --- |
 | Reviewed KawoWorld paint/glyph source | `83e0bbcbed3ff80917e6f149db681bd613c623799b404411fd1d6906176e9c44` |
-| Focused checks source | `b4f8485b2558d3defc2a75850bc5f790a154e6c30e3b589172bc3b1f05803359` |
+| Original checks before Node-host extraction | `b4f8485b2558d3defc2a75850bc5f790a154e6c30e3b589172bc3b1f05803359` |
+| Current checks, same assertions and controls | `bc1b3948ab9ec02b92cf20efdab8be114b358cb4f9f1ab7f6fb56721630fbea2` |
+| Node proof host | `fd5108fb8d4a0eebe8f15b61a8a9a71bbaadfc9f945f0aef35ab03db83284929` |
 | Independent controls | `150f64031548bbbe38930c842315dacb89513dd857184ae79e8cad6467c78a18` |
 | Geometry log | `75cade25feeeb1dd82e30a2b2ab1308d9c74102fdbbe5eb769e904865bf7e8c8` |
 | Material log | `92dc0c9202deef0418c88ef7ac2e8e4bb397faa49b2b20637c58bc65263d4a31` |
@@ -106,3 +108,41 @@ marks, lights, taxiway signs or operational-distance guidance. The visible
 unsurveyed-scenery caveat must cover this paint. Future source-backed airport
 markings require their own rights, applicability, geometry and validation work;
 these original dimensions are not a substitute.
+
+## Compatibility renderer and exported proof entry
+
+The same World83 source and 43-view host also completed on actual OpenGL3 /
+Godot compatibility rendering on the RTX 3090. Every image hash, native/audio
+join, immutable native/source/resource guard and both normal-origin transactions
+passed. Root inspected representative chase, number and shifted-origin originals.
+Its raw capture receipt SHA256 is
+`a22367eb7f135778323a99e2c324859a59e44644ed816686e90421fe37e362ef`.
+These are authoring-executable GPU observations; they are not exported GPU or
+pilot acceptance. Both renderer captures use Scene08b before the later nonvisual
+proof-entry branch; the production shader and ordinary visual path are unchanged.
+
+The first full package attempt retained a joined/drained 120-second watchdog
+failure during the existing archive suite. The retry used the supported
+600-second facade integration limit and passed editor KAWO86, paint132 and
+camera2017/21, plus portable and rebuilt-library smoke. It then failed the
+unchanged 120-second portable paint deadline: the script override produced no
+paint terminal. Neither attempt is accepted as a complete package.
+
+The correction moves only test lifecycle code into a fixed Node host and a
+RefCounted check module. Every geometric/material assertion, frozen control,
+budget and result field remains unchanged. The ordinary root Scene uses its
+existing explicit proof-dispatch pattern before device, flight or player
+initialization. Normal editor/portable/rebuilt calls use
+`-- --runway-paint-geometry-checks`; actual material observations use the separate
+material flag and require graphics. The same 120-second paint deadline and exact
+terminal gate remain. Closed staging/reconstruction now includes all five
+authored files, while the native 25/18/component rosters remain unchanged.
+
+The corrected isolated Node host passed geometry132 and actual OpenGL material156;
+conflicting flags and headless material mode both refused with the expected
+single failure. The geometry log is byte-identical to the original accepted
+geometry output (`75cade25feeeb1dd82e30a2b2ab1308d9c74102fdbbe5eb769e904865bf7e8c8`).
+The new material log SHA256 is
+`1f31110441ff2ddbb8ac8b956d2179592c7438c97909a9f3f5c07089d5892c49`.
+Fresh final-source export qualification is still required; current CI and PR
+evidence must record its actual completion separately.

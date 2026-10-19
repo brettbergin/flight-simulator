@@ -102,6 +102,8 @@ EXPECTED_PAINT_RECONSTRUCTION_PATHS = (
     'tests/world/runway-paint/checks.gd',
     'tests/world/runway-paint/controls-v1.json',
     'tests/world/runway-paint/README.md',
+    'tests/world/runway-paint/runner.gd',
+    'tests/world/runway-paint/runner.tscn',
 )
 
 # Independently authored four-unit order from the checked runtime contract.

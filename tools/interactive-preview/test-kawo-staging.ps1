@@ -17,7 +17,7 @@ foreach($relative in @('app/world/world_admission.gd','app/world/terrain/residen
 foreach($name in @('tall-narrow','broad-tiered','irregular-mature')){
  [IO.File]::WriteAllText((Join-Path $source ('assets_source/environment/original-evergreens-v1/exports/'+$name+'-lod0.glb')),'synthetic unselected original LOD0')
 }
-foreach($name in @('checks.gd','controls-v1.json','README.md')){
+foreach($name in @('checks.gd','controls-v1.json','README.md','runner.gd','runner.tscn')){
  $file=Join-Path $source ('tests/world/runway-paint/'+$name)
  New-Item -ItemType Directory -Force -Path (Split-Path $file -Parent)|Out-Null
  [IO.File]::WriteAllText($file,'synthetic paint staging token: '+$name)

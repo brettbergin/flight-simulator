@@ -1,4 +1,4 @@
-extends SceneTree
+extends RefCounted
 # Original MIT. CPU geometry-to-uniform checks against independently frozen
 # synthetic controls. Shader pigment samples remain actual GPU observations.
 const World=preload("res://world/terrain/kawo_world.gd")
@@ -15,9 +15,6 @@ func check(good: bool,name: String) -> void:
 	group.checks+=1
 	if not good and group.failures.size()<32: group.failures.append(name)
 	if not good and failures.size()<32: failures.append(name)
-
-func _initialize() -> void:
-	call_deferred("_run")
 
 func _tag(value: float) -> Dictionary:
 	var bytes:=PackedByteArray()
@@ -50,24 +47,20 @@ func _fixture(fixtures: Dictionary,name: String) -> Dictionary:
 	if name=="crossing.vertical": return fixtures.crossing.vertical
 	return fixtures[name]
 
-func _run() -> void:
-	var args: PackedStringArray=OS.get_cmdline_user_args()
-	if args.size()!=1 or args[0] not in ["geometry","material"]:
+func run(mode: String) -> Dictionary:
+	if mode not in ["geometry","material"]:
 		check(false,"explicit_geometry_or_material_mode_required")
-		_finish(false)
-		return
-	_mode=args[0]
+		return _finish(false)
+	_mode=mode
 	if _mode=="material" and DisplayServer.get_name()=="headless":
 		check(false,"material_mode_requires_real_renderer")
-		_finish(false)
-		return
+		return _finish(false)
 	var path: String="res://runway_paint_tests/controls-v1.json"
 	check(FileAccess.get_sha256(path)==CONTROL_SHA,"frozen_independent_controls")
 	var controls: Variant=JSON.parse_string(FileAccess.get_file_as_string(path))
 	if not controls is Dictionary or not controls.has("fixtures") or not controls.has("cases"):
 		check(false,"read_controls")
-		_finish(false)
-		return
+		return _finish(false)
 	var fixtures: Dictionary=controls.fixtures
 	for entry in controls.cases:
 		if entry.id.ends_with("frame") or entry.id=="translated-three-four-five-frames":
@@ -120,7 +113,7 @@ func _run() -> void:
 	check(World._paint_frame([1.0e40,0.0,0.0],[1.0e40,0.0,1000.0],24.0,["11","29"],horizontal.id).is_empty(),"finite_endpoint_float32_overflow_refused")
 	check(World._paint_frame([0.0,0.0,0.0],[0.0,0.0,1.0e40],24.0,["11","29"],horizontal.id).is_empty(),"finite_length_float32_overflow_refused")
 	check(not World._paint_frame([1.0e20,0.0,0.0],[1.0e20,0.0,1000.0],24.0,["11","29"],horizontal.id).is_empty(),"finite_upload_not_arbitrarily_clamped")
-	_finish(_groups.material.checks>0)
+	return _finish(_groups.material.checks>0)
 
 func _dimension(sample: Dictionary,expected: bool) -> void:
 	var a: Array=sample.physical_ends_xz_m[0]
@@ -146,6 +139,5 @@ func _material(polygons: Array,paint: Array) -> void:
 	check(material.get_shader_parameter("second_wins")==expected,"existing_priority_uniform")
 	_material_active=false
 
-func _finish(material_readback: bool) -> void:
-	print("KAWO_RUNWAY_PAINT_RESULT="+JSON.stringify({"mode":_mode,"checks":checks,"failures":failures,"groups":_groups,"material_readback_exercised":material_readback,"shader_pixel_cases_exercised":false,"native_flight_exercised":false,"scope":"Frozen synthetic frame/box/feasibility and ID-to-uniform controls; white/gap/glyph/AA/crossing pixels require actual GPU observations"}))
-	quit(0 if failures.is_empty() else 1)
+func _finish(material_readback: bool) -> Dictionary:
+	return {"mode":_mode,"checks":checks,"failures":failures,"groups":_groups,"material_readback_exercised":material_readback,"shader_pixel_cases_exercised":false,"native_flight_exercised":false,"scope":"Frozen synthetic frame/box/feasibility and ID-to-uniform controls; white/gap/glyph/AA/crossing pixels require actual GPU observations"}

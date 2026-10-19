@@ -76,7 +76,7 @@ function Get-KawoRuntimeSourceGroups {
  @(
   @{source='app/world';destination='world';selected=$true;required=@('world_admission.gd')},
   @{source='app/world/terrain';destination='world/terrain';selected=$false;required=@('resident_grid_reader.gd','kawo_world.gd')},
-  @{source='tests/world/runway-paint';destination='runway_paint_tests';selected=$false;required=@('checks.gd','controls-v1.json','README.md')},
+  @{source='tests/world/runway-paint';destination='runway_paint_tests';selected=$false;required=@('checks.gd','controls-v1.json','README.md','runner.gd','runner.tscn')},
   @{source='app/world/decoration';destination='world/decoration';selected=$false;required=@('kawo_evergreens.gd')},
   @{source='assets_source/environment/original-evergreens-v1/exports';destination='environment/original-evergreens-v1';selected=$true;required=@('tall-narrow-lod1.glb','broad-tiered-lod1.glb','irregular-mature-lod1.glb')},
   @{source='third_party/licenses/notices';destination='notices';selected=$true;required=@('OriginalEvergreens-MIT.txt')},

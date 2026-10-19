@@ -304,7 +304,7 @@ func _initialize() -> void:
   @{name='ground-checks';args=@('--headless','--path',$project,'res://sim_loop_checks.tscn','--','--ground-material-checks')},
   @{name='facade-checks';args=@('--headless','--path',$project,'res://sim_loop_checks.tscn')},
   @{name='kawo-checks';args=@('--headless','--path',$project,'--','--facade-checks','--kawo-checks')},
-  @{name='runway-paint-geometry';args=@('--headless','--audio-driver','Dummy','--path',$project,'--script','res://runway_paint_tests/checks.gd','--','geometry')},
+  @{name='runway-paint-geometry';args=@('--headless','--audio-driver','Dummy','--path',$project,'--','--runway-paint-geometry-checks')},
   @{name='camera-checks';args=@('--path',$project)+$cameraRenderArguments+@('res://camera_checks.tscn')},
   @{name='editor-smoke';args=@('--headless','--path',$project,'--','--smoke')},
   @{name='export';args=@('--headless','--path',$project,'--export-release','Windows Proof',(Join-Path $payload 'WholeFlightPreview.exe'))}
@@ -433,7 +433,7 @@ finally {
 foreach($target in @(@{name='portable';path=$payload},@{name='replacement';path=$replacement})){
  $kawoResult=Invoke-ProofProcess -Executable (Join-Path $target.path 'WholeFlightPreview.exe') -Arguments @('--headless','--','--facade-checks','--kawo-checks') -WorkingDirectory $root -Log (Join-Path $evidence ($target.name+'-kawo.log')) -CleanEnvironment -ProfileRoot (Join-Path $root ('kawo-userdata-'+$target.name)) -TimeoutSeconds $FacadeCheckTimeoutSeconds
  Assert-PreviewKawoResult $kawoResult $target.name
- $paintResult=Invoke-ProofProcess -Executable (Join-Path $target.path 'WholeFlightPreview.exe') -Arguments @('--headless','--audio-driver','Dummy','--script','res://runway_paint_tests/checks.gd','--','geometry') -WorkingDirectory $root -Log (Join-Path $evidence ($target.name+'-runway-paint-geometry.log')) -CleanEnvironment -ProfileRoot (Join-Path $root ('runway-paint-userdata-'+$target.name)) -TimeoutSeconds 120
+ $paintResult=Invoke-ProofProcess -Executable (Join-Path $target.path 'WholeFlightPreview.exe') -Arguments @('--headless','--audio-driver','Dummy','--','--runway-paint-geometry-checks') -WorkingDirectory $root -Log (Join-Path $evidence ($target.name+'-runway-paint-geometry.log')) -CleanEnvironment -ProfileRoot (Join-Path $root ('runway-paint-userdata-'+$target.name)) -TimeoutSeconds 120
  Assert-PreviewRunwayPaintGeometryResult $paintResult
  Invoke-PreviewGraphicalCameraChecks -Executable (Join-Path $target.path 'WholeFlightPreview.exe') -Arguments ($cameraRenderArguments+@('--','--camera-checks')) -Root $root -TargetPath $target.path -Evidence $evidence -Name $target.name -RepoRoot $repo -ProjectRoot $project -NativeIdentityPath (Join-Path $evidence 'native-build-identity.json') -TimeoutSeconds $FacadeCheckTimeoutSeconds -RequireFullSupported $includePiston
  if($includePiston){

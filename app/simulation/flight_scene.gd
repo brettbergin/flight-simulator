@@ -168,6 +168,20 @@ var _player_restart_after_history: Dictionary = {}
 var _player_flight_buttons: Array[Button] = []
 
 func _ready() -> void:
+	if ("--runway-paint-geometry-checks" in OS.get_cmdline_user_args() or "--runway-paint-material-checks" in OS.get_cmdline_user_args()) and get_parent()==get_tree().root:
+		set_process(false)
+		set_physics_process(false)
+		set_process_input(false)
+		set_process_unhandled_input(false)
+		set_process_unhandled_key_input(false)
+		set_process_shortcut_input(false)
+		var paint_harness: Script=load("res://runway_paint_tests/runner.gd")
+		if paint_harness==null or not paint_harness.can_instantiate():
+			push_error("Runway paint checks harness unavailable")
+			get_tree().quit(1)
+			return
+		add_child(paint_harness.new())
+		return
 	if ("--pointer-checks" in OS.get_cmdline_user_args() or "--pointer-visual-smoke" in OS.get_cmdline_user_args()) and get_parent()==get_tree().root:
 		set_process(false)
 		var harness: Script=load("res://pointer_checks.gd")
