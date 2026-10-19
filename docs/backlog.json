@@ -8299,7 +8299,21 @@
         "tests/interactive/source-fingerprint.test.mjs",
         ".github/workflows/native-ci.yml",
         "tools/interactive-preview/test-kawo-staging.ps1",
-        "tests/interactive/verify.test.mjs"
+        "tests/interactive/verify.test.mjs",
+        "tools/ci/coupled-native.py",
+        "tools/ci/coupled-local-window-native.py",
+        "tools/ci/test_coupled_native.py",
+        "tools/ci/test_coupled_local_window_native.py",
+        "tests/engine/shaft-method/probes/run.py",
+        "tests/engine/shaft-method/probes/validate.py",
+        "tests/engine/shaft-method/probes/test_portable.py",
+        "tests/engine/shaft-method/probes/probe-manifest.json",
+        "tests/engine/shaft-method/probes-local-window-v2/run.py",
+        "tests/engine/shaft-method/probes-local-window-v2/validate.py",
+        "tests/engine/shaft-method/probes-local-window-v2/test_portable.py",
+        "tests/engine/shaft-method/probes-local-window-v2/probe-manifest.json",
+        "docs/backlog.json",
+        "docs/phases/p4-region-and-weather.md"
       ],
       "docs": [
         "docs/agent-operations.md",
@@ -8324,7 +8338,7 @@
         "WORLD-025"
       ],
       "acceptance": [
-        "Verify relevant checked PR260 acceptance before authoring; WORLD-RESIDENT-CONTRACT remains a broad open parent. Actual source-derived loaded-gear start expectations and independent RunIC evidence precede product qualification; preserve refused attempts.",
+        "Verify checked PR260 acceptance before authoring; contract #243 closure does not accept the broad world/phase parents. Actual source-derived loaded-gear start expectations and independent RunIC evidence precede product qualification; preserve refused attempts.",
         "Root assembles exactly seven source-bound files/catalog/generated registries and independently qualifies safe paths, bounded owned bytes, hashes, recipe/model/source relations and offline delivery. No placeholder product/start pins or caller-provided world paths.",
         "Admit only kawo-prototype-v1/original-interactive-prototype/ground-ready/calm; preserve synthetic defaults/replies. Retain requested-CG preallocation certificate, explicit vendor bootstrap boundary, guarded ASL-first RunIC, full tick0 checks and exact40m/3D4m/support/post-step refusal policies.",
         "Strict fifth String selector and immutable provider/byte ownership survive until actual worker join. Native repeats source admission; malformed candidate/race/unsupported tuples never fall back or publish partial state. Independent readiness/callback failures preserve stated pre/post-mutation behavior.",

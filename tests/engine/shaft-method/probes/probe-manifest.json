@@ -30,8 +30,8 @@
       "bytes": 4801
     },
     "run.py": {
-      "sha256": "0e401bae7f22a9cf38849d11ea7bf88ab5fd79d319bded0696108c13bbcc7b7e",
-      "bytes": 14521
+      "sha256": "c1009aec0f92abbab2009bf93fa220e8640f80a99a7dceab2ec2f418cb4601fc",
+      "bytes": 15710
     },
     "source-chronology.py": {
       "sha256": "9a4544f32dca16c7bc931d42cb16173b27f1ab5e79b6cb87c079f7608e8fefd8",
@@ -42,16 +42,16 @@
       "bytes": 7031
     },
     "test_portable.py": {
-      "sha256": "d65a211dfd8102554be17eff4e9ca2d9313b1486da207a76a8ceb68db252f26d",
-      "bytes": 14550
+      "sha256": "8fcbb485cecbe0e7ccf76a25f2f3cfc9cca1d61fec0cdabc2052fb464b123072",
+      "bytes": 18731
     },
     "test_validate.py": {
       "sha256": "8fbd27eacbe4010bab819bea12ec9fc2fd72968820a8ddec7a61a09b47abdbbc",
       "bytes": 3700
     },
     "validate.py": {
-      "sha256": "4c1c09986a09fb7c175f92332b24b05435e5cdd0e23a94b2ef438b1223832f37",
-      "bytes": 27678
+      "sha256": "f46a42de42b2ea167fb8553779032a3b30696b00a5b1113199e40c3f4196289c",
+      "bytes": 27725
     }
   },
   "shared_sources": {
@@ -70,6 +70,10 @@
     "tools/bootstrap/build.ps1": {
       "sha256": "40c4725cb5e7b8a87bad2843e8fe6730556ff6cc50f32cdfa3b7dd2ea94d76ea",
       "bytes": 19725
+    },
+    "tools/interactive-preview/native-identity.py": {
+      "sha256": "939761fd37c969ed83877f679fc4589deac21ab897ddc47c16f7b1739f8c50b5",
+      "bytes": 67063
     }
   }
 }

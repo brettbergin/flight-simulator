@@ -5,6 +5,7 @@ the unit runner owns its separately authorized children and actual-module gate.
 """
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -31,7 +32,8 @@ PROBE_FILES = {'chronology-probe.cpp', 'CMakeLists.txt', 'driver.template.cpp', 
                'library-probe.cpp', 'prepare.py', 'README.md', 'run.py', 'source-chronology.py',
                'terminal-retention.cpp', 'test_portable.py', 'test_validate.py', 'validate.py'}
 SHARED_FILES = {'tests/engine/loaded-library.hpp', 'tests/engine/reference/expected-v3.json',
-                'tests/engine/CMakeLists.txt', 'tools/bootstrap/build.ps1'}
+                'tests/engine/CMakeLists.txt', 'tools/bootstrap/build.ps1',
+                'tools/interactive-preview/native-identity.py'}
 REFERENCE_MODELS = {'native/fdm_jsbsim/models/original-piston-prop/engine/original-fixed-prop.xml',
                     'native/fdm_jsbsim/models/original-piston-prop/engine/original-piston.xml'}
 
@@ -144,8 +146,24 @@ def contained(repo, name):
     return path
 
 
+def resident_inputs(repo, build=None):
+    helper = 'tools/interactive-preview/native-identity.py'
+    spec = importlib.util.spec_from_file_location('coupled_resident_identity', repo/helper)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    component = module.resident_component(repo)
+    module.cmake_roster(repo, 'native/fdm_jsbsim/interactive/CMakeLists.txt', 'INTERACTIVE_SOURCE_PATHS', module.SOURCES)
+    if build is not None:
+        witness = module.lf(module.read(build, 'resident-world-component-fingerprint.txt'))
+        require(witness == component['sha256'].encode()+b'\n'+component['recipe'], 'resident component compiled witness mismatch')
+    paths = [helper, module.RESIDENT_MANIFEST, *module.SOURCES]
+    paths.extend(row['path'] for group in ('source_bindings', 'control_bindings') for row in component[group])
+    return dict(sha256=component['sha256'], sources=module.SOURCES, paths=tuple(dict.fromkeys(paths)))
+
+
 def source_inputs(repo):
     paths = {'tests/engine/'+name for name in SUITE}
+    paths.update(resident_inputs(repo)['paths'])
     paths.update(cmake_paths(repo, 'tools/bootstrap/source-selection.cmake', 'JSBSIM_BUILD_CONTROL_PATHS'))
     paths.update(cmake_paths(repo, 'native/fdm_jsbsim/interactive/CMakeLists.txt', 'INTERACTIVE_SOURCE_PATHS'))
     paths.update(('tools/ci/coupled-native.py', 'tools/ci/test_coupled_native.py',
@@ -281,7 +299,8 @@ def qualify(repo, work):
     values = cache(build/'CMakeCache.txt')
     require(values['FLIGHT_JSBSIM_VARIANT'] == 'event-aware-coupled-midpoint-v1' and values['FLIGHT_BUILD_GODOT_BINDINGS'] == 'OFF', 'wrong configured variant/headless mode')
     control = build_control(repo, build, values, selected)
-    prefix = 'verified-jsbsim-backend:'+selected['backend_identity_sha256']+'\njsbsim-build-controls:'+control+'\n'
+    resident = resident_inputs(repo, build)
+    prefix = 'verified-jsbsim-backend:'+selected['backend_identity_sha256']+'\njsbsim-build-controls:'+control+'\nresident-world-component:'+resident['sha256']+'\n'
     paths = cmake_paths(repo, 'native/fdm_jsbsim/interactive/CMakeLists.txt', 'INTERACTIVE_SOURCE_PATHS')
     body = prefix + ''.join(path+':'+lf_sha(repo/path)+'\n' for path in paths)
     consumer = hashlib.sha256(body.encode()).hexdigest()
