@@ -8112,7 +8112,10 @@
       "owned_paths": [
         "assets_source/environment/original-evergreens-v1/",
         "tools/benchmark/pipeline/environment_trees/",
-        "docs/evidence/P4/original-evergreens.md"
+        "docs/evidence/P4/original-evergreens.md",
+        "third_party/licenses/notices/OriginalEvergreens-MIT.txt",
+        "third_party/licenses/evidence/original-evergreens-v1.md",
+        "third_party/licenses/evidence/original-evergreens-v1.inventory.json"
       ],
       "docs": [
         "docs/README.md",
