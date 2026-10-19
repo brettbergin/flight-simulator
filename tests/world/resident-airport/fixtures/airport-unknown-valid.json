@@ -2,7 +2,7 @@
   "schema": "NormalizedAirport/v1",
   "airport_icao": "KAWO",
   "purpose": "synthetic-fixture",
-  "dossier_sha256": "01acef9d78698617d8fd1379cbf6ac577566ac55881ea0c549f7fbc0f800d04d",
+  "dossier_sha256": "3832785a1430bb9e42625217de8b3eb8cc6e8b9cb2e0c06978da269568872a93",
   "review_state": "draft",
   "name": {
     "status": "unknown",
