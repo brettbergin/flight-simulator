@@ -82,6 +82,8 @@ The accepted assessment now has two parallel source-only prerequisites: [C172P a
 
 The proposed [paused lookout-view contract](decisions/025-paused-view-presets-and-comfort.md), [#213](https://github.com/brettbergin/flight-simulator/issues/213), prepares Forward horizon and Left/Right window presets, existing traditional views and bounded camera comfort through a paused Views page. It changes no current player. Checked contract acceptance and independent reference preparation precede consumers; this is partial #26 work and preserves current gaze, aircraft and phase limits.
 
+The next owner-prioritized airport/environment batch starts with [KAWO source discovery](evidence/P4/kawo-source-discovery.md) and [shared contract #243](https://github.com/brettbergin/flight-simulator/issues/243). Source normalization and physical/render terrain admission are separate checked steps; the current synthetic field remains distinct.
+
 ## Read in this order
 
 1. [Product scope and requirements](product.md): expected pilot experience and initial boundaries.

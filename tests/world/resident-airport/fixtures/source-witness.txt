@@ -1,0 +1,1 @@
+Original synthetic schema fixture. No operational KAWO facts.

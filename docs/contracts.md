@@ -1,5 +1,10 @@
 # Core contracts v1
 
+The proposed [KAWO source interchange](contracts/world/airport-source-v1.md) and
+[ADR028](decisions/028-kawo-source-and-resident-environment.md), partial [#243](https://github.com/brettbergin/flight-simulator/issues/243),
+define closed source-dossier/airport records and offline byte validation. They
+preserve unknown datums and do not amend the native world or admit terrain consumers.
+
 P1 CORE-CONTRACTS [#11](https://github.com/brettbergin/flight-simulator/issues/11) supplies executable engine-independent interfaces. The checked-in [schema registry](../schemas/registry.json), [native headers](../native/sim_core/contracts/include/flight/contracts/boundaries.hpp) and [original fixture manifest](../tests/contracts/fixtures/manifest.json) define v1. These interfaces support PRD-001, PRD-002, PRD-007 and PRD-034. They do not implement flight dynamics, establish C172S fidelity or prove restoration; later phase gates require measured integration evidence.
 
 ## Encoding and compatibility
