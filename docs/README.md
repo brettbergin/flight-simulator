@@ -157,3 +157,10 @@ The [standalone resident-grid implementation](evidence/P4/resident-grid-componen
 has passed Windows native geometry, byte decoding, private arithmetic and existing
 ground-interface tests. It is a prerequisite for the airport environment; actual
 geographic compilation, runtime/render adoption and installed delivery remain separate.
+
+The [bounded KAWO terrain compiler contract](contracts/world/kawo-terrain-compiler-v1.md)
+fixes source tiles, operation inputs, anchor words, sampling, output bytes and closed
+schemas before implementation. [Actual source/operation qualification](evidence/P4/kawo-terrain-source-qualification.md)
+and independent arithmetic references support that seam. A complete shared ground,
+native runway comparisons, runtime, rendering and airport delivery remain later work;
+the working frame is approximate with unknown total3D accuracy.
