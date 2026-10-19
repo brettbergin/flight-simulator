@@ -129,6 +129,8 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | EPIC-P4 | [#5 Regional navigation and environment](https://github.com/brettbergin/flight-simulator/issues/5) | EPIC-P3 |
 | WORLD-RESIDENT-CONTRACT | [#243 Define the first KAWO geographic airport and physical terrain contract](https://github.com/brettbergin/flight-simulator/issues/243) | CORE-CONTRACTS, LICENSE-REGISTER, GROUND-PROOF, SIM-LOOP-CONTRACT |
 | KAWO-NASR-SOURCE | [#247 Normalize the pinned FAA KAWO source records](https://github.com/brettbergin/flight-simulator/issues/247) | CORE-CONTRACTS, LICENSE-REGISTER; accepted source artifact PR245 |
+| RESIDENT-GRID-COMPONENT | [#249 Implement standalone immutable resident grid provider and pure byte decoder](https://github.com/brettbergin/flight-simulator/issues/249) | CORE-CONTRACTS, GROUND-PROOF, LICENSE-REGISTER; checked contract/reference PR246 |
+| TERRAIN-TOOLS-BOOTSTRAP | [#250 Build and qualify the pinned offline terrain authoring environment](https://github.com/brettbergin/flight-simulator/issues/250) | CORE-CONTRACTS, LICENSE-REGISTER; checked tool lock/contract PR246 |
 | WORLD-PROVENANCE | [#38 Build dated world-pack manifests and ingestion rights audit](https://github.com/brettbergin/flight-simulator/issues/38) | EPIC-P3, LICENSE-REGISTER |
 | GEODESY | [#39 Implement WGS84/ECEF/NED, vertical datum and magnetic conversions](https://github.com/brettbergin/flight-simulator/issues/39) | EPIC-P3, CORE-CONTRACTS, WORLD-PROVENANCE |
 | TERRAIN-STREAMING | [#40 Implement bounded offline terrain tiles, LOD and surface queries](https://github.com/brettbergin/flight-simulator/issues/40) | EPIC-P3, GEODESY, GROUND-PROOF, WORLD-PROVENANCE |

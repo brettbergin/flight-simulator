@@ -77,3 +77,12 @@ results must be added only after their actual runs complete.
 The existing human-playable build was preserved. This evidence makes no claim
 about hardware controls, target C172 fidelity, real-airport correctness, formal
 training-device approval, physical power-loss durability or human pilot acceptance.
+
+## Checked menu integration
+
+PR244 merged as4af88935f133ba6bf84f6ef94e8337d65bc52949. Root verified
+its accepted tree exactly equals final head4d16f45d0c521c5d101138f2c2f5dc6fbef9e25c.
+All twelve hosted contexts on that final head passed, including Windows
+coupled/local-window editor, portable and rebuilt-library player regressions.
+This completes the bounded menu integration; no new human package, full installed
+named-player journey, aircraft or phase acceptance follows.
