@@ -39,6 +39,10 @@ jobs:
         shell: pwsh
         run: |
           $gridPins = @{
+            'tests/ground/grid/exact-admission/reference/expected-v1.json' = '3df724576eeada629a65a18c23c72abeb08937f7e8d5bae6c3d66d29bda32f3a'
+            'tests/ground/grid/exact-admission/reference/hand-oracles.json' = '30163ea0c410759a8314d6244b0c07d16affe412888d285bd9ee88b7872dfbdb'
+            'tests/ground/grid/exact-admission/reference/README.md' = 'e32c483bc4aa18bf0c690fa7aa1a6f3b2b2fabb850ed35d8f0c4ab14c6e47b6d'
+            'tests/ground/grid/exact-admission/reference/reference_producer.py' = '51ff636c606155ce1f8a31d819f07b5f98520f14acb08050daca1e1538a26ae2'
             'docs/contracts/world/original-evergreens-v1.md' = 'eb3aea53ba869b80117eaed952ac1f65ec2e1e3df1fe731524715fd7e3ae40d6'
             'docs/contracts/world/resident-grid-codec-v1.md' = '060f267d64bb058059791c762db724d39f9c99d907926868d2f9c2634ffeb0e3'
             'tests/ground/grid/codec/reference/fixture_producer.py' = '91107b6502f761d3fc928508f4496460dee3b91e9d2acd0bff529321db4fb6d2'
@@ -64,6 +68,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Independent resident-grid reference reproduction failed' }
           python -I -B tests/ground/grid/codec/reference/fixture_producer.py --check tests/ground/grid/codec/reference/expected-v1.json
           if ($LASTEXITCODE -ne 0) { throw 'Independent resident-grid byte reference reproduction failed' }
+          python -I -B tests/ground/grid/exact-admission/reference/reference_producer.py --check tests/ground/grid/exact-admission/reference/expected-v1.json
+          if ($LASTEXITCODE -ne 0) { throw 'Independent exact-admission reference reproduction failed' }
       - name: Check recursive simulation staging and drift rejection
         shell: pwsh
         run: ./tools/interactive-preview/simulation-staging.test.ps1

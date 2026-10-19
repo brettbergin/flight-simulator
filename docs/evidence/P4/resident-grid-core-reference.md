@@ -104,3 +104,24 @@ The initial proposed reference epoch remains retained in PR246 commit 37adaf3 an
 local raw evidence. It is historical source-only proof, not acceptance of a grid
 implementation or a geographic world. The revised current-head references must
 pass their own checked acceptance before consumers begin.
+
+## Additional exact admission witnesses before implementation
+
+Root reviewed and executed the separately authored [exact-admission packet](../../../tests/ground/grid/exact-admission/reference/README.md)
+using the same retained Windows CPython3.12.14. Its stdlib Fraction/struct
+producer and bounded --check passed before a native provider or decoder existed.
+These cases preserve all current contracts, reference bytes and output tolerances.
+They distinguish the already required exact predicates from rounded binary64
+comparisons: heights [-2^-149,32,0,32] at spacing2 yield squared gradient
+256+2^-300 and 256+2^-145+2^-300, both forbidden; the zero control admits.
+A separate 513x2 spacing4 grid admits exact bracket span2048, but replacing
+the first height in each row by -2^-149 yields forbidden span2048+2^-149
+while every gradient remains below16. The anchor control has independent
+height1124 and NED normal(0,-1,-1)/sqrt2. No native pass is claimed.
+
+| Additional artifact | SHA256 |
+| --- | --- |
+| expected-v1.json | `3df724576eeada629a65a18c23c72abeb08937f7e8d5bae6c3d66d29bda32f3a` |
+| hand-oracles.json | `30163ea0c410759a8314d6244b0c07d16affe412888d285bd9ee88b7872dfbdb` |
+| README.md | `e32c483bc4aa18bf0c690fa7aa1a6f3b2b2fabb850ed35d8f0c4ab14c6e47b6d` |
+| reference_producer.py | `51ff636c606155ce1f8a31d819f07b5f98520f14acb08050daca1e1538a26ae2` |

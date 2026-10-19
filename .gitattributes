@@ -84,3 +84,6 @@ tests/airports/kawo/** text eol=lf
 # Preserve pure payload header and independent codec-source raw byte pins.
 native/world_core/grid/include/flight/ground/grid_payload.hpp text eol=lf
 tests/ground/grid/codec/** text eol=lf
+
+# Preserve exact dyadic admission reference source pins on both CI platforms.
+tests/ground/grid/exact-admission/** text eol=lf
