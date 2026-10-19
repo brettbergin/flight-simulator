@@ -7872,14 +7872,6 @@
         "docs/README.md",
         "docs/contracts.md",
         "docs/decisions/029-kawo-runtime-admission.md",
-        "docs/decisions/006-interactive-prototype.md",
-        "docs/decisions/007-sim-loop-facade.md",
-        "docs/decisions/009-cockpit-readings.md",
-        "docs/decisions/011-observed-flight-review.md",
-        "docs/decisions/012-observed-review-interchange.md",
-        "docs/decisions/018-first-flight-briefing-and-circuit-aid.md",
-        "docs/decisions/022-piston-observed-review.md",
-        "docs/decisions/027-synthetic-taxi-navigation.md",
         "schemas/world/resident-runtime/v1/",
         "tests/contracts/resident-runtime.test.mjs",
         "tests/contracts/fixtures/world/resident-runtime/v1/"
@@ -7902,7 +7894,8 @@
         "docs/contracts/world/kawo-terrain-compiler-v1.md",
         "docs/evidence/P4/kawo-terrain-source-qualification.md",
         "docs/decisions/029-kawo-runtime-admission.md",
-        "docs/contracts/world/kawo-runtime-v1.md"
+        "docs/contracts/world/kawo-runtime-v1.md",
+        "docs/contracts/world/kawo-runtime-compatibility-v1.md"
       ],
       "requirements": [
         "WORLD-001",

@@ -148,8 +148,3 @@ Primary [FAA AIM Chapter2 Section3](https://www.faa.gov/AIR_TRAFFIC/PUBLICATIONS
 ## Fixed packed shipping observer companion
 
 The [fixed packed observer contract](../contracts/world/synthetic-taxi-observer-v1.md) defines the existing camera diagnostic startup's closed probe/capture dispatch, fixed packed test resources, data-only binding and output ownership before implementation. Preserve the original35 camera checks and ordinary flight; require actual exported-player probes, both shipping142-image/six-journey campaigns and independent pixels. Historical editor evidence may be retained only under explicit exact relevant-input correspondence with its original head/run attribution. This engineering seam changes no native/model authority or phase acceptance.
-
-
-## Explicit geographic boundary and added source closure
-
-Checked [ADR029](029-kawo-runtime-admission.md)/[runtime v1](../contracts/world/kawo-runtime-v1.md) add a separate KAWO world selector while retaining every original synthetic apron/ground/airborne/piston tuple and its exact layout/reference meaning. Synthetic Taxi/route/circuit content is unavailable in KAWO; its basic compiled runway locator is a different bounded view. Existing25-source/18-control membership remains fixed, but the separately closed resident component digest and actual strict-FP/link companion additionally bind geographic native inputs before qualification. Source fingerprints change honestly with that new binary for both worlds; no world is a backend source_variant. PracticeSource/SQL/B44/storage ABI are unchanged, and generic ground-ready is qualified by the actual world/source tuple rather than relabelled or duplicated in storage. No in-flight replacement, public pose setter or new operational graph follows.
