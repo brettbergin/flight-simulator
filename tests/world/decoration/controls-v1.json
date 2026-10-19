@@ -1,0 +1,236 @@
+{
+  "schema": "PrivateKawoDecorationHandControls/v1",
+  "scope": "Synthetic hand-specified presentation controls; no generated scenery/native/geographic accuracy",
+  "mask": [
+    {
+      "u": 24,
+      "v": 24,
+      "inside": true
+    },
+    {
+      "u": 36,
+      "v": 39,
+      "inside": true
+    },
+    {
+      "u": 37,
+      "v": 39,
+      "inside": false
+    },
+    {
+      "u": 62,
+      "v": 14,
+      "inside": true
+    },
+    {
+      "u": 76,
+      "v": 32,
+      "inside": true
+    },
+    {
+      "u": 48,
+      "v": 48,
+      "inside": false
+    },
+    {
+      "u": 46,
+      "v": 81,
+      "inside": true
+    },
+    {
+      "u": 47,
+      "v": 81,
+      "inside": false
+    },
+    {
+      "u": 64,
+      "v": 64,
+      "inside": true
+    }
+  ],
+  "keys": [
+    {
+      "u": 0,
+      "v": 0,
+      "key_hex": "4b41574f"
+    },
+    {
+      "u": 1,
+      "v": 0,
+      "key_hex": "4f27a312"
+    },
+    {
+      "u": 0,
+      "v": 1,
+      "key_hex": "4a6617d0"
+    }
+  ],
+  "addresses": [
+    {
+      "east": 448,
+      "south": 512,
+      "column": 1648,
+      "row": 1152
+    },
+    {
+      "east": -768,
+      "south": -768,
+      "column": 1344,
+      "row": 832
+    }
+  ],
+  "pavement": {
+    "ring_mm": [
+      [
+        -1000,
+        -1000
+      ],
+      [
+        -1000,
+        1000
+      ],
+      [
+        1000,
+        1000
+      ],
+      [
+        1000,
+        -1000
+      ]
+    ],
+    "points": [
+      {
+        "x": 113,
+        "z": 0,
+        "excluded": true
+      },
+      {
+        "x": 114,
+        "z": 0,
+        "excluded": false
+      },
+      {
+        "x": 113,
+        "z": 114,
+        "excluded": false
+      },
+      {
+        "x": -113,
+        "z": 0,
+        "excluded": true
+      },
+      {
+        "x": -114,
+        "z": 0,
+        "excluded": false
+      }
+    ]
+  },
+  "corridor": {
+    "end": [
+      0,
+      0
+    ],
+    "opposite": [
+      0,
+      -10
+    ],
+    "points": [
+      {
+        "x": 213,
+        "z": 0,
+        "excluded": true
+      },
+      {
+        "x": 214,
+        "z": 0,
+        "excluded": false
+      },
+      {
+        "x": 0,
+        "z": 1713,
+        "excluded": true
+      },
+      {
+        "x": 0,
+        "z": 1714,
+        "excluded": false
+      },
+      {
+        "x": 0,
+        "z": -213,
+        "excluded": true
+      },
+      {
+        "x": 0,
+        "z": -214,
+        "excluded": false
+      }
+    ]
+  },
+  "counts": [
+    {
+      "suitable": 95,
+      "selected": 0
+    },
+    {
+      "suitable": 96,
+      "selected": 96
+    },
+    {
+      "suitable": 97,
+      "selected": 96
+    },
+    {
+      "suitable": 191,
+      "selected": 189
+    },
+    {
+      "suitable": 192,
+      "selected": 192
+    },
+    {
+      "suitable": 400,
+      "selected": 192
+    }
+  ],
+  "sites": [
+    {
+      "name": "flat_positive_zero",
+      "center_word": "00000000",
+      "other_word": "00000000",
+      "valid": true
+    },
+    {
+      "name": "flat_negative_zero_preserved",
+      "center_word": "80000000",
+      "other_word": "00000000",
+      "valid": true
+    },
+    {
+      "name": "exact_two_metre_span",
+      "center_word": "00000000",
+      "other_word": "40000000",
+      "valid": true
+    },
+    {
+      "name": "next_f32_above_two_refused",
+      "center_word": "00000000",
+      "other_word": "40000001",
+      "valid": false
+    },
+    {
+      "name": "nonfinite_neighbor_refused",
+      "center_word": "00000000",
+      "other_word": "7f800000",
+      "valid": false
+    },
+    {
+      "name": "one_missing_neighbor_refused",
+      "center_word": "00000000",
+      "other_word": "00000000",
+      "missing_neighbor": true,
+      "valid": false
+    }
+  ]
+}

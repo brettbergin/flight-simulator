@@ -84,6 +84,19 @@ EXPECTED_TAXI_RECONSTRUCTION_PATHS = (
     'tests/integration/taxi/scene_checks.gd',
 )
 
+# Synthetic filenames independently enumerate the bounded decorative overlay.
+EXPECTED_EVERGREEN_RECONSTRUCTION_PATHS = (
+    'app/world/decoration/kawo_evergreens.gd',
+    'tests/world/decoration/decoration_checks.gd',
+    'tests/world/decoration/controls-v1.json',
+    'tests/world/decoration/README.md',
+    'assets_source/environment/original-evergreens-v1/exports/tall-narrow-lod1.glb',
+    'assets_source/environment/original-evergreens-v1/exports/broad-tiered-lod1.glb',
+    'assets_source/environment/original-evergreens-v1/exports/irregular-mature-lod1.glb',
+    'third_party/licenses/notices/OriginalEvergreens-MIT.txt',
+    'third_party/licenses/evidence/original-evergreens-v1.inventory.json',
+)
+
 # Independently authored four-unit order from the checked runtime contract.
 EXPECTED_RESIDENT_UNITS = (
     'native/world_core/grid/src/validation.cpp',
@@ -135,6 +148,8 @@ def fixture(root, family='MSVC', variant=n.VARIANTS[0]):
         put(repo, name, 'Synthetic local-player corresponding-source fixture ' + name + '\n')
     for name in EXPECTED_TAXI_RECONSTRUCTION_PATHS:
         put(repo, name, 'Synthetic taxi corresponding-source fixture ' + name + '\n')
+    for name in EXPECTED_EVERGREEN_RECONSTRUCTION_PATHS:
+        put(repo, name, 'Synthetic decorative corresponding-source fixture ' + name + '\n')
     put(repo, 'app/world/terrain/resident_grid_reader.gd', 'synthetic reader source\n')
     put(repo, 'app/world/world_admission.gd', 'synthetic registry source\n')
     put(repo, 'tools/interactive-preview/world-catalog.mjs', 'synthetic catalog generator\n')
@@ -466,6 +481,25 @@ class IdentityTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         self.repo, self.build, self.selected, self.consumer = fixture(self.root)
 
+
+    def test_evergreen_reconstruction_and_tamper_do_not_change_native_identity(self):
+        before = self.qualify()
+        destination = self.root/'evergreen-source'
+        destination.mkdir()
+        with patch.object(n.subprocess, 'check_output', return_value='1'*40+'\n'):
+            n.reconstruction(self.repo, destination)
+            n.check_reconstruction(self.repo, destination)
+            names = {item['path'] for item in json.loads((destination/'native-reconstruction.json').read_bytes())['files']}
+            self.assertTrue(set(EXPECTED_EVERGREEN_RECONSTRUCTION_PATHS) <= names)
+            for name in EXPECTED_EVERGREEN_RECONSTRUCTION_PATHS:
+                copied = destination/'repository'/name
+                original = copied.read_bytes()
+                copied.write_bytes(original+b'changed')
+                with self.assertRaises(ValueError):
+                    n.check_reconstruction(self.repo, destination)
+                copied.write_bytes(original)
+            n.check_reconstruction(self.repo, destination)
+        self.assertEqual(self.qualify(), before)
 
     def test_repository_reconstruction_excludes_only_python_caches(self):
         for folder in ('native', 'tests/engine', 'tests/interactive', 'tools/bootstrap'):

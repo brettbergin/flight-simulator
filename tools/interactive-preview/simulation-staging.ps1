@@ -76,6 +76,9 @@ function Get-KawoRuntimeSourceGroups {
  @(
   @{source='app/world';destination='world';selected=$true;required=@('world_admission.gd')},
   @{source='app/world/terrain';destination='world/terrain';selected=$false;required=@('resident_grid_reader.gd','kawo_world.gd')},
+  @{source='app/world/decoration';destination='world/decoration';selected=$false;required=@('kawo_evergreens.gd')},
+  @{source='assets_source/environment/original-evergreens-v1/exports';destination='environment/original-evergreens-v1';selected=$true;required=@('tall-narrow-lod1.glb','broad-tiered-lod1.glb','irregular-mature-lod1.glb')},
+  @{source='third_party/licenses/notices';destination='notices';selected=$true;required=@('OriginalEvergreens-MIT.txt')},
   @{source='content/world/catalog';destination='content/world/catalog';selected=$false;required=@('kawo-runtime-v1.json')},
   @{source='content/world/airports/kawo/runtime-v1';destination='worlds/kawo-prototype-v1';selected=$false;required=@('world.json','ground.fgrd','airport.json','dossier.json','compile-receipt.json','start-ready34.json','NOTICE.txt')}
  )|ForEach-Object {
@@ -84,8 +87,8 @@ function Get-KawoRuntimeSourceGroups {
   Assert-KawoOrdinaryAncestors $folder
   $snapshot=@(Get-SimulationSourceSnapshot $folder -RequiredEntries $group.required)
   if($group.selected){
-   $snapshot=@($snapshot|Where-Object {$_.path -ceq 'world_admission.gd'})
-   if($snapshot.Count -ne 1){throw 'Exact KAWO registry filename is required'}
+   $snapshot=@($snapshot|Where-Object {$group.required -ccontains $_.path})
+   if($snapshot.Count -ne $group.required.Count){throw 'Exact selected KAWO resource roster is required'}
   }
   else{
    # Exactly the fixed authored roster; generated Godot UIDs are never authoring
@@ -108,6 +111,16 @@ function Assert-KawoRuntimeSourceGroups {
   $folder=Join-Path $Root $(if($Authoring){$group.source}else{$group.destination})
   Assert-KawoOrdinaryAncestors $folder
   if($group.selected){
+   if(-not $Authoring -and $group.destination -ceq 'environment/original-evergreens-v1'){
+    # Authoring selects three of six approved exports. This dedicated copied
+    # directory is closed: source has three raw GLBs; imported projects may
+    # additionally have only their three bound, validated import recipes.
+    $expected=@($group.required|Sort-Object)
+    if($AllowGeneratedUIDs){$expected+=@($group.required|ForEach-Object {$_+'.import'})}
+    $actual=@(Get-SimulationSourceSnapshot $folder -RequiredEntries $group.required)
+    if(($actual.path -join "`n") -cne (($expected|Sort-Object) -join "`n")){throw 'Closed evergreen destination roster differs'}
+    if($AllowGeneratedUIDs){Assert-KawoEvergreenImportRecipe -ProjectRoot $Root}
+   }
    foreach($entry in $group.snapshot){
     $file=Join-Path $folder $entry.path
     Assert-KawoOrdinaryAncestors $file
@@ -137,6 +150,77 @@ function Copy-KawoRuntimeSourceGroups {
  }
  Assert-KawoRuntimeSourceGroups -Root $DestinationRoot -Groups $Groups
  Assert-KawoRuntimeSourceGroups -Root $RepoRoot -Groups $Groups -Authoring
+}
+function Set-KawoEvergreenImportRecipe {
+ param([Parameter(Mandatory)][string]$ProjectRoot)
+ foreach($name in @('tall-narrow-lod1','broad-tiered-lod1','irregular-mature-lod1')){
+  $asset=Join-Path $ProjectRoot ('environment/original-evergreens-v1/'+$name+'.glb')
+  Assert-KawoOrdinaryAncestors $asset
+  $sidecar=$asset+'.import'
+  if(Test-Path -LiteralPath $sidecar){throw 'Evergreen import recipe requires fresh metadata'}
+  [IO.File]::WriteAllText($sidecar,"[remap]`nimporter=`"scene`"`ntype=`"PackedScene`"`n[params]`nmeshes/generate_lods=false`nmeshes/force_disable_compression=true`n",[Text.UTF8Encoding]::new($false))
+ }
+}
+function Assert-KawoEvergreenImportRecipe {
+ param([Parameter(Mandatory)][string]$ProjectRoot)
+ foreach($name in @('tall-narrow-lod1','broad-tiered-lod1','irregular-mature-lod1')){
+  $sidecar=Join-Path $ProjectRoot ('environment/original-evergreens-v1/'+$name+'.glb.import')
+  Assert-KawoOrdinaryAncestors $sidecar
+  $item=Get-Item -LiteralPath $sidecar
+  if($item.PSIsContainer -or $item.Length -gt 65536){throw 'Bounded evergreen import metadata required'}
+  $text=[IO.File]::ReadAllText($sidecar)
+  foreach($line in @('importer="scene"','type="PackedScene"','meshes/generate_lods=false','meshes/force_disable_compression=true')){
+   $key=$line.Split('=')[0]
+   $matchesForKey=[regex]::Matches($text,'(?m)^'+[regex]::Escape($key)+'=[^\r\n]*\r?$')
+   if($matchesForKey.Count -ne 1 -or $matchesForKey[0].Value.TrimEnd("`r") -cne $line){throw 'Accepted evergreen importer/LOD settings changed'}
+  }
+ }
+}
+function Write-KawoRawGlbExportPlugin {
+ param([Parameter(Mandatory)][string]$ProjectRoot)
+ Assert-KawoOrdinaryAncestors $ProjectRoot
+ $folder=Join-Path $ProjectRoot 'addons/kawo_raw_glbs'
+ if(Test-Path -LiteralPath $folder){throw 'Raw GLB exporter requires a fresh addon directory'}
+ $parent=Join-Path $ProjectRoot 'addons'
+ if(Test-Path -LiteralPath $parent){Assert-KawoOrdinaryAncestors $parent}
+ $settings=Join-Path $ProjectRoot 'project.godot'
+ Assert-KawoOrdinaryAncestors $settings
+ $text=[IO.File]::ReadAllText($settings)
+ if($text -match '(?m)^\s*\[editor_plugins\]\s*$'){throw 'Unexpected existing editor plugin configuration'}
+ New-Item -ItemType Directory -Path $folder -Force|Out-Null
+ Assert-KawoOrdinaryAncestors $folder
+ [IO.File]::WriteAllText((Join-Path $folder 'plugin.cfg'),"[plugin]`nname=`"KAWO raw GLB delivery`"`ndescription=`"Preserve three original raw GLBs beside their normal imported resources`"`nauthor=`"Flight simulator project`"`nversion=`"1.0`"`nscript=`"plugin.gd`"`n",[Text.UTF8Encoding]::new($false))
+ [IO.File]::WriteAllText((Join-Path $folder 'plugin.gd'),@'
+@tool
+extends EditorPlugin
+class RawGlbExport extends EditorExportPlugin:
+ func _get_name() -> String: return "OriginalKawoRawGlbs"
+ func _export_begin(_features: PackedStringArray,_is_debug: bool,_path: String,_flags: int) -> void:
+  var admitted: Array=[]
+  for item in [
+   ["res://environment/original-evergreens-v1/tall-narrow-lod1.glb",70024,"35f8cd9714082054e851550281c6996c67159d46b8a2345737a1b63a93e5299d"],
+   ["res://environment/original-evergreens-v1/broad-tiered-lod1.glb",70060,"cc386b8fa59a0e0787430081713d219b9ddfde017fd1fd3c81ed72551db4fdb8"],
+   ["res://environment/original-evergreens-v1/irregular-mature-lod1.glb",70060,"0e7c33c239b0d3773023e9fd5aec522392f270b06bd6b3591434d27c56378a7e"]]:
+   var raw: PackedByteArray=FileAccess.get_file_as_bytes(item[0])
+   var hasher:=HashingContext.new()
+   hasher.start(HashingContext.HASH_SHA256)
+   hasher.update(raw)
+   if raw.size()!=item[1] or hasher.finish().hex_encode()!=item[2]:
+    push_error("Raw KAWO GLB export pin refused: "+item[0])
+    return
+   admitted.append([item[0],raw])
+  for item in admitted: add_file(item[0],item[1],false)
+  print("KAWO_RAW_GLBS_ADDED=3")
+var _exporter: EditorExportPlugin
+func _enter_tree() -> void:
+ _exporter=RawGlbExport.new()
+ add_export_plugin(_exporter)
+func _exit_tree() -> void:
+ if _exporter!=null: remove_export_plugin(_exporter)
+ _exporter=null
+'@,[Text.UTF8Encoding]::new($false))
+ [IO.File]::WriteAllText($settings,$text+"`n[editor_plugins]`nenabled=PackedStringArray(`"res://addons/kawo_raw_glbs/plugin.cfg`")`n",[Text.UTF8Encoding]::new($false))
+ @(Get-SimulationSourceSnapshot $folder -RequiredEntries @('plugin.cfg','plugin.gd'))
 }
 function Get-LocalPlayerSourceGroups {
  param([Parameter(Mandatory)][string]$RepoRoot)
@@ -1323,6 +1407,24 @@ func audio_lifecycle_checks() -> Dictionary:
  check(stopped.ok and stopped.readback.native_live==false,"audio_actual_source_worker_joined")
  return result
 func execute() -> void:
+ if "--kawo-checks" in OS.get_cmdline_user_args():
+  var groups: Dictionary={}
+  var joined: bool=true
+  for name in ["source","scene"]:
+   var suite: RefCounted=load("res://sim_loop_tests/kawo_"+name+"_checks.gd").new()
+   var result: Dictionary=suite.run(self)
+   check(typeof(result.get("checks"))==TYPE_INT and result.get("checks",0)>0 and result.get("failures") is Array and result.failures.is_empty(),"pack_kawo_"+name+"_result")
+   groups[name]=result
+   if name=="scene": joined=typeof(result.get("joined"))==TYPE_BOOL and result.get("joined")==true
+   if not joined: break
+  var passed: bool=checks>0 and failures.is_empty() and joined
+  print("KAWO_PACK_CHECKS_RESULT="+JSON.stringify({"passed":passed,"checks":checks,"failures":failures,"joined":joined,"groups":groups,"actual_storage_exercised":false}))
+  if not joined:
+   # Keep the failed suite's scene/worker alive for the outer watchdog. A
+   # timeout is failure, never evidence of a successful native retirement.
+   return
+  get_tree().quit(0 if passed else 1)
+  return
  for argument in OS.get_cmdline_user_args():
   if argument.begins_with("--hud-caption-visual-output="):
    var output: String=argument.trim_prefix("--hud-caption-visual-output=")

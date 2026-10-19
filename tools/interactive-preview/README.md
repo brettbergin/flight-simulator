@@ -13,6 +13,8 @@ KAWO terrain. Choose **Resume** when ready. Selecting a world does not restore a
 saved aircraft state. The button becomes
 **World: KAWO prototype · switch to synthetic** for the return journey.
 
+KAWO includes 192 original decorative evergreen trees in six authored grove areas. Their feet use retained terrain vertices and shared origin transactions. The ordinary view labels them as unsurveyed decoration; they do not supply collision or real obstacle coverage. See [scenery evidence](../../docs/evidence/P4/kawo-evergreen-placement.md).
+
 KAWO currently supports that one aircraft/start/weather combination. The cold
 piston profile and airborne prepared starts remain available in the synthetic
 world. KAWO's map uses compiled physical runway ends **11/29/16/34**; with the

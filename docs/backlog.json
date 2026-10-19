@@ -8520,7 +8520,14 @@
         "tools/interactive-preview/simulation-staging.ps1",
         "tools/interactive-preview/package.mjs",
         "tools/interactive-preview/test-kawo-staging.ps1",
-        ".github/workflows/native-ci.yml"
+        ".github/workflows/native-ci.yml",
+        "tools/interactive-preview/native-identity.py",
+        "tools/interactive-preview/test_native_identity.py",
+        "tools/interactive-preview/verify.test.mjs",
+        "tests/world/terrain/kawo_gpu_capture.gd",
+        "tests/integration/sim_loop/kawo_scene_checks.gd",
+        ".gitattributes",
+        "third_party/licenses/register.json"
       ],
       "docs": [
         "docs/README.md",

@@ -14,6 +14,16 @@ $repo=(Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 function Assert-PreviewProcessResult($Result,[string]$Label){
  if($Result.exit_code -ne 0 -or $Result.text -match 'ERROR:|SCRIPT ERROR:|FATAL|ObjectDB instances? (?:(?:was|were) )?leaked|RID allocations leaked|resources still in use|Assertion failed'){throw "Preview $Label failed; raw evidence retained"}
 }
+function Assert-PreviewKawoResult($Result,[string]$Name){
+ $terminals=[regex]::Matches($Result.text,'(?m)^KAWO_PACK_CHECKS_RESULT=(\{[^\r\n]*\})\r?$')
+ $raw=Join-Path $evidence ($Name+'-kawo-checks.json')
+ if(Test-Path -LiteralPath $raw){throw 'KAWO result evidence must be fresh'}
+ if($terminals.Count -eq 1){[IO.File]::WriteAllText($raw,$terminals[0].Groups[1].Value+"`n",[Text.UTF8Encoding]::new($false))}
+ Assert-PreviewProcessResult $Result ($Name+'-kawo')
+ if($terminals.Count -ne 1 -or ([regex]::Matches($Result.text,'(?m)^KAWO_PACK_CHECKS_RESULT=')).Count -ne 1 -or $Result.text -notmatch 'FLIGHT_BRIDGE_TERMINATED_JOINED'){throw 'Exact KAWO completion/native join terminal required'}
+ & node (Join-Path $PSScriptRoot 'package.mjs') kawo-packed-receipt $raw
+ if($LASTEXITCODE -ne 0){throw 'Actual KAWO source/Scene checks failed; raw evidence retained'}
+}
 function Save-PreviewGroundObservation {
  param([string]$TargetPath,[string]$Evidence,[string]$Name)
  $raw=Join-Path $TargetPath 'ground-material-receipt.json'
@@ -200,6 +210,7 @@ Copy-FirstFlightSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $
 Copy-AudioSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $audioGroups
 Copy-LocalPlayerSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $localPlayerGroups
 Copy-KawoRuntimeSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $kawoGroups
+Set-KawoEvergreenImportRecipe -ProjectRoot $project
 if($includePiston){Copy-PistonSourceSnapshot -RepoRoot $repo -DestinationRoot $project -Snapshot $pistonSnapshot}
 Copy-Item -LiteralPath (Join-Path $repo 'app/proof/interactive/project-settings.cfg') -Destination (Join-Path $project 'project.godot')
 Set-SimulationMainScene -ProjectFile (Join-Path $project 'project.godot')
@@ -208,6 +219,8 @@ $stagedSettingsPath=Join-Path $project 'project.godot'
 $stagedSettings=[IO.File]::ReadAllText($stagedSettingsPath)
 if($stagedSettings -match '(?m)^\s*\[editor\]\s*$' -or $stagedSettings -match '(?m)^\s*export/convert_text_resources_to_binary\s*='){throw 'Unexpected existing raw text export configuration'}
 [IO.File]::WriteAllText($stagedSettingsPath,$stagedSettings+"`n[editor]`nexport/convert_text_resources_to_binary=false`n",[Text.UTF8Encoding]::new($false))
+$kawoRawExportAddon=@(Write-KawoRawGlbExportPlugin -ProjectRoot $project)
+$kawoRawExportAddon | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $evidence 'kawo-raw-export-addon.json') -Encoding utf8
 Copy-PreviewNativeIdentityResource -Identity $nativeIdentity -DestinationRoot $project
 Write-SimulationCheckHarness -ProjectRoot $project -RepoRoot $repo -IncludePiston:$includePiston -NativeIdentity $nativeIdentity
 Assert-CameraSourceGroups -Root $project -Groups $cameraGroups
@@ -236,6 +249,9 @@ $preset=$preset.Replace('include_filter="','include_filter="taxi_tests/*,taxi_sc
 # Native and frontend consume the same seven ordinary sibling files. They are
 # delivered physically beside models, never a second authoritative PCK copy.
 $preset=$preset.Replace('exclude_filter="','exclude_filter="worlds/*,content/world/catalog/*,')
+$preset=$preset.Replace('include_filter="','include_filter="environment/original-evergreens-v1/*.glb,notices/OriginalEvergreens-MIT.txt,')
+$preset=$preset.Replace('exclude_filter="','exclude_filter="decoration-component-receipt.json,')
+$preset=$preset.Replace('exclude_filter="','exclude_filter="addons/kawo_raw_glbs/*,')
 $preset | Set-Content -Encoding utf8 (Join-Path $project 'export_presets.cfg')
 # Keep engine/profile/cache writes within this fresh run even during authoring.
 $prior=@{}
@@ -255,7 +271,7 @@ extends SceneTree
 func _initialize() -> void:
  var script=load("res://interactive/preview.gd") as Script
  var scene=load("res://interactive/preview.tscn") as PackedScene
- for kawa_path in ["res://world/world_admission.gd","res://world/terrain/resident_grid_reader.gd","res://world/terrain/kawo_world.gd"]:
+ for kawa_path in ["res://world/world_admission.gd","res://world/terrain/resident_grid_reader.gd","res://world/terrain/kawo_world.gd","res://world/decoration/kawo_evergreens.gd"]:
   var kawa_script=load(kawa_path) as Script
   if kawa_script==null or not kawa_script.can_instantiate():
    push_error("KAWO resource compile rejected: "+kawa_path)
@@ -286,6 +302,7 @@ func _initialize() -> void:
   @{name='pointer-checks';args=@('--headless','--path',$project,'res://simulation/flight_scene.tscn','--','--pointer-checks')},
   @{name='ground-checks';args=@('--headless','--path',$project,'res://sim_loop_checks.tscn','--','--ground-material-checks')},
   @{name='facade-checks';args=@('--headless','--path',$project,'res://sim_loop_checks.tscn')},
+  @{name='kawo-checks';args=@('--headless','--path',$project,'--','--facade-checks','--kawo-checks')},
   @{name='camera-checks';args=@('--path',$project)+$cameraRenderArguments+@('res://camera_checks.tscn')},
   @{name='editor-smoke';args=@('--headless','--path',$project,'--','--smoke')},
   @{name='export';args=@('--headless','--path',$project,'--export-release','Windows Proof',(Join-Path $payload 'WholeFlightPreview.exe'))}
@@ -302,7 +319,7 @@ func _initialize() -> void:
   } finally {if($operation.name -eq 'facade-checks'){Save-PreviewFacadeObservation -TargetPath $project -Evidence $evidence -Name 'editor'}}
   if($operation.name -eq 'pointer-checks'){Save-PreviewPointerObservation -TargetPath $project -Evidence $evidence -Name 'editor'}
   if($operation.name -eq 'ground-checks'){Save-PreviewGroundObservation -TargetPath $project -Evidence $evidence -Name 'editor'}
-  Assert-PreviewProcessResult $result $operation.name
+  if($operation.name -ceq 'kawo-checks'){Assert-PreviewKawoResult $result 'editor'}else{Assert-PreviewProcessResult $result $operation.name}
   if($operation.name -ceq 'import'){
    $importLog=Join-Path $evidence 'import.log'
    $producer=[pscustomobject]@{arguments=$operation.args;executable=[pscustomobject]@{path=$godot;bytes=(Get-Item -LiteralPath $godot).Length;sha256=(Get-FileHash -LiteralPath $godot).Hash.ToLowerInvariant()};exit_code=$result.exit_code;log=[pscustomobject]@{path=$importLog;bytes=(Get-Item -LiteralPath $importLog).Length;sha256=(Get-FileHash -LiteralPath $importLog).Hash.ToLowerInvariant()}}
@@ -367,6 +384,13 @@ Copy-TaxiSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $taxiGrou
 Copy-AudioSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $audioGroups
 Copy-LocalPlayerSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $localPlayerGroups
 Copy-KawoRuntimeSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $kawoGroups
+$addonSource=Join-Path $source 'addons/kawo_raw_glbs'
+Assert-SimulationSourceSnapshot (Join-Path $project 'addons/kawo_raw_glbs') $kawoRawExportAddon -RequiredEntries @('plugin.cfg','plugin.gd') -AllowGeneratedUIDs
+if(Test-Path -LiteralPath $addonSource){throw 'Exporter corresponding source must be fresh'}
+if(Test-Path -LiteralPath (Split-Path $addonSource -Parent)){Assert-KawoOrdinaryAncestors (Split-Path $addonSource -Parent)}
+New-Item -ItemType Directory -Path $addonSource -Force|Out-Null
+foreach($file in $kawoRawExportAddon){Copy-Item -LiteralPath (Join-Path $project ('addons/kawo_raw_glbs/'+$file.path)) -Destination (Join-Path $addonSource $file.path)}
+Assert-SimulationSourceSnapshot $addonSource $kawoRawExportAddon -RequiredEntries @('plugin.cfg','plugin.gd')
 Copy-CameraSourceGroups -RepoRoot $repo -DestinationRoot $source -Groups $cameraGroups
 if($includePiston){Copy-PistonSourceSnapshot -RepoRoot $repo -DestinationRoot $source -Snapshot $pistonSnapshot}
 Copy-Item -LiteralPath (Join-Path $project 'wire_fixtures'),(Join-Path $project 'sim_loop_checks.gd'),(Join-Path $project 'sim_loop_checks.tscn'),(Join-Path $project 'pointer_checks.gd'),(Join-Path $project 'camera_checks.gd'),(Join-Path $project 'camera_checks.tscn') -Destination $source -Recurse
@@ -404,6 +428,8 @@ finally {
  }
 }
 foreach($target in @(@{name='portable';path=$payload},@{name='replacement';path=$replacement})){
+ $kawoResult=Invoke-ProofProcess -Executable (Join-Path $target.path 'WholeFlightPreview.exe') -Arguments @('--headless','--','--facade-checks','--kawo-checks') -WorkingDirectory $root -Log (Join-Path $evidence ($target.name+'-kawo.log')) -CleanEnvironment -ProfileRoot (Join-Path $root ('kawo-userdata-'+$target.name)) -TimeoutSeconds $FacadeCheckTimeoutSeconds
+ Assert-PreviewKawoResult $kawoResult $target.name
  Invoke-PreviewGraphicalCameraChecks -Executable (Join-Path $target.path 'WholeFlightPreview.exe') -Arguments ($cameraRenderArguments+@('--','--camera-checks')) -Root $root -TargetPath $target.path -Evidence $evidence -Name $target.name -RepoRoot $repo -ProjectRoot $project -NativeIdentityPath (Join-Path $evidence 'native-build-identity.json') -TimeoutSeconds $FacadeCheckTimeoutSeconds -RequireFullSupported $includePiston
  if($includePiston){
   $pointerResult=Invoke-ProofProcess -Executable (Join-Path $target.path 'WholeFlightPreview.exe') -Arguments @('--headless','--','--pointer-checks') -WorkingDirectory $root -Log (Join-Path $evidence ($target.name+'-pointer.log')) -CleanEnvironment -ProfileRoot (Join-Path $root ('pointer-userdata-'+$target.name)) -TimeoutSeconds $FacadeCheckTimeoutSeconds
@@ -492,6 +518,9 @@ Assert-LocalPlayerSourceGroups -Root $project -Groups $localPlayerGroups -AllowG
 Assert-LocalPlayerSourceGroups -Root $source -Groups $localPlayerGroups
 Assert-KawoRuntimeSourceGroups -Root $repo -Groups $kawoGroups -Authoring
 Assert-KawoRuntimeSourceGroups -Root $project -Groups $kawoGroups -AllowGeneratedUIDs
+Assert-KawoEvergreenImportRecipe -ProjectRoot $project
+Assert-SimulationSourceSnapshot (Join-Path $project 'addons/kawo_raw_glbs') $kawoRawExportAddon -RequiredEntries @('plugin.cfg','plugin.gd') -AllowGeneratedUIDs
+Assert-SimulationSourceSnapshot $addonSource $kawoRawExportAddon -RequiredEntries @('plugin.cfg','plugin.gd')
 Assert-KawoRuntimeSourceGroups -Root $source -Groups $kawoGroups
 Assert-KawoRuntimeSourceGroups -Root $payload -Groups @($kawoGroups|Where-Object {$_.destination -ceq 'worlds/kawo-prototype-v1'})
 if($includePiston){
@@ -524,6 +553,7 @@ if($includeLocalWindowReplay){$uidRoots+=Join-Path $project 'local_window_replay
 $uidRoots+=Join-Path $project 'pointer_scene_tests'
 if($includePiston){$uidRoots+=Join-Path $project 'engine_tests'}
 $manifest=@{schema_version=1;kind='original-whole-flight-preview';passed=$true;scope='Windows original model, actual functional headless proof; GPU/human acceptance separate';git_head=(& git -c "safe.directory=$repo" -C $repo rev-parse HEAD);powershell=$PSVersionTable.PSVersion.ToString();authoring_sources=$inputs;camera_graphical_rendering_request=@{method=$CameraRenderingMethod;driver=$CameraRenderingDriver};staged_camera_harness=@(foreach($name in @('camera_checks.gd','camera_checks.tscn')){@{path=$name;bytes=(Get-Item (Join-Path $project $name)).Length;sha256=(Get-FileHash (Join-Path $project $name)).Hash.ToLowerInvariant()}});camera_sources=$cameraGroups;cockpit_authoring_sources=$cockpitAuthoringGroups;cockpit_import=$cockpitImportReceipt;observed_sources=$observedGroups;wind_sources=$windGroups;ground_sources=$groundGroups;wire_codec_sources=$wireGroups;local_window_replay_enabled=$includeLocalWindowReplay;local_window_replay_sources=$replayGroups;pointer_sources=$pointerGroups;taxi_sources=$taxiGroups;taxi_full_supported=$requireFullTaxi;first_flight_sources=$firstFlightGroups;audio_sources=$audioGroups;local_player_sources=$localPlayerGroups;named_player_storage_included=$false;audio_source_groups_sha256=(Get-FileHash (Join-Path $evidence 'audio-source-groups.json')).Hash.ToLowerInvariant();pointer_checks_enabled=$includePiston;staged_pointer_harness_sha256=(Get-FileHash (Join-Path $project 'pointer_checks.gd')).Hash.ToLowerInvariant();piston_sources=$pistonSnapshot;piston_checks_enabled=$includePiston;native_build_identity=$nativeIdentity;selected_library=$selectedLibrary;staged_compile_sha256=(Get-FileHash (Join-Path $project 'compile-all.gd')).Hash.ToLowerInvariant();staged_generated_uid_metadata=@(Get-ChildItem -LiteralPath $uidRoots -Recurse -File -Filter '*.gd.uid'|ForEach-Object {@{path=[IO.Path]::GetRelativePath($project,$_.FullName).Replace([char]92,[char]47);sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}});staged_facade_harness_sha256=(Get-FileHash (Join-Path $project 'sim_loop_checks.gd')).Hash.ToLowerInvariant();staged_project_sha256=(Get-FileHash (Join-Path $project 'project.godot')).Hash.ToLowerInvariant();tool_pins=$pins;godot_version=$version.text.Trim();accepted_native_export_root=$proof;accepted_package_inventory_sha256=(Get-FileHash (Join-Path $proof 'evidence/package-inventory.json')).Hash.ToLowerInvariant();files=$inventory}
+$manifest.kawo_raw_glb_export_addon=$kawoRawExportAddon
 $manifest | ConvertTo-Json -Depth 10 | Set-Content -Encoding utf8 (Join-Path $evidence 'manifest.json')
 @{root=$root;project=$project;payload=$payload;evidence=$evidence;passed=$true} | ConvertTo-Json | Set-Content -Encoding utf8 (Join-Path $repo '.local/interactive-preview/latest-run.json')
 Write-Output $root

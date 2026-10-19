@@ -983,7 +983,8 @@ def reconstruction_paths(repo):
     for folder in ('native', 'tests/engine', 'tests/interactive', 'tools/bootstrap',
                    'app/world/taxi', 'app/ui/taxi', 'tests/world/taxi',
                    'tests/integration/taxi', 'app/persistence', 'app/ui/profiles',
-                   'app/ui/history', 'tests/ui/profiles', 'app/world/terrain'):
+                   'app/ui/history', 'tests/ui/profiles', 'app/world/terrain',
+                   'app/world/decoration', 'tests/world/decoration'):
         root = ordinary(repo / folder, True)
         for path in root.rglob('*'):
             ordinary(path, path.is_dir())
@@ -996,6 +997,10 @@ def reconstruction_paths(repo):
                 names.add(relative.as_posix())
     names.update(('app/world/world_admission.gd', 'tools/interactive-preview/world-catalog.mjs',
                   'content/world/catalog/kawo-runtime-v1.json'))
+    names.update('assets_source/environment/original-evergreens-v1/exports/' + name for name in
+                 ('tall-narrow-lod1.glb', 'broad-tiered-lod1.glb', 'irregular-mature-lod1.glb'))
+    names.update(('third_party/licenses/notices/OriginalEvergreens-MIT.txt',
+                  'third_party/licenses/evidence/original-evergreens-v1.inventory.json'))
     names.update('content/world/airports/kawo/runtime-v1/' + name for name in
                  ('world.json','ground.fgrd','airport.json','dossier.json','compile-receipt.json','start-ready34.json','NOTICE.txt'))
     return sorted(names)
