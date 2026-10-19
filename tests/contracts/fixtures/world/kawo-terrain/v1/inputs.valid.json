@@ -1,0 +1,10 @@
+{
+  "schema": "KawoTerrainInputs/v1",
+  "airport": {"absolute_path": "C:/schema-fixture/airport.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "bytes": 100},
+  "dossier": {"absolute_path": "C:/schema-fixture/dossier.json", "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "bytes": 200},
+  "tile55": {"absolute_path": "C:/schema-fixture/west.tif", "sha256": "c0115806df9b1c228b8c074adcdd342bb9a01cf936d2c39be218a5b61ead0ccf", "bytes": 494331204},
+  "tile55_metadata": {"absolute_path": "C:/schema-fixture/west.xml", "sha256": "ef382998233ddd833be510e4737c3052f20718e9fe2b2bea523c42cbc3952381", "bytes": 12169},
+  "tile56": {"absolute_path": "C:/schema-fixture/east.tif", "sha256": "b62bd2d39d081642fd2b1710a2e3971a216702903b36812304a61ec79f6ac97e", "bytes": 497020458},
+  "tile56_metadata": {"absolute_path": "C:/schema-fixture/east.xml", "sha256": "c969dc8fcc548ef0670e3fb315ea461cc1f1f59461539816e3b946328f91f8dc", "bytes": 12170},
+  "tool_qualification": {"absolute_path": "C:/schema-fixture/tools.json", "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "bytes": 300}
+}

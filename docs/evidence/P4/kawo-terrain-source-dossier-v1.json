@@ -1,0 +1,170 @@
+{
+  "schema": "AirportSourceDossier/v1",
+  "airport_icao": "KAWO",
+  "purpose": "source-record",
+  "as_of_utc": "2026-10-19T03:09:40Z",
+  "sources": [
+    {
+      "id": "faa.nasr.2026-10-01",
+      "kind": "faa-nasr",
+      "publisher": "Federal Aviation Administration",
+      "url": "https://nfdc.faa.gov/webContent/28DaySub/extra/01_Oct_2026_APT_CSV.zip",
+      "retrieved_utc": "2026-10-19T01:38:19Z",
+      "effective_from": "2026-10-01T00:00:00Z",
+      "effective_until": null,
+      "capture_state": "captured",
+      "artifact": {
+        "sha256": "aba48ea877f249d9b8cd63988b14b3432a6a09ad1fbe9561a5e6443c99c03dd0",
+        "bytes": 8030968,
+        "relative_path": null
+      },
+      "rights": {
+        "status": "pending",
+        "license": null,
+        "notice": "Source facts captured for engineering comparison; redistribution/packaging review remains pending.",
+        "reviewed_utc": null
+      },
+      "note": "Actual retrieval receipt UTC is 2026-10-19T01:38:19.8371192Z, truncated to whole seconds for this schema. Raw archive retained externally. Source consistency is not operational or geographic validation."
+    },
+    {
+      "id": "usgs.dem.x55y534.tiff",
+      "kind": "usgs-elevation",
+      "publisher": "U.S. Geological Survey",
+      "url": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/WA_Western_North_2016/TIFF/USGS_one_meter_x55y534_WA_Western_North_2016.tif",
+      "retrieved_utc": "2026-10-19T03:09:40Z",
+      "effective_from": null,
+      "effective_until": null,
+      "capture_state": "captured",
+      "artifact": {
+        "sha256": "c0115806df9b1c228b8c074adcdd342bb9a01cf936d2c39be218a5b61ead0ccf",
+        "bytes": 494331204,
+        "relative_path": null
+      },
+      "rights": {
+        "status": "pending",
+        "license": null,
+        "notice": "Companion source usgs.dem.x55y534.xml, idinfo/descript/abstract, states 3DEP products are public domain. idinfo/useconst disclaims accuracy/warranty, warns of temporal changes and critical-use limitations, appreciates originating-agency acknowledgement, requires modification descriptions, and prohibits misrepresentation or implied USGS approval/endorsement. Official policy references supplied by Root: https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits and https://www.usgs.gov/3d-elevation-program/about-3dep-products-services . A dated rights-review record is not supplied; classification remains pending.",
+        "reviewed_utc": null
+      },
+      "note": "Retained receipt retrieved_utc=2026-10-19T03:09:40.2140478Z; schema UTC truncates fractional seconds. Adjacent west raw bare-earth source, not compiled terrain or admitted coverage. Companion metadata states generic NAD83 / NAVD88 metres; no source realization or coordinate epoch is inferred. Publication/collection dates are not operational effective intervals."
+    },
+    {
+      "id": "usgs.dem.x55y534.xml",
+      "kind": "usgs-elevation",
+      "publisher": "U.S. Geological Survey",
+      "url": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/WA_Western_North_2016/metadata/USGS_one_meter_x55y534_WA_Western_North_2016_meta.xml",
+      "retrieved_utc": "2026-10-19T03:08:47Z",
+      "effective_from": null,
+      "effective_until": null,
+      "capture_state": "captured",
+      "artifact": {
+        "sha256": "ef382998233ddd833be510e4737c3052f20718e9fe2b2bea523c42cbc3952381",
+        "bytes": 12169,
+        "relative_path": null
+      },
+      "rights": {
+        "status": "pending",
+        "license": null,
+        "notice": "This retained XML supplies the x55 data-rights evidence at idinfo/descript/abstract and idinfo/useconst: public-domain 3DEP product; acknowledgement appreciated; modifications must be described; no misrepresentation or implied USGS approval/endorsement; no accuracy/warranty guarantee. Official references: https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits and https://www.usgs.gov/3d-elevation-program/about-3dep-products-services . No separate dated rights review or metadata-redistribution classification is asserted.",
+        "reviewed_utc": null
+      },
+      "note": "Retained receipt retrieved_utc=2026-10-19T03:08:47.6010721Z; schema UTC truncates fractional seconds. Source title USGS one meter x55y534 WA Western North 2016; citation pubdate=20200330, timeperd collection range=20160317..20170528, current=publication date. These are retained metadata, not effective interval or realization evidence. Generic NAD83, NAVD88 metre elevations remain source descriptions."
+    },
+    {
+      "id": "usgs.dem.x56y534.tiff",
+      "kind": "usgs-elevation",
+      "publisher": "U.S. Geological Survey",
+      "url": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/WA_Western_North_2016/TIFF/USGS_one_meter_x56y534_WA_Western_North_2016.tif",
+      "retrieved_utc": "2026-10-19T01:51:22Z",
+      "effective_from": null,
+      "effective_until": null,
+      "capture_state": "captured",
+      "artifact": {
+        "sha256": "b62bd2d39d081642fd2b1710a2e3971a216702903b36812304a61ec79f6ac97e",
+        "bytes": 497020458,
+        "relative_path": null
+      },
+      "rights": {
+        "status": "pending",
+        "license": null,
+        "notice": "Companion source usgs.dem.x56y534.xml, idinfo/descript/abstract, states 3DEP products are public domain. idinfo/useconst disclaims accuracy/warranty, warns of temporal changes and critical-use limitations, appreciates originating-agency acknowledgement, requires modification descriptions, and prohibits misrepresentation or implied USGS approval/endorsement. Official policy references supplied by Root: https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits and https://www.usgs.gov/3d-elevation-program/about-3dep-products-services . A dated rights-review record is not supplied; classification remains pending.",
+        "reviewed_utc": null
+      },
+      "note": "Retained receipt retrieved_utc=2026-10-19T01:51:22.5463514Z; schema UTC truncates fractional seconds. Raw bare-earth source identity only. Decoder/tool or selected-point transform evidence does not admit this source as canonical terrain, operational airport coverage or realized WGS84. Companion metadata states generic NAD83 / NAVD88 metres."
+    },
+    {
+      "id": "usgs.dem.x56y534.xml",
+      "kind": "usgs-elevation",
+      "publisher": "U.S. Geological Survey",
+      "url": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/WA_Western_North_2016/metadata/USGS_one_meter_x56y534_WA_Western_North_2016_meta.xml",
+      "retrieved_utc": "2026-10-19T01:50:14Z",
+      "effective_from": null,
+      "effective_until": null,
+      "capture_state": "captured",
+      "artifact": {
+        "sha256": "c969dc8fcc548ef0670e3fb315ea461cc1f1f59461539816e3b946328f91f8dc",
+        "bytes": 12170,
+        "relative_path": null
+      },
+      "rights": {
+        "status": "pending",
+        "license": null,
+        "notice": "This retained XML supplies the x56 data-rights evidence at idinfo/descript/abstract and idinfo/useconst: public-domain 3DEP product; acknowledgement appreciated; modifications must be described; no misrepresentation or implied USGS approval/endorsement; no accuracy/warranty guarantee. Official references: https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits and https://www.usgs.gov/3d-elevation-program/about-3dep-products-services . No separate dated rights review or metadata-redistribution classification is asserted.",
+        "reviewed_utc": null
+      },
+      "note": "Retained receipt retrieved_utc=2026-10-19T01:50:14.3942206Z; schema UTC truncates fractional seconds. Local retained filename usgs-x56y534-metadata.xml. Source citation pubdate=20200330, timeperd collection range=20160317..20170528, current=publication date. No operational effective interval, NAD83 realization or epoch is inferred."
+    },
+    {
+      "id": "noaa.geoid18.conus.tiff",
+      "kind": "noaa-geoid",
+      "publisher": "NOAA National Geodetic Survey; PROJ-data converted distribution",
+      "url": "https://cdn.proj.org/us_noaa_g2018u0.tif",
+      "retrieved_utc": "2026-10-19T02:06:41Z",
+      "effective_from": null,
+      "effective_until": null,
+      "capture_state": "captured",
+      "artifact": {
+        "sha256": "fa9a407ac7ee3f5a3694008e4bcd09ce9cc250452f0c3b11700a4960340abce2",
+        "bytes": 16742155,
+        "relative_path": null
+      },
+      "rights": {
+        "status": "pending",
+        "license": null,
+        "notice": "Retained source noaa.geoid18.readme, section USA GEOID18 model: NAVD88/PRVD02 height to NAD83(2011), explicitly labels License: Public Domain, and identifies conversion from NOAA NGS .bin grids https://www.ngs.noaa.gov/GEOID/GEOID18/ via build_g2018.sh to GeoTIFF. README source URL https://cdn.proj.org/us_noaa_README.txt . No dated rights-review record is asserted; classification remains pending.",
+        "reviewed_utc": null
+      },
+      "note": "Retained receipt retrieved_utc=2026-10-19T02:06:41.5352708Z; schema UTC truncates fractional seconds. README associates this CONUS grid with NAD83(2011) epoch 2010.00 and NAVD88; that describes the model and does not establish that the captured FAA/USGS source coordinates share that realization/epoch. Source-frame compatibility, total 3D accuracy and compiler admission remain unresolved. No effective interval inferred from model name GEOID18."
+    },
+    {
+      "id": "noaa.geoid18.readme",
+      "kind": "noaa-geoid",
+      "publisher": "PROJ-data; NOAA National Geodetic Survey source attribution",
+      "url": "https://cdn.proj.org/us_noaa_README.txt",
+      "retrieved_utc": "2026-10-19T02:06:41Z",
+      "effective_from": null,
+      "effective_until": null,
+      "capture_state": "captured",
+      "artifact": {
+        "sha256": "38561c43f20756a77d33406c54cda8c250d18b6b30bff1e00ff51578e3682723",
+        "bytes": 19653,
+        "relative_path": null
+      },
+      "rights": {
+        "status": "pending",
+        "license": null,
+        "notice": "The retained README GEOID18 section explicitly marks its grid License: Public Domain and points to https://www.ngs.noaa.gov/GEOID/GEOID18/ . This is retained rights evidence for the grid, not an invented independent license for the complete multi-model README. No dated review or README redistribution classification is asserted.",
+        "reviewed_utc": null
+      },
+      "note": "Retained receipt retrieved_utc=2026-10-19T02:06:41.7231944Z; schema UTC truncates fractional seconds. GEOID18 section lines 457..475 identifies converted GeoTIFF, intended NAD83(2011) epoch 2010.00 coordinates, CONUS us_noaa_g2018u0.tif / NAVD88, and model extent limitations. This captured text does not resolve the source-frame uncertainty of FAA or USGS data."
+    }
+  ],
+  "conflicts": [],
+  "notes": [
+    "Paved NASR subset only. No terrain, canonical coordinates or operational world admission.",
+    "The preceding note is retained unchanged from the FAA-only input dossier and describes its NASR subset. This private combined dossier adds four USGS TIFF/XML captures and a NOAA grid/README capture; it is provenance input for later compiler work, not admitted compiled terrain.",
+    "as_of_utc is the maximum actual capture UTC among these seven sources, truncated to the whole-second schema format. Original fractional receipt UTCs remain in source notes. Effective intervals for USGS and NOAA sources remain null; publication, survey and model names are not substituted for effective dates.",
+    "All artifacts remain external reference identities with relative_path=null. No raw FAA archive, USGS TIFF/XML or NOAA grid/README is packaged by this dossier. Source rights evidence is retained in notices; rights remain pending without an actual dated review record. FAA rights classification is unchanged.",
+    "Generic NAD83 source metadata, unspecified FAA MSL and unknown coordinate realizations/epochs are not silently relabelled WGS84. Capture, source consistency, decoder checks and selected-coordinate qualification are separate from operational geographic accuracy or world admission."
+  ]
+}

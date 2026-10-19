@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://flight-simulator.invalid/contracts/world/kawo-terrain/v1/airport-geometry.schema.json",
+  "$comment": "Closed compiler-draft-v2 shape. Anchor words are transcribed from reviewed phase-A receipt 378d01ac190896af994cd5e4302cdcd19bb0b56571114d96143dab45820675cc, not recomputed from decimal coordinates. Schema success does not establish source/payload/facet identity, exact polygon predicates, or native agreement.",
+  "type": "object",
+  "properties": {
+    "schema": {"const": "CompiledAirportGeometry/v1"},
+    "source_airport_sha256": {"$ref": "#/$defs/sha256"},
+    "ground_payload_sha256": {"$ref": "#/$defs/sha256"},
+    "world_anchor": {"$ref": "#/$defs/world_anchor"},
+    "position_frame": {"const": "anchor-eus-metres"},
+    "bearing_reference": {"const": "published-geographic-true-degrees"},
+    "runways": {
+      "type": "array", "minItems": 2, "maxItems": 2, "items": false,
+      "prefixItems": [{"$ref": "#/$defs/runway_11_29"}, {"$ref": "#/$defs/runway_16_34"}]
+    }
+  },
+  "required": ["schema", "source_airport_sha256", "ground_payload_sha256", "world_anchor", "position_frame", "bearing_reference", "runways"],
+  "additionalProperties": false,
+  "$defs": {
+    "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+    "binary64": {
+      "type": "object",
+      "properties": {"$binary64_le": {"type": "string", "minLength": 16, "maxLength": 16, "pattern": "^(?![0-9a-f]{12}f[0-9a-f](?:7f|ff)$)[0-9a-f]{16}$"}},
+      "required": ["$binary64_le"], "additionalProperties": false
+    },
+    "positive_binary64": {
+      "type": "object",
+      "properties": {"$binary64_le": {"type": "string", "minLength": 16, "maxLength": 16, "pattern": "^(?!0000000000000000$)(?![0-9a-f]{12}f[0-9a-f]7f$)[0-9a-f]{14}[0-7][0-9a-f]$"}},
+      "required": ["$binary64_le"], "additionalProperties": false
+    },
+    "world_anchor": {
+      "const": {
+        "latitude_rad": {"$binary64_le": "fdfc84c1e5e5ea3f"},
+        "longitude_rad": {"$binary64_le": "5eedd3837e0e01c0"},
+        "ellipsoid_height_m": {"$binary64_le": "0000000000000000"}
+      }
+    },
+    "point_mm": {
+      "type": "array", "minItems": 2, "maxItems": 2,
+      "items": {"type": "integer", "minimum": -8192000, "maximum": 8192000}
+    },
+    "end": {
+      "type": "object",
+      "properties": {
+        "designator": {"enum": ["11", "29", "16", "34"]},
+        "eus_m": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"$ref": "#/$defs/binary64"}},
+        "published_true_bearing_deg": {"$ref": "#/$defs/binary64"}
+      },
+      "required": ["designator", "eus_m", "published_true_bearing_deg"], "additionalProperties": false
+    },
+    "runway": {
+      "type": "object",
+      "properties": {
+        "id": {"enum": ["kawo.runway.11-29", "kawo.runway.16-34"]},
+        "material_polygon_id": {"enum": ["kawo.runway.11-29", "kawo.runway.16-34"]},
+        "published_length_m": {"$ref": "#/$defs/positive_binary64"},
+        "width_m": {"$ref": "#/$defs/positive_binary64"},
+        "footprint_mm": {"type": "array", "minItems": 4, "maxItems": 4, "uniqueItems": true, "items": {"$ref": "#/$defs/point_mm"}},
+        "ends": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"$ref": "#/$defs/end"}}
+      },
+      "required": ["id", "material_polygon_id", "published_length_m", "width_m", "footprint_mm", "ends"], "additionalProperties": false
+    },
+    "runway_11_29": {
+      "allOf": [
+        {"$ref": "#/$defs/runway"},
+        {"type": "object", "properties": {
+          "id": {"const": "kawo.runway.11-29"}, "material_polygon_id": {"const": "kawo.runway.11-29"},
+          "ends": {"type": "array", "minItems": 2, "maxItems": 2, "items": false, "prefixItems": [
+            {"type": "object", "properties": {"designator": {"const": "11"}}},
+            {"type": "object", "properties": {"designator": {"const": "29"}}}
+          ]}
+        }}
+      ]
+    },
+    "runway_16_34": {
+      "allOf": [
+        {"$ref": "#/$defs/runway"},
+        {"type": "object", "properties": {
+          "id": {"const": "kawo.runway.16-34"}, "material_polygon_id": {"const": "kawo.runway.16-34"},
+          "ends": {"type": "array", "minItems": 2, "maxItems": 2, "items": false, "prefixItems": [
+            {"type": "object", "properties": {"designator": {"const": "16"}}},
+            {"type": "object", "properties": {"designator": {"const": "34"}}}
+          ]}
+        }}
+      ]
+    }
+  }
+}

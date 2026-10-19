@@ -1,0 +1,191 @@
+{
+  "kind": "PrivateKawoCompilerScalarReferences/v1",
+  "scope": "Hand-authored synthetic scalar expectations frozen before compiler implementation; no actual terrain or complete solver result",
+  "bindings": {
+    "hand_design_path": ".local/resume/kawo-compiler-scalar-oracles-v1.md",
+    "hand_design_sha256": "0e84636a1e5b97df4bbacfdce5b4897cb2aa285e9283bef76198f0c01f230669",
+    "proposed_contract_path": ".local/resume/kawo-compiler-contract-draft-v2/draft.md",
+    "proposed_contract_sha256": "d2ef321b1ac25a36ceea60462d09184acc67af098d5c58cb084d03b0a242efa9",
+    "actual_receipts_provenance_only": {
+      "operation_phase_a_sha256": "378d01ac190896af994cd5e4302cdcd19bb0b56571114d96143dab45820675cc",
+      "raw_geoid_witnesses_sha256": "95a7f77436ff1ebd534847a1626e60ea616e127c66228e2f2b06f1b066e0576e",
+      "vertical_sha256": "388bbc271474f420840d64ab85b158bca3004f7f496b1e663391a4fb0c95b311",
+      "source_decode_and_arrays_sha256": "11610ccea77455c92e4b5dbbe70161394b914275d17c4caba4a3fde7d95e6ed7"
+    }
+  },
+  "notation": {
+    "ieee_words": "Unsigned IEEE hexadecimal words, most significant digit first; these strings are not little-endian wire-byte strings",
+    "r": "One binary64 primitive separately rounded nearest ties to even; no FMA or reassociation",
+    "rational_strings": "Exact mathematical values; powers of two are exact, not decimal approximations",
+    "addresses": "Synthetic tile55/tile56 addresses on the proposed 1m PixelIsArea lattice, not observed TIFF samples",
+    "height_unit": "metre",
+    "quantized_footprint_unit": "integer millimetre"
+  },
+  "pixel_is_area": {
+    "synthetic_tile55_corner_en": [549994, 5340006],
+    "sample_center_formula": "E=549994.5+column; N=5340005.5-row",
+    "index_formula": "i=floor(E-0.5); j=floor(N-0.5); column=i-549994; row=5340005-j",
+    "east_gradient_rows": [
+      {"row": 0, "columns_0_1_2": [0, 10, 20]},
+      {"row": 1, "columns_0_1_2": [0, 10, 20]}
+    ],
+    "cases": [
+      {"id": "exact-center-still-four-neighbours", "en": [549995.5, 5340004.5], "ij": [549995, 5340004], "tu": [0, 0], "h00_h10_h01_h11": [10, 20, 10, 20], "row_column_00_10_01_11": [[1, 1], [1, 2], [0, 1], [0, 2]], "expected_h": 10},
+      {"id": "quarter-before-center", "en": [549995.25, 5340004.5], "ij": [549994, 5340004], "tu": [0.75, 0], "h00_h10_h01_h11": [0, 10, 0, 10], "row_column_00_10_01_11": [[1, 0], [1, 1], [0, 0], [0, 1]], "expected_h": 7.5, "wrong_corner_as_center_h": 12.5},
+      {"id": "north-goes-to-smaller-image-row", "en": [549995.5, 5340005.25], "ij": [549995, 5340004], "tu": [0, 0.75], "h00_h10_h01_h11": [10, 10, 30, 30], "expected_a": 10, "expected_b": 30, "expected_h": 25}
+    ],
+    "missing_cases": [
+      {"id": "zero-weight-h11-own-nodata", "base_case": "exact-center-still-four-neighbours", "replace_corner": "H11", "address": [0, 2], "replacement_tile": 55, "replacement_f32_word": "ff7fffff", "expected": "missing-invalid; no usable height10"},
+      {"id": "zero-weight-h11-unavailable", "base_case": "exact-center-still-four-neighbours", "replace_corner": "H11", "address": [0, 2], "replacement": "physically unavailable", "expected": "missing-invalid; no usable height10"},
+      {"id": "top-left-sample-center-needs-north-support", "en": [549994.5, 5340005.5], "tu": [0, 0], "required_outside_row": -1, "expected": "missing-invalid; no edge clamp"},
+      {"id": "physical-top-left-corner-lacks-support", "en": [549994, 5340006], "expected": "missing-invalid; no edge clamp"}
+    ]
+  },
+  "mosaic_seam": {
+    "id": "owner-each-corner-before-bilinear",
+    "owner_policy": "tile55 when global i<560000; tile56 when i>=560000",
+    "en": [559999.75, 5335001.25],
+    "ij": [559999, 5335000],
+    "tu": [0.25, 0.75],
+    "corners": [
+      {"corner": "H00", "global_ij": [559999, 5335000], "owner_tile": 55, "owner_row_column": [5005, 10005], "owner_h": 0, "nonowner_tile": 56, "nonowner_row_column": [5005, 5], "nonowner_h": 1000},
+      {"corner": "H10", "global_ij": [560000, 5335000], "owner_tile": 56, "owner_row_column": [5005, 6], "owner_h": 4, "nonowner_tile": 55, "nonowner_row_column": [5005, 10006], "nonowner_h": 2000},
+      {"corner": "H01", "global_ij": [559999, 5335001], "owner_tile": 55, "owner_row_column": [5004, 10005], "owner_h": 8, "nonowner_tile": 56, "nonowner_row_column": [5004, 5], "nonowner_h": 3000},
+      {"corner": "H11", "global_ij": [560000, 5335001], "owner_tile": 56, "owner_row_column": [5004, 6], "owner_h": 20, "nonowner_tile": 55, "nonowner_row_column": [5004, 10006], "nonowner_h": 4000}
+    ],
+    "expected": {"a": 1, "b": 11, "h": 8.5, "h_f64_word": "4021000000000000", "h_f32_word": "41080000"},
+    "wrong_policies": [
+      {"policy": "all-tile55", "h": 879.5},
+      {"policy": "all-tile56", "h": 1879},
+      {"policy": "average-owner-and-nonowner-before-bilinear", "h": 1379.25}
+    ],
+    "missing_cases": [
+      {"id": "selected-east-owner-missing-no-west-retry", "replace_corner": "H10", "owner_tile": 56, "replacement_f32_word": "c97423f0", "nonowner_h_still": 2000, "expected": "missing-invalid"},
+      {"id": "selected-west-owner-missing-no-east-retry", "replace_corner": "H00", "owner_tile": 55, "replacement_f32_word": "ff7fffff", "nonowner_h_still": 1000, "expected": "missing-invalid"}
+    ]
+  },
+  "source_sample_classification": {
+    "cases": [
+      {"tile": 55, "f32_word": "ff7fffff", "expected": "own-nodata-missing-before-arithmetic"},
+      {"tile": 56, "f32_word": "c97423f0", "expected": "own-nodata-missing-before-arithmetic"},
+      {"tile": 55, "f32_word": "c97423f0", "expected": "finite-not-own-nodata", "exact_value": "-999999"},
+      {"tile": 56, "f32_word": "ff7fffff", "expected": "finite-not-own-nodata", "exact_value": "-((2^24)-1)*2^104"}
+    ],
+    "both_tiles_cases": [
+      {"f32_word": "00000000", "expected": "finite-not-missing", "exact_value": "+0"},
+      {"f32_word": "80000000", "expected": "finite-not-missing", "exact_value": "-0"},
+      {"f32_word": "c0200000", "expected": "finite-not-missing", "exact_value": "-2.5"},
+      {"f32_word": "00000001", "expected": "finite-not-missing", "exact_value": "2^-149"},
+      {"f32_word": "7fc00000", "expected": "unexpected-used-nonfinite-reject-build"},
+      {"f32_word": "7f800000", "expected": "unexpected-used-nonfinite-reject-build"},
+      {"f32_word": "ff800000", "expected": "unexpected-used-nonfinite-reject-build"}
+    ],
+    "diagnostic_missing_encoding": {"height_f32_word": "7fc00000", "validity": 0, "missing_vertices": "invalid_data", "missing_vertices_enum": 2},
+    "limit": "Classification controls do not promise accepted final height, gradient, residual, grid or distributable product"
+  },
+  "bilinear_grouping": {
+    "id": "separately-rounded-product-before-add",
+    "h00_h01_f32_word": "3f800000",
+    "h10_h11_f32_word": "b4000000",
+    "h00_h01_exact": "1",
+    "h10_h11_exact": "-2^-23",
+    "t_exact": "1-2^-32",
+    "t_f64_word": "3fefffffffe00000",
+    "u_exact": "0",
+    "realizable_synthetic_query": {"e_exact": "559999.5-2^-32", "n": 5335000.5, "i": 559998, "j": 5335000, "both_east_corners_owner": 55},
+    "transcript": [
+      {"temporary": "delta", "expression": "r(-2^-23-1)", "exact_result": "-1-2^-23", "f64_word": "bff0000020000000"},
+      {"temporary": "product", "expression": "r(delta*t)", "before_round_exact": "-1-2^-23+2^-32+2^-55", "result_exact": "-1-2^-23+2^-32", "f64_word": "bff000001ff00000"},
+      {"temporary": "a", "expression": "r(1+product)", "result_exact": "-511/2^32", "f64_word": "be7ff00000000000"},
+      {"temporary": "b", "expression": "same transcript for north row", "result_exact": "-511/2^32", "f64_word": "be7ff00000000000"},
+      {"temporary": "H", "expression": "r(a+r(u*r(b-a)))", "result_exact": "-511/2^32", "f64_word": "be7ff00000000000"}
+    ],
+    "forbidden_fused_or_reassociated_result_exact": "-511/2^32+2^-55",
+    "limit": "Assert binary64 intermediates; final Float32 alone can erase the discriminator"
+  },
+  "dot_product_grouping": {
+    "id": "arithmetic-only-large-cancellation-tie",
+    "scope": "Synthetic arithmetic-only; these are not admitted geographic coordinates or a physical orthonormal basis",
+    "a_f64_words": ["4340000000000000", "3ff0000000000000", "c340000000000000"],
+    "b_f64_words": ["3ff0000000000000", "3ff0000000000000", "3ff0000000000000"],
+    "a_exact": ["2^53", "1", "-2^53"],
+    "b_exact": ["1", "1", "1"],
+    "expected_products_exact": ["2^53", "1", "-2^53"],
+    "expected_first_sum_before_round_exact": "2^53+1",
+    "expected_first_sum_after_round_exact": "2^53",
+    "expected_first_sum_f64_word": "4340000000000000",
+    "expected_dot_exact": "+0",
+    "expected_dot_f64_word": "0000000000000000",
+    "wrong_reassociated_inner_sum_exact": "-(2^53-1)",
+    "wrong_reassociated_dot_exact": "1",
+    "wrong_reassociated_dot_f64_word": "3ff0000000000000",
+    "proof": "At2^53 the upward spacing is2, so exact2^53+1 is a midpoint and the even lower significand wins. Adding exact-2^53 then cancels to+0 in nearest-even. The reassociated inner1-2^53 is exactly representable at the smaller binade, giving final1."
+  },
+  "geoid_addition": {
+    "id": "synthetic-H-plus-negative-N",
+    "H": 100,
+    "H_f64_word": "4059000000000000",
+    "N": -22.75,
+    "N_f64_word": "c036c00000000000",
+    "expected_h": 77.25,
+    "expected_h_f64_word": "4053500000000000",
+    "expected_h_f32_word": "429a8000",
+    "wrong_subtraction_result": 122.75,
+    "limit": "Scalar addition/sign only; no loaded EPSG9595 or actual KAWO geoid value is inferred"
+  },
+  "float32_nearest_even": [
+    {"id": "positive-even-lower-midpoint", "input_exact": "1+2^-24", "input_f64_word": "3ff0000010000000", "expected_f32_word": "3f800000"},
+    {"id": "one-b64-below-midpoint", "input_exact": "1+2^-24-2^-52", "input_f64_word": "3ff000000fffffff", "expected_f32_word": "3f800000"},
+    {"id": "one-b64-above-midpoint", "input_exact": "1+2^-24+2^-52", "input_f64_word": "3ff0000010000001", "expected_f32_word": "3f800001"},
+    {"id": "positive-even-upper-midpoint", "input_exact": "1+3*2^-24", "input_f64_word": "3ff0000030000000", "expected_f32_word": "3f800002"},
+    {"id": "negative-even-lower-midpoint", "input_exact": "-(1+2^-24)", "input_f64_word": "bff0000010000000", "expected_f32_word": "bf800000"},
+    {"id": "negative-even-upper-midpoint", "input_exact": "-(1+3*2^-24)", "input_f64_word": "bff0000030000000", "expected_f32_word": "bf800002"},
+    {"id": "positive-zero-minsub-midpoint", "input_exact": "2^-150", "input_f64_word": "3690000000000000", "expected_f32_word": "00000000"},
+    {"id": "negative-zero-minsub-midpoint", "input_exact": "-2^-150", "input_f64_word": "b690000000000000", "expected_f32_word": "80000000"},
+    {"id": "subnormal-odd-even-midpoint", "input_exact": "3*2^-150", "input_f64_word": "36a8000000000000", "expected_f32_word": "00000002"}
+  ],
+  "exact_millimetres": {
+    "policy": "Round exact dyadic B64 operand times exact integer1000 to nearest integer; half ties away from zero; do not first round multiplication",
+    "cases": [
+      {"id": "positive-half", "input_f64_word": "3fb0000000000000", "exact_value": "2^-4", "expected_mm": 63},
+      {"id": "positive-below-half", "input_f64_word": "3fafffffffffffff", "exact_value": "2^-4-2^-57", "expected_mm": 62},
+      {"id": "positive-above-half", "input_f64_word": "3fb0000000000001", "exact_value": "2^-4+2^-56", "expected_mm": 63},
+      {"id": "negative-half", "input_f64_word": "bfb0000000000000", "exact_value": "-2^-4", "expected_mm": -63},
+      {"id": "negative-toward-zero-from-half", "input_f64_word": "bfafffffffffffff", "exact_value": "-(2^-4-2^-57)", "expected_mm": -62},
+      {"id": "negative-away-from-zero-from-half", "input_f64_word": "bfb0000000000001", "exact_value": "-(2^-4+2^-56)", "expected_mm": -63},
+      {"id": "positive-zero", "input_f64_word": "0000000000000000", "expected_mm": 0},
+      {"id": "negative-zero", "input_f64_word": "8000000000000000", "expected_mm": 0},
+      {"id": "positive-anti-double-round", "input_f64_word": "3f726e978d4fdf3b", "exact_value": "5188146770730811/2^60", "expected_mm": 4},
+      {"id": "negative-anti-double-round", "input_f64_word": "bf726e978d4fdf3b", "exact_value": "-5188146770730811/2^60", "expected_mm": -4}
+    ],
+    "anti_double_round_proof": {
+      "exact_positive_distance_below_9_over_2000": "49/(125*2^60)",
+      "exact_positive_scaled_distance_below_4_5": "49/2^57",
+      "half_b64_ulp_at_4_5": "2^-51",
+      "premature_rounded_positive_product": 4.5,
+      "wrong_positive_result_after_premature_round": 5,
+      "wrong_negative_result_after_premature_round": -5
+    }
+  },
+  "synthetic_footprint": {
+    "id": "four-metre-centerline-one-eighth-metre-width",
+    "endpoint0_east_south": [0, 0],
+    "endpoint1_east_south": [4, 0],
+    "width_m": 0.125,
+    "expected_length_m": 4,
+    "expected_unit_direction": [1, 0],
+    "expected_perpendicular": ["-0", "1"],
+    "expected_half_width_m": 0.0625,
+    "ring_order": ["endpoint0-minus", "endpoint0-plus", "endpoint1-plus", "endpoint1-minus"],
+    "expected_ring_east_south_mm": [[0, -63], [0, 63], [4000, 63], [4000, -63]],
+    "expected_signed_twice_area_mm2": -1008000,
+    "limit": "Synthetic arithmetic only; no runway survey, native contact, aircraft pose or source geometry"
+  },
+  "uncovered": [
+    "The dot discriminator tests arithmetic grouping only; no in-domain geographic frame-dot control, target-ECEF line, fixed-point update or endpoint-product/add grouping transcript is frozen by this packet",
+    "No eight-update solver transcript or final canonical-grid/facet values are supplied",
+    "No independent actual source pixel-to-final-EUS controls or all-four runway-end outputs are supplied",
+    "No complete-extent inverse support/convergence, post-round residual, gradient/readiness or repeated-output determinism result",
+    "No geographic accuracy, source realization/epoch compatibility, total3D accuracy, redistribution, runtime or rendering acceptance"
+  ]
+}

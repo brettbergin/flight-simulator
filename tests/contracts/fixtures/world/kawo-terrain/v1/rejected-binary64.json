@@ -1,0 +1,11 @@
+[
+  {"name": "positive infinity", "value": {"$binary64_le": "000000000000f07f"}},
+  {"name": "negative infinity", "value": {"$binary64_le": "000000000000f0ff"}},
+  {"name": "positive quiet NaN", "value": {"$binary64_le": "000000000000f87f"}},
+  {"name": "negative signaling NaN", "value": {"$binary64_le": "010000000000f0ff"}},
+  {"name": "uppercase", "value": {"$binary64_le": "000000000000F03F"}},
+  {"name": "short word", "value": {"$binary64_le": "000000000000000"}},
+  {"name": "extra scalar field", "value": {"$binary64_le": "0000000000000000", "unit": "m"}},
+  {"name": "decimal replacement", "value": 0},
+  {"name": "null replacement", "value": null}
+]

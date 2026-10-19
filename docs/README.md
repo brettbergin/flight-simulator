@@ -147,3 +147,20 @@ The proposed [bounded logical fault amendment](contracts/local-players/test-capa
 The [original evergreen asset set](evidence/P4/original-evergreens.md) delivers three decorative designs with two authored LODs each, editable source, independent structural checks and isolated Godot import/image review. These are accepted as faceted prototype source art, with far-range aliasing retained as a limitation. Runtime placement, forest performance and geographic vegetation remain later work.
 
 The [first integrated Players menu](evidence/P3/local-players-frontend.md) has passed local actual-flight, storage/relaunch and three-size keyboard/image checks. It connects player choice and explicit settings Save while preserving flight authority. This is partial #220; a qualified named-player release, complete history/export/recovery journeys and installed-user acceptance remain open.
+
+The [offline terrain tools](evidence/P4/terrain-tools.md) have passed actual sealed
+Windows native/resource and USGS Float32 decoder qualification, with exact pinned
+inputs and preserved failed attempts. This enables later compiler work; it selects
+no real source transform and changes no current game or installed player data.
+
+The [standalone resident-grid implementation](evidence/P4/resident-grid-component.md)
+has passed Windows native geometry, byte decoding, private arithmetic and existing
+ground-interface tests. It is a prerequisite for the airport environment; actual
+geographic compilation, runtime/render adoption and installed delivery remain separate.
+
+The [bounded KAWO terrain compiler contract](contracts/world/kawo-terrain-compiler-v1.md)
+fixes source tiles, operation inputs, anchor words, sampling, output bytes and closed
+schemas before implementation. [Actual source/operation qualification](evidence/P4/kawo-terrain-source-qualification.md)
+and independent arithmetic references support that seam. A complete shared ground,
+native runway comparisons, runtime, rendering and airport delivery remain later work;
+the working frame is approximate with unknown total3D accuracy.

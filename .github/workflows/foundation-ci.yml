@@ -61,6 +61,30 @@ jobs:
           foreach ($file in $treeInventory.files) {
             if ((Get-Item -LiteralPath $file.path).Length -ne $file.bytes -or (Get-FileHash -LiteralPath $file.path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $file.sha256) { throw 'Original evergreen source/tool byte identity changed' }
           }
+      - name: Check frozen KAWO compiler contract and schema-only refusals
+        shell: pwsh
+        run: |
+          $kawoCompilerPins = @{
+            'docs/contracts/world/kawo-terrain-pins-v1.json' = '0665004e2ccc95502ede62a8cc2ee342bc5d4784181c6a42aa7ccfc837f97aa8'
+            'docs/contracts/world/kawo-terrain-constructor-metadata-v1.json' = '51449b75dd8f16014515d5133cabf8579b2f1d89dddffb7a1cf3ae949a2a0e45'
+            'schemas/world/kawo-terrain/v1/inputs.schema.json' = '488ac065a6721ba118286b64d5be28c94007279553d317db5671531150e562f6'
+            'schemas/world/kawo-terrain/v1/compile-receipt.schema.json' = '3421bcf5f4b7a1bfd98970ad43a0455cc1247b4cef9c78f2c340ea8087fa1ed3'
+            'schemas/world/kawo-terrain/v1/airport-geometry.schema.json' = '8cc58b84cebf732381e52258aa117c859bb3be7b4ed8e7a81333c3d70c6342cc'
+            'tests/terrain/kawo/reference/hand-oracles.json' = '8d5429fae54c714d02a699ab4a04fcb85ecf04411fb5e6b97b9e6828a9815dbc'
+            'tests/contracts/kawo-terrain.test.mjs' = '298dfb19e9256179fe8602e8aa837d602eefffa6c900e62f07453b2dd21e18e6'
+            'tests/contracts/fixtures/world/kawo-terrain/v1/inputs.valid.json' = '4ac09b09ee3a79281bf037a6258e945c872b42d5571307b3edcad1ca4169f30c'
+            'tests/contracts/fixtures/world/kawo-terrain/v1/airport-geometry.valid.json' = '7820d70dfab65f26bfd21d123a6d1ddac7338fa65c3047fe1f3159bae328ab56'
+            'tests/contracts/fixtures/world/kawo-terrain/v1/receipt-fields.valid.json' = 'da3138af594c964ac38b0698201a0cb413d4196614969cf0295503853f5e55e3'
+            'tests/contracts/fixtures/world/kawo-terrain/v1/rejected-binary64.json' = '672337a2a654e367e80a7088add73cb292b6ec4d758999a6961a71ae8825ac46'
+            'docs/evidence/P4/kawo-terrain-source-dossier-v1.json' = '5db1367751d58196c440d24869e82c55fd17e3f24cfd50ac96bad788d6ec07c1'
+          }
+          foreach ($name in $kawoCompilerPins.Keys) {
+            if ((Get-FileHash -LiteralPath $name -Algorithm SHA256).Hash.ToLowerInvariant() -cne $kawoCompilerPins[$name]) { throw 'Frozen KAWO compiler contract/reference changed; checked successor required' }
+          }
+          node --test tests/contracts/kawo-terrain.test.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'KAWO compiler schema-only refusal tests failed' }
+      - name: Check offline terrain tooling parsers and independent TIFF literals
+        run: python -I -B -S tests/world/terrain-tools/test_terrain_tools.py
       - name: Verify frozen resident-grid contract and independent references
         shell: pwsh
         run: |

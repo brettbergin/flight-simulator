@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://flight-simulator.invalid/contracts/world/kawo-terrain/v1/inputs.schema.json",
+  "$comment": "Private authoring descriptor only. The outer byte parser separately enforces UTF8/no BOM, no duplicate keys, <=65536 bytes, depth<=8 and <=2048 values. Ordinary existing file, reparse/hardlink checks, raw file identities and external validateSourcePair are separate gates. This schema does not execute or authorize a compiler.",
+  "type": "object",
+  "properties": {
+    "schema": {"const": "KawoTerrainInputs/v1"},
+    "airport": {"$ref": "#/$defs/small_file"},
+    "dossier": {"$ref": "#/$defs/small_file"},
+    "tile55": {"allOf": [{"$ref": "#/$defs/file"}, {"type": "object", "properties": {"sha256": {"const": "c0115806df9b1c228b8c074adcdd342bb9a01cf936d2c39be218a5b61ead0ccf"}, "bytes": {"const": 494331204}}}]},
+    "tile55_metadata": {"allOf": [{"$ref": "#/$defs/file"}, {"type": "object", "properties": {"sha256": {"const": "ef382998233ddd833be510e4737c3052f20718e9fe2b2bea523c42cbc3952381"}, "bytes": {"const": 12169}}}]},
+    "tile56": {"allOf": [{"$ref": "#/$defs/file"}, {"type": "object", "properties": {"sha256": {"const": "b62bd2d39d081642fd2b1710a2e3971a216702903b36812304a61ec79f6ac97e"}, "bytes": {"const": 497020458}}}]},
+    "tile56_metadata": {"allOf": [{"$ref": "#/$defs/file"}, {"type": "object", "properties": {"sha256": {"const": "c969dc8fcc548ef0670e3fb315ea461cc1f1f59461539816e3b946328f91f8dc"}, "bytes": {"const": 12170}}}]},
+    "tool_qualification": {"$ref": "#/$defs/small_file"}
+  },
+  "required": ["schema", "airport", "dossier", "tile55", "tile55_metadata", "tile56", "tile56_metadata", "tool_qualification"],
+  "additionalProperties": false,
+  "$defs": {
+    "file": {
+      "type": "object",
+      "properties": {
+        "absolute_path": {"type": "string", "minLength": 4, "maxLength": 65536, "pattern": "^[A-Za-z]:[\\\\/](?:(?!\\.{1,2}(?:[\\\\/]|$))[^<>:\"|?*\\u0000-\\u001f\\\\/]+[\\\\/])*(?!\\.{1,2}$)[^<>:\"|?*\\u0000-\\u001f\\\\/]+$(?![\\s\\S])"},
+        "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "bytes": {"type": "integer", "minimum": 1, "maximum": 497020458}
+      },
+      "required": ["absolute_path", "sha256", "bytes"], "additionalProperties": false
+    },
+    "small_file": {"allOf": [{"$ref": "#/$defs/file"}, {"type": "object", "properties": {"bytes": {"type": "integer", "maximum": 4194304}}}]}
+  }
+}

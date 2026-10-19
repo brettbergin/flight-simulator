@@ -1,0 +1,66 @@
+{
+  "schema": "KawoTerrainCompileReceipt/v1",
+  "contract_id": "kawo-approx-terrain-v1",
+  "quality": "approximate-unverified-frame-v1",
+  "inputs": [
+    {"role": "airport", "locator": "source-pair:airport", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "bytes": 100},
+    {"role": "dossier", "locator": "source-pair:dossier", "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "bytes": 200},
+    {"role": "tile55", "locator": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/WA_Western_North_2016/TIFF/USGS_one_meter_x55y534_WA_Western_North_2016.tif", "sha256": "c0115806df9b1c228b8c074adcdd342bb9a01cf936d2c39be218a5b61ead0ccf", "bytes": 494331204},
+    {"role": "tile55_metadata", "locator": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/WA_Western_North_2016/metadata/USGS_one_meter_x55y534_WA_Western_North_2016_meta.xml", "sha256": "ef382998233ddd833be510e4737c3052f20718e9fe2b2bea523c42cbc3952381", "bytes": 12169},
+    {"role": "tile56", "locator": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/WA_Western_North_2016/TIFF/USGS_one_meter_x56y534_WA_Western_North_2016.tif", "sha256": "b62bd2d39d081642fd2b1710a2e3971a216702903b36812304a61ec79f6ac97e", "bytes": 497020458},
+    {"role": "tile56_metadata", "locator": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/WA_Western_North_2016/metadata/USGS_one_meter_x56y534_WA_Western_North_2016_meta.xml", "sha256": "c969dc8fcc548ef0670e3fb315ea461cc1f1f59461539816e3b946328f91f8dc", "bytes": 12170},
+    {"role": "tool_qualification", "locator": "tool-qualification:terrain-tools-v1", "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "bytes": 300}
+  ],
+  "tools": {
+    "lock_sha256": "e2251bd539487ddb8fc46cea698a094fe3081ee63390be6a2941489c93a10999",
+    "qualification_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "python_executable_sha256": "d41bad46673f64e0d02f23797f53f90ccf60f27d6eda8d86dd2d4bbeae5a858c",
+    "pyproj_wheel_sha256": "11614a054cd86a2ed968a657d00987a86eeb91fdcbd9ad3310478685dc14a128",
+    "pillow_wheel_sha256": "a2b55dd6b2a4c4b7d87ffa56bdb33fdc5fdb9a462173861a7bc097f17d91cb09",
+    "certifi_wheel_sha256": "f6c12493cfb1b06ba2ff328595af9350c65d6644968e5d3a2ffd78699af217a5",
+    "proj_db_sha256": "47a7205d83ba6b7774b763f276ab57331f4dade2b2cfbcc0d486677e6543350b",
+    "geoid_sha256": "fa9a407ac7ee3f5a3694008e4bcd09ce9cc250452f0c3b11700a4960340abce2"
+  },
+  "operations": [
+    {
+      "id": "horizontal-epsg1188", "direction": "forward", "definition": "proj=noop ellps=GRS80", "projjson": "{}",
+      "axis_in": ["latitude", "longitude"], "axis_out": ["latitude", "longitude"], "units_in": ["degree", "degree"], "units_out": ["degree", "degree"], "grids": [],
+      "area_of_use": {"west_deg": -172.54, "south_deg": 23.81, "east_deg": -47.74, "north_deg": 86.46}, "published_accuracy_m": 4
+    },
+    {
+      "id": "source-utm10n", "direction": "forward", "definition": "proj=pipeline step proj=unitconvert xy_in=deg xy_out=rad step proj=utm zone=10 ellps=GRS80", "projjson": "{}",
+      "axis_in": ["longitude", "latitude"], "axis_out": ["easting", "northing"], "units_in": ["degree", "degree"], "units_out": ["metre", "metre"], "grids": [],
+      "area_of_use": {"west_deg": -180, "south_deg": -90, "east_deg": 180, "north_deg": 90}, "published_accuracy_m": null
+    },
+    {
+      "id": "mathematical-wgs84-ecef", "direction": "forward", "definition": "proj=pipeline step proj=unitconvert xy_in=deg z_in=m xy_out=rad z_out=m step proj=cart ellps=WGS84", "projjson": "{}",
+      "axis_in": ["longitude", "latitude", "ellipsoid_height"], "axis_out": ["X", "Y", "Z"], "units_in": ["degree", "degree", "metre"], "units_out": ["metre", "metre", "metre"], "grids": [],
+      "area_of_use": {"west_deg": -180, "south_deg": -90, "east_deg": 180, "north_deg": 90}, "published_accuracy_m": null
+    },
+    {
+      "id": "vertical-epsg9595", "direction": "inverse",
+      "definition": "proj=pipeline step proj=axisswap order=2,1 step proj=unitconvert xy_in=deg xy_out=rad step inv proj=vgridshift grids=us_noaa_g2018u0.tif multiplier=1 step proj=unitconvert xy_in=rad xy_out=deg step proj=axisswap order=2,1", "projjson": "{}",
+      "axis_in": ["latitude", "longitude", "NAVD88_H"], "axis_out": ["latitude", "longitude", "NAD83_2011_h"], "units_in": ["degree", "degree", "metre"], "units_out": ["degree", "degree", "metre"],
+      "grids": [{"name": "us_noaa_g2018u0.tif", "sha256": "fa9a407ac7ee3f5a3694008e4bcd09ce9cc250452f0c3b11700a4960340abce2"}],
+      "area_of_use": {"west_deg": -124.79, "south_deg": 24.41, "east_deg": -66.91, "north_deg": 49.38}, "published_accuracy_m": 0.015
+    }
+  ],
+  "frame": {
+    "world_anchor": {"latitude_rad": {"$binary64_le": "fdfc84c1e5e5ea3f"}, "longitude_rad": {"$binary64_le": "5eedd3837e0e01c0"}, "ellipsoid_height_m": {"$binary64_le": "0000000000000000"}},
+    "horizontal_policy": "epsg1188-geog2d-approximation", "vertical_policy": "navd88-plus-geoid18-unverified-frame",
+    "source_realization": null, "source_epoch_year": null, "total3d_accuracy": "unknown"
+  },
+  "grid": {"east_origin_m": -6144, "south_origin_m": -4096, "spacing_m": 4, "columns": 3073, "rows": 2049, "vertices": 6296577, "valid_words": 98385},
+  "mosaic": {"policy": "global-lattice-owner-before-bilinear", "seam_easting_m": 560000, "source_sample_offset_m": {"$binary64_le": "000000000000e03f"}, "overlap_columns": 12, "overlap_word_mismatches": 103896, "max_overlap_difference_m": {"$binary64_le": "0000000000c85d3f"}},
+  "construction": {"method": "anchor-up-fixed-point-v1", "initial_y_m": {"$binary64_le": "0000000000000000"}, "updates": 8, "pre_round_residual_limit_m": {"$binary64_le": "000000000000303f"}, "last_delta_limit_m": {"$binary64_le": "000000000000303f"}, "post_round_residual_limit_m": {"$binary64_le": "000000000000503f"}, "rounding": "ieee754-binary32-nearest-even", "reverse_horizontal": "inverse-epsg1188-then-forward-utm10n", "reverse_vertical": "inverse-epsg9595-with-positive-zero-height"},
+  "validation": {
+    "valid_vertices": 6296577, "missing_vertices": 0,
+    "min_up_m": {"$binary64_le": "0000000000000000"}, "max_up_m": {"$binary64_le": "0000000000000000"},
+    "max_gradient_norm": {"$binary64_le": "0000000000000000"}, "bracket_span_m": {"$binary64_le": "000000000000a03f"},
+    "max_pre_round_residual_m": {"$binary64_le": "0000000000000000"}, "max_last_delta_m": {"$binary64_le": "0000000000000000"}, "max_post_round_residual_m": {"$binary64_le": "0000000000000000"},
+    "core_definition_valid": true,
+    "decoded_source_sha256": {"tile55": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", "tile56": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"}
+  },
+  "outputs": [{"path": "ground.fgrd", "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "bytes": 25973686}],
+  "limitations": ["generic NAD83 realization and epoch unknown", "GEOID18 evaluated under an unverified NAD83(2011) assumption", "NAVD88 DEM and FAA feet MSL are separate", "total3D accuracy UNKNOWN", "EPSG1188 published4m is an operation component only", "obstacle and airport operational detail incomplete", "material coefficients are original prototypes"]
+}
