@@ -80,3 +80,7 @@ assets_source/c172/original-prototype/generate_cockpit.py text eol=lf
 # Keep source-ingester and independent factual fixture bytes identical on Windows/Linux.
 tools/ingest/airports/** text eol=lf
 tests/airports/kawo/** text eol=lf
+
+# Preserve pure payload header and independent codec-source raw byte pins.
+native/world_core/grid/include/flight/ground/grid_payload.hpp text eol=lf
+tests/ground/grid/codec/** text eol=lf
