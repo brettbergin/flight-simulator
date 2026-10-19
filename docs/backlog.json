@@ -8006,7 +8006,12 @@
         "tests/ground/grid/codec/native.cpp",
         "tests/ground/grid/fixtures/",
         "tests/ground/grid/codec/fixtures/",
-        "docs/evidence/P4/resident-grid-component.md"
+        "docs/evidence/P4/resident-grid-component.md",
+        "tests/ground/grid/README.md",
+        "tests/ground/grid/private_arithmetic.cpp",
+        "tests/ground/grid/resource-observer.cpp",
+        "tools/ci/resident-grid.ps1",
+        ".github/workflows/native-ci.yml"
       ],
       "docs": [
         "docs/README.md",
