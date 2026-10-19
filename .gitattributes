@@ -117,3 +117,6 @@ tests/interactive/kawo/** text eol=lf
 # Preserve exact original decorative placement sources and fixed controls.
 app/world/decoration/** text eol=lf
 tests/world/decoration/** text eol=lf
+
+# Preserve reproducible manual locator capture source.
+tests/world/kawo-locator/** text eol=lf

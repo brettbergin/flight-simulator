@@ -473,6 +473,16 @@ func _runway_metrics() -> Dictionary:
 		"bearing_deg":fposmod(rad_to_deg(atan2(to_end.x,-to_end.y)),360.0) if range_m>0.01 else 0.0,
 		"along_m":relative.dot(inbound),"cross_m":relative.dot(right),"clearance_valid":_clearance_valid,"clearance_m":_clearance_m}
 
+func _compiled_reference_text() -> Dictionary:
+	# Formatting the existing physical-end metrics never publishes navigation
+	# authority. Bearing is in the anchor EUS plane, not magnetic/local heading.
+	var metrics: Dictionary=_runway_metrics()
+	if metrics.is_empty():
+		return {"runway":"RWY %02d · no current reference"%_runway,"along":"RETAINED / NO CURRENT GUIDANCE" if _retained else "CURRENT REFERENCE UNAVAILABLE"}
+	var bearing: String="%03d°"%(int(roundf(metrics.bearing_deg))%360) if metrics.bearing_valid else "—"
+	return {"runway":"RWY %02d · %.2f km · anchor %s"%[_runway,metrics.range_m/1000.0,bearing],
+		"along":"%s %.0fm · %s %.0fm"%["BEFORE" if metrics.along_m<0.0 else "PAST",absf(metrics.along_m),"RIGHT" if metrics.cross_m>0.01 else "LEFT" if metrics.cross_m< -0.01 else "AXIS",absf(metrics.cross_m)]}
+
 func zoom(factor: float) -> void:
 	extent_m = clampf(extent_m * factor, 1000.0, 32000.0)
 	_refresh_presentation()
@@ -523,13 +533,15 @@ func _presentation_rows() -> Dictionary:
 	if not _compiled_airport.is_empty():
 		if not compact_aid_layout or size.x<250 or size.y<220: return {"rows":[],"chart":Rect2(),"current":current}
 		var width: float=size.x-24
-		var metrics: Dictionary=_runway_metrics()
+		var extra: float=size.y-220.0
+		var reference: Dictionary=_compiled_reference_text()
 		rows.append(_row("header","KAWO PROTOTYPE LOCATOR",Rect2(12,4,width,16),11,false,CYAN))
-		rows.append(_row("status","Physical ends · %02d selected · %s"%[_runway,"PAUSED" if _paused else "LIVE" if current else "HISTORICAL"],Rect2(12,23,width,15)))
-		rows.append(_row("runway","RWY %02d · %s"%[_runway,"%.2f km"%(metrics.range_m/1000.0) if not metrics.is_empty() else "current state unavailable"],Rect2(12,148,width,15),10,false,CYAN))
-		rows.append(_row("footer","Approximate datum · not an operational chart\nTaxi / landmarks / circuit unavailable",Rect2(12,164,width,32),10,true))
-		rows.append(_row("bindings",_binding_footer(width),Rect2(12,202,width,15)))
-		return {"rows":rows,"chart":Rect2(12,40,width,103),"current":current}
+		rows.append(_row("status","Physical end %02d · %s"%[_runway,"RETAINED" if _retained else "PAUSED" if _paused and current else "LIVE" if current else "UNAVAILABLE"],Rect2(12,23,width,15)))
+		rows.append(_row("runway",reference.runway,Rect2(12,122+extra,width,14),10,false,CYAN))
+		rows.append(_row("along",reference.along,Rect2(12,137+extra,width,14),10,false,INK))
+		rows.append(_row("footer","Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",Rect2(12,152+extra,width,48),10,true))
+		rows.append(_row("bindings",_binding_footer(width),Rect2(12,202+extra,width,15)))
+		return {"rows":rows,"chart":Rect2(12,40,width,77+extra),"current":current}
 	if not compact_aid_layout or size.x<250.0 or size.y<(220.0 if current else 188.0): return {"rows":rows,"chart":Rect2(),"current":current}
 	var width: float=size.x-24.0
 	var status: String="STOPPED" if _retained else "PAUSED" if _paused and _valid else "LIVE" if _valid else "UNAVAILABLE"
@@ -585,6 +597,10 @@ func _refresh_presentation() -> void:
 		label.size=row.rect.size
 		label.visible=true
 	var hints: PackedStringArray=["cfg = CONFIGURED; device availability unverified. +N means additional configured alternatives. Open Controls for complete bindings."]
+	if not _compiled_airport.is_empty():
+		hints.append("KAWO prototype: range is horizontal distance to the selected physical end. Anchor bearing uses the common EUS plane; it is not magnetic or aircraft-local true heading.")
+		hints.append("BEFORE/PAST is position along the selected end's inward axis. LEFT/RIGHT is position relative to that inward axis. These are geometry references, not usable runway distances, thresholds, glidepath or steering commands.")
+		hints.append("Approximate datum; not an operational chart. Synthetic taxi, landmarks and circuit aids are unavailable here. Open First flight / Help for your configured runway-selection binding.")
 	for pair in [["zoom_in","+ Zoom in"],["zoom_out","− Zoom out"],["close","Close"]]:
 		hints.append(pair[1]+": "+_locator_hints.get(pair[0],{"full":"Binding unavailable; open Controls"}).full)
 	var manual: Dictionary=_summary_text()
@@ -634,9 +650,13 @@ func _draw_ordinary() -> void:
 		if size.x<220 or size.y<220: return
 		draw_rect(Rect2(Vector2.ZERO,size),Color("101f27"))
 		_text(Vector2(12,21),"KAWO PROTOTYPE · RWY %02d"%_runway,CYAN,12)
-		_draw_chart(Rect2(12,40,size.x-24,size.y-105))
-		_text(Vector2(12,size.y-45),"Physical ends only · approximate datum",MUTED,10)
-		_text(Vector2(12,size.y-29),"Not a chart · taxi / circuit unavailable",MUTED,10)
+		var reference: Dictionary=_compiled_reference_text()
+		_draw_chart(Rect2(12,40,size.x-24,size.y-157))
+		_text(Vector2(12,size.y-100),reference.runway,CYAN,10)
+		_text(Vector2(12,size.y-85),reference.along,INK,10)
+		_text(Vector2(12,size.y-66),"Physical ends · approximate datum",MUTED,10)
+		_text(Vector2(12,size.y-51),"Not a chart · no usable distances",MUTED,10)
+		_text(Vector2(12,size.y-36),"Taxi / landmarks / circuit unavailable",MUTED,10)
 		_text(Vector2(12,size.y-12),_binding_footer(size.x-24),MUTED,10)
 		return
 	if size.x < 220 or size.y < 220:

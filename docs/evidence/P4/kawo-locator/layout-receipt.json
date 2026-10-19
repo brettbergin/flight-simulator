@@ -1,0 +1,1133 @@
+{
+  "adapter": "NVIDIA GeForce RTX 3090",
+  "checks": 513,
+  "failures": [],
+  "images": [
+    {
+      "bytes": 29778,
+      "file": "minimum-end-34.png",
+      "sha256": "936c606bc7ca62ff2a822df8c493275a06a17d062ff023a50c4ec08570fedfcb"
+    },
+    {
+      "bytes": 29240,
+      "file": "minimum-retained.png",
+      "sha256": "a73648ebb410bea79cb3901ec1b5541ac1acf48bc34d1fd973272989d28dadf1"
+    },
+    {
+      "bytes": 29149,
+      "file": "minimum-unavailable.png",
+      "sha256": "6f993e6595f5d7a534c6adae4948db61f1ff4749465c9d344bc15d8b9cb40abc"
+    },
+    {
+      "bytes": 29387,
+      "file": "minimum-end-16.png",
+      "sha256": "ab97ae0e9dd97622959c23b10710c8a9f2b595243454ac7e3f832ee6d46fa182"
+    },
+    {
+      "bytes": 29618,
+      "file": "minimum-end-11.png",
+      "sha256": "036200333aa350935bc432b2a7cf511bbe261777609a190a2a2bed821c4317b0"
+    },
+    {
+      "bytes": 30160,
+      "file": "minimum-end-29.png",
+      "sha256": "de9f4dc1122c20342d1a35854df68d262c02ceaadf58c5d19a1e6bd756c8fb07"
+    },
+    {
+      "bytes": 30059,
+      "file": "large-after-right.png",
+      "sha256": "b1ea93e0b0bb1941ef1f2e0d6fa5ed8517ad96c579645a0fb7a842c83256a270"
+    },
+    {
+      "bytes": 27763,
+      "file": "ordinary-map.png",
+      "sha256": "db1c5db7e6b06a19f8bff778610931eeb2ac6a2e472e82b4bce9590e063a266c"
+    }
+  ],
+  "map_source_sha256": "d87b6f6c396b5461e8ee33bcfd6d8f07a650071c50cfe51d38b354dc30e3dd63",
+  "observations": [
+    {
+      "chart": "[P: (12.0, 40.0), S: (226.0, 77.0)]",
+      "current": true,
+      "phase": "before",
+      "rows": {
+        "along": "BEFORE 500m · LEFT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 34 · 0.50 km · anchor 003°",
+        "status": "Physical end 34 · PAUSED"
+      },
+      "selected_end": 34,
+      "size": [
+        250.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (226.0, 77.0)]",
+      "current": true,
+      "phase": "after",
+      "rows": {
+        "along": "PAST 500m · RIGHT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 34 · 0.50 km · anchor 183°",
+        "status": "Physical end 34 · PAUSED"
+      },
+      "selected_end": 34,
+      "size": [
+        250.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (226.0, 77.0)]",
+      "current": true,
+      "phase": "at",
+      "rows": {
+        "along": "PAST 0m · AXIS 0m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 34 · 0.00 km · anchor —",
+        "status": "Physical end 34 · PAUSED"
+      },
+      "selected_end": 34,
+      "size": [
+        250.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (226.0, 77.0)]",
+      "current": false,
+      "phase": "retained",
+      "rows": {
+        "along": "RETAINED / NO CURRENT GUIDANCE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 34 · no current reference",
+        "status": "Physical end 34 · RETAINED"
+      },
+      "selected_end": 34,
+      "size": [
+        250.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (226.0, 77.0)]",
+      "current": false,
+      "phase": "unavailable",
+      "rows": {
+        "along": "CURRENT REFERENCE UNAVAILABLE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 34 · no current reference",
+        "status": "Physical end 34 · UNAVAILABLE"
+      },
+      "selected_end": 34,
+      "size": [
+        250.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (226.0, 77.0)]",
+      "current": true,
+      "phase": "before",
+      "rows": {
+        "along": "BEFORE 500m · LEFT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 16 · 0.50 km · anchor 183°",
+        "status": "Physical end 16 · PAUSED"
+      },
+      "selected_end": 16,
+      "size": [
+        250.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (226.0, 77.0)]",
+      "current": true,
+      "phase": "after",
+      "rows": {
+        "along": "PAST 500m · RIGHT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 16 · 0.50 km · anchor 003°",
+        "status": "Physical end 16 · PAUSED"
+      },
+      "selected_end": 16,
+      "size": [
+        250.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (226.0, 77.0)]",
+      "current": true,
+      "phase": "at",
+      "rows": {
+        "along": "PAST 0m · AXIS 0m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 16 · 0.00 km · anchor —",
+        "status": "Physical end 16 · PAUSED"
+      },
+      "selected_end": 16,
+      "size": [
+        250.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (226.0, 77.0)]",
+      "current": false,
+      "phase": "retained",
+      "rows": {
+        "along": "RETAINED / NO CURRENT GUIDANCE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 16 · no current reference",
+        "status": "Physical end 16 · RETAINED"
+      },
+      "selected_end": 16,
+      "size": [
+        250.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (226.0, 77.0)]",
+      "current": false,
+      "phase": "unavailable",
+      "rows": {
+        "along": "CURRENT REFERENCE UNAVAILABLE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 16 · no current reference",
+        "status": "Physical end 16 · UNAVAILABLE"
+      },
+      "selected_end": 16,
+      "size": [
+        250.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (226.0, 77.0)]",
+      "current": true,
+      "phase": "before",
+      "rows": {
+        "along": "BEFORE 500m · LEFT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 11 · 0.50 km · anchor 093°",
+        "status": "Physical end 11 · PAUSED"
+      },
+      "selected_end": 11,
+      "size": [
+        250.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (226.0, 77.0)]",
+      "current": true,
+      "phase": "after",
+      "rows": {
+        "along": "PAST 500m · RIGHT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 11 · 0.50 km · anchor 273°",
+        "status": "Physical end 11 · PAUSED"
+      },
+      "selected_end": 11,
+      "size": [
+        250.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (226.0, 77.0)]",
+      "current": true,
+      "phase": "at",
+      "rows": {
+        "along": "PAST 0m · AXIS 0m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 11 · 0.00 km · anchor —",
+        "status": "Physical end 11 · PAUSED"
+      },
+      "selected_end": 11,
+      "size": [
+        250.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (226.0, 77.0)]",
+      "current": false,
+      "phase": "retained",
+      "rows": {
+        "along": "RETAINED / NO CURRENT GUIDANCE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 11 · no current reference",
+        "status": "Physical end 11 · RETAINED"
+      },
+      "selected_end": 11,
+      "size": [
+        250.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (226.0, 77.0)]",
+      "current": false,
+      "phase": "unavailable",
+      "rows": {
+        "along": "CURRENT REFERENCE UNAVAILABLE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 11 · no current reference",
+        "status": "Physical end 11 · UNAVAILABLE"
+      },
+      "selected_end": 11,
+      "size": [
+        250.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (226.0, 77.0)]",
+      "current": true,
+      "phase": "before",
+      "rows": {
+        "along": "BEFORE 500m · LEFT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 29 · 0.50 km · anchor 273°",
+        "status": "Physical end 29 · PAUSED"
+      },
+      "selected_end": 29,
+      "size": [
+        250.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (226.0, 77.0)]",
+      "current": true,
+      "phase": "after",
+      "rows": {
+        "along": "PAST 500m · RIGHT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 29 · 0.50 km · anchor 093°",
+        "status": "Physical end 29 · PAUSED"
+      },
+      "selected_end": 29,
+      "size": [
+        250.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (226.0, 77.0)]",
+      "current": true,
+      "phase": "at",
+      "rows": {
+        "along": "PAST 0m · AXIS 0m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 29 · 0.00 km · anchor —",
+        "status": "Physical end 29 · PAUSED"
+      },
+      "selected_end": 29,
+      "size": [
+        250.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (226.0, 77.0)]",
+      "current": false,
+      "phase": "retained",
+      "rows": {
+        "along": "RETAINED / NO CURRENT GUIDANCE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 29 · no current reference",
+        "status": "Physical end 29 · RETAINED"
+      },
+      "selected_end": 29,
+      "size": [
+        250.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (226.0, 77.0)]",
+      "current": false,
+      "phase": "unavailable",
+      "rows": {
+        "along": "CURRENT REFERENCE UNAVAILABLE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 29 · no current reference",
+        "status": "Physical end 29 · UNAVAILABLE"
+      },
+      "selected_end": 29,
+      "size": [
+        250.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (296.0, 77.0)]",
+      "current": true,
+      "phase": "before",
+      "rows": {
+        "along": "BEFORE 500m · LEFT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 34 · 0.50 km · anchor 003°",
+        "status": "Physical end 34 · PAUSED"
+      },
+      "selected_end": 34,
+      "size": [
+        320.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (296.0, 77.0)]",
+      "current": true,
+      "phase": "after",
+      "rows": {
+        "along": "PAST 500m · RIGHT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 34 · 0.50 km · anchor 183°",
+        "status": "Physical end 34 · PAUSED"
+      },
+      "selected_end": 34,
+      "size": [
+        320.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (296.0, 77.0)]",
+      "current": true,
+      "phase": "at",
+      "rows": {
+        "along": "PAST 0m · AXIS 0m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 34 · 0.00 km · anchor —",
+        "status": "Physical end 34 · PAUSED"
+      },
+      "selected_end": 34,
+      "size": [
+        320.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (296.0, 77.0)]",
+      "current": false,
+      "phase": "retained",
+      "rows": {
+        "along": "RETAINED / NO CURRENT GUIDANCE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 34 · no current reference",
+        "status": "Physical end 34 · RETAINED"
+      },
+      "selected_end": 34,
+      "size": [
+        320.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (296.0, 77.0)]",
+      "current": false,
+      "phase": "unavailable",
+      "rows": {
+        "along": "CURRENT REFERENCE UNAVAILABLE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 34 · no current reference",
+        "status": "Physical end 34 · UNAVAILABLE"
+      },
+      "selected_end": 34,
+      "size": [
+        320.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (296.0, 77.0)]",
+      "current": true,
+      "phase": "before",
+      "rows": {
+        "along": "BEFORE 500m · LEFT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 16 · 0.50 km · anchor 183°",
+        "status": "Physical end 16 · PAUSED"
+      },
+      "selected_end": 16,
+      "size": [
+        320.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (296.0, 77.0)]",
+      "current": true,
+      "phase": "after",
+      "rows": {
+        "along": "PAST 500m · RIGHT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 16 · 0.50 km · anchor 003°",
+        "status": "Physical end 16 · PAUSED"
+      },
+      "selected_end": 16,
+      "size": [
+        320.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (296.0, 77.0)]",
+      "current": true,
+      "phase": "at",
+      "rows": {
+        "along": "PAST 0m · AXIS 0m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 16 · 0.00 km · anchor —",
+        "status": "Physical end 16 · PAUSED"
+      },
+      "selected_end": 16,
+      "size": [
+        320.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (296.0, 77.0)]",
+      "current": false,
+      "phase": "retained",
+      "rows": {
+        "along": "RETAINED / NO CURRENT GUIDANCE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 16 · no current reference",
+        "status": "Physical end 16 · RETAINED"
+      },
+      "selected_end": 16,
+      "size": [
+        320.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (296.0, 77.0)]",
+      "current": false,
+      "phase": "unavailable",
+      "rows": {
+        "along": "CURRENT REFERENCE UNAVAILABLE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 16 · no current reference",
+        "status": "Physical end 16 · UNAVAILABLE"
+      },
+      "selected_end": 16,
+      "size": [
+        320.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (296.0, 77.0)]",
+      "current": true,
+      "phase": "before",
+      "rows": {
+        "along": "BEFORE 500m · LEFT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 11 · 0.50 km · anchor 093°",
+        "status": "Physical end 11 · PAUSED"
+      },
+      "selected_end": 11,
+      "size": [
+        320.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (296.0, 77.0)]",
+      "current": true,
+      "phase": "after",
+      "rows": {
+        "along": "PAST 500m · RIGHT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 11 · 0.50 km · anchor 273°",
+        "status": "Physical end 11 · PAUSED"
+      },
+      "selected_end": 11,
+      "size": [
+        320.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (296.0, 77.0)]",
+      "current": true,
+      "phase": "at",
+      "rows": {
+        "along": "PAST 0m · AXIS 0m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 11 · 0.00 km · anchor —",
+        "status": "Physical end 11 · PAUSED"
+      },
+      "selected_end": 11,
+      "size": [
+        320.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (296.0, 77.0)]",
+      "current": false,
+      "phase": "retained",
+      "rows": {
+        "along": "RETAINED / NO CURRENT GUIDANCE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 11 · no current reference",
+        "status": "Physical end 11 · RETAINED"
+      },
+      "selected_end": 11,
+      "size": [
+        320.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (296.0, 77.0)]",
+      "current": false,
+      "phase": "unavailable",
+      "rows": {
+        "along": "CURRENT REFERENCE UNAVAILABLE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 11 · no current reference",
+        "status": "Physical end 11 · UNAVAILABLE"
+      },
+      "selected_end": 11,
+      "size": [
+        320.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (296.0, 77.0)]",
+      "current": true,
+      "phase": "before",
+      "rows": {
+        "along": "BEFORE 500m · LEFT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 29 · 0.50 km · anchor 273°",
+        "status": "Physical end 29 · PAUSED"
+      },
+      "selected_end": 29,
+      "size": [
+        320.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (296.0, 77.0)]",
+      "current": true,
+      "phase": "after",
+      "rows": {
+        "along": "PAST 500m · RIGHT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 29 · 0.50 km · anchor 093°",
+        "status": "Physical end 29 · PAUSED"
+      },
+      "selected_end": 29,
+      "size": [
+        320.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (296.0, 77.0)]",
+      "current": true,
+      "phase": "at",
+      "rows": {
+        "along": "PAST 0m · AXIS 0m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 29 · 0.00 km · anchor —",
+        "status": "Physical end 29 · PAUSED"
+      },
+      "selected_end": 29,
+      "size": [
+        320.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (296.0, 77.0)]",
+      "current": false,
+      "phase": "retained",
+      "rows": {
+        "along": "RETAINED / NO CURRENT GUIDANCE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 29 · no current reference",
+        "status": "Physical end 29 · RETAINED"
+      },
+      "selected_end": 29,
+      "size": [
+        320.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (296.0, 77.0)]",
+      "current": false,
+      "phase": "unavailable",
+      "rows": {
+        "along": "CURRENT REFERENCE UNAVAILABLE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 29 · no current reference",
+        "status": "Physical end 29 · UNAVAILABLE"
+      },
+      "selected_end": 29,
+      "size": [
+        320.0,
+        220.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (406.0, 177.0)]",
+      "current": true,
+      "phase": "before",
+      "rows": {
+        "along": "BEFORE 500m · LEFT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 34 · 0.50 km · anchor 003°",
+        "status": "Physical end 34 · PAUSED"
+      },
+      "selected_end": 34,
+      "size": [
+        430.0,
+        320.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (406.0, 177.0)]",
+      "current": true,
+      "phase": "after",
+      "rows": {
+        "along": "PAST 500m · RIGHT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 34 · 0.50 km · anchor 183°",
+        "status": "Physical end 34 · PAUSED"
+      },
+      "selected_end": 34,
+      "size": [
+        430.0,
+        320.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (406.0, 177.0)]",
+      "current": true,
+      "phase": "at",
+      "rows": {
+        "along": "PAST 0m · AXIS 0m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 34 · 0.00 km · anchor —",
+        "status": "Physical end 34 · PAUSED"
+      },
+      "selected_end": 34,
+      "size": [
+        430.0,
+        320.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (406.0, 177.0)]",
+      "current": false,
+      "phase": "retained",
+      "rows": {
+        "along": "RETAINED / NO CURRENT GUIDANCE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 34 · no current reference",
+        "status": "Physical end 34 · RETAINED"
+      },
+      "selected_end": 34,
+      "size": [
+        430.0,
+        320.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (406.0, 177.0)]",
+      "current": false,
+      "phase": "unavailable",
+      "rows": {
+        "along": "CURRENT REFERENCE UNAVAILABLE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 34 · no current reference",
+        "status": "Physical end 34 · UNAVAILABLE"
+      },
+      "selected_end": 34,
+      "size": [
+        430.0,
+        320.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (406.0, 177.0)]",
+      "current": true,
+      "phase": "before",
+      "rows": {
+        "along": "BEFORE 500m · LEFT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 16 · 0.50 km · anchor 183°",
+        "status": "Physical end 16 · PAUSED"
+      },
+      "selected_end": 16,
+      "size": [
+        430.0,
+        320.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (406.0, 177.0)]",
+      "current": true,
+      "phase": "after",
+      "rows": {
+        "along": "PAST 500m · RIGHT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 16 · 0.50 km · anchor 003°",
+        "status": "Physical end 16 · PAUSED"
+      },
+      "selected_end": 16,
+      "size": [
+        430.0,
+        320.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (406.0, 177.0)]",
+      "current": true,
+      "phase": "at",
+      "rows": {
+        "along": "PAST 0m · AXIS 0m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 16 · 0.00 km · anchor —",
+        "status": "Physical end 16 · PAUSED"
+      },
+      "selected_end": 16,
+      "size": [
+        430.0,
+        320.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (406.0, 177.0)]",
+      "current": false,
+      "phase": "retained",
+      "rows": {
+        "along": "RETAINED / NO CURRENT GUIDANCE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 16 · no current reference",
+        "status": "Physical end 16 · RETAINED"
+      },
+      "selected_end": 16,
+      "size": [
+        430.0,
+        320.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (406.0, 177.0)]",
+      "current": false,
+      "phase": "unavailable",
+      "rows": {
+        "along": "CURRENT REFERENCE UNAVAILABLE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 16 · no current reference",
+        "status": "Physical end 16 · UNAVAILABLE"
+      },
+      "selected_end": 16,
+      "size": [
+        430.0,
+        320.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (406.0, 177.0)]",
+      "current": true,
+      "phase": "before",
+      "rows": {
+        "along": "BEFORE 500m · LEFT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 11 · 0.50 km · anchor 093°",
+        "status": "Physical end 11 · PAUSED"
+      },
+      "selected_end": 11,
+      "size": [
+        430.0,
+        320.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (406.0, 177.0)]",
+      "current": true,
+      "phase": "after",
+      "rows": {
+        "along": "PAST 500m · RIGHT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 11 · 0.50 km · anchor 273°",
+        "status": "Physical end 11 · PAUSED"
+      },
+      "selected_end": 11,
+      "size": [
+        430.0,
+        320.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (406.0, 177.0)]",
+      "current": true,
+      "phase": "at",
+      "rows": {
+        "along": "PAST 0m · AXIS 0m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 11 · 0.00 km · anchor —",
+        "status": "Physical end 11 · PAUSED"
+      },
+      "selected_end": 11,
+      "size": [
+        430.0,
+        320.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (406.0, 177.0)]",
+      "current": false,
+      "phase": "retained",
+      "rows": {
+        "along": "RETAINED / NO CURRENT GUIDANCE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 11 · no current reference",
+        "status": "Physical end 11 · RETAINED"
+      },
+      "selected_end": 11,
+      "size": [
+        430.0,
+        320.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (406.0, 177.0)]",
+      "current": false,
+      "phase": "unavailable",
+      "rows": {
+        "along": "CURRENT REFERENCE UNAVAILABLE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 11 · no current reference",
+        "status": "Physical end 11 · UNAVAILABLE"
+      },
+      "selected_end": 11,
+      "size": [
+        430.0,
+        320.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (406.0, 177.0)]",
+      "current": true,
+      "phase": "before",
+      "rows": {
+        "along": "BEFORE 500m · LEFT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 29 · 0.50 km · anchor 273°",
+        "status": "Physical end 29 · PAUSED"
+      },
+      "selected_end": 29,
+      "size": [
+        430.0,
+        320.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (406.0, 177.0)]",
+      "current": true,
+      "phase": "after",
+      "rows": {
+        "along": "PAST 500m · RIGHT 25m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 29 · 0.50 km · anchor 093°",
+        "status": "Physical end 29 · PAUSED"
+      },
+      "selected_end": 29,
+      "size": [
+        430.0,
+        320.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (406.0, 177.0)]",
+      "current": true,
+      "phase": "at",
+      "rows": {
+        "along": "PAST 0m · AXIS 0m",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 29 · 0.00 km · anchor —",
+        "status": "Physical end 29 · PAUSED"
+      },
+      "selected_end": 29,
+      "size": [
+        430.0,
+        320.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (406.0, 177.0)]",
+      "current": false,
+      "phase": "retained",
+      "rows": {
+        "along": "RETAINED / NO CURRENT GUIDANCE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 29 · no current reference",
+        "status": "Physical end 29 · RETAINED"
+      },
+      "selected_end": 29,
+      "size": [
+        430.0,
+        320.0
+      ]
+    },
+    {
+      "chart": "[P: (12.0, 40.0), S: (406.0, 177.0)]",
+      "current": false,
+      "phase": "unavailable",
+      "rows": {
+        "along": "CURRENT REFERENCE UNAVAILABLE",
+        "bindings": "8.0km +unbound −unbound Close:unbound",
+        "footer": "Physical ends · approximate datum\nNot a chart · no usable distances\nTaxi / landmarks / circuit unavailable",
+        "header": "KAWO PROTOTYPE LOCATOR",
+        "runway": "RWY 29 · no current reference",
+        "status": "Physical end 29 · UNAVAILABLE"
+      },
+      "selected_end": 29,
+      "size": [
+        430.0,
+        320.0
+      ]
+    }
+  ],
+  "passed": true,
+  "renderer": "gl_compatibility",
+  "scope": "Synthetic UI map positions and exact hand-derived display controls; actual font/layout/GPU images only, no native flight/operational/pilot claim"
+}
