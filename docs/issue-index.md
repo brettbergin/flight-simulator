@@ -127,6 +127,7 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | Key | Issue | Dependencies |
 |---|---|---|
 | EPIC-P4 | [#5 Regional navigation and environment](https://github.com/brettbergin/flight-simulator/issues/5) | EPIC-P3 |
+| WORLD-RESIDENT-CONTRACT | [#243 Define the first KAWO geographic airport and physical terrain contract](https://github.com/brettbergin/flight-simulator/issues/243) | CORE-CONTRACTS, LICENSE-REGISTER, GROUND-PROOF, SIM-LOOP-CONTRACT |
 | WORLD-PROVENANCE | [#38 Build dated world-pack manifests and ingestion rights audit](https://github.com/brettbergin/flight-simulator/issues/38) | EPIC-P3, LICENSE-REGISTER |
 | GEODESY | [#39 Implement WGS84/ECEF/NED, vertical datum and magnetic conversions](https://github.com/brettbergin/flight-simulator/issues/39) | EPIC-P3, CORE-CONTRACTS, WORLD-PROVENANCE |
 | TERRAIN-STREAMING | [#40 Implement bounded offline terrain tiles, LOD and surface queries](https://github.com/brettbergin/flight-simulator/issues/40) | EPIC-P3, GEODESY, GROUND-PROOF, WORLD-PROVENANCE |

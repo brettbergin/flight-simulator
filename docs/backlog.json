@@ -7826,6 +7826,79 @@
         "PRD-003",
         "PRD-026"
       ]
+    },
+    {
+      "key": "WORLD-RESIDENT-CONTRACT",
+      "title": "Define the first KAWO geographic airport and physical terrain contract",
+      "kind": "task",
+      "phase": "P4",
+      "parent": "EPIC-P4",
+      "summary": "Owner-prioritized bounded airport/environment advance after the flight-menu UI checks. Freeze source normalization first, then the complete resident physical/render terrain, datum and start/source seam; existing P3/P4 and aircraft/pilot gates remain open.",
+      "depends_on": [
+        "CORE-CONTRACTS",
+        "LICENSE-REGISTER",
+        "GROUND-PROOF",
+        "SIM-LOOP-CONTRACT"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P4",
+        "area:world",
+        "priority:P1",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "docs/contracts/world/",
+        "schemas/world/resident-airport/v1/",
+        "tests/world/reference/",
+        "docs/evidence/P4/",
+        "docs/roadmap.md",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "tools/ingest/airports/source-contract.mjs",
+        "tests/world/resident-airport/",
+        ".github/workflows/foundation-ci.yml",
+        "docs/decisions/028-kawo-source-and-resident-environment.md"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/world-and-data.md",
+        "docs/contracts.md",
+        "docs/agent-operations.md",
+        "docs/evidence/P4/kawo-source-discovery.md",
+        "docs/decisions/028-kawo-source-and-resident-environment.md",
+        "docs/contracts/world/airport-source-v1.md"
+      ],
+      "requirements": [
+        "WORLD-001",
+        "WORLD-002",
+        "WORLD-004",
+        "WORLD-006",
+        "WORLD-007",
+        "WORLD-008",
+        "WORLD-009",
+        "WORLD-010",
+        "WORLD-011",
+        "WORLD-012",
+        "WORLD-014",
+        "WORLD-015",
+        "WORLD-016",
+        "WORLD-017",
+        "WORLD-025"
+      ],
+      "acceptance": [
+        "Checked source-dossier and normalized-airport closed schemas preserve dated provenance, unknown/conflicting fields, physical/displaced ends and true/magnetic distinctions. Ingestion waits for accepted schema.",
+        "Freeze exact resident payload, interpolation/normal/material/seam/coverage and bounded readiness behavior with independently derived fixtures. The same geometry drives native contact and rendering; no infinite plane or LOD-owned physics.",
+        "Pin datum/realization/epoch/geoid/transform/uncertainty and independent samples before geographic admission; chart MSL is not ellipsoid height.",
+        "Freeze exact world/start/native/facade/history compatibility and preserve old synthetic worlds/files. No in-flight world replacement.",
+        "Create disjoint bounded consumer issues after the relevant shared schema lands, with source/datum/terrain/visual/full-circuit delivery evidence. Keep broad parents and aircraft/pilot gates open.",
+        "Appropriate documentation, schema and contract checks, independent review and final-head CI precede merge; a partial source-only schema PR does not close this entire contract."
+      ],
+      "evidence": [
+        "Reviewed exact-source schema/fixtures and metadata hashes; separate complete physical/runtime contract evidence; no airport or phase acceptance from source discovery."
+      ]
     }
   ]
 }

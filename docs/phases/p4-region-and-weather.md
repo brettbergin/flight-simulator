@@ -2,6 +2,8 @@
 
 Generated from [roadmap](../roadmap.md) and [backlog](../backlog.json). Consult the [issue index](../issue-index.md) for actual GitHub links.
 
+**Bounded owner priority (2026-10-18):** after completing the Players flight-menu UI checks, advance the first KAWO daytime airport/environment slice through [#243](https://github.com/brettbergin/flight-simulator/issues/243). First accept source normalization, then the complete datum/resident contact/render/start contract and bounded leaves. This allocation preserves the existing P3/P4 parent dependencies and review gates; it does not admit geographic consumers or close those phases. The [source discovery](https://github.com/brettbergin/flight-simulator/blob/main/docs/evidence/P4/kawo-source-discovery.md) retains actual acquired inputs and unresolved registration.
+
 **Outcome:** a planned regional flight demands navigation, weather/load judgment, and a credible arrival or diversion.
 
 **Deliverables:** dated/redistributable region pipeline; verified KAWO/KPAE/KBFI candidates or documented replacement; terrain/obstacles and airport diagrams within defined scope; runway/taxi metadata; airspace and navigation layers; route/fuel plan; compass/navigation equipment relevant to configuration; wind/pressure/temperature/visibility/cloud presets; crosswind validation; alternate/diversion scenario; day/night progression when lighting and visibility evidence is ready.
@@ -30,6 +32,7 @@ Generated from [roadmap](../roadmap.md) and [backlog](../backlog.json). Consult 
 | [GUSTS-TURBULENCE](https://github.com/brettbergin/flight-simulator/issues/45) — Implement reproducible spatial gusts, turbulence and bounded shear | weather | EPIC-P3, WEATHER-PROFILES, FDM-HARNESS | `native/sim_core/weather/turbulence/`, `tests/weather/turbulence/` |
 | [LIGHT-VISIBILITY](https://github.com/brettbergin/flight-simulator/issues/46) — Implement daylight/night, clouds, visibility and airport lighting | weather | EPIC-P3, TERRAIN-STREAMING, WEATHER-PROFILES, RENDER-PROOF | `app/world/sky/`, `app/world/lighting/`, `tests/render/` |
 | [REGIONAL-FLIGHT](https://github.com/brettbergin/flight-simulator/issues/47) — Validate offline regional cross-country, diversion and return | validation | EPIC-P3, REGIONAL-AIRPORTS, MAP-ROUTES, GUSTS-TURBULENCE, LIGHT-VISIBILITY | `content/scenarios/regional/`, `tests/scenarios/regional/`, `docs/evidence/P4/` |
+| [WORLD-RESIDENT-CONTRACT](https://github.com/brettbergin/flight-simulator/issues/243) — Define the first KAWO geographic airport and physical terrain contract | world | CORE-CONTRACTS, LICENSE-REGISTER, GROUND-PROOF, SIM-LOOP-CONTRACT | `docs/contracts/world/`, `schemas/world/resident-airport/v1/`, `tests/world/reference/`, `docs/evidence/P4/`, `docs/roadmap.md`, `docs/backlog.json`, `docs/issue-index.md`, `docs/requirements.md`, `tools/ingest/airports/source-contract.mjs`, `tests/world/resident-airport/`, `.github/workflows/foundation-ci.yml`, `docs/decisions/028-kawo-source-and-resident-environment.md` |
 
 ## Agent handoff
 

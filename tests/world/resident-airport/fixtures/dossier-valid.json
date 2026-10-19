@@ -1,0 +1,34 @@
+{
+  "schema": "AirportSourceDossier/v1",
+  "airport_icao": "KAWO",
+  "purpose": "synthetic-fixture",
+  "as_of_utc": "2026-10-18T12:00:00Z",
+  "sources": [
+    {
+      "id": "fixture.source",
+      "kind": "original-fixture",
+      "publisher": "Original test fixture",
+      "url": "https://example.invalid/fixture",
+      "retrieved_utc": "2026-10-18T12:00:00Z",
+      "effective_from": null,
+      "effective_until": null,
+      "capture_state": "reviewed",
+      "artifact": {
+        "sha256": "0108e60c0dae5cd924f936e380f6036ee23c840b87aa0e54c3532daa06ed27b9",
+        "bytes": 62,
+        "relative_path": "source-witness.txt"
+      },
+      "rights": {
+        "status": "redistributable",
+        "license": "MIT",
+        "notice": "Original fixture, not aeronautical data.",
+        "reviewed_utc": "2026-10-18T12:00:00Z"
+      },
+      "note": "Synthetic witness only."
+    }
+  ],
+  "conflicts": [],
+  "notes": [
+    "Schema conformance only; not a real airport record."
+  ]
+}
