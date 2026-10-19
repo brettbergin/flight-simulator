@@ -35,6 +35,8 @@ jobs:
         run: node --test tests/world/resident-airport/source-contract.test.mjs
       - name: Check pinned KAWO source parser and mapping (synthetic offline cases)
         run: python -I -B -m unittest discover -s tests/airports/kawo -p "test_*.py" -v
+      - name: Check offline terrain tooling parsers and independent TIFF literals
+        run: python -I -B -S tests/world/terrain-tools/test_terrain_tools.py
       - name: Verify frozen resident-grid contract and independent references
         shell: pwsh
         run: |
