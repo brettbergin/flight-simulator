@@ -281,6 +281,7 @@ jobs:
           foreach($operation in @(
             @{name='import';timeout=120;args=@('--headless','--path',$project,'--editor','--quit-after','120','--frame-delay','100')},
             @{name='players-ui';timeout=120;args=@('--headless','--audio-driver','Dummy','--path',$project,'--script','res://player_tests/local_players_ui_checks_runner.gd')},
+            @{name='players-retirement';timeout=120;args=@('--headless','--audio-driver','Dummy','--path',$project,'--script','res://player_tests/local_players_retirement_runner.gd')},
             @{name='checks';timeout=600;args=@('--headless','--path',$project,'res://sim_loop_checks.tscn')}
           )) {
             $result=Invoke-ProofProcess $environment.tools.godot $operation.args $root (Join-Path $evidence ($operation.name+'.log')) -TimeoutSeconds $operation.timeout
