@@ -59,7 +59,7 @@ Admission is closed:
 - Compute Ymin/Ymax from valid promoted heights only. The query bracket is
   [Ymin-1/64,Ymax+1/64]m, using the exact binary margin1/64. Total bracket span
   must be<=2048m. Every fully valid cell's two triangle gradients have Euclidean
-  magnitude<=2. Partly invalid cells do not define a usable triangle.
+  magnitude<=16, using the header's exact `max_gradient_norm=16.0`. Partly invalid cells do not define a usable triangle.
 - MissingVertices is one of its three enumerators. All invalid vertices in this
   component share that supplied missing reason; no new nodata wire enum exists.
 - Materials1..32, default index valid. IDs use accepted stable_id and are unique
@@ -76,6 +76,16 @@ Admission is closed:
   polygon vertex-vector capacities and sizeof(Definition)/Impl control objects,
   using overflow-checked uint64 arithmetic. Allocation bookkeeping/RSS, caller
   copies and peak preparation are measured separately; this cap is not total RSS.
+
+The proposed maximum gradient was revised before implementation after the pinned
+USGS source assay found valid projected-source facets above the initial 2 limit
+(maximum about 8.84 at 2 m stride, 5.67 at 4 m). The 16 limit is chosen to support
+steep height-field features without flattening or manufacturing holes; the actual
+compiled grid still requires its exact admission checks. This is an input
+admission bound with independently recomputed monotonicity/normal proof, not a
+change to output tolerances or evidence of aircraft handling on steep terrain.
+The source assay is exploratory decoding, not canonical geometry or tool/compiler
+qualification; geographic compilation still has its separate contract and checks.
 
 No runtime datum resolver exists in this core. Definition coordinates already
 represent one declared canonical working surface. Root's approximate-geographic
@@ -157,9 +167,9 @@ uncertifiable intersections return invalid_data. Do not select lowest h/index as
 a substitute for the ownership rule.
 
 On fully valid continuous support, F(h)=Q.y(h)-gridUp(Q.xz(h)) has directional
-slope >= min_ray_up_component - 2*sqrt(2)*max_ray_horizontal_component >.994
+slope >= min_ray_up_component - 16*sqrt(2)*max_ray_horizontal_component >.95
 on every facet. Thus its root is unique, and
-unit surface-normal dot query-up>.44. Exact ownership preserves continuity; fuzzy
+unit surface-normal dot query-up>.059 (divide the derivative bound by sqrt(257)). Exact ownership preserves continuity; fuzzy
 edge extrapolation does not. These bounds preclude near-parallel plane division.
 No derivative/Newton/bilinear root solver is needed.
 

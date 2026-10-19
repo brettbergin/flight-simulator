@@ -1,6 +1,9 @@
-# Independent resident-grid numerical reference packet
+# Independent resident-grid numerical reference packet: admission revision
 
-Source-only packet, 2026-10-18. Neither producer nor provider was executed by this
+Source-only revision, 2026-10-18. The historical gradient-cap2 packet and its
+qualified expected artifact remain unchanged. This separate packet proposes only
+max_gradient_norm=16 before any provider or consumer exists. Revised contract/header
+hashes bind Root's proposed bytes; checked acceptance is still pending. Neither producer nor provider was executed by this
 agent. Root must review and execute the producer, retain exact interpreter version
 and source hashes separately, and freeze its resulting JSON before implementation
 starts. The deterministic JSON deliberately omits interpreter/build metadata.
@@ -75,7 +78,10 @@ Proof bounds use the EXACT binary64 values of the header's frozen hexadecimal
 thresholds, converted with Decimal.from_float, rather than nearby mathematical
 decimal0.002/0.999995 values. Thus the emitted derivative, normal and bracket-span
 intervals enclose the actual admission thresholds. Their useful rounded limits
-remain greater than0.994, greater than0.44 and less than4.096021m respectively.
+remain greater than0.95, greater than0.059 and less than4.096021m respectively.
+The derivative bound is minUp-16*sqrt(2)*maxHorizontal and the unit-normal bound
+is that numerator divided by sqrt(257). The horizontal bracket span uses the
+unchanged direction/bracket constraints and therefore does not change.
 
 ## Ownership, missing support and boundedness
 
@@ -117,3 +123,25 @@ tests after the typed contract is frozen. The constrained2m/4m query geometry ma
 64-cell overflow unreachable for an admitted finite input satisfying the stated
 cone/span bounds; no fake ordinary geographic input should be invented to claim
 that internal guard was exercised.
+
+## Why this admission revision is independent of consumer results
+
+Root reported a retained source raster assay before any grid provider exists:
+100240144 valid samples,0 NoData and0 nonfinite; maximum projected-source facet gradients
+at2m/4m decimation were8.835039/5.66985, with6226/1476 cells over the historical2
+limit. The proposed cap16 is chosen to support steep features without inventing holes
+or flattening source terrain; the actual compiled grid still requires admission. It remains an engineering admission bound, not an
+aircraft slope capability or a geographic accuracy claim. No implementation
+output, test failure or tolerance fitting motivated this source-only revision.
+
+All prior flat/slope/saddle/ownership/missing/memory fixtures, frozen binary64 input
+angles and qualification tolerances remain unchanged. The rejected gradient
+fixture changes only its two positive heights to32.000003814697265625: Float32
+spacing at32 is2^-18, so dividing the height difference by2m gives16+2^-19,
+strictly over16. The former rejected4.000000476837158203125 heights are explicitly
+NOW ADMITTED; their slope is2+2^-22 and anchor height is2.0000002384185791015625.
+Their NED normal is(0,-8388609,-4194304)/sqrt(87960946999297), obtained by clearing
+the slope's exact denominator2^22. This guards against silently retaining cap2.
+An exact-boundary acceptance case uses heights[0,32,0,32], so the east gradient
+is exactly16, the anchor height16 and normal(0,-16,-1)/sqrt(257). This prevents
+mistakenly replacing the inclusive bound with a strict less-than comparison.

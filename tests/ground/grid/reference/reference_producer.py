@@ -19,6 +19,7 @@ LONGITUDE_HEX = "0x1.0000000000000p-10"
 LATITUDE_HEX = "0x1.921fb54442d18p-1"
 MAX_RAY_HORIZONTAL_HEX = "0x1.0624dd2f1a9fcp-9"
 MIN_RAY_UP_HEX = "0x1.ffff583a53b8ep-1"
+MAX_GRADIENT_NORM = 16
 MAX_CHECK_BYTES = 1048576
 
 
@@ -141,7 +142,7 @@ def make_artifact():
     normal = I(1) / I(3).sqrt()
     max_horizontal = I(Decimal.from_float(float.fromhex(MAX_RAY_HORIZONTAL_HEX)))
     min_up = I(Decimal.from_float(float.fromhex(MIN_RAY_UP_HEX)))
-    min_derivative = min_up - 2*I(2).sqrt()*max_horizontal
+    min_derivative = min_up - MAX_GRADIENT_NORM*I(2).sqrt()*max_horizontal
     source_file = Path(__file__)
     oracle_file = source_file.with_name("source_oracles.json")
     artifact = {
@@ -177,14 +178,16 @@ def make_artifact():
         "anchor_unit_normal_scalars": {
             "one_over_sqrt_two": (I(1)/I(2).sqrt()).json(),
             "one_over_sqrt_three": normal.json(),
+            "one_over_sqrt_257": (I(1)/I(257).sqrt()).json(),
         },
         "proof_bounds": {
             "max_ray_horizontal_binary64_hex": MAX_RAY_HORIZONTAL_HEX,
             "min_ray_up_binary64_hex": MIN_RAY_UP_HEX,
             "max_ray_horizontal_exact": str(max_horizontal.lo),
             "min_ray_up_exact": str(min_up.lo),
+            "max_gradient_norm_exact": str(MAX_GRADIENT_NORM),
             "minimum_F_derivative": min_derivative.json(),
-            "minimum_normal_dot_query_up": (min_derivative/I(5).sqrt()).json(),
+            "minimum_normal_dot_query_up": (min_derivative/I(1+MAX_GRADIENT_NORM*MAX_GRADIENT_NORM).sqrt()).json(),
             "maximum_bracket_horizontal_span_m": (I(2048)*max_horizontal/min_up).json(),
         },
     }

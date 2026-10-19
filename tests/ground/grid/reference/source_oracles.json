@@ -4,9 +4,11 @@
   "execution_status": "source only; Root must freeze generated intervals before consumer implementation",
   "bindings": {
     "contract": "docs/contracts/world/resident-grid-core-v1.md",
-    "contract_sha256_lf": "7c4dae103811d178117bb423d2c9bf82d42830985157b870002c274d1d3010c8",
+    "contract_sha256_lf": "9e4ef15be255624405b917efce41fbbb7333c89072d586d75a7cfa0d472197df",
     "typed_seam": "native/world_core/grid/include/flight/ground/prepared_grid.hpp",
-    "typed_seam_sha256_lf": "de37194ce0613ee5b1e0cc603e8885092bced5adab7aa3835e29c9471868ee86",
+    "typed_seam_sha256_lf": "7b7f7dee3875cf67d9df8057405fc729ec72da4570dfcd5f8a4dca755d6e96f3",
+    "binding_status": "bound to Root proposed max_gradient_norm=16 contract/header; awaiting Root execution and checked acceptance",
+    "max_gradient_norm_exact": "16",
     "reference_producer": "reference_producer.py",
     "prior_independent_design": "README.md",
     "source_data": "none: all points, materials and identities explicitly synthetic",
@@ -432,11 +434,11 @@
       ],
       "heights_m": [
         "0",
-        "4.000000476837158203125",
+        "32.000003814697265625",
         "0",
-        "4.000000476837158203125"
+        "32.000003814697265625"
       ],
-      "expected": "prepare rejects: east gradient is 2+2^-22"
+      "expected": "prepare rejects: east gradient is 16+2^-19"
     },
     {
       "id": "bracket-span-exceeded",
@@ -484,6 +486,61 @@
         "63"
       ],
       "expected": "invalid_data before any height reads;65x64 cells"
+    }
+  ],
+  "admission_accept_oracles": [
+    {
+      "id": "exact-sixteen-gradient-limit-admitted",
+      "origin_east_south_m": [
+        "-1",
+        "-1"
+      ],
+      "spacing_m": 2,
+      "columns": 2,
+      "rows": 2,
+      "heights_m": [
+        "0",
+        "32",
+        "0",
+        "32"
+      ],
+      "expected": "prepare accepts: east gradient exactly16 is included",
+      "height_m": "16",
+      "normal_ned_numerators": [
+        0,
+        -16,
+        -1
+      ],
+      "denominator_integer": 1,
+      "denominator_radicand": 257,
+      "owner": "cell 0,0 triangle0; both facets are the same plane"
+    },
+    {
+      "id": "former-two-gradient-limit-now-admitted",
+      "origin_east_south_m": [
+        "-1",
+        "-1"
+      ],
+      "spacing_m": 2,
+      "columns": 2,
+      "rows": 2,
+      "heights_m": [
+        "0",
+        "4.000000476837158203125",
+        "0",
+        "4.000000476837158203125"
+      ],
+      "expected": "prepare accepts: east gradient 2+2^-22 is below max_gradient_norm=16; do not retain the historical cap2",
+      "height_m": "2.0000002384185791015625",
+      "normal_ned_numerators": [
+        0,
+        -8388609,
+        -4194304
+      ],
+      "denominator_integer": 1,
+      "denominator_radicand": 87960946999297,
+      "owner": "cell 0,0 triangle0; both facets are the same plane",
+      "normal_proof": "gradient=(8388609/4194304); squared normal numerator length=8388609^2+4194304^2=87960946999297"
     }
   ],
   "memory_oracles": [

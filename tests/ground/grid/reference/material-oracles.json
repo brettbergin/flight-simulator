@@ -4,11 +4,11 @@
   "execution_status": "source only; no producer or provider execution",
   "bindings": {
     "contract": "docs/contracts/world/resident-grid-core-v1.md",
-    "contract_sha256_lf": "7c4dae103811d178117bb423d2c9bf82d42830985157b870002c274d1d3010c8",
+    "contract_sha256_lf": "9e4ef15be255624405b917efce41fbbb7333c89072d586d75a7cfa0d472197df",
     "typed_seam": "native/world_core/grid/include/flight/ground/prepared_grid.hpp",
-    "typed_seam_sha256_lf": "de37194ce0613ee5b1e0cc603e8885092bced5adab7aa3835e29c9471868ee86",
+    "typed_seam_sha256_lf": "7b7f7dee3875cf67d9df8057405fc729ec72da4570dfcd5f8a4dca755d6e96f3",
     "geometry_oracles": "tests/ground/grid/reference/source_oracles.json",
-    "geometry_oracles_sha256_lf": "36edd42c7a140d5f5b2930a6d30d48dba95a8f7526816882ce3a498034a92857"
+    "geometry_oracles_sha256_lf": "55cb32169a5aa8d07d6008423939e30ae3fa027499f030c162a8e57bac67fc0e"
   },
   "conventions": {
     "points": "integer [east_mm,south_mm] pairs; implicit closure; no repeated terminal point",

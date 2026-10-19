@@ -37,16 +37,16 @@ jobs:
         shell: pwsh
         run: |
           $gridPins = @{
-            'tests/ground/grid/reference/material-oracles.json' = '33a9a6619c33461a2bade1d40509ee3e6a490f142daa04203bdcbe4bdec0c989'
+            'tests/ground/grid/reference/material-oracles.json' = '1824b250c8a44b80e11802c931e85cb6507315f3b32af3645bef373e47a1c0ad'
             'tests/ground/grid/reference/materials-README.md' = '1b93c759e47ef58d9ae7193333e9b780ee78785ccf3e3551f8dedcc27f9f70a9'
             'docs/contracts/world/terrain-tools-v1.md' = '9a8a2a77b6daeaa15b7d785fb2452b2cd380d3f062acb9845fa038b5e33d96f6'
             'tools/ingest/terrain/tools-v1.lock.json' = 'e2251bd539487ddb8fc46cea698a094fe3081ee63390be6a2941489c93a10999'
-            'docs/contracts/world/resident-grid-core-v1.md' = '7c4dae103811d178117bb423d2c9bf82d42830985157b870002c274d1d3010c8'
-            'native/world_core/grid/include/flight/ground/prepared_grid.hpp' = 'de37194ce0613ee5b1e0cc603e8885092bced5adab7aa3835e29c9471868ee86'
-            'tests/ground/grid/reference/reference_producer.py' = 'b7b2048bce0d468d77941395de4cd838905b6cbb8e7ef5fd07dd02b234e1400e'
-            'tests/ground/grid/reference/source_oracles.json' = '36edd42c7a140d5f5b2930a6d30d48dba95a8f7526816882ce3a498034a92857'
-            'tests/ground/grid/reference/README.md' = '55b86715204637427deeb4ebf57ec0a74ff4427fcb94d1d35defb3f45314d4b3'
-            'tests/ground/grid/reference/expected-v1.json' = '251c01cd286b946b46d0422be53d251d47274403696b31892a5995f293103a8a'
+            'docs/contracts/world/resident-grid-core-v1.md' = '9e4ef15be255624405b917efce41fbbb7333c89072d586d75a7cfa0d472197df'
+            'native/world_core/grid/include/flight/ground/prepared_grid.hpp' = '7b7f7dee3875cf67d9df8057405fc729ec72da4570dfcd5f8a4dca755d6e96f3'
+            'tests/ground/grid/reference/reference_producer.py' = '6bccd5b7f3490b29b8ace59ea42acf4f773477730cb9df4b74e31a36d7f31835'
+            'tests/ground/grid/reference/source_oracles.json' = '55cb32169a5aa8d07d6008423939e30ae3fa027499f030c162a8e57bac67fc0e'
+            'tests/ground/grid/reference/README.md' = '1dcfec7c2eacb0b9ebf048c899966ca8a9881a29fa499a3e17f8c3ebf48c3234'
+            'tests/ground/grid/reference/expected-v1.json' = '54a9c451234b37d2d621492c75ec581a0d0f57698bf3bab3d8fbd573b484bd7d'
           }
           foreach ($name in $gridPins.Keys) {
             if ((Get-FileHash -LiteralPath $name -Algorithm SHA256).Hash.ToLowerInvariant() -cne $gridPins[$name]) { throw 'Frozen resident-grid reference changed; reviewed successor required' }

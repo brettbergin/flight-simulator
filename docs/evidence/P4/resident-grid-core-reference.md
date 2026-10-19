@@ -31,14 +31,14 @@ documentation validator passed 137 issues/147 requirements/214 Markdown files.
 
 | Input/artifact | SHA256 |
 | --- | --- |
-| Typed contract | `7c4dae103811d178117bb423d2c9bf82d42830985157b870002c274d1d3010c8` |
-| Header | `de37194ce0613ee5b1e0cc603e8885092bced5adab7aa3835e29c9471868ee86` |
-| Producer | `b7b2048bce0d468d77941395de4cd838905b6cbb8e7ef5fd07dd02b234e1400e` |
-| Hand-derived cases | `36edd42c7a140d5f5b2930a6d30d48dba95a8f7526816882ce3a498034a92857` |
-| Expected artifact | `251c01cd286b946b46d0422be53d251d47274403696b31892a5995f293103a8a` |
+| Typed contract | `9e4ef15be255624405b917efce41fbbb7333c89072d586d75a7cfa0d472197df` |
+| Header | `7b7f7dee3875cf67d9df8057405fc729ec72da4570dfcd5f8a4dca755d6e96f3` |
+| Producer | `6bccd5b7f3490b29b8ace59ea42acf4f773477730cb9df4b74e31a36d7f31835` |
+| Hand-derived cases | `55cb32169a5aa8d07d6008423939e30ae3fa027499f030c162a8e57bac67fc0e` |
+| Expected artifact | `54a9c451234b37d2d621492c75ec581a0d0f57698bf3bab3d8fbd573b484bd7d` |
 
-The reproduced lower derivative bound is greater than 0.994, lower surface-normal
-dot query-up bound greater than 0.44, and upper horizontal bracket span less than
+The reproduced lower derivative bound is greater than 0.95, lower surface-normal
+dot query-up bound greater than 0.059, and upper horizontal bracket span less than
 4.096021 m. These prove the mathematical constraints for the proposed admission
 bounds, not the correctness or speed of a nonexistent native search.
 
@@ -63,8 +63,9 @@ These are reviewed independent expectations, not executed native conformance.
 The separate [offline authoring tool lock](../../contracts/world/terrain-tools-v1.md)
 fixes acquired wheels, database and grid plus the retained Windows interpreter.
 Root rechecked all wheel/grid/database/inventory byte identities against that lock.
-No wheel was installed/imported and no terrain tile decoded or transformed under
-this evidence. The original interpreter installer provenance is unavailable; the
+No proposed wheel was installed/imported and the sealed authoring environment
+has not been qualified. A separate exploratory source assay is recorded below;
+it supplies no compiled grid or datum transformation. The original interpreter installer provenance is unavailable; the
 lock explicitly supports the retained local runtime rather than claiming a
 fresh-machine bootstrap. Coordinate operation and codec contracts remain separate.
 
@@ -78,3 +79,28 @@ Contract and reference acceptance permits only the standalone native component,
 CMake integration and headless component tests. File encoding, datum/tool pins,
 real-source transformation, flight/source/history admission, visual mesh adoption,
 integrated KAWO circuits, portable delivery and human/pilot evaluation remain open.
+
+## Source-informed input admission before implementation
+
+Root separately decoded the exact pinned USGS tile using existing bundled Pillow
+12.3.0/NumPy 2.3.5/Python 3.12.14 as an exploratory source assay. This did not use
+or qualify the proposed sealed wheel environment, compile terrain or transform a
+datum. It observed 100,240,144 finite source samples, no -999999 NoData values,
+and source elevations approximately 9.46 to 181.96 m NAVD88. Uninterpolated source
+sample strides of 2 m and 4 m had maximum projected-source facet gradient norms
+8.835039 and 5.669850, with 6,226 and 1,476 cells above the initial proposed limit
+2. These are source-frame observations, not canonical EUS or geographic accuracy.
+
+The proposed input limit was therefore revised to exactly 16 before any provider
+implementation. This supports steep features without requiring flattening or
+invented holes; the compiler must still validate its actual canonical output.
+The independent producer recomputed the monotonicity and normal lower bounds
+above, with the same ray cone, bracket span, search caps and output tolerances.
+All prior off-anchor/high-latitude intervals and qualification tolerances compare
+exactly equal. New independent cases admit exactly 16 and the former 2+2^-22 case,
+and reject 16+2^-19. No consumer failure or output fitting motivated this revision.
+
+The initial proposed reference epoch remains retained in PR246 commit 37adaf3 and
+local raw evidence. It is historical source-only proof, not acceptance of a grid
+implementation or a geographic world. The revised current-head references must
+pass their own checked acceptance before consumers begin.

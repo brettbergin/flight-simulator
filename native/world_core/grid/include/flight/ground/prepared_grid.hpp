@@ -12,6 +12,7 @@ namespace c = flight::contracts::v1;
 namespace g = flight::ground::v1;
 inline constexpr std::uint32_t component_version = 1;
 inline constexpr int origin_quantum_exponent = -32;
+inline constexpr double max_gradient_norm = 16.0;
 inline constexpr double max_ray_horizontal_component = 0x1.0624dd2f1a9fcp-9;
 inline constexpr double min_ray_up_component = 0x1.ffff583a53b8ep-1;
 inline constexpr std::uint32_t max_axis_vertices = 8193;
