@@ -8614,6 +8614,55 @@
       "evidence": [
         "docs/evidence/P4/kawo-runway-paint.md records exact reviewed material/control identities, geometry and real-renderer readback counts, inspected original GPU board controls, pending or completed Scene views and final-source checks with their limits. Original MIT art is not sourced operational paint; observed physical endpoints and prototype dimensions imply no threshold or survey accuracy."
       ]
+    },
+    {
+      "key": "KAWO-LOCATOR-READABILITY",
+      "title": "Expose readable runway alignment references in the KAWO locator",
+      "kind": "task",
+      "phase": "P4",
+      "parent": "EPIC-P4",
+      "summary": "Owner-prioritized airport usability leaf269 after checked runtime265/scenery266/paint268: expose the existing private physical-end range, anchor bearing and along/cross readings without changing geometry, input or physics. Broad geographic flight and pilot gates remain open.",
+      "depends_on": [
+        "WORLD-RESIDENT-CONTRACT",
+        "KAWO-WORLD-JOURNEY"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P4",
+        "area:ui",
+        "priority:P1",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "app/proof/interactive/flight_map.gd",
+        "tests/world/kawo-locator/",
+        "docs/evidence/P4/kawo-locator-readability.md",
+        "docs/evidence/P4/kawo-locator/",
+        "tests/world/terrain/kawo_gpu_capture.gd",
+        "tests/world/runway-paint/README.md",
+        ".gitattributes"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/agent-operations.md",
+        "docs/contracts/world/kawo-runtime-v1.md",
+        "docs/evidence/P4/kawo-locator-readability.md"
+      ],
+      "requirements": [
+        "UX-014",
+        "WORLD-018"
+      ],
+      "acceptance": [
+        "Consume the accepted compiled physical ends and existing private range/bearing/along/cross calculations; show selected end, planar range, explicitly anchor-frame bearing and BEFORE/PAST/LEFT/RIGHT/AXIS without new public interface, numeric policy, controls or physics.",
+        "Retain complete readable caveats and binding guidance at compact250x220 and larger sizes, ordinary map rendering, all four selections and explicit noncurrent retained/unavailable state. Geometry references are not usable runway distances, thresholds, flight director or operational navigation.",
+        "Preserve every Synthetic map path, native/facade/recorder/source/control/assist/terrain state and mapping. No advancing, steering, flight replacement, profile/storage or datum change.",
+        "Retain original isolated UI and actual paused KAWO captures with actual font bounds, source/input/native immutability and native/audio join. Keep fixture, authoring GPU, exported delivery and manual flight scopes distinct; preserve failures and pass applicable docs/Scene/staging and final-head CI.",
+        "Use the accepted265 implementation as the dependency gate within broad263; do not infer closure of261/262/263/264, source accuracy, C172/pilot or phase acceptance from this presentation leaf."
+      ],
+      "evidence": [
+        "docs/evidence/P4/kawo-locator-readability.md records the preserved footer failure/correction,513 isolated UI checks over60 synthetic cases, original inspected images,47 actual paused KAWO captures including four ordinary locator selections, source hashes and separate final-head/export/manual-flight limits."
+      ]
     }
   ]
 }

@@ -148,6 +148,7 @@ Generated from [backlog.json](backlog.json). All links refer to planned work; th
 | KAWO-WORLD-JOURNEY | [#263 Select, fly and review a KAWO flight without losing source history](https://github.com/brettbergin/flight-simulator/issues/263) | WORLD-RESIDENT-CONTRACT, KAWO-TERRAIN-COMPILER, KAWO-NATIVE-FLIGHT, KAWO-TERRAIN-RENDERER |
 | KAWO-EVERGREEN-PLACEMENT | [#264 Place original evergreen groves around the KAWO prototype](https://github.com/brettbergin/flight-simulator/issues/264) | ORIGINAL-EVERGREEN-ASSETS, WORLD-RESIDENT-CONTRACT, KAWO-TERRAIN-RENDERER, KAWO-WORLD-JOURNEY |
 | KAWO-RUNWAY-PAINT | [#267 Add original prototype paint to the KAWO physical runways](https://github.com/brettbergin/flight-simulator/issues/267) | WORLD-RESIDENT-CONTRACT, KAWO-TERRAIN-RENDERER, KAWO-WORLD-JOURNEY |
+| KAWO-LOCATOR-READABILITY | [#269 Expose readable runway alignment references in the KAWO locator](https://github.com/brettbergin/flight-simulator/issues/269) | WORLD-RESIDENT-CONTRACT, KAWO-WORLD-JOURNEY |
 
 ## P5 — Lessons, ATC, and debrief
 

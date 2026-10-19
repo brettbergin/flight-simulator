@@ -12,6 +12,10 @@ The [original runway paint](evidence/P4/kawo-runway-paint.md) adds centerline da
 pavement edges and inward-facing 11/29/16/34 identifiers on the same terrain
 facets. Its dimensions and block font are unsurveyed prototype art; the actual
 scene and frozen synthetic crossing controls have separate evidence.
+The [KAWO locator readings](evidence/P4/kawo-locator-readability.md) expose the
+existing anchor bearing and physical-axis position, with readable caveats and
+explicit noncurrent states. They are optional geometry references, not a
+flight director or usable runway-distance calculation.
 
 These bounded source and integration results preserve the source/datum and
 prototype-aircraft limits. Final visual/manual-flight, Windows delivery and

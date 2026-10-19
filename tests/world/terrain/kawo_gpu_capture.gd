@@ -10,7 +10,7 @@ const PAYLOAD = "b2c53308fdc427900d84b541aff51ba66cbb71bc483fcee0ea16d067dbd15cf
 const SOURCES = ["res://kawo_gpu_capture.gd","res://simulation/flight_scene.gd","res://simulation/session_facade.gd","res://simulation/render_origin.gd","res://simulation/canonical_frames.gd","res://simulation/uint64.gd","res://camera/view_policy.gd","res://world/world_admission.gd","res://world/terrain/resident_grid_reader.gd","res://world/terrain/kawo_world.gd","res://interactive/preview.gd","res://interactive/flight_world.gd","res://interactive/flight_map.gd","res://build/native_identity.gd","res://worlds/kawo-prototype-v1/ground.fgrd","res://worlds/kawo-prototype-v1/compile-receipt.json"]
 const DECORATION_SOURCES = ["res://world/decoration/kawo_evergreens.gd","res://environment/original-evergreens-v1/tall-narrow-lod1.glb","res://environment/original-evergreens-v1/broad-tiered-lod1.glb","res://environment/original-evergreens-v1/irregular-mature-lod1.glb"]
 const BASE_VIEWS = 40
-const EXPECTED_VIEWS = 43
+const EXPECTED_VIEWS = 47
 
 class CaptureScene extends Scene:
 	func collect_input_raw(_preset: Dictionary = {}) -> Dictionary:
@@ -388,9 +388,33 @@ func _run() -> void:
 			await _finish(); return
 	check(_views.size() == BASE_VIEWS,"eight_original_stills_eight_number_diagnostics_and24_motion_originals")
 	check(Codec._exact(_source_rows(),_source_before),"source_product_bytes_unchanged")
+	# Four ordinary map actions over the actual paused native KAWO state.
+	# Original40 and three origin views retain all their existing guards.
+	_ordinary_view(1)
+	if not _scene.map_visible: _scene.dispatch_input_action("map_toggle")
+	_receipt.locator_observations=[]
+	for selected in [34,16,11,29]:
+		if _scene.flight_map.get("_runway")!=selected: _scene.dispatch_input_action("runway_toggle")
+		_scene.show_state(0.0)
+		var presentation: Dictionary=_scene.flight_map.get("_presentation").duplicate(true)
+		if not check(_scene.map_visible and _scene.flight_map.is_visible_in_tree() and _scene.flight_map.get("_runway")==selected and presentation.current,"ordinary_actual_locator_selection_"+str(selected)):
+			await _finish(); return
+		for row in presentation.rows:
+			if not check(_scene.flight_map._row_fits(row),"actual_locator_row_fits_"+str(selected)+"_"+row.id):
+				await _finish(); return
+		var labels: Dictionary={}
+		for row in presentation.rows: labels[row.id]=row.text
+		_receipt.locator_observations.append({"selected_physical_end":selected,"tick":_scene.facade.readback().tick,"size":str(_scene.flight_map.size),"rows":labels,"scope":"Ordinary map selection/presentation only; same unchanged paused native aircraft"})
+		if not await _shot("locator-end-%02d"%selected,"ordinary actual map actions; current native KAWO tick0 geometry reference, not an operational chart or flight evidence"):
+			await _finish(); return
+	_scene.dispatch_input_action("runway_toggle")
+	_scene.dispatch_input_action("map_toggle")
+	_scene.show_state(0.0)
+	if not check(not _scene.map_visible and _scene.flight_map.get("_runway")==34 and Codec._exact(_authority(),_before),"ordinary_locator_actions_restore_presentation_preserve_authority"):
+		await _finish(); return
 	if not _failures.is_empty() or not await _rebase_addendum(paint_frames[0]):
 		await _finish(); return
-	check(_views.size() == EXPECTED_VIEWS,"original40_plus_three_public_origin_number_views")
+	check(_views.size() == EXPECTED_VIEWS,"original40_four_locator_three_public_origin_number_views")
 	check(Codec._exact(_source_rows(),_source_before),"source_product_bytes_unchanged_after_origin_addendum")
 	await _finish()
 
