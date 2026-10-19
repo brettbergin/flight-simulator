@@ -40,6 +40,7 @@ jobs:
         run: |
           $kawoCompilerPins = @{
             'docs/contracts/world/kawo-terrain-pins-v1.json' = '0665004e2ccc95502ede62a8cc2ee342bc5d4784181c6a42aa7ccfc837f97aa8'
+            'docs/contracts/world/kawo-terrain-constructor-metadata-v1.json' = '51449b75dd8f16014515d5133cabf8579b2f1d89dddffb7a1cf3ae949a2a0e45'
             'schemas/world/kawo-terrain/v1/inputs.schema.json' = '488ac065a6721ba118286b64d5be28c94007279553d317db5671531150e562f6'
             'schemas/world/kawo-terrain/v1/compile-receipt.schema.json' = '3421bcf5f4b7a1bfd98970ad43a0455cc1247b4cef9c78f2c340ea8087fa1ed3'
             'schemas/world/kawo-terrain/v1/airport-geometry.schema.json' = '8cc58b84cebf732381e52258aa117c859bb3be7b4ed8e7a81333c3d70c6342cc'

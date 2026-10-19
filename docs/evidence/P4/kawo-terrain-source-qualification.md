@@ -41,12 +41,15 @@ Rights remain pending in this captured dossier. The USGS companion metadata iden
 
 ## Retained execution identities and next gates
 
+The first selected-control worksheet stopped before coordinate evaluation because its metadata predicate compared literal-constructor serialization to the earlier authority/discovery records. That failed attempt remains retained. A separate source-reviewed diagnostic instantiated the same four fixed inputs without evaluating coordinates: every emitted definition matched, but only EPSG1188 retained identical PROJJSON. UTM/ECEF literal pipelines emitted PROJ-based Conversion objects, and the EPSG9595 WKT round-trip omitted two ancillary authority IDs. The original operation/source pins remain unchanged. The [constructor metadata companion](../../contracts/world/kawo-terrain-constructor-metadata-v1.json), 8,517 bytes, SHA256 `51449b75dd8f16014515d5133cabf8579b2f1d89dddffb7a1cf3ae949a2a0e45`, binds the four actual constructor serializations separately. Consumers require exact equality to those observations and preserve the original discovery/authority records in the receipt; no general normalization, metadata waiver, new operation or numerical limit is introduced. This diagnostic produced no terrain control or compiled product.
+
 | Actual receipt | SHA256 |
 | --- | --- |
 | Operation phase A | `378d01ac190896af994cd5e4302cdcd19bb0b56571114d96143dab45820675cc` |
 | Independent raw geoid witnesses | `95a7f77436ff1ebd534847a1626e60ea616e127c66228e2f2b06f1b066e0576e` |
 | Vertical qualification | `388bbc271474f420840d64ab85b158bca3004f7f496b1e663391a4fb0c95b311` |
 | Source decode/container qualification | `11610ccea77455c92e4b5dbbe70161394b914275d17c4caba4a3fde7d95e6ed7` |
+| Literal constructor metadata capture, no coordinates | `4def6ace729c7840d959f4bb1710d4765836c729fd62b772ec66961e0e96f9b1` |
 
 Root reviewed every source before execution; independent reviewers examined sources and actual outputs. Failed earlier tool attempts remain retained separately. Raw local receipts preserve complete tool/source/native observations and logs; their private paths are omitted here. Portable pins are a faithful bounded extraction, not a new transform or compiler product. Existing [hand arithmetic references](../../../tests/terrain/kawo/reference/README.md) were frozen independently before consumer implementation.
 
