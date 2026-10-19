@@ -1,0 +1,525 @@
+{
+  "kind": "independent-synthetic-source-oracles",
+  "version": 1,
+  "execution_status": "source only; Root must freeze generated intervals before consumer implementation",
+  "bindings": {
+    "contract": "docs/contracts/world/resident-grid-core-v1.md",
+    "contract_sha256_lf": "7c4dae103811d178117bb423d2c9bf82d42830985157b870002c274d1d3010c8",
+    "typed_seam": "native/world_core/grid/include/flight/ground/prepared_grid.hpp",
+    "typed_seam_sha256_lf": "de37194ce0613ee5b1e0cc603e8885092bced5adab7aa3835e29c9471868ee86",
+    "reference_producer": "reference_producer.py",
+    "prior_independent_design": "README.md",
+    "source_data": "none: all points, materials and identities explicitly synthetic",
+    "constant_a_m": "6378137",
+    "constant_inverse_flattening": "298.257223563",
+    "binary64_longitude_rad_hex": "0x1.0000000000000p-10",
+    "binary64_high_latitude_rad_hex": "0x1.921fb54442d18p-1",
+    "binary64_max_ray_horizontal_component_hex": "0x1.0624dd2f1a9fcp-9",
+    "binary64_min_ray_up_component_hex": "0x1.ffff583a53b8ep-1"
+  },
+  "defaults": {
+    "anchor_latitude_rad": "0",
+    "anchor_longitude_rad": "0",
+    "anchor_ellipsoid_height_m": "0",
+    "query_latitude_rad": "0",
+    "query_longitude_rad": "0",
+    "repeat_query_ellipsoid_heights_m": [
+      "-50",
+      "25",
+      "1000"
+    ],
+    "spacing_m": 2,
+    "columns": 2,
+    "rows": 2,
+    "height_order": "south rows, east columns; [h00,h10,h01,h11]",
+    "normal_encoding": "integer numerators divided by denominator_integer * sqrt(denominator_radicand)",
+    "denominator_integer_if_omitted": 1,
+    "anchor_height_absolute_tolerance_m": "1e-10",
+    "anchor_normal_component_absolute_tolerance": "1e-12",
+    "material": {
+      "id": "synthetic-default",
+      "static_friction": "0.6",
+      "dynamic_friction": "0.4"
+    },
+    "expected_header_and_requested_geodetic_position": "exact copies, including original caller altitude",
+    "triangle_explanations": "not a new API field: assert sample height/normal/material, not diagnostic indices"
+  },
+  "anchor_cases": [
+    {
+      "id": "flat",
+      "origin_east_south_m": [
+        "-1",
+        "-1"
+      ],
+      "heights_m": [
+        "10",
+        "10",
+        "10",
+        "10"
+      ],
+      "height_m": "10",
+      "normal_ned_numerators": [
+        0,
+        0,
+        -1
+      ],
+      "denominator_integer": 1,
+      "denominator_radicand": 1,
+      "owner": "cell 0,0 triangle0"
+    },
+    {
+      "id": "east-three-fourths",
+      "origin_east_south_m": [
+        "-1",
+        "-1"
+      ],
+      "heights_m": [
+        "9.25",
+        "10.75",
+        "9.25",
+        "10.75"
+      ],
+      "height_m": "10",
+      "normal_ned_numerators": [
+        0,
+        -3,
+        -4
+      ],
+      "denominator_integer": 5,
+      "denominator_radicand": 1,
+      "owner": "cell 0,0 triangle0"
+    },
+    {
+      "id": "south-three-fourths",
+      "origin_east_south_m": [
+        "-1",
+        "-1"
+      ],
+      "heights_m": [
+        "9.25",
+        "9.25",
+        "10.75",
+        "10.75"
+      ],
+      "height_m": "10",
+      "normal_ned_numerators": [
+        3,
+        0,
+        -4
+      ],
+      "denominator_integer": 5,
+      "denominator_radicand": 1,
+      "owner": "cell 0,0 triangle0"
+    },
+    {
+      "id": "saddle-exact-diagonal",
+      "origin_east_south_m": [
+        "-1",
+        "-1"
+      ],
+      "heights_m": [
+        "0",
+        "2",
+        "2",
+        "0"
+      ],
+      "height_m": "0",
+      "normal_ned_numerators": [
+        1,
+        1,
+        -1
+      ],
+      "denominator_integer": 1,
+      "denominator_radicand": 3,
+      "owner": "cell 0,0 triangle0",
+      "forbidden_bilinear_height_m": "1"
+    },
+    {
+      "id": "saddle-triangle0-interior",
+      "origin_east_south_m": [
+        "-0.5",
+        "-1.5"
+      ],
+      "heights_m": [
+        "0",
+        "2",
+        "2",
+        "0"
+      ],
+      "height_m": "1",
+      "normal_ned_numerators": [
+        1,
+        1,
+        -1
+      ],
+      "denominator_integer": 1,
+      "denominator_radicand": 3,
+      "owner": "cell 0,0 triangle0",
+      "forbidden_bilinear_height_m": "1.25"
+    },
+    {
+      "id": "saddle-triangle1-interior",
+      "origin_east_south_m": [
+        "-1.5",
+        "-0.5"
+      ],
+      "heights_m": [
+        "0",
+        "2",
+        "2",
+        "0"
+      ],
+      "height_m": "1",
+      "normal_ned_numerators": [
+        -1,
+        -1,
+        -1
+      ],
+      "denominator_integer": 1,
+      "denominator_radicand": 3,
+      "owner": "cell 0,0 triangle1",
+      "forbidden_bilinear_height_m": "1.25"
+    }
+  ],
+  "ownership_cases": [
+    {
+      "id": "internal-east-edge",
+      "origin_east_south_m": [
+        "-2",
+        "-1"
+      ],
+      "columns": 3,
+      "rows": 2,
+      "heights_m": [
+        "10",
+        "10",
+        "12",
+        "10",
+        "10",
+        "12"
+      ],
+      "height_m": "10",
+      "normal_ned_numerators": [
+        0,
+        -1,
+        -1
+      ],
+      "denominator_radicand": 2,
+      "owner": "cell 1,0 triangle0; left cell flat normal is wrong"
+    },
+    {
+      "id": "internal-vertex",
+      "origin_east_south_m": [
+        "-2",
+        "-2"
+      ],
+      "columns": 3,
+      "rows": 3,
+      "heights_m": [
+        "10",
+        "10",
+        "12",
+        "10",
+        "10",
+        "12",
+        "10",
+        "10",
+        "12"
+      ],
+      "height_m": "10",
+      "normal_ned_numerators": [
+        0,
+        -1,
+        -1
+      ],
+      "denominator_radicand": 2,
+      "owner": "cell 1,1 triangle0"
+    },
+    {
+      "id": "edge-minus-two-to-minus24",
+      "origin_east_south_m": [
+        "-1.999999940395355224609375",
+        "-1"
+      ],
+      "columns": 3,
+      "rows": 2,
+      "heights_m": [
+        "10",
+        "10",
+        "12",
+        "10",
+        "10",
+        "12"
+      ],
+      "height_m": "10",
+      "normal_ned_numerators": [
+        0,
+        0,
+        -1
+      ],
+      "denominator_radicand": 1,
+      "owner": "cell 0,0 triangle1",
+      "forbidden_epsilon_extrapolated_height_m": "9.999999940395355224609375",
+      "forbidden_epsilon_normal_ned": "(0,-1,-1)/sqrt(2)"
+    },
+    {
+      "id": "edge-plus-two-to-minus24",
+      "origin_east_south_m": [
+        "-2.000000059604644775390625",
+        "-1"
+      ],
+      "columns": 3,
+      "rows": 2,
+      "heights_m": [
+        "10",
+        "10",
+        "12",
+        "10",
+        "10",
+        "12"
+      ],
+      "height_m": "10.000000059604644775390625",
+      "normal_ned_numerators": [
+        0,
+        -1,
+        -1
+      ],
+      "denominator_radicand": 2,
+      "owner": "cell 1,0 triangle0"
+    },
+    {
+      "id": "outer-minimum-included",
+      "origin_east_south_m": [
+        "0",
+        "-1"
+      ],
+      "heights_m": [
+        "10",
+        "10",
+        "10",
+        "10"
+      ],
+      "height_m": "10",
+      "normal_ned_numerators": [
+        0,
+        0,
+        -1
+      ],
+      "denominator_radicand": 1,
+      "owner": "cell 0,0 triangle0"
+    },
+    {
+      "id": "outer-maximum-excluded",
+      "origin_east_south_m": [
+        "-2",
+        "-1"
+      ],
+      "heights_m": [
+        "10",
+        "10",
+        "10",
+        "10"
+      ],
+      "missing_ground": "outside_coverage"
+    }
+  ],
+  "off_anchor_fixtures": {
+    "anchor": [
+      "0",
+      "0",
+      "0"
+    ],
+    "query_latitude_rad": "0",
+    "query_longitude_hex": "0x1.0000000000000p-10",
+    "origin_east_south_m": [
+      "-8192",
+      "-1"
+    ],
+    "spacing_m": 2,
+    "columns": 8193,
+    "rows": 2,
+    "flat": "all heights 0, expected reference_producer.off_anchor.cases.flat",
+    "slope": "vertex height = east/16, expected reference_producer.off_anchor.cases.east_slope_1_over_16",
+    "independence": "analytic plane elimination, not point-to-cell or triangle search",
+    "intervals_exclude": "consumer ECEF/transcendental rounding and source accuracy",
+    "qualification_height_absolute_tolerance_m": "1e-4",
+    "qualification_normal_component_absolute_tolerance": "1e-9",
+    "qualification_tolerance_scope": "Root-approved engineering acceptance targets fixed before consumer output; not rigorous CRT/transcendental error bounds or geographic source accuracy; no fitting after failure"
+  },
+  "high_latitude_fixture": {
+    "anchor_and_query_latitude_binary64_hex": "0x1.921fb54442d18p-1",
+    "anchor_and_query_longitude_rad": "0",
+    "anchor_ellipsoid_height_m": "0",
+    "origin_east_south_m": [
+      "-1",
+      "-1"
+    ],
+    "spacing_m": 2,
+    "columns": 2,
+    "rows": 2,
+    "all_heights_m": "10",
+    "height_m": "10",
+    "normal_ned_numerators": [
+      0,
+      0,
+      -1
+    ],
+    "denominator_radicand": 1,
+    "independent_witness": "reference_producer.high_latitude gives ECEF/geodetic-up and forbidden radial south-displacement intervals"
+  },
+  "missing_and_admission_oracles": [
+    {
+      "id": "unused-fourth-vertex",
+      "origin_east_south_m": [
+        "-3",
+        "-1"
+      ],
+      "columns": 4,
+      "rows": 2,
+      "heights_m": [
+        "0",
+        "0",
+        null,
+        "2",
+        "2",
+        "2",
+        "0",
+        "0"
+      ],
+      "invalid_vertex_index": 2,
+      "invalid_height_bits_hex": "7fc00000",
+      "valid_words_hex": [
+        "00000000000000fb"
+      ],
+      "missing_variants": [
+        "not_loaded",
+        "datum_unresolved",
+        "invalid_data"
+      ],
+      "expected": "prepare succeeds because left spare cell is fully valid; anchor query selects missing reason despite its triangle0 three vertices being valid"
+    },
+    {
+      "id": "all-invalid",
+      "expected": "prepare rejects: no four-valid-vertex cell"
+    },
+    {
+      "id": "invalid-height-other-NaN-bits",
+      "invalid_height_bits_hex": "7fc00001",
+      "expected": "prepare rejects"
+    },
+    {
+      "id": "valid-NaN-or-Inf",
+      "expected": "prepare rejects"
+    },
+    {
+      "id": "validity-unused-high-bit",
+      "basis": "flat",
+      "valid_words_hex": [
+        "000000000000001f"
+      ],
+      "expected": "prepare rejects: four vertices only, bit4 is padding"
+    },
+    {
+      "id": "non-lattice-origin-one-tenth",
+      "origin_east_binary64_hex": "0x1.999999999999ap-4",
+      "expected": "prepare rejects under proposed exact 2^-32m lattice restriction; do not round origin or its vertices to accept"
+    },
+    {
+      "id": "gradient-limit-exceeded",
+      "origin_east_south_m": [
+        "-1",
+        "-1"
+      ],
+      "heights_m": [
+        "0",
+        "4.000000476837158203125",
+        "0",
+        "4.000000476837158203125"
+      ],
+      "expected": "prepare rejects: east gradient is 2+2^-22"
+    },
+    {
+      "id": "bracket-span-exceeded",
+      "columns": 1025,
+      "rows": 2,
+      "origin_east_south_m": [
+        "-1024",
+        "-1"
+      ],
+      "height_rule": "east + 1024 - 1000",
+      "minimum_m": "-1000",
+      "maximum_m": "1048",
+      "expected": "prepare rejects: heights span2048 plus exact two-sided 1/64 margin"
+    },
+    {
+      "id": "coverage-4096-cells",
+      "columns": 66,
+      "rows": 66,
+      "origin_east_south_m": [
+        "-64",
+        "-64"
+      ],
+      "all_heights_m": "10",
+      "rectangle": [
+        "-64",
+        "-64",
+        "63",
+        "63"
+      ],
+      "expected": "ready;64x64 owning cells"
+    },
+    {
+      "id": "coverage-4160-cells",
+      "columns": 66,
+      "rows": 66,
+      "origin_east_south_m": [
+        "-64",
+        "-64"
+      ],
+      "all_heights_m": "10",
+      "rectangle": [
+        "-64",
+        "-64",
+        "64",
+        "63"
+      ],
+      "expected": "invalid_data before any height reads;65x64 cells"
+    }
+  ],
+  "memory_oracles": [
+    {
+      "axis_vertices": 4001,
+      "vertices": 16008001,
+      "height_bytes": 64032004,
+      "valid_words": 250126,
+      "valid_word_bytes": 2001008,
+      "height_plus_validity_bytes": 66033012
+    },
+    {
+      "axis_vertices": 5001,
+      "vertices": 25010001,
+      "height_bytes": 100040004,
+      "valid_words": 390782,
+      "valid_word_bytes": 3126256,
+      "height_plus_validity_bytes": 103166260
+    },
+    {
+      "axis_vertices": 8001,
+      "vertices": 64016001,
+      "height_bytes": 256064004,
+      "valid_words": 1000251,
+      "valid_word_bytes": 8002008,
+      "height_plus_validity_bytes": 264066012
+    },
+    {
+      "axis_vertices": 8193,
+      "vertices": 67125249,
+      "height_bytes": 268500996,
+      "valid_words": 1048833,
+      "valid_word_bytes": 8390664,
+      "height_plus_validity_bytes": 276891660
+    }
+  ],
+  "memory_scope": "exact vector logical sizes only, not capacities, allocator/RSS/peak/caller copies; actual prepare budget also includes capacities, strings and control objects",
+  "source_uncertainty": "not included in arithmetic intervals; no geographic registration, datum conversion, aircraft validation or terrain accuracy is asserted"
+}

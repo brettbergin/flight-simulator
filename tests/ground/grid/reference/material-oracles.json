@@ -1,0 +1,105 @@
+{
+  "kind": "independent-synthetic-material-oracles",
+  "version": 1,
+  "execution_status": "source only; no producer or provider execution",
+  "bindings": {
+    "contract": "docs/contracts/world/resident-grid-core-v1.md",
+    "contract_sha256_lf": "7c4dae103811d178117bb423d2c9bf82d42830985157b870002c274d1d3010c8",
+    "typed_seam": "native/world_core/grid/include/flight/ground/prepared_grid.hpp",
+    "typed_seam_sha256_lf": "de37194ce0613ee5b1e0cc603e8885092bced5adab7aa3835e29c9471868ee86",
+    "geometry_oracles": "tests/ground/grid/reference/source_oracles.json",
+    "geometry_oracles_sha256_lf": "36edd42c7a140d5f5b2930a6d30d48dba95a8f7526816882ce3a498034a92857"
+  },
+  "conventions": {
+    "points": "integer [east_mm,south_mm] pairs; implicit closure; no repeated terminal point",
+    "accepted_winding": "negative signed shoelace sum in ordered(east,south)",
+    "provider_sample": "matching anchor/query angular positions make actual root X=Z=0 exactly",
+    "internal_cases": "exact rational root arithmetic only; not public geodetic queries and not a new public API",
+    "source_provenance": "all coordinates and friction values synthetic; no real airport or tire-calibration claims"
+  },
+  "materials": [
+    {"id": "synthetic-default", "static_friction": "0.75", "dynamic_friction": "0.5"},
+    {"id": "synthetic-pavement", "static_friction": "1", "dynamic_friction": "0.625"},
+    {"id": "synthetic-grass", "static_friction": "0.5", "dynamic_friction": "0.25"}
+  ],
+  "provider_defaults": {
+    "anchor_geodetic_lat_lon_height": ["0","0","0"],
+    "query_geodetic_lat_lon": ["0","0"],
+    "repeat_query_ellipsoid_heights_m": ["-50","25","1000"],
+    "grid_origin_east_south_m": ["-1","-1"],
+    "spacing_m": 2,
+    "columns": 2,
+    "rows": 2,
+    "up_m": ["10","10","10","10"],
+    "valid_words_hex": ["000000000000000f"],
+    "default_material_index": 0,
+    "ready_sample_height_m": "10",
+    "ready_sample_normal_ned": ["0","0","-1"],
+    "expected_identity_and_header": "exact copies of supplied synthetic ContentRef/session/tick/requested geodetic position",
+    "friction_copy_check": "selected material ID and both coefficients must be copied exactly; all listed coefficients are binary64-exact dyadic values",
+    "geometry_check": "changing only polygons must not change height or normal"
+  },
+  "rings": {
+    "convex-cover": [[-800,-800],[-800,800],[800,800],[800,-800]],
+    "convex-exclude": [[100,100],[100,700],[700,700],[700,100]],
+    "boundary-edge": [[0,-600],[0,600],[600,600],[600,-600]],
+    "boundary-vertex": [[0,0],[0,600],[600,600],[600,0]],
+    "concave-cover": [[-800,-800],[-800,800],[800,800],[800,200],[200,200],[200,-800]],
+    "concave-exclude-notch": [[-800,-800],[-800,800],[800,800],[800,-800],[200,-800],[200,200],[-200,200],[-200,-800]],
+    "collinear-forward-cover": [[-600,-600],[-600,0],[-600,600],[600,600],[600,-600]]
+  },
+  "provider_ready_cases": [
+    {"id": "default-no-polygons", "polygons": [], "expected_material_index": 0, "reason": "no containing polygon"},
+    {"id": "default-excluded", "polygons": [{"id":"outside","material_index":1,"priority":255,"ring":"convex-exclude"}], "expected_material_index": 0, "reason": "origin lies outside even the highest-priority polygon"},
+    {"id": "convex-cover", "polygons": [{"id":"pavement","material_index":1,"priority":0,"ring":"convex-cover"}], "expected_material_index": 1, "reason": "strictly inside clockwise square"},
+    {"id": "edge-included", "polygons": [{"id":"edge","material_index":1,"priority":0,"ring":"boundary-edge"}], "expected_material_index": 1, "reason": "origin is interior to included left boundary segment"},
+    {"id": "vertex-included", "polygons": [{"id":"vertex","material_index":2,"priority":0,"ring":"boundary-vertex"}], "expected_material_index": 2, "reason": "origin equals included polygon vertex"},
+    {"id": "concave-covered", "polygons": [{"id":"concave","material_index":2,"priority":0,"ring":"concave-cover"}], "expected_material_index": 2, "reason": "origin lies strictly inside left arm of L-shaped simple ring"},
+    {"id": "concave-notch-excluded", "polygons": [{"id":"notched","material_index":2,"priority":0,"ring":"concave-exclude-notch"}], "expected_material_index": 0, "reason": "origin lies strictly inside removed open notch, despite lying inside ring bounding box"},
+    {"id": "forward-collinear-allowed", "polygons": [{"id":"collinear","material_index":1,"priority":0,"ring":"collinear-forward-cover"}], "expected_material_index": 1, "reason": "successive forward segments only share endpoint; no reversal or overlap"},
+    {"id": "priority-before-id", "polygons": [{"id":"a-low","material_index":1,"priority":0,"ring":"convex-cover"},{"id":"z-high","material_index":2,"priority":255,"ring":"convex-cover"}], "expected_material_index": 2, "reason": "higher priority beats lexicographically smaller ID"},
+    {"id": "equal-priority-ascii-id", "polygons": [{"id":"b-grass","material_index":2,"priority":7,"ring":"convex-cover"},{"id":"a-pavement","material_index":1,"priority":7,"ring":"boundary-edge"}], "expected_material_index": 1, "repeat_with_polygon_order_reversed": true, "reason": "boundary counts as containing; ASCII a-pavement precedes b-grass independently of array order"}
+  ],
+  "provider_missing_support_case": {
+    "id": "material-cannot-fill-missing-ground",
+    "grid_origin_east_south_m": ["-3","-1"],
+    "columns": 4,
+    "rows": 2,
+    "up_m": ["10","10",null,"10","10","10","10","10"],
+    "invalid_vertex_index": 2,
+    "invalid_height_bits_hex": "7fc00000",
+    "valid_words_hex": ["00000000000000fb"],
+    "polygons": [{"id":"covering","material_index":1,"priority":255,"ring":"convex-cover"}],
+    "repeat_missing_vertices_reason": ["not_loaded","datum_unresolved","invalid_data"],
+    "expected": "prepare succeeds using left spare valid cell; sample returns selected missing reason using existing missing GroundSample representation; no ready height/normal/material/friction may be invented",
+    "reason": "anchor lies in cell1,0, whose upper-right vertex is invalid; a containing material polygon cannot authorize physical support"
+  },
+  "prepare_rejection_cases": [
+    {"id":"positive-winding","vertices":[[-600,-600],[600,-600],[600,600],[-600,600]],"signed_twice_area_mm2":"2880000","reason":"positive winding violates negative-area admission"},
+    {"id":"self-intersection-nonzero-negative-area","vertices":[[-600,-600],[300,-600],[-600,600],[600,600]],"signed_twice_area_mm2":"-360000","reason":"edges1 and3 cross strictly at(-600/7,-600/7); negative nonzero area alone does not establish simplicity"},
+    {"id":"adjacent-collinear-reversal-overlap","vertices":[[-600,-600],[-600,600],[-600,0],[600,0],[600,-600]],"signed_twice_area_mm2":"-1440000","reason":"edges0 and1 overlap on x=-600, y in[0,600], beyond their common endpoint"},
+    {"id":"duplicate-nonterminal-point","vertices":[[-600,-600],[-600,600],[600,600],[600,-600],[-600,600]],"reason":"point[-600,600] repeats at indices1 and4; all vertices must be distinct"},
+    {"id":"repeated-terminal-point","vertices":[[-600,-600],[-600,600],[600,600],[600,-600],[-600,-600]],"reason":"explicit terminal repeat forbidden; ring already closes implicitly"},
+    {"id":"zero-area-collinear","vertices":[[-600,0],[0,0],[600,0]],"signed_twice_area_mm2":"0","reason":"no nonzero enclosed area"}
+  ],
+  "internal_quantization_cases": {
+    "rational_coordinate_units": "metres; numerator/denominator are exact integers, not parsed binary64 approximations",
+    "neighbor_delta_m": {"numerator":"1","denominator":"1099511627776"},
+    "default_south_m": {"numerator":"0","denominator":"1"},
+    "default_expected_south_mm": 0,
+    "cases": [
+      {"id":"positive-half","east_m":{"numerator":"1","denominator":"2000"},"expected_east_mm":1},
+      {"id":"positive-half-minus-delta","east_m":{"numerator":"68719476611","denominator":"137438953472000"},"expected_east_mm":0},
+      {"id":"positive-half-plus-delta","east_m":{"numerator":"68719476861","denominator":"137438953472000"},"expected_east_mm":1},
+      {"id":"negative-half","east_m":{"numerator":"-1","denominator":"2000"},"expected_east_mm":-1},
+      {"id":"negative-half-toward-zero","east_m":{"numerator":"-68719476611","denominator":"137438953472000"},"expected_east_mm":0},
+      {"id":"negative-half-away-zero","east_m":{"numerator":"-68719476861","denominator":"137438953472000"},"expected_east_mm":-1},
+      {"id":"independent-axis-signs","east_m":{"numerator":"-1","denominator":"2000"},"south_m":{"numerator":"1","denominator":"2000"},"expected_east_mm":-1,"expected_south_mm":1}
+    ],
+    "integer_polygon_followups": [
+      {"ring":[[1,-2],[1,2],[2,2],[2,-2]],"quantized_points_contained":[[1,0]],"quantized_points_excluded":[[0,0]],"reason":"positive-half rounds onto included boundary; its toward-zero neighbor stays outside"},
+      {"ring":[[-2,-2],[-2,2],[-1,2],[-1,-2]],"quantized_points_contained":[[-1,0]],"quantized_points_excluded":[[0,0]],"reason":"negative-half rounds away from zero onto included boundary; its toward-zero neighbor stays outside"}
+    ],
+    "restriction":"exercise private implementation arithmetic/predicate seams only after contract lands; no ClassDB, C ABI, provider API or fabricated geodetic-half-tie claim"
+  }
+}

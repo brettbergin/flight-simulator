@@ -7859,7 +7859,10 @@
         "tools/ingest/airports/source-contract.mjs",
         "tests/world/resident-airport/",
         ".github/workflows/foundation-ci.yml",
-        "docs/decisions/028-kawo-source-and-resident-environment.md"
+        "docs/decisions/028-kawo-source-and-resident-environment.md",
+        "native/world_core/grid/include/flight/ground/prepared_grid.hpp",
+        "tests/ground/grid/reference/",
+        "tools/ingest/terrain/tools-v1.lock.json"
       ],
       "docs": [
         "docs/README.md",
@@ -7869,7 +7872,10 @@
         "docs/agent-operations.md",
         "docs/evidence/P4/kawo-source-discovery.md",
         "docs/decisions/028-kawo-source-and-resident-environment.md",
-        "docs/contracts/world/airport-source-v1.md"
+        "docs/contracts/world/airport-source-v1.md",
+        "docs/contracts/world/resident-grid-core-v1.md",
+        "docs/evidence/P4/resident-grid-core-reference.md",
+        "docs/contracts/world/terrain-tools-v1.md"
       ],
       "requirements": [
         "WORLD-001",
@@ -7890,6 +7896,8 @@
       ],
       "acceptance": [
         "Checked source-dossier and normalized-airport closed schemas preserve dated provenance, unknown/conflicting fields, physical/displaced ends and true/magnetic distinctions. Ingestion waits for accepted schema.",
+        "Checked immutable resident-grid typed contract and independent frozen geometry references precede standalone native component work. Exact triangle/edge/material semantics and separate point/rectangle budgets admit no file compiler, datum, flight/start, renderer or history consumer.",
+        "Checked offline terrain-tool pins bind retained Windows Python, exact wheels, embedded PROJ/database and acquired GEOID18 before tool consumers; selected coordinate operations, source accuracy, codec and runtime admission require separate evidence.",
         "Freeze exact resident payload, interpolation/normal/material/seam/coverage and bounded readiness behavior with independently derived fixtures. The same geometry drives native contact and rendering; no infinite plane or LOD-owned physics.",
         "Pin datum/realization/epoch/geoid/transform/uncertainty and independent samples before geographic admission; chart MSL is not ellipsoid height.",
         "Freeze exact world/start/native/facade/history compatibility and preserve old synthetic worlds/files. No in-flight world replacement.",

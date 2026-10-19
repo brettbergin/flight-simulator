@@ -1,5 +1,9 @@
 # Flight simulator project plan
 
+The proposed [resident-grid core and independent references](evidence/P4/resident-grid-core-reference.md)
+prepare matching physical/render terrain under #243. This component contract does
+not yet add a geographic airport to the playable simulator.
+
 This is a serious Windows desktop flight simulator for realistic Cessna flying, thoughtful practice, and enjoyment by an experienced pilot. The first delivery establishes the implementation plan and GitHub work queue. The owner approved the plan and authorized implementation on 2026-10-03; see [P0 acceptance](evidence/P0/acceptance.md). P1 now establishes executable contracts, native flight dynamics and Windows delivery proofs. A playable simulator requires the subsequent cockpit and flight-operation phases.
 
 ## Decisions made for this project

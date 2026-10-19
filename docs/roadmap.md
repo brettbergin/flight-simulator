@@ -92,6 +92,12 @@ UI concepts, legal/source investigation, data provenance, test fixture design, a
 
 ## P4 — Bounded real region, navigation, and environmental challenge
 
+Small resident-grid component and offline-tool bootstrap leaves may proceed after
+their own complete checked contracts and independent references, while #243's
+separate geographic codec/datum/start/runtime seams remain open. Source ingestion
+likewise consumes only its accepted source schema. These bounded leaves do not
+admit a geographic world to flight or waive the integrated phase gates.
+
 **Bounded owner priority (2026-10-18):** after completing the Players flight-menu UI checks, advance the first KAWO daytime airport/environment slice through [#243](https://github.com/brettbergin/flight-simulator/issues/243). First accept source normalization, then the complete datum/resident contact/render/start contract and bounded leaves. This allocation preserves the existing P3/P4 parent dependencies and review gates; it does not admit geographic consumers or close those phases. The [source discovery](https://github.com/brettbergin/flight-simulator/blob/main/docs/evidence/P4/kawo-source-discovery.md) retains actual acquired inputs and unresolved registration.
 
 **Outcome:** a planned regional flight demands navigation, weather/load judgment, and a credible arrival or diversion.

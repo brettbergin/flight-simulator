@@ -5,6 +5,15 @@ The proposed [KAWO source interchange](contracts/world/airport-source-v1.md) and
 define closed source-dossier/airport records and offline byte validation. They
 preserve unknown datums and do not amend the native world or admit terrain consumers.
 
+The separate proposed [resident-grid core](contracts/world/resident-grid-core-v1.md)
+freezes a small immutable native SurfaceProvider, exact triangle/material ownership
+and bounded readiness. Its [independent reference evidence](evidence/P4/resident-grid-core-reference.md)
+precedes component implementation. It admits no file format, datum conversion,
+flight start, renderer or history consumer and leaves #243 open.
+The companion [offline terrain-tool lock](contracts/world/terrain-tools-v1.md)
+pins the acquired authoring dependencies before bootstrap consumers. It selects
+no datum transformation or terrain codec and adds no gameplay dependency.
+
 P1 CORE-CONTRACTS [#11](https://github.com/brettbergin/flight-simulator/issues/11) supplies executable engine-independent interfaces. The checked-in [schema registry](../schemas/registry.json), [native headers](../native/sim_core/contracts/include/flight/contracts/boundaries.hpp) and [original fixture manifest](../tests/contracts/fixtures/manifest.json) define v1. These interfaces support PRD-001, PRD-002, PRD-007 and PRD-034. They do not implement flight dynamics, establish C172S fidelity or prove restoration; later phase gates require measured integration evidence.
 
 ## Encoding and compatibility
