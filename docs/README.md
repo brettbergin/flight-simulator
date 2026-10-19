@@ -166,3 +166,6 @@ records two byte-identical complete grids, independent selected values, actual n
 runway queries and bounded resources. Final-source CI and checked merge are tracked
 in issue257; world/start/render delivery remains separate. The working frame
 retains unknown total3D accuracy.
+
+
+The proposed [closed KAWO runtime admission](contracts/world/kawo-runtime-v1.md) and [ADR029](decisions/029-kawo-runtime-admission.md) define the first geographic original-model ground start, shared native/render grid, basic physical-runway locator and separate historical review revision. Checked contract acceptance permits bounded owned consumer authoring; actual start/pack/catalog/component pins and independent physical expectations are reviewed with implementation before qualification. Known offline terrain bytes do not constitute playable geographic flight. [Compiler PR259](https://github.com/brettbergin/flight-simulator/pull/259), runtime delivery, source uncertainty and aircraft/pilot/parent gates retain separate evidence.

@@ -248,3 +248,8 @@ The [payload contract](contracts/world/resident-grid-codec-v1.md) and [independe
 ## Proposed original regional art study
 
 The [original evergreen brief](contracts/world/original-evergreens-v1.md) freezes six opaque original tree exports, SI/foot-pivot conventions, exact material/node roster and independent GLB/import/visual evidence before generation. It consumes the existing pinned Blender/Godot pipeline without expanding the closed historical proof/cockpit inventories. Checked brief plus independent fixtures precede the isolated art leaf; no current-world resource, placement, native collision or runtime LOD follows.
+
+
+## Closed KAWO runtime admission
+
+Proposed [ADR029](decisions/029-kawo-runtime-admission.md) and [runtime v1](contracts/world/kawo-runtime-v1.md) close one explicit geographic world/model/start tuple, fixed seven-file source-bound pack, exact native readiness and provider lifetime, fifth-argument facade/bridge selection, common-root canonical renderer and Recording3/archive3 compatibility. The [serialized shapes](../schemas/world/resident-runtime/v1/world-runtime-entry.schema.json) and their component/start/native-closure companions do not establish scalar bits, actual product/source/pose, compiled/link authority or runtime evidence. Checked contract merge precedes owned authoring; actual pins and independent expectations are populated/reviewed with the cohesive consumer before qualification. Old worlds/files/Readback/storage rules remain; no parent, gameplay, aircraft or pilot result is claimed.

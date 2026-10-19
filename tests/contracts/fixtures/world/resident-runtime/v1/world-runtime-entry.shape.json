@@ -1,0 +1,19 @@
+{
+  "schema": "WorldRuntimeEntry/v1",
+  "selector": "kawo-prototype-v1",
+  "world": {"id": "kawo.prototype", "version": "0.1.0-prototype", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "bytes": 100},
+  "files": [
+    {"path": "ground.fgrd", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "bytes": 100, "role": "resident-ground-grid-v1"},
+    {"path": "airport.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "bytes": 100, "role": "airport-source-record"},
+    {"path": "dossier.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "bytes": 100, "role": "airport-source-dossier"},
+    {"path": "compile-receipt.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "bytes": 100, "role": "terrain-compile-receipt-v1"},
+    {"path": "start-ready34.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "bytes": 100, "role": "world-start-recipe-v1"},
+    {"path": "NOTICE.txt", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "bytes": 100, "role": "source-notice"}
+  ],
+  "world_anchor": {"latitude_rad": {"$binary64_le": "fdfc84c1e5e5ea3f"}, "longitude_rad": {"$binary64_le": "5eedd3837e0e01c0"}, "ellipsoid_height_m": {"$binary64_le": "0000000000000000"}},
+  "model_identity": {"id": "original-interactive-prototype", "version": "0.1.0-prototype", "backend_model": "original-interactive"},
+  "model_inventory_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "named_start": "ground-ready", "wind_profile": "calm", "seed": "42",
+  "clock": {"purpose": "runtime", "tick_rate_hz": 120},
+  "angular_integration_method": null, "recording_version": 3
+}

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://flight-simulator.invalid/contracts/world/resident-runtime/v1/world-runtime-entry.schema.json",
+  "$comment": "Closed serialized KAWO catalog-source entry only. Not the frontend registry with decoded TYPE_FLOAT values or a new serialized synthetic catalog. Strict byte parsing, external exact raw product pins, seven-file aggregate size, all cross-file/source/identity relations and actual native/pose/readiness gates are separate required admissions.",
+  "type": "object",
+  "properties": {
+    "schema": {"const": "WorldRuntimeEntry/v1"},
+    "selector": {"const": "kawo-prototype-v1"},
+    "world": {
+      "type": "object",
+      "properties": {"id": {"const": "kawo.prototype"}, "version": {"const": "0.1.0-prototype"}, "sha256": {"$ref": "#/$defs/sha256"}, "bytes": {"type": "integer", "minimum": 1, "maximum": 4194304}},
+      "required": ["id", "version", "sha256", "bytes"], "additionalProperties": false
+    },
+    "files": {
+      "type": "array", "minItems": 6, "maxItems": 6, "items": false,
+      "prefixItems": [
+        {"allOf": [{"$ref": "#/$defs/file"}, {"type": "object", "properties": {"path": {"const": "ground.fgrd"}, "role": {"const": "resident-ground-grid-v1"}, "bytes": {"type": "integer", "maximum": 276946836}}}]},
+        {"allOf": [{"$ref": "#/$defs/file"}, {"type": "object", "properties": {"path": {"const": "airport.json"}, "role": {"const": "airport-source-record"}, "bytes": {"type": "integer", "maximum": 4194304}}}]},
+        {"allOf": [{"$ref": "#/$defs/file"}, {"type": "object", "properties": {"path": {"const": "dossier.json"}, "role": {"const": "airport-source-dossier"}, "bytes": {"type": "integer", "maximum": 4194304}}}]},
+        {"allOf": [{"$ref": "#/$defs/file"}, {"type": "object", "properties": {"path": {"const": "compile-receipt.json"}, "role": {"const": "terrain-compile-receipt-v1"}, "bytes": {"type": "integer", "maximum": 4194304}}}]},
+        {"allOf": [{"$ref": "#/$defs/file"}, {"type": "object", "properties": {"path": {"const": "start-ready34.json"}, "role": {"const": "world-start-recipe-v1"}, "bytes": {"type": "integer", "maximum": 16384}}}]},
+        {"allOf": [{"$ref": "#/$defs/file"}, {"type": "object", "properties": {"path": {"const": "NOTICE.txt"}, "role": {"const": "source-notice"}, "bytes": {"type": "integer", "maximum": 65536}}}]}
+      ]
+    },
+    "world_anchor": {"$ref": "start-recipe.schema.json#/$defs/world_anchor"},
+    "model_identity": {"$ref": "start-recipe.schema.json#/$defs/model_identity"},
+    "model_inventory_sha256": {"$ref": "#/$defs/sha256"},
+    "named_start": {"const": "ground-ready"}, "wind_profile": {"const": "calm"}, "seed": {"const": "42"},
+    "clock": {"$ref": "start-recipe.schema.json#/$defs/clock"},
+    "angular_integration_method": {"type": "null"}, "recording_version": {"const": 3}
+  },
+  "required": ["schema", "selector", "world", "files", "world_anchor", "model_identity", "model_inventory_sha256", "named_start", "wind_profile", "seed", "clock", "angular_integration_method", "recording_version"],
+  "additionalProperties": false,
+  "$defs": {
+    "sha256": {"$ref": "start-recipe.schema.json#/$defs/sha256"},
+    "file": {
+      "type": "object",
+      "properties": {"path": {"type": "string"}, "sha256": {"$ref": "#/$defs/sha256"}, "bytes": {"type": "integer", "minimum": 1}, "role": {"type": "string"}},
+      "required": ["path", "sha256", "bytes", "role"], "additionalProperties": false
+    }
+  }
+}

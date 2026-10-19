@@ -63,3 +63,8 @@ Acceptance:
 5. Focused readable historical flight+engine views at960 and larger windows show profile/source/sample/units/unavailable states; affect only review presentation. Current legacy and audio/modal regressions remain active. Exact affected package/three-context checks and current protected CI pass before Root review/merge.
 
 Tests should cover new behavior and real boundaries, not reproduce the full prior IO/parser suite in a new framework. No unchanged physics calibration campaign or new source licensing is required for this app-only slice. No database/profile/auto-library/auto-save/new menu dock/physics seek/checklist/scoring work. Partial PRD-025/UX-017/UX-018/UX-021/UX-022 only; #75/#34/#35/#74 remain open.
+
+
+## Geographic revision remains separate from piston2
+
+Checked [ADR029](029-kawo-runtime-admission.md)/[runtime v1](../contracts/world/kawo-runtime-v1.md) allocate Recording3/archive3 to the closed geographic original direct-thrust tuple. Recording2/archive2 remains synthetic piston-only with its complete EngineStatus and existing400000 inner-value exception. No geographic piston start, revised engine shape, version migration or broader parser budget is admitted. Revision selection follows the full world/model/start relation, so geographic original flight cannot be mistaken for legacy1 and cannot enter piston2. All historical piston bytes, source rules, strict file authority and aircraft/pilot/phase limits remain unchanged.

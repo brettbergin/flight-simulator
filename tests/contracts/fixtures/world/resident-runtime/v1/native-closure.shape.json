@@ -1,0 +1,44 @@
+{
+  "schema": "ResidentWorldNativeClosure/v1", "passed": true,
+  "scope": "reviewed-linked-resident-world-component-only",
+  "component_manifest": {"path": "native/world_core/resident_world/component-v1.json", "bytes": 100, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+  "component_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "source_bindings": [{"path": "native/fdm_jsbsim/interactive/src/prepared_world.cpp", "bytes": 100, "raw_sha256": "0000000000000000000000000000000000000000000000000000000000000000", "lf_sha256": "0000000000000000000000000000000000000000000000000000000000000000"}],
+  "control_bindings": [{"path": "native/world_core/grid/CMakeLists.txt", "bytes": 100, "raw_sha256": "0000000000000000000000000000000000000000000000000000000000000000", "lf_sha256": "0000000000000000000000000000000000000000000000000000000000000000"}],
+  "native_identity": {
+    "bytes": 100, "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "source_variant": "jsbsim-1.3.1-upstream",
+    "backend_identity_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "build_control_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "declared_source_fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+    "bridge": {"path": "bin/flight_godot_bridge.dll", "bytes": 100, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "resource": {"build_path": "native-identity.gd", "staged_path": "build/native_identity.gd", "bytes": 100, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}
+  },
+  "translation_units": [
+    {"source": "native/world_core/grid/src/validation.cpp", "compile_commands_index": 0, "object_path": "objects/validation.cpp.obj", "fp_policy": "msvc-strict", "response_files": []},
+    {"source": "native/world_core/grid/src/prepared_grid.cpp", "compile_commands_index": 1, "object_path": "objects/prepared_grid.cpp.obj", "fp_policy": "msvc-strict", "response_files": []},
+    {"source": "native/world_core/grid/src/grid_payload.cpp", "compile_commands_index": 2, "object_path": "objects/grid_payload.cpp.obj", "fp_policy": "msvc-strict", "response_files": []},
+    {"source": "native/fdm_jsbsim/interactive/src/prepared_world.cpp", "compile_commands_index": 3, "object_path": "objects/prepared_world.cpp.obj", "fp_policy": "msvc-strict", "response_files": []}
+  ],
+  "link": {
+    "bridge": {"path": "bin/flight_godot_bridge.dll", "bytes": 100, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "interactive_archive": {"path": "lib/flight_interactive.lib", "bytes": 100, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "grid_archive": {"path": "lib/flight_grid.lib", "bytes": 100, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "grid_objects": [
+      {"path": "objects/validation.cpp.obj", "bytes": 100, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+      {"path": "objects/prepared_grid.cpp.obj", "bytes": 100, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+      {"path": "objects/grid_payload.cpp.obj", "bytes": 100, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}
+    ],
+    "prepared_world_object": {"path": "objects/prepared_world.cpp.obj", "bytes": 100, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "response_files": []
+  },
+  "build_witnesses": [
+    {"path": "bin/flight_godot_bridge.dll", "bytes": 100, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    {"path": "build.ninja", "bytes": 100, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    {"path": "CMakeCache.txt", "bytes": 100, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    {"path": "toolchain-build-manifest.txt", "bytes": 100, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    {"path": "jsbsim-source-build-manifest.txt", "bytes": 100, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    {"path": "interactive-source-fingerprint.txt", "bytes": 100, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    {"path": "compile_commands.json", "bytes": 100, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}
+  ]
+}

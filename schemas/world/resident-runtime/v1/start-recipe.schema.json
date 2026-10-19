@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://flight-simulator.invalid/contracts/world/resident-runtime/v1/start-recipe.schema.json",
+  "$comment": "Serialized KAWO start shape only, from reviewed private runtime draft v3. Outer strict byte admission and actual pinned scalar/pose/model/provider/RunIC checks remain mandatory. This schema neither authors a pose nor qualifies a start.",
+  "type": "object",
+  "properties": {
+    "schema": {"const": "KawoStartRecipe/v1"},
+    "id": {"const": "ready-runway34"},
+    "selector": {"const": "kawo-prototype-v1"},
+    "model_identity": {"$ref": "#/$defs/model_identity"},
+    "named_start": {"const": "ground-ready"},
+    "wind_profile": {"const": "calm"},
+    "seed": {"const": "42"},
+    "clock": {"$ref": "#/$defs/clock"},
+    "position": {"$ref": "#/$defs/position"},
+    "orientation_rpy_ned_rad": {
+      "type": "object",
+      "properties": {"roll": {"$ref": "#/$defs/binary64"}, "pitch": {"$ref": "#/$defs/binary64"}, "yaw": {"$ref": "#/$defs/binary64"}},
+      "required": ["roll", "pitch", "yaw"], "additionalProperties": false
+    }
+  },
+  "required": ["schema", "id", "selector", "model_identity", "named_start", "wind_profile", "seed", "clock", "position", "orientation_rpy_ned_rad"],
+  "additionalProperties": false,
+  "$defs": {
+    "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+    "binary64": {
+      "type": "object",
+      "properties": {"$binary64_le": {"type": "string", "minLength": 16, "maxLength": 16, "pattern": "^(?![0-9a-f]{12}f[0-9a-f](?:7f|ff)$)[0-9a-f]{16}$"}},
+      "required": ["$binary64_le"], "additionalProperties": false
+    },
+    "position": {
+      "type": "object",
+      "properties": {"latitude_rad": {"$ref": "#/$defs/binary64"}, "longitude_rad": {"$ref": "#/$defs/binary64"}, "ellipsoid_height_m": {"$ref": "#/$defs/binary64"}},
+      "required": ["latitude_rad", "longitude_rad", "ellipsoid_height_m"], "additionalProperties": false
+    },
+    "model_identity": {"const": {"id": "original-interactive-prototype", "version": "0.1.0-prototype", "backend_model": "original-interactive"}},
+    "clock": {"const": {"purpose": "runtime", "tick_rate_hz": 120}},
+    "world_anchor": {"const": {"latitude_rad": {"$binary64_le": "fdfc84c1e5e5ea3f"}, "longitude_rad": {"$binary64_le": "5eedd3837e0e01c0"}, "ellipsoid_height_m": {"$binary64_le": "0000000000000000"}}}
+  }
+}
