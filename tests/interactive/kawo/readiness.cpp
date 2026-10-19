@@ -32,7 +32,8 @@ bool rectangle_refused(i::Vec center){try{(void)A::rectangle(center);return fals
 std::shared_ptr<const g::PreparedGrid> flat(unsigned count,double origin,bool missing=false){
   g::Definition d;d.anchor={0,0,0};d.columns=count;d.rows=count;d.east_origin_m=origin;d.south_origin_m=origin;d.spacing=g::Spacing::metres_4;d.missing_vertices=g::MissingVertices::not_loaded;
   const auto vertices=static_cast<std::size_t>(count)*count;d.up_m.assign(vertices,0);d.valid_words.assign((vertices+63)/64,~0ULL);
-  if(vertices%64)d.valid_words.back()=(1ULL<<(vertices%64))-1;d.materials={{"original.fixture",.8,.6}};
+  if(vertices%64){d.valid_words.back()=(1ULL<<(vertices%64))-1;}
+  d.materials={{"original.fixture",.8,.6}};
   if(missing){const auto n=25*count+28;d.up_m[n]=std::bit_cast<float>(g::invalid_height_bits);d.valid_words[n/64]&=~(1ULL<<(n%64));}
   return g::PreparedGrid::prepare(std::move(d),{{"fixture.readiness","1.0.0",std::string(64,'a')},std::string(64,'b'),1});
 }
