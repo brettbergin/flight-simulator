@@ -33,6 +33,8 @@ jobs:
         run: npm ci --ignore-scripts --prefix schemas
       - name: Check offline airport source contract
         run: node --test tests/world/resident-airport/source-contract.test.mjs
+      - name: Check pinned KAWO source parser and mapping (synthetic offline cases)
+        run: python -I -B -m unittest discover -s tests/airports/kawo -p "test_*.py" -v
       - name: Check recursive simulation staging and drift rejection
         shell: pwsh
         run: ./tools/interactive-preview/simulation-staging.test.ps1

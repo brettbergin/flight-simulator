@@ -74,3 +74,7 @@ tools/local-players/source-identity.py text eol=lf
 
 # Keep original cockpit generator provenance exact in Windows checkouts.
 assets_source/c172/original-prototype/generate_cockpit.py text eol=lf
+
+# Keep source-ingester and independent factual fixture bytes identical on Windows/Linux.
+tools/ingest/airports/** text eol=lf
+tests/airports/kawo/** text eol=lf
