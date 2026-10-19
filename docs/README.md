@@ -16,6 +16,9 @@ The [KAWO locator readings](evidence/P4/kawo-locator-readability.md) expose the
 existing anchor bearing and physical-axis position, with readable caveats and
 explicit noncurrent states. They are optional geometry references, not a
 flight director or usable runway-distance calculation.
+The [original ground surface detail](evidence/P4/kawo-surface-appearance.md) adds
+static, distance-filtered grass and pavement pigment beneath the same paint.
+It preserves canonical terrain/contact and remains unsurveyed decorative art.
 
 These bounded source and integration results preserve the source/datum and
 prototype-aircraft limits. Final visual/manual-flight, Windows delivery and

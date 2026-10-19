@@ -120,3 +120,6 @@ tests/world/decoration/** text eol=lf
 
 # Preserve reproducible manual locator capture source.
 tests/world/kawo-locator/** text eol=lf
+
+# Preserve reproducible original-pigment authoring observations.
+tests/world/surface/** text eol=lf

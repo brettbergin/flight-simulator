@@ -89,6 +89,37 @@ float runway_paint(vec2 p,vec4 ends,vec4 axes,vec2 size_m,vec4 bottoms,ivec4 dig
     // Fade tiny strokes instead of turning distant/subpixel paint into glare.
     return max(max(edge,center)*min(1.0,0.45/(2.0*aa)),numbers*min(1.0,1.5/(2.0*aa)));
 }
+// Original decorative pigment only: not measured vegetation or pavement wear.
+// Coordinates are the unchanged canonical mesh XZ, never TIME or camera origin.
+float surface_hash(ivec2 cell) {
+    uint h=uint(cell.x)*1597334677u ^ uint(cell.y)*3812015801u;
+    h^=h>>16u; h*=2246822519u;
+    h^=h>>13u; h*=3266489917u; h^=h>>16u;
+    return float(h & 16777215u)*(1.0/16777215.0);
+}
+float surface_noise(vec2 p) {
+    ivec2 cell=ivec2(floor(p));
+    vec2 f=fract(p); f=f*f*(3.0-2.0*f);
+    return mix(mix(surface_hash(cell),surface_hash(cell+ivec2(1,0)),f.x),
+               mix(surface_hash(cell+ivec2(0,1)),surface_hash(cell+ivec2(1,1)),f.x),f.y);
+}
+float filtered_surface(vec2 p,float cell_m,float footprint_m) {
+    // Each octave tends to its mean before its lattice is subpixel. No detail
+    // moves with distance, and distant grains cannot turn into white sparkle.
+    float resolved=1.0-smoothstep(0.35,1.25,footprint_m/cell_m);
+    return mix(0.5,surface_noise(p/cell_m),resolved);
+}
+vec3 surface_pigment(vec3 base,vec2 p,bool pavement,float footprint_m) {
+    if(pavement) {
+        float aggregate=filtered_surface(p+vec2(317.0,91.0),0.35,footprint_m);
+        return base*(0.97+0.06*aggregate);
+    }
+    float broad=filtered_surface(p,180.0,footprint_m);
+    float middle=filtered_surface(p+vec2(61.0,-47.0),23.0,footprint_m);
+    float fine=filtered_surface(p+vec2(-17.0,113.0),0.8,footprint_m);
+    vec3 grass=mix(base,vec3(0.28,0.27,0.14),0.20*broad);
+    return grass*(0.80+0.26*broad+0.12*middle+0.06*fine);
+}
 void fragment() {
     // This canonical heightfield's authored lighting normals face world-up.
     // Keep two-sided rasterization without letting back-face shading invert
@@ -105,9 +136,9 @@ void fragment() {
     float paint=0.0;
     if(b && (!a || second_wins)) paint=runway_paint(canonical_xz,paint_ends1,paint_axes1,paint_size1,paint_numbers1,paint_digits1,aa);
     else if(a) paint=runway_paint(canonical_xz,paint_ends0,paint_axes0,paint_size0,paint_numbers0,paint_digits0,aa);
-    pigment=mix(pigment,vec3(0.9),paint);
-    float variation=1.0+0.035*sin(canonical_xz.x*0.025)*sin(canonical_xz.y*0.021);
-    ALBEDO=pigment*(a||b?1.0:variation);
+    pigment=surface_pigment(pigment,canonical_xz,a||b,2.0*aa);
+    // Compose the original unchanged white paint last; grains never stain it.
+    ALBEDO=mix(pigment,vec3(0.9),paint);
     ROUGHNESS=1.0;
 }
 """
