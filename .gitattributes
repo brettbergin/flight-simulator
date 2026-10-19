@@ -14,6 +14,8 @@ tools/bootstrap/build.ps1 text eol=lf
 native/fdm_jsbsim/interactive/native_identity.gd.in text eol=lf
 tests/world/wind/** text eol=lf
 tests/world/resident-airport/** text eol=lf
+native/world_core/grid/** text eol=lf
+tests/ground/grid/** text eol=lf
 third_party/licenses/notices/OriginalSynthetic-MIT.txt text eol=lf
 
 tools/export/** text eol=lf
@@ -74,3 +76,14 @@ tools/local-players/source-identity.py text eol=lf
 
 # Keep original cockpit generator provenance exact in Windows checkouts.
 assets_source/c172/original-prototype/generate_cockpit.py text eol=lf
+
+# Keep source-ingester and independent factual fixture bytes identical on Windows/Linux.
+tools/ingest/airports/** text eol=lf
+tests/airports/kawo/** text eol=lf
+
+# Preserve pure payload header and independent codec-source raw byte pins.
+native/world_core/grid/include/flight/ground/grid_payload.hpp text eol=lf
+tests/ground/grid/codec/** text eol=lf
+
+# Preserve exact dyadic admission reference source pins on both CI platforms.
+tests/ground/grid/exact-admission/** text eol=lf

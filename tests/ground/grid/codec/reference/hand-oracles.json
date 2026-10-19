@@ -1,0 +1,193 @@
+{
+  "kind": "independent-hand-derived-resident-grid-byte-oracles",
+  "version": 1,
+  "execution_status": "source only; fixture SHA256 is computed only by Root's future reviewed execution",
+  "bindings": {
+    "proposed_codec_contract": "docs/contracts/world/resident-grid-codec-v1.md",
+    "proposed_codec_sha256_lf": "060f267d64bb058059791c762db724d39f9c99d907926868d2f9c2634ffeb0e3",
+    "grid_contract": "docs/contracts/world/resident-grid-core-v1.md",
+    "grid_contract_sha256_lf": "9e4ef15be255624405b917efce41fbbb7333c89072d586d75a7cfa0d472197df",
+    "grid_header": "native/world_core/grid/include/flight/ground/prepared_grid.hpp",
+    "grid_header_sha256_lf": "7b7f7dee3875cf67d9df8057405fc729ec72da4570dfcd5f8a4dca755d6e96f3"
+  },
+  "format_conventions": {
+    "integer_and_ieee_word_byte_order": "little endian, without implicit alignment",
+    "raw_bits_not_decimal_reconstruction": "expected f32/f64 vectors below are exact unsigned IEEE words",
+    "offset_table_ranges": "start inclusive, byte_count exact; adjacent entries cover every byte once",
+    "polygons": "integer [east_mm,south_mm], implicit closure; preserve vector order",
+    "admission": "every rejection returns no Definition/provider; no prefix result or repair"
+  },
+  "shared_header_offsets": [
+    {"offset":0,"bytes":8,"field":"magic","hex":"464752444c453100"},
+    {"offset":8,"bytes":4,"field":"version","u32":1},
+    {"offset":12,"bytes":4,"field":"endian_marker","u32_hex":"01020304","wire_hex":"04030201"},
+    {"offset":16,"bytes":8,"field":"complete_payload_bytes","type":"u64"},
+    {"offset":24,"bytes":4,"field":"columns","type":"u32"},
+    {"offset":28,"bytes":4,"field":"rows","type":"u32"},
+    {"offset":32,"bytes":4,"field":"N","type":"u32"},
+    {"offset":36,"bytes":4,"field":"W","type":"u32"},
+    {"offset":40,"bytes":4,"field":"M","type":"u32"},
+    {"offset":44,"bytes":4,"field":"P","type":"u32"},
+    {"offset":48,"bytes":4,"field":"V","type":"u32"},
+    {"offset":52,"bytes":4,"field":"default_material_index","type":"u32"},
+    {"offset":56,"bytes":1,"field":"spacing","type":"u8"},
+    {"offset":57,"bytes":1,"field":"missing_vertices","type":"u8"},
+    {"offset":58,"bytes":2,"field":"reserved_u16","u16":0},
+    {"offset":60,"bytes":4,"field":"reserved_u32","u32":0},
+    {"offset":64,"bytes":8,"field":"anchor.latitude_rad","type":"f64 word"},
+    {"offset":72,"bytes":8,"field":"anchor.longitude_rad","type":"f64 word"},
+    {"offset":80,"bytes":8,"field":"anchor.ellipsoid_height_m","type":"f64 word"},
+    {"offset":88,"bytes":8,"field":"east_origin_m","type":"f64 word"},
+    {"offset":96,"bytes":8,"field":"south_origin_m","type":"f64 word"}
+  ],
+  "golden_a": {
+    "byte_count":195,
+    "hand_literal_blocks": [
+      {"offset":0,"hex":"464752444c4531000100000004030201c300000000000000"},
+      {"offset":24,"hex":"0300000002000000060000000100000001000000010000000300000000000000"},
+      {"offset":56,"hex":"0202000000000000"},
+      {"offset":64,"hex":"00000000000000000000000000000000000000000000594000000000000000c000000000000000c0"},
+      {"offset":104,"hex":"000000000000803f0000c07f000000000000803f0000c07f"},
+      {"offset":128,"hex":"1b00000000000000"},
+      {"offset":136,"hex":"056772617373000000000000e03f000000000000d03f"},
+      {"offset":158,"hex":"0370616400000000070300000018fcffff18fcffff18fcffffe8030000e803000018fcffff"}
+    ],
+    "header_values": {
+      "columns":3,"rows":2,"N":6,"W":1,"M":1,"P":1,"V":3,
+      "default_material_index":0,"spacing":2,"missing_vertices":2,
+      "anchor_f64_words_hex":["0000000000000000","0000000000000000","4059000000000000"],
+      "origin_f64_words_hex":["c000000000000000","c000000000000000"]
+    },
+    "body_offsets": [
+      {"offset":104,"bytes":4,"field":"up[0]","f32_word_hex":"00000000","wire_hex":"00000000"},
+      {"offset":108,"bytes":4,"field":"up[1]","f32_word_hex":"3f800000","wire_hex":"0000803f"},
+      {"offset":112,"bytes":4,"field":"up[2]","f32_word_hex":"7fc00000","wire_hex":"0000c07f"},
+      {"offset":116,"bytes":4,"field":"up[3]","f32_word_hex":"00000000","wire_hex":"00000000"},
+      {"offset":120,"bytes":4,"field":"up[4]","f32_word_hex":"3f800000","wire_hex":"0000803f"},
+      {"offset":124,"bytes":4,"field":"up[5]","f32_word_hex":"7fc00000","wire_hex":"0000c07f"},
+      {"offset":128,"bytes":8,"field":"valid_words[0]","u64_hex":"000000000000001b","wire_hex":"1b00000000000000"},
+      {"offset":136,"bytes":1,"field":"material[0].id_length","u8":5},
+      {"offset":137,"bytes":5,"field":"material[0].id","ascii":"grass","wire_hex":"6772617373"},
+      {"offset":142,"bytes":8,"field":"material[0].static_friction","f64_word_hex":"3fe0000000000000","wire_hex":"000000000000e03f"},
+      {"offset":150,"bytes":8,"field":"material[0].dynamic_friction","f64_word_hex":"3fd0000000000000","wire_hex":"000000000000d03f"},
+      {"offset":158,"bytes":1,"field":"polygon[0].id_length","u8":3},
+      {"offset":159,"bytes":3,"field":"polygon[0].id","ascii":"pad","wire_hex":"706164"},
+      {"offset":162,"bytes":4,"field":"polygon[0].material_index","u32":0},
+      {"offset":166,"bytes":1,"field":"polygon[0].priority","u8":7},
+      {"offset":167,"bytes":4,"field":"polygon[0].vertex_count","u32":3},
+      {"offset":171,"bytes":4,"field":"polygon[0].vertices[0].east_mm","i32":-1000,"wire_hex":"18fcffff"},
+      {"offset":175,"bytes":4,"field":"polygon[0].vertices[0].south_mm","i32":-1000,"wire_hex":"18fcffff"},
+      {"offset":179,"bytes":4,"field":"polygon[0].vertices[1].east_mm","i32":-1000,"wire_hex":"18fcffff"},
+      {"offset":183,"bytes":4,"field":"polygon[0].vertices[1].south_mm","i32":1000,"wire_hex":"e8030000"},
+      {"offset":187,"bytes":4,"field":"polygon[0].vertices[2].east_mm","i32":1000,"wire_hex":"e8030000"},
+      {"offset":191,"bytes":4,"field":"polygon[0].vertices[2].south_mm","i32":-1000,"wire_hex":"18fcffff"}
+    ],
+    "expected_decoded": {
+      "anchor_decimal_meanings":["+0","+0","100"],"origins_decimal_meanings":["-2","-2"],
+      "up_f32_words_hex":["00000000","3f800000","7fc00000","00000000","3f800000","7fc00000"],
+      "valid_words_hex":["000000000000001b"],"valid_vertex_indices":[0,1,3,4],
+      "missing_vertex_indices":[2,5],"ready_cell_indices":[0],"missing_cell_indices":[1],
+      "materials":[{"id":"grass","static_f64_word_hex":"3fe0000000000000","dynamic_f64_word_hex":"3fd0000000000000"}],
+      "polygons":[{"id":"pad","material_index":0,"priority":7,"vertices":[[-1000,-1000],[-1000,1000],[1000,-1000]],"signed_twice_area_mm2":"-4000000"}]
+    },
+    "length_proof":"104+4*6+8*1+(17+5)+(10+3+8*3)=195"
+  },
+  "signed_zero_b": {
+    "byte_count":146,
+    "hand_literal_blocks": [
+      {"offset":0,"hex":"464752444c45310001000000040302019200000000000000"},
+      {"offset":24,"hex":"0200000002000000040000000100000001000000000000000000000000000000"},
+      {"offset":56,"hex":"0200000000000000"},
+      {"offset":64,"hex":"000000000000008000000000000000800000000000000080000000000000008000000000000000c0"},
+      {"offset":104,"hex":"00000080000000000000008000000000"},
+      {"offset":120,"hex":"0f00000000000000"},
+      {"offset":128,"hex":"017a00000000000000800000000000000000"}
+    ],
+    "header_values": {
+      "columns":2,"rows":2,"N":4,"W":1,"M":1,"P":0,"V":0,
+      "default_material_index":0,"spacing":2,"missing_vertices":0,
+      "anchor_f64_words_hex":["8000000000000000","8000000000000000","8000000000000000"],
+      "origin_f64_words_hex":["8000000000000000","c000000000000000"]
+    },
+    "body_offsets": [
+      {"offset":104,"bytes":4,"field":"up[0]","f32_word_hex":"80000000","wire_hex":"00000080"},
+      {"offset":108,"bytes":4,"field":"up[1]","f32_word_hex":"00000000","wire_hex":"00000000"},
+      {"offset":112,"bytes":4,"field":"up[2]","f32_word_hex":"80000000","wire_hex":"00000080"},
+      {"offset":116,"bytes":4,"field":"up[3]","f32_word_hex":"00000000","wire_hex":"00000000"},
+      {"offset":120,"bytes":8,"field":"valid_words[0]","u64_hex":"000000000000000f","wire_hex":"0f00000000000000"},
+      {"offset":128,"bytes":1,"field":"material[0].id_length","u8":1},
+      {"offset":129,"bytes":1,"field":"material[0].id","ascii":"z","wire_hex":"7a"},
+      {"offset":130,"bytes":8,"field":"material[0].static_friction","f64_word_hex":"8000000000000000","wire_hex":"0000000000000080"},
+      {"offset":138,"bytes":8,"field":"material[0].dynamic_friction","f64_word_hex":"0000000000000000","wire_hex":"0000000000000000"}
+    ],
+    "expected_decoded": {
+      "up_f32_words_hex":["80000000","00000000","80000000","00000000"],
+      "valid_words_hex":["000000000000000f"],"materials":[{"id":"z","static_f64_word_hex":"8000000000000000","dynamic_f64_word_hex":"0000000000000000"}],"polygons":[],
+      "signed_zero_rule":"anchor, origin, heights and static friction retain their listed negative-zero raw words; do not normalize after numeric validation"
+    },
+    "length_proof":"104+4*4+8*1+(17+1)=146"
+  },
+  "mutation_rules": {
+    "base":"golden-a unless explicitly stated",
+    "single_mutation":"each listed replacement runs independently on original fixture; repeated values mean separate cases",
+    "pack_arity":"for one primitive format, values are separate replacements; for explicit repeated formats such as6I/2i/4I/2d, values are one argument tuple; patches combine their listed replacements into one case",
+    "pack_types":"all replacement words are little-endian; f32/f64 raw-word replacements use unsigned I/Q, numeric replacements explicitly say f32/f64",
+    "truncation":"for every k in0..194 inclusive, input is golden-a[0:k], with original header bytes unchanged; all195 prefixes reject",
+    "second_fixture_truncation":"for every k in0..145 inclusive, signed-zero-b[0:k] rejects",
+    "append":"append byte00 to golden-a, once with total195 unchanged and once with header total196; both reject",
+    "rejection_result":"std::invalid_argument and no returned Definition/provider; do not require one particular rejection-order diagnostic"
+  },
+  "reject_mutations": [
+    {"id":"magic","offset":0,"pack":"B","values":[71],"reason":"F becomes G"},
+    {"id":"version","offset":8,"pack":"I","values":[0,2,4294967295]},
+    {"id":"swapped-marker","offset":12,"raw_hex":"01020304","reason":"wrong marker, no endian repair"},
+    {"id":"total","offset":16,"pack":"Q","values":[0,104,194,196,18446744073709551615]},
+    {"id":"columns","offset":24,"pack":"I","values":[0,1,8194,4294967295]},
+    {"id":"rows","offset":28,"pack":"I","values":[0,1,8194,4294967295]},
+    {"id":"big-endian-column-data","offset":24,"raw_hex":"00000003","reason":"literal LE column count50331648 is invalid; do not infer BE from data"},
+    {"id":"N","offset":32,"pack":"I","values":[0,5,7,4294967295]},
+    {"id":"W","offset":36,"pack":"I","values":[0,2,4294967295]},
+    {"id":"M","offset":40,"pack":"I","values":[0,33,4294967295]},
+    {"id":"P","offset":44,"pack":"I","values":[129,4294967295]},
+    {"id":"V","offset":48,"pack":"I","values":[2,4,4097,4294967295]},
+    {"id":"default-index","offset":52,"pack":"I","values":[1,4294967295]},
+    {"id":"spacing","offset":56,"pack":"B","values":[0,3,255]},
+    {"id":"missing-enum","offset":57,"pack":"B","values":[3,255]},
+    {"id":"reserved16","offset":58,"pack":"H","values":[1,65535]},
+    {"id":"reserved32","offset":60,"pack":"I","values":[1,4294967295]},
+    {"id":"anchor-nonfinite","offset":64,"raw_u64_hex":["7ff8000000000000","7ff0000000000000","fff0000000000000"]},
+    {"id":"anchor-height-range","offset":80,"pack":"d","values":[-501,10001]},
+    {"id":"origin-quantum","offset":88,"raw_u64_hex":["3fb999999999999a"],"reason":"binary64 0.1 is not an exact2^-32m multiple"},
+    {"id":"origin-endpoint-range","offset":88,"pack":"d","values":[8192],"reason":"last east endpoint8196 exceeds8192"},
+    {"id":"valid-height-nonfinite","offset":104,"raw_u32_hex":["7fc00000","7f800000","ff800000"]},
+    {"id":"valid-height-range","offset":108,"raw_u32_hex":["45800001"],"reason":"valid height exceeds4096"},
+    {"id":"gradient","offset":108,"raw_u32_hex":["42000001"],"reason":"height32+2^-18 over2m has east gradient16+2^-19, strictly over16; full facet gradient norm is larger still"},
+    {"id":"invalid-sentinel","offset":112,"raw_u32_hex":["7fc00001","ffc00000","7fa00000","00000000","7f800000"]},
+    {"id":"mark-sentinel-valid","offset":128,"pack":"Q","values":[31],"reason":"bit2 now marks NaN valid"},
+    {"id":"validity-padding","offset":128,"pack":"Q","values":[91],"reason":"bit6 above six vertices is nonzero"},
+    {"id":"all-invalid","patches":[{"offset":104,"pack":"6I","values":[2143289344,2143289344,2143289344,2143289344,2143289344,2143289344]},{"offset":128,"pack":"Q","values":[0]}],"reason":"no four-valid-vertex cell"},
+    {"id":"span","patches":[{"offset":104,"pack":"f","values":[-1000]},{"offset":120,"pack":"f","values":[1048]}],"reason":"Y span2048 plus1/32 bracket margin exceeds2048; gradient also fails, so do not claim isolated branch coverage"},
+    {"id":"material-id-length","offset":136,"pack":"B","values":[0,129,255]},
+    {"id":"material-id-grammar","offset":137,"pack":"B","values":[0,71,128]},
+    {"id":"material-id-terminal-separator","offset":141,"pack":"B","values":[45]},
+    {"id":"friction-nonfinite","offset":142,"raw_u64_hex":["7ff8000000000000","7ff0000000000000"]},
+    {"id":"friction-order","offset":150,"pack":"d","values":[-0.25,0.75,6]},
+    {"id":"polygon-id-length","offset":158,"pack":"B","values":[0,129,255]},
+    {"id":"polygon-id-grammar","offset":159,"pack":"B","values":[0,80,128]},
+    {"id":"polygon-index","offset":162,"pack":"I","values":[1,4294967295]},
+    {"id":"polygon-count","offset":167,"pack":"I","values":[0,2,4097,4294967295]},
+    {"id":"point-range","offset":171,"pack":"i","values":[-8192001,8192001]},
+    {"id":"duplicate-point","offset":179,"pack":"2i","values":[-1000,-1000]},
+    {"id":"reverse-winding","offset":179,"pack":"4i","values":[1000,-1000,-1000,1000],"reason":"swap points1/2; positive area"}
+  ],
+  "accept_mutations": [
+    {"id":"former-cap-two-uniform-east-plane-now-admitted","patches":[{"offset":108,"raw_u32_hex":["40800001"]},{"offset":120,"raw_u32_hex":["40800001"]}],"expected_up_f32_words_hex":["00000000","40800001","7fc00000","00000000","40800001","7fc00000"],"reason":"both valid east heights are4+2^-21; each left-cell facet has east gradient2+2^-22 and south gradient0, admitted under16; retaining cap2 must fail this test"},
+    {"id":"all-u8-priorities-are-valid","offset":166,"pack":"B","values":[0,255],"expected":"unchanged Definition except exact priority; do not impose prototype UI restrictions"},
+    {"id":"literal-swapped-height-is-different-data","offset":108,"raw_hex":"3f800000","expected_up1_f32_word_hex":"0000803f","reason":"this LE subnormal height is valid and still satisfies gradients; accept literal bits, never byteswap-repair to1"}
+  ],
+  "large_count_boundary_specs": [
+    {"id":"maximum-dimensions-short-body","patches":[{"offset":24,"pack":"4I","values":[8193,8193,67125249,1048833]},{"offset":88,"pack":"2d","values":[-8192,-8192]}],"expected":"reject before allocating height/validity vectors because remaining195-byte input cannot contain exact declared body; dimensions, derived counts and origin/endpoints individually legal"},
+    {"id":"max-structural-size-formula","maximum_bytes":276946836,"proof":"104+4*67125249+8*1048833+32*(17+128)+128*(10+128)+8*4096","scope":"hand size boundary only, not a generated large accepted payload or allocation pass"},
+    {"id":"input-size-over-cap","actual_input_bytes":276946837,"expected":"reject before parsing/allocation","scope":"future resource-bounded harness only; this small producer does not allocate it and must not fabricate a span over absent storage"}
+  ]
+}

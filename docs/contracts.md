@@ -1,9 +1,18 @@
 # Core contracts v1
 
-The proposed [KAWO source interchange](contracts/world/airport-source-v1.md) and
+The checked [KAWO source interchange](contracts/world/airport-source-v1.md) from PR245 and
 [ADR028](decisions/028-kawo-source-and-resident-environment.md), partial [#243](https://github.com/brettbergin/flight-simulator/issues/243),
-define closed source-dossier/airport records and offline byte validation. They
+define closed source-dossier/airport records and offline byte validation. These
 preserve unknown datums and do not amend the native world or admit terrain consumers.
+
+The separate proposed [resident-grid core](contracts/world/resident-grid-core-v1.md)
+freezes a small immutable native SurfaceProvider, exact triangle/material ownership
+and bounded readiness. Its [independent reference evidence](evidence/P4/resident-grid-core-reference.md)
+precedes component implementation. It admits no file format, datum conversion,
+flight start, renderer or history consumer and leaves #243 open.
+The companion [offline terrain-tool lock](contracts/world/terrain-tools-v1.md)
+pins the acquired authoring dependencies before bootstrap consumers. It selects
+no datum transformation or terrain codec and adds no gameplay dependency.
 
 P1 CORE-CONTRACTS [#11](https://github.com/brettbergin/flight-simulator/issues/11) supplies executable engine-independent interfaces. The checked-in [schema registry](../schemas/registry.json), [native headers](../native/sim_core/contracts/include/flight/contracts/boundaries.hpp) and [original fixture manifest](../tests/contracts/fixtures/manifest.json) define v1. These interfaces support PRD-001, PRD-002, PRD-007 and PRD-034. They do not implement flight dynamics, establish C172S fidelity or prove restoration; later phase gates require measured integration evidence.
 
@@ -231,3 +240,11 @@ The proposed [bounded logical fault amendment](contracts/local-players/test-capa
 ## Proposed local-player frontend integration
 
 The [frontend integration v1 contract](contracts/local-players/frontend-integration-v1.md) freezes internal controller/page/Scene ownership and signatures for [#220](https://github.com/brettbergin/flight-simulator/issues/220): guarded widget routing, exact option adoption/Save, joined flight exit and source-bound practice/archive routing. It requires checked contract acceptance and checked [#219 backend](evidence/P3/local-players-store.md) before consumers. Native APIs, durable records, schema, source authority and the mandatory combined package/UI/relaunch/install exits remain unchanged; this publication is not journey implementation or acceptance.
+
+## Proposed resident-grid payload byte seam
+
+The [payload contract](contracts/world/resident-grid-codec-v1.md) and [independent byte evidence](evidence/P4/resident-grid-codec-reference.md) freeze exact little-endian Definition encoding, pure native decode API, signed-bit preservation and complete rejection expectations before consumers. Checked merge permits standalone native decoding and a separately reviewed standalone Godot byte reader; no compiler, file/world/start/history or gameplay admission is added.
+
+## Proposed original regional art study
+
+The [original evergreen brief](contracts/world/original-evergreens-v1.md) freezes six opaque original tree exports, SI/foot-pivot conventions, exact material/node roster and independent GLB/import/visual evidence before generation. It consumes the existing pinned Blender/Godot pipeline without expanding the closed historical proof/cockpit inventories. Checked brief plus independent fixtures precede the isolated art leaf; no current-world resource, placement, native collision or runtime LOD follows.

@@ -7859,7 +7859,12 @@
         "tools/ingest/airports/source-contract.mjs",
         "tests/world/resident-airport/",
         ".github/workflows/foundation-ci.yml",
-        "docs/decisions/028-kawo-source-and-resident-environment.md"
+        "docs/decisions/028-kawo-source-and-resident-environment.md",
+        "native/world_core/grid/include/flight/ground/prepared_grid.hpp",
+        "tests/ground/grid/reference/",
+        "tools/ingest/terrain/tools-v1.lock.json",
+        "native/world_core/grid/include/flight/ground/grid_payload.hpp",
+        "tests/ground/grid/codec/reference/"
       ],
       "docs": [
         "docs/README.md",
@@ -7869,7 +7874,13 @@
         "docs/agent-operations.md",
         "docs/evidence/P4/kawo-source-discovery.md",
         "docs/decisions/028-kawo-source-and-resident-environment.md",
-        "docs/contracts/world/airport-source-v1.md"
+        "docs/contracts/world/airport-source-v1.md",
+        "docs/contracts/world/resident-grid-core-v1.md",
+        "docs/evidence/P4/resident-grid-core-reference.md",
+        "docs/contracts/world/terrain-tools-v1.md",
+        "docs/contracts/world/resident-grid-codec-v1.md",
+        "docs/evidence/P4/resident-grid-codec-reference.md",
+        "docs/contracts/world/original-evergreens-v1.md"
       ],
       "requirements": [
         "WORLD-001",
@@ -7890,6 +7901,10 @@
       ],
       "acceptance": [
         "Checked source-dossier and normalized-airport closed schemas preserve dated provenance, unknown/conflicting fields, physical/displaced ends and true/magnetic distinctions. Ingestion waits for accepted schema.",
+        "Checked immutable resident-grid typed contract and independent frozen geometry references precede standalone native component work. Exact triangle/edge/material semantics and separate point/rectangle budgets admit no file compiler, datum, flight/start, renderer or history consumer.",
+        "Checked offline terrain-tool pins bind retained Windows Python, exact wheels, embedded PROJ/database and acquired GEOID18 before tool consumers; selected coordinate operations, source accuracy, codec and runtime admission require separate evidence.",
+        "Checked exact resident-grid byte contract/header and independently constructed literal fixtures precede standalone native decode and separately reviewed standalone Godot reader. Preserve raw numeric bits, strict counts/size/core semantics; no compiler, file/world/start/history or gameplay admission follows.",
+        "A separately scoped complete original-evergreen brief fixes source/export/import/visual rules before its independent checker and authoring leaf; existing proof/cockpit inventories and current world/physics/placement stay unchanged.",
         "Freeze exact resident payload, interpolation/normal/material/seam/coverage and bounded readiness behavior with independently derived fixtures. The same geometry drives native contact and rendering; no infinite plane or LOD-owned physics.",
         "Pin datum/realization/epoch/geoid/transform/uncertainty and independent samples before geographic admission; chart MSL is not ellipsoid height.",
         "Freeze exact world/start/native/facade/history compatibility and preserve old synthetic worlds/files. No in-flight world replacement.",
@@ -7898,6 +7913,70 @@
       ],
       "evidence": [
         "Reviewed exact-source schema/fixtures and metadata hashes; separate complete physical/runtime contract evidence; no airport or phase acceptance from source discovery."
+      ]
+    },
+    {
+      "key": "KAWO-NASR-SOURCE",
+      "title": "Normalize the pinned FAA KAWO source records",
+      "kind": "task",
+      "phase": "P4",
+      "parent": "EPIC-P4",
+      "summary": "Bounded source-ingestion child of WORLD-PROVENANCE and REGIONAL-AIRPORTS after the accepted PR245 source schema. Produce draft metadata only; terrain, datum, runtime and parent phase gates remain open.",
+      "depends_on": [
+        "CORE-CONTRACTS",
+        "LICENSE-REGISTER"
+      ],
+      "labels": [
+        "type:task",
+        "phase:P4",
+        "area:world",
+        "priority:P1",
+        "status:in-progress"
+      ],
+      "owned_paths": [
+        "tools/ingest/airports/kawo_nasr_v1.py",
+        "tools/ingest/airports/validate-kawo-output.mjs",
+        "tools/ingest/airports/README-kawo-nasr-v1.md",
+        "tests/airports/kawo/test_kawo_nasr_v1.py",
+        "tests/airports/kawo/fixtures/expected-source-facts.json",
+        "tests/airports/kawo/fixtures/README.md",
+        "docs/evidence/P4/kawo-source-ingestion.md",
+        "docs/evidence/P4/kawo-source-ingestion-run-v1.json",
+        "docs/evidence/P4/kawo-source-input-dossier-v1.json",
+        ".gitattributes",
+        ".github/workflows/foundation-ci.yml",
+        "docs/backlog.json",
+        "docs/issue-index.md",
+        "docs/requirements.md",
+        "docs/phases/p4-region-and-weather.md"
+      ],
+      "docs": [
+        "docs/README.md",
+        "docs/roadmap.md",
+        "docs/world-and-data.md",
+        "docs/contracts/world/airport-source-v1.md",
+        "docs/decisions/028-kawo-source-and-resident-environment.md",
+        "docs/evidence/P4/kawo-source-discovery.md"
+      ],
+      "requirements": [
+        "WORLD-002",
+        "WORLD-003",
+        "WORLD-004",
+        "WORLD-007",
+        "WORLD-008",
+        "WORLD-009",
+        "WORLD-011"
+      ],
+      "acceptance": [
+        "Consume accepted source contract PR245, preserving its exact schemas/validator and broader issue243 gates; reject an archive other than the fixed FAA 2026-10-01 hash/size/cycle.",
+        "Bound offline standard-library ZIP/CSV parsing, exact consumed columns and target identity joins; retain exactly one airport, two paved runways and four physical ends; reject malformed, duplicate, inconsistent and excessive inputs.",
+        "Convert feet using exact Decimal 0.3048 before JSON numbers; retain original values, units and record locators. Preserve generic NAD83/null realization/epoch, MSL-unspecified elevations, unknown thresholds/displacements/distances/gradient and true-heading/designator distinctions.",
+        "Keep caller dossier bytes and honest captured/pending/draft state. Validate exact output with accepted validateSourcePair separately; no invented rights review or geographic acceptance.",
+        "Compare actual pinned source output against unchanged pre-ingester independent facts; repeated offline output bytes are identical, existing output refuses overwrite, and synthetic defects do not relax production pins.",
+        "Keep large raw products/contact rows outside Git; retain focused tests, actual source/tool/output evidence, docs checks and exact-head CI. No terrain/world/runtime admission, WORLD016 accuracy or parent closure is implied."
+      ],
+      "evidence": [
+        "Focused synthetic parser/mapping results, separately supplied actual-archive independent comparison and repeated output hashes, accepted pair-validator receipt, source identities and checked CI; source consistency only."
       ]
     }
   ]

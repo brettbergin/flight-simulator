@@ -1,5 +1,13 @@
 # Flight simulator project plan
 
+The proposed [resident-grid core and independent references](evidence/P4/resident-grid-core-reference.md)
+prepare matching physical/render terrain under #243. This component contract does
+not yet add a geographic airport to the playable simulator.
+
+The [independent payload byte references](evidence/P4/resident-grid-codec-reference.md)
+prepare a shared native/Godot reader seam. The [KAWO source ingester](evidence/P4/kawo-source-ingestion.md)
+separately passed actual pinned FAA-source comparisons; neither is gameplay terrain.
+
 This is a serious Windows desktop flight simulator for realistic Cessna flying, thoughtful practice, and enjoyment by an experienced pilot. The first delivery establishes the implementation plan and GitHub work queue. The owner approved the plan and authorized implementation on 2026-10-03; see [P0 acceptance](evidence/P0/acceptance.md). P1 now establishes executable contracts, native flight dynamics and Windows delivery proofs. A playable simulator requires the subsequent cockpit and flight-operation phases.
 
 ## Decisions made for this project
@@ -135,5 +143,7 @@ The proposed [remaining-row qualification amendment](contracts/local-players/tes
 
 
 The proposed [bounded logical fault amendment](contracts/local-players/test-capability-v1.md#proposed-bounded-logical-fault-evidence-amendment) permits one explicitly synthetic selected export-flush stage refusal alongside two already permitted actual SQLite interruption cases. Its [scheduler](contracts/local-players/test-scheduler-v1.md#proposed-bounded-logical-fault-qualification) and [allocation](contracts/local-players/compiled-source-allocation-v1.json) preserve fixed rosters, production receipts and hard limits. Checked merge/adoption and fresh qualification precede bounded #219 logical-error evidence; physical rollback, observed OS flush failure, disk-full and power-loss durability remain permanently unclaimed. The fixed-row consumer qualification, #220 installed journey and broader phase gates remain separate.
+
+The proposed [original evergreen study](contracts/world/original-evergreens-v1.md) prepares varied regional tree silhouettes through the existing pinned art tools. Checked brief and independent fixtures precede authoring; no current airport resources or tree placement change here.
 
 The [first integrated Players menu](evidence/P3/local-players-frontend.md) has passed local actual-flight, storage/relaunch and three-size keyboard/image checks. It connects player choice and explicit settings Save while preserving flight authority. This is partial #220; a qualified named-player release, complete history/export/recovery journeys and installed-user acceptance remain open.

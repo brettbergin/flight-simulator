@@ -29,3 +29,18 @@ certify operational data or close #243. Future leaves need distinct ownership,
 independent geometry/datum expectations and full integrated circuit/delivery
 evidence. Source records labelled cross-checked establish metadata consistency,
 not survey accuracy, aircraft fidelity or pilot acceptance.
+
+The next bounded seam is the [immutable resident-grid core](../contracts/world/resident-grid-core-v1.md).
+After its checked acceptance and independently frozen numerical references, a
+standalone native component may implement that provider and its headless tests.
+This intentionally precedes the file codec/compiler and geographic/runtime
+admission seams: those consumers still wait for their own complete contracts.
+Exact cells, triangles, material classification, missing support and pure rectangle
+coverage are fixed here; a rectangle query supplies no native motion theorem.
+The separate [offline tool pins](../contracts/world/terrain-tools-v1.md) permit a
+local authoring bootstrap only after checked acceptance. They do not choose a
+geographic transform or expand native/runtime packaging.
+
+The separate [resident payload byte contract](../contracts/world/resident-grid-codec-v1.md), checked with its independent literal references, permits standalone decoding and a separately reviewed standalone Godot reader only. It serializes the same Definition without introducing world/file/start admission. This completes the bounded byte seam before consumers; compiler/datum and runtime integration still require their own contracts.
+
+The independently scoped [original evergreen art brief](../contracts/world/original-evergreens-v1.md) fixes a six-export source study before authoring/import. It can progress separately from terrain math after checked acceptance and independent checker fixtures. Actual source/GLB/visual acceptance and later geographic placement remain separate; trees establish no obstacle coverage or botanical survey accuracy.

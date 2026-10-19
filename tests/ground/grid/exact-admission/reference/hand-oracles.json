@@ -1,0 +1,91 @@
+{
+  "kind": "independent-synthetic-exact-admission-oracles",
+  "version": 1,
+  "execution_status": "source only; Root must review/execute/freeze before implementation",
+  "bindings": {
+    "core_doc": "docs/contracts/world/resident-grid-core-v1.md",
+    "reference_core_doc_sha256_lf": "9e4ef15be255624405b917efce41fbbb7333c89072d586d75a7cfa0d472197df",
+    "core_header": "native/world_core/grid/include/flight/ground/prepared_grid.hpp",
+    "reference_core_header_sha256_lf": "7b7f7dee3875cf67d9df8057405fc729ec72da4570dfcd5f8a4dca755d6e96f3",
+    "binding_review": "Root must confirm the current proposed core epoch before qualification; existing frozen references are not modified"
+  },
+  "shared": {
+    "max_gradient_norm": "16",
+    "max_gradient_norm_squared": "256",
+    "bracket_margin_m": "1/64",
+    "max_bracket_span_m": "2048",
+    "anchor_latitude_rad": "0",
+    "anchor_longitude_rad": "0",
+    "anchor_ellipsoid_height_m": "100",
+    "material": {"id":"synthetic-exact-admission","static_friction":"0.75","dynamic_friction":"0.5"},
+    "default_material_index": 0,
+    "polygons": [],
+    "identity": "existing valid synthetic Identity fixture, nonzero generation; no real source/datum or cryptographic truth claim",
+    "exactness": "raw binary32 heights are mathematical dyadic values; gradient and span predicates compare exact values before output rounding",
+    "notation": "epsilon=2^-149, the smallest positive binary32 subnormal; negative epsilon raw word80000001"
+  },
+  "gradient": {
+    "grid_origin_east_south_m": ["-1","-1"],
+    "spacing_m": 2,
+    "columns": 2,
+    "rows": 2,
+    "valid_words_hex": ["000000000000000f"],
+    "control": {
+      "up_f32_words_hex": ["00000000","42000000","00000000","42000000"],
+      "up_exact_m": ["0","32","0","32"],
+      "expected": "prepare accepts",
+      "triangle0": {"p_dY_dX":"16","q_dY_dZ":"0","norm_squared":"256"},
+      "triangle1": {"p_dY_dX":"16","q_dY_dZ":"0","norm_squared":"256"},
+      "same_anchor_query": {"ellipsoid_surface_height_m":"116","normal_ned_numerators":[0,-16,-1],"normal_denominator_sqrt":257}
+    },
+    "negative_subnormal": {
+      "up_f32_words_hex": ["80000001","42000000","00000000","42000000"],
+      "up_exact_m": ["-epsilon","32","0","32"],
+      "expected": "prepare rejects; no usable provider returned",
+      "triangle0": {"p_dY_dX":"16","q_dY_dZ":"epsilon/2=2^-150","norm_squared":"256+2^-300","excess_over_256":"2^-300"},
+      "triangle1": {"p_dY_dX":"16+epsilon/2=16+2^-150","q_dY_dZ":"0","norm_squared":"256+2^-145+2^-300","excess_over_256":"2^-145+2^-300"},
+      "independent_plane_derivation":"triangle0 uses P00,P01,P11: q=(0-(-epsilon))/2 and p=(32-0)/2. Triangle1 uses P00,P11,P10: p=(32-(-epsilon))/2 and q=(32-32)/2.",
+      "binary64_failure_witness":"32-(-epsilon) rounds to32; 16^2+(2^-150)^2 rounds to256. Naive double subtraction/squared-norm comparison can therefore admit both forbidden facets. No tolerance may erase exact positive excess."
+    }
+  },
+  "span": {
+    "grid_origin_east_south_m": ["-1024","0"],
+    "spacing_m": 4,
+    "columns": 513,
+    "rows": 2,
+    "vertex_count": 1026,
+    "valid_words": {"word_count":17,"first_16_words_hex":"ffffffffffffffff","last_word_hex":"0000000000000003","all_vertices_valid":true},
+    "control": {
+      "row_height_rule":"for column i=0..511 inclusive, y[i]=4*i; column512 y=2047.96875; repeat identical row twice",
+      "last_height_f32_word_hex":"44ffff00",
+      "last_height_exact_m":"2048-1/32=2047.96875",
+      "minimum_exact_m":"0",
+      "maximum_exact_m":"2048-1/32",
+      "bracket_span_exact_m":"(2048-1/32)-0+2*(1/64)=2048",
+      "facet_gradients":"q=0 in every cell; p=1 for columns0..510 and p=127/128 in last cell511",
+      "expected":"prepare accepts; exact span equality is included"
+    },
+    "negative_subnormal": {
+      "replace_vertex_indices":[0,513],
+      "replacement_f32_word_hex":"80000001",
+      "minimum_exact_m":"-epsilon",
+      "maximum_exact_m":"2048-1/32",
+      "bracket_span_exact_m":"2048+epsilon=2048+2^-149",
+      "facet_gradients":"q=0; first cell p=1+epsilon/4=1+2^-151; remaining p=1 except last p=127/128; every norm strictly below16",
+      "expected":"prepare rejects solely for exact span among these numeric admission predicates; no usable provider returned",
+      "binary64_failure_witness":"Ymin-1/64 rounds to-1/64, Ymax+1/64 is exact, and the binary64 difference rounds to2048. Using a rounded bracket loses epsilon."
+    },
+    "same_anchor_query_for_control": {
+      "latitude_rad":"0","longitude_rad":"0",
+      "repeat_requested_ellipsoid_heights_m":["-50","25","1000"],
+      "root_east_south_m":["0","0"],
+      "owner":"column256,row0,triangle0: exact internal east grid line and included outer south minimum",
+      "canonical_surface_up_m":"1024",
+      "ellipsoid_surface_height_m":"1124",
+      "normal_ned_numerators":[0,-1,-1],
+      "normal_denominator_sqrt":2,
+      "proof":"matching angular query is (X,Y,Z)=(0,h-100,0); y[256]=1024, and owning cell256 has p1,q0. Thus h1124 and upward EUS(-1,1,0)/sqrt2 rotates to NED(0,-1,-1)/sqrt2."
+    }
+  },
+  "scope": "more discriminating exact admission before implementation; no new ABI, payload, geodetic acceptance, output tolerance or geographic source claim"
+}

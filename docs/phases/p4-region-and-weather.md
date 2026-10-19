@@ -2,6 +2,16 @@
 
 Generated from [roadmap](../roadmap.md) and [backlog](../backlog.json). Consult the [issue index](../issue-index.md) for actual GitHub links.
 
+Small resident-grid component, standalone byte-decoder/reader and offline-tool
+bootstrap leaves may proceed after their own complete checked contracts and
+independent references, while #243's geographic compiler/datum/start/runtime
+seams remain open. Source ingestion
+likewise consumes only its accepted source schema. These bounded leaves do not
+admit a geographic world to flight or waive the integrated phase gates.
+A separate original evergreen art study may author/export and verify its fixed six
+GLBs only after its complete checked brief and independent checker fixtures; it
+adds no current-world placement, physics, runtime LOD or geographic acceptance.
+
 **Bounded owner priority (2026-10-18):** after completing the Players flight-menu UI checks, advance the first KAWO daytime airport/environment slice through [#243](https://github.com/brettbergin/flight-simulator/issues/243). First accept source normalization, then the complete datum/resident contact/render/start contract and bounded leaves. This allocation preserves the existing P3/P4 parent dependencies and review gates; it does not admit geographic consumers or close those phases. The [source discovery](https://github.com/brettbergin/flight-simulator/blob/main/docs/evidence/P4/kawo-source-discovery.md) retains actual acquired inputs and unresolved registration.
 
 **Outcome:** a planned regional flight demands navigation, weather/load judgment, and a credible arrival or diversion.
@@ -32,7 +42,8 @@ Generated from [roadmap](../roadmap.md) and [backlog](../backlog.json). Consult 
 | [GUSTS-TURBULENCE](https://github.com/brettbergin/flight-simulator/issues/45) — Implement reproducible spatial gusts, turbulence and bounded shear | weather | EPIC-P3, WEATHER-PROFILES, FDM-HARNESS | `native/sim_core/weather/turbulence/`, `tests/weather/turbulence/` |
 | [LIGHT-VISIBILITY](https://github.com/brettbergin/flight-simulator/issues/46) — Implement daylight/night, clouds, visibility and airport lighting | weather | EPIC-P3, TERRAIN-STREAMING, WEATHER-PROFILES, RENDER-PROOF | `app/world/sky/`, `app/world/lighting/`, `tests/render/` |
 | [REGIONAL-FLIGHT](https://github.com/brettbergin/flight-simulator/issues/47) — Validate offline regional cross-country, diversion and return | validation | EPIC-P3, REGIONAL-AIRPORTS, MAP-ROUTES, GUSTS-TURBULENCE, LIGHT-VISIBILITY | `content/scenarios/regional/`, `tests/scenarios/regional/`, `docs/evidence/P4/` |
-| [WORLD-RESIDENT-CONTRACT](https://github.com/brettbergin/flight-simulator/issues/243) — Define the first KAWO geographic airport and physical terrain contract | world | CORE-CONTRACTS, LICENSE-REGISTER, GROUND-PROOF, SIM-LOOP-CONTRACT | `docs/contracts/world/`, `schemas/world/resident-airport/v1/`, `tests/world/reference/`, `docs/evidence/P4/`, `docs/roadmap.md`, `docs/backlog.json`, `docs/issue-index.md`, `docs/requirements.md`, `tools/ingest/airports/source-contract.mjs`, `tests/world/resident-airport/`, `.github/workflows/foundation-ci.yml`, `docs/decisions/028-kawo-source-and-resident-environment.md` |
+| [WORLD-RESIDENT-CONTRACT](https://github.com/brettbergin/flight-simulator/issues/243) — Define the first KAWO geographic airport and physical terrain contract | world | CORE-CONTRACTS, LICENSE-REGISTER, GROUND-PROOF, SIM-LOOP-CONTRACT | `docs/contracts/world/`, `schemas/world/resident-airport/v1/`, `tests/world/reference/`, `docs/evidence/P4/`, `docs/roadmap.md`, `docs/backlog.json`, `docs/issue-index.md`, `docs/requirements.md`, `tools/ingest/airports/source-contract.mjs`, `tests/world/resident-airport/`, `.github/workflows/foundation-ci.yml`, `docs/decisions/028-kawo-source-and-resident-environment.md`, `native/world_core/grid/include/flight/ground/prepared_grid.hpp`, `tests/ground/grid/reference/`, `tools/ingest/terrain/tools-v1.lock.json`, `native/world_core/grid/include/flight/ground/grid_payload.hpp`, `tests/ground/grid/codec/reference/` |
+| [KAWO-NASR-SOURCE](https://github.com/brettbergin/flight-simulator/issues/247) — Normalize the pinned FAA KAWO source records | world | CORE-CONTRACTS, LICENSE-REGISTER | `tools/ingest/airports/kawo_nasr_v1.py`, `tools/ingest/airports/validate-kawo-output.mjs`, `tools/ingest/airports/README-kawo-nasr-v1.md`, `tests/airports/kawo/test_kawo_nasr_v1.py`, `tests/airports/kawo/fixtures/expected-source-facts.json`, `tests/airports/kawo/fixtures/README.md`, `docs/evidence/P4/kawo-source-ingestion.md`, `docs/evidence/P4/kawo-source-ingestion-run-v1.json`, `docs/evidence/P4/kawo-source-input-dossier-v1.json`, `.gitattributes`, `.github/workflows/foundation-ci.yml`, `docs/backlog.json`, `docs/issue-index.md`, `docs/requirements.md`, `docs/phases/p4-region-and-weather.md` |
 
 ## Agent handoff
 

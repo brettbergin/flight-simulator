@@ -1,0 +1,34 @@
+{
+  "schema": "AirportSourceDossier/v1",
+  "airport_icao": "KAWO",
+  "purpose": "source-record",
+  "as_of_utc": "2026-10-19T02:54:21Z",
+  "sources": [
+    {
+      "id": "faa.nasr.2026-10-01",
+      "kind": "faa-nasr",
+      "publisher": "Federal Aviation Administration",
+      "url": "https://nfdc.faa.gov/webContent/28DaySub/extra/01_Oct_2026_APT_CSV.zip",
+      "retrieved_utc": "2026-10-19T01:38:19Z",
+      "effective_from": "2026-10-01T00:00:00Z",
+      "effective_until": null,
+      "capture_state": "captured",
+      "artifact": {
+        "sha256": "aba48ea877f249d9b8cd63988b14b3432a6a09ad1fbe9561a5e6443c99c03dd0",
+        "bytes": 8030968,
+        "relative_path": null
+      },
+      "rights": {
+        "status": "pending",
+        "license": null,
+        "notice": "Source facts captured for engineering comparison; redistribution/packaging review remains pending.",
+        "reviewed_utc": null
+      },
+      "note": "Actual retrieval receipt UTC is 2026-10-19T01:38:19.8371192Z, truncated to whole seconds for this schema. Raw archive retained externally. Source consistency is not operational or geographic validation."
+    }
+  ],
+  "conflicts": [],
+  "notes": [
+    "Paved NASR subset only. No terrain, canonical coordinates or operational world admission."
+  ]
+}
