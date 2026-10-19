@@ -147,3 +147,8 @@ The proposed [bounded logical fault amendment](contracts/local-players/test-capa
 The proposed [original evergreen study](contracts/world/original-evergreens-v1.md) prepares varied regional tree silhouettes through the existing pinned art tools. Checked brief and independent fixtures precede authoring; no current airport resources or tree placement change here.
 
 The [first integrated Players menu](evidence/P3/local-players-frontend.md) has passed local actual-flight, storage/relaunch and three-size keyboard/image checks. It connects player choice and explicit settings Save while preserving flight authority. This is partial #220; a qualified named-player release, complete history/export/recovery journeys and installed-user acceptance remain open.
+
+The [standalone resident-grid implementation](evidence/P4/resident-grid-component.md)
+has passed Windows native geometry, byte decoding, private arithmetic and existing
+ground-interface tests. It is a prerequisite for the airport environment; actual
+geographic compilation, runtime/render adoption and installed delivery remain separate.

@@ -157,6 +157,9 @@ jobs:
       - name: Verify unchanged source/tool receipts after build
         if: steps.scope.outputs.docs_only != 'true'
         run: python tools/bootstrap/bootstrap.py --offline --with-godot
+      - name: Qualify isolated resident-grid provider and payload decoder
+        if: steps.scope.outputs.docs_only != 'true'
+        run: ./tools/ci/resident-grid.ps1
       - name: Check synthetic schema3 source provenance and invalid packages
         if: steps.scope.outputs.docs_only != 'true'
         run: |
@@ -374,6 +377,12 @@ jobs:
           if-no-files-found: error
           path: |
             .local/native-ci-scope/receipt.json
+            .local/resident-grid-ci/configure.log
+            .local/resident-grid-ci/build.log
+            .local/resident-grid-ci/ctest.log
+            .local/resident-grid-ci/CMakeCache.txt
+            .local/resident-grid-ci/compile_commands.json
+            .local/resident-grid-ci/Testing/Temporary/LastTest.log
             .local/source-coupled-midpoint-ci/run-receipt.json
             .local/build/native-release/toolchain-build-manifest.txt
             .local/build/native-release/native-identity.gd
