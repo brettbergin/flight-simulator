@@ -87,3 +87,9 @@ tests/ground/grid/codec/** text eol=lf
 
 # Preserve exact dyadic admission reference source pins on both CI platforms.
 tests/ground/grid/exact-admission/** text eol=lf
+
+# Preserve original evergreen authoring and verification source identities.
+assets_source/environment/original-evergreens-v1/*.py text eol=lf
+tools/benchmark/pipeline/environment_trees/** text eol=lf
+assets_source/environment/original-evergreens-v1/*.blend binary
+assets_source/environment/original-evergreens-v1/exports/*.glb binary

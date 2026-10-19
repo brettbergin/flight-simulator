@@ -1031,6 +1031,43 @@
         }
       ],
       "evidence_file": "third_party/licenses/evidence/original-cockpit-asset.md"
+    },
+    {
+      "id": "original-evergreens-v1",
+      "class": "visual-assets",
+      "name": "Original decorative evergreen source art",
+      "version": "0.1.0-prototype",
+      "owner": "presentation-maintainer",
+      "scope": "Three original decorative evergreen designs with two explicit LODs each, editable Blender source, generator and exact source receipt. No acquired artwork, textures, botanical data, surveyed vegetation, collision or runtime placement.",
+      "decision": "Original geometry, editable source and authoring code under MIT. Actual asset bytes passed independent structural, saved-source/export, isolated Godot import and bounded image review. Faceted prototype art acceptance does not establish installed runtime, forest performance, temporal stability or aviation fidelity.",
+      "license": "MIT",
+      "redistribution": "permitted",
+      "evidence": "synthetic",
+      "source": {
+        "url": "https://github.com/brettbergin/flight-simulator/tree/main/assets_source/environment/original-evergreens-v1",
+        "revision": "sha256:d7ede5ce25ba3912ee98abc801d73ecd9edee01c87d24dcb16412e5c8e563e3b",
+        "rights_url": "https://github.com/brettbergin/flight-simulator/blob/main/third_party/licenses/notices/OriginalEvergreens-MIT.txt",
+        "applicability": "Exact twenty-file original source/tool inventory. Main URL is a locator; inventory hashes and separate execution evidence govern the adopted bytes. Blender/Godot tool licenses remain separate."
+      },
+      "obligations": [
+        "retain-notices",
+        "retain-source-attribution"
+      ],
+      "notice_files": [
+        {
+          "path": "third_party/licenses/notices/OriginalEvergreens-MIT.txt",
+          "sha256": "65f8c7cf7043c71c07865ae41a9dbaf0a4938d4aff3c38162bfd3e0c1aa8205f",
+          "source_url": "https://github.com/brettbergin/flight-simulator/blob/main/third_party/licenses/notices/OriginalEvergreens-MIT.txt"
+        }
+      ],
+      "evidence_file": "third_party/licenses/evidence/original-evergreens-v1.md",
+      "content_policy": {
+        "inventory_path": "third_party/licenses/evidence/original-evergreens-v1.inventory.json",
+        "inventory_sha256": "d7ede5ce25ba3912ee98abc801d73ecd9edee01c87d24dcb16412e5c8e563e3b",
+        "file_count": 20,
+        "runtime_placement": false,
+        "audit_note": "Foundation CI verifies this inventory hash and every listed byte count/hash, then checks the adopted source bundle. Generic rights audit checks notice integrity. Saved-source, actual import and image review evidence is recorded in docs/evidence/P4/original-evergreens.md; CI does not rerun authoring or visual review."
+      }
     }
   ]
 }

@@ -8127,6 +8127,7 @@
         "assets_source/environment/original-evergreens-v1/",
         "tools/benchmark/pipeline/environment_trees/",
         "docs/evidence/P4/original-evergreens.md",
+        "docs/evidence/P4/original-evergreens/",
         "third_party/licenses/notices/OriginalEvergreens-MIT.txt",
         "third_party/licenses/evidence/original-evergreens-v1.md",
         "third_party/licenses/evidence/original-evergreens-v1.inventory.json"
@@ -8152,7 +8153,7 @@
         "Close only this art leaf. Runtime placement/streaming, geographic airport admission, obstacle completeness, human/pilot and phase acceptance stay open."
       ],
       "evidence": [
-        "Independent literal/refusal checker results; exact source/tool/export/import identities, all36 fixed images and six approach observations, independent visual review, source/license record and protected/focused checks."
+        "docs/evidence/P4/original-evergreens.md records actual twenty-test structural checks, exact editable-source/export/import identities, all36 fixed images and six approach observations, independent bounded prototype-art review and source/license inventory. Final-head hosted checks remain a checked-merge prerequisite. Runtime placement, forest performance and geographic vegetation remain separate."
       ]
     }
   ]

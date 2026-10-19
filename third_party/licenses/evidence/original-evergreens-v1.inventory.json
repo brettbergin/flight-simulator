@@ -1,0 +1,110 @@
+{
+  "kind": "OriginalEvergreenRightsInventory/v1",
+  "status": "reviewed faceted prototype source-art delivery",
+  "license": "MIT",
+  "scope": "Original decorative evergreen art; no botanical, geographic or obstacle claim",
+  "files": [
+    {
+      "path": "assets_source/environment/original-evergreens-v1/evergreen-source-v1.json",
+      "bytes": 2148,
+      "sha256": "d9d236d81dd9f4fc635670804c9f19208449c6e7e6c73519af06c2fdd44349fb"
+    },
+    {
+      "path": "assets_source/environment/original-evergreens-v1/exports/broad-tiered-lod0.glb",
+      "bytes": 309696,
+      "sha256": "b4abad070eb0a0a8acb7caaca86fab948fb01ea2c7f1bfa352348bef34dcd992"
+    },
+    {
+      "path": "assets_source/environment/original-evergreens-v1/exports/broad-tiered-lod1.glb",
+      "bytes": 70060,
+      "sha256": "cc386b8fa59a0e0787430081713d219b9ddfde017fd1fd3c81ed72551db4fdb8"
+    },
+    {
+      "path": "assets_source/environment/original-evergreens-v1/exports/irregular-mature-lod0.glb",
+      "bytes": 309700,
+      "sha256": "fa12114116ded832d34ecf5afaa5eb5e6b9f9fcd5dba86f084a51166364a8478"
+    },
+    {
+      "path": "assets_source/environment/original-evergreens-v1/exports/irregular-mature-lod1.glb",
+      "bytes": 70060,
+      "sha256": "0e7c33c239b0d3773023e9fd5aec522392f270b06bd6b3591434d27c56378a7e"
+    },
+    {
+      "path": "assets_source/environment/original-evergreens-v1/exports/tall-narrow-lod0.glb",
+      "bytes": 309660,
+      "sha256": "dcf3be0f64c7ad873b95b2e198b427fe51bbca9a934622e4d711d6c0f0719e9b"
+    },
+    {
+      "path": "assets_source/environment/original-evergreens-v1/exports/tall-narrow-lod1.glb",
+      "bytes": 70024,
+      "sha256": "35f8cd9714082054e851550281c6996c67159d46b8a2345737a1b63a93e5299d"
+    },
+    {
+      "path": "assets_source/environment/original-evergreens-v1/generate_trees.py",
+      "bytes": 23756,
+      "sha256": "6e4025f50772edb4539cea063ed4050b4f4315b329c54d1e9db9895d3a3b20b9"
+    },
+    {
+      "path": "assets_source/environment/original-evergreens-v1/original-evergreens.blend",
+      "bytes": 1329976,
+      "sha256": "115293cba07c50eafd5616ff7d5c8a86738e878b3e5116eeb3e560244f464145"
+    },
+    {
+      "path": "assets_source/environment/original-evergreens-v1/README.md",
+      "bytes": 5168,
+      "sha256": "8640553db7b61318dbc389f2549908dfefa1f95962febb00d0174505e6b61f6d"
+    },
+    {
+      "path": "third_party/licenses/notices/OriginalEvergreens-MIT.txt",
+      "bytes": 1086,
+      "sha256": "65f8c7cf7043c71c07865ae41a9dbaf0a4938d4aff3c38162bfd3e0c1aa8205f"
+    },
+    {
+      "path": "tools/benchmark/pipeline/environment_trees/check_import.gd",
+      "bytes": 22105,
+      "sha256": "c443eb81311c25e1dd16394f4dd6a7524c0dccca64ca1b3d4282606ea8803760"
+    },
+    {
+      "path": "tools/benchmark/pipeline/environment_trees/check_trees.py",
+      "bytes": 29011,
+      "sha256": "cd333f44967036f33004b1a277f1b9a1440a5375f432d3a9aa0d78ae30f545a8"
+    },
+    {
+      "path": "tools/benchmark/pipeline/environment_trees/README.md",
+      "bytes": 8974,
+      "sha256": "efd606f51e56722a5596300a5bf42381904b751450dcb0b8e97b9636fcca6385"
+    },
+    {
+      "path": "tools/benchmark/pipeline/environment_trees/reference/expected-v1.json",
+      "bytes": 65250,
+      "sha256": "1d867f93e07dc4247894dcf135427e80e1080440c51a6f8258ca38aa09afae25"
+    },
+    {
+      "path": "tools/benchmark/pipeline/environment_trees/reference/hand-oracles.json",
+      "bytes": 14272,
+      "sha256": "03017ffbff4e5f7e122f457ee8a87fd1fa5a3ae5fed702a8ace317b7b911e63c"
+    },
+    {
+      "path": "tools/benchmark/pipeline/environment_trees/reference/producer.py",
+      "bytes": 10313,
+      "sha256": "24faf7b06f916a1c52d4c7581fe927a26065a1ce49c9ae6c3902659829aacf5e"
+    },
+    {
+      "path": "tools/benchmark/pipeline/environment_trees/reference/README.md",
+      "bytes": 4499,
+      "sha256": "96a1067e0764b8f80468750fee8c00f5709a0d757c90f47d9e0505cf64dbbcea"
+    },
+    {
+      "path": "tools/benchmark/pipeline/environment_trees/test_trees.py",
+      "bytes": 21820,
+      "sha256": "c97e2291d977959e0b919bdabb30170d2b30781b00340f2e23739859c1be1cab"
+    },
+    {
+      "path": "tools/benchmark/pipeline/environment_trees/verify_trees.py",
+      "bytes": 16203,
+      "sha256": "2ed38a78c371034d5eb50c49b1adf6e4d4085244320a9c977e64d3c7cbccbe1b"
+    }
+  ],
+  "inventory_excludes_itself": true,
+  "final_inventory_hash_recorded_externally": true
+}
