@@ -152,3 +152,8 @@ The [offline terrain tools](evidence/P4/terrain-tools.md) have passed actual sea
 Windows native/resource and USGS Float32 decoder qualification, with exact pinned
 inputs and preserved failed attempts. This enables later compiler work; it selects
 no real source transform and changes no current game or installed player data.
+
+The [standalone resident-grid implementation](evidence/P4/resident-grid-component.md)
+has passed Windows native geometry, byte decoding, private arithmetic and existing
+ground-interface tests. It is a prerequisite for the airport environment; actual
+geographic compilation, runtime/render adoption and installed delivery remain separate.
