@@ -1038,8 +1038,8 @@
       "name": "Original decorative evergreen source art",
       "version": "0.1.0-prototype",
       "owner": "presentation-maintainer",
-      "scope": "Three original decorative evergreen designs with two explicit LODs each, editable Blender source, generator and exact source receipt. No acquired artwork, textures, botanical data, surveyed vegetation, collision or runtime placement.",
-      "decision": "Original geometry, editable source and authoring code under MIT. Actual asset bytes passed independent structural, saved-source/export, isolated Godot import and bounded image review. Faceted prototype art acceptance does not establish installed runtime, forest performance, temporal stability or aviation fidelity.",
+      "scope": "Three original decorative evergreen designs with two explicit LODs each, editable Blender source, generator and exact source receipt. No acquired artwork, textures, botanical data, surveyed vegetation or collision. The original art-only acceptance included no runtime placement; issue 264 separately qualifies fixed decorative KAWO groves.",
+      "decision": "Original geometry, editable source and authoring code under MIT. Actual asset bytes passed independent structural, saved-source/export, isolated Godot import and bounded image review. Faceted prototype art acceptance does not establish installed runtime, forest performance, temporal stability or aviation fidelity. Issue 264 adds bounded actual component, Scene, graphical and portable/rebuilt-library loading evidence in docs/evidence/P4/kawo-evergreen-placement.md; it grants no surveyed vegetation or obstacle authority.",
       "license": "MIT",
       "redistribution": "permitted",
       "evidence": "synthetic",
@@ -1065,7 +1065,7 @@
         "inventory_path": "third_party/licenses/evidence/original-evergreens-v1.inventory.json",
         "inventory_sha256": "d7ede5ce25ba3912ee98abc801d73ecd9edee01c87d24dcb16412e5c8e563e3b",
         "file_count": 20,
-        "runtime_placement": false,
+        "runtime_placement": true,
         "audit_note": "Foundation CI verifies this inventory hash and every listed byte count/hash, then checks the adopted source bundle. Generic rights audit checks notice integrity. Saved-source, actual import and image review evidence is recorded in docs/evidence/P4/original-evergreens.md; CI does not rerun authoring or visual review."
       }
     }

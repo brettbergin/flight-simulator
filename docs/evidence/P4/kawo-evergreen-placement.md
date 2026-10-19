@@ -35,10 +35,48 @@ Retained receipt identities are:
 
 The earlier headless dummy-renderer failure remains retained. It did not establish usable actual MultiMesh readback and was not relabeled as graphical success; the later component used the actual graphical renderer. Source-foot checks and numerical limits were retained.
 
-These isolated runs do not yet prove exported raw-GLB FileAccess/hash availability and imported-resource loading in a packaged game. Installed delivery, sustained frame performance, owner/pilot evaluation and broader P4 acceptance remain open. The underlying geographic approximation and [terrain source limits](kawo-terrain-compilation.md) also remain unchanged. Decorative trees are not surveyed obstacles, operational airport data or aviation training-credit evidence.
+The complete isolated Windows package subsequently passed the actual KAWO loading checks described below. Installed delivery, sustained frame performance, owner/pilot evaluation and broader P4 acceptance remain open. The underlying geographic approximation and [terrain source limits](kawo-terrain-compilation.md) also remain unchanged. Decorative trees are not surveyed obstacles, operational airport data or aviation training-credit evidence.
 
 The unprocessed views below retain the normal HUD and native paused state.
 
 ![Original KAWO chase view with decorative groves](images/kawo-evergreens/chase.png)
 
 ![Camera-only close view of the first deterministic tree foot](images/kawo-evergreens/trunk-foot.png)
+## Isolated Windows export
+
+The complete Windows package passed on 2026-10-19 at public source commit
+`6397a8ec27b984e5f5fefe5e4f2f1f95fb791c97`. The actual editor, portable release
+executable and rebuilt-library replacement each passed 86 focused KAWO checks:
+59 source checks, 25 Scene checks and two host result checks. Each adopted the
+actual geographic world, validated the three raw GLBs by byte count/hash,
+loaded their imported resources, preserved the prior flight on refusal, and
+joined native/audio. Storage was disabled. All three raw terminal receipts are
+212 bytes with SHA-256
+`607fe4dcf3d0e96eed79e6472c6c515d740823551184d78f27760160af8406fc`.
+
+The earlier package passed its synthetic combined-flight checks but failed the
+separate actual KAWO check: the exporter retained imported scenes and omitted
+raw GLB bytes. That failure remains retained. The correction uses a narrow
+editor export plugin to add the three unchanged verified byte arrays under
+their original resource paths, while retaining normal imported resources.
+All three actual KAWO checks are now mandatory in the package pipeline and its
+final source/evidence audit. No hash requirement or import check was waived.
+
+The complete corrected run also passed the existing synthetic combined-flight,
+camera, source/model/notice, PE/CRT dependency and actual replacement-library
+checks. Its retained identities are:
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Geographic source closure | `dc64424e16465437ad419e4c89d3e8dd9a49f43b2d9777026b9146f33a37593b` |
+| Native resident-world closure | `8b0024d48e1a314167781e54b4cc2d471a049b4b65e58cd36e7b44697ff041d8` |
+| Final package audit | `f9878b4c27ee7b85594f3948ef6cf3e8e72aced6bcdb20e0b0cfed94d2603f79` |
+| Complete package manifest | `1308394b4288413b3f5a9abc01d294db8b41b4e659c6bc406c7eb4d450507975` |
+| Release executable, 109,268,480 bytes | `d34d36f3be1a6c49c56525ae86469b92e4f417ddf0b43cf00dd80c385c4b0562` |
+| PCK, 12,041,880 bytes | `7664037746c9aec4b3785f3a95b71406c123544cfba22f72558d35355e13f0b6` |
+
+These are isolated artifacts bound to that historical commit, not an installed
+update or published release. The graphical captures above used the authoring
+engine; the headless export checks establish actual asset availability and
+Scene lifecycle, not exported visual equivalence, a geographic takeoff/landing,
+human handling, sustained performance or pilot acceptance.
