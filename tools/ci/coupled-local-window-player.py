@@ -11,7 +11,8 @@ import argparse, hashlib, importlib.util, json, os, re, shutil, subprocess, sys
 HERE=Path(__file__).resolve().parent
 CTESTS=('native_toolchain_smoke','contract_boundary','ground_contract','ground_contact_proof',
         'fdm_boundary','interactive_loop','interactive_negative_readback','piston_engine_lifecycle',
-        'coupled_shaft_math','coupled_shaft_native','replay_reconstruction','wire_numbers_native','piston_local_window_native_references','interactive_apron_starts')
+        'coupled_shaft_math','coupled_shaft_native','replay_reconstruction','wire_numbers_native','piston_local_window_native_references','interactive_apron_starts',
+        'kawo_readiness','kawo_startup','kawo_ground_contact')
 VARIANT='jsbsim-1.3.1-event-aware-coupled-midpoint-local-window-v2'
 AUTH_SCOPE='automated Windows bindings-ON measured source/build gate; explicit hosted execution approval, not independent compile review'
 GODOT_FILES={'CMakeLists.txt','src/bridge.cpp','src/codec.cpp','src/codec.hpp','src/worker.cpp','src/worker.hpp',
@@ -103,7 +104,7 @@ def check_pretrial(repo,work,ci,identity):
     check_gates(repo,work);before=load(work/'pretrial.json')
     require(set(before)=={'schema','scope','source_inputs','reference_manifest_sha256','packet_sha256','required_ctests'},'pretrial closed schema')
     require(before['schema']=='coupled-ci-pretrial-local-window-v2' and before['scope']=='fixed source/reference/budgets before fresh compilation; no native execution','pretrial schema/scope')
-    require(before['required_ctests']==sorted(CTESTS),'all fourteen exact CTests required')
+    require(before['required_ctests']==sorted(CTESTS),'all seventeen exact CTests required')
     require(before['source_inputs']==source_inputs(repo,work,ci,identity),'current source/control/model closure differs from pretrial')
     manifest=ci.reference(repo)
     require(before['reference_manifest_sha256']==digest(repo/'tests/engine/shaft-method/coupled-midpoint-v1/reference-manifest.json') and before['packet_sha256']==manifest['packet']['sha256'],'fixed reference changed')
@@ -148,7 +149,7 @@ def measure(repo,work,ci,identity,unit):
     tools=load(repo/'.local/toolchain/environment.json')['tools'];ctest=Path(tools['cmake']).with_name('ctest.exe')
     discovery=load_json_command([ctest,'--test-dir',build,'--show-only=json-v1'],repo)
     tests=discovery['tests'];names=[row['name'] for row in tests]
-    require(len(names)==14 and len(set(names))==14 and set(names)==set(CTESTS),'all fourteen real CTests required')
+    require(len(names)==17 and len(set(names))==17 and set(names)==set(CTESTS),'all seventeen real CTests required')
     ci.apron_target(repo,build,tests)
     scalar=ci.local_window_target(config,build,tests)
     require(exact(expected_unit.get('local_window_reference'),scalar),'unit authorization scalar executable/CTest mismatch')
@@ -207,9 +208,11 @@ def authorize(repo,work,ci,identity,unit,args):
     save(work/'evidence/player-authorization.json',authorization_record(work))
 
 def ctest_complete(text):
-    rows=re.findall(r'^\s*(\d+)/14 Test\s+#\d+:\s+([a-z_]+)\s+\.{2,}\s+Passed\b.*$',text,re.M)
-    require(len(rows)==14 and {int(row[0]) for row in rows}==set(range(1,15)) and {row[1] for row in rows}==set(CTESTS),'fourteen unique actual passed CTest rows required')
-    require('100% tests passed, 0 tests failed out of 14' in text,'full CTest success summary required')
+    rows=re.findall(r'^\s*(\d+)/(\d+) Test\s+#\d+:\s+(\S+)\s+\.{2,}\s+(\S+).*$',text,re.M)
+    require(len(rows)==17 and all(row[1]=='17' and row[3]=='Passed' for row in rows) and
+            {int(row[0]) for row in rows}==set(range(1,18)) and {row[2] for row in rows}==set(CTESTS),
+            'seventeen unique actual passed CTest rows required')
+    require(re.search(r'^100% tests passed, 0 tests failed out of 17[ \t\r]*$',text,re.M) is not None,'full CTest success summary required')
 def verify(repo,work,ci,identity,unit):
     measurement,expected=current_measurement(repo,work,ci,identity,unit)
     require(exact(load(work/'evidence/player-authorization.json'),authorization_record(work)),'hosted execution authorization evidence changed')
@@ -225,7 +228,7 @@ def verify(repo,work,ci,identity,unit):
     require(result['packet_sha256']==expected['packet_sha256'] and result['source_binding_sha256']==expected['source_manifest_sha256'],'unit source/reference mismatch')
     save(work/'evidence/player-ctest-result.json',{'schema':'coupled-local-window-player-ci-ctest-result-v2','passed':True,'scope':'automated hosted Windows bindings-ON engineering tests; whole-flight/editor/export/replacement/pilot gates separate',
         'measurement_sha256':digest(work/'evidence/compile-measurement.json'),'native_ctest_log_sha256':digest(build/'native-ctest.log'),
-        'unit_receipt_sha256':digest(unit_paths[0]),'physical_receipt_sha256':digest(physical_paths[0]),'ctests':14,'physical_processes':12,'skipped':False})
+        'unit_receipt_sha256':digest(unit_paths[0]),'physical_receipt_sha256':digest(physical_paths[0]),'ctests':17,'physical_processes':12,'skipped':False})
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('mode',choices=['pretrial','measure','authorize','verify'])

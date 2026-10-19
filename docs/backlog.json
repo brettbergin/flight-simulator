@@ -8313,7 +8313,13 @@
         "tests/engine/shaft-method/probes-local-window-v2/test_portable.py",
         "tests/engine/shaft-method/probes-local-window-v2/probe-manifest.json",
         "docs/backlog.json",
-        "docs/phases/p4-region-and-weather.md"
+        "docs/phases/p4-region-and-weather.md",
+        "tools/ci/coupled-player.py",
+        "tools/ci/test_coupled_player.py",
+        "tools/ci/coupled-local-window-player.py",
+        "tools/ci/test_coupled_local_window_player.py",
+        ".github/workflows/coupled-ci.yml",
+        ".github/workflows/coupled-local-window-ci.yml"
       ],
       "docs": [
         "docs/agent-operations.md",
