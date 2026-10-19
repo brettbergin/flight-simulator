@@ -324,7 +324,8 @@ class IdentityTests(unittest.TestCase):
     @unittest.skipUnless(sys.platform == 'linux', 'GNU archive fixture uses Linux path/argv semantics')
     def test_gnu_archive_omitted_link_flags_only(self):
         # Nonexecuting GNU graph with independently spelled strict commands.
-        # Only static archive rules may omit LINK_FLAGS; no general Ninja waiver.
+        # Only static archives omit LINK_FLAGS; only shared links omit
+        # ARCH_FLAGS. These are not general Ninja variable waivers.
         base = self.root/'gnu-link-flags'; base.mkdir()
         self.repo, self.build, self.selected, self.consumer = fixture(base, family='GNU')
         rows, _ = self.resident_graph()
@@ -338,7 +339,7 @@ class IdentityTests(unittest.TestCase):
         put(self.build, 'build.ninja', ninja)
         compile_command = '"'+tools['CMAKE_CXX_COMPILER']+'" $DEFINES -fno-fast-math -ffp-contract=off -o $out -c $in'
         archive_command = '$PRE_LINK && "'+tools['CMAKE_AR']+'" qc $TARGET_FILE $LINK_FLAGS $in && $POST_BUILD'
-        link_command = '"'+tools['CMAKE_CXX_COMPILER']+'" -o $TARGET_FILE $in $LINK_LIBRARIES'
+        link_command = '"'+tools['CMAKE_CXX_COMPILER']+'" $ARCH_FLAGS -o $TARGET_FILE $in $LINK_LIBRARIES'
         rules = ('rule CXX_COMPILER__session\n  command = '+compile_command+'\n'
                  'rule CXX_COMPILER__resident\n  command = '+compile_command+'\n'
                  'rule CXX_STATIC_LIBRARY_LINKER__resident\n  command = '+archive_command+'\n'
@@ -350,6 +351,18 @@ class IdentityTests(unittest.TestCase):
             return n.resident_closure(self.repo, self.build, json.dumps(identity).encode(), identity)
         self.assertTrue(observe(rules)['passed'])
         self.assertTrue(observe(rules, ninja+'LINK_FLAGS = \n')['passed'])
+        self.assertTrue(observe(rules, ninja+'ARCH_FLAGS = \n')['passed'])
+        # A declared value is expanded and checked, rather than erased by the
+        # omitted-field default. Existing primary-output checks reject this.
+        with self.assertRaises(ValueError):
+            observe(rules, ninja+'ARCH_FLAGS = -o wrong-output.so\n')
+        with self.assertRaises(ValueError):
+            observe(rules, ninja+'ARCH_FLAGS = $UNDECLARED_ARCH_FLAGS\n')
+        for changed_rules in (
+                rules.replace(link_command, link_command.replace('$ARCH_FLAGS', '$UNDECLARED_ARCH_FLAGS')),
+                rules.replace(compile_command, compile_command+' $ARCH_FLAGS'),
+                rules.replace(archive_command, archive_command+' $ARCH_FLAGS')):
+            with self.assertRaises(ValueError): observe(changed_rules)
         # Exact retained CMake token: Ninja $$ plus shell-escaped ELF $ORIGIN.
         rpath = r'-Wl,-rpath,"\$$ORIGIN"'
         self.assertTrue(observe(rules, ninja.replace('  LINK_LIBRARIES = ', '  LINK_LIBRARIES = '+rpath+' ', 1))['passed'])

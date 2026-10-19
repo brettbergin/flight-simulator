@@ -770,9 +770,13 @@ def resident_closure(repo, build, identity_raw, identity):
         bindings['in'] = ' '.join(quote(path) for path in edge['explicit'])
         bindings['out'] = quote(edge['outputs'][0])
         # Retained GNU CMake archive edges omit this optional empty field.
-        # Preserve declared values; shared/compile and unknown names stay strict.
+        # Preserve declared values; other rule families and names stay strict.
         if family == 'GNU' and edge['rule'].startswith('CXX_STATIC_LIBRARY_LINKER__'):
             bindings.setdefault('LINK_FLAGS', '')
+        # Retained GNU CMake shared edges likewise omit empty ARCH_FLAGS.
+        # This does not default compile/archive ARCH_FLAGS or discard a value.
+        if family == 'GNU' and edge['rule'].startswith('CXX_SHARED_LIBRARY_LINKER__'):
+            bindings.setdefault('ARCH_FLAGS', '')
         require(bindings.get('PRE_LINK', '') in ('', ':', 'cd .') and bindings.get('POST_BUILD', '') in ('', ':', 'cd .'), 'Unreviewed pre/post-link command')
         command = expand(rule.get('command', ''), bindings)
         checked_command = command

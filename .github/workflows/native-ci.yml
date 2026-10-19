@@ -430,6 +430,7 @@ jobs:
             .local/build/native-release/compile_commands.json
             .local/build/native-release/CMakeCache.txt
             .local/build/native-release/build.ninja
+            .local/build/native-release/CMakeFiles/rules.ninja
             .local/build/native-release/Testing/Temporary/LastTest.log
             .local/toolchain/environment.json
             .local/input-preflight/*/*.json
