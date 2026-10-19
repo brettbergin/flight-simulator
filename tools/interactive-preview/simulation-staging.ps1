@@ -57,6 +57,51 @@ function Set-SimulationMainScene {
  if(([regex]::Matches($text,[regex]::Escape($old))).Count -ne 1){throw 'Expected one legacy main-scene setting before staging facade'}
  [IO.File]::WriteAllText($ProjectFile,$text.Replace($old,'run/main_scene="res://simulation/flight_scene.tscn"'))
 }
+# The flight-only proof carries frontend scripts, never the shipping storage
+# registration. Native storage and the 12-role package aggregate are separate.
+function Get-LocalPlayerSourceGroups {
+ param([Parameter(Mandatory)][string]$RepoRoot)
+ @(
+  @{source='app/persistence';destination='persistence';required=@('local_players_controller.gd')},
+  @{source='app/ui/profiles';destination='ui/profiles';required=@('player_options.gd','players_panel.gd','player_name_panel.gd')},
+  @{source='app/ui/history';destination='ui/history';required=@('practice_panel.gd','practice_details.gd','player_export_panel.gd','recovery_panel.gd')},
+  @{source='tests/ui/profiles';destination='player_tests';required=@('local_players_ui_checks.gd','local_players_controller_checks.gd','local_players_ui_checks_runner.gd','local_players_scene_checks.gd','local_players_journey_checks.gd','local_players_journey_runner.gd','local_players_journey_first.gd','local_players_journey_resume.gd','local_players_integrated_checks.gd','local_players_integrated_runner.gd')}
+ )|ForEach-Object {
+  $_.snapshot=@(Get-SimulationSourceSnapshot (Join-Path $RepoRoot $_.source) -RequiredEntries $_.required)
+  if($_.source -ceq 'app/persistence'){$_.snapshot=@($_.snapshot|Where-Object {$_.path -ceq 'local_players_controller.gd'})}
+  $_
+ }
+}
+function Assert-LocalPlayerSourceGroups {
+ param([Parameter(Mandatory)][string]$Root,[Parameter(Mandatory)][object[]]$Groups,[switch]$Authoring,[switch]$AllowGeneratedUIDs)
+ foreach($group in $Groups){
+  $folder=if($Authoring){$group.source}else{$group.destination}
+  $path=Join-Path $Root $folder
+  if($Authoring -and $group.source -ceq 'app/persistence'){
+   $actual=@(Get-SimulationSourceSnapshot $path -RequiredEntries $group.required|Where-Object {$_.path -ceq 'local_players_controller.gd'})
+   if($actual.Count -ne $group.snapshot.Count){throw 'Players persistence script set changed'}
+   for($i=0;$i -lt $actual.Count;$i++){
+    if($actual[$i].path -cne $group.snapshot[$i].path -or $actual[$i].bytes -ne $group.snapshot[$i].bytes -or $actual[$i].sha256 -cne $group.snapshot[$i].sha256){throw 'Players persistence source bytes changed'}
+   }
+  }else{Assert-SimulationSourceSnapshot $path $group.snapshot -RequiredEntries $group.required -AllowGeneratedUIDs:$AllowGeneratedUIDs}
+ }
+}
+function Copy-LocalPlayerSourceGroups {
+ param([Parameter(Mandatory)][string]$RepoRoot,[Parameter(Mandatory)][string]$DestinationRoot,[Parameter(Mandatory)][object[]]$Groups)
+ Assert-LocalPlayerSourceGroups -Root $RepoRoot -Groups $Groups -Authoring
+ foreach($group in $Groups){
+  $destination=Join-Path $DestinationRoot $group.destination
+  if(Test-Path -LiteralPath $destination){throw 'Players staging destination must be fresh'}
+  New-Item -ItemType Directory -Path $destination -Force|Out-Null
+  foreach($file in $group.snapshot){
+   $target=Join-Path $destination $file.path
+   New-Item -ItemType Directory -Path (Split-Path $target -Parent) -Force|Out-Null
+   Copy-Item -LiteralPath (Join-Path $RepoRoot ($group.source+'/'+$file.path)) -Destination $target
+  }
+ }
+ Assert-LocalPlayerSourceGroups -Root $DestinationRoot -Groups $Groups
+ Assert-LocalPlayerSourceGroups -Root $RepoRoot -Groups $Groups -Authoring
+}
 # Input/UI/fixtures use the same exact recursive snapshot and import-only UID policy.
 function Get-InputSourceGroups {
  param([Parameter(Mandatory)][string]$RepoRoot)
@@ -1238,7 +1283,7 @@ func execute() -> void:
   return
  identity_file.store_string(JSON.stringify(identity_receipt))
  identity_file.close()
- for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://cockpit/assets","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests","res://world/wind","res://ui/wind","res://wind_tests","res://wind_scene_tests","res://audio","res://ui/audio","res://audio_tests","res://ui/first_flight","res://world/synthetic","res://world/taxi","res://ui/taxi","res://taxi_tests","res://taxi_scene_tests","res://scenario_tests/first-flight","res://first_flight_ui_tests","res://world_tests/synthetic","res://first_flight_scene_tests","res://wire_codec_tests","res://camera","res://ui/camera","res://camera_tests"$pistonCompileFolder$localWindowReplayCompileFolder]:
+ for folder in ["res://simulation","res://sim_loop_tests","res://interactive","res://input","res://ui/controls","res://input_tests","res://cockpit/instruments","res://cockpit/assets","res://instrument_tests","res://ui/freeflight","res://freeflight_tests","res://replay/observed","res://ui/debrief/observed","res://observed_tests","res://replay/observed_archive","res://observed_archive_tests","res://world/wind","res://ui/wind","res://wind_tests","res://wind_scene_tests","res://audio","res://ui/audio","res://audio_tests","res://ui/first_flight","res://world/synthetic","res://world/taxi","res://ui/taxi","res://taxi_tests","res://taxi_scene_tests","res://scenario_tests/first-flight","res://first_flight_ui_tests","res://world_tests/synthetic","res://first_flight_scene_tests","res://wire_codec_tests","res://camera","res://ui/camera","res://camera_tests","res://persistence","res://ui/profiles","res://ui/history","res://player_tests"$pistonCompileFolder$localWindowReplayCompileFolder]:
   for name in DirAccess.get_files_at(folder):
    if name.ends_with(".gd"):
     var script=load(folder.path_join(name)) as Script

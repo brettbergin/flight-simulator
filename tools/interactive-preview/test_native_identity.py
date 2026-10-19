@@ -95,6 +95,11 @@ def fixture(root, family='MSVC', variant=n.VARIANTS[0]):
     put(repo, n.TEMPLATE, n.TEMPLATE_BYTES)
     for name in EXPECTED_CAMERA_RECONSTRUCTION_PATHS:
         put(repo, name, 'synthetic camera authoring ' + name + '\n')
+    for name in ('app/persistence/local_players_controller.gd',
+                 'app/ui/profiles/player_options.gd',
+                 'app/ui/history/practice_panel.gd',
+                 'tests/ui/profiles/local_players_controller_checks.gd'):
+        put(repo, name, 'Synthetic local-player corresponding-source fixture ' + name + '\n')
     for name in EXPECTED_TAXI_RECONSTRUCTION_PATHS:
         put(repo, name, 'Synthetic taxi corresponding-source fixture ' + name + '\n')
     (repo/'deps/jsbsim').mkdir(parents=True)
