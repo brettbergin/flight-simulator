@@ -1,0 +1,30 @@
+{
+  "schema": "NormalizedAirport/v1",
+  "airport_icao": "KAWO",
+  "purpose": "synthetic-fixture",
+  "dossier_sha256": "01acef9d78698617d8fd1379cbf6ac577566ac55881ea0c549f7fbc0f800d04d",
+  "review_state": "draft",
+  "name": {
+    "status": "unknown",
+    "value": null,
+    "source_refs": [],
+    "note": "Synthetic fixture only."
+  },
+  "reference_point": {
+    "status": "unknown",
+    "latitude_deg": null,
+    "longitude_deg": null,
+    "horizontal_crs": null,
+    "source_refs": [],
+    "note": "Synthetic coordinates, datum unresolved; never a KAWO position."
+  },
+  "field_elevation": {
+    "status": "unknown",
+    "value": null,
+    "source_refs": [],
+    "note": "Synthetic fixture only.",
+    "vertical_datum": null
+  },
+  "runways": [],
+  "notes": []
+}

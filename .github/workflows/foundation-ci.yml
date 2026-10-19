@@ -31,6 +31,8 @@ jobs:
           node-version: '22'
       - name: Install locked contract validators
         run: npm ci --ignore-scripts --prefix schemas
+      - name: Check offline airport source contract
+        run: node --test tests/world/resident-airport/source-contract.test.mjs
       - name: Check recursive simulation staging and drift rejection
         shell: pwsh
         run: ./tools/interactive-preview/simulation-staging.test.ps1

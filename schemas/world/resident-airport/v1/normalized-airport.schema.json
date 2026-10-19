@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://flight-simulator.invalid/contracts/world/resident-airport/v1/normalized-airport.schema.json",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "enum": [
+        "NormalizedAirport/v1"
+      ]
+    },
+    "airport_icao": {
+      "enum": [
+        "KAWO"
+      ]
+    },
+    "purpose": {
+      "enum": [
+        "source-record",
+        "synthetic-fixture"
+      ]
+    },
+    "dossier_sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "review_state": {
+      "enum": [
+        "draft",
+        "cross-checked"
+      ]
+    },
+    "name": {
+      "$ref": "https://flight-simulator.invalid/contracts/world/resident-airport/v1/common.schema.json#/$defs/text_observation"
+    },
+    "reference_point": {
+      "$ref": "https://flight-simulator.invalid/contracts/world/resident-airport/v1/common.schema.json#/$defs/point_observation"
+    },
+    "field_elevation": {
+      "$ref": "https://flight-simulator.invalid/contracts/world/resident-airport/v1/common.schema.json#/$defs/elevation_observation"
+    },
+    "runways": {
+      "type": "array",
+      "items": {
+        "$ref": "https://flight-simulator.invalid/contracts/world/resident-airport/v1/common.schema.json#/$defs/runway"
+      },
+      "minItems": 0,
+      "maxItems": 8
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512,
+            "pattern": "^/"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "source_refs": {
+            "type": "array",
+            "items": {
+              "$ref": "https://flight-simulator.invalid/contracts/world/resident-airport/v1/common.schema.json#/$defs/source_ref"
+            },
+            "minItems": 1,
+            "maxItems": 16
+          }
+        },
+        "required": [
+          "field",
+          "text",
+          "source_refs"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 128
+    }
+  },
+  "required": [
+    "schema",
+    "airport_icao",
+    "purpose",
+    "dossier_sha256",
+    "review_state",
+    "name",
+    "reference_point",
+    "field_elevation",
+    "runways",
+    "notes"
+  ],
+  "additionalProperties": false
+}

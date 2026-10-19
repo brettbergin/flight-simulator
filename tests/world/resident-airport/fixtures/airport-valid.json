@@ -1,0 +1,255 @@
+{
+  "schema": "NormalizedAirport/v1",
+  "airport_icao": "KAWO",
+  "purpose": "synthetic-fixture",
+  "dossier_sha256": "01acef9d78698617d8fd1379cbf6ac577566ac55881ea0c549f7fbc0f800d04d",
+  "review_state": "draft",
+  "name": {
+    "status": "known",
+    "value": "Synthetic schema fixture",
+    "source_refs": [
+      {
+        "source_id": "fixture.source",
+        "locator": "synthetic fixture case 1"
+      }
+    ],
+    "note": "Synthetic fixture only."
+  },
+  "reference_point": {
+    "status": "known",
+    "latitude_deg": 10.0,
+    "longitude_deg": 20.0,
+    "horizontal_crs": null,
+    "source_refs": [
+      {
+        "source_id": "fixture.source",
+        "locator": "synthetic fixture case 1"
+      }
+    ],
+    "note": "Synthetic coordinates, datum unresolved; never a KAWO position."
+  },
+  "field_elevation": {
+    "status": "known",
+    "value": 100.0,
+    "source_refs": [
+      {
+        "source_id": "fixture.source",
+        "locator": "synthetic fixture case 1"
+      }
+    ],
+    "note": "Synthetic fixture only.",
+    "vertical_datum": "unresolved"
+  },
+  "runways": [
+    {
+      "id": "fixture.runway",
+      "ends": [
+        {
+          "id": "fixture.end-a",
+          "designator": {
+            "status": "known",
+            "value": "01",
+            "source_refs": [
+              {
+                "source_id": "fixture.source",
+                "locator": "synthetic fixture case 1"
+              }
+            ],
+            "note": "Synthetic fixture only."
+          },
+          "physical_end": {
+            "status": "known",
+            "latitude_deg": 10.0,
+            "longitude_deg": 20.0,
+            "horizontal_crs": null,
+            "source_refs": [
+              {
+                "source_id": "fixture.source",
+                "locator": "synthetic fixture case 1"
+              }
+            ],
+            "note": "Synthetic coordinates, datum unresolved; never a KAWO position."
+          },
+          "landing_threshold": {
+            "status": "unknown",
+            "latitude_deg": null,
+            "longitude_deg": null,
+            "horizontal_crs": null,
+            "source_refs": [],
+            "note": "Synthetic coordinates, datum unresolved; never a KAWO position."
+          },
+          "elevation": {
+            "status": "known",
+            "value": 100.0,
+            "source_refs": [
+              {
+                "source_id": "fixture.source",
+                "locator": "synthetic fixture case 1"
+              }
+            ],
+            "note": "Synthetic fixture only.",
+            "vertical_datum": "unresolved"
+          },
+          "displacement_m": {
+            "status": "unknown",
+            "value": null,
+            "source_refs": [],
+            "note": "Synthetic fixture only."
+          },
+          "true_bearing_deg": {
+            "status": "unknown",
+            "value": null,
+            "source_refs": [],
+            "note": "Synthetic fixture only."
+          },
+          "declared_distances": {
+            "tora_m": {
+              "status": "unknown",
+              "value": null,
+              "source_refs": [],
+              "note": "No declared-distance value in this synthetic fixture."
+            },
+            "toda_m": {
+              "status": "unknown",
+              "value": null,
+              "source_refs": [],
+              "note": "No declared-distance value in this synthetic fixture."
+            },
+            "asda_m": {
+              "status": "unknown",
+              "value": null,
+              "source_refs": [],
+              "note": "No declared-distance value in this synthetic fixture."
+            },
+            "lda_m": {
+              "status": "unknown",
+              "value": null,
+              "source_refs": [],
+              "note": "No declared-distance value in this synthetic fixture."
+            }
+          }
+        },
+        {
+          "id": "fixture.end-b",
+          "designator": {
+            "status": "known",
+            "value": "19",
+            "source_refs": [
+              {
+                "source_id": "fixture.source",
+                "locator": "synthetic fixture case 1"
+              }
+            ],
+            "note": "Synthetic fixture only."
+          },
+          "physical_end": {
+            "status": "known",
+            "latitude_deg": 10.01,
+            "longitude_deg": 20.0,
+            "horizontal_crs": null,
+            "source_refs": [
+              {
+                "source_id": "fixture.source",
+                "locator": "synthetic fixture case 1"
+              }
+            ],
+            "note": "Synthetic coordinates, datum unresolved; never a KAWO position."
+          },
+          "landing_threshold": {
+            "status": "unknown",
+            "latitude_deg": null,
+            "longitude_deg": null,
+            "horizontal_crs": null,
+            "source_refs": [],
+            "note": "Synthetic coordinates, datum unresolved; never a KAWO position."
+          },
+          "elevation": {
+            "status": "known",
+            "value": 100.0,
+            "source_refs": [
+              {
+                "source_id": "fixture.source",
+                "locator": "synthetic fixture case 1"
+              }
+            ],
+            "note": "Synthetic fixture only.",
+            "vertical_datum": "unresolved"
+          },
+          "displacement_m": {
+            "status": "unknown",
+            "value": null,
+            "source_refs": [],
+            "note": "Synthetic fixture only."
+          },
+          "true_bearing_deg": {
+            "status": "unknown",
+            "value": null,
+            "source_refs": [],
+            "note": "Synthetic fixture only."
+          },
+          "declared_distances": {
+            "tora_m": {
+              "status": "unknown",
+              "value": null,
+              "source_refs": [],
+              "note": "No declared-distance value in this synthetic fixture."
+            },
+            "toda_m": {
+              "status": "unknown",
+              "value": null,
+              "source_refs": [],
+              "note": "No declared-distance value in this synthetic fixture."
+            },
+            "asda_m": {
+              "status": "unknown",
+              "value": null,
+              "source_refs": [],
+              "note": "No declared-distance value in this synthetic fixture."
+            },
+            "lda_m": {
+              "status": "unknown",
+              "value": null,
+              "source_refs": [],
+              "note": "No declared-distance value in this synthetic fixture."
+            }
+          }
+        }
+      ],
+      "length_m": {
+        "status": "known",
+        "value": 1000.0,
+        "source_refs": [
+          {
+            "source_id": "fixture.source",
+            "locator": "synthetic fixture case 1"
+          }
+        ],
+        "note": "Synthetic fixture only."
+      },
+      "width_m": {
+        "status": "known",
+        "value": 20.0,
+        "source_refs": [
+          {
+            "source_id": "fixture.source",
+            "locator": "synthetic fixture case 1"
+          }
+        ],
+        "note": "Synthetic fixture only."
+      },
+      "surface": {
+        "status": "known",
+        "value": "fixture surface",
+        "source_refs": [
+          {
+            "source_id": "fixture.source",
+            "locator": "synthetic fixture case 1"
+          }
+        ],
+        "note": "Synthetic fixture only."
+      },
+      "note": "Synthetic dimensions only."
+    }
+  ],
+  "notes": []
+}
