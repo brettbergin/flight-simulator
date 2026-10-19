@@ -49,3 +49,29 @@ The fresh two-test receipt is bound by raw SHA-256 `b41ba9409779bb7d87fe030df888
 The initial six-test receipt remains `b99abdd4caefe80a8e7d53e46e29e6560fa0c3928b5b43e03f045186f871f4be`, stdout `380031eff65a17e03ec945324d7c0ddf1db774d4501d6c22d5476dca0b84c697`, and historical six-test LastTest.log binding `bb4187dfb0fbd1172918f783e19f35ec8915f16e3eaf89f6b4e1fb0c1b94a061`. The current CTest log contains the newer two-test rerun. The original initial receipt/stdout, rebuild/rerun records, and machine-specific artifacts remain retained separately.
 
 The aircraft is an original synthetic prototype, not a validated Cessna variant. The geographic working frame remains approximate, source realization/epoch and total 3D accuracy remain unknown, and canonical ellipsoid height is not validated MSL/barometric altitude. This run does not establish KAWO taxi steering, braking distance, takeoff, landing, a circuit, long-duration stability, weather behavior, installed-game rendering/UI, package identity, or pilot evaluation. Those remain separate gates; no aircraft-fidelity, navigation-suitability or training-credit claim is made.
+
+## Existing engine CI consumers
+
+The geographic implementation declares three additional CTests in the existing
+interactive test CMake file: `kawo_readiness`, `kawo_startup` and
+`kawo_ground_contact`. Route-specific full-suite readers retain every earlier
+name and require these three as well: sixteen for the coupled player and
+seventeen for the local-window native/player routes. Old rosters, omitted,
+duplicate, skipped or extra results still fail the closed full-suite gate.
+These count changes admit the actual added test definitions; they change no
+physical reference, tolerance, model, native input roster or phase gate.
+
+The older engine identity readers also bind the accepted resident-component
+prefix and exact compiled component witness, with its source/control/helper
+closure preserved in pretrial source records. The scenery branch separately
+records the helper's changed reconstruction-source bytes in its two existing
+probe manifests; source hash checks remain mandatory.
+
+The source/CTest readers passed 108 offline controls on Windows: 14 coupled
+native, 30 local-window native, 12 coupled player, 13 local-window player and
+19/20 portable-source tests. Both actual source/model/reference pretrials also
+passed. These are reader/refusal and source-closure results; fresh compiled
+execution remains a separate hosted gate. Each reference job now runs its
+existing cheap reader/source tests before expensive reference reproduction,
+retaining their logs alongside the mathematical evidence. Existing platform
+checks and numerical execution remain in place.

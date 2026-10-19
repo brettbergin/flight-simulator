@@ -33,7 +33,10 @@ REQUIRED = {
     'replay_reconstruction',
     'wire_numbers_native',
     'piston_local_window_native_references',
-    'interactive_apron_starts'
+    'interactive_apron_starts',
+    'kawo_readiness',
+    'kawo_startup',
+    'kawo_ground_contact'
 }
 APRON_LEGACY_INVENTORY = '98b30b5641ce86cc6f0af6298424606aa96a1e4a35ef3e9fcaf377bebb3f00cd'
 AUTH_KEYS = {'authorized', 'scope', 'native_sha256', 'mechanism_sha256',
@@ -410,7 +413,7 @@ def qualify(repo, work):
     ctest = Path(tools['cmake']).with_name('ctest.exe' if os.name == 'nt' else 'ctest')
     discovery = json.loads(command([ctest, '--test-dir', build, '--show-only=json-v1'], repo))
     names = [x['name'] for x in discovery['tests']]
-    require(len(names) == 14 and len(set(names)) == 14 and set(names) == REQUIRED, 'all fourteen real CTests required')
+    require(len(names) == 17 and len(set(names)) == 17 and set(names) == REQUIRED, 'all seventeen real CTests required')
     apron=apron_target(repo,build,discovery['tests'])
     scalar=local_window_target(unit_config,build,discovery['tests'])
     require(unit_auth.get('local_window_reference')==scalar,'qualified local-window scalar executable changed after authorization')
@@ -478,9 +481,11 @@ def check_unit_receipt(directory, receipt, auth, auth_path):
 
 def complete_ctests(text):
     expected=REQUIRED
-    rows=re.findall(r'^\s*(\d+)/14 Test\s+#\d+:\s+([a-z_]+)\s+\.{2,}\s+Passed\b.*$',text,re.M)
-    require(len(rows)==14 and {int(row[0]) for row in rows}==set(range(1,15)) and {row[1] for row in rows}==expected,'fourteen unique actual passed CTests required')
-    require('100% tests passed, 0 tests failed out of 14' in text,'full CTest success summary required')
+    rows=re.findall(r'^\s*(\d+)/(\d+) Test\s+#\d+:\s+(\S+)\s+\.{2,}\s+(\S+).*$',text,re.M)
+    require(len(rows)==17 and all(row[1]=='17' and row[3]=='Passed' for row in rows) and
+            {int(row[0]) for row in rows}==set(range(1,18)) and {row[2] for row in rows}==expected,
+            'seventeen unique actual passed CTests required')
+    require(re.search(r'^100% tests passed, 0 tests failed out of 17[ \t\r]*$',text,re.M) is not None,'full CTest success summary required')
 
 
 def verify(repo, work):
@@ -509,7 +514,7 @@ def verify(repo, work):
             unit['source_binding_sha256'] == unit_auth['source_manifest_sha256'], 'unit result source/reference mismatch')
     save(work/'evidence/ci-result.json', {'passed': True, 'scope': 'coupled headless CI, not aircraft or phase acceptance',
          'physical_receipt_sha256': sha(physical_paths[0]), 'unit_result_sha256': sha(unit_paths[0]),
-         'physical_checks': physical['checks'], 'physical_processes': 12, 'ctests': 14, 'skipped': False,
+         'physical_checks': physical['checks'], 'physical_processes': 12, 'ctests': 17, 'skipped': False,
          'native_rows': 137, 'legacy_checks': 270, 'actual_chronology_rows': 12})
 
 
