@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { mkdtemp, mkdir, readFile, writeFile, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, writeFile, rm, realpath } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { backendIdentities } from '../../tools/run-scenario/source-fingerprint.mjs';
@@ -73,7 +73,9 @@ const expectedComponent = 'c8fb140ab69366329aab125cfb021255a74a8be982bf0750b9568
 const expectedManifest = 'ad219321c2f867e11cbd49b1a18f513625a4e19b78b2c1cda56155c423f6d6b5';
 
 async function fixture(t) {
-  const root = await mkdtemp(join(tmpdir(), 'flight-interactive-identity-'));
+  // Supply the strict unaliased reader a canonical newly allocated fixture.
+  // TEMP's spelling may differ from the filesystem's canonical parent path.
+  const root = await realpath(await mkdtemp(join(tmpdir(), 'flight-interactive-identity-')));
   t.after(() => rm(root, { recursive: true, force: true }));
   const repositoryRoot = join(root, 'repo'), executable = join(root, 'custom-build/bin/interactive_tests');
   const build = dirname(dirname(executable));
