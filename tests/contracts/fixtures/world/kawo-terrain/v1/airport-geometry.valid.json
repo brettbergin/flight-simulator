@@ -1,0 +1,34 @@
+{
+  "schema": "CompiledAirportGeometry/v1",
+  "source_airport_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "ground_payload_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "world_anchor": {
+    "latitude_rad": {"$binary64_le": "fdfc84c1e5e5ea3f"},
+    "longitude_rad": {"$binary64_le": "5eedd3837e0e01c0"},
+    "ellipsoid_height_m": {"$binary64_le": "0000000000000000"}
+  },
+  "position_frame": "anchor-eus-metres",
+  "bearing_reference": "published-geographic-true-degrees",
+  "runways": [
+    {
+      "id": "kawo.runway.11-29", "material_polygon_id": "kawo.runway.11-29",
+      "published_length_m": {"$binary64_le": "0000000000009040"},
+      "width_m": {"$binary64_le": "0000000000003040"},
+      "footprint_mm": [[-512000, -264000], [-512000, -248000], [512000, -248000], [512000, -264000]],
+      "ends": [
+        {"designator": "11", "eus_m": [{"$binary64_le": "00000000000080c0"}, {"$binary64_le": "0000000000003440"}, {"$binary64_le": "00000000000070c0"}], "published_true_bearing_deg": {"$binary64_le": "0000000000000000"}},
+        {"designator": "29", "eus_m": [{"$binary64_le": "0000000000008040"}, {"$binary64_le": "0000000000003440"}, {"$binary64_le": "00000000000070c0"}], "published_true_bearing_deg": {"$binary64_le": "0000000000806640"}}
+      ]
+    },
+    {
+      "id": "kawo.runway.16-34", "material_polygon_id": "kawo.runway.16-34",
+      "published_length_m": {"$binary64_le": "0000000000009040"},
+      "width_m": {"$binary64_le": "0000000000004040"},
+      "footprint_mm": [[272000, -512000], [240000, -512000], [240000, 512000], [272000, 512000]],
+      "ends": [
+        {"designator": "16", "eus_m": [{"$binary64_le": "0000000000007040"}, {"$binary64_le": "0000000000003840"}, {"$binary64_le": "00000000000080c0"}], "published_true_bearing_deg": {"$binary64_le": "0000000000000000"}},
+        {"designator": "34", "eus_m": [{"$binary64_le": "0000000000007040"}, {"$binary64_le": "0000000000003840"}, {"$binary64_le": "0000000000008040"}], "published_true_bearing_deg": {"$binary64_le": "0000000000806640"}}
+      ]
+    }
+  ]
+}

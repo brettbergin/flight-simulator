@@ -7850,6 +7850,10 @@
       "owned_paths": [
         "docs/contracts/world/",
         "schemas/world/resident-airport/v1/",
+        "schemas/world/kawo-terrain/v1/",
+        "tests/contracts/kawo-terrain.test.mjs",
+        "tests/contracts/fixtures/world/kawo-terrain/v1/",
+        "tests/terrain/kawo/reference/",
         "tests/world/reference/",
         "docs/evidence/P4/",
         "docs/roadmap.md",
@@ -7880,7 +7884,9 @@
         "docs/contracts/world/terrain-tools-v1.md",
         "docs/contracts/world/resident-grid-codec-v1.md",
         "docs/evidence/P4/resident-grid-codec-reference.md",
-        "docs/contracts/world/original-evergreens-v1.md"
+        "docs/contracts/world/original-evergreens-v1.md",
+        "docs/contracts/world/kawo-terrain-compiler-v1.md",
+        "docs/evidence/P4/kawo-terrain-source-qualification.md"
       ],
       "requirements": [
         "WORLD-001",
@@ -7903,6 +7909,7 @@
         "Checked source-dossier and normalized-airport closed schemas preserve dated provenance, unknown/conflicting fields, physical/displaced ends and true/magnetic distinctions. Ingestion waits for accepted schema.",
         "Checked immutable resident-grid typed contract and independent frozen geometry references precede standalone native component work. Exact triangle/edge/material semantics and separate point/rectangle budgets admit no file compiler, datum, flight/start, renderer or history consumer.",
         "Checked offline terrain-tool pins bind retained Windows Python, exact wheels, embedded PROJ/database and acquired GEOID18 before tool consumers; selected coordinate operations, source accuracy, codec and runtime admission require separate evidence.",
+        "A complete checked bounded KAWO compiler contract binds actual selected-operation constructor inputs/emitted facts, anchor/source decode/sentinel/overlap observations, closed input/receipt/geometry schemas and independent scalar expectations before compiler implementation. Source/shape qualification does not establish all-grid convergence, exact payload/native/runway agreement, compiler determinism, rights, runtime, rendering or geographic accuracy.",
         "Checked exact resident-grid byte contract/header and independently constructed literal fixtures precede standalone native decode and separately reviewed standalone Godot reader. Preserve raw numeric bits, strict counts/size/core semantics; no compiler, file/world/start/history or gameplay admission follows.",
         "A separately scoped complete original-evergreen brief fixes source/export/import/visual rules before its independent checker and authoring leaf; existing proof/cockpit inventories and current world/physics/placement stay unchanged.",
         "Freeze exact resident payload, interpolation/normal/material/seam/coverage and bounded readiness behavior with independently derived fixtures. The same geometry drives native contact and rendering; no infinite plane or LOD-owned physics.",
