@@ -39,6 +39,7 @@ jobs:
         shell: pwsh
         run: |
           $gridPins = @{
+            'docs/contracts/world/original-evergreens-v1.md' = 'eb3aea53ba869b80117eaed952ac1f65ec2e1e3df1fe731524715fd7e3ae40d6'
             'docs/contracts/world/resident-grid-codec-v1.md' = '060f267d64bb058059791c762db724d39f9c99d907926868d2f9c2634ffeb0e3'
             'tests/ground/grid/codec/reference/fixture_producer.py' = '91107b6502f761d3fc928508f4496460dee3b91e9d2acd0bff529321db4fb6d2'
             'tests/ground/grid/codec/reference/hand-oracles.json' = 'd84825f145a24755b48028de2546df2bb411103627459619ee2b5e68e4d80c59'

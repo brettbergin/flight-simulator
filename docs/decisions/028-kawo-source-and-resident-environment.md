@@ -42,3 +42,5 @@ local authoring bootstrap only after checked acceptance. They do not choose a
 geographic transform or expand native/runtime packaging.
 
 The separate [resident payload byte contract](../contracts/world/resident-grid-codec-v1.md), checked with its independent literal references, permits standalone decoding and a separately reviewed standalone Godot reader only. It serializes the same Definition without introducing world/file/start admission. This completes the bounded byte seam before consumers; compiler/datum and runtime integration still require their own contracts.
+
+The independently scoped [original evergreen art brief](../contracts/world/original-evergreens-v1.md) fixes a six-export source study before authoring/import. It can progress separately from terrain math after checked acceptance and independent checker fixtures. Actual source/GLB/visual acceptance and later geographic placement remain separate; trees establish no obstacle coverage or botanical survey accuracy.

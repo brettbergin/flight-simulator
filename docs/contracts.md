@@ -244,3 +244,7 @@ The [frontend integration v1 contract](contracts/local-players/frontend-integrat
 ## Proposed resident-grid payload byte seam
 
 The [payload contract](contracts/world/resident-grid-codec-v1.md) and [independent byte evidence](evidence/P4/resident-grid-codec-reference.md) freeze exact little-endian Definition encoding, pure native decode API, signed-bit preservation and complete rejection expectations before consumers. Checked merge permits standalone native decoding and a separately reviewed standalone Godot byte reader; no compiler, file/world/start/history or gameplay admission is added.
+
+## Proposed original regional art study
+
+The [original evergreen brief](contracts/world/original-evergreens-v1.md) freezes six opaque original tree exports, SI/foot-pivot conventions, exact material/node roster and independent GLB/import/visual evidence before generation. It consumes the existing pinned Blender/Godot pipeline without expanding the closed historical proof/cockpit inventories. Checked brief plus independent fixtures precede the isolated art leaf; no current-world resource, placement, native collision or runtime LOD follows.
