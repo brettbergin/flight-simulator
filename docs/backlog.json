@@ -8074,7 +8074,9 @@
       "owned_paths": [
         "tools/ingest/terrain/",
         "tests/world/terrain-tools/",
-        "docs/evidence/P4/terrain-tools.md"
+        "docs/evidence/P4/terrain-tools.md",
+        "docs/evidence/P4/terrain-tools-run-v1.json",
+        ".github/workflows/foundation-ci.yml"
       ],
       "docs": [
         "docs/README.md",

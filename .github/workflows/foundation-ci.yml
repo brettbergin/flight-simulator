@@ -56,6 +56,8 @@ jobs:
           }
           node --test tests/contracts/kawo-terrain.test.mjs
           if ($LASTEXITCODE -ne 0) { throw 'KAWO compiler schema-only refusal tests failed' }
+      - name: Check offline terrain tooling parsers and independent TIFF literals
+        run: python -I -B -S tests/world/terrain-tools/test_terrain_tools.py
       - name: Verify frozen resident-grid contract and independent references
         shell: pwsh
         run: |

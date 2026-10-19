@@ -148,6 +148,11 @@ The proposed [original evergreen study](contracts/world/original-evergreens-v1.m
 
 The [first integrated Players menu](evidence/P3/local-players-frontend.md) has passed local actual-flight, storage/relaunch and three-size keyboard/image checks. It connects player choice and explicit settings Save while preserving flight authority. This is partial #220; a qualified named-player release, complete history/export/recovery journeys and installed-user acceptance remain open.
 
+The [offline terrain tools](evidence/P4/terrain-tools.md) have passed actual sealed
+Windows native/resource and USGS Float32 decoder qualification, with exact pinned
+inputs and preserved failed attempts. This enables later compiler work; it selects
+no real source transform and changes no current game or installed player data.
+
 The [standalone resident-grid implementation](evidence/P4/resident-grid-component.md)
 has passed Windows native geometry, byte decoding, private arithmetic and existing
 ground-interface tests. It is a prerequisite for the airport environment; actual
