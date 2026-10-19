@@ -94,3 +94,8 @@ tests/terrain/kawo/** text eol=lf
 # Retain the exact supplied reviewed-source JSON bytes, including captured CRLF.
 docs/evidence/P4/kawo-derived-data-rights-v1.json -text whitespace=cr-at-eol
 docs/evidence/P4/kawo-reviewed-source-dossier-v1.json -text whitespace=cr-at-eol
+# Preserve original evergreen authoring and verification source identities.
+assets_source/environment/original-evergreens-v1/*.py text eol=lf
+tools/benchmark/pipeline/environment_trees/** text eol=lf
+assets_source/environment/original-evergreens-v1/*.blend binary
+assets_source/environment/original-evergreens-v1/exports/*.glb binary

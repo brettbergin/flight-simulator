@@ -35,6 +35,32 @@ jobs:
         run: node --test tests/world/resident-airport/source-contract.test.mjs
       - name: Check pinned KAWO source parser and mapping (synthetic offline cases)
         run: python -I -B -m unittest discover -s tests/airports/kawo -p "test_*.py" -v
+      - name: Check original evergreen independent references and structural refusals
+        shell: pwsh
+        run: |
+          $treePins = @{
+            'tools/benchmark/pipeline/environment_trees/reference/producer.py' = '24faf7b06f916a1c52d4c7581fe927a26065a1ce49c9ae6c3902659829aacf5e'
+            'tools/benchmark/pipeline/environment_trees/reference/hand-oracles.json' = '03017ffbff4e5f7e122f457ee8a87fd1fa5a3ae5fed702a8ace317b7b911e63c'
+            'tools/benchmark/pipeline/environment_trees/reference/expected-v1.json' = '1d867f93e07dc4247894dcf135427e80e1080440c51a6f8258ca38aa09afae25'
+          }
+          foreach ($name in $treePins.Keys) {
+            if ((Get-FileHash -LiteralPath $name -Algorithm SHA256).Hash.ToLowerInvariant() -cne $treePins[$name]) { throw 'Frozen independent evergreen reference changed' }
+          }
+          python -I -B -S tools/benchmark/pipeline/environment_trees/reference/producer.py --check tools/benchmark/pipeline/environment_trees/reference/expected-v1.json
+          if ($LASTEXITCODE -ne 0) { throw 'Independent evergreen reference reproduction failed' }
+          python -I -B -S tools/benchmark/pipeline/environment_trees/test_trees.py --reference tools/benchmark/pipeline/environment_trees/reference/expected-v1.json
+          if ($LASTEXITCODE -ne 0) { throw 'Evergreen structural and bundle refusal tests failed' }
+          python -I -B -S tools/benchmark/pipeline/environment_trees/check_trees.py --source-dir "${{ github.workspace }}/assets_source/environment/original-evergreens-v1"
+          if ($LASTEXITCODE -ne 0) { throw 'Adopted evergreen source bundle differs or fails structure' }
+          $treeEntry = @((Get-Content -LiteralPath third_party/licenses/register.json -Raw | ConvertFrom-Json).entries | Where-Object id -CEQ 'original-evergreens-v1')
+          if ($treeEntry.Count -ne 1) { throw 'Exactly one original evergreen rights entry required' }
+          $treePolicy = $treeEntry[0].content_policy
+          if ((Get-FileHash -LiteralPath $treePolicy.inventory_path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $treePolicy.inventory_sha256) { throw 'Original evergreen rights inventory changed' }
+          $treeInventory = Get-Content -LiteralPath $treePolicy.inventory_path -Raw | ConvertFrom-Json
+          if ($treeInventory.kind -cne 'OriginalEvergreenRightsInventory/v1' -or $treeInventory.files.Count -ne 20 -or $treePolicy.file_count -ne 20) { throw 'Original evergreen inventory roster changed' }
+          foreach ($file in $treeInventory.files) {
+            if ((Get-Item -LiteralPath $file.path).Length -ne $file.bytes -or (Get-FileHash -LiteralPath $file.path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $file.sha256) { throw 'Original evergreen source/tool byte identity changed' }
+          }
       - name: Check frozen KAWO compiler contract and schema-only refusals
         shell: pwsh
         run: |
