@@ -200,6 +200,7 @@ Copy-FirstFlightSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $
 Copy-AudioSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $audioGroups
 Copy-LocalPlayerSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $localPlayerGroups
 Copy-KawoRuntimeSourceGroups -RepoRoot $repo -DestinationRoot $project -Groups $kawoGroups
+Set-KawoEvergreenImportRecipe -ProjectRoot $project
 if($includePiston){Copy-PistonSourceSnapshot -RepoRoot $repo -DestinationRoot $project -Snapshot $pistonSnapshot}
 Copy-Item -LiteralPath (Join-Path $repo 'app/proof/interactive/project-settings.cfg') -Destination (Join-Path $project 'project.godot')
 Set-SimulationMainScene -ProjectFile (Join-Path $project 'project.godot')
@@ -236,6 +237,8 @@ $preset=$preset.Replace('include_filter="','include_filter="taxi_tests/*,taxi_sc
 # Native and frontend consume the same seven ordinary sibling files. They are
 # delivered physically beside models, never a second authoritative PCK copy.
 $preset=$preset.Replace('exclude_filter="','exclude_filter="worlds/*,content/world/catalog/*,')
+$preset=$preset.Replace('include_filter="','include_filter="environment/original-evergreens-v1/*.glb,notices/OriginalEvergreens-MIT.txt,')
+$preset=$preset.Replace('exclude_filter="','exclude_filter="decoration-component-receipt.json,')
 $preset | Set-Content -Encoding utf8 (Join-Path $project 'export_presets.cfg')
 # Keep engine/profile/cache writes within this fresh run even during authoring.
 $prior=@{}
@@ -255,7 +258,7 @@ extends SceneTree
 func _initialize() -> void:
  var script=load("res://interactive/preview.gd") as Script
  var scene=load("res://interactive/preview.tscn") as PackedScene
- for kawa_path in ["res://world/world_admission.gd","res://world/terrain/resident_grid_reader.gd","res://world/terrain/kawo_world.gd"]:
+ for kawa_path in ["res://world/world_admission.gd","res://world/terrain/resident_grid_reader.gd","res://world/terrain/kawo_world.gd","res://world/decoration/kawo_evergreens.gd"]:
   var kawa_script=load(kawa_path) as Script
   if kawa_script==null or not kawa_script.can_instantiate():
    push_error("KAWO resource compile rejected: "+kawa_path)
@@ -492,6 +495,7 @@ Assert-LocalPlayerSourceGroups -Root $project -Groups $localPlayerGroups -AllowG
 Assert-LocalPlayerSourceGroups -Root $source -Groups $localPlayerGroups
 Assert-KawoRuntimeSourceGroups -Root $repo -Groups $kawoGroups -Authoring
 Assert-KawoRuntimeSourceGroups -Root $project -Groups $kawoGroups -AllowGeneratedUIDs
+Assert-KawoEvergreenImportRecipe -ProjectRoot $project
 Assert-KawoRuntimeSourceGroups -Root $source -Groups $kawoGroups
 Assert-KawoRuntimeSourceGroups -Root $payload -Groups @($kawoGroups|Where-Object {$_.destination -ceq 'worlds/kawo-prototype-v1'})
 if($includePiston){

@@ -76,6 +76,9 @@ function Get-KawoRuntimeSourceGroups {
  @(
   @{source='app/world';destination='world';selected=$true;required=@('world_admission.gd')},
   @{source='app/world/terrain';destination='world/terrain';selected=$false;required=@('resident_grid_reader.gd','kawo_world.gd')},
+  @{source='app/world/decoration';destination='world/decoration';selected=$false;required=@('kawo_evergreens.gd')},
+  @{source='assets_source/environment/original-evergreens-v1/exports';destination='environment/original-evergreens-v1';selected=$true;required=@('tall-narrow-lod1.glb','broad-tiered-lod1.glb','irregular-mature-lod1.glb')},
+  @{source='third_party/licenses/notices';destination='notices';selected=$true;required=@('OriginalEvergreens-MIT.txt')},
   @{source='content/world/catalog';destination='content/world/catalog';selected=$false;required=@('kawo-runtime-v1.json')},
   @{source='content/world/airports/kawo/runtime-v1';destination='worlds/kawo-prototype-v1';selected=$false;required=@('world.json','ground.fgrd','airport.json','dossier.json','compile-receipt.json','start-ready34.json','NOTICE.txt')}
  )|ForEach-Object {
@@ -84,8 +87,8 @@ function Get-KawoRuntimeSourceGroups {
   Assert-KawoOrdinaryAncestors $folder
   $snapshot=@(Get-SimulationSourceSnapshot $folder -RequiredEntries $group.required)
   if($group.selected){
-   $snapshot=@($snapshot|Where-Object {$_.path -ceq 'world_admission.gd'})
-   if($snapshot.Count -ne 1){throw 'Exact KAWO registry filename is required'}
+   $snapshot=@($snapshot|Where-Object {$group.required -ccontains $_.path})
+   if($snapshot.Count -ne $group.required.Count){throw 'Exact selected KAWO resource roster is required'}
   }
   else{
    # Exactly the fixed authored roster; generated Godot UIDs are never authoring
@@ -108,6 +111,16 @@ function Assert-KawoRuntimeSourceGroups {
   $folder=Join-Path $Root $(if($Authoring){$group.source}else{$group.destination})
   Assert-KawoOrdinaryAncestors $folder
   if($group.selected){
+   if(-not $Authoring -and $group.destination -ceq 'environment/original-evergreens-v1'){
+    # Authoring selects three of six approved exports. This dedicated copied
+    # directory is closed: source has three raw GLBs; imported projects may
+    # additionally have only their three bound, validated import recipes.
+    $expected=@($group.required|Sort-Object)
+    if($AllowGeneratedUIDs){$expected+=@($group.required|ForEach-Object {$_+'.import'})}
+    $actual=@(Get-SimulationSourceSnapshot $folder -RequiredEntries $group.required)
+    if(($actual.path -join "`n") -cne (($expected|Sort-Object) -join "`n")){throw 'Closed evergreen destination roster differs'}
+    if($AllowGeneratedUIDs){Assert-KawoEvergreenImportRecipe -ProjectRoot $Root}
+   }
    foreach($entry in $group.snapshot){
     $file=Join-Path $folder $entry.path
     Assert-KawoOrdinaryAncestors $file
@@ -137,6 +150,31 @@ function Copy-KawoRuntimeSourceGroups {
  }
  Assert-KawoRuntimeSourceGroups -Root $DestinationRoot -Groups $Groups
  Assert-KawoRuntimeSourceGroups -Root $RepoRoot -Groups $Groups -Authoring
+}
+function Set-KawoEvergreenImportRecipe {
+ param([Parameter(Mandatory)][string]$ProjectRoot)
+ foreach($name in @('tall-narrow-lod1','broad-tiered-lod1','irregular-mature-lod1')){
+  $asset=Join-Path $ProjectRoot ('environment/original-evergreens-v1/'+$name+'.glb')
+  Assert-KawoOrdinaryAncestors $asset
+  $sidecar=$asset+'.import'
+  if(Test-Path -LiteralPath $sidecar){throw 'Evergreen import recipe requires fresh metadata'}
+  [IO.File]::WriteAllText($sidecar,"[remap]`nimporter=`"scene`"`ntype=`"PackedScene`"`n[params]`nmeshes/generate_lods=false`nmeshes/force_disable_compression=true`n",[Text.UTF8Encoding]::new($false))
+ }
+}
+function Assert-KawoEvergreenImportRecipe {
+ param([Parameter(Mandatory)][string]$ProjectRoot)
+ foreach($name in @('tall-narrow-lod1','broad-tiered-lod1','irregular-mature-lod1')){
+  $sidecar=Join-Path $ProjectRoot ('environment/original-evergreens-v1/'+$name+'.glb.import')
+  Assert-KawoOrdinaryAncestors $sidecar
+  $item=Get-Item -LiteralPath $sidecar
+  if($item.PSIsContainer -or $item.Length -gt 65536){throw 'Bounded evergreen import metadata required'}
+  $text=[IO.File]::ReadAllText($sidecar)
+  foreach($line in @('importer="scene"','type="PackedScene"','meshes/generate_lods=false','meshes/force_disable_compression=true')){
+   $key=$line.Split('=')[0]
+   $matchesForKey=[regex]::Matches($text,'(?m)^'+[regex]::Escape($key)+'=[^\r\n]*\r?$')
+   if($matchesForKey.Count -ne 1 -or $matchesForKey[0].Value.TrimEnd("`r") -cne $line){throw 'Accepted evergreen importer/LOD settings changed'}
+  }
+ }
 }
 function Get-LocalPlayerSourceGroups {
  param([Parameter(Mandatory)][string]$RepoRoot)
@@ -1322,6 +1360,24 @@ func audio_lifecycle_checks() -> Dictionary:
  check(stopped.ok and stopped.readback.native_live==false,"audio_actual_source_worker_joined")
  return result
 func execute() -> void:
+ if "--kawo-checks" in OS.get_cmdline_user_args():
+  var groups: Dictionary={}
+  var joined: bool=true
+  for name in ["source","scene"]:
+   var suite: RefCounted=load("res://sim_loop_tests/kawo_"+name+"_checks.gd").new()
+   var result: Dictionary=suite.run(self)
+   check(typeof(result.get("checks"))==TYPE_INT and result.get("checks",0)>0 and result.get("failures") is Array and result.failures.is_empty(),"pack_kawo_"+name+"_result")
+   groups[name]=result
+   if name=="scene": joined=typeof(result.get("joined"))==TYPE_BOOL and result.get("joined")==true
+   if not joined: break
+  var passed: bool=checks>0 and failures.is_empty() and joined
+  print("KAWO_PACK_CHECKS_RESULT="+JSON.stringify({"passed":passed,"checks":checks,"failures":failures,"joined":joined,"groups":groups,"actual_storage_exercised":false}))
+  if not joined:
+   # Keep the failed suite's scene/worker alive for the outer watchdog. A
+   # timeout is failure, never evidence of a successful native retirement.
+   return
+  get_tree().quit(0 if passed else 1)
+  return
  for argument in OS.get_cmdline_user_args():
   if argument.begins_with("--hud-caption-visual-output="):
    var output: String=argument.trim_prefix("--hud-caption-visual-output=")

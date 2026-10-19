@@ -261,6 +261,8 @@ jobs:
           Copy-SimulationSourceSnapshot tests/integration/sim_loop (Join-Path $project 'sim_loop_tests') $tests -RequiredEntries @('facade_checks.gd','independent-reference.json','scene_checks.gd')
           $terrainTests=@(Get-SimulationSourceSnapshot tests/world/terrain -RequiredEntries @('reader_checks.gd','reader_test.gd','world_test.gd'))
           Copy-SimulationSourceSnapshot tests/world/terrain (Join-Path $project 'terrain_tests') $terrainTests -RequiredEntries @('reader_checks.gd','reader_test.gd','world_test.gd')
+          $decorationTests=@(Get-SimulationSourceSnapshot tests/world/decoration -RequiredEntries @('decoration_checks.gd','controls-v1.json','README.md'))
+          Copy-SimulationSourceSnapshot tests/world/decoration (Join-Path $project 'decoration_tests') $decorationTests -RequiredEntries @('decoration_checks.gd','controls-v1.json','README.md')
           $inputGroups=@(Get-InputSourceGroups -RepoRoot $PWD)
           Copy-InputSourceGroups -RepoRoot $PWD -DestinationRoot $project -Groups $inputGroups
           $cockpitGroups=@(Get-CockpitSourceGroups -RepoRoot $PWD)
@@ -279,6 +281,7 @@ jobs:
           Copy-LocalPlayerSourceGroups -RepoRoot $PWD -DestinationRoot $project -Groups $localPlayerGroups
           $kawoGroups=@(Get-KawoRuntimeSourceGroups -RepoRoot $PWD)
           Copy-KawoRuntimeSourceGroups -RepoRoot $PWD -DestinationRoot $project -Groups $kawoGroups
+          Set-KawoEvergreenImportRecipe -ProjectRoot $project
           $windGroups=@(Get-WindSourceGroups -RepoRoot $PWD)
           Copy-WindSourceGroups -RepoRoot $PWD -DestinationRoot $project -Groups $windGroups
           $cameraGroups=@(Get-CameraSourceGroups -RepoRoot $PWD)
@@ -328,6 +331,21 @@ jobs:
             $terrain=Invoke-ProofProcess $environment.tools.godot $arguments $root (Join-Path $evidence ('kawo-terrain-'+$suite+'.log')) -TimeoutSeconds 300
             if($terrain.exit_code -ne 0 -or $terrain.text -match 'ERROR:|SCRIPT ERROR:|FATAL|ObjectDB instances? (?:(?:was|were) )?leaked|RID allocations leaked|resources still in use'){throw 'Airport terrain component checks failed'}
           }
+          foreach($mode in @('hand','actual')){
+            if($mode -ceq 'actual' -and -not $IsWindows){
+              'Actual MultiMesh setter/getter checks unavailable under the Linux headless dummy renderer; Windows graphical checks remain mandatory. No actual decoration component acceptance claimed here.' | Set-Content (Join-Path $evidence 'kawo-decoration-actual-unavailable.txt')
+              continue
+            }
+            $arguments=@('--headless','--path',$project,'--script','res://decoration_tests/decoration_checks.gd')
+            if($mode -ceq 'actual'){$arguments=@('--path',$project,'--audio-driver','Dummy','--rendering-method','gl_compatibility','--rendering-driver','opengl3_angle','--script','res://decoration_tests/decoration_checks.gd','--','actual')}
+            $decoration=Invoke-ProofProcess $environment.tools.godot $arguments $root (Join-Path $evidence ('kawo-decoration-'+$mode+'.log')) -TimeoutSeconds 240
+            if($decoration.exit_code -ne 0 -or $decoration.text -notmatch 'KAWO_DECORATION_RESULT=' -or $decoration.text -match 'ERROR:|SCRIPT ERROR:|FATAL|ObjectDB instances? (?:(?:was|were) )?leaked|RID allocations leaked|resources still in use'){throw 'Original decorative evergreen checks failed'}
+          }
+          if($IsWindows){
+            $decorationReceipt=Get-Content -LiteralPath (Join-Path $project 'decoration-component-receipt.json') -Raw | ConvertFrom-Json
+            if($decorationReceipt.checks -le 0 -or $decorationReceipt.failures.Count -ne 0 -or $decorationReceipt.native_flight_exercised -ne $false){throw 'Actual decoration component receipt failed'}
+            Copy-Item -LiteralPath (Join-Path $project 'decoration-component-receipt.json') -Destination $evidence
+          }
           $reducer=Invoke-ProofProcess $environment.tools.godot @('--headless','--path',$project,'--script','res://player_tests/archive_link_reducer_test.gd') $root (Join-Path $evidence 'kawo-archive-link-reducer.log') -TimeoutSeconds 60
           if($reducer.exit_code -ne 0 -or $reducer.text -notmatch 'synthetic-archive-link-reducer' -or $reducer.text -match 'ERROR:|SCRIPT ERROR:|FATAL'){throw 'Archive link reducer checks failed'}
           $wireReceipt=Get-Content -LiteralPath (Join-Path $project 'wire-codec-receipt.json') -Raw | ConvertFrom-Json
@@ -357,6 +375,8 @@ jobs:
           Assert-SimulationSourceSnapshot (Join-Path $project 'sim_loop_tests') $tests -RequiredEntries @('facade_checks.gd','independent-reference.json','scene_checks.gd') -AllowGeneratedUIDs
           Assert-SimulationSourceSnapshot tests/world/terrain $terrainTests -RequiredEntries @('reader_checks.gd','reader_test.gd','world_test.gd')
           Assert-SimulationSourceSnapshot (Join-Path $project 'terrain_tests') $terrainTests -RequiredEntries @('reader_checks.gd','reader_test.gd','world_test.gd') -AllowGeneratedUIDs
+          Assert-SimulationSourceSnapshot tests/world/decoration $decorationTests -RequiredEntries @('decoration_checks.gd','controls-v1.json','README.md')
+          Assert-SimulationSourceSnapshot (Join-Path $project 'decoration_tests') $decorationTests -RequiredEntries @('decoration_checks.gd','controls-v1.json','README.md') -AllowGeneratedUIDs
           Assert-InputSourceGroups -DestinationRoot $PWD -Groups $inputGroups -Authoring
           Assert-InputSourceGroups -DestinationRoot $project -Groups $inputGroups -AllowGeneratedUIDs
           Assert-CockpitSourceGroups -DestinationRoot $PWD -Groups $cockpitGroups -Authoring
@@ -375,6 +395,8 @@ jobs:
           Assert-LocalPlayerSourceGroups -Root $project -Groups $localPlayerGroups -AllowGeneratedUIDs
           Assert-KawoRuntimeSourceGroups -Root $PWD -Groups $kawoGroups -Authoring
           Assert-KawoRuntimeSourceGroups -Root $project -Groups $kawoGroups -AllowGeneratedUIDs
+          Assert-KawoEvergreenImportRecipe -ProjectRoot $project
+          @{tests=$decorationTests;source_groups=$kawoGroups;scope='Original decorative placement source and isolated component checks only; actual airport visual review remains separate'} | ConvertTo-Json -Depth 12 | Set-Content (Join-Path $evidence 'decoration-source-binding.json')
           @{source=$snapshot;tests=$tests;terrain_tests=$terrainTests;kawo_sources=$kawoGroups;wire_codec_sources=$wireCodecGroups;input_sources=$inputGroups;cockpit_sources=$cockpitGroups;cockpit_authoring_sources=$cockpitAuthoringGroups;cockpit_import=$cockpitImportReceipt;freeflight_sources=$freeflightGroups;observed_sources=$observedGroups;wind_sources=$windGroups;first_flight_sources=$firstFlightGroups;audio_sources=$audioGroups;camera_sources=$cameraGroups;local_player_sources=$localPlayerGroups;camera_generated_harness=@(foreach($name in @('camera_checks.gd','camera_checks.tscn')){@{path=$name;bytes=(Get-Item (Join-Path $project $name)).Length;sha256=(Get-FileHash (Join-Path $project $name)).Hash.ToLowerInvariant()}});generated_uid_metadata=@(Get-ChildItem (Join-Path $project 'persistence'),(Join-Path $project 'ui/profiles'),(Join-Path $project 'ui/history'),(Join-Path $project 'player_tests'),(Join-Path $project 'wire_codec_tests'),(Join-Path $project 'simulation'),(Join-Path $project 'sim_loop_tests'),(Join-Path $project 'input'),(Join-Path $project 'ui/controls'),(Join-Path $project 'input_tests'),(Join-Path $project 'cockpit'),(Join-Path $project 'instrument_tests'),(Join-Path $project 'ui/freeflight'),(Join-Path $project 'freeflight_tests'),(Join-Path $project 'replay/observed'),(Join-Path $project 'ui/debrief/observed'),(Join-Path $project 'observed_tests'),(Join-Path $project 'replay/observed_archive'),(Join-Path $project 'observed_archive_tests'),(Join-Path $project 'world/wind'),(Join-Path $project 'ui/wind'),(Join-Path $project 'wind_tests'),(Join-Path $project 'wind_scene_tests'),(Join-Path $project 'ui/first_flight'),(Join-Path $project 'world/synthetic'),(Join-Path $project 'content/scenarios/first-flight'),(Join-Path $project 'content/world/synthetic'),(Join-Path $project 'scenario_tests/first-flight'),(Join-Path $project 'first_flight_ui_tests'),(Join-Path $project 'world_tests/synthetic'),(Join-Path $project 'first_flight_scene_tests'),(Join-Path $project 'audio'),(Join-Path $project 'ui/audio'),(Join-Path $project 'audio_tests'),(Join-Path $project 'camera'),(Join-Path $project 'ui/camera'),(Join-Path $project 'camera_tests') -Recurse -File -Filter '*.gd.uid'|ForEach-Object {@{path=[IO.Path]::GetRelativePath($project,$_.FullName).Replace([char]92,[char]47);sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}});godot_sha256=(Get-FileHash $environment.tools.godot).Hash.ToLowerInvariant();project_sha256=(Get-FileHash (Join-Path $project 'project.godot')).Hash.ToLowerInvariant();harness_sha256=(Get-FileHash (Join-Path $project 'sim_loop_checks.gd')).Hash.ToLowerInvariant();modules=@(Get-ChildItem (Join-Path $project 'bin') -File | ForEach-Object {@{name=$_.Name;sha256=(Get-FileHash $_.FullName).Hash.ToLowerInvariant()}})} | ConvertTo-Json -Depth 12 | Set-Content (Join-Path $evidence 'source-binding.json')
       - name: Prove Windows corresponding source and actual DLL replacement
         if: steps.scope.outputs.docs_only != 'true' && (runner.os == 'Windows')

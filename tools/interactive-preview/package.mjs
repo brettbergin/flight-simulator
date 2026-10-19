@@ -221,6 +221,9 @@ export function validateGroundMaterialSources(repository,project,source){
 export const kawoRuntimeSourceGroups=[
  ['app/world','world',['world_admission.gd'],true],
  ['app/world/terrain','world/terrain',['resident_grid_reader.gd','kawo_world.gd'],false],
+ ['app/world/decoration','world/decoration',['kawo_evergreens.gd'],false],
+ ['assets_source/environment/original-evergreens-v1/exports','environment/original-evergreens-v1',['tall-narrow-lod1.glb','broad-tiered-lod1.glb','irregular-mature-lod1.glb'],true],
+ ['third_party/licenses/notices','notices',['OriginalEvergreens-MIT.txt'],true],
  ['content/world/catalog','content/world/catalog',['kawo-runtime-v1.json'],false],
  ['content/world/airports/kawo/runtime-v1','worlds/kawo-prototype-v1',['world.json','ground.fgrd','airport.json','dossier.json','compile-receipt.json','start-ready34.json','NOTICE.txt'],false],
 ];
@@ -228,6 +231,10 @@ export function validateKawoRuntimeSources(repository,project,source,payload){
  // Reproduce both checked generated catalogs against the same fixed seven-file
  // content. No copied success flag substitutes for this offline source gate.
  const catalog=reproduceKawoCatalog(repository,false),source_files={};
+ for(const [name,bytes,digest] of originalEvergreenAssets){
+  const file=path.join(repository,'assets_source/environment/original-evergreens-v1/exports',name);ordinaryAncestors(file);
+  const raw=fs.readFileSync(file);assert.equal(raw.length,bytes);assert.equal(sha(raw),digest,'Accepted original evergreen LOD1 pin/'+name);
+ }
  for(const [authored,mapped,required,selected] of kawoRuntimeSourceGroups){
   const expected=[...required].sort();
   if(!selected){
@@ -235,6 +242,7 @@ export function validateKawoRuntimeSources(repository,project,source,payload){
    assert.deepEqual(actual,expected,'Closed KAWO authored roster/'+authored);
   }
   for(const base of [project,source]){
+   if(mapped==='environment/original-evergreens-v1')validateEvergreenImportRecipe(base,base===project);
    if(!selected){
     const actual=ordinaryFiles(path.join(base,mapped));
     for(const name of actual.filter(name=>!expected.includes(name))){
@@ -256,7 +264,39 @@ export function validateKawoRuntimeSources(repository,project,source,payload){
    for(const base of [project,source,payload])assert.deepEqual(ordinaryFiles(path.join(base,'worlds')).sort(),expected.map(name=>'kawo-prototype-v1/'+name),'Single admitted physical world directory');
   }
  }
- return {source_files,catalog,scope:'Fixed pack/catalog/renderer source closure only; actual flight, storage, GPU, hardware and pilot evidence remain separate'};
+ return {source_files,catalog,scope:'Fixed pack/catalog/renderer and original decorative asset source closure only; actual flight, storage, GPU, hardware and pilot evidence remain separate'};
+}
+export const originalEvergreenAssets=[
+ ['tall-narrow-lod1.glb',70024,'35f8cd9714082054e851550281c6996c67159d46b8a2345737a1b63a93e5299d'],
+ ['broad-tiered-lod1.glb',70060,'cc386b8fa59a0e0787430081713d219b9ddfde017fd1fd3c81ed72551db4fdb8'],
+ ['irregular-mature-lod1.glb',70060,'0e7c33c239b0d3773023e9fd5aec522392f270b06bd6b3591434d27c56378a7e'],
+];
+export function validateEvergreenImportRecipe(project,imported=true){
+ const names=originalEvergreenAssets.map(([name])=>name);
+ const expected=[...names,...(imported?names.map(name=>name+'.import'):[])].sort();
+ assert.deepEqual(ordinaryFiles(path.join(project,'environment/original-evergreens-v1')).sort(),expected,'Closed copied evergreen directory');
+ if(!imported)return;
+ for(const [name] of originalEvergreenAssets){
+  const file=path.join(project,'environment/original-evergreens-v1',name+'.import');ordinaryAncestors(file);
+  const raw=fs.readFileSync(file);assert(raw.length>0&&raw.length<=65536,'Bounded actual evergreen import recipe');
+  const lines=raw.toString('utf8').replaceAll('\r\n','\n').split('\n');
+  for(const [key,value] of [['importer','"scene"'],['type','"PackedScene"'],['meshes/generate_lods','false'],['meshes/force_disable_compression','true']]){
+   const matching=lines.filter(line=>line.startsWith(key+'='));assert.deepEqual(matching,[key+'='+value],'Fixed evergreen import option/'+key);
+  }
+ }
+}
+export function isOriginalEvergreenSourcePath(file){
+ return originalEvergreenAssets.some(([name])=>file==='source/whole-flight-preview/environment/original-evergreens-v1/'+name);
+}
+export function stageOriginalEvergreenNotice(repository,payload,entry){
+ assert.equal(entry?.id,'original-evergreens-v1');assert.equal(entry.class,'visual-assets');assert.equal(entry.license,'MIT');assert.equal(entry.redistribution,'permitted');
+ assert(Array.isArray(entry.notice_files)&&entry.notice_files.length===1);const notice=entry.notice_files[0];
+ assert.equal(notice.path,'third_party/licenses/notices/OriginalEvergreens-MIT.txt');
+ assert.equal(notice.sha256,'65f8c7cf7043c71c07865ae41a9dbaf0a4938d4aff3c38162bfd3e0c1aa8205f');
+ const input=path.join(repository,notice.path);ordinaryAncestors(input);const raw=fs.readFileSync(input);assert.equal(sha(raw),notice.sha256);
+ const file='notices/OriginalEvergreens-MIT.txt',target=path.join(payload,file);fs.mkdirSync(path.dirname(target),{recursive:true});ordinaryAncestors(path.dirname(target));
+ if(fs.existsSync(target))ordinaryAncestors(target);fs.writeFileSync(target,raw);
+ return {file,register_path:notice.path,sha256:sha(raw)};
 }
 export const localPlayerSourceGroups=[
  ['app/persistence','persistence',['local_players_controller.gd']],
@@ -805,6 +845,10 @@ function audit(root,proof,build,python='python'){
    for(const owner of components)owner.files=owner.files.filter(item=>item.path!==file);
    declare('original-prototype-audio',file,'source');
   }
+  else if(isOriginalEvergreenSourcePath(file)){
+   for(const owner of components)owner.files=owner.files.filter(item=>item.path!==file);
+   declare('original-evergreens-v1',file,'source');
+  }
   else if(file.startsWith('source/whole-flight-preview/'))declare('native-export-proof',file,'source');
   else if(file.endsWith('.exe'))declare('godot',file,'binary');
   else if(file.endsWith('.pck')||['launch.ps1','README.md'].includes(file))declare('native-export-proof',file,'content');
@@ -822,6 +866,10 @@ function audit(root,proof,build,python='python'){
  declare('original-prototype-audio',audioNotice.file,'notice');
  const audioOwner=component('original-prototype-audio');audioOwner.notices=audioOwner.notices.filter(item=>item.register_path!==audioNotice.register_path);
  audioOwner.notices.push({register_path:audioNotice.register_path,package_path:audioNotice.file});
+ const evergreenNotice=stageOriginalEvergreenNotice(repo,payload,register.entries.find(entry=>entry.id==='original-evergreens-v1'));
+ declare('original-evergreens-v1',evergreenNotice.file,'notice');
+ const evergreenOwner=component('original-evergreens-v1');evergreenOwner.notices=evergreenOwner.notices.filter(item=>item.register_path!==evergreenNotice.register_path);
+ evergreenOwner.notices.push({register_path:evergreenNotice.register_path,package_path:evergreenNotice.file});
  for(const notice of model.notice_files){const target='notices/'+path.basename(notice.path);fs.copyFileSync(path.join(repo,notice.path),path.join(payload,target));declare(model.id,target,'notice');component(model.id).notices.push({register_path:notice.path,package_path:target});}
  if(pistonEnabled){
   for(const notice of pistonModel.notice_files){

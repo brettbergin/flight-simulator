@@ -113,3 +113,7 @@ native/fdm_jsbsim/interactive/src/prepared_world.cpp text eol=lf
 native/fdm_jsbsim/interactive/include/flight/interactive/prepared_world.hpp text eol=lf
 tests/world/terrain/** text eol=lf
 tests/interactive/kawo/** text eol=lf
+
+# Preserve exact original decorative placement sources and fixed controls.
+app/world/decoration/** text eol=lf
+tests/world/decoration/** text eol=lf

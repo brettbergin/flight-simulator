@@ -412,6 +412,36 @@ test('audio recursive closure binds three groups eight scripts and existing Soun
 });
 
 import {isOriginalAudioSourcePath,stageOriginalAudioNotice} from './package.mjs';
+import {isOriginalEvergreenSourcePath,stageOriginalEvergreenNotice,validateEvergreenImportRecipe,originalEvergreenAssets} from './package.mjs';
+test('decorative source classification and MIT notice remain limited to accepted original trees',()=>{
+ for(const [name] of originalEvergreenAssets)assert(isOriginalEvergreenSourcePath('source/whole-flight-preview/environment/original-evergreens-v1/'+name));
+ for(const name of ['WholeFlightPreview.pck','source/whole-flight-preview/environment/original-evergreens-v1/tall-narrow-lod0.glb','source/whole-flight-preview/environment/original-evergreens-v1/tall-narrow-lod1.glb.import','environment/original-evergreens-v1/tall-narrow-lod1.glb'])assert.equal(isOriginalEvergreenSourcePath(name),false);
+ const temporary=fs.mkdtempSync(path.join(root,'evergreen-notice-')),authored=path.join(temporary,'repo'),payload=path.join(temporary,'payload');fs.mkdirSync(authored);fs.mkdirSync(payload);
+ const entry=JSON.parse(fs.readFileSync(path.join(repo,'third_party/licenses/register.json'),'utf8')).entries.find(item=>item.id==='original-evergreens-v1');
+ const noticePath='third_party/licenses/notices/OriginalEvergreens-MIT.txt',input=path.join(authored,noticePath),raw=fs.readFileSync(path.join(repo,noticePath));
+ fs.mkdirSync(path.dirname(input),{recursive:true});fs.writeFileSync(input,raw);
+ const notice=stageOriginalEvergreenNotice(authored,payload,entry);assert.equal(notice.file,'notices/OriginalEvergreens-MIT.txt');assert(fs.readFileSync(path.join(payload,notice.file)).equals(raw));
+ for(const change of [e=>e.id='other',e=>e.class='other',e=>e.license='other',e=>e.redistribution='blocked',e=>e.notice_files=[],e=>e.notice_files[0].path='../NOTICE',e=>e.notice_files[0].sha256='a'.repeat(64)]){const bad=structuredClone(entry);change(bad);assert.throws(()=>stageOriginalEvergreenNotice(authored,payload,bad));}
+ fs.appendFileSync(input,'drift');assert.throws(()=>stageOriginalEvergreenNotice(authored,payload,entry));assert(fs.readFileSync(path.join(payload,notice.file)).equals(raw),'Rejected input cannot overwrite prior valid notice');
+});
+test('decorative import settings admit only the fixed LOD-free uncompressed preset',()=>{
+ const project=fs.mkdtempSync(path.join(root,'evergreen-import-')),folder=path.join(project,'environment/original-evergreens-v1');fs.mkdirSync(folder,{recursive:true});
+ const names=['tall-narrow-lod1.glb','broad-tiered-lod1.glb','irregular-mature-lod1.glb'];
+ const good='[remap]\nimporter="scene"\ntype="PackedScene"\n[params]\nmeshes/generate_lods=false\nmeshes/force_disable_compression=true\n';
+ for(const name of names){fs.writeFileSync(path.join(folder,name),'synthetic GLB source token');fs.writeFileSync(path.join(folder,name+'.import'),good);}
+ assert.doesNotThrow(()=>validateEvergreenImportRecipe(project));
+ const source=fs.mkdtempSync(path.join(root,'evergreen-source-')),sourceFolder=path.join(source,'environment/original-evergreens-v1');fs.mkdirSync(sourceFolder,{recursive:true});
+ for(const name of names)fs.writeFileSync(path.join(sourceFolder,name),'synthetic GLB source token');
+ assert.doesNotThrow(()=>validateEvergreenImportRecipe(source,false));
+ for(const name of ['rogue.glb','rogue.glb.import'])for(const [base,dir,imported] of [[project,folder,true],[source,sourceFolder,false]]){
+  const rogue=path.join(dir,name);fs.writeFileSync(rogue,'unbound synthetic resource');assert.throws(()=>validateEvergreenImportRecipe(base,imported),/Closed copied evergreen directory/);fs.unlinkSync(rogue);
+ }
+ const forbidden=path.join(sourceFolder,names[0]+'.import');fs.writeFileSync(forbidden,good);assert.throws(()=>validateEvergreenImportRecipe(source,false),/Closed copied evergreen directory/);fs.unlinkSync(forbidden);
+ const target=path.join(folder,originalEvergreenAssets[0][0]+'.import');
+ for(const bad of [good.replace('generate_lods=false','generate_lods=true'),good.replace('force_disable_compression=true','force_disable_compression=false'),good.replace('PackedScene','Mesh'),good+'meshes/generate_lods=true\n',good+'importer="scene"\n']){fs.writeFileSync(target,bad);assert.throws(()=>validateEvergreenImportRecipe(project));}
+ fs.writeFileSync(target,good.replaceAll('\n','\r\n'));assert.doesNotThrow(()=>validateEvergreenImportRecipe(project));
+ fs.unlinkSync(target);assert.throws(()=>validateEvergreenImportRecipe(project));
+});
 test('original audio source attribution stages actual reviewed MIT notice without reclassifying PCK',()=>{
  assert(isOriginalAudioSourcePath('source/whole-flight-preview/audio/sample_renderer.gd'));
  assert(isOriginalAudioSourcePath('source/whole-flight-preview/interactive/flight_sound.gd'));

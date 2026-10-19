@@ -6,6 +6,7 @@ const Facade = preload("res://simulation/session_facade.gd")
 const Worlds = preload("res://world/world_admission.gd")
 const GridReader = preload("res://world/terrain/resident_grid_reader.gd")
 const KawoWorld = preload("res://world/terrain/kawo_world.gd")
+const KawoEvergreens = preload("res://world/decoration/kawo_evergreens.gd")
 const Frames = preload("res://simulation/canonical_frames.gd")
 const Participant = preload("res://simulation/origin_participant.gd")
 const Mapper = preload("res://input/input_mapper.gd")
@@ -102,6 +103,7 @@ var selected_world: String="original-synthetic"
 var world_button: Button
 var _synthetic_world_root: Node3D
 var _kawo_world_root: Node3D
+var _kawo_decoration_root: Node3D
 var _kawo_geometry: Dictionary={}
 var _synthetic_landmarks: Array=[]
 var _world_candidate: Dictionary={}
@@ -327,6 +329,7 @@ func close_session() -> bool:
 	if facade!=null: invalidate_engine_pointer("Session closing")
 	render_pose.clear()
 	if facade==null:
+		_retire_kawo_decoration()
 		_propeller_phase.clear()
 		_observe_audio({})
 		bridge=null
@@ -346,6 +349,7 @@ func close_session() -> bool:
 	else:
 		observe_flight(result.readback)
 	if result.ok:
+		_retire_kawo_decoration()
 		for button in _player_flight_buttons: button.disabled=true
 		_propeller_phase.clear()
 		review_joined=true
@@ -459,6 +463,10 @@ func restart(replace_confirmed: bool=false, selected_wind: Variant=null, request
 		var registered: Dictionary=facade.render_origin.register_participant(item.id,node,item.categories)
 		if not registered.ok:
 			return restart_failed(registered.error)
+	if next_world=="kawo-prototype-v1":
+		if not is_instance_valid(_kawo_decoration_root): return restart_failed("Decorative KAWO world was not adopted")
+		var registered_decoration: Dictionary=facade.render_origin.register_participant("kawo-decoration",_kawo_decoration_root,[])
+		if not registered_decoration.ok: return restart_failed(registered_decoration.error)
 	if not facade.render_origin.register_participant("nonspatial",null,["spatial_audio","local_particles"]).ok:
 		return restart_failed("Required absent origin categories rejected")
 	var adopted: Dictionary=facade.render_origin.rebase(prepared.ecef)
@@ -524,14 +532,22 @@ func restart(replace_confirmed: bool=false, selected_wind: Variant=null, request
 func _dispose_world_candidate() -> void:
 	var root: Variant=_world_candidate.get("root")
 	if is_instance_valid(root) and root is Node3D and root!=world_root: root.free()
+	var decoration: Variant=_world_candidate.get("decoration")
+	if is_instance_valid(decoration) and decoration is Node3D and decoration!=_kawo_decoration_root: decoration.free()
 	_world_candidate.clear()
+
+func _retire_kawo_decoration() -> void:
+	if is_instance_valid(_kawo_decoration_root):
+		_kawo_decoration_root.hide()
+		_kawo_decoration_root.free()
+	_kawo_decoration_root=null
 
 func _prepare_world_candidate(model_root: String, selector: Variant, profile: Variant, start: Variant, wind: Variant) -> Dictionary:
 	_dispose_world_candidate()
 	var bytes: Dictionary=Facade.preflight_world(model_root,selector,profile,start,wind)
 	if not bytes.ok: return {"ok":false,"error":bytes.error}
 	if selector=="original-synthetic":
-		_world_candidate={"entry":bytes.entry,"root":null,"geometry":{}}
+		_world_candidate={"entry":bytes.entry,"root":null,"decoration":null,"geometry":{}}
 		return {"ok":true,"error":""}
 	if not Facade._native_identity_valid() or not ClassDB.class_exists("FlightInteractiveSession"):
 		return {"ok":false,"error":"Qualified geographic native module unavailable"}
@@ -542,7 +558,11 @@ func _prepare_world_candidate(model_root: String, selector: Variant, profile: Va
 	if frame.is_empty(): return {"ok":false,"error":"Invalid geographic anchor frame"}
 	var built: Dictionary=KawoWorld.prepare(decoded.grid,receipt.airport_geometry,"",frame.ecef,frame.rotation)
 	if not built.ok: return {"ok":false,"error":built.error}
-	_world_candidate={"entry":bytes.entry,"root":built.root,"geometry":receipt.airport_geometry.duplicate(true)}
+	var decorated: Dictionary=KawoEvergreens.prepare(decoded.grid,receipt.airport_geometry,"",frame.ecef,frame.rotation)
+	if not decorated.ok:
+		built.root.free()
+		return {"ok":false,"error":decorated.error}
+	_world_candidate={"entry":bytes.entry,"root":built.root,"decoration":decorated.root,"geometry":receipt.airport_geometry.duplicate(true)}
 	return {"ok":true,"error":""}
 
 func _attach_world_candidate(readback: Dictionary, selector: String) -> bool:
@@ -555,16 +575,26 @@ func _attach_world_candidate(readback: Dictionary, selector: String) -> bool:
 		if not bound.ok: return false
 		var identity: Dictionary=root.source_binding()
 		if identity.session_id!=readback.session_id or identity.payload_sha256!=readback.prepared_world_sha256 or identity.world_anchor!=readback.world_anchor or identity.anchor_ecef_m!=prepared.ecef or identity.ecef_to_eus!=prepared.rotation: return false
+		var decoration: Variant=_world_candidate.get("decoration")
+		if not is_instance_valid(decoration) or not decoration is Node3D or not decoration.bind_session(readback.session_id).ok: return false
+		var decoration_identity: Dictionary=decoration.source_binding()
+		if decoration_identity!=identity: return false
 		if is_instance_valid(world_root): world_root.hide()
 		if is_instance_valid(_kawo_world_root): _kawo_world_root.free()
+		_retire_kawo_decoration()
 		world_root=root
 		_kawo_world_root=root
+		_kawo_decoration_root=decoration
 		_world_candidate.root=null
+		_world_candidate.decoration=null
 		_kawo_geometry=_world_candidate.geometry.duplicate(true)
 		root.hide()
 		add_child(root)
+		decoration.hide()
+		add_child(decoration)
 	else:
 		if not is_instance_valid(_synthetic_world_root): return false
+		_retire_kawo_decoration()
 		if is_instance_valid(_kawo_world_root):
 			_kawo_world_root.free()
 			_kawo_world_root=null
@@ -1837,6 +1867,8 @@ func update_wind_presentation(readback: Dictionary) -> void:
 		cue=WindCue.from_readback({})
 	if wind_label!=null:
 		wind_label.text="SYNTHETIC STEADY WIND / NATIVE TRUTH\n"+WindPanel.describe(cue)
+		if selected_world=="kawo-prototype-v1":
+			wind_label.text="KAWO prototype | "+cue.state+" | calm wind\nDecorative trees; not surveyed obstacles"
 		# Geometry is assigned once, after final map/current-state publication.
 	if wind_panel!=null and wind_panel.visible:
 		wind_panel.set_context(wind_draft,current_wind_profile,cue,review_boundary() and archive_operation.is_empty() and pending_discard.is_empty())
@@ -2036,6 +2068,7 @@ func publish_circuit_reference() -> void:
 	if circuit_card==null or flight_map==null: return
 	if selected_world!="original-synthetic":
 		clear_circuit_reference("Synthetic circuit is unavailable at KAWO")
+		layout_live_flight_aids()
 		return
 	var view: Dictionary=CircuitGeometry.unavailable("Aid off")
 	if circuit_aid_enabled:
@@ -2186,7 +2219,7 @@ func update_canonical_scene_sources() -> void:
 	camera.call("set_canonical_pose",camera_ecef,camera.basis)
 
 func suppress_geometry() -> void:
-	for node in [airplane,world_root,light_root]:
+	for node in [airplane,world_root,light_root,_kawo_decoration_root]:
 		if node!=null:
 			node.hide()
 	if cockpit.has("root"):
@@ -2238,6 +2271,7 @@ func show_state(seconds: float=0.0) -> void:
 		airplane.hide()
 		cockpit.root.hide()
 		world_root.hide()
+		if is_instance_valid(_kawo_decoration_root): _kawo_decoration_root.hide()
 		light_root.hide()
 		status="PRESENTATION PAUSED | "+rendered.error+" | R resets"
 		var fault_info: Dictionary={"status":status,"outcome":native_outcome,"historical":current.historical,"blocked":true,"stalled":stalled,"paused":true,"input_name":active_preset.get("name","Controls"),"clearance_m":plane_clearance,"ground_valid":ground_valid}
@@ -2247,6 +2281,7 @@ func show_state(seconds: float=0.0) -> void:
 		layout_live_flight_aids()
 		return
 	world_root.show()
+	if is_instance_valid(_kawo_decoration_root): _kawo_decoration_root.visible=selected_world=="kawo-prototype-v1"
 	light_root.show()
 	var presentation: Transform3D=rendered.transform
 	var origin: Dictionary=facade.render_origin.read_origin()
@@ -2670,6 +2705,7 @@ func restart_failed(message: String) -> bool:
 	if facade!=null:
 		var stopped: Dictionary=facade.close()
 		review_joined=stopped.ok and not stopped.readback.native_live
+		if stopped.ok: _retire_kawo_decoration()
 		adopt_result(stopped)
 		if not stopped.ok: message+="; failed setup worker join unconfirmed"
 	initializing_recording=false
